@@ -1,12 +1,19 @@
 <%
+// 分类详情页（纸面档案）：复用归档式列表，去 Banner
 page.layout = "category"
 page.title = [__('category.title'), page.category].join(" - ")
 page.subtitle = [__('category.subtitle'), page.category].join(" - ")
-page.banner_img = theme.category.banner_img
-page.banner_img_height = theme.category.banner_img_height
-page.banner_mask_alpha = theme.category.banner_mask_alpha
+page.hide_banner = true
 
 var cat = site.categories.find({name: page.category}).filter(cat => cat.length).data[0]
 %>
 
-<%- partial('_partials/archive-list.ejs', { params: { key: page.layout, postTotal: cat ? cat.posts.length : 0 } }) %>
+<div class="paper-page">
+  <div class="home-wrap">
+    <header class="page-head">
+      <p class="page-head-kicker">CATEGORY</p>
+      <h1 class="page-head-title"><%= page.category %></h1>
+    </header>
+    <%- partial('_partials/archive-list.ejs', { params: { key: page.layout, postTotal: cat ? cat.posts.length : 0 } }) %>
+  </div>
+</div>

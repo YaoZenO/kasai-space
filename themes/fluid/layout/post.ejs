@@ -1,20 +1,49 @@
 <%
-page.banner_img = page.banner_img || theme.post.banner_img
-page.banner_img_height = page.banner_img_height || theme.post.banner_img_height
-page.banner_mask_alpha = page.banner_mask_alpha || theme.post.banner_mask_alpha
+// 文章详情页（纸面档案）：去 Banner，标题与元信息直接排在纸面上，
+// 正文以阅读宽度为主；保留全部 inject_point、加密逻辑与阅读辅助功能
+page.hide_banner = true
+/* 左栏 category-bar 为选择性功能（theme.post.category_bar.specific 时
+   需 front-matter category_bar 显式开启），空栏不占位 */
+var showCatBar = false
+if (theme.post.category_bar && theme.post.category_bar.enable) {
+  if (theme.post.category_bar.specific) {
+    showCatBar = page.category_bar === true || (Array.isArray(page.category_bar) && page.category_bar.length > 0)
+  } else {
+    showCatBar = true
+  }
+}
 %>
 
-<div class="container-fluid nopadding-x">
-  <div class="row nomargin-x">
-    <div class="side-col d-none d-lg-block col-lg-2">
-      <%- inject_point('postLeft') %>
-    </div>
+<div class="paper-page">
+  <div class="post-wrap">
+    <div class="post-grid">
 
-    <div class="col-lg-8 nopadding-x-md">
-      <div class="container nopadding-x-md" id="board-ctn">
-        <div id="board">
-          <article class="post-content mx-auto">
-            <h1 id="seo-header"><%= page.subtitle || page.title %></h1>
+      <% if (showCatBar) { %>
+      <aside class="post-side post-side-left d-none d-lg-block">
+        <%- inject_point('postLeft') %>
+      </aside>
+      <% } %>
+
+      <div class="post-main-col" id="board-ctn">
+        <article class="post-content">
+          <header class="post-head">
+            <p class="post-head-kicker">POST</p>
+            <h1 class="post-head-title"><%= page.subtitle || page.title %></h1>
+            <div class="post-head-meta">
+              <%- inject_point('postMetaTop') %>
+              <% if (page.categories && page.categories.length > 0) { %>
+                <span class="post-head-cats">
+                  <%- partial('_partials/category-chains', { categories: page.categories }) %>
+                </span>
+              <% } %>
+              <% if (page.tags && page.tags.length > 0) { %>
+                <span class="post-head-tags">
+                  <% page.tags.each(function(tag) { %>
+                    <a href="<%= url_for(tag.path) %>">#<%= tag.name %></a>
+                  <% }) %>
+                </span>
+              <% } %>
+            </div>
             <% if (theme.post.updated.enable && theme.post.updated && compare_date(page.date, page.updated)) { %>
               <p id="updated-time" class="note note-<%= theme.post.updated.note_class || 'info' %>" style="<%= theme.post.updated.relative ? 'display: none' : '' %>">
                 <% if (theme.post.updated.relative) { %>
@@ -35,58 +64,61 @@ page.banner_mask_alpha = page.banner_mask_alpha || theme.post.banner_mask_alpha
                 <% } %>
               </p>
             <% } %>
-            <% if (page.encrypt === true) { %>
+          </header>
+
+          <% if (page.encrypt === true) { %>
+            <%- inject_point('postMarkdownBegin') %>
+            <%- page.content %>
+            <%- partial('_partials/plugins/encrypt') %>
+            <%- inject_point('postMarkdownEnd') %>
+          <% } else { %>
+            <div class="markdown-body">
               <%- inject_point('postMarkdownBegin') %>
               <%- page.content %>
-              <%- partial('_partials/plugins/encrypt') %>
               <%- inject_point('postMarkdownEnd') %>
-            <% } else { %>
-              <div class="markdown-body">
-                <%- inject_point('postMarkdownBegin') %>
-                <%- page.content %>
-                <%- inject_point('postMarkdownEnd') %>
+            </div>
+          <% } %>
+
+          <hr/>
+          <div class="post-foot">
+            <%- inject_point('postMetaBottom') %>
+
+            <%- inject_point('postCopyright') %>
+
+            <% if (theme.post.prev_next.enable && !page.hide) { %>
+              <div class="post-prevnext my-3">
+                <article class="post-prev col-6">
+                  <% const prev = prev_post(page) %>
+                  <% if (prev) { %>
+                    <a href="<%= url_for(prev.path) %>" title="<%= prev.title %>">
+                      <i class="iconfont icon-arrowleft"></i>
+                      <span class="hidden-mobile"><%= prev.title %></span>
+                      <span class="visible-mobile"><%- __('post.prev_post') %></span>
+                    </a>
+                  <% } %>
+                </article>
+                <article class="post-next col-6">
+                  <% const next = next_post(page) %>
+                  <% if (next) { %>
+                    <a href="<%= url_for(next.path) %>" title="<%= next.title %>">
+                      <span class="hidden-mobile"><%= next.title %></span>
+                      <span class="visible-mobile"><%- __('post.next_post') %></span>
+                      <i class="iconfont icon-arrowright"></i>
+                    </a>
+                  <% } %>
+                </article>
               </div>
             <% } %>
-            <hr/>
-            <div>
-              <%- inject_point('postMetaBottom') %>
+          </div>
 
-              <%- inject_point('postCopyright') %>
-
-              <% if (theme.post.prev_next.enable && !page.hide) { %>
-                <div class="post-prevnext my-3">
-                  <article class="post-prev col-6">
-                    <% const prev = prev_post(page) %>
-                    <% if (prev) { %>
-                      <a href="<%= url_for(prev.path) %>" title="<%= prev.title %>">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile"><%= prev.title %></span>
-                        <span class="visible-mobile"><%- __('post.prev_post') %></span>
-                      </a>
-                    <% } %>
-                  </article>
-                  <article class="post-next col-6">
-                    <% const next = next_post(page) %>
-                    <% if (next) { %>
-                      <a href="<%= url_for(next.path) %>" title="<%= next.title %>">
-                        <span class="hidden-mobile"><%= next.title %></span>
-                        <span class="visible-mobile"><%- __('post.next_post') %></span>
-                        <i class="iconfont icon-arrowright"></i>
-                      </a>
-                    <% } %>
-                  </article>
-                </div>
-              <% } %>
-            </div>
-
-            <%- inject_point('postComments') %>
-          </article>
-        </div>
+          <%- inject_point('postComments') %>
+        </article>
       </div>
-    </div>
 
-    <div class="side-col d-none d-lg-block col-lg-2">
-      <%- inject_point('postRight') %>
+      <aside class="post-side post-side-right d-none d-lg-block">
+        <%- inject_point('postRight') %>
+      </aside>
+
     </div>
   </div>
 </div>

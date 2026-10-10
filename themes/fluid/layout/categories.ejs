@@ -1,19 +1,30 @@
 <%
+// 分类总览页（纸面档案）：分类名为进入分类详情的有效入口，
+// 计数为真实文章数；展开列表仅作预览辅助，层级按现有数据呈现
 page.layout = 'categories'
 page.title = theme.category.title || __('category.title')
 page.subtitle = theme.category.subtitle || __('category.subtitle')
-page.banner_img = theme.category.banner_img
-page.banner_img_height = theme.category.banner_img_height
-page.banner_mask_alpha = theme.category.banner_mask_alpha
+page.hide_banner = true
 var orderBy = theme.category.order_by || 'name'
 var curCats = site.categories.find({ parent: { $exists: false } }).sort(orderBy).filter(cat => cat.length)
 %>
 
-<%- partial('_partials/category-list', {
-  curCats: curCats,
-  params: {
-    orderBy: orderBy,
-    postLimit  : theme.category.post_limit,
-    postOrderBy: theme.category.post_order_by || config.index_generator.order_by
-  }
-}) %>
+<div class="paper-page">
+  <div class="home-wrap">
+    <header class="page-head">
+      <p class="page-head-kicker">CATEGORIES</p>
+      <h1 class="page-head-title">分类</h1>
+    </header>
+
+    <% if (curCats.length) { %>
+    <%- partial('_partials/category-list', {
+      curCats: curCats,
+      params: {
+        orderBy: orderBy,
+        postLimit  : theme.category.post_limit,
+        postOrderBy: theme.category.post_order_by || config.index_generator.order_by
+      }
+    }) %>
+    <% } %>
+  </div>
+</div>

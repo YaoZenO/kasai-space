@@ -1,12 +1,19 @@
 <%
+// 标签详情页（纸面档案）：复用归档式列表，去 Banner
 page.layout = "tag"
 page.title = [__('tag.title'), page.tag].join(" - ")
 page.subtitle = [__('tag.subtitle'), page.tag].join(" - ")
-page.banner_img = theme.tag.banner_img
-page.banner_img_height = theme.tag.banner_img_height
-page.banner_mask_alpha = theme.tag.banner_mask_alpha
+page.hide_banner = true
 
 var tag = site.tags.find({name: page.tag}).filter(tag => tag.length).data[0]
 %>
 
-<%- partial('_partials/archive-list.ejs', { params: { key: page.layout, postTotal: tag ? tag.posts.length : 0 } }) %>
+<div class="paper-page">
+  <div class="home-wrap">
+    <header class="page-head">
+      <p class="page-head-kicker">TAG</p>
+      <h1 class="page-head-title"># <%= page.tag %></h1>
+    </header>
+    <%- partial('_partials/archive-list.ejs', { params: { key: page.layout, postTotal: tag ? tag.posts.length : 0 } }) %>
+  </div>
+</div>

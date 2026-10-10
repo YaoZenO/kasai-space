@@ -1,17 +1,27 @@
-<div class="list-group">
-  <p class="h4"><%= __(params.key + '.post_total', params.postTotal) %></p>
-  <hr>
+<%
+// 归档式文章列表（归档页 / 分类详情页 / 标签详情页共用）：
+// 年份为组，行内日期（mono）+ 标题；保留原有链接与分页逻辑
+%>
+
+<div class="archive-list">
+  <p class="archive-total"><%= __(params.key + '.post_total', params.postTotal) %></p>
+
   <% var dateCursor %>
+  <% var yearOpen = false %>
   <% page.posts.each(function (post) { %>
-    <% if(date(post.date, "YYYY") !== dateCursor) { %>
+    <% if (date(post.date, "YYYY") !== dateCursor) { %>
+      <% if (yearOpen) { %></section><% } %>
       <% dateCursor = date(post.date, "YYYY") %>
-      <p class="h5"><%= dateCursor %></p>
+      <section class="archive-year">
+        <h2 class="archive-year-title"><%= dateCursor %></h2>
+      <% yearOpen = true %>
     <% } %>
-    <a href="<%= url_for(post.path) %>" class="list-group-item list-group-item-action">
-      <time><%= date(post.date, "MM-DD") %></time>
-      <div class="list-group-item-title"><%= post.title %></div>
+    <a class="archive-row" href="<%= url_for(post.path) %>">
+      <time class="archive-row-date" datetime="<%= full_date(post.date, 'YYYY-MM-DD') %>"><%= date(post.date, "MM-DD") %></time>
+      <span class="archive-row-title"><%= post.title %></span>
     </a>
   <% }) %>
+  <% if (yearOpen) { %></section><% } %>
 </div>
 
 <%- partial('_partials/paginator') %>

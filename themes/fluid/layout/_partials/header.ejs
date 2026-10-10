@@ -1,6 +1,6 @@
 <%
 var banner_img_height = parseFloat(page.banner_img_height || theme.index.banner_img_height)
-var hide_banner = is_home() && page.hide_banner
+var hide_banner = page.hide_banner === true
 %>
 
 <div class="header-inner" style="height: <%= hide_banner ? 0 : banner_img_height %>vh;">

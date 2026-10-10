@@ -1,10 +1,17 @@
 <%
+// 归档页（纸面档案）：以时间为主线的文字索引，去 Banner
 page.layout = "archive"
 page.title = theme.archive.title || __('archive.title')
 page.subtitle = theme.archive.subtitle || __('archive.subtitle')
-page.banner_img = theme.archive.banner_img
-page.banner_img_height = theme.archive.banner_img_height
-page.banner_mask_alpha = theme.archive.banner_mask_alpha
+page.hide_banner = true
 %>
 
-<%- partial('_partials/archive-list.ejs', { params: { key: page.layout, postTotal: site.posts.length } }) %>
+<div class="paper-page">
+  <div class="home-wrap">
+    <header class="page-head">
+      <p class="page-head-kicker">ARCHIVE</p>
+      <h1 class="page-head-title">文字</h1>
+    </header>
+    <%- partial('_partials/archive-list.ejs', { params: { key: page.layout, postTotal: site.posts.length } }) %>
+  </div>
+</div>

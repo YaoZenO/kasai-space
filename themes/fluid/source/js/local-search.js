@@ -107,7 +107,9 @@
 
                 // highlight all keywords
                 keywords.forEach(function(keyword) {
-                  var regS = new RegExp(keyword, 'gi');
+                  // escape regex special chars (e.g. "C++" would otherwise throw SyntaxError)
+                  var safeKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                  var regS = new RegExp(safeKeyword, 'gi');
                   match_content = match_content.replace(regS, '<span class="search-word">' + keyword + '</span>');
                 });
 

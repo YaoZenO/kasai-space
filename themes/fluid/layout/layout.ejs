@@ -16,7 +16,8 @@ var colorSchema = theme.dark_mode && theme.dark_mode.enable && theme.dark_mode.d
   </header>
 
   <main>
-    <% if(is_post() || is_home() || page.layout === '404') { %>
+    <% var paperLayouts = ['archive', 'categories', 'category', 'tags', 'tag', 'about'] %>
+    <% if(is_post() || is_home() || page.layout === '404' || paperLayouts.indexOf(page.layout) !== -1) { %>
       <%- body %>
     <% } else { %>
       <div class="container nopadding-x-md">
