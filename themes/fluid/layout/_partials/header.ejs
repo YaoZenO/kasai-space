@@ -1,8 +1,11 @@
 <%
 var banner_img_height = parseFloat(page.banner_img_height || theme.index.banner_img_height)
+var hide_banner = is_home() && page.hide_banner
 %>
 
-<div class="header-inner" style="height: <%= banner_img_height %>vh;">
+<div class="header-inner" style="height: <%= hide_banner ? 0 : banner_img_height %>vh;">
   <%- partial('_partials/header/navigation') %>
-  <%- partial('_partials/header/banner') %>
+  <% if (!hide_banner) { %>
+    <%- partial('_partials/header/banner') %>
+  <% } %>
 </div>

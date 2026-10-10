@@ -6,3 +6,10 @@ node_modules/
 public/
 .deploy*/
 _multiconfig.yml
+.env
+.env.local
+*.pem
+.vercel/
+.vercel
+.env*
+.workbuddy/
