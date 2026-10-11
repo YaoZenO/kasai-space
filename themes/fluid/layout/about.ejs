@@ -1,11 +1,15 @@
 <%
 // 关于页（纸面档案）：身份区（头像/名字/签名/社交图标）+ 正文 markdown；
 // 内容全部来自真实配置与 about 页面内容，不虚构模块
+// 数据源规则：intro/avatar 以 source/_data/site.yml（后台「设置」页）优先，
+// theme.about.* 为 legacy 回退；name/icons 仍属主题配置（见 ENGINEERING.md P0-1）
 page.layout = "about"
 page.title = theme.about.title || __('about.title')
 page.subtitle = theme.about.subtitle || __('about.subtitle')
 page.hide_banner = true
-var aboutIntro = theme.about.introduce || theme.about.intro || ''
+var siteCfg = (site.data && site.data.site) || {}
+var aboutIntro = siteCfg.intro || theme.about.introduce || theme.about.intro || ''
+var aboutAvatar = siteCfg.avatar || theme.about.avatar || ''
 %>
 
 <div class="paper-page">
@@ -37,9 +41,9 @@ var aboutIntro = theme.about.introduce || theme.about.intro || ''
         </ul>
         <% } %>
       </div>
-      <% if (theme.about.avatar) { %>
+      <% if (aboutAvatar) { %>
       <div class="about-avatar-box">
-        <img src="<%= url_for(theme.about.avatar) %>" alt="avatar">
+        <img src="<%= url_for(aboutAvatar) %>" alt="avatar">
       </div>
       <% } %>
     </header>
