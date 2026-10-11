@@ -120,6 +120,39 @@
   }
 
   // ---------- 列表渲染 ----------
+  // 统一头部组件：kicker + 标题 + 计数 + 主操作按钮同排（右侧区域上半部分唯一结构）
+  function pageHead(box, { kicker, title, count, action }) {
+    const head = el('div', 'page-head');
+    const main = el('div', 'page-head-main');
+    if (kicker) main.appendChild(el('span', 'page-kicker', kicker));
+    main.appendChild(el('h2', null, title));
+    head.appendChild(main);
+    const side = el('div', 'page-head-side');
+    if (count) side.appendChild(el('span', 'list-count', count));
+    if (action) {
+      const btn = el('button', 'btn btn-primary', action.label);
+      btn.onclick = action.fn;
+      side.appendChild(btn);
+    }
+    head.appendChild(side);
+    box.appendChild(head);
+    return head;
+  }
+
+  function subHead(box, label, count) {
+    const p = el('div', 'sub-head');
+    p.appendChild(el('b', null, label));
+    if (count != null) p.appendChild(el('span', null, String(count)));
+    box.appendChild(p);
+    return p;
+  }
+
+  function emptyState(title, hint) {
+    const p = el('p', 'empty', title);
+    if (hint) p.appendChild(el('span', 'empty-hint', hint));
+    return p;
+  }
+
   function renderList() {
     const box = $('view-list');
     box.textContent = '';
@@ -142,18 +175,15 @@
   }
 
   function renderPostsList(box, d) {
-    const head = el('div', 'list-head');
-    head.appendChild(el('h2', null, '文章'));
-    head.appendChild(el('span', 'list-count', `${d.posts.length} 篇 · 草稿 ${d.drafts.length}`));
-    box.appendChild(head);
-
-    const newBtn = el('button', 'btn btn-primary', '新建文章');
-    newBtn.style.marginBottom = '.9rem';
-    newBtn.onclick = () => openPostEditor(null);
-    box.appendChild(newBtn);
+    pageHead(box, {
+      kicker: 'POSTS',
+      title: '文章',
+      count: `${d.posts.length} 篇`,
+      action: { label: '新建文章', fn: () => openPostEditor(null) },
+    });
 
     if (d.drafts.length) {
-      box.appendChild(el('p', 'list-count', '草稿'));
+      subHead(box, '草稿', `${d.drafts.length} 篇`);
       const dl = el('div', 'card-list');
       d.drafts.forEach((dr) => {
         const c = el('div', 'card');
@@ -171,9 +201,9 @@
       box.appendChild(dl);
     }
 
-    box.appendChild(el('p', 'list-count', '已发布'));
+    subHead(box, '已发布', `${d.posts.length} 篇`);
     if (!d.posts.length) {
-      box.appendChild(el('p', 'empty', '还没有已发布文章'));
+      box.appendChild(emptyState('暂无已发布文章'));
       return;
     }
     const list = el('div', 'card-list');
@@ -195,18 +225,22 @@
 
   function renderDataList(box, module, items) {
     const labels = { projects: '项目', games: '游戏', collections: '收藏' };
-    const head = el('div', 'list-head');
-    head.appendChild(el('h2', null, labels[module]));
-    head.appendChild(el('span', 'list-count', `${items.length} 条`));
-    box.appendChild(head);
-
-    const newBtn = el('button', 'btn btn-primary', '新增条目');
-    newBtn.style.marginBottom = '.9rem';
-    newBtn.onclick = () => openItemEditor(module, null);
-    box.appendChild(newBtn);
+    const kickers = { projects: 'PROJECTS', games: 'GAMES', collections: 'COLLECTIONS' };
+    const btnLabels = { projects: '新增项目', games: '新增游戏', collections: '新增收藏' };
+    const hints = {
+      projects: '支持背景 / 过程 / 技术 / 成果长篇介绍',
+      games: '支持分类 / 玩法 / 截图 / 下载试玩链接',
+      collections: '文章、工具、资源等收藏链接',
+    };
+    pageHead(box, {
+      kicker: kickers[module],
+      title: labels[module],
+      count: `${items.length} 条`,
+      action: { label: btnLabels[module], fn: () => openItemEditor(module, null) },
+    });
 
     if (!items.length) {
-      box.appendChild(el('p', 'empty', '暂无条目。为空时首页不会渲染该模块。'));
+      box.appendChild(emptyState(`暂无${labels[module]}条目`, hints[module] + '；为空时首页不会渲染该板块'));
       return;
     }
     const list = el('div', 'card-list');
@@ -221,7 +255,7 @@
       }
       const body = el('div', 'card-body');
       body.appendChild(el('div', 'card-title', it.title || '(未命名)'));
-      const subs = [it.desc, it.date].filter(Boolean).join(' · ');
+      const subs = [it.summary || it.desc, it.date].filter(Boolean).join(' · ');
       if (subs) body.appendChild(el('div', 'card-sub', subs));
       c.appendChild(body);
       const acts = el('div', 'card-actions');
@@ -248,15 +282,24 @@
   }
 
   function renderImages(box, images) {
-    const head = el('div', 'list-head');
-    head.appendChild(el('h2', null, '图片'));
-    head.appendChild(el('span', 'list-count', `${images.length} 张`));
-    box.appendChild(head);
-
     // 目录选择：按内容板块分目录存放（文章/项目/游戏/收藏/头像）
     const MODULES = [
       ['posts', '文章'], ['projects', '项目'], ['games', '游戏'], ['collections', '收藏'], ['avatar', '头像'],
     ];
+    const input = el('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.multiple = true;
+    input.hidden = true;
+    input.onchange = () => uploadImages(input.files, S.imageModule).finally(() => (input.value = ''));
+
+    pageHead(box, {
+      kicker: 'IMAGES',
+      title: '图片',
+      count: `${images.length} 张`,
+      action: { label: '上传图片', fn: () => input.click() },
+    });
+
     const modRow = el('div', 'upload-modules');
     MODULES.forEach(([key, label]) => {
       const chip = el('button', 'module-chip' + (S.imageModule === key ? ' active' : ''), label);
@@ -268,28 +311,16 @@
       modRow.appendChild(chip);
     });
     box.appendChild(modRow);
-
-    const row = el('div', 'upload-row');
-    const input = el('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.multiple = true;
-    input.hidden = true;
-    const btn = el('button', 'btn btn-primary', `上传到 /img/${S.imageModule}/（自动压缩）`);
-    btn.onclick = () => input.click();
-    input.onchange = () => uploadImages(input.files, S.imageModule).finally(() => (input.value = ''));
-    row.appendChild(btn);
-    row.appendChild(input);
+    box.appendChild(input);
     if (S.imageModule !== 'avatar') {
-      row.appendChild(el('p', 'list-count', `该目录图片可直接用作条目封面，路径前缀 /img/${S.imageModule}/…`));
+      box.appendChild(el('p', 'list-count', `上传目录 /img/${S.imageModule}/，可直接用作该板块条目封面`));
     }
-    box.appendChild(row);
 
     // 只显示当前目录的图片
     const scoped = images.filter((p) => p.startsWith(`source/img/${S.imageModule}/`));
     if (!scoped.length) {
       const label = (MODULES.find((m) => m[0] === S.imageModule) || ['', S.imageModule])[1];
-      box.appendChild(el('p', 'empty', `「${label}」目录暂无图片`));
+      box.appendChild(emptyState(`「${label}」目录暂无图片`));
       return;
     }
     const grid = el('div', 'image-grid');
@@ -308,12 +339,9 @@
   }
 
   function renderTrash(box, items) {
-    const head = el('div', 'list-head');
-    head.appendChild(el('h2', null, '回收站'));
-    head.appendChild(el('span', 'list-count', `${items.length} 项`));
-    box.appendChild(head);
+    pageHead(box, { kicker: 'TRASH', title: '回收站', count: `${items.length} 项` });
     if (!items.length) {
-      box.appendChild(el('p', 'empty', '回收站是空的'));
+      box.appendChild(emptyState('回收站是空的', '删除的文章 / 条目 / 图片会先移到这里，可随时恢复'));
       return;
     }
     const typeLabel = { post: '文章', draft: '草稿', data: '条目', image: '图片' };
@@ -667,13 +695,13 @@
   });
 
   // ---------- 站点身份设置 ----------
+  // 设置 tab 直接展示编辑器视图（无列表态）；进入时填充表单
   function renderSiteEditor(box, site) {
-    const head = el('div', 'list-head');
-    head.appendChild(el('h2', null, '站点身份'));
-    head.appendChild(el('span', 'list-count', 'source/_data/site.yml'));
-    box.appendChild(head);
-    box.appendChild(el('p', 'list-count', '配置首页左侧身份域与页脚。留空的项不渲染，不会伪造内容。'));
+    const filled = ['intro', 'motto', 'avatar'].filter((k) => site && site[k]).length + ((site && site.identity_words && site.identity_words.length) ? 1 : 0);
     fillSiteEditor(site);
+    $('view-list').hidden = true;
+    $('view-site-editor').hidden = false;
+    $('site-hint').textContent = `已配置 ${filled}/4 · 保存后自动提交，部署完成后首页生效`;
   }
 
   function fillSiteEditor(site) {
