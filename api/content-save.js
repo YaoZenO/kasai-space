@@ -7,6 +7,9 @@
 const { requireSession } = require('./_lib/session');
 const { json, readJson, respondError, originAllowed } = require('./_lib/http');
 const content = require('./_lib/content');
+// data / site 的校验在 content.js 内部（saveData / saveSite）；
+// post 无统一入口，校验放在本端点的分支里，保证三个 kind 都有把关。
+const validate = require('./_lib/validate');
 
 module.exports = async (req, res) => {
   try {
@@ -16,6 +19,7 @@ module.exports = async (req, res) => {
     const body = await readJson(req);
     const kind = body.kind;
     if (kind === 'post') {
+      validate.validatePost(body); // 原地校验并归一化（featured / tags / categories）
       let r;
       if (body.action === 'save-draft') r = await content.saveDraft(body);
       else if (body.action === 'publish-draft') r = await content.publishDraft(body);

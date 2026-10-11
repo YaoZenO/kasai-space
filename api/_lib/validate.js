@@ -73,6 +73,74 @@ function validateItem(module, raw) {
   return item;
 }
 
+// ---------- 文章（post）校验 ----------
+// 白名单必须与 source/admin/admin.js 实际发送的字段一致，漏一个就会让保存功能 400。
+const POST_ACTIONS = ['save-draft', 'publish-draft', 'publish-new', 'update'];
+const POST_FIELDS = [
+  'kind', 'action', 'slug', 'prevSlug', 'path',
+  'title', 'tags', 'categories', 'body', 'cover', 'featured',
+  'sha', 'expectedHeadSha',
+];
+// 与 api/_lib/content.js 的 POSTS_DIR / DRAFTS_DIR 保持一致
+const POST_PATH_RE = /^(source\/_posts|_drafts)\/[A-Za-z0-9._-]+\.md$/;
+
+function validatePost(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) fail('body', '请求体必须是对象');
+  const b = raw;
+
+  for (const k of Object.keys(b)) {
+    if (!POST_FIELDS.includes(k)) fail(k, '文章保存不支持此字段');
+  }
+
+  const action = str(b.action);
+  if (!POST_ACTIONS.includes(action)) fail('action', `不支持的操作（可选：${POST_ACTIONS.join(' / ')}）`);
+
+  // 按 action 区分必填：update 定位靠 path，其余靠 slug
+  if (action === 'update') {
+    if (!str(b.path).trim()) fail('path', '缺少文章路径');
+  } else if (!str(b.slug).trim()) {
+    fail('slug', '缺少文件名（slug）');
+  }
+
+  for (const k of ['slug', 'prevSlug']) {
+    if (b[k] != null && b[k] !== '' && !isSlug(b[k])) fail(k, '仅允许小写字母、数字与中划线');
+  }
+
+  if (b.path != null && b.path !== '') {
+    // 防目录穿越：只允许 _posts / _drafts 下的单层 .md，不允许 .. 与 /
+    if (!POST_PATH_RE.test(str(b.path))) fail('path', '文章路径不合法（仅限 source/_posts/ 或 _drafts/ 下的 .md 文件）');
+  }
+
+  if (str(b.title).length > 200) fail('title', '标题过长（≤200 字符）');
+  if (str(b.body).length > 200000) fail('body', '正文过长（≤200000 字符）');
+  if (b.cover != null && b.cover !== '' && !isPathLike(b.cover)) fail('cover', '封面应为站内路径或 http(s):// 地址');
+
+  // featured 必须归一化：updatePost 用 !!input.featured 取值，
+  // 若前端误传字符串 "false"，!!"false" 会得到 true——静默反转用户意图。
+  if (b.featured !== undefined && b.featured !== null) {
+    if (b.featured === true || b.featured === 'true') b.featured = true;
+    else if (b.featured === false || b.featured === 'false' || b.featured === '' ) b.featured = false;
+    else fail('featured', '仅支持 true / false');
+  }
+
+  for (const k of ['tags', 'categories']) {
+    if (b[k] == null || b[k] === '') continue;
+    const arr = Array.isArray(b[k]) ? b[k] : str(b[k]).split(/[,，]/);
+    if (arr.length > 12) fail(k, `${k === 'tags' ? '标签' : '分类'}最多 12 个`);
+    for (const t of arr) if (str(t).trim().length > 30) fail(k, `单个${k === 'tags' ? '标签' : '分类'} ≤30 字符`);
+    b[k] = arr.map((s) => str(s).trim()).filter(Boolean);
+  }
+
+  // sha 用于乐观锁比对，放宽格式（mock 与真实环境长度不同），但拒绝非字符串
+  for (const k of ['sha', 'expectedHeadSha']) {
+    if (b[k] == null || b[k] === '') continue;
+    if (typeof b[k] !== 'string') fail(k, '应为字符串');
+    if (!/^[A-Za-z0-9_-]{4,64}$/.test(b[k])) fail(k, '格式不正确');
+  }
+
+  return b;
+}
+
 // 站点身份配置校验（P0 之后设置页的写入把关）
 function validateSite(cfg) {
   const c = cfg || {};
@@ -85,4 +153,4 @@ function validateSite(cfg) {
   return c;
 }
 
-module.exports = { validateItem, validateSite, MODULE_FIELDS };
+module.exports = { validateItem, validateSite, validatePost, MODULE_FIELDS, POST_ACTIONS, POST_FIELDS };

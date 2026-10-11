@@ -21,6 +21,7 @@ for (const k of Object.keys(require.cache)) {
 const content = require('../api/_lib/content');
 const yaml = require('../api/_lib/yaml');
 const store = require('../api/_lib/store');
+const validate = require('../api/_lib/validate');
 const handlers = {
   '/api/content-list': require('../api/content-list'),
   '/api/content-save': require('../api/content-save'),
@@ -248,6 +249,59 @@ const PNG_1X1 = Buffer.from(
     assert.match(rejects[5], /background: 该板块不支持此字段/);
   });
 
+  // --- P1-8：文章（post）写入校验 ---
+  const postRejects = [];
+  const tryPost = (body) => {
+    try {
+      validate.validatePost(body);
+      postRejects.push('ACCEPTED');
+    } catch (e) {
+      postRejects.push(e.statusCode === 400 && e.extra && e.extra.hint ? e.extra.hint : String(e.message));
+    }
+  };
+  tryPost({ kind: 'post', action: 'save-draft', slug: 'hello' });                            // 0 合法（回归）
+  tryPost({ kind: 'post', action: 'save-draft', slug: 'hello', bogus: 1 });                  // 1 未知字段
+  tryPost({ kind: 'post', action: 'nope', slug: 'hello' });                                  // 2 非法 action
+  tryPost({ kind: 'post', action: 'save-draft' });                                           // 3 缺 slug
+  tryPost({ kind: 'post', action: 'update' });                                               // 4 缺 path
+  tryPost({ kind: 'post', action: 'save-draft', slug: 'Hello_World' });                      // 5 非法 slug
+  tryPost({ kind: 'post', action: 'update', path: 'source/_posts/../../evil.md' });          // 6 目录穿越
+  tryPost({ kind: 'post', action: 'save-draft', slug: 'hello', title: 'x'.repeat(201) });    // 7 标题过长
+  tryPost({ kind: 'post', action: 'save-draft', slug: 'hello', cover: 'javascript:alert' }); // 8 非法封面
+  tryPost({ kind: 'post', action: 'save-draft', slug: 'hello', body: 'x'.repeat(200001) });  // 9 正文过长
+  ok('validatePost: 文章写入校验按预期拒绝/放行', () => {
+    assert.strictEqual(postRejects[0], 'ACCEPTED', '合法请求被误拒');
+    assert.match(postRejects[1], /bogus/);
+    assert.match(postRejects[2], /action: 不支持的操作/);
+    assert.match(postRejects[3], /slug: 缺少文件名/);
+    assert.match(postRejects[4], /path: 缺少文章路径/);
+    assert.match(postRejects[5], /slug: 仅允许小写字母/);
+    assert.match(postRejects[6], /path: 文章路径不合法/);
+    assert.match(postRejects[7], /title: 标题过长/);
+    assert.match(postRejects[8], /cover:/);
+    assert.match(postRejects[9], /body: 正文过长/);
+  });
+
+  // featured 归一化：updatePost 用 !!input.featured 取值，
+  // 若前端误传字符串 "false"，!!"false" 会得到 true —— 静默反转用户意图。
+  const featBody = { kind: 'post', action: 'save-draft', slug: 'a', featured: 'false' };
+  validate.validatePost(featBody);
+  ok('validatePost: featured 字符串 "false" 归一化为 false（避免 !! 反转）', () => {
+    assert.strictEqual(featBody.featured, false);
+  });
+
+  const tagBody = { kind: 'post', action: 'save-draft', slug: 'a', tags: 'Hexo, 测试' };
+  validate.validatePost(tagBody);
+  ok('validatePost: tags 逗号字符串归一化为数组', () => {
+    assert.deepStrictEqual(tagBody.tags, ['Hexo', '测试']);
+  });
+
+  const catBody = { kind: 'post', action: 'publish-new', slug: 'a', categories: ['随笔', '技术'] };
+  validate.validatePost(catBody);
+  ok('validatePost: categories 数组原样通过', () => {
+    assert.deepStrictEqual(catBody.categories, ['随笔', '技术']);
+  });
+
   // ============ 第二段：HTTP 管线（真实走 api 端点） ============
   console.log('\n[2] HTTP 管线 · 端点级');
   const server = http.createServer((req, res) => {
@@ -322,6 +376,20 @@ const PNG_1X1 = Buffer.from(
     assert.strictEqual(h1.status, 400);
     assert.strictEqual(h1.body.error, 'BAD_KIND');
     assert.ok(h1.body.hint && h1.body.hint.length > 0);
+  });
+
+  // --- P1-8：文章校验已接入端点（防止只写校验器、忘记在 content-save 接线） ---
+  h1 = await call('POST', '/api/content-save', { kind: 'post', action: 'save-draft', slug: 'Hello' });
+  ok('content-save: 文章非法 slug → 400 且 hint 指明字段', () => {
+    assert.strictEqual(h1.status, 400);
+    assert.strictEqual(h1.body.error, 'BAD_FIELD');
+    assert.match(h1.body.hint, /slug/);
+  });
+
+  h1 = await call('POST', '/api/content-save', { kind: 'post', action: 'update', path: 'source/_posts/../../evil.md' });
+  ok('content-save: 文章路径目录穿越 → 400', () => {
+    assert.strictEqual(h1.status, 400);
+    assert.strictEqual(h1.body.error, 'BAD_FIELD');
   });
 
   h1 = await call('GET', '/api/session-check');
