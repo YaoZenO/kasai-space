@@ -233,22 +233,47 @@ const PNG_1X1 = Buffer.from(
   });
 
   h1 = await call('POST', '/api/upload-image', { module: 'hacker', filename: 'x.png', dataBase64: PNG_1X1.toString('base64') });
-  // 注：hint 非空断言在 P0-2 错误契约收敛后加强
-  ok('upload-image: 非法 module 400 BAD_MODULE', () => {
+  ok('upload-image: 非法 module 400 且带 hint', () => {
     assert.strictEqual(h1.status, 400);
     assert.strictEqual(h1.body.error, 'BAD_MODULE');
+    assert.ok(h1.body.hint && h1.body.hint.length > 0, 'hint 不应为空');
   });
 
-  h1 = await call('GET', '/api/deploy-status?sha=abc');
-  ok('deploy-status: 200 且 available=false（mock 无配置）', () => {
-    assert.strictEqual(h1.status, 200);
-    assert.strictEqual(h1.body.available, false);
+  // --- P0-2 错误契约：409 统一 conflict 标志 ---
+  h1 = await call('POST', '/api/content-save', { kind: 'data', module: 'projects', index: null, item: { title: 'x' }, expectedHeadSha: 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeef' });
+  ok('content-save: 过期 headSha → 409 且 conflict=true（前端弹窗契约）', () => {
+    assert.strictEqual(h1.status, 409);
+    assert.strictEqual(h1.body.conflict, true);
+    assert.ok(h1.body.hint && h1.body.hint.length > 0);
+  });
+
+  // --- P0-2 错误契约：未知 kind → 400 带 hint ---
+  h1 = await call('POST', '/api/content-save', { kind: 'nope' });
+  ok('content-save: 未知 kind → 400 且带 hint', () => {
+    assert.strictEqual(h1.status, 400);
+    assert.strictEqual(h1.body.error, 'BAD_KIND');
+    assert.ok(h1.body.hint && h1.body.hint.length > 0);
   });
 
   h1 = await call('GET', '/api/session-check');
   ok('session-check: 200 且登录名为 YaoZenO', () => {
     assert.strictEqual(h1.status, 200);
     assert.strictEqual(h1.body.login, 'YaoZenO');
+  });
+
+  // --- P0-2 错误契约：500 不泄漏内部细节（损坏 yml 让解析器抛错） ---
+  await store.commitFiles([{ path: 'source/_data/projects.yml', contentUtf8: 'items:\n  - title: 正常\n坏行在这里\n' }], 'test: corrupt yml', null);
+  h1 = await call('POST', '/api/content-save', { kind: 'data', module: 'projects', index: null, item: { title: 'y' }, expectedHeadSha: await store.getHead() });
+  ok('content-save: yml 损坏 → 500 仅 INTERNAL 无内部细节', () => {
+    assert.strictEqual(h1.status, 500);
+    assert.strictEqual(h1.body.error, 'INTERNAL');
+    assert.ok(!('message' in h1.body), '500 body 不得包含 message');
+  });
+
+  h1 = await call('GET', '/api/deploy-status?sha=abc');
+  ok('deploy-status: 200 且 available=false（mock 无配置）', () => {
+    assert.strictEqual(h1.status, 200);
+    assert.strictEqual(h1.body.available, false);
   });
 
   server.close();

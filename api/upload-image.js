@@ -7,8 +7,8 @@ const content = require('./_lib/content');
 
 module.exports = async (req, res) => {
   try {
-    if (req.method !== 'POST') return json(res, 405, { error: 'METHOD_NOT_ALLOWED' });
-    if (!originAllowed(req)) return json(res, 403, { error: 'BAD_ORIGIN' });
+    if (req.method !== 'POST') return json(res, 405, { error: 'METHOD_NOT_ALLOWED', hint: '仅支持 POST 请求' });
+    if (!originAllowed(req)) return json(res, 403, { error: 'BAD_ORIGIN', hint: '跨站请求被拒绝' });
     requireSession(req);
     const body = await readJson(req, 8 * 1024 * 1024);
     const r = await content.uploadImage(body);

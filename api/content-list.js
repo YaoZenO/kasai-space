@@ -6,7 +6,7 @@ const content = require('./_lib/content');
 
 module.exports = async (req, res) => {
   try {
-    if (!originAllowed(req)) return json(res, 403, { error: 'BAD_ORIGIN' });
+    if (!originAllowed(req)) return json(res, 403, { error: 'BAD_ORIGIN', hint: '跨站请求被拒绝' });
     requireSession(req);
     const data = await content.listAll();
     return json(res, 200, data);

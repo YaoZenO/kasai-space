@@ -83,13 +83,44 @@ function respondError(res, err) {
     return json(res, err.statusCode || 409, Object.assign({ error: err.code || 'CONFLICT', conflict: true }, err.conflictPayload));
   }
   if (err && err.statusCode) {
-    return json(res, err.statusCode, Object.assign({ error: err.code || 'ERROR' }, err.extra || {}));
+    const extra = err.extra || {};
+    return json(res, err.statusCode, Object.assign({ error: err.code || 'ERROR', hint: extra.hint || defaultHint(err.code) }, extra));
   }
   if (err && err.conflict) {
-    return json(res, 409, { error: 'CONFLICT', currentHead: err.currentHead });
+    // HEAD_MOVED 等乐观锁冲突：必须带 conflict:true（前端冲突弹窗契约）
+    return json(res, 409, { error: 'CONFLICT', conflict: true, currentHead: err.currentHead || '', hint: '服务器内容已被其他操作修改，请加载最新版本或强制覆盖' });
   }
   console.error('[api]', err);
-  return json(res, 500, { error: 'INTERNAL', message: String((err && err.message) || err) });
+  // 500 不向前端泄漏内部细节（message/stack 只进服务端日志）
+  return json(res, 500, { error: 'INTERNAL', hint: '服务端内部错误，请稍后重试；若持续出现请查看部署日志' });
+}
+
+// 错误码 → 默认中文提示（调用方可用 hint 覆盖）
+const HINTS = {
+  BAD_SLUG: 'slug 仅允许小写字母、数字与中划线',
+  BAD_MODULE: '内容板块不存在',
+  BAD_PATH: '文件路径不合法',
+  BAD_INDEX: '条目序号不存在',
+  BAD_ACTION: '不支持的操作类型',
+  BAD_KIND: '不支持的保存类型',
+  BAD_DELETE_TARGET: '删除目标不合法',
+  TITLE_REQUIRED: '标题不能为空',
+  POST_EXISTS: '已存在同名校发布文章，请更换 slug',
+  POST_NOT_FOUND: '文章不存在',
+  DRAFT_NOT_FOUND: '草稿不存在',
+  NOT_FOUND: '文件不存在',
+  TRASH_NOT_FOUND: '回收站条目不存在',
+  EMPTY_FILE: '文件内容为空',
+  TOO_LARGE: '文件过大',
+  BAD_EXT: '不支持的图片格式',
+  METHOD_NOT_ALLOWED: '请求方法不被允许',
+  BAD_ORIGIN: '跨站请求被拒绝',
+  UNAUTHENTICATED: '登录已过期，请重新登录',
+  NOT_ADMIN: '当前账号不是站点管理员',
+  SERVER_NOT_CONFIGURED: '服务端尚未配置完成',
+};
+function defaultHint(code) {
+  return HINTS[code] || '请求被拒绝';
 }
 
 // CSRF 纵深防御：浏览器跨站 POST 必带 Origin，与当前 host 不符则拒绝。
@@ -114,4 +145,4 @@ class HttpError extends Error {
   }
 }
 
-module.exports = { readBody, readJson, parseCookies, requestBaseUrl, setCookie, json, respondError, originAllowed, HttpError };
+module.exports = { readBody, readJson, parseCookies, requestBaseUrl, setCookie, json, respondError, originAllowed, HttpError, hintFor: defaultHint };
