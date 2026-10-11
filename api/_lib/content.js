@@ -9,6 +9,7 @@ const crypto = require('node:crypto');
 const config = require('./config');
 const store = require('./store');
 const yaml = require('./yaml');
+const validate = require('./validate');
 const posts = require('./posts');
 const { HttpError } = require('./http');
 
@@ -241,18 +242,25 @@ function normalizePostFile(content) {
 
 async function saveData(input) {
   const m = assertModule(input.module);
+  // 先按模块字段白名单校验原始入参（未知字段拒绝），再拷贝白名单内字段
+  validate.validateItem(m, input.item || {});
+  const fields = validate.MODULE_FIELDS[m];
   const item = {};
-  for (const k of ['title', 'link', 'desc', 'cover', 'date']) {
-    if (input.item && input.item[k] !== undefined && input.item[k] !== null) item[k] = String(input.item[k]).trim();
+  for (const k of fields) {
+    const v = input.item ? input.item[k] : undefined;
+    if (v === undefined || v === null) continue;
+    if (k === 'tags') item[k] = normTags(v);
+    else if (k === 'media') item[k] = (Array.isArray(v) ? v : [v]).map((s) => String(s).trim()).filter(Boolean);
+    else if (k === 'links') item[k] = (Array.isArray(v) ? v : []).map((l) => ({ label: String(l.label || '').trim(), url: String(l.url || '').trim() })).filter((l) => l.label && l.url);
+    else item[k] = String(v).trim();
   }
-  if (!item.title) throw new HttpError(400, 'TITLE_REQUIRED');
   const p = `${DATA_DIR}/${m}.yml`;
   const file = (await store.getFile(p).catch(() => null)) || { content: 'items: []\n', sha: null };
   const items = yaml.parseItems(file.content);
   const idx = input.index === null || input.index === undefined ? -1 : Number(input.index);
   if (idx === -1) items.push(item);
   else {
-    if (idx < 0 || idx >= items.length) throw new HttpError(400, 'BAD_INDEX');
+    if (idx < 0 || idx >= items.length) throw new HttpError(400, 'BAD_INDEX', { hint: '条目序号不存在' });
     items[idx] = item;
   }
   const text = yaml.updateItems(file.content, items);
@@ -263,6 +271,9 @@ async function saveData(input) {
 // ---------- 站点身份配置 ----------
 
 async function saveSite(input) {
+  validate.validateSite({
+    intro: input.intro, motto: input.motto, avatar: input.avatar, identity_words: input.identity_words,
+  });
   const cfg = {
     intro: String(input.intro == null ? '' : input.intro).trim(),
     motto: String(input.motto == null ? '' : input.motto).trim(),

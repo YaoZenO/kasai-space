@@ -94,11 +94,11 @@ const PNG_1X1 = Buffer.from(
   });
   r = await content.saveData({
     module: 'projects', index: 0,
-    item: { title: '测试项目', link: 'https://github.com/YaoZenO', desc: '冒烟测试', cover: l.images[0], date: '2026-10-11' },
+    item: { title: '测试项目', link: 'https://github.com/YaoZenO', desc: '冒烟测试', cover: l.images[0].replace(/^source/, ''), date: '2026-10-11' },
     expectedHeadSha: l.headSha,
   });
   l = await content.listAll();
-  ok('saveData: 封面路径回填一致', () => assert.strictEqual(l.data.projects[0].cover, l.images[0]));
+  ok('saveData: 封面路径回填一致', () => assert.strictEqual(l.data.projects[0].cover, l.images[0].replace(/^source/, '')));
 
   // --- site 配置 ---
   await content.saveSite({ intro: 'Be water, my friends.', motto: 'Stay hungry.', avatar: '/img/avatar/11.jpg', identity_words: '写作\n健身\n代码', expectedHeadSha: l.headSha });
@@ -117,18 +117,18 @@ const PNG_1X1 = Buffer.from(
   });
 
   // --- 文章：发布 → 编辑 → 未知 front matter 保留 ---
-  r = await content.publishNew({ slug: 'smoke-test-post', title: '冒烟文章', tags: '测试,后台', categories: '技术', body: '正文内容。', featured: true, cover: l.images[0], expectedHeadSha: l.headSha });
+  r = await content.publishNew({ slug: 'smoke-test-post', title: '冒烟文章', tags: '测试,后台', categories: '技术', body: '正文内容。', featured: true, cover: l.images[0].replace(/^source/, ''), expectedHeadSha: l.headSha });
   ok('publishNew: permalink 形如 /YYYY/MM/DD/slug/', () => assert.match(r.permalink, /^\/\d{4}\/\d{2}\/\d{2}\/smoke-test-post\/$/));
   let f = await content.getPostFile('source/_posts/smoke-test-post.md');
   ok('publishNew: featured/cover 写入并回读', () => {
     assert.strictEqual(f.frontmatter.featured, true);
-    assert.strictEqual(f.frontmatter.cover, l.images[0]);
+    assert.strictEqual(f.frontmatter.cover, l.images[0].replace(/^source/, ''));
   });
   r = await content.updatePost({ path: 'source/_posts/smoke-test-post.md', title: '冒烟文章改', expectedHeadSha: r.headSha });
   f = await content.getPostFile('source/_posts/smoke-test-post.md');
   ok('updatePost: 未传 featured/cover 时原值保留、标题更新', () => {
     assert.strictEqual(f.frontmatter.featured, true);
-    assert.strictEqual(f.frontmatter.cover, l.images[0]);
+    assert.strictEqual(f.frontmatter.cover, l.images[0].replace(/^source/, ''));
     assert.strictEqual(f.frontmatter.title, '冒烟文章改');
   });
   const raw = await store.getFile('source/_posts/smoke-test-post.md');
@@ -178,6 +178,75 @@ const PNG_1X1 = Buffer.from(
 
   // --- yaml 单测 ---
   ok('yaml.parseFlowList: 引号与中文', () => assert.strictEqual(yaml.parseSite('identity_words: ["写作", 开发]').identity_words.join(','), '写作,开发'));
+
+  // --- P1-9-A：富文本 / 数组 / 对象列表 round-trip ---
+  const richText = '第一段：项目背景。\n\n包含 # 井号行、- 列表行、key: value 行。\n末行无换行';
+  r = await content.saveData({
+    module: 'projects', index: null,
+    item: {
+      slug: 'smoke-project', title: '冒烟项目', date: '2026-10-12',
+      summary: '一句话简介', cover: '/img/projects/x.jpg', link: 'https://github.com/YaoZenO/x',
+      tags: ['Hexo', 'Node.js'], background: richText, process: '过程内容', tech: '## 技术方案\n- A\n- B', outcome: '',
+    },
+    expectedHeadSha: await store.getHead(),
+  });
+  l = await content.listAll();
+  const proj = l.data.projects.find((p) => p.slug === 'smoke-project');
+  ok('projects: 富文本四段 round-trip 无损', () => {
+    assert.strictEqual(proj.background, richText);
+    assert.strictEqual(proj.process, '过程内容');
+    assert.strictEqual(proj.tech, '## 技术方案\n- A\n- B');
+    assert.strictEqual(proj.outcome, '');
+    assert.deepStrictEqual(proj.tags, ['Hexo', 'Node.js']);
+    assert.strictEqual(proj.slug, 'smoke-project');
+  });
+  const projYml = (await store.getFile('source/_data/projects.yml')).content;
+  ok('projects: 序列化为块标量且可被再次解析', () => {
+    assert.ok(projYml.includes('background: |-'));
+    assert.ok(projYml.includes('tags: [Hexo, Node.js]'));
+  });
+
+  r = await content.saveData({
+    module: 'games', index: null,
+    item: {
+      slug: 'smoke-game', title: '冒烟游戏', date: '2026-10-12',
+      cover: '/img/games/cover.jpg', genre: '角色扮演', platform: 'PC', status: '在玩',
+      summary: '一句话', gameplay: '玩法介绍长文\n第二行',
+      media: ['/img/games/a.jpg', '/img/games/b.jpg'],
+      video: 'https://b23.tv/xxxx',
+      links: [{ label: '下载', url: 'https://a.com/x' }, { label: '试玩', url: 'https://b.com/y' }],
+    },
+    expectedHeadSha: await store.getHead(),
+  });
+  l = await content.listAll();
+  const game = l.data.games.find((g) => g.slug === 'smoke-game');
+  ok('games: media 数组与 links 对象数组 round-trip 无损', () => {
+    assert.deepStrictEqual(game.media, ['/img/games/a.jpg', '/img/games/b.jpg']);
+    assert.deepStrictEqual(game.links, [{ label: '下载', url: 'https://a.com/x' }, { label: '试玩', url: 'https://b.com/y' }]);
+    assert.strictEqual(game.genre, '角色扮演');
+    assert.strictEqual(game.gameplay, '玩法介绍长文\n第二行');
+  });
+
+  // --- P1-9-A：分类型校验 ---
+  const rejects = [];
+  const trySave = async (module, item) => {
+    try { await content.saveData({ module, index: null, item, expectedHeadSha: await store.getHead() }); rejects.push('ACCEPTED'); }
+    catch (e) { rejects.push(e.statusCode === 400 && e.extra && e.extra.hint ? e.extra.hint : String(e.message)); }
+  };
+  await trySave('projects', { title: '' });                                   // 缺标题
+  await trySave('projects', { title: 'x', background: 'y' });                 // 合法（回归）
+  await trySave('games', { title: 'x', links: [{ label: '下载' }] });          // links 缺 url
+  await trySave('games', { title: 'x', media: ['not-a-path'] });               // media 非法路径
+  await trySave('projects', { title: 'x', date: '2026/10/12' });               // 非法日期
+  await trySave('collections', { title: 'x', background: 'y' });               // 跨模块未知字段
+  ok('validate: 分类型校验全部按预期拒绝/放行', () => {
+    assert.match(rejects[0], /title: 标题不能为空/);
+    assert.strictEqual(rejects[1], 'ACCEPTED');
+    assert.match(rejects[2], /links\[0\]\.url/);
+    assert.match(rejects[3], /media\[0\]/);
+    assert.match(rejects[4], /date: 日期格式/);
+    assert.match(rejects[5], /background: 该板块不支持此字段/);
+  });
 
   // ============ 第二段：HTTP 管线（真实走 api 端点） ============
   console.log('\n[2] HTTP 管线 · 端点级');

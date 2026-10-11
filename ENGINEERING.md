@@ -162,6 +162,45 @@ P0-3 测试固化 ──┬─→ P0-1 身份域统一 ──→ P0-2 错误契�
 
 ---
 
+## P1-9 分类内容体系（项目富文本 / 游戏专属字段）
+
+- **优先级：** P1 ｜ **依赖：** P0-3 ｜ **状态：** 进行中（2026-10-12 主人需求驱动）
+- **问题定位：** 三个内容模块共用同一套扁平字段（title/link/desc/cover/date）与同一个条目编辑器；
+  项目需要长篇图文（背景/过程/技术/成果），游戏需要专属字段（分类/平台/状态/玩法/截图视频/下载试玩链接），
+  现状无法承载，后台录入体验不完整。
+- **任务边界：**
+  - 做：
+    - A 数据层：`yaml.js` 扩展块标量（`|`）、字符串数组（flow/block）、对象数组（`links:`）；
+      `_lib/validate.js` 按模块分字段白名单与类型校验；`content.js` 的 `saveData` 按模块接受不同字段集。
+    - B 后台：项目编辑器（摘要 + 背景/过程/技术/成果四段 markdown + 插图）；
+      游戏编辑器（分类/平台/状态/玩法长文 + 截图媒体区（本模块直传）+ 视频链接 + 下载/试玩链接对 repeater）；
+      收藏编辑器保持现状。三类型**不共用**表单组件。
+    - C 前台：`scripts/generators` 注册模块页生成器，为每个项目/游戏条目生成详情页
+      （`/projects/<slug>/`、`/games/<slug>/`）与列表页（`/projects/`、`/games/`）；
+      新增 `project.ejs`/`game.ejs`/`module-index.ejs` 布局；首页入口格与精选列表打通详情页。
+  - 不做：不做富文本 WYSIWYG（坚持 markdown 源码编辑 + 预览，与文章编辑器一致）；
+      不动收藏模块字段；不引入前端框架；不改文章（posts）体系。
+- **数据模型（owner 文档，改字段先改这里）：**
+  - projects：`slug, title, date, summary, cover, link, tags[], background, process, tech, outcome`（后四者为块标量长文）
+  - games：`slug, title, date, cover, genre, platform, status, summary, gameplay, media[], video, links[{label,url}]`
+  - collections：`title, link, desc, cover, date`（不变）
+  - slug 缺省时由 title 编码生成；详情页只渲染有内容的 section（真实数据铁律）。
+- **验收标准：**
+  1. smoke：projects 富文本四段 round-trip（含换行/冒号/`#` 开头行/空行）无损；
+     games 的 media 数组与 links 对象数组 round-trip 无损；
+  2. smoke：分类型校验生效（项目缺 title / 游戏 links 缺 url / 未知字段 → 400 带 hint）；
+  3. `hexo generate` 后 `public/projects/<slug>/index.html` 与 `public/games/<slug>/index.html` 存在，
+     且只渲染非空 section；空 section 不出现在 HTML 中；
+  4. 首页项目入口格可进入 `/projects/` 列表页，列表页可进入详情页；
+  5. 后台三个 tab 的表单字段互不相同（项目四段长文 / 游戏媒体区+链接对 / 收藏原样）。
+- **影响文件：** `api/_lib/yaml.js`、`api/_lib/validate.js`(新)、`api/_lib/content.js`、
+  `source/admin/{index.html,admin.js,admin.css}`、`themes/fluid/layout/index.ejs`、
+  `themes/fluid/layout/{project,game,module-index}.ejs`(新)、
+  `themes/fluid/scripts/generators/*`(新)、`source/css/site.css`、
+  `source/_data/{projects,games}.yml`(头注释更新)、`scripts/admin-smoke.js`
+
+---
+
 ## P2 — 体验与长期健康（后续排期，本期只登记）
 
 | ID | 事项 | 验收标准（草案） |
