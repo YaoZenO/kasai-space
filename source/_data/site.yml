@@ -5,6 +5,6 @@
 # identity_words 身份词竖列，后台设置里每行一个
 
 intro: Be water, my friends.
-motto: Stay hungry.
-avatar: /img/avatar/11.jpg
-identity_words: [写作, 健身, 代码]
+motto: ""
+avatar: ""
+identity_words: [写作, 代码]
