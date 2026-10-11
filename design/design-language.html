@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KASAI 设计语言 · 纸面档案 v1.0</title>
+<style>
+  :root{
+    --paper:#f5f4ef;
+    --paper-2:#efece4;
+    --cream:#f9f6f1;
+    --ink:#0f0f0e;
+    --ink-warm:#2a251d;
+    --cream-on-dark:#f5f1e9;
+    --muted:#6b675e;
+    --accent:#b0482a;
+    --accent-soft:rgba(176,72,42,.13);
+    --accent-on-dark:#e2967f;
+    --wheat:#e6b23c;
+    --ember:#dd5a2f;
+    --carbon:#151515;
+    --line:rgba(42,37,29,.12);
+    --line-strong:rgba(42,37,29,.24);
+    --font-sans:system-ui,-apple-system,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+    --font-display:"Archivo","Arial Black","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+    --font-mono:"Cascadia Code","JetBrains Mono",Consolas,"SF Mono",Menlo,"Courier New",monospace;
+    --r-tile:22px;
+    --r-card:12px;
+    --r-ctrl:8px;
+    --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font:400 16px/1.75 var(--font-sans);
+    -webkit-font-smoothing:antialiased;
+    text-rendering:geometricPrecision;
+  }
+  ::selection{background:var(--accent-soft)}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline;text-underline-offset:3px}
+  :focus-visible{outline:2px solid #3b82f6;outline-offset:3px;border-radius:4px}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 24px}
+  section{margin:0 0 96px}
+  .kicker{font:500 12px/1.4 var(--font-mono);letter-spacing:.14em;color:var(--accent);text-transform:uppercase}
+  h2.sec{font:800 clamp(26px,3.4vw,32px)/1.25 var(--font-sans);letter-spacing:-.01em;margin:6px 0 0}
+  .sec-head{border-bottom:1px solid var(--line-strong);padding:0 0 18px;margin:0 0 28px}
+  .sec-head p.lead{color:var(--muted);margin-top:10px;max-width:56em}
+  h3.sub{font:700 17px/1.5 var(--font-sans);margin:28px 0 12px}
+  p{max-width:62em}
+  ul.plain{list-style:none;max-width:62em}
+  ul.plain li{padding-left:1.1em;position:relative;margin:6px 0}
+  ul.plain li::before{content:"—";position:absolute;left:0;color:var(--muted)}
+
+  /* 封面 */
+  .cover{padding:72px 0 56px;border-bottom:1px solid var(--line-strong)}
+  .cover .brandline{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:34px}
+  .chip{display:inline-block;font:500 12px/1 var(--font-mono);letter-spacing:.08em;color:var(--muted);
+    border:1px solid var(--line);border-radius:999px;padding:7px 13px;background:var(--cream)}
+  .cover h1{font:900 clamp(56px,10vw,104px)/1.0 var(--font-display);letter-spacing:-.045em;text-transform:uppercase}
+  .cover h1 .cn{display:block;font:900 clamp(40px,7vw,72px)/1.15 var(--font-sans);letter-spacing:.06em;text-transform:none}
+  .cover .pos{margin-top:26px;font-size:18px;color:var(--ink-warm);max-width:34em}
+  .cover .pos em{font-style:normal;color:var(--accent)}
+  .cover .meta{margin-top:30px;display:flex;gap:10px;flex-wrap:wrap}
+
+  /* 目录 */
+  .toc{padding:26px 0 0}
+  .toc ol{list-style:none;display:flex;flex-wrap:wrap;gap:8px 22px}
+  .toc a{font:500 13px/1.6 var(--font-mono);color:var(--muted)}
+  .toc a b{color:var(--accent);font-weight:500;margin-right:6px}
+
+  /* 立场卡 */
+  .stances{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+  .stance{border:1px solid var(--line);border-radius:var(--r-card);padding:22px 20px 18px;background:var(--cream)}
+  .stance .no{font:500 12px/1 var(--font-mono);color:var(--accent)}
+  .stance h4{font:800 18px/1.4 var(--font-sans);margin:10px 0 8px;letter-spacing:.01em}
+  .stance p{font-size:14px;color:var(--ink-warm);line-height:1.7}
+  .stance .rule{margin-top:12px;font:500 12px/1.6 var(--font-mono);color:var(--muted);border-top:1px dashed var(--line);padding-top:10px}
+
+  /* 色板 */
+  .swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+  .sw{border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;background:var(--cream)}
+  .sw .box{height:72px;border-bottom:1px solid var(--line)}
+  .sw .info{padding:10px 12px 12px}
+  .sw .nm{font:700 13px/1.4 var(--font-sans)}
+  .sw .hex{font:500 12px/1.6 var(--font-mono);color:var(--muted)}
+  .sw .use{font-size:12px;color:var(--muted);line-height:1.55;margin-top:2px}
+  .ratio-note{margin-top:18px;display:flex;gap:12px;flex-wrap:wrap}
+  .ratio{border:1px dashed var(--line-strong);border-radius:var(--r-ctrl);padding:10px 14px;font:500 12px/1.6 var(--font-mono);color:var(--ink-warm);background:var(--paper-2)}
+
+  /* 字体样张 */
+  .specimen{border:1px solid var(--line);border-radius:var(--r-card);background:var(--cream);padding:34px 30px;margin-bottom:14px}
+  .specimen .lat{font:900 clamp(44px,8vw,84px)/1 var(--font-display);letter-spacing:-.05em;text-transform:uppercase}
+  .specimen .cn{font:900 clamp(34px,6vw,58px)/1.2 var(--font-sans);letter-spacing:.04em;margin-top:6px}
+  .specimen .mono-line{margin-top:16px;font:500 13px/1.6 var(--font-mono);color:var(--accent);letter-spacing:.1em}
+  table.spec{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px}
+  table.spec th{font:600 12px/1.5 var(--font-mono);letter-spacing:.06em;text-align:left;color:var(--muted);
+    border-bottom:1px solid var(--line-strong);padding:8px 10px}
+  table.spec td{border-bottom:1px solid var(--line);padding:10px;font-variant-numeric:tabular-nums;vertical-align:top}
+  table.spec td:first-child{font-weight:700;white-space:nowrap}
+  .tracks{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:16px 0}
+  .track{border:1px solid var(--line);border-radius:var(--r-card);padding:18px 18px 16px;background:var(--cream)}
+  .track .t-name{font:500 12px/1.4 var(--font-mono);letter-spacing:.1em;color:var(--accent);text-transform:uppercase}
+  .track .t-stack{font:500 12px/1.7 var(--font-mono);color:var(--muted);margin-top:8px;word-break:break-all}
+  .track p{font-size:13px;margin-top:10px;color:var(--ink-warm)}
+
+  /* 空间 */
+  .space-row{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:12px 0 4px}
+  .space-row figure{text-align:center}
+  .space-row .bar{background:var(--ink-warm);border-radius:3px;height:34px}
+  .space-row figcaption{font:500 11px/1.5 var(--font-mono);color:var(--muted);margin-top:6px}
+  .radius-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:16px}
+  .radius-row .rc{width:120px;height:76px;background:var(--cream);border:1px solid var(--line-strong);
+    display:flex;align-items:center;justify-content:center;font:500 12px/1 var(--font-mono);color:var(--muted)}
+
+  /* 效果图 */
+  .shot{border:1px solid var(--line-strong);border-radius:var(--r-card);overflow:hidden;background:#fff;box-shadow:var(--site-float-shadow,0 12px 32px -14px rgba(42,37,29,.28))}
+  .shot svg{display:block;width:100%;height:auto}
+  .shot-cap{padding:14px 18px 4px}
+  .shot-cap .t{font:700 14px/1.6 var(--font-sans)}
+  .shot-notes{padding:6px 18px 16px;color:var(--muted);font-size:13px;line-height:1.7}
+  .shot-notes b{color:var(--ink-warm);font-weight:600}
+  .shot-block{margin:26px 0}
+  .ref-tag{font:500 11px/1 var(--font-mono);letter-spacing:.12em;color:var(--paper);background:var(--accent);
+    border-radius:999px;padding:5px 11px;display:inline-block;margin-bottom:10px}
+  .ph{fill:#d8d6d0}
+  .ph2{fill:#b9b7b1}
+  .ph3{fill:#a8a6a0}
+
+  /* 动效 */
+  .motion-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:18px}
+  .m-card{border:1px solid var(--line);border-radius:var(--r-card);background:var(--cream);padding:16px 18px}
+  .m-card h5{font:700 14px/1.5 var(--font-sans)}
+  .m-card p{font-size:13px;color:var(--muted);margin-top:6px}
+  .m-card .mono{font:500 11px/1.7 var(--font-mono);color:var(--accent);letter-spacing:.06em;margin-top:8px;display:block}
+
+  /* 质感 */
+  .grain-row{display:flex;gap:16px;flex-wrap:wrap}
+  .grain-tile{width:190px;height:130px;border-radius:var(--r-tile);position:relative;overflow:hidden;
+    display:flex;flex-direction:column;justify-content:flex-end;padding:16px}
+  .grain-tile.wheat{background:var(--wheat)}
+  .grain-tile.carbon{background:var(--carbon)}
+  .grain-tile.grained::after{content:"";position:absolute;inset:0;background-image:var(--grain);
+    background-size:160px 160px;mix-blend-mode:multiply;opacity:.13;pointer-events:none}
+  .grain-tile.screened::after{mix-blend-mode:screen;opacity:.05}
+  .grain-tile .big{font:500 24px/1 var(--font-mono);color:var(--ink-warm)}
+  .grain-tile.carbon .big{color:var(--cream-on-dark)}
+  .grain-tile .lbl{font:500 11px/1.6 var(--font-mono);letter-spacing:.1em;color:rgba(42,37,29,.66);margin-top:4px}
+  .grain-tile.carbon .lbl{color:rgba(245,241,233,.62)}
+
+  /* 对照表 */
+  table.map{width:100%;border-collapse:collapse;font-size:14px}
+  table.map th{font:600 12px/1.5 var(--font-mono);letter-spacing:.06em;text-align:left;color:var(--muted);
+    border-bottom:1px solid var(--line-strong);padding:9px 10px}
+  table.map td{border-bottom:1px solid var(--line);padding:11px 10px;vertical-align:top}
+  table.map td:first-child{white-space:nowrap}
+  .tag{display:inline-block;font:600 11px/1 var(--font-mono);border-radius:999px;padding:4px 9px;letter-spacing:.06em}
+  .tag.take{background:var(--accent-soft);color:var(--accent)}
+  .tag.drop{background:rgba(42,37,29,.08);color:var(--muted);text-decoration:line-through}
+
+  /* 落地 */
+  .land{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+  .land .l-card{border:1px solid var(--line);border-radius:var(--r-card);background:var(--cream);padding:18px 20px}
+  .land h5{font:700 14px/1.6 var(--font-sans)}
+  .land .mono{font:500 11px/1.7 var(--font-mono);color:var(--accent);letter-spacing:.08em;display:block;margin-bottom:6px}
+  .land p,.land li{font-size:13px;color:var(--ink-warm)}
+  .land ul{list-style:none;margin-top:8px}
+  .land li{padding-left:1em;position:relative;margin:4px 0}
+  .land li::before{content:"·";position:absolute;left:0;color:var(--accent);font-weight:700}
+
+  footer.end{border-top:1px solid var(--line-strong);padding:30px 0 64px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  footer.end .mono{font:500 12px/1.7 var(--font-mono);color:var(--muted);letter-spacing:.1em}
+  footer.end a{font:500 12px/1.7 var(--font-mono);letter-spacing:.1em}
+
+  @media (max-width:640px){
+    body{font-size:15px}
+    section{margin-bottom:64px}
+    .cover{padding:52px 0 40px}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ============ 封面 ============ -->
+  <header class="cover">
+    <div class="brandline">
+      <span class="kicker">KASAI · Design Language</span>
+      <span class="chip">V1.0</span>
+      <span class="chip">2026-10-11</span>
+      <span class="chip">适用：全站前端（/admin 除外）</span>
+    </div>
+    <h1>
+      纸面档案
+      <span class="cn">Paper Archive — 把写作当展品陈列</span>
+    </h1>
+    <p class="pos">一套编辑式美术馆语汇：<em>纸白为底</em>、墨字为骨、锈红为引、块色为门。风格基因取自 ATRIUM MTL 效果图（瑞士排版 × 新粗野主义 × 纸面颗粒），按本站既有构图与真实数据规则转译。</p>
+    <div class="meta">
+      <span class="chip">参考：ATRIUM MTL 效果图</span>
+      <span class="chip">配套：source/css/site.css（V3.2）</span>
+      <span class="chip">首页构图：V2 身份域 × 内容墙</span>
+    </div>
+    <nav class="toc" aria-label="目录">
+      <ol>
+        <li><a href="#s1"><b>01</b>设计立场</a></li>
+        <li><a href="#s2"><b>02</b>色彩</a></li>
+        <li><a href="#s3"><b>03</b>字体</a></li>
+        <li><a href="#s4"><b>04</b>空间与形状</a></li>
+        <li><a href="#s5"><b>05</b>核心组件 · 效果图</a></li>
+        <li><a href="#s6"><b>06</b>动效</a></li>
+        <li><a href="#s7"><b>07</b>质感</a></li>
+        <li><a href="#s8"><b>08</b>参考 → 转译</a></li>
+        <li><a href="#s9"><b>09</b>落地映射</a></li>
+      </ol>
+    </nav>
+  </header>
+
+  <!-- ============ 01 设计立场 ============ -->
+  <section id="s1">
+    <div class="sec-head">
+      <span class="kicker">01 / Principles</span>
+      <h2 class="sec">设计立场</h2>
+      <p class="lead">五条立场决定所有后续取舍。与新需求冲突时，以立场为准。</p>
+    </div>
+    <div class="stances">
+      <div class="stance">
+        <span class="no">01</span>
+        <h4>纸面优先</h4>
+        <p>整站只有一张"纸"。暖纸白是唯一底色，不铺灰底、不卡中卡；层级靠留白与发丝线，不靠阴影堆叠。</p>
+        <p class="rule">DO 页面即纸面 / DON'T 卡片套卡片</p>
+      </div>
+      <div class="stance">
+        <span class="no">02</span>
+        <h4>排版即结构</h4>
+        <p>字号、字重、字距与留白承担全部视觉层级。标题 900 字重 + 紧字距，正文 17px/1.75，上限 38em。</p>
+        <p class="rule">DO 用字重分层 / DON'T 用边框围层级</p>
+      </div>
+      <div class="stance">
+        <span class="no">03</span>
+        <h4>克制强调</h4>
+        <p>锈红是全站唯一交互强调色（链接、当前态、焦点）。块色只许开"门"——做内容入口，不做装饰。</p>
+        <p class="rule">DO 锈红点睛 / DON'T 块色铺满整页</p>
+      </div>
+      <div class="stance">
+        <span class="no">04</span>
+        <h4>非对称构图</h4>
+        <p>左身份域、右内容墙；错位瓷砖、宽窄栏交替。拒绝居中对称的模板构图。继承首页 V2 既有骨架。</p>
+        <p class="rule">DO 错位与不对称 / DON'T 居中英雄区模板</p>
+      </div>
+      <div class="stance">
+        <span class="no">05</span>
+        <h4>真实数据驱动</h4>
+        <p>铁律：无数据不渲染模块；计数 = 真实条目数；Since 年份由最早文章推导；不造文案、不用空卡片。</p>
+        <p class="rule">DO 空则不渲染 / DON'T 占位假数据</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 色彩 ============ -->
+  <section id="s2">
+    <div class="sec-head">
+      <span class="kicker">02 / Color</span>
+      <h2 class="sec">色彩</h2>
+      <p class="lead">暖纸体系。锈红沿用线上 --accent，块色沿用麦黄/焙橙并补齐瓷砖用碳黑与奶油。整体配比 60 / 30 / 10。</p>
+    </div>
+    <div class="swatches">
+      <div class="sw"><div class="box" style="background:#f5f4ef"></div><div class="info"><p class="nm">纸白 Paper</p><p class="hex">#f5f4ef</p><p class="use">页面唯一底色（60%）</p></div></div>
+      <div class="sw"><div class="box" style="background:#f9f6f1;border-bottom-color:var(--line)"></div><div class="info"><p class="nm">奶油 Cream</p><p class="hex">#f9f6f1</p><p class="use">浅色块瓷砖 / 引用底</p></div></div>
+      <div class="sw"><div class="box" style="background:#0f0f0e"></div><div class="info"><p class="nm">墨 Ink</p><p class="hex">#0f0f0e</p><p class="use">标题与正文文字</p></div></div>
+      <div class="sw"><div class="box" style="background:#2a251d"></div><div class="info"><p class="nm">暖墨 Warm Ink</p><p class="hex">#2a251d</p><p class="use">导航当前态 / 实心胶囊 / CTA</p></div></div>
+      <div class="sw"><div class="box" style="background:#b0482a"></div><div class="info"><p class="nm">锈红 Rust</p><p class="hex">#b0482a</p><p class="use">唯一强调色：链接 / 当前态 / 焦点 / FEATURED 标记（10%）</p></div></div>
+      <div class="sw"><div class="box" style="background:#e6b23c"></div><div class="info"><p class="nm">麦黄 Wheat</p><p class="hex">#e6b23c</p><p class="use">块色瓷砖入口</p></div></div>
+      <div class="sw"><div class="box" style="background:#dd5a2f"></div><div class="info"><p class="nm">焙橙 Ember</p><p class="hex">#dd5a2f</p><p class="use">块色瓷砖入口</p></div></div>
+      <div class="sw"><div class="box" style="background:#151515"></div><div class="info"><p class="nm">碳黑 Carbon</p><p class="hex">#151515</p><p class="use">深色瓷砖 / FEATURED 主卡</p></div></div>
+      <div class="sw"><div class="box" style="background:linear-gradient(to right,rgba(42,37,29,.12) 50%,transparent 50%)"></div><div class="info"><p class="nm">发丝线 Line</p><p class="hex">rgba(42,37,29,.12)</p><p class="use">分区线；强线 .24 用于表头页脚</p></div></div>
+    </div>
+    <div class="ratio-note">
+      <span class="ratio">60 纸白（底）+ 30 墨（字）</span>
+      <span class="ratio">≤ 10 锈红（强调）</span>
+      <span class="ratio">块色整页 ≤ 2 处，只做内容入口</span>
+      <span class="ratio">深色卡上文字一律 #f5f1e9</span>
+      <span class="ratio">锈红 × 纸白 ≈ 5:1（AA 正文可用，小字号加粗）</span>
+    </div>
+  </section>
+
+  <!-- ============ 03 字体 ============ -->
+  <section id="s3">
+    <div class="sec-head">
+      <span class="kicker">03 / Typography</span>
+      <h2 class="sec">字体</h2>
+      <p class="lead">三轨制：展示轨撑门面，正文轨管阅读，档案轨（等宽）给日期、标记与计数——等宽轨是"档案"身份的来源，沿用现状。</p>
+    </div>
+
+    <div class="tracks">
+      <div class="track">
+        <span class="t-name">Display · 展示轨</span>
+        <p class="t-stack">"Archivo", "Arial Black", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif</p>
+        <p>拉丁品牌字与大数字；900 字重，大写 + 字距 −0.04~−0.06em。中文不进此轨的紧字距，走黑体 Heavy。</p>
+      </div>
+      <div class="track">
+        <span class="t-name">Sans · 正文轨</span>
+        <p class="t-stack">system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif</p>
+        <p>全部中文正文与 UI 文字。正文 17px/1.75，辅助 13–14px。中文标题不使用负字距。</p>
+      </div>
+      <div class="track">
+        <span class="t-name">Mono · 档案轨</span>
+        <p class="t-stack">"Cascadia Code", "JetBrains Mono", Consolas, "SF Mono", Menlo, monospace</p>
+        <p>日期、FEATURED / SINCE / TOP 标记、计数、标签。全大写只用于拉丁字母。</p>
+      </div>
+    </div>
+
+    <div class="specimen">
+      <p class="lat">Kasai</p>
+      <p class="cn">纸面档案</p>
+      <p class="mono-line">2026-10-11 · FEATURED · SINCE 2023 · 32 POSTS</p>
+    </div>
+
+    <h3 class="sub">尺度</h3>
+    <table class="spec">
+      <thead><tr><th>角色</th><th>字号 / 行高</th><th>字重</th><th>备注</th></tr></thead>
+      <tbody>
+        <tr><td>Display Hero</td><td>clamp(56px, 7vw, 88px) / 1.04</td><td>900</td><td>仅首页身份域与 404；拉丁紧距，中文正常</td></tr>
+        <tr><td>H1 页面题</td><td>40px / 1.15</td><td>800</td><td>归档、关于等页面标题</td></tr>
+        <tr><td>H2 区块题</td><td>24–28px / 1.3</td><td>700</td><td>配合 mono 计数 <code>/n</code></td></tr>
+        <tr><td>H3 小题</td><td>18px / 1.5</td><td>600</td><td>—</td></tr>
+        <tr><td>正文</td><td>17px / 1.75</td><td>400</td><td>阅读页最大宽 38em</td></tr>
+        <tr><td>辅文</td><td>13–14px / 1.6</td><td>400</td><td>摘要、说明</td></tr>
+        <tr><td>Meta（mono）</td><td>12–13px / 1.4</td><td>500</td><td>日期 / 标记 / 计数，tabular-nums</td></tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub">自托管增强（可选）</h3>
+    <ul class="plain">
+      <li>Archivo 可变字重 woff2（拉丁子集 &lt;40KB）放 <code>source/fonts/</code>，@font-face 权重 100–900。</li>
+      <li>font-display 用 <code>swap</code>（参考稿的 block 是为像素匹配，博客以首屏为先）。</li>
+      <li>加载失败自动降级 Arial Black / 黑体，布局不塌。</li>
+    </ul>
+  </section>
+
+  <!-- ============ 04 空间与形状 ============ -->
+  <section id="s4">
+    <div class="sec-head">
+      <span class="kicker">04 / Space &amp; Shape</span>
+      <h2 class="sec">空间与形状</h2>
+      <p class="lead">间距七阶、圆角四档、阴影只给浮层、分区全靠发丝线。</p>
+    </div>
+
+    <h3 class="sub">间距阶</h3>
+    <div class="space-row">
+      <figure><div class="bar" style="width:4px"></div><figcaption>4</figcaption></figure>
+      <figure><div class="bar" style="width:8px"></div><figcaption>8</figcaption></figure>
+      <figure><div class="bar" style="width:12px"></div><figcaption>12</figcaption></figure>
+      <figure><div class="bar" style="width:16px"></div><figcaption>16</figcaption></figure>
+      <figure><div class="bar" style="width:24px"></div><figcaption>24</figcaption></figure>
+      <figure><div class="bar" style="width:40px"></div><figcaption>40</figcaption></figure>
+      <figure><div class="bar" style="width:64px"></div><figcaption>64</figcaption></figure>
+    </div>
+    <ul class="plain">
+      <li>区块间距桌面 64px、移动 40px；组件内 8–16px；组件间 24px。</li>
+    </ul>
+
+    <h3 class="sub">圆角</h3>
+    <div class="radius-row">
+      <div class="rc" style="border-radius:999px">999 胶囊</div>
+      <div class="rc" style="border-radius:22px">22 瓷砖</div>
+      <div class="rc" style="border-radius:12px">12 小卡</div>
+      <div class="rc" style="border-radius:8px">8 控件</div>
+    </div>
+
+    <h3 class="sub">阴影与线</h3>
+    <ul class="plain">
+      <li>全站唯一阴影：<code>--site-float-shadow: 0 12px 32px -14px rgba(42,37,29,.28)</code>，只给悬浮胶囊导航。</li>
+      <li>内容卡片一律 1px 发丝线，不用阴影；表头、页脚上缘用强线 .24。</li>
+      <li>瓷砖入口格可用 inset 1px 内描边（浅色 rgba(42,37,29,.10) / 深色 rgba(255,255,255,.14)）。</li>
+    </ul>
+  </section>
+
+  <!-- ============ 05 核心组件 · 效果图 ============ -->
+  <section id="s5">
+    <div class="sec-head">
+      <span class="kicker">05 / Components &amp; Mockups</span>
+      <h2 class="sec">核心组件 · 效果图</h2>
+      <p class="lead">图内文字与数字均为示意占位，线上一切以真实数据渲染。先看参考来源，再看本站转译。</p>
+    </div>
+
+    <!-- 5.0 参考来源 -->
+    <div class="shot-block">
+      <span class="ref-tag">参考来源 · REFERENCE</span>
+      <figure class="shot">
+        <svg viewBox="0 0 720 250" role="img" aria-label="ATRIUM MTL 参考效果图示意">
+          <rect x="0" y="0" width="720" height="250" fill="#f5f4ef"/>
+          <rect x="28" y="22" width="430" height="26" rx="8" fill="#ffffff" stroke="rgba(15,15,14,.14)"/>
+          <text x="42" y="39" font-size="11" font-weight="700" fill="#0f0f0e" font-family="'Archivo','Arial Black',sans-serif" letter-spacing="1">ATRIUM MTL</text>
+          <text x="150" y="39" font-size="11" fill="rgba(15,15,14,.55)">Programmes · Events · Visits</text>
+          <rect x="414" y="26" width="32" height="18" rx="9" fill="#0f0f0e"/>
+          <rect x="40" y="76" width="196" height="17" rx="3" fill="#0f0f0e"/>
+          <rect x="40" y="100" width="156" height="17" rx="3" fill="#0f0f0e"/>
+          <rect x="40" y="124" width="176" height="17" rx="3" fill="#0f0f0e"/>
+          <rect x="40" y="148" width="126" height="17" rx="3" fill="#0f0f0e"/>
+          <text x="40" y="196" font-size="12" fill="rgba(15,15,14,.55)">80px Archivo 900 · 大写 · −0.06em · 描边 1.1px</text>
+          <rect x="500" y="30" width="56" height="44" rx="10" fill="#ef5d44"/>
+          <rect x="500" y="82" width="56" height="44" rx="10" fill="#fcdd71"/>
+          <rect x="500" y="134" width="56" height="44" rx="10" class="ph"/>
+          <rect x="564" y="44" width="56" height="44" rx="10" fill="#9fd5f7"/>
+          <rect x="564" y="96" width="56" height="44" rx="10" class="ph2"/>
+          <rect x="564" y="148" width="56" height="44" rx="10" fill="#151515"/>
+          <rect x="628" y="34" width="56" height="44" rx="10" class="ph3"/>
+          <rect x="628" y="86" width="56" height="44" rx="10" fill="#ef5d44"/>
+          <rect x="628" y="138" width="56" height="44" rx="10" class="ph2"/>
+          <text x="40" y="228" font-size="12" fill="rgba(15,15,14,.45)">三列瓷砖 14.6s 循环 · 相邻列反向 · 白色悬浮 header · 纸面颗粒</text>
+        </svg>
+      </figure>
+      <div class="shot-cap"><p class="t">ATRIUM MTL 首屏（示意复刻）——瑞士海报标题 + 三列循环瓷砖 + 悬浮白 header</p></div>
+      <div class="shot-notes"><b>借什么：</b>排版系统、纸面底、块色瓷砖、胶囊导航、颗粒。 <b>不借什么：</b>固定画布缩放、全页视口锁定、常驻 marquee、虚构布景内容（见 08 对照表）。</div>
+    </div>
+
+    <!-- 5.1 首屏 -->
+    <div class="shot-block">
+      <span class="ref-tag">效果图 · 首页首屏</span>
+      <figure class="shot">
+        <svg viewBox="0 0 720 430" role="img" aria-label="KASAI 首页首屏效果图">
+          <rect x="0" y="0" width="720" height="430" fill="#f5f4ef"/>
+          <!-- 导航 -->
+          <rect x="24" y="18" width="78" height="26" rx="13" fill="#ffffff" stroke="rgba(42,37,29,.10)"/>
+          <text x="40" y="35" font-size="11" font-weight="700" fill="#2a251d" font-family="'Archivo','Arial Black',sans-serif" letter-spacing=".5">KASAI</text>
+          <rect x="254" y="16" width="212" height="30" rx="15" fill="#ffffff" stroke="rgba(42,37,29,.10)"/>
+          <rect x="261" y="20" width="42" height="22" rx="11" fill="#2a251d"/>
+          <text x="270" y="35" font-size="11" fill="#f5f1e9">首页</text>
+          <text x="313" y="35" font-size="11" fill="rgba(42,37,29,.62)">文字</text>
+          <text x="347" y="35" font-size="11" fill="rgba(42,37,29,.62)">分类</text>
+          <text x="381" y="35" font-size="11" fill="rgba(42,37,29,.62)">标签</text>
+          <text x="415" y="35" font-size="11" fill="rgba(42,37,29,.62)">关于</text>
+          <rect x="648" y="18" width="40" height="26" rx="13" fill="#ffffff" stroke="rgba(42,37,29,.10)"/>
+          <circle cx="665" cy="29" r="5" fill="none" stroke="#2a251d" stroke-width="1.6"/>
+          <line x1="669" y1="33" x2="673" y2="37" stroke="#2a251d" stroke-width="1.6" stroke-linecap="round"/>
+          <!-- 身份域 -->
+          <line x1="384" y1="66" x2="384" y2="410" stroke="rgba(42,37,29,.12)" stroke-dasharray="3 4"/>
+          <text x="24" y="88" font-size="11" font-weight="500" fill="#b0482a" font-family="monospace" letter-spacing="2">WRITING &amp; ARCHIVE</text>
+          <text x="22" y="156" font-size="62" font-weight="900" fill="#0f0f0e" font-family="'Archivo','Arial Black','PingFang SC','Microsoft YaHei',sans-serif" letter-spacing="-2">KASAI</text>
+          <text x="24" y="186" font-size="14" fill="rgba(42,37,29,.66)">写作 / 归档 / 痕迹</text>
+          <text x="24" y="214" font-size="13" fill="rgba(42,37,29,.62)">文章、项目与收藏的长期归档（示意文案）。</text>
+          <rect x="24" y="240" width="118" height="36" rx="18" fill="#2a251d"/>
+          <text x="44" y="263" font-size="13" fill="#f5f1e9">进入文字 →</text>
+          <text x="158" y="263" font-size="13" fill="#b0482a" text-decoration="underline" text-underline-offset="3">关于我 →</text>
+          <text x="24" y="330" font-size="11" fill="rgba(42,37,29,.5)" font-family="monospace" letter-spacing="1.5">SINCE 2023（由最早文章推导）</text>
+          <!-- 内容墙 -->
+          <rect x="400" y="70" width="296" height="150" rx="22" fill="#151515"/>
+          <text x="424" y="98" font-size="11" fill="#e2967f" font-family="monospace" letter-spacing="1.5">FEATURED · 2026-09-30 · 随笔</text>
+          <text x="424" y="126" font-size="16" font-weight="700" fill="#f5f1e9">文章标题占位（示意）</text>
+          <rect x="424" y="142" width="238" height="7" rx="3.5" fill="rgba(245,241,233,.22)"/>
+          <rect x="424" y="156" width="196" height="7" rx="3.5" fill="rgba(245,241,233,.22)"/>
+          <text x="424" y="196" font-size="12" fill="#e2967f">阅读全文 →</text>
+          <rect x="400" y="236" width="142" height="84" rx="22" fill="#e6b23c"/>
+          <text x="420" y="272" font-size="20" font-weight="500" fill="rgba(42,37,29,.78)" font-family="monospace">32</text>
+          <text x="420" y="294" font-size="12" fill="rgba(42,37,29,.66)">文字 →</text>
+          <rect x="554" y="236" width="142" height="84" rx="22" fill="#dd5a2f"/>
+          <text x="574" y="272" font-size="20" font-weight="500" fill="rgba(245,241,233,.9)" font-family="monospace">07</text>
+          <text x="574" y="294" font-size="12" fill="rgba(245,241,233,.78)">项目 →</text>
+          <rect x="400" y="332" width="142" height="84" rx="22" fill="#f9f6f1" stroke="rgba(42,37,29,.10)"/>
+          <text x="420" y="368" font-size="20" font-weight="500" fill="rgba(42,37,29,.78)" font-family="monospace">12</text>
+          <text x="420" y="390" font-size="12" fill="rgba(42,37,29,.66)">收藏 →</text>
+          <rect x="554" y="332" width="142" height="84" rx="22" fill="#ffffff" stroke="rgba(42,37,29,.10)"/>
+          <text x="574" y="368" font-size="20" font-weight="500" fill="rgba(42,37,29,.78)" font-family="monospace">05</text>
+          <text x="574" y="390" font-size="12" fill="rgba(42,37,29,.66)">分类 →</text>
+        </svg>
+      </figure>
+      <div class="shot-cap"><p class="t">首页首屏 —— 左身份域 × 右内容墙（V2 构图 + 参考语汇）</p></div>
+      <div class="shot-notes"><b>导航：</b>品牌 chip 外置左 · 菜单胶囊居中 · 搜索 chip 外置右（方案 C 不变）；当前页 = 暖墨实心胶囊 + 奶油字。<b>内容墙：</b>碳黑 FEATURED 主卡（锈红 mono 标记）+ 块色瓷砖入口（麦黄/焙橙/奶油/白），计数一律等宽字轨真实数据。整页块色 ≤ 2 处。</div>
+    </div>
+
+    <!-- 5.2 归档列表 -->
+    <div class="shot-block">
+      <span class="ref-tag">效果图 · 文字（归档）页</span>
+      <figure class="shot">
+        <svg viewBox="0 0 720 360" role="img" aria-label="归档页效果图">
+          <rect x="0" y="0" width="720" height="360" fill="#f5f4ef"/>
+          <text x="24" y="46" font-size="11" font-weight="500" fill="#b0482a" font-family="monospace" letter-spacing="2">ARCHIVE — 文字</text>
+          <text x="22" y="86" font-size="28" font-weight="800" fill="#0f0f0e" font-family="'PingFang SC','Microsoft YaHei',sans-serif">全部文字</text>
+          <text x="24" y="110" font-size="12" fill="rgba(42,37,29,.5)" font-family="monospace">共 32 篇 · 按时间倒序（示意）</text>
+          <line x1="24" y1="126" x2="696" y2="126" stroke="rgba(42,37,29,.24)"/>
+          <text x="24" y="160" font-size="12" fill="rgba(42,37,29,.6)" font-family="monospace">2026-09-30</text>
+          <text x="120" y="160" font-size="15" font-weight="600" fill="#0f0f0e">文章标题占位 · 一（示意）</text>
+          <rect x="626" y="144" width="70" height="22" rx="11" fill="none" stroke="rgba(42,37,29,.16)"/>
+          <text x="646" y="159" font-size="11" fill="rgba(42,37,29,.62)">随笔</text>
+          <line x1="24" y1="180" x2="696" y2="180" stroke="rgba(42,37,29,.12)"/>
+          <text x="24" y="215" font-size="12" fill="rgba(42,37,29,.6)" font-family="monospace">2026-09-12</text>
+          <text x="120" y="215" font-size="15" font-weight="600" fill="#0f0f0e">文章标题占位 · 二（示意）</text>
+          <rect x="626" y="199" width="70" height="22" rx="11" fill="none" stroke="rgba(42,37,29,.16)"/>
+          <text x="646" y="214" font-size="11" fill="rgba(42,37,29,.62)">技术</text>
+          <line x1="24" y1="235" x2="696" y2="235" stroke="rgba(42,37,29,.12)"/>
+          <text x="24" y="270" font-size="12" fill="rgba(42,37,29,.6)" font-family="monospace">2026-08-26</text>
+          <text x="120" y="270" font-size="15" font-weight="600" fill="#0f0f0e">文章标题占位 · 三（示意）</text>
+          <rect x="626" y="254" width="70" height="22" rx="11" fill="none" stroke="rgba(42,37,29,.16)"/>
+          <text x="646" y="269" font-size="11" fill="rgba(42,37,29,.62)">游戏</text>
+          <line x1="24" y1="290" x2="696" y2="290" stroke="rgba(42,37,29,.12)"/>
+          <text x="24" y="325" font-size="12" fill="rgba(42,37,29,.6)" font-family="monospace">2026-08-02</text>
+          <text x="120" y="325" font-size="15" font-weight="600" fill="#0f0f0e">文章标题占位 · 四（示意）</text>
+          <rect x="626" y="309" width="70" height="22" rx="11" fill="none" stroke="rgba(42,37,29,.16)"/>
+          <text x="646" y="324" font-size="11" fill="rgba(42,37,29,.62)">收藏</text>
+          <line x1="24" y1="345" x2="696" y2="345" stroke="rgba(42,37,29,.12)"/>
+        </svg>
+      </figure>
+      <div class="shot-cap"><p class="t">归档页 —— 编辑式行列表：mono 日期 + 标题 + 分类胶囊，发丝线分行</p></div>
+      <div class="shot-notes"><b>规则：</b>不用卡片网格；行 hover 只做锈红着色与 2px 位移；年份分组线用强线；页头 mono 眉题（ARCHIVE / CATEGORIES / TAGS）+ 大标题 + 真实计数。</div>
+    </div>
+
+    <!-- 5.3 阅读页 -->
+    <div class="shot-block">
+      <span class="ref-tag">效果图 · 文章阅读页</span>
+      <figure class="shot">
+        <svg viewBox="0 0 720 360" role="img" aria-label="文章阅读页效果图">
+          <rect x="0" y="0" width="720" height="360" fill="#f5f4ef"/>
+          <text x="120" y="52" font-size="11" fill="#b0482a" font-family="monospace" letter-spacing="1.5">2026-09-30 · 随笔 · 约 8 分钟</text>
+          <text x="118" y="94" font-size="28" font-weight="800" fill="#0f0f0e" font-family="'PingFang SC','Microsoft YaHei',sans-serif">文章标题占位（示意）</text>
+          <line x1="120" y1="116" x2="600" y2="116" stroke="rgba(42,37,29,.12)"/>
+          <text x="120" y="150" font-size="12" fill="rgba(42,37,29,.78)">这是正文的示意段落。正文 17px / 1.75，段落宽不超过 38em，</text>
+          <text x="120" y="172" font-size="12" fill="rgba(42,37,29,.78)">两侧留白让纸面呼吸，标题与正文之间空一行。</text>
+          <rect x="120" y="192" width="480" height="8" rx="4" fill="rgba(42,37,29,.16)"/>
+          <rect x="120" y="208" width="480" height="8" rx="4" fill="rgba(42,37,29,.16)"/>
+          <rect x="120" y="224" width="420" height="8" rx="4" fill="rgba(42,37,29,.16)"/>
+          <rect x="120" y="248" width="3" height="52" rx="1.5" fill="#b0482a"/>
+          <text x="140" y="266" font-size="12" fill="#2a251d">引用块：左缘 3px 锈红竖线，底色奶油，字号 15px。</text>
+          <text x="140" y="286" font-size="12" fill="rgba(42,37,29,.66)">出处标注用 mono 小字。（示意）</text>
+          <rect x="120" y="316" width="480" height="8" rx="4" fill="rgba(42,37,29,.16)"/>
+          <text x="120" y="348" font-size="11" fill="rgba(42,37,29,.5)" font-family="monospace" letter-spacing="1.5">PREV · NEXT —— 文末导航（示意）</text>
+        </svg>
+      </figure>
+      <div class="shot-cap"><p class="t">阅读页 —— 单栏纸面，measure 38em，引用块与代码块是唯一的"重墨"</p></div>
+      <div class="shot-notes"><b>规则：</b>无 Banner 图、无侧栏；代码块用碳黑底奶油字 + mono；图片圆角 22px 带发丝线；加密文章卡片沿用现有逻辑不变。</div>
+    </div>
+
+    <!-- 5.4 移动端 -->
+    <div class="shot-block">
+      <span class="ref-tag">效果图 · 移动端首屏</span>
+      <figure class="shot" style="max-width:340px;margin:0 auto">
+        <svg viewBox="0 0 300 560" role="img" aria-label="移动端首屏效果图">
+          <rect x="0" y="0" width="300" height="560" fill="#f5f4ef"/>
+          <rect x="14" y="16" width="72" height="26" rx="13" fill="#ffffff" stroke="rgba(42,37,29,.10)"/>
+          <text x="28" y="33" font-size="11" font-weight="700" fill="#2a251d" font-family="'Archivo','Arial Black',sans-serif" letter-spacing=".5">KASAI</text>
+          <rect x="246" y="16" width="40" height="26" rx="13" fill="#ffffff" stroke="rgba(42,37,29,.10)"/>
+          <line x1="258" y1="26" x2="274" y2="26" stroke="#2a251d" stroke-width="1.6" stroke-linecap="round"/>
+          <line x1="258" y1="31" x2="274" y2="31" stroke="#2a251d" stroke-width="1.6" stroke-linecap="round"/>
+          <line x1="258" y1="36" x2="274" y2="36" stroke="#2a251d" stroke-width="1.6" stroke-linecap="round"/>
+          <text x="14" y="78" font-size="10" font-weight="500" fill="#b0482a" font-family="monospace" letter-spacing="1.5">WRITING &amp; ARCHIVE</text>
+          <text x="12" y="122" font-size="42" font-weight="900" fill="#0f0f0e" font-family="'Archivo','Arial Black','PingFang SC','Microsoft YaHei',sans-serif" letter-spacing="-1.5">KASAI</text>
+          <text x="14" y="146" font-size="12" fill="rgba(42,37,29,.66)">写作 / 归档 / 痕迹</text>
+          <text x="14" y="170" font-size="12" fill="rgba(42,37,29,.62)">文章、项目与收藏的长期归档（示意）。</text>
+          <rect x="14" y="190" width="272" height="38" rx="19" fill="#2a251d"/>
+          <text x="104" y="214" font-size="13" fill="#f5f1e9">进入文字 →</text>
+          <rect x="14" y="252" width="272" height="120" rx="22" fill="#151515"/>
+          <text x="32" y="278" font-size="10" fill="#e2967f" font-family="monospace" letter-spacing="1">FEATURED · 2026-09-30</text>
+          <text x="32" y="302" font-size="14" font-weight="700" fill="#f5f1e9">文章标题占位（示意）</text>
+          <rect x="32" y="316" width="222" height="6" rx="3" fill="rgba(245,241,233,.22)"/>
+          <rect x="32" y="328" width="180" height="6" rx="3" fill="rgba(245,241,233,.22)"/>
+          <text x="32" y="356" font-size="11" fill="#e2967f">阅读全文 →</text>
+          <rect x="14" y="386" width="130" height="76" rx="22" fill="#e6b23c"/>
+          <text x="30" y="418" font-size="18" font-weight="500" fill="rgba(42,37,29,.78)" font-family="monospace">32</text>
+          <text x="30" y="438" font-size="11" fill="rgba(42,37,29,.66)">文字 →</text>
+          <rect x="156" y="386" width="130" height="76" rx="22" fill="#dd5a2f"/>
+          <text x="172" y="418" font-size="18" font-weight="500" fill="rgba(245,241,233,.9)" font-family="monospace">07</text>
+          <text x="172" y="438" font-size="11" fill="rgba(245,241,233,.78)">项目 →</text>
+          <text x="14" y="500" font-size="10" fill="rgba(42,37,29,.5)" font-family="monospace" letter-spacing="1">导航收进菜单面板 · 单列可滚动（示意）</text>
+        </svg>
+      </figure>
+      <div class="shot-cap"><p class="t">移动端 —— 品牌芯片 + 汉堡，内容单列纵向排布</p></div>
+      <div class="shot-notes"><b>规则：</b>全部导航入口进可展开面板（沿用现有九宫格逻辑）；瓷砖单行两列；正文回归 16–17px，永远可滚动、可回流，禁止视口锁定。</div>
+    </div>
+  </section>
+
+  <!-- ============ 06 动效 ============ -->
+  <section id="s6">
+    <div class="sec-head">
+      <span class="kicker">06 / Motion</span>
+      <h2 class="sec">动效</h2>
+      <p class="lead">动效只做两件事：入场一次性、hover 即时反馈。常驻动画默认没有。</p>
+    </div>
+
+    <figure class="shot">
+      <svg viewBox="0 0 720 224" role="img" aria-label="首屏入场时间轴">
+        <rect x="0" y="0" width="720" height="224" fill="#f9f6f1"/>
+        <line x1="40" y1="196" x2="680" y2="196" stroke="rgba(42,37,29,.24)"/>
+        <text x="36" y="214" font-size="11" fill="rgba(42,37,29,.5)" font-family="monospace">0s</text>
+        <text x="176" y="214" font-size="11" fill="rgba(42,37,29,.5)" font-family="monospace">0.5</text>
+        <text x="322" y="214" font-size="11" fill="rgba(42,37,29,.5)" font-family="monospace">1.0</text>
+        <text x="468" y="214" font-size="11" fill="rgba(42,37,29,.5)" font-family="monospace">1.5</text>
+        <text x="612" y="214" font-size="11" fill="rgba(42,37,29,.5)" font-family="monospace">2.0s</text>
+        <text x="40" y="44" font-size="12" fill="rgba(42,37,29,.7)">导航胶囊下落 0.95s</text>
+        <rect x="40" y="52" width="276" height="14" rx="7" fill="rgba(176,72,42,.30)" stroke="#b0482a"/>
+        <text x="40" y="88" font-size="12" fill="rgba(42,37,29,.7)">大标题逐行升起（stagger 0.085s）</text>
+        <rect x="127" y="96" width="364" height="14" rx="7" fill="rgba(176,72,42,.30)" stroke="#b0482a"/>
+        <text x="40" y="132" font-size="12" fill="rgba(42,37,29,.7)">内容墙淡入 0.9–1.8s</text>
+        <rect x="302" y="140" width="262" height="14" rx="7" fill="rgba(176,72,42,.30)" stroke="#b0482a"/>
+        <text x="40" y="176" font-size="12" fill="#b0482a" font-weight="600">2.1s 入场全部就位（EXPO 0.16,1,0.3,1）</text>
+        <line x1="651" y1="60" x2="651" y2="196" stroke="#b0482a" stroke-dasharray="3 4"/>
+        <circle cx="651" cy="196" r="4" fill="#b0482a"/>
+      </svg>
+    </figure>
+
+    <div class="motion-grid">
+      <div class="m-card"><h5>入场（一次性）</h5><p>仅首页首访播放：header 落下 → 大标题逐行升起 → 内容墙淡入，2.1s 就位。</p><span class="mono">WAAPI · EXPO(0.16,1,0.3,1)</span></div>
+      <div class="m-card"><h5>瓷砖循环（可选）</h5><p>仅当内容墙有真实图片素材才启用；14.6s/循环、相邻列反向、移动端静帧。</p><span class="mono">CSS @keyframes · translate3d</span></div>
+      <div class="m-card"><h5>hover</h5><p>≤120ms，只动 transform/opacity。链接变锈红，行列表 2px 位移，瓷砖不缩放。</p><span class="mono">transition ≤ 120ms</span></div>
+      <div class="m-card"><h5>降级与禁项</h5><p>prefers-reduced-motion 下全部静态。禁：全页常驻 marquee、scale 画布、视差、自动轮播、骨架屏。</p><span class="mono">@media (prefers-reduced-motion)</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 07 质感 ============ -->
+  <section id="s7">
+    <div class="sec-head">
+      <span class="kicker">07 / Texture</span>
+      <h2 class="sec">质感</h2>
+      <p class="lead">纸感来自底色与排版，颗粒只叠在色块上——左为无颗粒，右为叠 13% multiply 颗粒；碳黑卡用 5% screen。</p>
+    </div>
+    <div class="grain-row">
+      <div class="grain-tile wheat"><span class="big">32</span><span class="lbl">WHEAT · 无颗粒</span></div>
+      <div class="grain-tile wheat grained"><span class="big">32</span><span class="lbl">WHEAT · 颗粒 ×13%</span></div>
+      <div class="grain-tile carbon screened"><span class="big">FEATURED</span><span class="lbl">CARBON · SCREEN 5%</span></div>
+    </div>
+    <ul class="plain" style="margin-top:18px">
+      <li>颗粒纹理为内联 SVG feTurbulence data-URI，无外部请求；块色瓷砖 opacity .12–.14 multiply。</li>
+      <li>正文纸面、导航、列表一律不加纹理；头像沿用主题猫插画，经 <code>_config.yml</code> 统一管理可替换，布局按方形裁切不依赖图片比例。</li>
+    </ul>
+  </section>
+
+  <!-- ============ 08 参考 → 转译 ============ -->
+  <section id="s8">
+    <div class="sec-head">
+      <span class="kicker">08 / Reference Mapping</span>
+      <h2 class="sec">参考 → 转译</h2>
+      <p class="lead">ATRIUM MTL 每一项手法的取舍决定与理由。</p>
+    </div>
+    <table class="map">
+      <thead><tr><th>参考做法</th><th>决定</th><th>理由</th></tr></thead>
+      <tbody>
+        <tr><td>Archivo 900 海报标题 + 紧字距</td><td><span class="tag take">取</span></td><td>瑞士排版骨架成立；中文场景走黑体 Heavy，不硬套负字距</td></tr>
+        <tr><td>纸白底 + 近黑字 + 三强调色</td><td><span class="tag take">取</span></td><td>色板本地化为既有锈红体系，强调色从 3 个收敛为 1 个</td></tr>
+        <tr><td>块色瓷砖做内容入口</td><td><span class="tag take">取</span></td><td>映射现有 wall-cell 入口格；沿用"整页 ≤2 处"纪律</td></tr>
+        <tr><td>悬浮胶囊导航</td><td><span class="tag take">取</span></td><td>即已上线的方案 C，品牌左 / 胶囊中 / 搜索右</td></tr>
+        <tr><td>纸面颗粒纹理</td><td><span class="tag take">取</span></td><td>限定瓷砖与深色卡，正文纸面不叠加</td></tr>
+        <tr><td>首屏一次性入场编排</td><td><span class="tag take">取</span></td><td>2.1s 时间轴收编进动效规范，reduced-motion 全降级</td></tr>
+        <tr><td>1280×800 固定画布 + scale</td><td><span class="tag drop">舍</span></td><td>文字随缩放微糊、用户缩放失效、维护按画布算坐标——改真响应式</td></tr>
+        <tr><td>全页 overflow:hidden 视口锁定</td><td><span class="tag drop">舍</span></td><td>真实移动端有裁切风险；内容必须可滚动可回流</td></tr>
+        <tr><td>常驻 marquee 无限循环</td><td><span class="tag drop">舍</span></td><td>降级为"有真实素材才可选启用"的局部组件</td></tr>
+        <tr><td>虚构电话 / 展览等布景内容</td><td><span class="tag drop">舍</span></td><td>真实数据铁律：无数据不渲染，不造文案</td></tr>
+        <tr><td>font-display: block</td><td><span class="tag drop">舍</span></td><td>博客以首屏为先，用 swap + 系统字体兜底</td></tr>
+        <tr><td>SVG 内联图标 / 线稿语言</td><td><span class="tag take">取</span></td><td>零依赖、随主题变色，管理后台线稿图标同源</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============ 09 落地映射 ============ -->
+  <section id="s9">
+    <div class="sec-head">
+      <span class="kicker">09 / Implementation</span>
+      <h2 class="sec">落地映射</h2>
+      <p class="lead">本语言全部落进 site.css 分区与既有数据机制，不动架构。</p>
+    </div>
+    <div class="land">
+      <div class="l-card">
+        <span class="mono">SITE.CSS · 分区落点</span>
+        <h5>tokens → 基础 → 组件 → 逐页</h5>
+        <ul>
+          <li>1 tokens：补 --paper / --ink / --font-display / --radius-tile 等</li>
+          <li>2 基础：纸面底色、selection（已有）、正文 measure</li>
+          <li>3 组件：胶囊导航（已有）+ .tile 瓷砖 + FEATURED 卡 + 引用块</li>
+          <li>4 逐页：index / archives / post 阅读排版</li>
+        </ul>
+      </div>
+      <div class="l-card">
+        <span class="mono">数据机制 · 不变</span>
+        <h5>真实数据驱动</h5>
+        <ul>
+          <li>featured: true 指定代表作，缺省最新一篇</li>
+          <li>模块扩展走 Hexo data files 注册表</li>
+          <li>Since 由最早文章日期推导</li>
+          <li>无数据模块不渲染、计数必真</li>
+        </ul>
+      </div>
+      <div class="l-card">
+        <span class="mono">红线 · 不动</span>
+        <h5>保护清单</h5>
+        <ul>
+          <li>inject_point、插件、统计与备案配置</li>
+          <li>加密文章逻辑与永久链接规则</li>
+          <li>/admin 管理后台（棕红强调语汇保持现状）</li>
+          <li>全文换行与全角标点原样保留</li>
+        </ul>
+      </div>
+      <div class="l-card">
+        <span class="mono">验收 · Checklist</span>
+        <h5>每次改动后核对</h5>
+        <ul>
+          <li>1280 / 375 两档无横向滚动</li>
+          <li>reduced-motion 全静态可用</li>
+          <li>空数据页无空卡片、无假计数</li>
+          <li>对比度：正文 AA，强调文本加粗</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer class="end">
+    <span class="mono">PAPER ARCHIVE V1.0 — KASAI DESIGN LANGUAGE</span>
+    <span class="mono">2026-10-11 · 配套 source/css/site.css V3.2</span>
+    <a href="#s1">TOP ↑</a>
+  </footer>
+
+</div>
+</body>
+</html>

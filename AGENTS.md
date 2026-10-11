@@ -71,7 +71,7 @@ request for authorization. Do not expand beyond the original scope.
 Verified on 2026-10-10. Re-verify if this section drifts from reality.
 
 **What it is:** a personal Hexo blog ("KASAI'S Bloger"), deployed to
-<https://www.hyy.baby>. Chinese-language writing.
+<https://www.040925.xyz>. Chinese-language writing.
 
 | Item | Value |
 |---|---|
