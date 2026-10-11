@@ -2,6 +2,7 @@
 // POST /api/content-save —— 统一保存入口
 // {kind:'post', action:'save-draft'|'publish-draft'|'publish-new'|'update', ...}
 // {kind:'data', module, index, item, expectedHeadSha}
+// {kind:'site', intro, motto, avatar, identity_words, expectedHeadSha}
 // 返回统一带 commitSha（内容已提交）与 headSha，发布状态由 /api/deploy-status 单独判定。
 const { requireSession } = require('./_lib/session');
 const { json, readJson, respondError, originAllowed } = require('./_lib/http');
@@ -25,6 +26,10 @@ module.exports = async (req, res) => {
     }
     if (kind === 'data') {
       const r = await content.saveData(body);
+      return json(res, 200, Object.assign({ ok: true, status: 'committed' }, r));
+    }
+    if (kind === 'site') {
+      const r = await content.saveSite(body);
       return json(res, 200, Object.assign({ ok: true, status: 'committed' }, r));
     }
     return json(res, 400, { error: 'BAD_KIND' });

@@ -18,6 +18,7 @@ const TRASH_DIR = '_trash';
 const IMG_DIR = 'source/img';
 const DATA_DIR = 'source/_data';
 const MODULES = ['projects', 'games', 'collections'];
+const SITE_PATH = `${DATA_DIR}/site.yml`;
 const MANIFEST_PATH = `${TRASH_DIR}/manifest.json`;
 
 // ---------- 时间 ----------
@@ -81,6 +82,10 @@ async function listAll() {
     const entry = paths.includes(p);
     data[m] = entry ? yaml.parseItems((await store.getFile(p)).content) : [];
   }
+  // 站点身份配置（site.yml 不存在时返回空配置）
+  const site = paths.includes(SITE_PATH)
+    ? yaml.parseSite((await store.getFile(SITE_PATH)).content)
+    : { intro: '', motto: '', avatar: '', identity_words: [] };
   let trash = [];
   if (paths.includes(MANIFEST_PATH)) {
     try {
@@ -96,7 +101,7 @@ async function listAll() {
       return Object.assign({}, d, { title: posts.extractTitle(f.content, d.name), sha: f.sha });
     })
   );
-  return { posts: posts_, drafts: draftsFull, data, images: images.sort(), trash, headSha: await store.getHead(), mockMode: store.mockMode };
+  return { posts: posts_, drafts: draftsFull, data, site, images: images.sort(), trash, headSha: await store.getHead(), mockMode: store.mockMode };
 }
 
 // ---------- 单文件读取 ----------
@@ -115,6 +120,8 @@ async function getPostFile(path) {
       date: parsed.fm.date || '',
       tags: normTags(parsed.fm.tags),
       categories: normTags(parsed.fm.categories),
+      featured: !!parsed.fm.featured,
+      cover: parsed.fm.cover || '',
     },
     body: parsed.body || '',
     sha: f.sha,
@@ -124,15 +131,18 @@ async function getPostFile(path) {
 
 // ---------- 草稿与发布 ----------
 
-function buildPostText(title, tags, categories, body, date) {
+function buildPostText(title, tags, categories, body, date, extra) {
   const fm = { title, tags: normTags(tags), categories: normTags(categories) };
   if (date) fm.date = date;
+  const ex = extra || {};
+  if (ex.featured !== undefined && ex.featured !== null) fm.featured = !!ex.featured;
+  if (ex.cover) fm.cover = String(ex.cover).trim();
   return posts.serializeFrontMatter(fm, []) + (body || '').replace(/^\r?\n/, '');
 }
 
 async function saveDraft(input) {
   const slug = assertSlug(input.slug);
-  const text = buildPostText(input.title || 'Untitled', input.tags, input.categories, input.body, null);
+  const text = buildPostText(input.title || 'Untitled', input.tags, input.categories, input.body, null, input);
   const changes = [];
   let headExpected = input.expectedHeadSha;
   if (input.prevSlug && input.prevSlug !== slug) {
@@ -161,7 +171,7 @@ async function publishDraft(input) {
   });
   const parsed = posts.parseFrontMatter(draft.content);
   const date = parsed.fm.date || nowCst();
-  const postText = buildPostText(parsed.fm.title || input.title || 'Untitled', parsed.fm.tags, parsed.fm.categories, parsed.body, date);
+  const postText = buildPostText(parsed.fm.title || input.title || 'Untitled', parsed.fm.tags, parsed.fm.categories, parsed.body, date, parsed.fm);
   const r = await store.commitFiles(
     [
       { path: `${POSTS_DIR}/${slug}.md`, contentUtf8: postText },
@@ -180,7 +190,7 @@ async function publishNew(input) {
   const existing = await store.getFile(postPath).catch(() => null);
   if (existing) throw new HttpError(409, 'POST_EXISTS', { path: postPath });
   const date = nowCst();
-  const text = buildPostText(input.title || 'Untitled', input.tags, input.categories, input.body, date);
+  const text = buildPostText(input.title || 'Untitled', input.tags, input.categories, input.body, date, input);
   const r = await store.commitFiles([{ path: postPath, contentUtf8: text }], `后台：发布文章 ${slug}`, input.expectedHeadSha);
   return { path: postPath, permalink: permalinkFor(slug, date), date, headSha: r.headSha, commitSha: r.commitSha };
 }
@@ -209,6 +219,9 @@ async function updatePost(input) {
     tags: input.tags !== undefined ? normTags(input.tags) : normTags(parsed.fm.tags),
     categories: input.categories !== undefined ? normTags(input.categories) : normTags(parsed.fm.categories),
   };
+  // featured / cover：显式传入则替换，否则沿用原值
+  fm.featured = input.featured !== undefined ? !!input.featured : parsed.fm.featured;
+  fm.cover = input.cover !== undefined ? String(input.cover || '').trim() : parsed.fm.cover;
   // date 与文件名锁死：显式沿用原值
   fm.date = parsed.fm.date || nowCst();
   const text = posts.serializeFrontMatter(fm, parsed.unknownLines) + (input.body !== undefined ? input.body : parsed.body || '');
@@ -245,6 +258,23 @@ async function saveData(input) {
   const text = yaml.updateItems(file.content, items);
   const r = await store.commitFiles([{ path: p, contentUtf8: text }], `后台：${idx === -1 ? '新增' : '更新'}${m}条目「${item.title}」`, input.expectedHeadSha);
   return { path: p, items: items.length, headSha: r.headSha, commitSha: r.commitSha };
+}
+
+// ---------- 站点身份配置 ----------
+
+async function saveSite(input) {
+  const cfg = {
+    intro: String(input.intro == null ? '' : input.intro).trim(),
+    motto: String(input.motto == null ? '' : input.motto).trim(),
+    avatar: String(input.avatar == null ? '' : input.avatar).trim(),
+    identity_words: Array.isArray(input.identity_words)
+      ? input.identity_words.map((s) => String(s).trim()).filter(Boolean)
+      : String(input.identity_words || '').split(/\r?\n/).map((s) => s.trim()).filter(Boolean),
+  };
+  const file = (await store.getFile(SITE_PATH).catch(() => null)) || { content: '', sha: null };
+  const text = yaml.updateSite(file.content, cfg);
+  const r = await store.commitFiles([{ path: SITE_PATH, contentUtf8: text }], '后台：更新站点身份配置', input.expectedHeadSha);
+  return { path: SITE_PATH, site: cfg, headSha: r.headSha, commitSha: r.commitSha };
 }
 
 // ---------- 回收站 ----------
@@ -340,13 +370,13 @@ async function restore(input) {
 
 async function uploadImage(input) {
   const m = String(input.module || 'posts');
-  if (!['posts', 'projects', 'games', 'collections'].includes(m)) throw new HttpError(400, 'BAD_MODULE');
+  if (!['posts', 'projects', 'games', 'collections', 'avatar'].includes(m)) throw new HttpError(400, 'BAD_MODULE');
   const name = String(input.filename || 'image.jpg');
   const ext = (name.split('.').pop() || '').toLowerCase();
   if (!config.IMAGE_EXT.includes(ext)) throw new HttpError(400, 'BAD_EXT');
   const buf = Buffer.from(input.dataBase64 || '', 'base64');
   if (!buf.length) throw new HttpError(400, 'EMPTY_FILE');
-  if (buf.length > config.MAX_IMAGE_BYTES) throw new HttpError(413, 'TOO_LARGE');
+  if (buf.length > config.MAX_IMAGE_BYTES) throw new HttpError(413, 'TOO_LARGE', { hint: '图片过大（压缩后上限 4MB），请裁剪后再试' });
   const safe = name
     .slice(0, -(ext.length + 1))
     .toLowerCase()
@@ -374,6 +404,7 @@ module.exports = {
   publishNew,
   updatePost,
   saveData,
+  saveSite,
   deleteItem,
   restore,
   uploadImage,

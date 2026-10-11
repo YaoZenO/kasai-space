@@ -4,7 +4,7 @@
 // 其余未知 front matter 行原样保留；正文原样保留。
 // 永久链接稳定性：文件名与 date 由调用方锁定，本层不做任何变更。
 
-const KNOWN = ['title', 'date', 'tags', 'categories'];
+const KNOWN = ['title', 'date', 'tags', 'categories', 'featured', 'cover'];
 
 function parseFrontMatter(text) {
   const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
@@ -21,7 +21,9 @@ function parseFrontMatter(text) {
     const key = kv[1];
     let val = kv[2].trim();
     if (KNOWN.includes(key)) {
-      if (val.startsWith('[') && val.endsWith(']')) {
+      if (key === 'featured') {
+        fm.featured = val === 'true' || val === true;
+      } else if (val.startsWith('[') && val.endsWith(']')) {
         const inner = val.slice(1, -1).trim();
         fm[key] = inner ? inner.split(',').map((s) => s.trim().replace(/^["']|["']$/g, '')).filter(Boolean) : [];
       } else {
@@ -54,6 +56,8 @@ function serializeFrontMatter(fm, unknownLines) {
   if (fm.date !== undefined && fm.date !== '') lines.push(`date: ${serializeScalar(fm.date)}`);
   if (fm.tags !== undefined) lines.push(`tags: ${Array.isArray(fm.tags) ? serializeList(fm.tags) : serializeScalar(fm.tags)}`);
   if (fm.categories !== undefined) lines.push(`categories: ${Array.isArray(fm.categories) ? serializeList(fm.categories) : serializeScalar(fm.categories)}`);
+  if (fm.featured !== undefined && fm.featured !== null) lines.push(`featured: ${fm.featured ? 'true' : 'false'}`);
+  if (fm.cover !== undefined && fm.cover !== null && fm.cover !== '') lines.push(`cover: ${serializeScalar(fm.cover)}`);
   for (const l of unknownLines || []) lines.push(l);
   return `---\n${lines.join('\n')}\n---\n`;
 }

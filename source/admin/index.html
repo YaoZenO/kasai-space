@@ -49,9 +49,14 @@
         <label class="field"><span>标签（逗号分隔）</span><input id="post-tags" type="text" autocomplete="off"></label>
         <label class="field"><span>分类</span><input id="post-categories" type="text" autocomplete="off"></label>
       </div>
+      <div class="field-row two">
+        <label class="field"><span>封面图片路径（可空；可双击从图库选择）</span><input id="post-cover" type="text" autocomplete="off" spellcheck="false" placeholder="/img/posts/xxx.jpg"></label>
+        <label class="field field-check"><span>设为首页 FEATURED 代表作</span><input id="post-featured" type="checkbox"></label>
+      </div>
       <div class="editor-toolbar">
         <button class="btn btn-mini" id="btn-insert-image" type="button">插图</button>
         <button class="btn btn-mini" id="btn-toggle-preview" type="button">预览</button>
+        <span id="post-wordcount" class="wordcount"></span>
       </div>
       <textarea id="post-body" class="post-body" spellcheck="false" placeholder="正文 Markdown…"></textarea>
       <div id="post-preview" class="post-preview markdown-body" hidden></div>
@@ -61,18 +66,48 @@
       </div>
     </div>
 
-    <!-- 数据条目编辑器（项目/游戏/收藏共用） -->
+    <!-- 数据条目编辑器（项目/游戏/收藏共用骨架，字段提示随类型变化） -->
     <div id="view-data-editor" hidden>
       <div class="editor-head">
         <button class="btn-back" data-back>← 返回</button>
+        <span id="item-module-badge" class="permalink-hint"></span>
       </div>
       <label class="field"><span>名称（必填）</span><input id="item-title" type="text" autocomplete="off"></label>
-      <label class="field"><span>链接（http(s):// 或站内路径，可空）</span><input id="item-link" type="text" autocomplete="off" spellcheck="false"></label>
+      <label class="field"><span id="item-link-label">链接（http(s):// 或站内路径，可空）</span><input id="item-link" type="text" autocomplete="off" spellcheck="false"></label>
       <label class="field"><span>一句话说明（可空）</span><input id="item-desc" type="text" autocomplete="off"></label>
-      <label class="field"><span>封面图片路径（可通过「图片」页选择）</span><input id="item-cover" type="text" autocomplete="off" spellcheck="false" placeholder="/img/projects/xxx.jpg"></label>
+      <label class="field">
+        <span>封面图片（可空）</span>
+        <div class="field-inline">
+          <input id="item-cover" type="text" autocomplete="off" spellcheck="false" placeholder="/img/projects/xxx.jpg">
+          <button class="btn btn-mini" id="btn-item-cover-pick" type="button">图库选择</button>
+          <button class="btn btn-mini btn-primary-quiet" id="btn-item-cover-upload" type="button">上传封面</button>
+        </div>
+        <small id="item-cover-hint" class="field-hint">直接上传会存入该板块专属目录，无需再去「图片」页。</small>
+      </label>
       <label class="field"><span>日期（参与首页近期动态，如 2026-05-01，可空）</span><input id="item-date" type="text" autocomplete="off" placeholder="2026-05-01"></label>
       <div class="editor-actions">
         <button class="btn btn-primary" id="btn-save-item" type="button">保存</button>
+      </div>
+    </div>
+
+    <!-- 站点身份设置 -->
+    <div id="view-site-editor" hidden>
+      <div class="editor-head">
+        <button class="btn-back" data-back>← 返回</button>
+        <span class="permalink-hint">保存后自动提交，部署完成后首页生效</span>
+      </div>
+      <label class="field"><span>一句话介绍（首页身份域 tagline）</span><input id="site-intro" type="text" autocomplete="off" placeholder="如：写作 / 归档 / 痕迹"></label>
+      <label class="field"><span>页脚座右铭（可空，空则显示 SINCE 年份）</span><input id="site-motto" type="text" autocomplete="off"></label>
+      <label class="field">
+        <span>头像图片路径（可空，空则用主题配置）</span>
+        <div class="field-inline">
+          <input id="site-avatar" type="text" autocomplete="off" spellcheck="false" placeholder="/img/avatar/xxx.jpg">
+          <button class="btn btn-mini btn-primary-quiet" id="btn-site-avatar-upload" type="button">上传头像</button>
+        </div>
+      </label>
+      <label class="field"><span>身份词竖列（每行一个，如：WRITER / DEVELOPER；空则不渲染）</span><textarea id="site-identity" class="post-body small" rows="5" spellcheck="false" placeholder="WRITER&#10;DEVELOPER"></textarea></label>
+      <div class="editor-actions">
+        <button class="btn btn-primary" id="btn-save-site" type="button">保存设置</button>
       </div>
     </div>
   </main>
@@ -84,6 +119,7 @@
     <button data-tab="games" class="tab"><span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 8h10a4.5 4.5 0 0 1 4.4 5.4l-.8 3.8a2.6 2.6 0 0 1-4.5 1.1L14.5 16h-5l-1.6 2.3a2.6 2.6 0 0 1-4.5-1.1l-.8-3.8A4.5 4.5 0 0 1 7 8z"/><path d="M8.5 11v3M7 12.5h3"/><circle cx="16" cy="11.5" r=".9" fill="currentColor" stroke="none"/><circle cx="18.2" cy="13.7" r=".9" fill="currentColor" stroke="none"/></svg></span><span class="tab-txt">游戏</span></button>
     <button data-tab="collections" class="tab"><span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.5-9-9c-1.3-3 .8-6.5 4-6.5 2 0 3.6 1.2 5 3 1.4-1.8 3-3 5-3 3.2 0 5.3 3.5 4 6.5-2 4.5-9 9-9 9z"/></svg></span><span class="tab-txt">收藏</span></button>
     <button data-tab="images" class="tab"><span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4.5 17l5-5 3.5 3.5 3-3 4.5 4.5"/></svg></span><span class="tab-txt">图片</span></button>
+    <button data-tab="site" class="tab"><span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 3.5v2.2M12 18.3v2.2M3.5 12h2.2M18.3 12h2.2M6 6l1.6 1.6M16.4 16.4L18 18M18 6l-1.6 1.6M7.6 16.4L6 18"/></svg></span><span class="tab-txt">设置</span></button>
     <button data-tab="trash" class="tab"><span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 7h15"/><path d="M9.5 7V4.5h5V7"/><path d="M6.5 7l1 13h9l1-13"/><path d="M10.5 11v5M13.5 11v5"/></svg></span><span class="tab-txt">回收站</span></button>
   </nav>
 </section>

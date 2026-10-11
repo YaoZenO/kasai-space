@@ -84,9 +84,14 @@ var feedTypeCount = Object.keys(feedTypes).length
 /* 仅 1 种有效类型时与最新文章重复 → 动态区不渲染，聚合能力保留 */
 var feedRows = feedTypeCount > 1 ? feed.slice(0, FEED_MAX) : []
 
-/* ---------- 身份域 / 页脚配置（预留，不编造文案） ---------- */
-var identityWords = (theme.about && theme.about.identity_words) || []
-var motto = (theme.about && theme.about.motto) || ''
+/* ---------- 身份域 / 页脚配置（site.data.site 优先，回退主题配置；不编造文案） ---------- */
+var siteCfg = (site.data && site.data.site) || {}
+var identityWords = (siteCfg.identity_words && siteCfg.identity_words.length)
+  ? siteCfg.identity_words
+  : ((theme.about && theme.about.identity_words) || [])
+var motto = siteCfg.motto || (theme.about && theme.about.motto) || ''
+var identityIntro = siteCfg.intro || (theme.about && theme.about.intro) || ''
+var identityAvatar = siteCfg.avatar || (theme.about && theme.about.avatar) || ''
 
 var earliestTs = Infinity
 site.posts.each(function (p) {
@@ -109,8 +114,8 @@ wallModules.forEach(function (m) { if (m.key === 'projects') { featuredModule = 
   <section class="home-hero home-wrap">
     <div class="identity">
       <div class="identity-avatar">
-        <% if (theme.about && theme.about.avatar) { %>
-          <img class="identity-avatar-img" src="<%= url_for(theme.about.avatar) %>" alt="<%= config.title %> 头像">
+        <% if (identityAvatar) { %>
+          <img class="identity-avatar-img" src="<%= url_for(identityAvatar) %>" alt="<%= config.title %> 头像">
         <% } else { %>
           <span class="identity-avatar-fallback"><%= (config.title || 'K').substring(0, 1) %></span>
         <% } %>
@@ -123,8 +128,8 @@ wallModules.forEach(function (m) { if (m.key === 'projects') { featuredModule = 
         </ul>
         <% } %>
       </div>
-      <% if (theme.about && theme.about.intro) { %>
-      <p class="identity-tagline"><%= theme.about.intro %></p>
+      <% if (identityIntro) { %>
+      <p class="identity-tagline"><%= identityIntro %></p>
       <% } %>
       <div class="identity-cta">
         <a class="cta-solid" href="<%= url_for('/archives/') %>">进入文字 →</a>

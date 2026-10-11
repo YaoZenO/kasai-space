@@ -106,4 +106,75 @@ function updateItems(text, items) {
   return serializeItems(header, items);
 }
 
-module.exports = { parseItems, updateItems, needsQuoting };
+// ---------- site.yml（站点身份配置） ----------
+// 扁平 schema：intro / motto / avatar / identity_words（flow 数组）。
+// 头部注释原样保留；仅重写已知键行。
+
+const SITE_KEYS = ['intro', 'motto', 'avatar', 'identity_words'];
+
+const SITE_DEFAULT_HEADER = [
+  '# 站点身份配置 —— 后台「设置」页维护，也可手动编辑',
+  '# intro          首页身份域的一句话介绍',
+  '# motto          首页页脚座右铭（空则显示 SINCE 年份与站名）',
+  '# avatar         头像图片路径（空则用主题配置 /img/avatar/）',
+  '# identity_words 身份词竖列，后台设置里每行一个',
+];
+
+function parseFlowList(raw) {
+  let v = (raw || '').trim();
+  if (v === '' || v === '[]') return [];
+  if (!(v.startsWith('[') && v.endsWith(']'))) return [parseScalar(v)];
+  const inner = v.slice(1, -1);
+  const out = [];
+  let cur = '';
+  let inStr = false;
+  let quote = '';
+  for (const ch of inner) {
+    if (inStr) {
+      if (ch === quote) inStr = false;
+      else cur += ch;
+    } else if (ch === '"' || ch === "'") {
+      inStr = true;
+      quote = ch;
+    } else if (ch === ',') {
+      if (cur.trim()) out.push(cur.trim());
+      cur = '';
+    } else cur += ch;
+  }
+  if (cur.trim()) out.push(cur.trim());
+  return out;
+}
+
+function parseSite(text) {
+  const cfg = { intro: '', motto: '', avatar: '', identity_words: [] };
+  for (const line of String(text || '').split(/\r?\n/)) {
+    const kv = line.match(/^(intro|motto|avatar|identity_words)\s*:\s*(.*)$/);
+    if (!kv) continue;
+    if (kv[1] === 'identity_words') cfg.identity_words = parseFlowList(kv[2]);
+    else cfg[kv[1]] = parseScalar(kv[2]);
+  }
+  return cfg;
+}
+
+function serializeSiteLine(key, value) {
+  if (key === 'identity_words') {
+    const list = Array.isArray(value) ? value : [];
+    return `identity_words: [${list.map((s) => serializeScalar(String(s))).join(', ')}]`;
+  }
+  return `${key}: ${serializeScalar(value == null ? '' : value)}`;
+}
+
+function updateSite(text, cfg) {
+  const lines = String(text || '').split(/\r?\n/);
+  const firstKeyIdx = lines.findIndex((l) => SITE_KEYS.some((k) => new RegExp(`^${k}\\s*:`).test(l)));
+  const header = firstKeyIdx === -1 ? lines.slice() : lines.slice(0, firstKeyIdx);
+  // 去掉头部末尾空行，稍后统一补一个
+  while (header.length && header[header.length - 1].trim() === '') header.pop();
+  const out = header.length ? header.slice() : SITE_DEFAULT_HEADER.slice();
+  out.push('');
+  for (const k of SITE_KEYS) out.push(serializeSiteLine(k, cfg && cfg[k]));
+  out.push('');
+  return out.join('\n');
+}
+
+module.exports = { parseItems, updateItems, needsQuoting, parseSite, updateSite };

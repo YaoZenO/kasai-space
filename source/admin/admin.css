@@ -138,6 +138,22 @@ button { font: inherit; }
 .field input:focus, .post-body:focus { outline: 2px solid color-mix(in srgb, var(--accent) 35%, transparent); border-color: var(--accent); }
 .field-row.two { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
 @media (max-width: 420px) { .field-row.two { grid-template-columns: 1fr; } }
+.field-inline { display: flex; gap: .5rem; }
+.field-inline input { flex: 1; min-width: 0; }
+.field-inline .btn { flex: none; white-space: nowrap; }
+.field-hint { display: block; color: var(--muted); font-size: .72rem; margin-top: .3rem; }
+.field-check { display: flex; align-items: center; gap: .55rem; margin: 0; padding-top: 1.1rem; }
+.field-check > span { margin: 0; font-size: .85rem; color: var(--ink); }
+.field-check input { width: 1.15rem; height: 1.15rem; accent-color: var(--accent); }
+.wordcount { margin-left: auto; color: var(--muted); font-size: .75rem; align-self: center; }
+.post-body.small { min-height: 0; resize: vertical; }
+.btn-primary-quiet { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); color: var(--accent); }
+.upload-modules { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .7rem; }
+.module-chip {
+  border: 1px solid var(--line); background: var(--card); color: var(--muted);
+  border-radius: 999px; padding: .28rem .8rem; font-size: .78rem; cursor: pointer;
+}
+.module-chip.active { border-color: var(--accent); color: var(--accent); font-weight: 600; background: color-mix(in srgb, var(--accent) 8%, transparent); }
 
 /* ---------- 编辑器 ---------- */
 .editor-head { display: flex; align-items: center; gap: .6rem; margin-bottom: .9rem; }

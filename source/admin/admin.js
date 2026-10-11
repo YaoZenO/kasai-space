@@ -9,7 +9,8 @@
     data: null, // content-list 响应
     tab: 'posts',
     editor: null, // 文章编辑器状态
-    itemEditor: null, // 数据条目编辑器状态 {module, index|null, expectedHeadSha}
+    itemEditor: null, // 数据条目编辑器状态 {module, index|null}
+    imageModule: 'posts', // 图片页当前上传/筛选目录
     lastListSha: null,
     pollTimer: null,
     pollTries: 0,
@@ -114,6 +115,7 @@
     $('view-list').hidden = false;
     $('view-post-editor').hidden = true;
     $('view-data-editor').hidden = true;
+    $('view-site-editor').hidden = true;
     renderList();
   }
 
@@ -132,6 +134,8 @@
       renderDataList(box, S.tab, d.data[S.tab] || []);
     } else if (S.tab === 'images') {
       renderImages(box, d.images || []);
+    } else if (S.tab === 'site') {
+      renderSiteEditor(box, d.site || {});
     } else if (S.tab === 'trash') {
       renderTrash(box, d.trash || []);
     }
@@ -249,27 +253,50 @@
     head.appendChild(el('span', 'list-count', `${images.length} 张`));
     box.appendChild(head);
 
+    // 目录选择：按内容板块分目录存放（文章/项目/游戏/收藏/头像）
+    const MODULES = [
+      ['posts', '文章'], ['projects', '项目'], ['games', '游戏'], ['collections', '收藏'], ['avatar', '头像'],
+    ];
+    const modRow = el('div', 'upload-modules');
+    MODULES.forEach(([key, label]) => {
+      const chip = el('button', 'module-chip' + (S.imageModule === key ? ' active' : ''), label);
+      chip.type = 'button';
+      chip.onclick = () => {
+        S.imageModule = key;
+        renderList();
+      };
+      modRow.appendChild(chip);
+    });
+    box.appendChild(modRow);
+
     const row = el('div', 'upload-row');
     const input = el('input');
     input.type = 'file';
     input.accept = 'image/*';
+    input.multiple = true;
     input.hidden = true;
-    const btn = el('button', 'btn btn-primary', '上传图片（自动压缩）');
+    const btn = el('button', 'btn btn-primary', `上传到 /img/${S.imageModule}/（自动压缩）`);
     btn.onclick = () => input.click();
-    input.onchange = () => uploadImages(input.files).finally(() => (input.value = ''));
+    input.onchange = () => uploadImages(input.files, S.imageModule).finally(() => (input.value = ''));
     row.appendChild(btn);
     row.appendChild(input);
+    if (S.imageModule !== 'avatar') {
+      row.appendChild(el('p', 'list-count', `该目录图片可直接用作条目封面，路径前缀 /img/${S.imageModule}/…`));
+    }
     box.appendChild(row);
 
-    if (!images.length) {
-      box.appendChild(el('p', 'empty', '暂无图片'));
+    // 只显示当前目录的图片
+    const scoped = images.filter((p) => p.startsWith(`source/img/${S.imageModule}/`));
+    if (!scoped.length) {
+      const label = (MODULES.find((m) => m[0] === S.imageModule) || ['', S.imageModule])[1];
+      box.appendChild(el('p', 'empty', `「${label}」目录暂无图片`));
       return;
     }
     const grid = el('div', 'image-grid');
-    images.forEach((p) => {
+    scoped.forEach((p) => {
       const cell = el('div', 'image-cell');
       const img = el('img');
-      img.src = p;
+      img.src = p.replace(/^source/, '');
       img.loading = 'lazy';
       img.onclick = () => imageActions(p);
       const name = el('div', 'image-name', p.split('/').pop());
@@ -374,13 +401,17 @@
       S.editor = { mode, path: path || null, sha: sha || null, slug: name, dirty: false };
       $('view-list').hidden = true;
       $('view-data-editor').hidden = true;
+      $('view-site-editor').hidden = true;
       $('view-post-editor').hidden = false;
       $('post-title').value = frontmatter.title || '';
       $('post-slug').value = name;
       $('post-slug').disabled = mode === 'published';
       $('post-tags').value = (frontmatter.tags || []).join(',');
       $('post-categories').value = (frontmatter.categories || []).join(',');
+      $('post-cover').value = frontmatter.cover || '';
+      $('post-featured').checked = !!frontmatter.featured;
       $('post-body').value = body;
+      updateWordCount();
       $('post-preview').hidden = true;
       $('post-body').hidden = false;
       const pl = $('post-permalink');
@@ -413,9 +444,19 @@
       slug: $('post-slug').value.trim().toLowerCase(),
       tags: $('post-tags').value,
       categories: $('post-categories').value,
+      cover: $('post-cover').value.trim(),
+      featured: $('post-featured').checked,
       body: $('post-body').value,
     };
   }
+
+  function updateWordCount() {
+    const t = $('post-body').value;
+    const cn = (t.match(/[\u4e00-\u9fff]/g) || []).length;
+    const words = (t.replace(/[\u4e00-\u9fff]/g, ' ').match(/[A-Za-z0-9]+/g) || []).length;
+    $('post-wordcount').textContent = cn + words ? `${cn + words} 字` : '';
+  }
+  $('post-body').addEventListener('input', updateWordCount);
 
   async function saveCurrentEditing(opts) {
     const o = opts || {};
@@ -435,6 +476,7 @@
         body: {
           kind: 'post', action: 'update',
           path: ed.path, title: e.title, tags: e.tags, categories: e.categories, body: e.body,
+          cover: e.cover, featured: e.featured,
           sha: o.force ? null : ed.sha, expectedHeadSha: o.headSha || S.lastListSha,
         },
       });
@@ -449,6 +491,7 @@
           kind: 'post', action: 'save-draft',
           slug: e.slug, prevSlug: ed.slug && ed.slug !== e.slug ? ed.slug : null,
           title: e.title, tags: e.tags, categories: e.categories, body: e.body,
+          cover: e.cover, featured: e.featured,
           sha: o.force ? null : ed.sha, expectedHeadSha: o.headSha || S.lastListSha,
         },
       });
@@ -485,7 +528,7 @@
     } else {
       const r = await api('/api/content-save', {
         method: 'POST',
-        body: { kind: 'post', action: 'publish-new', slug, title: e.title, tags: e.tags, categories: e.categories, body: e.body, expectedHeadSha: S.lastListSha },
+        body: { kind: 'post', action: 'publish-new', slug, title: e.title, tags: e.tags, categories: e.categories, body: e.body, cover: e.cover, featured: e.featured, expectedHeadSha: S.lastListSha },
       });
       S.lastListSha = r.headSha;
       setDeployCommitted(r.commitSha);
@@ -543,18 +586,70 @@
   }
 
   // ---------- 数据条目编辑器 ----------
+  const MODULE_META = {
+    projects: {
+      label: '项目',
+      linkLabel: '链接（GitHub 仓库 / 演示地址 / 相关文章，可空）',
+      linkPlaceholder: 'https://github.com/YaoZenO/xxx',
+      coverHint: '上传后存入 /img/projects/，建议 16:9 横图；首页有真实条目才渲染该板块。',
+    },
+    games: {
+      label: '游戏',
+      linkLabel: '链接（游戏页面 / 商店 / 攻略地址，可空）',
+      linkPlaceholder: 'https://store.steampowered.com/app/xxx',
+      coverHint: '上传后存入 /img/games/；玩过的游戏记录在这里，首页按真实条目数展示。',
+    },
+    collections: {
+      label: '收藏',
+      linkLabel: '链接（原文 / 资源地址，可空）',
+      linkPlaceholder: 'https://example.com/article',
+      coverHint: '上传后存入 /img/collections/；收藏的文章、工具、资源都可以放。',
+    },
+  };
+
   function openItemEditor(module, index) {
     const item = index === null ? {} : S.data.data[module][index];
     S.itemEditor = { module, index };
+    const meta = MODULE_META[module] || {};
     $('view-list').hidden = true;
     $('view-post-editor').hidden = true;
+    $('view-site-editor').hidden = true;
     $('view-data-editor').hidden = false;
+    $('item-module-badge').textContent = `${meta.label || module}条目 · ${index === null ? '新增' : '编辑'}`;
+    $('item-link-label').textContent = meta.linkLabel || '链接（http(s):// 或站内路径，可空）';
+    $('item-link').placeholder = meta.linkPlaceholder || '';
+    $('item-cover-hint').textContent = meta.coverHint || '直接上传会存入该板块专属目录。';
     $('item-title').value = item.title || '';
     $('item-link').value = item.link || '';
     $('item-desc').value = item.desc || '';
     $('item-cover').value = item.cover || '';
     $('item-date').value = item.date || '';
   }
+
+  // 条目编辑器内直接上传封面（存入该板块专属目录，成功后自动回填路径）
+  $('btn-item-cover-upload').onclick = guard(async () => {
+    const ie = S.itemEditor;
+    if (!ie) return;
+    const input = el('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async () => {
+      const file = input.files && input.files[0];
+      if (!file) return;
+      try {
+        await uploadOneImage(file, ie.module);
+        await reloadList();
+        const l = S.data;
+        const mine = (l.images || []).filter((p) => p.startsWith(`source/img/${ie.module}/`)).sort();
+        const latest = mine[mine.length - 1];
+        $('item-cover').value = latest ? sitePath(latest) : '';
+        toast('封面上传成功，路径已回填');
+      } catch (e) {
+        handleOpError(e);
+      }
+    };
+    input.click();
+  });
 
   $('btn-save-item').onclick = guard(async () => {
     const ie = S.itemEditor;
@@ -571,78 +666,157 @@
     switchTab(ie.module);
   });
 
+  // ---------- 站点身份设置 ----------
+  function renderSiteEditor(box, site) {
+    const head = el('div', 'list-head');
+    head.appendChild(el('h2', null, '站点身份'));
+    head.appendChild(el('span', 'list-count', 'source/_data/site.yml'));
+    box.appendChild(head);
+    box.appendChild(el('p', 'list-count', '配置首页左侧身份域与页脚。留空的项不渲染，不会伪造内容。'));
+    fillSiteEditor(site);
+  }
+
+  function fillSiteEditor(site) {
+    $('site-intro').value = site.intro || '';
+    $('site-motto').value = site.motto || '';
+    $('site-avatar').value = site.avatar || '';
+    $('site-identity').value = (site.identity_words || []).join('\n');
+  }
+
+  $('btn-save-site').onclick = guard(async () => {
+    const body = {
+      kind: 'site',
+      intro: $('site-intro').value,
+      motto: $('site-motto').value,
+      avatar: $('site-avatar').value,
+      identity_words: $('site-identity').value,
+      expectedHeadSha: S.lastListSha,
+    };
+    await api('/api/content-save', { method: 'POST', body });
+    setDeployCommitted(null);
+    toast('站点身份已保存并提交');
+    await reloadList();
+  });
+
+  // 设置页头像直传（存入 /img/avatar/，成功后回填路径）
+  $('btn-site-avatar-upload').onclick = guard(async () => {
+    const input = el('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async () => {
+      const file = input.files && input.files[0];
+      if (!file) return;
+      try {
+        await uploadOneImage(file, 'avatar');
+        await reloadList();
+        const mine = (S.data.images || []).filter((p) => p.startsWith('source/img/avatar/')).sort();
+        const latest = mine[mine.length - 1];
+        $('site-avatar').value = latest ? sitePath(latest) : '';
+        toast('头像上传成功，路径已回填');
+      } catch (e) {
+        handleOpError(e);
+      }
+    };
+    input.click();
+  });
+
   // ---------- 图片 ----------
+  // 压缩上限：Vercel 函数请求体限 4.5MB，base64 会放大约 1.37 倍，
+  // 因此压缩产物必须控制在 2.5MB 以内，超限则逐级降低尺寸与质量重试。
+  const UPLOAD_BLOB_LIMIT = 2.5 * 1024 * 1024;
+
+  function drawToBlob(img, max, quality, isPng) {
+    let w = img.width, h = img.height;
+    if (Math.max(w, h) > max) {
+      const k = max / Math.max(w, h);
+      w = Math.round(w * k);
+      h = Math.round(h * k);
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    const type = isPng ? 'image/png' : 'image/jpeg';
+    return new Promise((resolve) => canvas.toBlob(resolve, type, quality));
+  }
+
   async function compressImage(file) {
-    const max = 1600;
     const isPng = /png$/i.test(file.type);
     const url = URL.createObjectURL(file);
     try {
       const img = await new Promise((resolve, reject) => {
         const i = new Image();
         i.onload = () => resolve(i);
-        i.onerror = reject;
+        i.onerror = () => reject(new ApiError(400, { error: 'BAD_IMAGE', hint: `${file.name} 不是可识别的图片文件` }));
         i.src = url;
       });
-      let w = img.width, h = img.height;
-      if (Math.max(w, h) > max) {
-        const k = max / Math.max(w, h);
-        w = Math.round(w * k);
-        h = Math.round(h * k);
+      // 逐级降参：1600/0.85 → 1280/0.75 → 1024/0.7；PNG 过大时转 JPG
+      const attempts = isPng
+        ? [[1600, undefined, true], [1280, undefined, true], [1024, undefined, true], [1280, 0.85, false]]
+        : [[1600, 0.85, false], [1280, 0.75, false], [1024, 0.7, false]];
+      for (const [max, quality, asPng] of attempts) {
+        const blob = await drawToBlob(img, max, quality, asPng);
+        if (blob && blob.size <= UPLOAD_BLOB_LIMIT) return { blob, ext: asPng ? 'png' : 'jpg' };
       }
-      const canvas = document.createElement('canvas');
-      canvas.width = w;
-      canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      const type = isPng ? 'image/png' : 'image/jpeg';
-      const blob = await new Promise((resolve) => canvas.toBlob(resolve, type, 0.85));
-      return { blob, ext: isPng ? 'png' : 'jpg' };
+      const last = await drawToBlob(img, 1024, 0.7, false);
+      if (last && last.size <= UPLOAD_BLOB_LIMIT) return { blob: last, ext: 'jpg' };
+      throw new ApiError(413, { error: 'TOO_LARGE', hint: `${file.name} 多次压缩后仍过大，请先裁剪图片再上传` });
     } finally {
       URL.revokeObjectURL(url);
     }
   }
 
-  async function uploadImages(files) {
+  async function uploadOneImage(file, module) {
+    const { blob, ext } = await compressImage(file);
+    const b64 = await new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result.split(',')[1]);
+      r.onerror = () => reject(new ApiError(400, { error: 'READ_FAIL', hint: `${file.name} 读取失败` }));
+      r.readAsDataURL(blob);
+    });
+    await api('/api/upload-image', {
+      method: 'POST',
+      body: { module, filename: (file.name || 'image').replace(/\.[^.]+$/, '') + '.' + ext, dataBase64: b64, expectedHeadSha: S.lastListSha },
+    });
+  }
+
+  async function uploadImages(files, module) {
     if (!files || !files.length) return;
     if (files.length > 6) {
       toast('一次最多上传 6 张');
       return;
     }
+    let done = 0;
     for (const file of files) {
       try {
-        const { blob, ext } = await compressImage(file);
-        if (blob.size > 4 * 1024 * 1024) {
-          toast(`${file.name} 压缩后仍过大，请裁剪后重试`);
-          continue;
-        }
-        const b64 = await new Promise((resolve) => {
-          const r = new FileReader();
-          r.onload = () => resolve(r.result.split(',')[1]);
-          r.readAsDataURL(blob);
-        });
-        await api('/api/upload-image', {
-          method: 'POST',
-          body: { module: 'posts', filename: (file.name || 'image').replace(/\.[^.]+$/, '') + '.' + ext, dataBase64: b64, expectedHeadSha: S.lastListSha },
-        });
-        toast(`已上传 ${file.name}`);
+        await uploadOneImage(file, module);
+        done += 1;
+        toast(`已上传 ${file.name} → /img/${module}/`);
       } catch (e) {
         handleOpError(e);
       }
     }
-    await reloadList();
+    if (done) await reloadList();
   }
 
-  function imageActions(path) {
+  function sitePath(p) {
+    return String(p || '').replace(/^source/, '');
+  }
+
+  function imageActions(repoPath) {
+    const sp = sitePath(repoPath);
     const actions = [
-      { label: '复制图片路径', fn: () => navigator.clipboard && navigator.clipboard.writeText(path).then(() => toast('已复制 ' + path)) },
-      { label: '插入到文章正文', fn: () => insertToBody(`![](${path})`) },
-      { label: '设为当前条目封面', fn: () => { $('item-cover').value = path; toast('已设为封面路径：' + path); } },
+      { label: '复制图片路径', fn: () => navigator.clipboard && navigator.clipboard.writeText(sp).then(() => toast('已复制 ' + sp)) },
+      { label: '插入到文章正文', fn: () => insertToBody(`![](${sp})`) },
+      { label: '设为当前条目封面', fn: () => { const f = $('item-cover'); if (f) { f.value = sp; toast('已设为封面路径：' + sp); } } },
+      { label: '设为文章封面', fn: () => { const f = $('post-cover'); if (f) { f.value = sp; toast('已设为封面路径：' + sp); } } },
       {
         label: '删除此图片', danger: true,
         fn: async () => {
-          const ok = await confirmDialog('删除图片', `删除 ${path}？会移入回收站，可恢复。`, '删除');
+          const ok = await confirmDialog('删除图片', `删除 ${sp}？会移入回收站，可恢复。`, '删除');
           if (!ok) return;
           try {
-            await api('/api/content-delete', { method: 'POST', body: { path, title: path.split('/').pop(), expectedHeadSha: S.lastListSha } });
+            await api('/api/content-delete', { method: 'POST', body: { path: repoPath, title: repoPath.split('/').pop(), expectedHeadSha: S.lastListSha } });
             toast('已删除并提交');
             await reloadList();
           } catch (e) {
@@ -655,7 +829,7 @@
     const box = $('picker-grid');
     box.innerHTML = '';
     const p = el('div');
-    p.innerHTML = `<p class="confirm-text" style="overflow-wrap:anywhere">${path}</p>` + html;
+    p.innerHTML = `<p class="confirm-text" style="overflow-wrap:anywhere">${sp}</p>` + html;
     box.appendChild(p);
     p.querySelectorAll('button[data-i]').forEach((b) => {
       b.onclick = () => {
@@ -684,38 +858,41 @@
     grid.innerHTML = '';
     S.data.images.forEach((p) => {
       const img = el('img');
-      img.src = p;
+      img.src = sitePath(p);
       img.loading = 'lazy';
       img.onclick = () => {
         $('modal-picker').hidden = true;
-        insertToBody(`![](${p})`);
+        insertToBody(`![](${sitePath(p)})`);
       };
       grid.appendChild(img);
     });
     $('modal-picker').hidden = false;
   };
 
-  // 封面选择（条目编辑器）
-  $('item-cover').addEventListener('dblclick', openCoverPicker);
-  function openCoverPicker() {
+  // 通用图库选择器：点击图片 → 回调(站点路径)
+  function openImagePicker(onPick) {
     if (!S.data || !S.data.images.length) {
-      toast('还没有图片，请先到「图片」页上传');
+      toast('还没有图片，请先到「图片」页上传，或直接用「上传封面」');
       return;
     }
     const grid = $('picker-grid');
     grid.innerHTML = '';
     S.data.images.forEach((p) => {
       const img = el('img');
-      img.src = p;
+      img.src = sitePath(p);
       img.loading = 'lazy';
       img.onclick = () => {
-        $('item-cover').value = p;
         $('modal-picker').hidden = true;
+        onPick(sitePath(p));
       };
       grid.appendChild(img);
     });
     $('modal-picker').hidden = false;
   }
+
+  // 封面选择（条目编辑器 / 文章编辑器 / 设置页头像）
+  $('btn-item-cover-pick').onclick = () => openImagePicker((sp) => { $('item-cover').value = sp; });
+  $('post-cover').addEventListener('dblclick', () => openImagePicker((sp) => { $('post-cover').value = sp; }));
 
   // ---------- 部署状态 ----------
   function setDeployCommitted(commitSha) {
