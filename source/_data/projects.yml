@@ -7,9 +7,4 @@
 #   date   参与首页「近期动态」聚合排序，如 2026-05-01
 # items 有内容时自动渲染到首页；为空时整段不渲染（不占位、不伪造）；计数 = 实际条目数
 
-items:
-  - title: Ties
-    link: "https://github.com/YaoZenO/Ties"
-    desc: ""
-    cover: ""
-    date: ""
+items: []
