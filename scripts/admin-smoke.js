@@ -1,0 +1,258 @@
+'use strict';
+// ============================================================
+// admin-smoke — 后台服务端冒烟测试（零依赖，mock 模式）
+// 覆盖：列表 / 数据模块 / site 配置 / 文章（草稿·发布·编辑）/
+//       图片上传 / 回收站 / 乐观锁冲突 / CSRF / 会话 / HTTP 管线
+// 运行：npm run test:admin   （fixture 落在系统临时目录，不触碰真实仓库）
+// ============================================================
+process.env.ADMIN_DEV_MOCK = '1';
+process.env.ADMIN_DEV_FIXTURE_DIR = require('node:os').tmpdir() + '/kasai-admin-fixture-' + Date.now();
+process.env.SESSION_SECRET = 'test-secret';
+process.env.ADMIN_GITHUB_LOGIN = 'YaoZenO';
+
+const assert = require('node:assert');
+const http = require('node:http');
+
+// 清掉 store 缓存，确保 mock 环境变量生效后再加载
+for (const k of Object.keys(require.cache)) {
+  if (k.includes(`${require('node:path').sep}api${require('node:path').sep}`)) delete require.cache[k];
+}
+
+const content = require('../api/_lib/content');
+const yaml = require('../api/_lib/yaml');
+const store = require('../api/_lib/store');
+const handlers = {
+  '/api/content-list': require('../api/content-list'),
+  '/api/content-save': require('../api/content-save'),
+  '/api/upload-image': require('../api/upload-image'),
+  '/api/session-check': require('../api/session-check'),
+  '/api/deploy-status': require('../api/deploy-status'),
+};
+const { sign } = require('../api/_lib/session');
+
+let passed = 0;
+function ok(name, fn) {
+  try {
+    fn();
+    passed += 1;
+    console.log('  PASS', name);
+  } catch (e) {
+    console.error('  FAIL', name, '—', e.message);
+    process.exitCode = 1;
+  }
+}
+
+const PNG_1X1 = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+  'base64'
+);
+
+(async () => {
+  // ============ 第一段：域逻辑（直接调 _lib） ============
+  console.log('\n[1] 域逻辑 · mock 存储');
+
+  let l = await content.listAll();
+  // fixture 从真实仓库播种；先把三个数据模块重置为空，保证测试不受仓库内容漂移影响
+  // （只动临时 fixture，不触碰真实仓库）
+  for (const m of ['projects', 'games', 'collections']) {
+    const p = `source/_data/${m}.yml`;
+    const f = await store.getFile(p).catch(() => ({ content: 'items: []\n', sha: null }));
+    await store.commitFiles([{ path: p, contentUtf8: yaml.updateItems(f.content, []) }], `test: reset ${m}`, null);
+  }
+  l = await content.listAll();
+  ok('listAll: 初始 posts≥3、三模块空、site 空配置', () => {
+    assert.ok(l.posts.length >= 3);
+    for (const m of ['projects', 'games', 'collections']) assert.deepStrictEqual(l.data[m], []);
+    assert.strictEqual(l.site.intro, '');
+    assert.deepStrictEqual(l.site.identity_words, []);
+  });
+  const head0 = l.headSha;
+  const initialPosts = l.posts.length;
+
+  // --- 数据模块 ---
+  let r = await content.saveData({
+    module: 'projects', index: null,
+    item: { title: '测试项目', link: 'https://github.com/YaoZenO', desc: '冒烟测试', date: '2026-10-11' },
+    expectedHeadSha: head0,
+  });
+  l = await content.listAll();
+  ok('saveData: 新增/回读/中文与链接序列化', () => {
+    assert.strictEqual(r.items, 1);
+    assert.strictEqual(l.data.projects.length, 1);
+    assert.strictEqual(l.data.projects[0].link, 'https://github.com/YaoZenO');
+    assert.strictEqual(l.data.projects[0].date, '2026-10-11');
+  });
+
+  // --- 图片 ---
+  r = await content.uploadImage({ module: 'projects', filename: '项目 封面.PNG', dataBase64: PNG_1X1.toString('base64'), expectedHeadSha: l.headSha });
+  l = await content.listAll();
+  ok('uploadImage: 落指定模块目录、非法文件名安全化、列表可见', () => {
+    assert.match(r.path, /^source\/img\/projects\/\d{12}-.*\.png$/);
+    assert.ok(!/[^\x00-\x7F]/.test(r.path));
+    assert.strictEqual(l.images.length, 1);
+    assert.strictEqual(l.images[0], r.path);
+  });
+  r = await content.saveData({
+    module: 'projects', index: 0,
+    item: { title: '测试项目', link: 'https://github.com/YaoZenO', desc: '冒烟测试', cover: l.images[0], date: '2026-10-11' },
+    expectedHeadSha: l.headSha,
+  });
+  l = await content.listAll();
+  ok('saveData: 封面路径回填一致', () => assert.strictEqual(l.data.projects[0].cover, l.images[0]));
+
+  // --- site 配置 ---
+  await content.saveSite({ intro: 'Be water, my friends.', motto: 'Stay hungry.', avatar: '/img/avatar/11.jpg', identity_words: '写作\n健身\n代码', expectedHeadSha: l.headSha });
+  l = await content.listAll();
+  ok('saveSite: 多行 identity_words 解析为数组', () => {
+    assert.strictEqual(l.site.identity_words.join(','), '写作,健身,代码');
+    assert.strictEqual(l.site.motto, 'Stay hungry.');
+  });
+  await content.saveSite({ intro: 'Be water, my friends.', motto: '', avatar: '', identity_words: ['写作', '代码'], expectedHeadSha: l.headSha });
+  l = await content.listAll();
+  const siteText = (await store.getFile('source/_data/site.yml')).content;
+  ok('saveSite: 二次保存值正确且注释保留', () => {
+    assert.strictEqual(l.site.motto, '');
+    assert.strictEqual(l.site.identity_words.join(','), '写作,代码');
+    assert.ok(siteText.includes('站点身份配置'));
+  });
+
+  // --- 文章：发布 → 编辑 → 未知 front matter 保留 ---
+  r = await content.publishNew({ slug: 'smoke-test-post', title: '冒烟文章', tags: '测试,后台', categories: '技术', body: '正文内容。', featured: true, cover: l.images[0], expectedHeadSha: l.headSha });
+  ok('publishNew: permalink 形如 /YYYY/MM/DD/slug/', () => assert.match(r.permalink, /^\/\d{4}\/\d{2}\/\d{2}\/smoke-test-post\/$/));
+  let f = await content.getPostFile('source/_posts/smoke-test-post.md');
+  ok('publishNew: featured/cover 写入并回读', () => {
+    assert.strictEqual(f.frontmatter.featured, true);
+    assert.strictEqual(f.frontmatter.cover, l.images[0]);
+  });
+  r = await content.updatePost({ path: 'source/_posts/smoke-test-post.md', title: '冒烟文章改', expectedHeadSha: r.headSha });
+  f = await content.getPostFile('source/_posts/smoke-test-post.md');
+  ok('updatePost: 未传 featured/cover 时原值保留、标题更新', () => {
+    assert.strictEqual(f.frontmatter.featured, true);
+    assert.strictEqual(f.frontmatter.cover, l.images[0]);
+    assert.strictEqual(f.frontmatter.title, '冒烟文章改');
+  });
+  const raw = await store.getFile('source/_posts/smoke-test-post.md');
+  await store.commitFiles([{ path: 'source/_posts/smoke-test-post.md', contentUtf8: raw.content.replace('---\n', '---\nencrypt: \n') }], 'test: add unknown fm', null);
+  await content.updatePost({ path: 'source/_posts/smoke-test-post.md', title: '冒烟文章改2', expectedHeadSha: await store.getHead() });
+  const afterUnknown = (await store.getFile('source/_posts/smoke-test-post.md')).content;
+  ok('updatePost: 未知 front matter 行原样保留', () => assert.ok(afterUnknown.includes('encrypt:')));
+
+  // --- 草稿 ---
+  const headNow = await store.getHead();
+  r = await content.saveDraft({ slug: 'smoke-draft', title: '草稿甲', tags: 'x', categories: '', body: '内容', expectedHeadSha: headNow });
+  l = await content.listAll();
+  ok('saveDraft: 草稿入库且标题可提取', () => {
+    assert.strictEqual(l.drafts.length, 1);
+    assert.strictEqual(l.drafts[0].title, '草稿甲');
+  });
+  r = await content.publishDraft({ slug: 'smoke-draft', expectedHeadSha: r.headSha });
+  l = await content.listAll();
+  ok('publishDraft: 草稿转正式文且 date 注入', () => {
+    assert.strictEqual(l.drafts.length, 0);
+    assert.strictEqual(l.posts.length, initialPosts + 2);
+    assert.ok(/^\/\d{4}\/\d{2}\/\d{2}\/smoke-draft\/$/.test(r.permalink));
+  });
+
+  // --- 回收站 ---
+  l = await content.listAll();
+  r = await content.deleteItem({ module: 'projects', index: 0, title: '测试项目', expectedHeadSha: l.headSha });
+  l = await content.listAll();
+  ok('deleteItem: 条目进回收站', () => {
+    assert.strictEqual(l.data.projects.length, 0);
+    assert.strictEqual(l.trash.length, 1);
+    assert.strictEqual(l.trash[0].type, 'data');
+  });
+  await content.restore({ trashId: l.trash[0].id, expectedHeadSha: l.headSha });
+  l = await content.listAll();
+  ok('restore: 条目恢复到原索引', () => {
+    assert.strictEqual(l.data.projects.length, 1);
+    assert.strictEqual(l.data.projects[0].title, '测试项目');
+  });
+
+  // --- 乐观锁 ---
+  let conflict = false;
+  try {
+    await content.saveData({ module: 'games', index: null, item: { title: 'x' }, expectedHeadSha: 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeef' });
+  } catch (e) { conflict = e.conflict === true; }
+  ok('乐观锁: 过期 headSha 触发 conflict', () => assert.ok(conflict));
+
+  // --- yaml 单测 ---
+  ok('yaml.parseFlowList: 引号与中文', () => assert.strictEqual(yaml.parseSite('identity_words: ["写作", 开发]').identity_words.join(','), '写作,开发'));
+
+  // ============ 第二段：HTTP 管线（真实走 api 端点） ============
+  console.log('\n[2] HTTP 管线 · 端点级');
+  const server = http.createServer((req, res) => {
+    const h = handlers[req.url.split('?')[0]];
+    if (!h) { res.statusCode = 404; return res.end('{}'); }
+    Promise.resolve(h(req, res)).catch((e) => { res.statusCode = 500; res.end(JSON.stringify({ error: String(e) })); });
+  });
+  await new Promise((resolve) => server.listen(0, resolve));
+  const port = server.address().port;
+  const cookie = 'kasai_admin_dev=' + encodeURIComponent(sign({ v: 1, sub: 'YaoZenO', iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + 3600, jti: 'test' }));
+
+  const call = (method, path, body, opts = {}) => new Promise((resolve, reject) => {
+    const data = body ? JSON.stringify(body) : null;
+    const headers = {};
+    if (!opts.noCookie) headers.Cookie = cookie;
+    if (data) { headers['Content-Type'] = 'application/json'; headers['Content-Length'] = Buffer.byteLength(data); }
+    if (opts.origin) headers.Origin = opts.origin;
+    const rq = http.request({ port, method, path, headers }, (res) => {
+      let buf = '';
+      res.on('data', (c) => (buf += c));
+      res.on('end', () => { try { resolve({ status: res.statusCode, body: buf ? JSON.parse(buf) : {} }); } catch (e) { resolve({ status: res.statusCode, body: buf }); } });
+    });
+    rq.on('error', reject);
+    if (data) rq.write(data);
+    rq.end();
+  });
+
+  let h1 = await call('POST', '/api/content-save', { kind: 'site', intro: 'x' }, { origin: 'https://evil.example' });
+  ok('CSRF: 跨站 Origin 403 BAD_ORIGIN', () => assert.strictEqual(h1.status, 403));
+
+  h1 = await call('GET', '/api/content-list', null, { noCookie: true });
+  ok('AUTH: 无 Cookie 401', () => assert.strictEqual(h1.status, 401));
+
+  h1 = await call('GET', '/api/content-list');
+  ok('content-list: 200 且含 site/headSha', () => {
+    assert.strictEqual(h1.status, 200);
+    assert.ok(h1.body.site);
+    assert.ok(h1.body.headSha);
+  });
+  const liveHead = h1.body.headSha;
+
+  h1 = await call('POST', '/api/content-save', { kind: 'site', intro: '写作 / 归档 / 痕迹', motto: '', avatar: '', identity_words: ['WRITER'], expectedHeadSha: liveHead });
+  ok('content-save kind=site: 200 且回显', () => {
+    assert.strictEqual(h1.status, 200);
+    assert.strictEqual(h1.body.site.intro, '写作 / 归档 / 痕迹');
+  });
+
+  h1 = await call('POST', '/api/upload-image', { module: 'games', filename: 'cover.png', dataBase64: PNG_1X1.toString('base64'), expectedHeadSha: h1.body.headSha });
+  ok('upload-image: 200 且落 games 目录', () => {
+    assert.strictEqual(h1.status, 200);
+    assert.match(h1.body.path, /^source\/img\/games\//);
+  });
+
+  h1 = await call('POST', '/api/upload-image', { module: 'hacker', filename: 'x.png', dataBase64: PNG_1X1.toString('base64') });
+  // 注：hint 非空断言在 P0-2 错误契约收敛后加强
+  ok('upload-image: 非法 module 400 BAD_MODULE', () => {
+    assert.strictEqual(h1.status, 400);
+    assert.strictEqual(h1.body.error, 'BAD_MODULE');
+  });
+
+  h1 = await call('GET', '/api/deploy-status?sha=abc');
+  ok('deploy-status: 200 且 available=false（mock 无配置）', () => {
+    assert.strictEqual(h1.status, 200);
+    assert.strictEqual(h1.body.available, false);
+  });
+
+  h1 = await call('GET', '/api/session-check');
+  ok('session-check: 200 且登录名为 YaoZenO', () => {
+    assert.strictEqual(h1.status, 200);
+    assert.strictEqual(h1.body.login, 'YaoZenO');
+  });
+
+  server.close();
+
+  console.log(`\nRESULT: ${passed} 项断言通过${process.exitCode ? '，存在失败' : ''}`);
+  process.exit(process.exitCode || 0);
+})().catch((e) => { console.error('FATAL', e); process.exit(1); });

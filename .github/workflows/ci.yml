@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # 1. 语法门禁：api 函数 + 后台前端 + 测试脚本
+      - name: Syntax check
+        run: |
+          for f in api/*.js api/_lib/*.js source/admin/admin.js scripts/*.js; do
+            node --check "$f" || exit 1
+          done
+          echo "syntax ok"
+      # 2. 后台服务端冒烟（mock 模式，零依赖零密钥）
+      - name: Admin smoke
+        run: npm run test:admin
+      # 3. 前台构建门禁
+      - name: Hexo generate
+        run: npm run build
