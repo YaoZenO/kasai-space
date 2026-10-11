@@ -16,7 +16,7 @@ var colorSchema = theme.dark_mode && theme.dark_mode.enable && theme.dark_mode.d
   </header>
 
   <main>
-    <% var paperLayouts = ['archive', 'categories', 'category', 'tags', 'tag', 'about'] %>
+    <% var paperLayouts = ['archive', 'categories', 'category', 'tags', 'tag', 'about', 'project', 'game', 'module-index'] %>
     <% if(is_post() || is_home() || page.layout === '404' || paperLayouts.indexOf(page.layout) !== -1) { %>
       <%- body %>
     <% } else { %>

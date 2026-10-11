@@ -26,6 +26,9 @@ jobs:
       # 2. 后台服务端冒烟（mock 模式，零依赖零密钥）
       - name: Admin smoke
         run: npm run test:admin
-      # 3. 前台构建门禁
+      # 3. 前台模块页端到端（后台写入链路 → YAML 落盘 → Hexo 生成 → HTML 断言；结束后自动还原数据文件）
+      - name: Module pages E2E
+        run: npm run test:pages
+      # 4. 前台构建门禁
       - name: Hexo generate
         run: npm run build

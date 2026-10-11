@@ -35,31 +35,6 @@ function parseScalar(raw) {
   return v;
 }
 
-function parseFlowList(raw) {
-  let v = (raw || '').trim();
-  if (v === '' || v === '[]') return [];
-  if (!(v.startsWith('[') && v.endsWith(']'))) return [parseScalar(v)];
-  const inner = v.slice(1, -1);
-  const out = [];
-  let cur = '';
-  let inStr = false;
-  let quote = '';
-  for (const ch of inner) {
-    if (inStr) {
-      if (ch === quote) inStr = false;
-      else cur += ch;
-    } else if (ch === '"' || ch === "'") {
-      inStr = true;
-      quote = ch;
-    } else if (ch === ',') {
-      if (cur.trim()) out.push(cur.trim());
-      cur = '';
-    } else cur += ch;
-  }
-  if (cur.trim()) out.push(cur.trim());
-  return out;
-}
-
 // 键值行：冒号后必须跟空格或行尾——否则是含冒号的纯标量（如 URL），不能当成对象字段
 const KV_RE = /^([A-Za-z_][\w-]*):(?:\s+(.*))?\s*$/;
 const BLOCK_SCALAR_RE = /^[|>][+-]?\d*$/;
@@ -231,7 +206,10 @@ function serializeEntry(key, value, indent) {
   }
   const s = String(value == null ? '' : value);
   if (s.includes('\n')) {
-    const content = s.split('\n').map((l) => (l === '' ? '' : inner + l)).join('\n');
+    // 块标量用 |-（strip），会丢掉结尾换行。为保证「保存后读回 = 再保存」稳定，
+    // 写入前先规约掉尾部换行；Markdown 的结尾换行无语义，规约后往返幂等。
+    const body = s.replace(/\n+$/, '');
+    const content = body.split('\n').map((l) => (l === '' ? '' : inner + l)).join('\n');
     return `${pad}${key}: |-\n${content}`;
   }
   return `${pad}${key}: ${serializeScalar(s)}`;

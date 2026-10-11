@@ -38,8 +38,8 @@ function postCover(post) { return post.cover || '' }
    accent: 无 cover 时的色块格颜色（yellow / orange / 空则排版格）
    page  : 类型汇总页路径；站点尚未建该页时留空 → 入口格为非链接展示格 */
 var HOME_MODULES = [
-  { data: 'projects',    title: '项目', accent: 'yellow', page: '' },
-  { data: 'games',       title: '游戏', accent: 'orange', page: '' },
+  { data: 'projects',    title: '项目', accent: 'yellow', page: '/projects/' },
+  { data: 'games',       title: '游戏', accent: 'orange', page: '/games/' },
   { data: 'collections', title: '收藏', accent: '',       page: '' }
 ]
 
@@ -155,7 +155,7 @@ wallModules.forEach(function (m) { if (m.key === 'projects') { featuredModule = 
       <% } %>
 
       <% wallModules.forEach(function (m) { %>
-      <<%= m.page ? 'a' : 'div' %> class="wall-cell cell-<%= m.accent || 'plain' %>"<%= m.page ? ' href="' + url_for(m.page) + '"' : '' %>>
+      <<%= m.page ? 'a' : 'div' %> class="wall-cell cell-<%= m.accent || 'plain' %>"<% if (m.page) { %> href="<%= url_for(m.page) %>"<% } %>>
         <% if (m.cover) { %>
         <img class="wall-cell-img" src="<%= url_for(m.cover) %>" alt="<%= m.title %>">
         <div class="wall-cell-mask"></div>
@@ -206,13 +206,16 @@ wallModules.forEach(function (m) { if (m.key === 'projects') { featuredModule = 
       </div>
       <div class="pick-list">
         <% featuredModule.items.forEach(function (it, idx) { %>
-        <<%= it.link ? 'a' : 'div' %> class="pick-row<%= idx === 0 ? ' is-lead' : '' %>"<%= it.link ? ' href="' + url_for(it.link) + '" target="_blank" rel="noopener"' : '' %>>
+        <% var detailUrl = featuredModule.page ? '/' + featuredModule.key + '/' + (it.slug || encodeURIComponent(String(it.title))) + '/' : '' %>
+        <<%= detailUrl || it.link ? 'a' : 'div' %> class="pick-row<%= idx === 0 ? ' is-lead' : '' %>"<% if (detailUrl) { %> href="<%= url_for(detailUrl) %>"<% } else if (it.link) { %> href="<%= url_for(it.link) %>" target="_blank" rel="noopener"<% } %>>
           <% if (it.cover) { %><img class="pick-img" src="<%= url_for(it.cover) %>" alt="<%= it.title %>"><% } %>
           <div class="pick-main">
             <span class="pick-title"><%= it.title %></span>
-            <% if (it.desc) { %><span class="pick-desc"><%= it.desc %></span><% } %>
+            <% var pickSum = it.summary || it.desc %>
+            <% if (pickSum) { %><span class="pick-desc"><%= pickSum %></span><% } %>
+            <% if (detailUrl && it.link) { %><span class="pick-ext"><%= String(it.link).replace(/^https?:\/\//, '').replace(/\/$/, '') %> ↗</span><% } %>
           </div>
-        </<%= it.link ? 'a' : 'div' %>>
+        </<%= detailUrl || it.link ? 'a' : 'div' %>>
         <% }) %>
       </div>
     </section>

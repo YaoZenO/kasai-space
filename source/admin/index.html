@@ -66,27 +66,137 @@
       </div>
     </div>
 
-    <!-- 数据条目编辑器（项目/游戏/收藏共用骨架，字段提示随类型变化） -->
+    <!-- 数据条目编辑器：按模块切换不同表单（项目富文本 / 游戏专属 / 收藏简洁） -->
     <div id="view-data-editor" hidden>
       <div class="editor-head">
         <button class="btn-back" data-back>← 返回</button>
         <span id="item-module-badge" class="permalink-hint"></span>
       </div>
-      <label class="field"><span>名称（必填）</span><input id="item-title" type="text" autocomplete="off"></label>
-      <label class="field"><span id="item-link-label">链接（http(s):// 或站内路径，可空）</span><input id="item-link" type="text" autocomplete="off" spellcheck="false"></label>
-      <label class="field"><span>一句话说明（可空）</span><input id="item-desc" type="text" autocomplete="off"></label>
-      <label class="field">
-        <span>封面图片（可空）</span>
-        <div class="field-inline">
-          <input id="item-cover" type="text" autocomplete="off" spellcheck="false" placeholder="/img/projects/xxx.jpg">
-          <button class="btn btn-mini" id="btn-item-cover-pick" type="button">图库选择</button>
-          <button class="btn btn-mini btn-primary-quiet" id="btn-item-cover-upload" type="button">上传封面</button>
+
+      <!-- 项目表单：长篇图文 -->
+      <div class="item-form" data-form="projects">
+        <div class="field-row two">
+          <label class="field"><span>项目名称（必填）</span><input id="item-title" type="text" autocomplete="off"></label>
+          <label class="field"><span>Slug（详情页地址 /projects/xxx/，可空）</span><input id="item-slug" type="text" autocomplete="off" spellcheck="false"></label>
         </div>
-        <small id="item-cover-hint" class="field-hint">直接上传会存入该板块专属目录，无需再去「图片」页。</small>
-      </label>
-      <label class="field"><span>日期（参与首页近期动态，如 2026-05-01，可空）</span><input id="item-date" type="text" autocomplete="off" placeholder="2026-05-01"></label>
-      <div class="editor-actions">
-        <button class="btn btn-primary" id="btn-save-item" type="button">保存</button>
+        <label class="field">
+          <span>封面图片（可空）</span>
+          <div class="field-inline">
+            <input id="item-cover" type="text" autocomplete="off" spellcheck="false" placeholder="/img/projects/xxx.jpg">
+            <button class="btn btn-mini" id="btn-item-cover-pick" type="button">图库选择</button>
+            <button class="btn btn-mini btn-primary-quiet" id="btn-item-cover-upload" type="button">上传封面</button>
+          </div>
+          <small class="field-hint">上传后存入 /img/projects/，建议 16:9 横图。</small>
+        </label>
+        <div class="field-row two">
+          <label class="field"><span>日期（可空）</span><input id="item-date" type="text" autocomplete="off" placeholder="2026-05-01"></label>
+          <label class="field"><span>标签（逗号分隔，可空）</span><input id="item-tags" type="text" autocomplete="off" placeholder="Hexo, Node.js"></label>
+        </div>
+        <label class="field"><span>仓库 / 演示 / 相关文章链接（可空）</span><input id="item-link" type="text" autocomplete="off" spellcheck="false" placeholder="https://github.com/YaoZenO/xxx"></label>
+        <label class="field"><span>一句话简介（列表与详情页摘要，可空）</span><input id="item-summary" type="text" autocomplete="off"></label>
+        <div class="rich-block">
+          <div class="rich-head"><span class="rich-title">项目背景</span><span class="rich-hint">Markdown 长文，详情页展示</span></div>
+          <div class="editor-toolbar">
+            <button class="btn btn-mini" id="btn-insert-bg" type="button">插图</button>
+            <span class="wordcount" data-wc="item-bg"></span>
+          </div>
+          <textarea id="item-bg" class="post-body" spellcheck="false" placeholder="为什么做这个项目…"></textarea>
+        </div>
+        <div class="rich-block">
+          <div class="rich-head"><span class="rich-title">实现过程</span><span class="rich-hint">Markdown 长文</span></div>
+          <div class="editor-toolbar">
+            <button class="btn btn-mini" id="btn-insert-process" type="button">插图</button>
+            <span class="wordcount" data-wc="item-process"></span>
+          </div>
+          <textarea id="item-process" class="post-body" spellcheck="false" placeholder="怎么做出来的…"></textarea>
+        </div>
+        <div class="rich-block">
+          <div class="rich-head"><span class="rich-title">技术方案</span><span class="rich-hint">Markdown 长文</span></div>
+          <div class="editor-toolbar">
+            <button class="btn btn-mini" id="btn-insert-tech" type="button">插图</button>
+            <span class="wordcount" data-wc="item-tech"></span>
+          </div>
+          <textarea id="item-tech" class="post-body" spellcheck="false" placeholder="架构、选型、取舍…"></textarea>
+        </div>
+        <div class="rich-block">
+          <div class="rich-head"><span class="rich-title">成果</span><span class="rich-hint">Markdown 长文</span></div>
+          <div class="editor-toolbar">
+            <button class="btn btn-mini" id="btn-insert-outcome" type="button">插图</button>
+            <span class="wordcount" data-wc="item-outcome"></span>
+          </div>
+          <textarea id="item-outcome" class="post-body" spellcheck="false" placeholder="数据、影响、后续…"></textarea>
+        </div>
+        <div class="editor-actions">
+          <button class="btn btn-primary btn-save-item" type="button">保存项目</button>
+        </div>
+      </div>
+
+      <!-- 游戏表单：专属字段 + 媒体区 + 链接对 -->
+      <div class="item-form" data-form="games">
+        <div class="field-row two">
+          <label class="field"><span>游戏名称（必填）</span><input id="game-title" type="text" autocomplete="off"></label>
+          <label class="field"><span>Slug（详情页地址 /games/xxx/，可空）</span><input id="game-slug" type="text" autocomplete="off" spellcheck="false"></label>
+        </div>
+        <label class="field">
+          <span>封面图（可空）</span>
+          <div class="field-inline">
+            <input id="game-cover" type="text" autocomplete="off" spellcheck="false" placeholder="/img/games/xxx.jpg">
+            <button class="btn btn-mini" id="btn-game-cover-pick" type="button">图库选择</button>
+            <button class="btn btn-mini btn-primary-quiet" id="btn-game-cover-upload" type="button">上传封面</button>
+          </div>
+        </label>
+        <div class="field-row three">
+          <label class="field"><span>游戏分类</span><input id="game-genre" type="text" autocomplete="off" placeholder="角色扮演 / 策略 / 独立"></label>
+          <label class="field"><span>平台（可空）</span><input id="game-platform" type="text" autocomplete="off" placeholder="PC / Switch"></label>
+          <label class="field"><span>状态（可空）</span><input id="game-status" type="text" autocomplete="off" placeholder="在玩 / 通关 / 搁置"></label>
+        </div>
+        <label class="field"><span>一句话简介（可空）</span><input id="game-summary" type="text" autocomplete="off"></label>
+        <div class="rich-block">
+          <div class="rich-head"><span class="rich-title">玩法介绍</span><span class="rich-hint">Markdown 长文</span></div>
+          <div class="editor-toolbar">
+            <button class="btn btn-mini" id="btn-insert-gameplay" type="button">插图</button>
+            <span class="wordcount" data-wc="game-gameplay"></span>
+          </div>
+          <textarea id="game-gameplay" class="post-body" spellcheck="false" placeholder="核心玩法、系统、体验…"></textarea>
+        </div>
+        <div class="rich-block">
+          <div class="rich-head"><span class="rich-title">截图 / 视频</span><span class="rich-hint">本模块独立媒体区，直传 /img/games/</span></div>
+          <div class="media-zone" id="game-media-zone">
+            <button class="btn btn-primary-quiet" id="btn-game-media-upload" type="button">＋ 上传截图</button>
+            <div class="media-list" id="game-media-list"></div>
+          </div>
+          <label class="field" style="margin-top:.6rem"><span>视频链接（B 站 / YouTube，可空）</span><input id="game-video" type="text" autocomplete="off" spellcheck="false" placeholder="https://b23.tv/xxxx"></label>
+        </div>
+        <div class="rich-block">
+          <div class="rich-head"><span class="rich-title">下载 / 试玩链接</span><span class="rich-hint">名称 + 地址成对添加</span></div>
+          <div class="link-rows" id="game-link-rows"></div>
+          <button class="btn btn-mini" id="btn-game-link-add" type="button">＋ 添加链接</button>
+        </div>
+        <div class="field-row two">
+          <label class="field"><span>日期（可空）</span><input id="game-date" type="text" autocomplete="off" placeholder="2026-05-01"></label>
+        </div>
+        <div class="editor-actions">
+          <button class="btn btn-primary btn-save-item" type="button">保存游戏</button>
+        </div>
+      </div>
+
+      <!-- 收藏表单：简洁（原有结构） -->
+      <div class="item-form" data-form="collections">
+        <label class="field"><span>名称（必填）</span><input id="coll-title" type="text" autocomplete="off"></label>
+        <label class="field"><span>链接（http(s):// 或站内路径，可空）</span><input id="coll-link" type="text" autocomplete="off" spellcheck="false"></label>
+        <label class="field"><span>一句话说明（可空）</span><input id="coll-desc" type="text" autocomplete="off"></label>
+        <label class="field">
+          <span>封面图片路径（可空）</span>
+          <div class="field-inline">
+            <input id="coll-cover" type="text" autocomplete="off" spellcheck="false" placeholder="/img/collections/xxx.jpg">
+            <button class="btn btn-mini" id="btn-coll-cover-pick" type="button">图库选择</button>
+            <button class="btn btn-mini btn-primary-quiet" id="btn-coll-cover-upload" type="button">上传封面</button>
+          </div>
+        </label>
+        <label class="field"><span>日期（参与首页近期动态，如 2026-05-01，可空）</span><input id="coll-date" type="text" autocomplete="off" placeholder="2026-05-01"></label>
+        <div class="editor-actions">
+          <button class="btn btn-primary btn-save-item" type="button">保存</button>
+        </div>
       </div>
     </div>
 

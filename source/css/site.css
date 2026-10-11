@@ -1510,3 +1510,55 @@ a.feed-title:hover {
 #modalSearch #local-search-result .search-keyword {
   color: var(--accent);
 }
+
+/* --- 4.9 模块详情页 / 列表页（项目 / 游戏） --- */
+
+.detail-meta { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin: .9rem 0 0; color: var(--sec-text-color); font-size: .82rem; }
+.detail-tag {
+  display: inline-block; font-size: .74rem; line-height: 1; padding: .32rem .6rem;
+  border: 1px solid var(--line-color); border-radius: 999px; color: var(--sec-text-color);
+}
+.detail-tag-solid { border-color: transparent; background: var(--accent-soft, rgba(176, 72, 42, .12)); color: var(--accent); }
+
+.detail-cover img { width: 100%; height: auto; border-radius: var(--r-tile, 22px); border: 1px solid var(--line-color); display: block; }
+
+.rich-section { margin: 0 0 2.6rem; }
+.rich-section h2 {
+  font-size: clamp(1.25rem, 2.2vw, 1.5rem); font-weight: 800; letter-spacing: .01em;
+  margin: 0 0 .9rem; padding-bottom: .5rem; border-bottom: 1px solid var(--line-color);
+}
+.rich-section h2::before { content: ""; display: inline-block; width: 4px; height: .92em; background: var(--accent); margin-right: .55rem; vertical-align: -0.1em; border-radius: 1px; }
+
+.media-wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .8rem; }
+.media-wall figure { margin: 0; }
+.media-wall img { width: 100%; aspect-ratio: 16/10; object-fit: cover; border-radius: var(--r-card, 12px); border: 1px solid var(--line-color); display: block; }
+
+.detail-links { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .6rem; }
+.detail-links a {
+  display: inline-block; padding: .5rem 1rem; border-radius: 999px;
+  background: var(--ink-warm, #2a251d); color: var(--cream-on-dark, #f5f1e9);
+  font-size: .88rem; text-decoration: none;
+}
+.detail-links a:hover { background: var(--accent); }
+
+.detail-foot { margin-top: 2.5rem; padding-top: 1.2rem; border-top: 1px solid var(--line-color); }
+
+/* 模块列表页 */
+.page-head-plain { margin: 0 0 1.6rem; }
+.page-head-plain .page-head-title { font-size: clamp(1.8rem, 3.4vw, 2.4rem); font-weight: 800; margin: .3rem 0 .4rem; }
+.module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+.module-card {
+  display: block; background: var(--cream, #f9f6f1); border: 1px solid var(--line-color);
+  border-radius: var(--r-tile, 22px); overflow: hidden; color: var(--text-color);
+  text-decoration: none; transition: transform .12s ease, border-color .12s ease;
+}
+.module-card:hover { transform: translateY(-2px); border-color: var(--line-strong, rgba(42, 37, 29, .24)); }
+.module-card-img { display: block; }
+.module-card-img img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; border-bottom: 1px solid var(--line-color); }
+.module-card-body { display: block; padding: .9rem 1rem 1rem; }
+.module-card-title { display: block; font-weight: 700; font-size: 1rem; }
+.module-card-sum { display: block; color: var(--sec-text-color); font-size: .84rem; margin-top: .3rem; }
+.module-card-meta { display: flex; align-items: center; gap: .45rem; flex-wrap: wrap; margin-top: .6rem; }
+
+/* 首页精选行外链标注 */
+.pick-ext { display: block; font-family: var(--font-mono); font-size: .7rem; color: var(--sec-text-color); margin-top: .25rem; }

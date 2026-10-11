@@ -7,7 +7,9 @@
     "clean": "hexo clean",
     "deploy": "hexo deploy",
     "server": "hexo server",
-    "test:admin": "node test/admin-smoke.js"
+    "test:admin": "node test/admin-smoke.js",
+    "test:pages": "node test/module-pages-e2e.js",
+    "test": "npm run test:admin && npm run test:pages"
   },
   "hexo": {
     "version": "8.1.1"

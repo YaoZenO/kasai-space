@@ -1,0 +1,76 @@
+<%
+// 游戏详情页（纸面档案）：封面 + 元信息（分类/平台/状态）+ 玩法长文 + 截图媒体墙 + 视频 + 下载/试玩链接。
+// 铁律：只渲染有内容的区块。
+page.layout = 'game'
+page.hide_banner = true
+var it = page.item || {}
+var media = it.media || []
+var links = it.links || []
+%>
+
+<div class="paper-page">
+  <div class="home-wrap module-detail">
+    <header class="about-head">
+      <div class="about-head-main">
+        <p class="page-head-kicker"><a href="<%= url_for('/games/') %>">GAMES · 游戏</a></p>
+        <h1 class="page-head-title"><%= it.title %></h1>
+        <% if (it.summary) { %><p class="about-head-intro"><%= it.summary %></p><% } %>
+        <p class="detail-meta">
+          <% if (it.date) { %><time class="mono"><%= it.date %></time><% } %>
+          <% if (it.genre) { %><span class="detail-tag detail-tag-solid"><%= it.genre %></span><% } %>
+          <% if (it.platform) { %><span class="detail-tag"><%= it.platform %></span><% } %>
+          <% if (it.status) { %><span class="detail-tag"><%= it.status %></span><% } %>
+        </p>
+      </div>
+      <% if (it.cover) { %>
+      <div class="about-avatar-box detail-cover">
+        <img src="<%= url_for(it.cover) %>" alt="<%= it.title %>">
+      </div>
+      <% } %>
+    </header>
+
+    <article class="about-body markdown-body">
+      <% if (it.gameplay_html) { %>
+      <section class="rich-section">
+        <h2>玩法介绍</h2>
+        <%- it.gameplay_html %>
+      </section>
+      <% } %>
+
+      <% if (media.length) { %>
+      <section class="rich-section">
+        <h2>截图</h2>
+        <div class="media-wall">
+          <% media.forEach(function (m) { %>
+          <figure><img src="<%= url_for(m) %>" alt="<%= it.title %> 截图" loading="lazy"></figure>
+          <% }) %>
+        </div>
+      </section>
+      <% } %>
+
+      <% if (it.video) { %>
+      <section class="rich-section">
+        <h2>视频</h2>
+        <p><a class="cta-link" href="<%= it.video %>" target="_blank" rel="noopener">观看视频 →</a></p>
+      </section>
+      <% } %>
+
+      <% if (links.length) { %>
+      <section class="rich-section">
+        <h2>下载 / 试玩</h2>
+        <ul class="detail-links">
+          <% links.forEach(function (l) { %>
+          <li><a href="<%= l.url %>" target="_blank" rel="noopener"><%= l.label %> →</a></li>
+          <% }) %>
+        </ul>
+      </section>
+      <% } %>
+
+      <% if (!it.gameplay_html && !media.length && !it.video && !links.length) { %><p class="empty">详细介绍整理中。</p><% } %>
+    </article>
+
+    <footer class="detail-foot">
+      <a class="cta-link" href="<%= url_for('/games/') %>">← 返回游戏列表</a>
+    </footer>
+  </div>
+</div>

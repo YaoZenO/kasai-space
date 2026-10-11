@@ -1,0 +1,49 @@
+<%
+// 项目详情页（纸面档案）：封面 + 元信息 + 四个长文 section。
+// 铁律：只渲染有内容的 section，无内容不占位、不伪造。
+page.layout = 'project'
+page.hide_banner = true
+var it = page.item || {}
+var sections = [
+  ['项目背景', it.background_html],
+  ['实现过程', it.process_html],
+  ['技术方案', it.tech_html],
+  ['成果', it.outcome_html],
+].filter(function (s) { return s[1] && String(s[1]).trim() })
+%>
+
+<div class="paper-page">
+  <div class="home-wrap module-detail">
+    <header class="about-head">
+      <div class="about-head-main">
+        <p class="page-head-kicker"><a href="<%= url_for('/projects/') %>">PROJECTS · 项目</a></p>
+        <h1 class="page-head-title"><%= it.title %></h1>
+        <% if (it.summary) { %><p class="about-head-intro"><%= it.summary %></p><% } %>
+        <p class="detail-meta">
+          <% if (it.date) { %><time class="mono"><%= it.date %></time><% } %>
+          <% (it.tags || []).forEach(function (t) { %><span class="detail-tag">#<%= t %></span><% }) %>
+        </p>
+        <% if (it.link) { %><a class="cta-solid" href="<%= it.link %>" target="_blank" rel="noopener">访问项目 →</a><% } %>
+      </div>
+      <% if (it.cover) { %>
+      <div class="about-avatar-box detail-cover">
+        <img src="<%= url_for(it.cover) %>" alt="<%= it.title %>">
+      </div>
+      <% } %>
+    </header>
+
+    <article class="about-body markdown-body">
+      <% sections.forEach(function (s) { %>
+      <section class="rich-section">
+        <h2><%= s[0] %></h2>
+        <%- s[1] %>
+      </section>
+      <% }) %>
+      <% if (!sections.length) { %><p class="empty">详细介绍整理中。</p><% } %>
+    </article>
+
+    <footer class="detail-foot">
+      <a class="cta-link" href="<%= url_for('/projects/') %>">← 返回项目列表</a>
+    </footer>
+  </div>
+</div>

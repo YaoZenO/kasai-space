@@ -613,30 +613,91 @@
     return html;
   }
 
-  // ---------- 数据条目编辑器 ----------
+  // ---------- 数据条目编辑器（三类型各自独立表单） ----------
   const MODULE_META = {
-    projects: {
-      label: '项目',
-      linkLabel: '链接（GitHub 仓库 / 演示地址 / 相关文章，可空）',
-      linkPlaceholder: 'https://github.com/YaoZenO/xxx',
-      coverHint: '上传后存入 /img/projects/，建议 16:9 横图；首页有真实条目才渲染该板块。',
-    },
-    games: {
-      label: '游戏',
-      linkLabel: '链接（游戏页面 / 商店 / 攻略地址，可空）',
-      linkPlaceholder: 'https://store.steampowered.com/app/xxx',
-      coverHint: '上传后存入 /img/games/；玩过的游戏记录在这里，首页按真实条目数展示。',
-    },
-    collections: {
-      label: '收藏',
-      linkLabel: '链接（原文 / 资源地址，可空）',
-      linkPlaceholder: 'https://example.com/article',
-      coverHint: '上传后存入 /img/collections/；收藏的文章、工具、资源都可以放。',
-    },
+    projects: { label: '项目', form: 'projects' },
+    games: { label: '游戏', form: 'games' },
+    collections: { label: '收藏', form: 'collections' },
   };
 
+  function showItemForm(module) {
+    document.querySelectorAll('.item-form').forEach((f) => {
+      f.hidden = f.dataset.form !== module;
+    });
+  }
+
+  // 富文本区：插图按钮 + 字数统计（供项目/游戏长文共用）
+  function bindRichTextarea(btnId, taId) {
+    $(btnId).onclick = () => openImagePicker((sp) => insertToTextarea($(taId), `![](${sp})`));
+    const ta = $(taId);
+    const wc = document.querySelector(`.wordcount[data-wc="${taId}"]`);
+    const update = () => {
+      const t = ta.value;
+      const cn = (t.match(/[\u4e00-\u9fff]/g) || []).length;
+      const words = (t.replace(/[\u4e00-\u9fff]/g, ' ').match(/[A-Za-z0-9]+/g) || []).length;
+      if (wc) wc.textContent = cn + words ? `${cn + words} 字` : '';
+    };
+    ta.addEventListener('input', update);
+    update();
+  }
+
+  function insertToTextarea(ta, text) {
+    const start = ta.selectionStart || ta.value.length;
+    const end = ta.selectionEnd || ta.value.length;
+    ta.value = ta.value.slice(0, start) + text + ta.value.slice(end);
+    ta.dispatchEvent(new Event('input'));
+    ta.focus();
+  }
+
+  // 游戏媒体区：路径列表的增删
+  const S_media = [];
+  function renderMediaList() {
+    const box = $('game-media-list');
+    box.textContent = '';
+    S_media.forEach((p, i) => {
+      const row = el('div', 'media-row');
+      const img = el('img');
+      img.src = p;
+      img.loading = 'lazy';
+      img.onerror = () => img.remove();
+      const name = el('span', 'media-name', p.split('/').pop());
+      const del = el('button', 'btn btn-quiet', '移除');
+      del.onclick = () => { S_media.splice(i, 1); renderMediaList(); };
+      row.appendChild(img);
+      row.appendChild(name);
+      row.appendChild(del);
+      box.appendChild(row);
+    });
+  }
+
+  // 游戏链接对 repeater：{label, url}
+  const S_links = [];
+  function renderLinkRows() {
+    const box = $('game-link-rows');
+    box.textContent = '';
+    S_links.forEach((l, i) => {
+      const row = el('div', 'link-row');
+      const label = el('input');
+      label.type = 'text';
+      label.placeholder = '名称，如 下载';
+      label.value = l.label || '';
+      label.oninput = () => { S_links[i].label = label.value; };
+      const url = el('input');
+      url.type = 'text';
+      url.placeholder = 'https://…';
+      url.value = l.url || '';
+      url.oninput = () => { S_links[i].url = url.value; };
+      const del = el('button', 'btn btn-quiet', '移除');
+      del.onclick = () => { S_links.splice(i, 1); renderLinkRows(); };
+      row.appendChild(label);
+      row.appendChild(url);
+      row.appendChild(del);
+      box.appendChild(row);
+    });
+  }
+
   function openItemEditor(module, index) {
-    const item = index === null ? {} : S.data.data[module][index];
+    const item = index === null ? {} : (S.data.data[module][index] || {});
     S.itemEditor = { module, index };
     const meta = MODULE_META[module] || {};
     $('view-list').hidden = true;
@@ -644,55 +705,190 @@
     $('view-site-editor').hidden = true;
     $('view-data-editor').hidden = false;
     $('item-module-badge').textContent = `${meta.label || module}条目 · ${index === null ? '新增' : '编辑'}`;
-    $('item-link-label').textContent = meta.linkLabel || '链接（http(s):// 或站内路径，可空）';
-    $('item-link').placeholder = meta.linkPlaceholder || '';
-    $('item-cover-hint').textContent = meta.coverHint || '直接上传会存入该板块专属目录。';
-    $('item-title').value = item.title || '';
-    $('item-link').value = item.link || '';
-    $('item-desc').value = item.desc || '';
-    $('item-cover').value = item.cover || '';
-    $('item-date').value = item.date || '';
+    showItemForm(module);
+
+    if (module === 'projects') {
+      $('item-title').value = item.title || '';
+      $('item-slug').value = item.slug || '';
+      $('item-cover').value = item.cover || '';
+      $('item-date').value = item.date || '';
+      $('item-tags').value = (item.tags || []).join(', ');
+      $('item-link').value = item.link || '';
+      $('item-summary').value = item.summary || item.desc || '';
+      $('item-bg').value = item.background || '';
+      $('item-process').value = item.process || '';
+      $('item-tech').value = item.tech || '';
+      $('item-outcome').value = item.outcome || '';
+      ['item-bg', 'item-process', 'item-tech', 'item-outcome'].forEach((id) => $(id).dispatchEvent(new Event('input')));
+    } else if (module === 'games') {
+      $('game-title').value = item.title || '';
+      $('game-slug').value = item.slug || '';
+      $('game-cover').value = item.cover || '';
+      $('game-genre').value = item.genre || '';
+      $('game-platform').value = item.platform || '';
+      $('game-status').value = item.status || '';
+      $('game-summary').value = item.summary || '';
+      $('game-gameplay').value = item.gameplay || '';
+      $('game-gameplay').dispatchEvent(new Event('input'));
+      $('game-video').value = item.video || '';
+      $('game-date').value = item.date || '';
+      S_media.length = 0;
+      (item.media || []).forEach((m) => S_media.push(m));
+      renderMediaList();
+      S_links.length = 0;
+      (item.links || []).forEach((l) => S_links.push({ label: l.label || '', url: l.url || '' }));
+      renderLinkRows();
+    } else {
+      $('coll-title').value = item.title || '';
+      $('coll-link').value = item.link || '';
+      $('coll-desc').value = item.desc || '';
+      $('coll-cover').value = item.cover || '';
+      $('coll-date').value = item.date || '';
+    }
   }
 
-  // 条目编辑器内直接上传封面（存入该板块专属目录，成功后自动回填路径）
-  $('btn-item-cover-upload').onclick = guard(async () => {
+  function collectItemEditor() {
     const ie = S.itemEditor;
-    if (!ie) return;
+    if (!ie) return null;
+    if (ie.module === 'projects') {
+      return {
+        kind: 'data', module: 'projects', index: ie.index,
+        item: {
+          slug: $('item-slug').value.trim(),
+          title: $('item-title').value.trim(),
+          cover: $('item-cover').value.trim(),
+          date: $('item-date').value.trim(),
+          tags: $('item-tags').value,
+          link: $('item-link').value.trim(),
+          summary: $('item-summary').value.trim(),
+          background: $('item-bg').value,
+          process: $('item-process').value,
+          tech: $('item-tech').value,
+          outcome: $('item-outcome').value,
+        },
+        expectedHeadSha: S.lastListSha,
+      };
+    }
+    if (ie.module === 'games') {
+      return {
+        kind: 'data', module: 'games', index: ie.index,
+        item: {
+          slug: $('game-slug').value.trim(),
+          title: $('game-title').value.trim(),
+          cover: $('game-cover').value.trim(),
+          genre: $('game-genre').value.trim(),
+          platform: $('game-platform').value.trim(),
+          status: $('game-status').value.trim(),
+          summary: $('game-summary').value.trim(),
+          gameplay: $('game-gameplay').value,
+          media: S_media.slice(),
+          video: $('game-video').value.trim(),
+          date: $('game-date').value.trim(),
+          links: S_links.filter((l) => l.label.trim() && l.url.trim()).map((l) => ({ label: l.label.trim(), url: l.url.trim() })),
+        },
+        expectedHeadSha: S.lastListSha,
+      };
+    }
+    return {
+      kind: 'data', module: 'collections', index: ie.index,
+      item: {
+        title: $('coll-title').value.trim(),
+        link: $('coll-link').value.trim(),
+        desc: $('coll-desc').value.trim(),
+        cover: $('coll-cover').value.trim(),
+        date: $('coll-date').value.trim(),
+      },
+      expectedHeadSha: S.lastListSha,
+    };
+  }
+
+  // 保存按钮（三表单各一个，class 绑定）
+  document.querySelectorAll('.btn-save-item').forEach((btn) => {
+    btn.onclick = guard(async () => {
+      const ie = S.itemEditor;
+      if (!ie) return;
+      const body = collectItemEditor();
+      if (!body.item.title) {
+        toast('标题不能为空');
+        return;
+      }
+      await api('/api/content-save', { method: 'POST', body });
+      setDeployCommitted(null);
+      toast('已保存并提交');
+      await reloadList();
+      switchTab(ie.module);
+    });
+  });
+
+  // 封面直传（三类型各自目录）
+  function bindCoverUpload(btnId, inputId, module) {
+    $(btnId).onclick = guard(async () => {
+      const input = el('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = async () => {
+        const file = input.files && input.files[0];
+        if (!file) return;
+        try {
+          await uploadOneImage(file, module);
+          await reloadList();
+          const mine = (S.data.images || []).filter((p) => p.startsWith(`source/img/${module}/`)).sort();
+          const latest = mine[mine.length - 1];
+          $(inputId).value = latest ? sitePath(latest) : '';
+          toast('上传成功，路径已回填');
+        } catch (e) {
+          handleOpError(e);
+        }
+      };
+      input.click();
+    });
+  }
+
+  // 富文本插图按钮 + 字数
+  bindRichTextarea('btn-insert-bg', 'item-bg');
+  bindRichTextarea('btn-insert-process', 'item-process');
+  bindRichTextarea('btn-insert-tech', 'item-tech');
+  bindRichTextarea('btn-insert-outcome', 'item-outcome');
+  bindRichTextarea('btn-insert-gameplay', 'game-gameplay');
+
+  // 封面：图库选择 + 直传
+  $('btn-item-cover-pick').onclick = () => openImagePicker((sp) => { $('item-cover').value = sp; });
+  $('btn-game-cover-pick').onclick = () => openImagePicker((sp) => { $('game-cover').value = sp; });
+  $('btn-coll-cover-pick').onclick = () => openImagePicker((sp) => { $('coll-cover').value = sp; });
+  bindCoverUpload('btn-item-cover-upload', 'item-cover', 'projects');
+  bindCoverUpload('btn-game-cover-upload', 'game-cover', 'games');
+  bindCoverUpload('btn-coll-cover-upload', 'coll-cover', 'collections');
+
+  // 游戏媒体区：批量直传
+  $('btn-game-media-upload').onclick = guard(async () => {
     const input = el('input');
     input.type = 'file';
     input.accept = 'image/*';
+    input.multiple = true;
     input.onchange = async () => {
-      const file = input.files && input.files[0];
-      if (!file) return;
-      try {
-        await uploadOneImage(file, ie.module);
-        await reloadList();
-        const l = S.data;
-        const mine = (l.images || []).filter((p) => p.startsWith(`source/img/${ie.module}/`)).sort();
-        const latest = mine[mine.length - 1];
-        $('item-cover').value = latest ? sitePath(latest) : '';
-        toast('封面上传成功，路径已回填');
-      } catch (e) {
-        handleOpError(e);
+      const files = Array.from(input.files || []);
+      for (const file of files) {
+        try {
+          await uploadOneImage(file, 'games');
+          await reloadList();
+          const mine = (S.data.images || []).filter((p) => p.startsWith('source/img/games/')).sort();
+          const latest = mine[mine.length - 1];
+          if (latest) S_media.push(sitePath(latest));
+          toast(`已上传 ${file.name}`);
+        } catch (e) {
+          handleOpError(e);
+        }
       }
+      renderMediaList();
     };
     input.click();
   });
 
-  $('btn-save-item').onclick = guard(async () => {
-    const ie = S.itemEditor;
-    if (!ie) return;
-    const body = {
-      kind: 'data', module: ie.module, index: ie.index,
-      item: { title: $('item-title').value, link: $('item-link').value, desc: $('item-desc').value, cover: $('item-cover').value, date: $('item-date').value },
-      expectedHeadSha: S.lastListSha,
-    };
-    await api('/api/content-save', { method: 'POST', body });
-    setDeployCommitted(null);
-    toast('条目已保存并提交');
-    await reloadList();
-    switchTab(ie.module);
-  });
+  // 游戏链接对：添加
+  $('btn-game-link-add').onclick = () => {
+    S_links.push({ label: '', url: '' });
+    renderLinkRows();
+  };
 
   // ---------- 站点身份设置 ----------
   // 设置 tab 直接展示编辑器视图（无列表态）；进入时填充表单

@@ -1,9 +1,17 @@
-# V3.1 首页扩展机制 · 游戏模块
-# 新增条目：在 items 下按以下字段追加（仅 title 必填，其余可选）
-#   title  条目名
-#   link   跳转地址（外链 http(s):// 或站内路径）；无 link 的条目展示为非链接条目，不制造失效链接
-#   desc   一句话说明
-#   cover  图片路径，如 /img/games/xxx.jpg（图片放 source/img/ 下）；有 cover 的条目渲染为照片格
-#   date   参与首页「近期动态」聚合排序，如 2026-05-01
-# items 有内容时自动渲染到首页；为空时整段不渲染（不占位、不伪造）；计数 = 实际条目数
+# V3.1 首页扩展机制 · 游戏模块（专属字段）
+# 新增条目：在 items 下按以下字段追加（仅 title 必传，其余可选）
+#   slug       详情页地址 /games/<slug>/；缺省由标题编码生成
+#   title      游戏名
+#   date       日期，如 2026-10-12
+#   cover      封面图路径，如 /img/games/xxx.jpg（后台可直传到该目录）
+#   genre      游戏分类，如 角色扮演 / 策略 / 独立
+#   platform   平台，如 PC / Switch
+#   status     状态，如 在玩 / 通关 / 搁置 / 想玩
+#   summary    一句话简介
+#   gameplay   玩法介绍（Markdown 长文）
+#   media      截图路径数组，如 [/img/games/a.jpg, /img/games/b.jpg]
+#   video      视频链接（B 站 / YouTube）
+#   links      下载 / 试玩链接数组，如 [{label: 下载, url: https://…}]
+# items 有内容时自动渲染到首页，并生成 /games/ 列表页与各条目详情页；为空时整段不渲染
+
 items: []
