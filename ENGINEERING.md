@@ -164,7 +164,7 @@ P0-3 测试固化 ──┬─→ P0-1 身份域统一 ──→ P0-2 错误契�
 
 ## P1-9 分类内容体系（项目富文本 / 游戏专属字段）
 
-- **优先级：** P1 ｜ **依赖：** P0-3 ｜ **状态：** 进行中（2026-10-12 主人需求驱动）
+- **优先级：** P1 ｜ **依赖：** P0-3 ｜ **状态：** ✅ 已完成（2026-10-12；A/B/C 三项验收全部通过）
 - **问题定位：** 三个内容模块共用同一套扁平字段（title/link/desc/cover/date）与同一个条目编辑器；
   项目需要长篇图文（背景/过程/技术/成果），游戏需要专属字段（分类/平台/状态/玩法/截图视频/下载试玩链接），
   现状无法承载，后台录入体验不完整。
@@ -197,7 +197,17 @@ P0-3 测试固化 ──┬─→ P0-1 身份域统一 ──→ P0-2 错误契�
   `source/admin/{index.html,admin.js,admin.css}`、`themes/fluid/layout/index.ejs`、
   `themes/fluid/layout/{project,game,module-index}.ejs`(新)、
   `themes/fluid/scripts/generators/*`(新)、`source/css/site.css`、
-  `source/_data/{projects,games}.yml`(头注释更新)、`scripts/admin-smoke.js`
+  `source/_data/{projects,games}.yml`(头注释更新)、`test/admin-smoke.js`、
+  `test/module-pages-e2e.js`(新)
+
+### 落地记录（验证期发现并修复的缺陷）
+
+| # | 缺陷 | 根因 | 修法 | 锁定方式 |
+|---|---|---|---|---|
+| 1 | 详情页正文出现**裸 Markdown 源码** | `hexo.render.render({engine:'marked'})` —— `marked` **不是已注册扩展名**（只有 `markdown`/`md`）。Hexo 找不到渲染器时**静默返回原文**，不抛错 | 改用 `engine:'markdown'`；并加「输出 == 输入」判定，命中则降级 `<pre>`，杜绝同类静默失败再次上线 | E2E §3 断言 `<strong>/<code>/<li>`；单独跑一次 `engine:'marked'` 会红 |
+| 2 | 长文字段**往返不幂等** | 块标量用 `\|-`（strip chomping），结尾换行被吃掉；「保存→读回」与原始输入不等，重复保存产生 diff 抖动 | `serializeEntry` 写入前规约尾部换行，往返稳定 | E2E §1「往返幂等」断言：二次 `updateItems` 输出必须与原文件逐字节相同 |
+| 3 | `yaml.js` 中 `parseFlowList` 被定义两次 | 复制粘贴残留；后者因函数提升覆盖前者，无功能影响但属死代码 | 删除前一个定义 | `node --check` |
+| 4 | 手工构造测试 YAML 造出两个 `items:` 键，导致构建解析失败 | 用 `head -N + cat >>` 拼文件 | 改为走后台真实写入链路（`validate → updateItems`）构造，并用 `finally` 无条件还原 | E2E 脚本本身即防复发 |
 
 ---
 
