@@ -1,15 +1,3 @@
-# V3.1 首页扩展机制 · 项目模块
-# 新增条目：在 items 下按以下字段追加（仅 title 必填，其余可选）
-#   title  条目名
-#   link   跳转地址（外链 http(s):// 或站内路径）；无 link 的条目展示为非链接条目，不制造失效链接
-#   desc   一句话说明
-#   cover  图片路径，如 /img/projects/xxx.jpg（图片放 source/img/ 下）；有 cover 的条目渲染为照片格
-#   date   参与首页「近期动态」聚合排序，如 2026-05-01
-# items 有内容时自动渲染到首页；为空时整段不渲染（不占位、不伪造）；计数 = 实际条目数
-
 items:
-  - title: 测试项目
-    link: "https://github.com/YaoZenO"
-    desc: 冒烟测试
-    cover: source/img/projects/202610120136-img.png
-    date: 2026-10-11
+  - title: 正常
+坏行在这里
