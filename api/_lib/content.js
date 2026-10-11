@@ -11,6 +11,7 @@ const store = require('./store');
 const yaml = require('./yaml');
 const validate = require('./validate');
 const posts = require('./posts');
+const registry = require('./modules');
 const { HttpError } = require('./http');
 
 const POSTS_DIR = 'source/_posts';
@@ -18,7 +19,6 @@ const DRAFTS_DIR = '_drafts';
 const TRASH_DIR = '_trash';
 const IMG_DIR = 'source/img';
 const DATA_DIR = 'source/_data';
-const MODULES = ['projects', 'games', 'collections'];
 const SITE_PATH = `${DATA_DIR}/site.yml`;
 const MANIFEST_PATH = `${TRASH_DIR}/manifest.json`;
 
@@ -44,8 +44,10 @@ function assertSlug(slug) {
   return slug;
 }
 
-function assertModule(m) {
-  if (!MODULES.includes(m)) throw new HttpError(400, 'BAD_MODULE');
+// 模块列表来自 source/_data/modules.yml（单一数据源），读取失败时 load() 回退内置默认。
+// 传入 list 是为了让调用点复用一次读取结果，不重复发请求。
+function assertModule(m, list) {
+  if (!registry.keysOf(list).includes(m)) throw new HttpError(400, 'BAD_MODULE');
   return m;
 }
 
@@ -78,7 +80,7 @@ async function listAll() {
     else if (p.startsWith(`${IMG_DIR}/`) && /\.(jpe?g|png|webp|gif)$/i.test(p)) images.push(p);
   }
   const data = {};
-  for (const m of MODULES) {
+  for (const m of registry.keysOf(await registry.load())) {
     const p = `${DATA_DIR}/${m}.yml`;
     const entry = paths.includes(p);
     data[m] = entry ? yaml.parseItems((await store.getFile(p)).content) : [];
@@ -241,7 +243,7 @@ function normalizePostFile(content) {
 // ---------- 数据模块 ----------
 
 async function saveData(input) {
-  const m = assertModule(input.module);
+  const m = assertModule(input.module, await registry.load());
   // 先按模块字段白名单校验原始入参（未知字段拒绝），再拷贝白名单内字段
   validate.validateItem(m, input.item || {});
   const fields = validate.MODULE_FIELDS[m];
@@ -326,7 +328,7 @@ async function deleteItem(input) {
     changes.push({ path, delete: true });
     entry = { id, type, originalPath: path, title: input.title || base, trashPath, deletedAt: nowCst() };
   } else if (input.module) {
-    const m = assertModule(input.module);
+    const m = assertModule(input.module, await registry.load());
     const idx = Number(input.index);
     const p = `${DATA_DIR}/${m}.yml`;
     const file = await store.getFile(p).catch(() => {
@@ -358,7 +360,7 @@ async function restore(input) {
   const snapshot = entry.type === 'data' ? JSON.parse(trashFile.content) : null;
   const changes = [];
   if (entry.type === 'data') {
-    const m = assertModule(snapshot.module);
+    const m = assertModule(snapshot.module, await registry.load());
     const p = `${DATA_DIR}/${m}.yml`;
     const file = await store.getFile(p);
     const items = yaml.parseItems(file.content);
@@ -380,6 +382,8 @@ async function restore(input) {
 // ---------- 图片 ----------
 
 async function uploadImage(input) {
+  // 图片归属目录 ≠ 内容模块：这里多了 posts（文章配图）与 avatar（头像），
+  // 语义不同，不并入 modules.yml；内容模块改动时记得同步这里与 source/admin/admin.js:286
   const m = String(input.module || 'posts');
   if (!['posts', 'projects', 'games', 'collections', 'avatar'].includes(m)) throw new HttpError(400, 'BAD_MODULE');
   const name = String(input.filename || 'image.jpg');
@@ -400,7 +404,9 @@ async function uploadImage(input) {
 }
 
 module.exports = {
-  MODULES,
+  // 模块列表不再以常量导出：改由 registry（source/_data/modules.yml）动态读取，
+  // 用法 await content.registry.load() / content.registry.keysOf(list)
+  registry,
   MANIFEST_PATH,
   POSTS_DIR,
   DRAFTS_DIR,

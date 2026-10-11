@@ -37,11 +37,24 @@ function postCover(post) { return post.cover || '' }
    新增模块类型 = 在此加一行配置
    accent: 无 cover 时的色块格颜色（yellow / orange / 空则排版格）
    page  : 类型汇总页路径；站点尚未建该页时留空 → 入口格为非链接展示格 */
-var HOME_MODULES = [
-  { data: 'projects',    title: '项目', accent: 'yellow', page: '/projects/' },
-  { data: 'games',       title: '游戏', accent: 'orange', page: '/games/' },
-  { data: 'collections', title: '收藏', accent: '',       page: '' }
-]
+/* ---------- 内容模块入口格定义 ----------
+   单一数据源为 source/_data/modules.yml（与后台 api 共用）。
+   文件缺失或内容为空时回退内置默认，保证首页不空白。 */
+var HOME_MODULES = []
+var moduleCfg = []
+if (site.data && site.data.modules && site.data.modules.items) { moduleCfg = site.data.modules.items }
+moduleCfg.forEach(function (m) {
+  if (m && m.key) {
+    HOME_MODULES.push({ data: m.key, title: m.title || m.key, accent: m.accent || '', page: m.page || '' })
+  }
+})
+if (!HOME_MODULES.length) {
+  HOME_MODULES = [
+    { data: 'projects',    title: '项目', accent: 'yellow', page: '/projects/' },
+    { data: 'games',       title: '游戏', accent: 'orange', page: '/games/' },
+    { data: 'collections', title: '收藏', accent: '',       page: '' }
+  ]
+}
 
 /* 有效条目（title 必填）聚合为类型入口数据；count 为真实条目数 */
 var wallModules = []

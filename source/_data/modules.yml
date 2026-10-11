@@ -1,0 +1,24 @@
+# 内容模块注册表 —— 单一数据源（后台 api、前台首页共用）
+# 加一种内容类型：在这里追加一条，并**同时**在 api/_lib/validate.js 的 MODULE_FIELDS
+# 补上同名字段白名单。两者不一致时测试会失败（不会等到运行时才炸）。
+#
+#   key     数据文件名 source/_data/<key>.yml，同时是 api 校验白名单的键
+#   title   前台展示名（首页入口格、后台面包屑）
+#   accent  首页入口格配色（yellow / orange / 空）
+#   page    列表页地址；空表示无独立列表页
+#
+# 本文件缺失或损坏时，两端各自回退到内置默认列表，不会导致全站 500。
+
+items:
+  - key: projects
+    title: 项目
+    accent: yellow
+    page: /projects/
+  - key: games
+    title: 游戏
+    accent: orange
+    page: /games/
+  - key: collections
+    title: 收藏
+    accent: ""
+    page: ""

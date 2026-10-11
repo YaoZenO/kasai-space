@@ -302,6 +302,59 @@ const PNG_1X1 = Buffer.from(
     assert.deepStrictEqual(catBody.categories, ['随笔', '技术']);
   });
 
+  // --- P1-6：模块注册表单一数据源 ---
+  const registry = require('../api/_lib/modules');
+  const mods = await registry.load();
+  ok('registry: 从 modules.yml 读出模块定义（key/title/accent/page）', () => {
+    assert.deepStrictEqual(registry.keysOf(mods), ['projects', 'games', 'collections']);
+    const g = mods.find((m) => m.key === 'games');
+    assert.strictEqual(g.title, '游戏');
+    assert.strictEqual(g.accent, 'orange');
+    assert.strictEqual(g.page, '/games/');
+  });
+
+  // 一致性护栏：modules.yml 的每个 key 都必须在 validate.MODULE_FIELDS 里有字段白名单。
+  // 否则「加了模块却漏改校验白名单」会等到保存时才炸（运行时故障 → 测试期故障）。
+  const missingWhitelist = registry.keysOf(mods).filter((k) => !validate.MODULE_FIELDS[k]);
+  ok('registry: 每个模块都有对应字段白名单（防止加模块漏改 validate）', () => {
+    assert.deepStrictEqual(missingWhitelist, [], '缺少字段白名单的模块：' + missingWhitelist.join(', '));
+  });
+
+  // 新增模块可被识别：写一条进去，saveData 应接受（不再依赖硬编码常量）
+  await store.commitFiles([{
+    path: registry.MODULES_PATH,
+    contentUtf8: yaml.updateItems(await store.getFile(registry.MODULES_PATH).then((f) => f.content), [
+      { key: 'projects', title: '项目', accent: 'yellow', page: '/projects/' },
+      { key: 'games', title: '游戏', accent: 'orange', page: '/games/' },
+      { key: 'collections', title: '收藏', accent: '', page: '' },
+    ]),
+  }], 'test: seed modules', null);
+  ok('registry: 模块列表来自文件而非硬编码常量', () => {
+    assert.strictEqual(typeof require('../api/_lib/content').registry.load, 'function');
+    assert.ok(!('MODULES' in require('../api/_lib/content')), 'content.js 不应再导出硬编码 MODULES 常量');
+  });
+
+  // 回退：modules.yml 损坏时不得升级成全站 500
+  const origModulesContent = await store.getFile(registry.MODULES_PATH).then((f) => f.content).catch(() => null);
+  try {
+    await store.commitFiles([{ path: registry.MODULES_PATH, contentUtf8: 'items:\n  - key: x\n坏行在这里\n' }], 'test: corrupt modules', null);
+    const fallback = await registry.load();
+    ok('registry: modules.yml 损坏 → 回退内置默认列表（不 500）', () => {
+      assert.deepStrictEqual(registry.keysOf(fallback), ['projects', 'games', 'collections']);
+    });
+    // 顺带验证：modules.yml 损坏时 listAll 也仍能正常返回（不因配置问题瘫痪）
+    const before = (await content.listAll()).data.projects.length;
+    await content.saveData({ module: 'projects', index: null, item: { title: '回退验证' }, expectedHeadSha: await store.getHead() });
+    const after = (await content.listAll()).data.projects.length;
+    ok('registry: 回退后写操作与列表读取仍正常（BAD_MODULE 不应出现）', () => {
+      assert.strictEqual(after, before + 1);
+    });
+  } finally {
+    if (origModulesContent != null) {
+      await store.commitFiles([{ path: registry.MODULES_PATH, contentUtf8: origModulesContent }], 'test: restore modules', null);
+    }
+  }
+
   // ============ 第二段：HTTP 管线（真实走 api 端点） ============
   console.log('\n[2] HTTP 管线 · 端点级');
   const server = http.createServer((req, res) => {
