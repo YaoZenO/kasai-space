@@ -9,6 +9,8 @@ stalling on unnecessary confirmations and without touching things that were not 
 ## 1. Before starting
 
 - Read project-level rules and any relevant design/architecture documents first.
+- **Read `ERRORS.md` before starting.** It is the record of every mistake already made
+  in this repo. Do not repeat any of them.
 - Inspect Git state: current branch, HEAD, staged area, working tree, and untracked files.
 - Inspect the actual source, config, dependencies, and existing implementation.
 - Separate changes that already existed before the task from changes you create.
@@ -40,6 +42,29 @@ Without explicit authorization for **this** task, you MUST NOT:
 
 Authorization applies only to the actions and scope explicitly stated.
 If you make a mistake, report it immediately and fix it. Never silently repair and hide it.
+
+### 3.1 Error recording (mandatory)
+
+**Every mistake must be recorded in `ERRORS.md` in the same batch as its fix.**
+No exceptions for small ones, and no "I'll log it later".
+
+- Applies to: defects you introduce, defects you discover and fix, defects the user
+  reports, and anything a test exposes.
+- Each entry must end with a **prevention mechanism** — a test assertion, a scripted
+  restore, a defensive code check, or directory isolation.
+  "I'll be more careful next time" does not count.
+- Update the index table in `ERRORS.md` §2 in the same edit.
+- Use the template in `ERRORS.md` appendix.
+
+**Anti-patterns already recorded — treat as hard prohibitions:**
+
+- Never run tests against the real repository. Always use mock mode
+  (`ADMIN_DEV_MOCK=1`). See E-001: this polluted the live repo with 18 commits
+  and corrupted a production data file.
+- Never put non-plugin scripts in project-root `scripts/` — Hexo auto-loads
+  everything there. Test code goes in `test/`. See E-004.
+- Never trust a silent success. If a library returns output without erroring,
+  verify the output actually changed. See E-002.
 
 ## 4. Verification requirements
 
