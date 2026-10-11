@@ -99,6 +99,18 @@ function writeModule(name, extraItem) {
   fs.writeFileSync(p, yaml.updateItems(text, items.concat([checked])), 'utf8');
 }
 
+// 清理本次测试生成的页面（public/projects、public/games 完全由模块页生成器产出，
+// 属本测试自有产物）。不清理的话，跑完测试直接起服务会看到 e2e-* 测试页。
+function cleanGenerated() {
+  for (const dir of ['projects', 'games']) {
+    try {
+      fs.rmSync(path.join(PUBLIC, dir), { recursive: true, force: true });
+    } catch (e) {
+      console.log('      （提示：' + dir + ' 测试页未能自动清理，运行 npm run build 即可覆盖）');
+    }
+  }
+}
+
 function readPage(rel) {
   const p = path.join(PUBLIC, rel);
   assert.ok(fs.existsSync(p), '页面不存在: ' + rel);
@@ -212,7 +224,8 @@ async function main() {
   } finally {
     restore('projects');
     restore('games');
-    console.log('\n[8] 还原原始数据文件');
+    cleanGenerated();
+    console.log('\n[8] 还原原始数据文件 + 清理测试生成的页面');
   }
 
   ok('数据文件已完整还原', () => {
@@ -229,6 +242,7 @@ async function main() {
   });
 
   console.log('\n' + pass + ' 项断言通过');
+  console.log('提示：public/projects 与 public/games 已清理，需重新 npm run build 生成正式页面。');
 }
 
 main().catch((e) => {
