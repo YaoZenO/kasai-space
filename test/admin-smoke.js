@@ -439,6 +439,35 @@ const PNG_1X1 = Buffer.from(
     assert.match(h1.body.hint, /slug/);
   });
 
+  // --- P1-5：路由中间件（统一方法检查 / Origin / 会话 / 错误出口） ---
+  h1 = await call('GET', '/api/content-save');
+  ok('router: GET 访问 POST 端点 → 405 且带 hint', () => {
+    assert.strictEqual(h1.status, 405);
+    assert.strictEqual(h1.body.error, 'METHOD_NOT_ALLOWED');
+    assert.ok(h1.body.hint && h1.body.hint.length > 0);
+  });
+
+  // content-list 改造前没有方法检查（任意方法都放行），改造后由 router 统一收敛
+  h1 = await call('POST', '/api/content-list', {});
+  ok('router: POST 访问 GET 端点 → 405（收敛了此前放行的口子）', () => {
+    assert.strictEqual(h1.status, 405);
+    assert.strictEqual(h1.body.error, 'METHOD_NOT_ALLOWED');
+  });
+
+  // deploy-status 改造前 BAD_ORIGIN 不带 hint（P0-2 的遗漏），router 统一后自动补齐
+  h1 = await call('GET', '/api/deploy-status', null, { origin: 'https://evil.example' });
+  ok('router: deploy-status 跨站 → 403 BAD_ORIGIN 且带 hint', () => {
+    assert.strictEqual(h1.status, 403);
+    assert.strictEqual(h1.body.error, 'BAD_ORIGIN');
+    assert.ok(h1.body.hint && h1.body.hint.length > 0);
+  });
+
+  // session-check 保持不做 Origin 校验（只读自检，改造前即如此）
+  h1 = await call('GET', '/api/session-check', null, { origin: 'https://evil.example' });
+  ok('router: session-check 不做 Origin 校验（行为与改造前一致）', () => {
+    assert.strictEqual(h1.status, 200);
+  });
+
   h1 = await call('POST', '/api/content-save', { kind: 'post', action: 'update', path: 'source/_posts/../../evil.md' });
   ok('content-save: 文章路径目录穿越 → 400', () => {
     assert.strictEqual(h1.status, 400);
