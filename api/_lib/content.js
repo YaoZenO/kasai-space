@@ -1,72 +1,23 @@
 'use strict';
-// 内容域逻辑：列表、文章/草稿、数据模块、图片、回收站。
+// 内容域编排层：组合子域并对外暴露统一入口。
+// 子域实现见 ./domains/{posts,data,site,images,trash}.js；共享常量与工具见 ./shared.js。
 // 不变量：
 //  - 已发布文章的文件名与 date 字段永不因编辑而改变（永久链接稳定）
 //  - 草稿位于仓库根 _drafts/（source/ 之外），回收站位于 _trash/（source/ 之外），均不进入 Hexo 构建
 //  - 所有变更都是单次原子提交；manifest 与内容同 commit 更新
 
-const crypto = require('node:crypto');
-const config = require('./config');
 const store = require('./store');
 const yaml = require('./yaml');
-const validate = require('./validate');
 const posts = require('./posts');
 const registry = require('./modules');
-const { HttpError } = require('./http');
+const postDomain = require('./domains/posts');
+const dataDomain = require('./domains/data');
+const siteDomain = require('./domains/site');
+const imageDomain = require('./domains/images');
+const trashDomain = require('./domains/trash');
+const shared = require('./shared');
 
-const POSTS_DIR = 'source/_posts';
-const DRAFTS_DIR = '_drafts';
-const TRASH_DIR = '_trash';
-const IMG_DIR = 'source/img';
-const DATA_DIR = 'source/_data';
-const SITE_PATH = `${DATA_DIR}/site.yml`;
-const MANIFEST_PATH = `${TRASH_DIR}/manifest.json`;
-
-// ---------- 时间 ----------
-
-// 固定 +08:00 时区，避免 Vercel 构建机 UTC 时区导致日期偏移
-function nowCst() {
-  const d = new Date(Date.now() + 8 * 3600 * 1000);
-  const p = (n) => String(n).padStart(2, '0');
-  return `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())}T${p(d.getUTCHours())}:${p(d.getUTCMinutes())}:${p(d.getUTCSeconds())}+08:00`;
-}
-
-function stamp() {
-  return nowCst().replace(/[-:T+]/g, '').slice(0, 12);
-}
-
-// ---------- 基础校验 ----------
-
-function assertSlug(slug) {
-  if (!slug || !/^[a-z0-9][a-z0-9-]*$/.test(slug)) {
-    throw new HttpError(400, 'BAD_SLUG', { hint: 'slug 仅允许小写字母、数字与中划线' });
-  }
-  return slug;
-}
-
-// 模块列表来自 source/_data/modules.yml（单一数据源），读取失败时 load() 回退内置默认。
-// 传入 list 是为了让调用点复用一次读取结果，不重复发请求。
-function assertModule(m, list) {
-  if (!registry.keysOf(list).includes(m)) throw new HttpError(400, 'BAD_MODULE');
-  return m;
-}
-
-function slugify(title) {
-  const s = String(title || '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 60)
-    .replace(/-+$/g, '');
-  return s || `post-${stamp()}`;
-}
-
-function normTags(v) {
-  if (Array.isArray(v)) return v.map(String).map((s) => s.trim()).filter(Boolean);
-  return String(v || '').split(/[,，]/).map((s) => s.trim()).filter(Boolean);
-}
-
-// ---------- 列表 ----------
+const { POSTS_DIR, DRAFTS_DIR, IMG_DIR, DATA_DIR, SITE_PATH, MANIFEST_PATH } = shared;
 
 async function listAll() {
   const tree = await store.getTree();
@@ -107,302 +58,7 @@ async function listAll() {
   return { posts: posts_, drafts: draftsFull, data, site, images: images.sort(), trash, headSha: await store.getHead(), mockMode: store.mockMode };
 }
 
-// ---------- 单文件读取 ----------
-
-async function getPostFile(path) {
-  const inPosts = path.startsWith(`${POSTS_DIR}/`);
-  const inDrafts = path.startsWith(`${DRAFTS_DIR}/`);
-  if (!inPosts && !inDrafts) throw new HttpError(400, 'BAD_PATH');
-  const f = await store.getFile(path);
-  const parsed = posts.parseFrontMatter(f.content);
-  return {
-    path,
-    isDraft: inDrafts,
-    frontmatter: {
-      title: parsed.fm.title || '',
-      date: parsed.fm.date || '',
-      tags: normTags(parsed.fm.tags),
-      categories: normTags(parsed.fm.categories),
-      featured: !!parsed.fm.featured,
-      cover: parsed.fm.cover || '',
-    },
-    body: parsed.body || '',
-    sha: f.sha,
-    headSha: await store.getHead(),
-  };
-}
-
-// ---------- 草稿与发布 ----------
-
-function buildPostText(title, tags, categories, body, date, extra) {
-  const fm = { title, tags: normTags(tags), categories: normTags(categories) };
-  if (date) fm.date = date;
-  const ex = extra || {};
-  if (ex.featured !== undefined && ex.featured !== null) fm.featured = !!ex.featured;
-  if (ex.cover) fm.cover = String(ex.cover).trim();
-  return posts.serializeFrontMatter(fm, []) + (body || '').replace(/^\r?\n/, '');
-}
-
-async function saveDraft(input) {
-  const slug = assertSlug(input.slug);
-  const text = buildPostText(input.title || 'Untitled', input.tags, input.categories, input.body, null, input);
-  const changes = [];
-  let headExpected = input.expectedHeadSha;
-  if (input.prevSlug && input.prevSlug !== slug) {
-    assertSlug(input.prevSlug);
-    changes.push({ path: `${DRAFTS_DIR}/${input.prevSlug}.md`, delete: true });
-  }
-  if (input.sha) {
-    const cur = await store.getFile(`${DRAFTS_DIR}/${slug}.md`).catch(() => null);
-    if (cur && cur.sha !== input.sha) {
-      const e = new HttpError(409, 'CONFLICT');
-      e.conflictPayload = { current: { slug, content: cur.content, sha: cur.sha } };
-      throw e;
-    }
-  }
-  changes.push({ path: `${DRAFTS_DIR}/${slug}.md`, contentUtf8: text });
-  const r = await store.commitFiles(changes, `后台：保存草稿 ${slug}`, headExpected);
-  return { path: `${DRAFTS_DIR}/${slug}.md`, slug, sha: r.fileShas[`${DRAFTS_DIR}/${slug}.md`], headSha: r.headSha, commitSha: r.commitSha };
-}
-
-// 从草稿发布：date 缺失则注入当前时间；草稿与正式文同 commit 一增一删
-async function publishDraft(input) {
-  const slug = assertSlug(input.slug);
-  const draftPath = `${DRAFTS_DIR}/${slug}.md`;
-  const draft = await store.getFile(draftPath).catch(() => {
-    throw new HttpError(404, 'DRAFT_NOT_FOUND');
-  });
-  const parsed = posts.parseFrontMatter(draft.content);
-  const date = parsed.fm.date || nowCst();
-  const postText = buildPostText(parsed.fm.title || input.title || 'Untitled', parsed.fm.tags, parsed.fm.categories, parsed.body, date, parsed.fm);
-  const r = await store.commitFiles(
-    [
-      { path: `${POSTS_DIR}/${slug}.md`, contentUtf8: postText },
-      { path: draftPath, delete: true },
-    ],
-    `后台：发布文章 ${slug}`,
-    input.expectedHeadSha
-  );
-  return { path: `${POSTS_DIR}/${slug}.md`, permalink: permalinkFor(slug, date), date, headSha: r.headSha, commitSha: r.commitSha };
-}
-
-// 直接发布（不经过草稿）
-async function publishNew(input) {
-  const slug = assertSlug(input.slug);
-  const postPath = `${POSTS_DIR}/${slug}.md`;
-  const existing = await store.getFile(postPath).catch(() => null);
-  if (existing) throw new HttpError(409, 'POST_EXISTS', { path: postPath });
-  const date = nowCst();
-  const text = buildPostText(input.title || 'Untitled', input.tags, input.categories, input.body, date, input);
-  const r = await store.commitFiles([{ path: postPath, contentUtf8: text }], `后台：发布文章 ${slug}`, input.expectedHeadSha);
-  return { path: postPath, permalink: permalinkFor(slug, date), date, headSha: r.headSha, commitSha: r.commitSha };
-}
-
-function permalinkFor(slug, date) {
-  const m = String(date).match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (!m) return `/${slug}/`;
-  return `/${m[1]}/${m[2]}/${m[3]}/${slug}/`;
-}
-
-// 编辑已发布文章：文件名与 date 锁定（patch 中删除 date），标题可改但文件名不变
-async function updatePost(input) {
-  const path = String(input.path || '');
-  if (!path.startsWith(`${POSTS_DIR}/`) || !path.endsWith('.md')) throw new HttpError(400, 'BAD_PATH');
-  const cur = await store.getFile(path).catch(() => {
-    throw new HttpError(404, 'POST_NOT_FOUND');
-  });
-  if (input.sha && cur.sha !== input.sha) {
-    const e = new HttpError(409, 'CONFLICT');
-    e.conflictPayload = { current: normalizePostFile(cur.content), sha: cur.sha };
-    throw e;
-  }
-  const parsed = posts.parseFrontMatter(cur.content);
-  const fm = {
-    title: input.title !== undefined ? input.title : parsed.fm.title,
-    tags: input.tags !== undefined ? normTags(input.tags) : normTags(parsed.fm.tags),
-    categories: input.categories !== undefined ? normTags(input.categories) : normTags(parsed.fm.categories),
-  };
-  // featured / cover：显式传入则替换，否则沿用原值
-  fm.featured = input.featured !== undefined ? !!input.featured : parsed.fm.featured;
-  fm.cover = input.cover !== undefined ? String(input.cover || '').trim() : parsed.fm.cover;
-  // date 与文件名锁死：显式沿用原值
-  fm.date = parsed.fm.date || nowCst();
-  const text = posts.serializeFrontMatter(fm, parsed.unknownLines) + (input.body !== undefined ? input.body : parsed.body || '');
-  const r = await store.commitFiles([{ path, contentUtf8: text }], `后台：更新文章 ${path.slice(POSTS_DIR.length + 1, -3)}`, input.expectedHeadSha);
-  return { path, sha: r.fileShas[path], headSha: r.headSha, commitSha: r.commitSha };
-}
-
-function normalizePostFile(content) {
-  const parsed = posts.parseFrontMatter(content);
-  return {
-    frontmatter: { title: parsed.fm.title || '', date: parsed.fm.date || '', tags: normTags(parsed.fm.tags), categories: normTags(parsed.fm.categories) },
-    body: parsed.body || '',
-  };
-}
-
-// ---------- 数据模块 ----------
-
-async function saveData(input) {
-  const m = assertModule(input.module, await registry.load());
-  // 先按模块字段白名单校验原始入参（未知字段拒绝），再拷贝白名单内字段
-  validate.validateItem(m, input.item || {});
-  const fields = validate.MODULE_FIELDS[m];
-  const item = {};
-  for (const k of fields) {
-    const v = input.item ? input.item[k] : undefined;
-    if (v === undefined || v === null) continue;
-    if (k === 'tags') item[k] = normTags(v);
-    else if (k === 'media') item[k] = (Array.isArray(v) ? v : [v]).map((s) => String(s).trim()).filter(Boolean);
-    else if (k === 'links') item[k] = (Array.isArray(v) ? v : []).map((l) => ({ label: String(l.label || '').trim(), url: String(l.url || '').trim() })).filter((l) => l.label && l.url);
-    else item[k] = String(v).trim();
-  }
-  const p = `${DATA_DIR}/${m}.yml`;
-  const file = (await store.getFile(p).catch(() => null)) || { content: 'items: []\n', sha: null };
-  const items = yaml.parseItems(file.content);
-  const idx = input.index === null || input.index === undefined ? -1 : Number(input.index);
-  if (idx === -1) items.push(item);
-  else {
-    if (idx < 0 || idx >= items.length) throw new HttpError(400, 'BAD_INDEX', { hint: '条目序号不存在' });
-    items[idx] = item;
-  }
-  const text = yaml.updateItems(file.content, items);
-  const r = await store.commitFiles([{ path: p, contentUtf8: text }], `后台：${idx === -1 ? '新增' : '更新'}${m}条目「${item.title}」`, input.expectedHeadSha);
-  return { path: p, items: items.length, headSha: r.headSha, commitSha: r.commitSha };
-}
-
-// ---------- 站点身份配置 ----------
-
-async function saveSite(input) {
-  validate.validateSite({
-    intro: input.intro, motto: input.motto, avatar: input.avatar, identity_words: input.identity_words,
-  });
-  const cfg = {
-    intro: String(input.intro == null ? '' : input.intro).trim(),
-    motto: String(input.motto == null ? '' : input.motto).trim(),
-    avatar: String(input.avatar == null ? '' : input.avatar).trim(),
-    identity_words: Array.isArray(input.identity_words)
-      ? input.identity_words.map((s) => String(s).trim()).filter(Boolean)
-      : String(input.identity_words || '').split(/\r?\n/).map((s) => s.trim()).filter(Boolean),
-  };
-  const file = (await store.getFile(SITE_PATH).catch(() => null)) || { content: '', sha: null };
-  const text = yaml.updateSite(file.content, cfg);
-  const r = await store.commitFiles([{ path: SITE_PATH, contentUtf8: text }], '后台：更新站点身份配置', input.expectedHeadSha);
-  return { path: SITE_PATH, site: cfg, headSha: r.headSha, commitSha: r.commitSha };
-}
-
-// ---------- 回收站 ----------
-
-function newTrashId() {
-  return crypto.randomBytes(4).toString('hex');
-}
-
-async function loadManifest() {
-  try {
-    const f = await store.getFile(MANIFEST_PATH);
-    return JSON.parse(f.content);
-  } catch (e) {
-    return { items: [] };
-  }
-}
-
-// 删除文章/草稿/图片/数据条目 → 移入 _trash（同 commit 更新 manifest）
-async function deleteItem(input) {
-  const path = String(input.path || '');
-  const id = newTrashId();
-  const manifest = await loadManifest();
-  const changes = [];
-  let entry;
-  if (path.startsWith(`${POSTS_DIR}/`) || path.startsWith(`${DRAFTS_DIR}/`) || path.startsWith(`${IMG_DIR}/`)) {
-    const type = path.startsWith(`${POSTS_DIR}/`) ? 'post' : path.startsWith(`${DRAFTS_DIR}/`) ? 'draft' : 'image';
-    const base = path.split('/').pop();
-    const trashPath = `${TRASH_DIR}/${type}s/${id}-${base}`;
-    const file = await store.getFile(path).catch(() => {
-      throw new HttpError(404, 'NOT_FOUND');
-    });
-    // 图片为二进制：用 base64 移动，避免 UTF-8 转换损坏
-    if (type === 'image') {
-      changes.push({ path: trashPath, contentBase64: file.contentBase64 });
-    } else {
-      changes.push({ path: trashPath, contentUtf8: file.content });
-    }
-    changes.push({ path, delete: true });
-    entry = { id, type, originalPath: path, title: input.title || base, trashPath, deletedAt: nowCst() };
-  } else if (input.module) {
-    const m = assertModule(input.module, await registry.load());
-    const idx = Number(input.index);
-    const p = `${DATA_DIR}/${m}.yml`;
-    const file = await store.getFile(p).catch(() => {
-      throw new HttpError(404, 'NOT_FOUND');
-    });
-    const items = yaml.parseItems(file.content);
-    if (idx < 0 || idx >= items.length) throw new HttpError(400, 'BAD_INDEX');
-    const removed = items.splice(idx, 1)[0];
-    const trashPath = `${TRASH_DIR}/data/${m}-${id}.json`;
-    changes.push({ path: trashPath, contentUtf8: JSON.stringify({ module: m, index: idx, item: removed, deletedAt: nowCst() }, null, 2) });
-    changes.push({ path: p, contentUtf8: yaml.updateItems(file.content, items) });
-    entry = { id, type: 'data', module: m, index: idx, title: removed.title || '', trashPath, deletedAt: nowCst() };
-  } else {
-    throw new HttpError(400, 'BAD_DELETE_TARGET');
-  }
-  manifest.items.unshift(entry);
-  changes.push({ path: MANIFEST_PATH, contentUtf8: JSON.stringify(manifest, null, 2) });
-  const r = await store.commitFiles(changes, `后台：删除「${entry.title || path}」（可恢复）`, input.expectedHeadSha);
-  return { trashId: id, headSha: r.headSha, commitSha: r.commitSha };
-}
-
-async function restore(input) {
-  const trashId = String(input.trashId || '');
-  const manifest = await loadManifest();
-  const idx = manifest.items.findIndex((e) => e.id === trashId);
-  if (idx === -1) throw new HttpError(404, 'TRASH_NOT_FOUND');
-  const entry = manifest.items[idx];
-  const trashFile = await store.getFile(entry.trashPath);
-  const snapshot = entry.type === 'data' ? JSON.parse(trashFile.content) : null;
-  const changes = [];
-  if (entry.type === 'data') {
-    const m = assertModule(snapshot.module, await registry.load());
-    const p = `${DATA_DIR}/${m}.yml`;
-    const file = await store.getFile(p);
-    const items = yaml.parseItems(file.content);
-    const at = Math.min(Math.max(snapshot.index, 0), items.length);
-    items.splice(at, 0, snapshot.item);
-    changes.push({ path: p, contentUtf8: yaml.updateItems(file.content, items) });
-  } else {
-    // 图片为二进制：base64 原样写回，避免 UTF-8 转换损坏
-    changes.push({ path: entry.originalPath, contentBase64: trashFile.contentBase64 });
-  }
-  changes.push({ path: entry.trashPath, delete: true });
-  manifest.items.splice(idx, 1);
-  changes.push({ path: MANIFEST_PATH, contentUtf8: JSON.stringify(manifest, null, 2) });
-  const r = await store.commitFiles(changes, `后台：从回收站恢复「${entry.title}」`, input.expectedHeadSha);
-  const restoredPath = entry.type === 'data' ? `${DATA_DIR}/${entry.module}.yml` : entry.originalPath;
-  return { type: entry.type, originalPath: restoredPath, headSha: r.headSha, commitSha: r.commitSha };
-}
-
-// ---------- 图片 ----------
-
-async function uploadImage(input) {
-  // 图片归属目录 ≠ 内容模块：这里多了 posts（文章配图）与 avatar（头像），
-  // 语义不同，不并入 modules.yml；内容模块改动时记得同步这里与 source/admin/admin.js:286
-  const m = String(input.module || 'posts');
-  if (!['posts', 'projects', 'games', 'collections', 'avatar'].includes(m)) throw new HttpError(400, 'BAD_MODULE');
-  const name = String(input.filename || 'image.jpg');
-  const ext = (name.split('.').pop() || '').toLowerCase();
-  if (!config.IMAGE_EXT.includes(ext)) throw new HttpError(400, 'BAD_EXT');
-  const buf = Buffer.from(input.dataBase64 || '', 'base64');
-  if (!buf.length) throw new HttpError(400, 'EMPTY_FILE');
-  if (buf.length > config.MAX_IMAGE_BYTES) throw new HttpError(413, 'TOO_LARGE', { hint: '图片过大（压缩后上限 4MB），请裁剪后再试' });
-  const safe = name
-    .slice(0, -(ext.length + 1))
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 40) || 'img';
-  const p = `${IMG_DIR}/${m}/${stamp()}-${safe}.${ext}`;
-  const r = await store.commitFiles([{ path: p, contentBase64: buf.toString('base64') }], `后台：上传图片 ${p}`, input.expectedHeadSha);
-  return { path: p, commitSha: r.commitSha, headSha: r.headSha };
-}
-
+// 对外契约保持不变：调用方无需感知内部已拆分。
 module.exports = {
   // 模块列表不再以常量导出：改由 registry（source/_data/modules.yml）动态读取，
   // 用法 await content.registry.load() / content.registry.keysOf(list)
@@ -411,18 +67,19 @@ module.exports = {
   POSTS_DIR,
   DRAFTS_DIR,
   IMG_DIR,
-  nowCst,
-  slugify,
-  normTags,
+  shared,
+  nowCst: shared.nowCst,
+  slugify: shared.slugify,
+  normTags: shared.normTags,
   listAll,
-  getPostFile,
-  saveDraft,
-  publishDraft,
-  publishNew,
-  updatePost,
-  saveData,
-  saveSite,
-  deleteItem,
-  restore,
-  uploadImage,
+  getPostFile: postDomain.getPostFile,
+  saveDraft: postDomain.saveDraft,
+  publishDraft: postDomain.publishDraft,
+  publishNew: postDomain.publishNew,
+  updatePost: postDomain.updatePost,
+  saveData: dataDomain.saveData,
+  saveSite: siteDomain.saveSite,
+  deleteItem: trashDomain.deleteItem,
+  restore: trashDomain.restore,
+  uploadImage: imageDomain.uploadImage,
 };

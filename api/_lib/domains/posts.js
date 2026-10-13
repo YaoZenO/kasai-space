@@ -1,0 +1,148 @@
+'use strict';
+// 文章 / 草稿域。
+// 不变量：已发布文章的文件名与 date 字段永不因编辑而改变（永久链接稳定）。
+
+const store = require('../store');
+const posts = require('../posts');
+const { HttpError } = require('../http');
+const { assertSlug, normTags, nowCst, POSTS_DIR, DRAFTS_DIR } = require('../shared');
+
+async function getPostFile(path) {
+  const inPosts = path.startsWith(`${POSTS_DIR}/`);
+  const inDrafts = path.startsWith(`${DRAFTS_DIR}/`);
+  if (!inPosts && !inDrafts) throw new HttpError(400, 'BAD_PATH');
+  const f = await store.getFile(path);
+  const parsed = posts.parseFrontMatter(f.content);
+  return {
+    path,
+    isDraft: inDrafts,
+    frontmatter: {
+      title: parsed.fm.title || '',
+      date: parsed.fm.date || '',
+      tags: normTags(parsed.fm.tags),
+      categories: normTags(parsed.fm.categories),
+      featured: !!parsed.fm.featured,
+      cover: parsed.fm.cover || '',
+    },
+    body: parsed.body || '',
+    sha: f.sha,
+    headSha: await store.getHead(),
+  };
+}
+
+function buildPostText(title, tags, categories, body, date, extra) {
+  const fm = { title, tags: normTags(tags), categories: normTags(categories) };
+  if (date) fm.date = date;
+  const ex = extra || {};
+  if (ex.featured !== undefined && ex.featured !== null) fm.featured = !!ex.featured;
+  if (ex.cover) fm.cover = String(ex.cover).trim();
+  return posts.serializeFrontMatter(fm, []) + (body || '').replace(/^\r?\n/, '');
+}
+
+function permalinkFor(slug, date) {
+  const m = String(date).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return `/${slug}/`;
+  return `/${m[1]}/${m[2]}/${m[3]}/${slug}/`;
+}
+
+function normalizePostFile(content) {
+  const parsed = posts.parseFrontMatter(content);
+  return {
+    frontmatter: { title: parsed.fm.title || '', date: parsed.fm.date || '', tags: normTags(parsed.fm.tags), categories: normTags(parsed.fm.categories) },
+    body: parsed.body || '',
+  };
+}
+
+async function saveDraft(input) {
+  const slug = assertSlug(input.slug);
+  const text = buildPostText(input.title || 'Untitled', input.tags, input.categories, input.body, null, input);
+  const changes = [];
+  let headExpected = input.expectedHeadSha;
+  if (input.prevSlug && input.prevSlug !== slug) {
+    assertSlug(input.prevSlug);
+    changes.push({ path: `${DRAFTS_DIR}/${input.prevSlug}.md`, delete: true });
+  }
+  if (input.sha) {
+    const cur = await store.getFile(`${DRAFTS_DIR}/${slug}.md`).catch(() => null);
+    if (cur && cur.sha !== input.sha) {
+      const e = new HttpError(409, 'CONFLICT');
+      e.conflictPayload = { current: { slug, content: cur.content, sha: cur.sha } };
+      throw e;
+    }
+  }
+  changes.push({ path: `${DRAFTS_DIR}/${slug}.md`, contentUtf8: text });
+  const r = await store.commitFiles(changes, `后台：保存草稿 ${slug}`, headExpected);
+  return { path: `${DRAFTS_DIR}/${slug}.md`, slug, sha: r.fileShas[`${DRAFTS_DIR}/${slug}.md`], headSha: r.headSha, commitSha: r.commitSha };
+}
+
+// 从草稿发布：date 缺失则注入当前时间；草稿与正式文同 commit 一增一删
+async function publishDraft(input) {
+  const slug = assertSlug(input.slug);
+  const draftPath = `${DRAFTS_DIR}/${slug}.md`;
+  const draft = await store.getFile(draftPath).catch(() => {
+    throw new HttpError(404, 'DRAFT_NOT_FOUND');
+  });
+  const parsed = posts.parseFrontMatter(draft.content);
+  const date = parsed.fm.date || nowCst();
+  const postText = buildPostText(parsed.fm.title || input.title || 'Untitled', parsed.fm.tags, parsed.fm.categories, parsed.body, date, parsed.fm);
+  const r = await store.commitFiles(
+    [
+      { path: `${POSTS_DIR}/${slug}.md`, contentUtf8: postText },
+      { path: draftPath, delete: true },
+    ],
+    `后台：发布文章 ${slug}`,
+    input.expectedHeadSha
+  );
+  return { path: `${POSTS_DIR}/${slug}.md`, permalink: permalinkFor(slug, date), date, headSha: r.headSha, commitSha: r.commitSha };
+}
+
+// 直接发布（不经过草稿）
+async function publishNew(input) {
+  const slug = assertSlug(input.slug);
+  const postPath = `${POSTS_DIR}/${slug}.md`;
+  const existing = await store.getFile(postPath).catch(() => null);
+  if (existing) throw new HttpError(409, 'POST_EXISTS', { path: postPath });
+  const date = nowCst();
+  const text = buildPostText(input.title || 'Untitled', input.tags, input.categories, input.body, date, input);
+  const r = await store.commitFiles([{ path: postPath, contentUtf8: text }], `后台：发布文章 ${slug}`, input.expectedHeadSha);
+  return { path: postPath, permalink: permalinkFor(slug, date), date, headSha: r.headSha, commitSha: r.commitSha };
+}
+
+// 编辑已发布文章：文件名与 date 锁定，标题可改但文件名不变
+async function updatePost(input) {
+  const path = String(input.path || '');
+  if (!path.startsWith(`${POSTS_DIR}/`) || !path.endsWith('.md')) throw new HttpError(400, 'BAD_PATH');
+  const cur = await store.getFile(path).catch(() => {
+    throw new HttpError(404, 'POST_NOT_FOUND');
+  });
+  if (input.sha && cur.sha !== input.sha) {
+    const e = new HttpError(409, 'CONFLICT');
+    e.conflictPayload = { current: normalizePostFile(cur.content), sha: cur.sha };
+    throw e;
+  }
+  const parsed = posts.parseFrontMatter(cur.content);
+  const fm = {
+    title: input.title !== undefined ? input.title : parsed.fm.title,
+    tags: input.tags !== undefined ? normTags(input.tags) : normTags(parsed.fm.tags),
+    categories: input.categories !== undefined ? normTags(input.categories) : normTags(parsed.fm.categories),
+  };
+  // featured / cover：显式传入则替换，否则沿用原值
+  fm.featured = input.featured !== undefined ? !!input.featured : parsed.fm.featured;
+  fm.cover = input.cover !== undefined ? String(input.cover || '').trim() : parsed.fm.cover;
+  // date 与文件名锁死：显式沿用原值
+  fm.date = parsed.fm.date || nowCst();
+  const text = posts.serializeFrontMatter(fm, parsed.unknownLines) + (input.body !== undefined ? input.body : parsed.body || '');
+  const r = await store.commitFiles([{ path, contentUtf8: text }], `后台：更新文章 ${path.slice(POSTS_DIR.length + 1, -3)}`, input.expectedHeadSha);
+  return { path, sha: r.fileShas[path], headSha: r.headSha, commitSha: r.commitSha };
+}
+
+module.exports = {
+  getPostFile,
+  buildPostText,
+  permalinkFor,
+  normalizePostFile,
+  saveDraft,
+  publishDraft,
+  publishNew,
+  updatePost,
+};
