@@ -28,7 +28,9 @@ P0-3 测试固化 ──┬─→ P0-1 身份域统一 ──→ P0-2 错误契�
 
 ### P0-1 身份配置数据源统一
 
-- **优先级：** P0 ｜ **依赖：** P0-3 ｜ **状态：** 待办
+- **优先级：** P0 ｜ **依赖：** P0-3 ｜ **状态：** ✅ 已完成
+  （代码已改：about.ejs 优先读 `site.data.site`、`theme.about.*` 回退。
+  **验收未实测**——「填 intro → 生成后 about 页含该文字」这条没跑过，待补验）
 - **问题定位：** `themes/fluid/layout/about.ejs:8` 只读 `theme.about.introduce || theme.about.intro`；
   `about.ejs:40` 头像只读 `theme.about.avatar`。而后台「设置」页写的是 `source/_data/site.yml`，
   `index.ejs` 已优先读 site.yml → **后台改 intro/avatar，首页生效、关于页不变**。
@@ -44,7 +46,9 @@ P0-3 测试固化 ──┬─→ P0-1 身份域统一 ──→ P0-2 错误契�
 
 ### P0-2 错误契约收敛
 
-- **优先级：** P0 ｜ **依赖：** P0-3 ｜ **状态：** 待办
+- **优先级：** P0 ｜ **依赖：** P0-3 ｜ **状态：** ✅ 已完成
+  （`HINTS` 映射表 + 统一 `respondError`；409 带 `conflict:true`；500 只返 `INTERNAL`。
+  测试已锁：4xx 必带 hint、yml 损坏 → 500 无内部细节）
 - **问题定位：**
   1. `api/_lib/content.js` 多处 `HttpError(400,'BAD_MODULE')` 等无 hint，前端只显示裸错误码；
   2. `api/_lib/http.js:91` 500 分支把 `String(err.message)` 返给前端，泄漏内部细节；
@@ -62,7 +66,10 @@ P0-3 测试固化 ──┬─→ P0-1 身份域统一 ──→ P0-2 错误契�
 
 ### P0-3 测试与 CI 固化
 
-- **优先级：** P0（最先做，保护其余全部任务）｜ **依赖：** 无 ｜ **状态：** 待办
+- **优先级：** P0（最先做，保护其余全部任务）｜ **依赖：** 无 ｜ **状态：** ✅ 已完成
+  （`test/admin-smoke.js` 49 项 + `test/module-pages-e2e.js` 19 项 = 68 项断言；
+  `npm test` 串联；CI 含语法门禁 + 两个测试 + hexo generate。
+  验收第 3 条「故意改坏→测试失败」已在 P1-8/P1-5/P1-7 用变异测试各自验证过）
 - **问题定位：** 仓库零测试零 CI；2026-10-11 的 24+7 项 smoke 为临时文件，跑完即删，无回归保护。
 - **任务边界：**
   - 做：`scripts/admin-smoke.js`（mock 模式服务端全链路：列表/数据模块/site/文章/图片/回收站/冲突/乐观锁）
@@ -81,7 +88,9 @@ P0-3 测试固化 ──┬─→ P0-1 身份域统一 ──→ P0-2 错误契�
 
 ### P1-4 `content.js` 按域拆分
 
-- **优先级：** P1 ｜ **依赖：** P1-5 ｜ **状态：** 待办
+- **优先级：** P1 ｜ **依赖：** P1-5 ｜ **状态：** ✅ 已完成
+  （428 → 85 行；拆出 shared.js 与 domains/{posts,data,site,images,trash}.js。
+  行为等价经机械验证：22 个顶层函数体逐字比对全部一致）
 - **问题定位：** `api/_lib/content.js` 411 行混合文章/草稿/发布/数据模块/回收站/图片/site 七个域。
 - **任务边界：**
   - 做：拆为 `_lib/domains/{posts,data,site,images,trash}.js` 五个域模块 + `_lib/shared.js`
@@ -96,7 +105,8 @@ P0-3 测试固化 ──┬─→ P0-1 身份域统一 ──→ P0-2 错误契�
 
 ### P1-5 路由中间件
 
-- **优先级：** P1 ｜ **依赖：** P0-3 ｜ **状态：** 待办
+- **优先级：** P1 ｜ **依赖：** P0-3 ｜ **状态：** ✅ 已完成
+  （`_lib/router.js` 的 route()；八个端点守卫样板收敛，端点最少 6 行）
 - **问题定位：** 12 个 `api/*.js` 每个复制 4 行守卫（requireSession/originAllowed/readJson/respondError）。
 - **任务边界：**
   - 做：`_lib/router.js` 导出 `route(handler, opts)`，统一方法检查/Origin 校验/会话/JSON 读取/错误出口；
@@ -111,7 +121,8 @@ P0-3 测试固化 ──┬─→ P0-1 身份域统一 ──→ P0-2 错误契�
 
 ### P1-6 模块注册表单一数据源
 
-- **优先级：** P1 ｜ **依赖：** P0-3 ｜ **状态：** 待办
+- **优先级：** P1 ｜ **依赖：** P0-3 ｜ **状态：** ✅ 已完成
+  （`source/_data/modules.yml` 为单一数据源，api 与前台共用，损坏时回退内置默认）
 - **问题定位：** 内容模块定义四处存放：`api/_lib/content.js` 的 `MODULES`、`themes/fluid/layout/index.ejs`
   的 `HOME_MODULES`、`source/admin/index.html` tabbar、`source/admin/admin.js` 的 `MODULE_META`。
   加一种内容类型要改四个地方，漏一个即静默故障。
@@ -130,7 +141,9 @@ P0-3 测试固化 ──┬─→ P0-1 身份域统一 ──→ P0-2 错误契�
 
 ### P1-7 列表读取并行化 + summary 模式
 
-- **优先级：** P1 ｜ **依赖：** P1-4 ｜ **状态：** 待办
+- **优先级：** P1 ｜ **依赖：** P1-4 ｜ **状态：** ✅ 已完成
+  （串行阶段 8 → 2；`?summary=1` 已实现并接入 admin 启动。
+  请求次数无法运行时测量，并行化以代码审查为准）
 - **问题定位：** `listAll` 串行 await：1 次 getTree + N 次 getFile（3 数据 yml + site + manifest + 每篇草稿），
   admin 首屏 6+ 次串行 GitHub 请求；且每次操作后前端全量重拉。
 - **任务边界：**
@@ -147,7 +160,8 @@ P0-3 测试固化 ──┬─→ P0-1 身份域统一 ──→ P0-2 错误契�
 
 ### P1-8 写操作入参校验
 
-- **优先级：** P1 ｜ **依赖：** P1-4、P1-6 ｜ **状态：** 待办
+- **优先级：** P1 ｜ **依赖：** P1-4、P1-6 ｜ **状态：** ✅ 已完成
+  （post / data / site 三个 kind 全覆盖；`validatePost` 补上后三个 kind 都有把关）
 - **问题定位：** `content-save` 按 kind 字符串分发，无 schema 校验，未知字段静默接受；
   字符串拼写错误（kind/action/module）只能到 400 才暴露。
 - **任务边界：**
