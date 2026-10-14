@@ -32,6 +32,9 @@ jobs:
       # 3.5 前台/后台 CSS token 一致性（防止 --accent 两处漂移）
       - name: CSS tokens
         run: npm run test:tokens
+      # 3.6 账本引用可核对性（防止凭空引用 PRD 条款，见 E-015）
+      - name: Doc claims
+        run: npm run test:claims
       # 4. 前台构建门禁
       - name: Hexo generate
         run: npm run build

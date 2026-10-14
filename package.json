@@ -10,7 +10,8 @@
     "test:admin": "node test/admin-smoke.js",
     "test:pages": "node test/module-pages-e2e.js",
     "test:tokens": "node test/css-tokens.js",
-    "test": "npm run test:admin && npm run test:pages && npm run test:tokens"
+    "test:claims": "node test/docs-claims.js",
+    "test": "npm run test:admin && npm run test:pages && npm run test:tokens && npm run test:claims"
   },
   "hexo": {
     "version": "8.1.1"
