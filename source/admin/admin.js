@@ -117,6 +117,8 @@
     $('view-data-editor').hidden = true;
     $('view-site-editor').hidden = true;
     renderList();
+    // 启动若走了 summary 模式，这里按需补齐草稿标题
+    if (tab === 'posts') ensureDraftTitles();
   }
 
   // ---------- 列表渲染 ----------
@@ -385,7 +387,8 @@
         $('modal-conflict').hidden = true;
         try {
           // 拉取最新 headSha 后强制覆盖（跳过文件级 sha 校验）
-          const fresh = await api('/api/content-list');
+          // 只需要 headSha，走 summary 模式少 N 次草稿请求
+          const fresh = await api('/api/content-list?summary=1');
           S.data = fresh;
           S.lastListSha = fresh.headSha;
           await saveCurrentEditing({ headSha: fresh.headSha, force: true });
@@ -398,10 +401,20 @@
     toast(e.payload && e.payload.hint ? e.payload.hint : (e.message || '操作失败'));
   }
 
-  async function reloadList() {
-    S.data = await api('/api/content-list');
+  // opts.summary=true 走轻量模式：跳过草稿逐篇读取，首屏少 N 次请求。
+  async function reloadList(opts) {
+    const summary = !!(opts && opts.summary);
+    S.data = await api('/api/content-list' + (summary ? '?summary=1' : ''));
     S.lastListSha = S.data.headSha;
     renderList();
+  }
+
+  // summary 模式下草稿只有文件名；进入文章 tab 时若发现缺标题，再全量拉一次补齐。
+  async function ensureDraftTitles() {
+    const drafts = (S.data && S.data.drafts) || [];
+    if (!drafts.length) return;
+    if (drafts.every((d) => d.title)) return;
+    await reloadList();
   }
 
   // ---------- 文章编辑器 ----------
@@ -1206,7 +1219,8 @@
       const s = await api('/api/session-check');
       S.login = s.login;
       S.mockMode = !!s.mockMode;
-      await reloadList();
+      // 启动走 summary 模式：跳过草稿逐篇读取，首屏更快
+      await reloadList({ summary: true });
       showApp();
     } catch (e) {
       // showLogin 已在 api() 中触发

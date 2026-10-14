@@ -19,8 +19,18 @@ const shared = require('./shared');
 
 const { POSTS_DIR, DRAFTS_DIR, IMG_DIR, DATA_DIR, SITE_PATH, MANIFEST_PATH } = shared;
 
-async function listAll() {
-  const tree = await store.getTree();
+async function listAll(opts) {
+  // opts.summary=1 时跳过草稿逐篇读取（列表只给文件名，标题在打开编辑器时按需取）
+  const summary = !!(opts && opts.summary);
+
+  // tree 必须先取到（路径清单决定后续读哪些文件）；其余全部并行。
+  // 改造前这里是一条串行 await 链：3 个数据 yml + site + manifest + 每篇草稿各自排队，
+  // admin 首屏要等 6+ 次串行 GitHub 请求；现在压缩为 tree → 一批并发 → 返回。
+  const [tree, modKeys, headSha] = await Promise.all([
+    store.getTree(),
+    registry.load().then((list) => registry.keysOf(list)),
+    store.getHead(),
+  ]);
   const paths = tree.filter((e) => e.type === 'blob').map((e) => e.path);
   const posts_ = [];
   const drafts = [];
@@ -30,32 +40,40 @@ async function listAll() {
     else if (p.startsWith(`${DRAFTS_DIR}/`) && p.endsWith('.md')) drafts.push({ path: p, name: p.slice(DRAFTS_DIR.length + 1) });
     else if (p.startsWith(`${IMG_DIR}/`) && /\.(jpe?g|png|webp|gif)$/i.test(p)) images.push(p);
   }
+
+  const [dataFiles, siteFile, trashFile, draftsFull] = await Promise.all([
+    Promise.all(modKeys.map((m) => {
+      const p = `${DATA_DIR}/${m}.yml`;
+      return paths.includes(p) ? store.getFile(p) : null;
+    })),
+    paths.includes(SITE_PATH) ? store.getFile(SITE_PATH) : null,
+    // 与原实现一致：manifest 读取或解析失败都静默降级为空回收站
+    paths.includes(MANIFEST_PATH) ? store.getFile(MANIFEST_PATH).catch(() => null) : null,
+    summary
+      ? drafts
+      : Promise.all(drafts.map(async (d) => {
+        const f = await store.getFile(d.path);
+        return Object.assign({}, d, { title: posts.extractTitle(f.content, d.name), sha: f.sha });
+      })),
+  ]);
+
   const data = {};
-  for (const m of registry.keysOf(await registry.load())) {
-    const p = `${DATA_DIR}/${m}.yml`;
-    const entry = paths.includes(p);
-    data[m] = entry ? yaml.parseItems((await store.getFile(p)).content) : [];
-  }
-  // 站点身份配置（site.yml 不存在时返回空配置）
-  const site = paths.includes(SITE_PATH)
-    ? yaml.parseSite((await store.getFile(SITE_PATH)).content)
+  modKeys.forEach((m, i) => {
+    const f = dataFiles[i];
+    data[m] = f ? yaml.parseItems(f.content) : [];
+  });
+  const site = siteFile
+    ? yaml.parseSite(siteFile.content)
     : { intro: '', motto: '', avatar: '', identity_words: [] };
   let trash = [];
-  if (paths.includes(MANIFEST_PATH)) {
+  if (trashFile) {
     try {
-      trash = JSON.parse((await store.getFile(MANIFEST_PATH)).content).items || [];
+      trash = JSON.parse(trashFile.content).items || [];
     } catch (e) {
       trash = [];
     }
   }
-  // 草稿标题
-  const draftsFull = await Promise.all(
-    drafts.map(async (d) => {
-      const f = await store.getFile(d.path);
-      return Object.assign({}, d, { title: posts.extractTitle(f.content, d.name), sha: f.sha });
-    })
-  );
-  return { posts: posts_, drafts: draftsFull, data, site, images: images.sort(), trash, headSha: await store.getHead(), mockMode: store.mockMode };
+  return { posts: posts_, drafts: draftsFull, data, site, images: images.sort(), trash, headSha, mockMode: store.mockMode };
 }
 
 // 对外契约保持不变：调用方无需感知内部已拆分。

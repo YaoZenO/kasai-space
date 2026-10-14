@@ -154,6 +154,31 @@ const PNG_1X1 = Buffer.from(
     assert.ok(/^\/\d{4}\/\d{2}\/\d{2}\/smoke-draft\/$/.test(r.permalink));
   });
 
+  // --- P1-7：summary 模式（跳过草稿逐篇读取） ---
+  const headForProbe = await store.getHead();
+  await content.saveDraft({ slug: 'summary-probe', title: '摘要探测', tags: '', categories: '', body: '正文', expectedHeadSha: headForProbe });
+  const full = await content.listAll();
+  const brief = await content.listAll({ summary: true });
+
+  ok('summary: posts/images/data/site/trash/headSha 与全量一致', () => {
+    assert.deepStrictEqual(brief.posts, full.posts);
+    assert.deepStrictEqual(brief.images, full.images);
+    assert.deepStrictEqual(brief.data, full.data);
+    assert.deepStrictEqual(brief.site, full.site);
+    assert.deepStrictEqual(brief.trash, full.trash);
+    assert.strictEqual(brief.headSha, full.headSha);
+  });
+
+  ok('summary: drafts 数量一致但不含 title（避免逐篇读取）', () => {
+    assert.ok(full.drafts.length >= 1, '全量模式应有草稿');
+    assert.strictEqual(brief.drafts.length, full.drafts.length);
+    const fd = full.drafts.find((d) => d.name === 'summary-probe.md');
+    const bd = brief.drafts.find((d) => d.name === 'summary-probe.md');
+    assert.ok(fd && fd.title === '摘要探测', '全量模式草稿应有 title');
+    assert.ok(bd && !('title' in bd), 'summary 模式草稿不应有 title');
+    assert.deepStrictEqual(Object.keys(bd).sort(), ['name', 'path']);
+  });
+
   // --- 回收站 ---
   l = await content.listAll();
   r = await content.deleteItem({ module: 'projects', index: 0, title: '测试项目', expectedHeadSha: l.headSha });
@@ -472,6 +497,20 @@ const PNG_1X1 = Buffer.from(
   ok('content-save: 文章路径目录穿越 → 400', () => {
     assert.strictEqual(h1.status, 400);
     assert.strictEqual(h1.body.error, 'BAD_FIELD');
+  });
+
+  // --- P1-7：端点层 ?summary=1 ---
+  h1 = await call('GET', '/api/content-list?summary=1');
+  ok('content-list: ?summary=1 → drafts 无 title，其余字段齐全', () => {
+    assert.strictEqual(h1.status, 200);
+    assert.ok(Array.isArray(h1.body.drafts));
+    assert.ok(Array.isArray(h1.body.posts));
+    assert.ok(h1.body.site);
+    assert.ok(h1.body.data);
+    assert.ok(h1.body.headSha);
+    for (const d of h1.body.drafts) {
+      assert.ok(!('title' in d), 'summary 模式 drafts 不应含 title');
+    }
   });
 
   h1 = await call('GET', '/api/session-check');
