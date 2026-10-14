@@ -152,6 +152,35 @@ async function commitFiles(changes, message, expectedHeadSha) {
   return { commitSha: newCommit.sha, headSha: newCommit.sha, fileShas };
 }
 
+// ---------- 写：单文件内容快路径 ----------
+
+// 单文件创建/更新走 GitHub Contents API：一次调用完成，
+// 省掉 blob → tree → commit → ref 四次往返（原 commitFiles 路径共 6 次调用）。
+// 另外做 sha 去重：目标路径已存在同 sha 内容时不产生 commit，
+// 避免「同一张图反复上传」在仓库里堆一串内容完全相同的提交。
+// 返回值带 unchanged: true 表示内容未变化、没有产生 commit。
+async function putFileContent(p, contentBase64, message, expectedHeadSha) {
+  const headSha = await getHead();
+  if (expectedHeadSha && headSha !== expectedHeadSha) {
+    const err = new Error('HEAD_MOVED');
+    err.conflict = true;
+    err.currentHead = headSha;
+    throw err;
+  }
+  const existing = await getFile(p).catch(() => null);
+  const wantSha = gitBlobShaB64(contentBase64);
+  if (existing && existing.sha === wantSha) {
+    return { commitSha: null, headSha, fileShas: { [p]: wantSha }, unchanged: true };
+  }
+  const body = { message, content: contentBase64 };
+  // Contents API 更新已有文件必须带现有 sha，否则 422
+  if (existing) body.sha = existing.sha;
+  const r = await gh('PUT', `/repos/${config.REPO_FULL}/contents/${p}`, body);
+  const commitSha = (r.commit && r.commit.sha) || headSha;
+  const fileSha = (r.content && r.content.sha) || wantSha;
+  return { commitSha, headSha: commitSha, fileShas: { [p]: fileSha } };
+}
+
 // ---------- OAuth（用户身份认证）----------
 
 async function exchangeCode(code, redirectUri) {
@@ -189,4 +218,4 @@ async function getCommitStatus(sha) {
   return data.state; // success | pending | failure | error
 }
 
-module.exports = { getHead, getTree, getFile, commitFiles, exchangeCode, getLogin, getCommitStatus, gitBlobSha };
+module.exports = { getHead, getTree, getFile, commitFiles, putFileContent, exchangeCode, getLogin, getCommitStatus, gitBlobSha };

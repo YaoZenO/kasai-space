@@ -158,4 +158,23 @@ async function getCommitStatus() {
   return 'pending';
 }
 
-module.exports = { getHead, getTree, getFile, commitFiles, exchangeCode, getLogin, getCommitStatus };
+// 单文件快路径，与真实实现保持同语义：内容未变化时不产生 commit。
+// 注意：mock 的 sha 是 sha1(buffer)，与 git blob sha 算法不同，
+// 但只在 mock 内部自洽使用（冲突比对、去重判断），不影响对外行为。
+async function putFileContent(p, contentBase64, message, expectedHeadSha) {
+  seed();
+  const idx = loadIndex();
+  if (expectedHeadSha && idx.head !== expectedHeadSha) {
+    const err = new Error('HEAD_MOVED');
+    err.conflict = true;
+    err.currentHead = idx.head;
+    throw err;
+  }
+  const wantSha = shaOfBuffer(Buffer.from(contentBase64, 'base64'));
+  if (idx.files[p] === wantSha) {
+    return { commitSha: null, headSha: idx.head, fileShas: { [p]: wantSha }, unchanged: true };
+  }
+  return commitFiles([{ path: p, contentBase64 }], message, expectedHeadSha);
+}
+
+module.exports = { getHead, getTree, getFile, commitFiles, putFileContent, exchangeCode, getLogin, getCommitStatus };

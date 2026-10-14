@@ -24,8 +24,10 @@ async function uploadImage(input) {
     .replace(/^-+|-+$/g, '')
     .slice(0, 40) || 'img';
   const p = `${IMG_DIR}/${m}/${stamp()}-${safe}.${ext}`;
-  const r = await store.commitFiles([{ path: p, contentBase64: buf.toString('base64') }], `后台：上传图片 ${p}`, input.expectedHeadSha);
-  return { path: p, commitSha: r.commitSha, headSha: r.headSha };
+  // 走单文件快路径：真实模式一次 Contents API 调用完成（原路径 6 次），
+  // 且同 sha 内容不产生 commit
+  const r = await store.putFileContent(p, buf.toString('base64'), `后台：上传图片 ${p}`, input.expectedHeadSha);
+  return { path: p, commitSha: r.commitSha, headSha: r.headSha, unchanged: !!r.unchanged };
 }
 
 module.exports = { uploadImage };

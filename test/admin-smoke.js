@@ -412,6 +412,43 @@ const PNG_1X1 = Buffer.from(
   try { await store.getLogin('not-a-mock-token'); } catch (e) { loginErr = e.message; }
   ok('store OAuth: 无效 token 抛错而非返回假登录名', () => assert.strictEqual(loginErr, 'USER_INFO_FAILED'));
 
+  // 注意：stamp() 精度到秒，同一次运行内想复用同一路径，必须钉住同一个 Date.now。
+  // 这几次上传都钉在同一时刻，才能落到同一路径观察去重。
+  const realDateNow = Date.now;
+  Date.now = () => 1750000000000;
+  let up1;
+  let up2;
+  let up3;
+  let headBeforeDup;
+  let headAfterDup;
+  let up4;
+  try {
+    up1 = await content.uploadImage({ module: 'projects', filename: 'dup.png', dataBase64: PNG_1X1.toString('base64'), expectedHeadSha: await store.getHead() });
+    up2 = await content.uploadImage({ module: 'projects', filename: 'dup.png', dataBase64: PNG_1X1.toString('base64'), expectedHeadSha: up1.headSha });
+    headBeforeDup = await store.getHead();
+    up3 = await content.uploadImage({ module: 'projects', filename: 'dup.png', dataBase64: PNG_1X1.toString('base64'), expectedHeadSha: headBeforeDup });
+    headAfterDup = await store.getHead();
+    up4 = await content.uploadImage({ module: 'projects', filename: 'other.png', dataBase64: PNG_1X1.toString('base64').slice(0, 40) + 'AAAA', expectedHeadSha: headAfterDup });
+  } finally {
+    Date.now = realDateNow;
+  }
+  ok('P2-1: 首次上传产生 commit（unchanged=false）', () => {
+    assert.strictEqual(up1.unchanged, false);
+    assert.ok(up1.commitSha, '首次应有 commitSha');
+  });
+  ok('P2-1: 同内容二次上传 unchanged=true 且无 commitSha', () => {
+    assert.strictEqual(up2.unchanged, true);
+    assert.ok(!up2.commitSha, '内容未变化不应产生 commit');
+  });
+  ok('P2-1: 去重上传不推进 headSha（仓库历史未增长）', () => {
+    assert.strictEqual(up3.unchanged, true);
+    assert.strictEqual(headAfterDup, headBeforeDup);
+  });
+  ok('P2-1: 不同内容仍产生新 commit', () => {
+    assert.strictEqual(up4.unchanged, false);
+    assert.ok(up4.commitSha, '不同内容应产生 commit');
+  });
+
   // ============ 第二段：HTTP 管线（真实走 api 端点） ============
   console.log('\n[2] HTTP 管线 · 端点级');
   const server = http.createServer((req, res) => {
@@ -544,6 +581,29 @@ const PNG_1X1 = Buffer.from(
     for (const d of h1.body.drafts) {
       assert.ok(!('title' in d), 'summary 模式 drafts 不应含 title');
     }
+  });
+
+  // --- P2-1：端点层 status 语义 ---
+  // 用不同文件名，避开域逻辑段已上传过的同一路径（stamp 精度到秒，同刻会同名）
+  const headBeforeHttp = await store.getHead();
+  Date.now = () => 1750000000001;
+  let upA;
+  let upB;
+  try {
+    upA = await call('POST', '/api/upload-image', { module: 'projects', filename: 'dup-http.png', dataBase64: PNG_1X1.toString('base64'), expectedHeadSha: headBeforeHttp });
+    upB = await call('POST', '/api/upload-image', { module: 'projects', filename: 'dup-http.png', dataBase64: PNG_1X1.toString('base64'), expectedHeadSha: upA.body.headSha });
+  } finally {
+    Date.now = realDateNow;
+  }
+  ok('upload-image: 首次 status=committed', () => {
+    assert.strictEqual(upA.status, 200);
+    assert.strictEqual(upA.body.status, 'committed');
+    assert.ok(upA.body.commitSha);
+  });
+  ok('upload-image: 同内容二次 status=unchanged 且无 commitSha', () => {
+    assert.strictEqual(upB.status, 200);
+    assert.strictEqual(upB.body.status, 'unchanged');
+    assert.ok(!upB.body.commitSha);
   });
 
   // --- P2-5：mock 与真实存储语义对齐（此前 login/status 链路完全无覆盖） ---

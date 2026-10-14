@@ -13,6 +13,8 @@ module.exports = {
   getTree: () => impl.getTree(),
   getFile: (p) => impl.getFile(p),
   commitFiles: (changes, message, expectedHeadSha) => impl.commitFiles(changes, message, expectedHeadSha),
+  // 单文件内容快路径：内容未变化时不产生 commit；真实模式走 Contents API
+  putFileContent: (p, contentBase64, message, expectedHeadSha) => impl.putFileContent(p, contentBase64, message, expectedHeadSha),
   exchangeCode: (code, redirectUri) => impl.exchangeCode(code, redirectUri),
   getLogin: (t) => impl.getLogin(t),
   getCommitStatus: (sha) => impl.getCommitStatus(sha),

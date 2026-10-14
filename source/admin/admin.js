@@ -1012,7 +1012,7 @@
       r.onerror = () => reject(new ApiError(400, { error: 'READ_FAIL', hint: `${file.name} 读取失败` }));
       r.readAsDataURL(blob);
     });
-    await api('/api/upload-image', {
+    return api('/api/upload-image', {
       method: 'POST',
       body: { module, filename: (file.name || 'image').replace(/\.[^.]+$/, '') + '.' + ext, dataBase64: b64, expectedHeadSha: S.lastListSha },
     });
@@ -1027,9 +1027,10 @@
     let done = 0;
     for (const file of files) {
       try {
-        await uploadOneImage(file, module);
+        const r = await uploadOneImage(file, module);
         done += 1;
-        toast(`已上传 ${file.name} → /img/${module}/`);
+        // unchanged：仓库里已有同 sha 内容，服务端未产生 commit
+        toast(r && r.unchanged ? `${file.name} 内容未变化，未产生新提交` : `已上传 ${file.name} → /img/${module}/`);
       } catch (e) {
         handleOpError(e);
       }
