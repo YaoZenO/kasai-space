@@ -28,6 +28,7 @@ const handlers = {
   '/api/upload-image': require('../api/upload-image'),
   '/api/session-check': require('../api/session-check'),
   '/api/deploy-status': require('../api/deploy-status'),
+  '/api/auth-callback': require('../api/auth-callback'),
 };
 const { sign } = require('../api/_lib/session');
 
@@ -380,6 +381,37 @@ const PNG_1X1 = Buffer.from(
     }
   }
 
+  // --- P2-5：mock 与真实存储语义对齐 ---
+  // getHead：mock 的 headSha 须与真实 git sha 同格式（40 位十六进制），
+  // 否则 optimistic lock 的 expectedHeadSha 比对在两种模式下语义不同。
+  const headSha = await store.getHead();
+  ok('store.getHead: 40 位十六进制，与真实 git sha 同格式', () => {
+    assert.match(headSha, /^[0-9a-f]{40}$/);
+  });
+
+  // getCommitStatus：返回值须落在真实 GitHub Commit Status 的合法集合内
+  const commitState = await store.getCommitStatus(headSha);
+  ok('store.getCommitStatus: 返回值在真实合法集合内', () => {
+    assert.ok(['success', 'pending', 'failure', 'error'].includes(commitState), `非法状态: ${commitState}`);
+  });
+
+  // OAuth 两段式：code → token → login，与真实流程同构（消除隐式契约）
+  const mockToken = await store.exchangeCode('mock');
+  const mockLogin = await store.getLogin(mockToken);
+  ok('store OAuth: code → token → login 两段式与真实同构', () => {
+    assert.ok(mockToken && mockToken !== 'mock', 'token 不应等于 code');
+    assert.strictEqual(mockLogin, 'YaoZenO');
+  });
+  const otherToken = await store.exchangeCode('mock-other');
+  const otherLogin = await store.getLogin(otherToken);
+  ok('store OAuth: 非管理员 code → 解析出非管理员登录名', () => {
+    assert.strictEqual(otherLogin, 'visitor-not-admin');
+  });
+
+  let loginErr = '';
+  try { await store.getLogin('not-a-mock-token'); } catch (e) { loginErr = e.message; }
+  ok('store OAuth: 无效 token 抛错而非返回假登录名', () => assert.strictEqual(loginErr, 'USER_INFO_FAILED'));
+
   // ============ 第二段：HTTP 管线（真实走 api 端点） ============
   console.log('\n[2] HTTP 管线 · 端点级');
   const server = http.createServer((req, res) => {
@@ -394,13 +426,14 @@ const PNG_1X1 = Buffer.from(
   const call = (method, path, body, opts = {}) => new Promise((resolve, reject) => {
     const data = body ? JSON.stringify(body) : null;
     const headers = {};
-    if (!opts.noCookie) headers.Cookie = cookie;
+    if (opts.cookie !== undefined) headers.Cookie = opts.cookie;
+    else if (!opts.noCookie) headers.Cookie = cookie;
     if (data) { headers['Content-Type'] = 'application/json'; headers['Content-Length'] = Buffer.byteLength(data); }
     if (opts.origin) headers.Origin = opts.origin;
     const rq = http.request({ port, method, path, headers }, (res) => {
       let buf = '';
       res.on('data', (c) => (buf += c));
-      res.on('end', () => { try { resolve({ status: res.statusCode, body: buf ? JSON.parse(buf) : {} }); } catch (e) { resolve({ status: res.statusCode, body: buf }); } });
+      res.on('end', () => { try { resolve({ status: res.statusCode, body: buf ? JSON.parse(buf) : {}, headers: res.headers }); } catch (e) { resolve({ status: res.statusCode, body: buf, headers: res.headers }); } });
     });
     rq.on('error', reject);
     if (data) rq.write(data);
@@ -511,6 +544,38 @@ const PNG_1X1 = Buffer.from(
     for (const d of h1.body.drafts) {
       assert.ok(!('title' in d), 'summary 模式 drafts 不应含 title');
     }
+  });
+
+  // --- P2-5：mock 与真实存储语义对齐（此前 login/status 链路完全无覆盖） ---
+  // mock 的 OAuth 保持两段结构：code → token → login，与真实流程同构。
+  h1 = await call('GET', '/api/auth-callback?state=st-ok&code=mock', null, { cookie: 'kasai_oauth_dev=st-ok' });
+  ok('auth-callback: 合法 code → 302 且签发言 session cookie', () => {
+    assert.strictEqual(h1.status, 302);
+    assert.ok(Array.isArray(h1.headers['set-cookie']), '应下发 session cookie');
+    const raw = (h1.headers['set-cookie'] || []).join(';');
+    assert.ok(raw.includes('kasai_admin_dev='), 'cookie 名应为 kasai_admin_dev');
+  });
+
+  h1 = await call('GET', '/api/auth-callback?state=st-x&code=mock-other', null, { cookie: 'kasai_oauth_dev=st-x' });
+  ok('auth-callback: 非管理员账号 → 403 且提示账号名', () => {
+    assert.strictEqual(h1.status, 403);
+    assert.ok(String(h1.body).includes('visitor-not-admin'), '应提示当前账号');
+    assert.ok(String(h1.body).includes('不是本站管理员'), '应说明拒绝原因');
+  });
+
+  h1 = await call('GET', '/api/auth-callback?state=wrong&code=mock', null, { cookie: 'kasai_oauth_dev=right' });
+  ok('auth-callback: state 与 Cookie 不一致 → 400（防 CSRF）', () => {
+    assert.strictEqual(h1.status, 400);
+  });
+
+  // 链路闭环：callback 下发的 session cookie 能直接通过 session-check
+  const cb = await call('GET', '/api/auth-callback?state=st-tok&code=mock', null, { cookie: 'kasai_oauth_dev=st-tok' });
+  const sessCookie = (cb.headers['set-cookie'] || []).map((c) => c.split(';')[0]).join('; ');
+  h1 = await call('GET', '/api/session-check', null, { cookie: sessCookie });
+  ok('auth-callback: 下发的 session 可通过 session-check 自检（链路闭环）', () => {
+    assert.strictEqual(cb.status, 302);
+    assert.strictEqual(h1.status, 200);
+    assert.strictEqual(h1.body.login, 'YaoZenO');
   });
 
   h1 = await call('GET', '/api/session-check');

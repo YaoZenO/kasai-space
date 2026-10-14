@@ -134,16 +134,26 @@ async function commitFiles(changes, message, expectedHeadSha) {
   return { commitSha: idx.head, headSha: idx.head, fileShas };
 }
 
-// mock 的 OAuth：本地测试直接映射 code → 登录名（'mock' = 管理员，'mock-other' = 非管理员）
+// mock 的 OAuth 刻意保持与真实流程**同样的两段结构**：code → token → login。
+// 不图省事让 exchangeCode 直接返回登录名——那种写法会让 getLogin 变成
+// 「原样返回入参」的隐式契约，一旦有人把 mock token 改成真实格式（gho_xxx），
+// 登录就会静默 403，而现有测试根本发现不了。
 async function exchangeCode(code) {
-  if (code === 'mock-other') return 'visitor-not-admin';
-  return config.ADMIN_GITHUB_LOGIN;
+  if (code === 'mock-other') return 'mock-token:visitor-not-admin';
+  return `mock-token:${config.ADMIN_GITHUB_LOGIN}`;
 }
 
 async function getLogin(accessToken) {
-  return accessToken;
+  if (typeof accessToken !== 'string' || !accessToken.startsWith('mock-token:')) {
+    // 与真实实现一致：token 无效时抛错，由端点转为 500，而不是返回一个假登录名
+    throw new Error('USER_INFO_FAILED');
+  }
+  return accessToken.slice('mock-token:'.length);
 }
 
+// 返回值与真实 GitHub Commit Status 的 state 集合保持一致
+// （success | pending | failure | error）。deploy-status 的备用通道在真实模式
+// 才会走到，mock 下不调用，此处仅保证返回值本身合法。
 async function getCommitStatus() {
   return 'pending';
 }
