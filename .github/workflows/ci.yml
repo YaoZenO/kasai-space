@@ -29,6 +29,9 @@ jobs:
       # 3. 前台模块页端到端（后台写入链路 → YAML 落盘 → Hexo 生成 → HTML 断言；结束后自动还原数据文件）
       - name: Module pages E2E
         run: npm run test:pages
+      # 3.5 前台/后台 CSS token 一致性（防止 --accent 两处漂移）
+      - name: CSS tokens
+        run: npm run test:tokens
       # 4. 前台构建门禁
       - name: Hexo generate
         run: npm run build
