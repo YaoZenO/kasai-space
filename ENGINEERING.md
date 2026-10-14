@@ -28,9 +28,11 @@ P0-3 测试固化 ──┬─→ P0-1 身份域统一 ──→ P0-2 错误契�
 
 ### P0-1 身份配置数据源统一
 
-- **优先级：** P0 ｜ **依赖：** P0-3 ｜ **状态：** ✅ 已完成
-  （代码已改：about.ejs 优先读 `site.data.site`、`theme.about.*` 回退。
-  **验收未实测**——「填 intro → 生成后 about 页含该文字」这条没跑过，待补验）
+- **优先级：** P0 ｜ **依赖：** P0-3 ｜ **状态：** ✅ 已完成（2026-10-14 三条验收已实测）
+  - 验收 1：site.yml 填 `intro: "测试签名"` → about 页含「测试签名」，**且不含**主题兜底值（是优先而非叠加）
+  - 验收 2：intro 置空 → 回退 `Be water, my friends.`；avatar 置空 → 回退主题 `/img/avatar/11.jpg`
+  - 验收 3：首页身份域与 about 页读同一数据源，同填同显；入口格正常，构建无 error
+  - 验证后 site.yml 已还原（git 无改动），产物无测试残留
 - **问题定位：** `themes/fluid/layout/about.ejs:8` 只读 `theme.about.introduce || theme.about.intro`；
   `about.ejs:40` 头像只读 `theme.about.avatar`。而后台「设置」页写的是 `source/_data/site.yml`，
   `index.ejs` 已优先读 site.yml → **后台改 intro/avatar，首页生效、关于页不变**。
