@@ -13,7 +13,8 @@
     imageModule: 'posts', // 图片页当前上传/筛选目录
     lastListSha: null,
     pollTimer: null,
-    pollTries: 0,
+    pollStartedAt: 0,
+    lastDeployUrl: '',
     busy: false,
   };
 
@@ -1132,6 +1133,13 @@
   $('post-cover').addEventListener('dblclick', () => openImagePicker((sp) => { $('post-cover').value = sp; }));
 
   // ---------- 部署状态 ----------
+  // 轮询策略：指数退避 8s → 16s → 32s（封顶），总上限 3 分钟。
+  // 固定 8s × 45 次既拖慢又浪费：Vercel 一次构建通常 1-2 分钟，
+  // 后期高频轮询毫无意义，退避后请求次数从 45 次降到 7 次左右。
+  const POLL_FIRST_MS = 8000;
+  const POLL_MAX_MS = 32000;
+  const POLL_TIMEOUT_MS = 180000;
+
   function setDeployCommitted(commitSha) {
     stopPolling();
     const pill = $('deploy-pill');
@@ -1143,10 +1151,15 @@
 
   function startPolling(commitSha) {
     stopPolling();
-    S.pollTries = 0;
-    S.pollTimer = setInterval(async () => {
-      S.pollTries += 1;
-      if (S.pollTries > 45) {
+    S.pollStartedAt = Date.now();
+    S.lastDeployUrl = '';
+    schedulePoll(commitSha, POLL_FIRST_MS);
+  }
+
+  // 用 setTimeout 递归而非 setInterval：间隔要随次数增长，必须每次重新调度
+  function schedulePoll(commitSha, delay) {
+    S.pollTimer = setTimeout(async () => {
+      if (Date.now() - S.pollStartedAt >= POLL_TIMEOUT_MS) {
         stopPolling();
         setPill('committed', '已提交（构建跟踪超时）');
         return;
@@ -1155,32 +1168,36 @@
         const st = await api('/api/deploy-status?sha=' + encodeURIComponent(commitSha));
         if (!st.available) {
           setPill('committed', '已提交（部署状态查询未配置）');
-          return; // 不停止轮询，配置生效前保持已提交语义
-        }
-        const mine = (st.deployments || []).find((x) => x.sha === commitSha);
-        if (!mine) {
-          setPill('committed', '已提交，等待构建');
-          return;
-        }
-        if (mine.state === 'READY') {
-          stopPolling();
-          setPill('ready', '部署成功');
-          toast('部署成功，站点已更新');
-        } else if (mine.state === 'ERROR' || mine.state === 'CANCELED') {
-          stopPolling();
-          setPill('error', '部署失败');
-          toast('部署失败，请到 Vercel 控制台查看日志');
-        } else if (mine.state === 'BUILDING' || mine.state === 'INITIALIZING') {
-          setPill('building', '构建中');
         } else {
-          setPill('building', '构建排队中');
+          const mine = (st.deployments || []).find((x) => x.sha === commitSha);
+          if (mine && mine.url) S.lastDeployUrl = mine.url;
+          if (!mine) {
+            setPill('committed', '已提交，等待构建');
+          } else if (mine.state === 'READY') {
+            stopPolling();
+            setPill('ready', '部署成功 ↗');
+            toast('部署成功，站点已更新');
+            return; // 终态，不再调度
+          } else if (mine.state === 'ERROR' || mine.state === 'CANCELED') {
+            stopPolling();
+            setPill('error', '部署失败 ↗');
+            toast('部署失败，点击状态查看日志');
+            return; // 终态，不再调度
+          } else if (mine.state === 'BUILDING' || mine.state === 'INITIALIZING') {
+            setPill('building', '构建中');
+          } else {
+            setPill('building', '构建排队中');
+          }
         }
-      } catch (e) { /* 下次重试 */ }
-    }, 8000);
+      } catch (e) {
+        /* 下次重试 */
+      }
+      schedulePoll(commitSha, Math.min(delay * 2, POLL_MAX_MS));
+    }, delay);
   }
 
   function stopPolling() {
-    if (S.pollTimer) clearInterval(S.pollTimer);
+    if (S.pollTimer) clearTimeout(S.pollTimer);
     S.pollTimer = null;
   }
 
@@ -1190,6 +1207,15 @@
     pill.dataset.state = state;
     pill.textContent = text;
   }
+
+  // pill 可点击：有部署链接时新开 Vercel 部署页看构建日志（P2-4）
+  $('deploy-pill').onclick = () => {
+    if (S.lastDeployUrl) {
+      window.open(S.lastDeployUrl, '_blank', 'noopener');
+    } else {
+      toast('暂无部署链接（部署状态查询未配置）');
+    }
+  };
 
   // ---------- 事件绑定 ----------
   $('btn-login').onclick = () => {

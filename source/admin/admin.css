@@ -50,6 +50,9 @@ button { font: inherit; }
 
 /* 状态徽标 */
 .pill { font-size: .75rem; padding: .12rem .55rem; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+/* 可点击状态（跳转 Vercel 部署页）*/
+.pill[data-state="ready"], .pill[data-state="error"] { cursor: pointer; }
+.pill[data-state="ready"]:hover, .pill[data-state="error"]:hover { filter: brightness(.97); }
 .pill[data-state="saved"] { color: var(--muted); }
 .pill[data-state="committed"] { color: #2b5e8a; border-color: #bcd4e6; background: #eef5fa; }
 .pill[data-state="building"] { color: var(--warn); border-color: #e8d5ae; background: #faf3e3; }
