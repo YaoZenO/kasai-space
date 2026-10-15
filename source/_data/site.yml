@@ -3,7 +3,7 @@
 # motto          首页页脚座右铭（空则显示 SINCE 年份与站名）
 # avatar         头像图片路径（空则用主题配置 /img/avatar/）
 # identity_words 身份词竖列，后台设置里每行一个
-intro: ""
-motto: ""
+intro: 日常把咖啡转化为代码，顺便把 Bug 写进系统里。
+motto: Be water, my friends.
 avatar: ""
-identity_words: []
+identity_words: [Developer, Writer]

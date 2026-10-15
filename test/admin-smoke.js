@@ -54,12 +54,22 @@ const PNG_1X1 = Buffer.from(
   console.log('\n[1] 域逻辑 · mock 存储');
 
   let l = await content.listAll();
-  // fixture 从真实仓库播种；先把三个数据模块重置为空，保证测试不受仓库内容漂移影响
-  // （只动临时 fixture，不触碰真实仓库）
+  // fixture 从真实仓库播种；先把三个数据模块与 site.yml 重置为已知初始态，保证测试不受仓库内容漂移影响
+  // （只动临时 fixture，不触碰真实仓库）。site.yml 同样必须重置：主人的站点身份内容
+  // 是真实数据、会变（intro/motto/身份词），见 E-020
   for (const m of ['projects', 'games', 'collections']) {
     const p = `source/_data/${m}.yml`;
     const f = await store.getFile(p).catch(() => ({ content: 'items: []\n', sha: null }));
     await store.commitFiles([{ path: p, contentUtf8: yaml.updateItems(f.content, []) }], `test: reset ${m}`, null);
+  }
+  {
+    const p = 'source/_data/site.yml';
+    const f = await store.getFile(p).catch(() => ({ content: '', sha: null }));
+    await store.commitFiles(
+      [{ path: p, contentUtf8: yaml.updateSite(f.content, { intro: '', motto: '', avatar: '', identity_words: [] }) }],
+      'test: reset site',
+      null
+    );
   }
   l = await content.listAll();
   ok('listAll: 初始 posts≥3、三模块空、site 空配置', () => {
