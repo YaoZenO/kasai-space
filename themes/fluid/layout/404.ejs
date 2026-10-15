@@ -2,9 +2,9 @@
 page.layout = "404"
 page.title = theme.page404.title || __('page404.title')
 page.subtitle = theme.page404.subtitle || __('page404.subtitle')
-page.banner_img = theme.page404.banner_img
-page.banner_img_height = theme.page404.banner_img_height
-page.banner_mask_alpha = theme.page404.banner_mask_alpha
+// 2026-10-15：随全站去 Banner 一并拆除最后两页横幅（导航栏改裸文字的前提），
+// 内容改为纸面样式，并补「返回首页」入口——原仅 10 秒自动跳转，用户来不及反应
+page.hide_banner = true
 %>
 
 <script>
@@ -16,3 +16,17 @@ page.banner_mask_alpha = theme.page404.banner_mask_alpha
     setTimeout(redirect, <%= parseInt(theme.page404.redirect_delay) %>)
   <% } %>
 </script>
+
+<div class="paper-page">
+  <div class="home-wrap">
+    <header class="page-head">
+      <p class="page-head-kicker">404</p>
+      <h1 class="page-head-title"><%= page.title %></h1>
+      <% if (page.subtitle) { %><p class="archive-total"><%= page.subtitle %></p><% } %>
+    </header>
+    <div class="identity-cta">
+      <a class="cta-solid" href="<%= url_for('/') %>">返回首页</a>
+    </div>
+    <p class="page-404-note">页面将在 <%= Math.round((parseInt(theme.page404.redirect_delay) || 0) / 1000) %> 秒后自动跳转</p>
+  </div>
+</div>

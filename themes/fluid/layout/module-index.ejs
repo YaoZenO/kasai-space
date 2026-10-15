@@ -1,23 +1,28 @@
 <%
-// 模块列表页（项目 / 游戏）：条目卡片网格，全部来自 source/_data/<module>.yml。
+// 模块列表页（项目 / 游戏 / 收藏）：条目卡片网格，全部来自 source/_data/<module>.yml。
 // 铁律：无数据不渲染（generator 已保证有数据才会生成本页）。
+// collections 为纯外链模块：卡片直接跳 it.link；无 link 的条目渲染为非链接卡（不制造失效链接）。
 page.layout = 'module-index'
 page.hide_banner = true
 var mod = page.moduleKey || 'projects'
 var items = page.items || []
+var isCollections = mod === 'collections'
 %>
 
 <div class="paper-page">
   <div class="home-wrap module-index">
     <header class="page-head-plain">
-      <p class="page-head-kicker"><%= mod === 'games' ? 'GAMES' : 'PROJECTS' %> · <%= page.moduleTitle %></p>
+      <p class="page-head-kicker"><%= isCollections ? 'COLLECTIONS' : (mod === 'games' ? 'GAMES' : 'PROJECTS') %> · <%= page.moduleTitle %></p>
       <h1 class="page-head-title">全部<%= page.moduleTitle %></h1>
       <p class="list-count">共 <%= items.length %> 个</p>
     </header>
 
     <div class="module-grid">
       <% items.forEach(function (it) { %>
-      <a class="module-card<%= it.cover ? ' has-cover' : '' %>" href="<%= url_for('/' + mod + '/' + (it.slug || encodeURIComponent(String(it.title))) + '/') %>">
+      <% var collHref = isCollections ? (it.link || '') : '' %>
+      <% var Card = (isCollections && collHref) ? 'a' : (isCollections ? 'div' : 'a') %>
+      <<%= Card %> class="module-card<%= it.cover ? ' has-cover' : '' %>"
+        <% if (!isCollections) { %>href="<%= url_for('/' + mod + '/' + (it.slug || encodeURIComponent(String(it.title))) + '/') %>"<% } else if (collHref) { %>href="<%= collHref %>" target="_blank" rel="noopener"<% } %>>
         <% if (it.cover) { %>
         <span class="module-card-img"><img src="<%= url_for(it.cover) %>" alt="<%= it.title %>" loading="lazy"></span>
         <% } %>
@@ -29,9 +34,10 @@ var items = page.items || []
             <% if (it.date) { %><time class="mono"><%= it.date %></time><% } %>
             <% if (mod === 'games' && it.genre) { %><span class="detail-tag detail-tag-solid"><%= it.genre %></span><% } %>
             <% if (mod === 'games' && it.status) { %><span class="detail-tag"><%= it.status %></span><% } %>
+            <% if (isCollections && collHref) { %><span class="detail-tag">外链</span><% } %>
           </span>
         </span>
-      </a>
+      </<%= Card %>>
       <% }) %>
     </div>
   </div>

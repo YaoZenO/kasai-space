@@ -72,20 +72,15 @@
   align-items: center;
 }
 
-/* 品牌 chip（胶囊外左侧） */
+/* 品牌（方案 C：裸文字。2026-10-15 去 chip——全站去 Banner 后纸面底色，
+   磨砂 chip 是横幅时代为保可读性的妥协，依据导航栏效果图.png 改回） */
 #navbar .site-brand {
   justify-self: start;
   color: var(--navbar-text-color);
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: 1.05rem;
+  font-weight: 800;
   letter-spacing: 0.02em;
-  padding: 0.45rem 1.05rem;
-  border-radius: 999px;
-  background-color: var(--navbar-bg-color);
-  -webkit-backdrop-filter: blur(14px) saturate(1.3);
-  backdrop-filter: blur(14px) saturate(1.3);
-  border: 1px solid var(--site-chip-border);
-  box-shadow: var(--site-float-shadow);
+  padding: 0.45rem 0.2rem;
 }
 
 #navbar .site-brand:hover {
@@ -138,7 +133,7 @@
   background-color: #2a251d;
 }
 
-/* 右侧操作区：搜索 chip + 移动端汉堡 */
+/* 右侧操作区：搜索 + 移动端汉堡 */
 #navbar .site-nav-actions {
   justify-self: end;
   display: flex;
@@ -146,17 +141,12 @@
   gap: 0.5rem;
 }
 
+/* 方案 C：裸图标，去 chip（2026-10-15，全站去 Banner 后） */
 #navbar .site-nav-actions .nav-link {
   display: flex;
   align-items: center;
   color: var(--navbar-text-color);
-  padding: 0.45rem 0.85rem;
-  border-radius: 999px;
-  background-color: var(--navbar-bg-color);
-  -webkit-backdrop-filter: blur(14px) saturate(1.3);
-  backdrop-filter: blur(14px) saturate(1.3);
-  border: 1px solid var(--site-chip-border);
-  box-shadow: var(--site-float-shadow);
+  padding: 0.45rem 0.5rem;
 }
 
 #navbar .site-nav-actions .nav-link:hover,
@@ -164,19 +154,14 @@
   color: var(--accent);
 }
 
-/* 说明：品牌/搜索做成磨砂 chip 而非裸文字，因文章/归档等页面
-   在 S3/S4 改造前仍保留深色 Banner 图，裸墨色文字不可读；
-   待全站去 Banner 后可按效果图改为裸文字。 */
+/* 说明：品牌/搜索/汉堡曾为磨砂 chip（横幅时代深色 Banner 下保可读性）。
+   2026-10-15：全站横幅已清零（含 404/links 最后两页），按导航栏效果图.png
+   方案 C 改回裸文字/裸图标；中间菜单胶囊保留（方案 C 的核心形态）。 */
 
 #navbar .navbar-toggler {
   border: 0;
-  padding: 0.45rem 0.75rem;
-  border-radius: 999px;
-  background-color: var(--navbar-bg-color);
-  -webkit-backdrop-filter: blur(14px) saturate(1.3);
-  backdrop-filter: blur(14px) saturate(1.3);
-  border: 1px solid var(--site-chip-border);
-  box-shadow: var(--site-float-shadow);
+  padding: 0.45rem 0.6rem;
+  background: transparent;
 }
 
 /* 键盘焦点可见性 */
@@ -1200,6 +1185,16 @@ a.feed-title:hover {
   background-color: #2a251d;
   border-color: #2a251d;
   color: #f5f1e9;
+}
+
+/* --- 4.4b 404 纸面页（2026-10-15 去 Banner 后）：自动跳转提示 --- */
+
+.page-404-note {
+  margin: 1.6rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  color: var(--sec-text-color);
 }
 
 /* --- 4.5 分类页（分类名=有效入口；计数=真实文章数） --- */

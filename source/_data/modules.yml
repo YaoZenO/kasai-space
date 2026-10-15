@@ -21,4 +21,4 @@ items:
   - key: collections
     title: 收藏
     accent: ""
-    page: ""
+    page: /collections/
