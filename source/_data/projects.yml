@@ -15,7 +15,7 @@ items:
     date: 2026-10-15
     summary: 私有、单人使用的本地关系管理系统：把「关系事实」当作数据基元，让半年后、两年后被问到的那一刻，能立刻找回。
     cover: ""
-    link: "https://github.com/YaoZenO/Ties"
+    link: ""
     tags: [Vue, Node.js, Express, SQLite]
     background: |-
       ## 它解决什么
@@ -66,6 +66,8 @@ items:
       - **AI 录入**：可选接入 OpenAI 兼容通道，一段话生成档案草稿。
 
       数据全部留在本机：一个 SQLite 文件 + 一个上传目录，没有云端。
+
+      > **仓库说明**：本项目仓库目前设为私有（GitHub），暂未公开。
   - title: 【测试】项目模块全字段演练
     slug: test-entry
     date: 2026-10-15
