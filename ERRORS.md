@@ -51,6 +51,8 @@
 | E-015 | P3 | 账本验收依据凭空引用 PRD 条款（PRD.md 中并不存在） | 已修复 |
 | E-016 | P2 | 多图上传第二张起必 409：上传成功后不回写 `S.lastListSha` | 已修复 |
 | E-017 | P2 | 文章编辑入口卡顿：串行取 head、视图切换晚于拉取、字数统计无防抖 | 已修复 |
+| E-018 | P2 | 后台静态资源无缓存破坏，代码已上线但浏览器仍渲染旧副本 | 已修复 |
+| E-018 | P1 | 模块页 E2E 跑完不重建 public/，残留测试数据死链 | 已修复 |
 
 ---
 
@@ -165,6 +167,20 @@
 - **防复发（机制）：** 禁止在 EJS 里字符串拼接 HTML 标签与属性。
   端到端测试加断言：`assert.ok(!html.includes('&#34;/projects/'))`。
 
+### E-018 端到端测试污染 public/ 构建产物
+
+- **发生时间：** 2026-10-15 ｜ **发现方式：** 全面审查（本地 public/ 与线上构建比对）发现
+- **现象：** 跑完 `npm run test:pages` 后，`public/index.html` 里留着 `/games/` 与
+  `/projects/e2e-rich/` 两个死链（public/ 中并无对应目录，线上实测 404），
+  首页「项目」计数变 2、「游戏」计数变 1，均为测试数据。
+- **根因：** `test/module-pages-e2e.js` 的 `hexo.generate` 是**用测试数据全量生成**的；
+  `finally` 只还原了 yml 数据文件、删了 `public/projects` 与 `public/games` 两个目录，
+  但 `index.html`、新增标签页等全量产物没人管——还原数据文件不等于还原构建产物。
+- **修法：** `finally` 中追加 `rebuildClean()`：删掉整个 `public/`，用还原后的真实数据
+  重新 generate。
+- **防复发（机制）：** 测试末尾断言锁死——`public/games` 不得存在、首页 HTML 不得含
+  `e2e-rich` / `e2e-game`；重建失败会打印手动重建提示。测试再污染 public/ 直接 FAIL。
+
 ---
 
 ## 5. P2 — 功能缺陷
@@ -224,6 +240,23 @@
   `getPostFile` 必须用 `Promise.all([store.getFile(path), store.getHead()])`
   且不得出现单独 `await store.getHead()`；`openPostEditor` 中视图切换的源码位置
   必须早于 `await api(` 且存在 `setEditorBusy(true)`。均通过变异验证（退化即失败）。
+
+### E-018 后台静态资源无缓存破坏，线上看不到改动
+
+- **发生时间：** 2026-10-15 ｜ **发现方式：** 主人反馈「从域名进去看不到改动，也没有删除」
+- **现象：** 代码已 commit、已 push、Vercel 已构建部署（服务端 `Last-Modified`
+  与 `admin-composer.js`、`btn-delete-post` 均确认是最新），但主人浏览器里
+  后台毫无变化，一度被误判为「没提交」。
+- **根因：** 后台所有 js/css 的 URL 不带版本号，文件名也从不变化。浏览器按 URL
+  缓存静态资源，部署后仍然命中本地旧副本；`max-age=0, must-revalidate`
+  只保证「过期后校验」，用户不强制刷新时浏览器直接读缓存，不发起校验请求。
+- **修法：** `index.html` 的 css/js 引用与 `admin.js` 的全部 import（静态 + 动态）
+  统一加 `?v=20261015`。URL 变化即缓存键变化，部署后自动拿到新副本。
+- **防复发（机制）：**
+  1. `test/admin-smoke.js` 两条断言：`index.html` 所有 `/admin/*` 引用必须匹配
+     `?v=\d{8}`；`admin.js` 全部 import 必须带同一版本号。漏一个即失败（变异验证过）。
+  2. `AGENTS.md` 新增约定：**改动 `source/admin/` 下任何前端文件，必须同步 bump
+     两处版本号**（index.html 引用 + admin.js import），bump 后强制刷新一次验证。
 
 ---
 

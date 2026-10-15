@@ -86,6 +86,17 @@ End the task with a single concise report containing:
 5. Unfinished items, risks, and limitations.
 6. Whether the user needs to make a next-step decision.
 
+### 5.1 后台前端改动的缓存破坏约定（E-018）
+
+改动 `source/admin/` 下任何前端文件（js / css / index.html）后，**必须同步 bump
+两处缓存破坏版本号**，否则浏览器继续渲染旧副本，表现为「代码已上线但看不到改动」：
+
+1. `source/admin/index.html`：`/admin/admin.css?v=<版本>` 与 `/admin/admin.js?v=<版本>`
+2. `source/admin/admin.js`：全部 import（静态 `from` 与动态 `import()`）加同一 `?v=<版本>`
+
+版本号用日期（`YYYYMMDD`）。漏改会被 `test/admin-smoke.js` 的 E-018 断言直接判失败。
+bump 后需强制刷新（Ctrl+F5）或无痕窗口验证一次。
+
 Interrupt the user mid-task only when there is a hard blocker, a major risk, or a
 request for authorization. Do not expand beyond the original scope.
 
