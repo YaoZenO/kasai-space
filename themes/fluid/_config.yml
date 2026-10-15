@@ -239,6 +239,9 @@ custom_js:
 # The usage is the same as custom_js
 custom_css: /css/site.css
 
+# 额外注入 <head> 的 HTML（2026-10-15：为按需加载的 CDN 插件预连接，P1-10）
+custom_head: '<link rel="preconnect" href="https://lib.baomitu.com">'
+
 # 网页访问统计
 # Analysis of website visitors
 web_analytics:
@@ -349,7 +352,7 @@ lazyload:
 
 # 图标库，包含了大量社交类图标，主题依赖的不包含在内，因此可自行修改，详见 https://hexo.fluid-dev.com/docs/icon/
 # Icon library, which includes many social icons, does not include those theme dependent, so your can modify link by yourself. See: https://hexo.fluid-dev.com/docs/en/icon/
-iconfont: //at.alicdn.com/t/c/font_1736178_k526ubmyhba.css
+iconfont: /lib/iconfont.css
 
 
 #---------------------------
@@ -1104,6 +1107,13 @@ links:
 # Here is the url prefix to configure the static assets. Set CDN addresses you want to customize.
 # Be aware that you would better use the same version as default ones to avoid potential problems.
 # DO NOT EDIT THE FOLLOWING SETTINGS UNLESS YOU KNOW WHAT YOU ARE DOING
+#
+# 2026-10-15（P1-10 消除 CDN 单点故障）：bootstrap / jquery / nprogress / typed /
+# fancybox / github-markdown-css / hint 已全部自托管到 source/lib/，
+# 下方对应前缀指向本地路径；图标字体在 source/lib/iconfont*.css + source/fonts/。
+# 全站（首页与文章页）已无任何外部渲染阻塞资源；仅剩 tocbot/anchor/clipboard 等
+# 按需 JS 插件仍走 CDN（页面加载后异步获取，故障仅影响单项功能，不影响布局），
+# 已配 custom_head preconnect。其余未启用的插件前缀未做改动。
 #---------------------------
 
 static_prefix:
@@ -1115,21 +1125,21 @@ static_prefix:
 
   anchor: https://lib.baomitu.com/anchor-js/5.0.0/
 
-  github_markdown: https://lib.baomitu.com/github-markdown-css/4.0.0/
+  github_markdown: /lib/github-markdown-css/4.0.0/
 
-  jquery: https://lib.baomitu.com/jquery/3.6.4/
+  jquery: /lib/jquery/3.6.4/
 
-  bootstrap: https://lib.baomitu.com/twitter-bootstrap/4.6.1/
+  bootstrap: /lib/bootstrap/4.6.1/
 
   prismjs: https://lib.baomitu.com/prism/1.29.0/
 
   tocbot: https://lib.baomitu.com/tocbot/4.20.1/
 
-  typed: https://lib.baomitu.com/typed.js/2.0.12/
+  typed: /lib/typed/2.0.12/
 
-  fancybox: https://lib.baomitu.com/fancybox/3.5.7/
+  fancybox: /lib/fancybox/3.5.7/
 
-  nprogress: https://lib.baomitu.com/nprogress/0.2.0/
+  nprogress: /lib/nprogress/0.2.0/
 
   mathjax: https://lib.baomitu.com/mathjax/3.2.2/
 
@@ -1153,6 +1163,6 @@ static_prefix:
 
   discuss: https://lib.baomitu.com/discuss/1.2.1/
 
-  hint: https://lib.baomitu.com/hint.css/2.7.0/
+  hint: /lib/hint.css/2.7.0/
 
   moment: https://lib.baomitu.com/moment.js/2.29.4/

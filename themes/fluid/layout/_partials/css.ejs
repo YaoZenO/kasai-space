@@ -6,9 +6,9 @@
 <% } %>
 <% page.css_snippets = [] %>
 
-<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- 主题依赖的图标库（2026-10-15 起为自托管镜像 /lib/iconfont-theme.css，字体在 source/fonts/，勿单独删文件） -->
 <!-- Do not modify the link that theme dependent icons -->
-<%- css('//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css') %>
+<%- css('/lib/iconfont-theme.css') %>
 
 <%- css(theme.static_prefix.iconfont || theme.iconfont) %>
 
