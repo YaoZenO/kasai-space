@@ -1056,7 +1056,9 @@ page404:
 # Links Page
 #---------------------------
 links:
-  enable: true
+  # 2026-10-15：下架——页面内容是主题默认示例（Fluid 官方三项），未入导航也无入口，
+  # 属占位内容；主人想启用时改回 true 并在 navbar.menu 取消 links 注释
+  enable: false
   banner_img: /img/default.png
   banner_img_height: 60
   banner_mask_alpha: 0.3
