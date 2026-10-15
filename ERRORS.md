@@ -49,6 +49,8 @@
 | E-013 | P3 | 三个表单共用同一个 HTML ID `btn-save-item` | 已修复 |
 | E-014 | P0 | 对外文档里替主人表态，把文档作者的分析写成主人的主张 | 已修复 |
 | E-015 | P3 | 账本验收依据凭空引用 PRD 条款（PRD.md 中并不存在） | 已修复 |
+| E-016 | P2 | 多图上传第二张起必 409：上传成功后不回写 `S.lastListSha` | 已修复 |
+| E-017 | P2 | 文章编辑入口卡顿：串行取 head、视图切换晚于拉取、字数统计无防抖 | 已修复 |
 
 ---
 
@@ -191,6 +193,37 @@
 - **修法：** 统一走 `respondError`，并建立 `HINTS` 映射表（约 25 个错误码）。
 - **防复发（机制）：** 所有 4xx/5xx 必须经 `respondError` 返回，不允许直接 `json()`。
   测试断言每个 4xx 都带非空 `hint`。
+
+### E-016 多图上传第二张起必 409 冲突
+
+- **发生时间：** 2026-10-15 ｜ **发现方式：** 代码走查发现（改造上传功能时）
+- **现象：** 图片页一次选择多张上传，第一张成功，第二张起服务端返回
+  `HEAD_MOVED` 409「远端已变动」，用户看到的是「操作失败」。
+- **根因：** `uploadOneImage` 每次都带 `expectedHeadSha: S.lastListSha`，但上传成功后
+  **没有任何地方回写 `S.lastListSha`**。第一张提交后远端 head 已变，第二张拿着
+  首屏的旧 head 去比对，`putFileContent` 的乐观锁必然判定不匹配。
+- **修法：** 在 `uploadOneImage` 返回前统一回写 `if (r && r.headSha) S.lastListSha = r.headSha`。
+  放在上传函数内而不是各调用方，是因为上传入口不止一处（图片页批量上传、
+  发布器插图），放调用方迟早漏。
+- **防复发（机制）：** `test/admin-smoke.js` 结构锁：断言 `uploadOneImage` 函数体内
+  存在该回写语句；删除即测试失败（已做变异验证）。
+
+### E-017 文章编辑入口加载卡顿
+
+- **发生时间：** 2026-10-15 ｜ **发现方式：** 主人反馈「点击文章编辑入口加载卡顿」
+- **现象：** 点「编辑」后有 1～2 秒界面完全无变化，看起来像卡死或没点上。
+- **根因（三处叠加）：**
+  1. `openPostEditor` 先 `await api('/api/content-get')` 拉完文章才切视图，
+     整个网络往返期间界面零反馈；
+  2. `getPostFile` 内部 `store.getFile()` 与 `store.getHead()` **串行**，
+     每次打开编辑器白等一次 GitHub 往返；
+  3. `updateWordCount` 绑在 `input` 上每次全文跑两遍正则，长文输入时明显卡顿。
+- **修法：** ① 视图切换与忙态禁用提前到 `await` 之前（`setEditorBusy`）；
+  ② `getFile`/`getHead` 改 `Promise.all` 并行；③ 字数统计改 250ms 防抖。
+- **防复发（机制）：** `test/admin-smoke.js` 三条结构锁——
+  `getPostFile` 必须用 `Promise.all([store.getFile(path), store.getHead()])`
+  且不得出现单独 `await store.getHead()`；`openPostEditor` 中视图切换的源码位置
+  必须早于 `await api(` 且存在 `setEditorBusy(true)`。均通过变异验证（退化即失败）。
 
 ---
 
