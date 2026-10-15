@@ -699,6 +699,25 @@ const PNG_1X1 = Buffer.from(
         'uploadOneImage 必须在返回前回写 S.lastListSha，否则第二张起 expectedHeadSha 过期必 409',
       );
     });
+
+    // E-018：后台静态资源缓存破坏。曾出现「代码已部署但浏览器仍用旧副本」，
+    // 表现为主人从域名看不到任何改动。要求：index.html 的 css/js 引用与
+    // admin.js 的全部 import（静态+动态）都带 ?v=，且版本号一致。
+    const html = read('source/admin/index.html');
+    const entryJs = read('source/admin/admin.js');
+    const V = '20261015';
+    ok('E-018: index.html 的后台资源引用均带 ?v=', () => {
+      const refs = html.match(/(?:href|src)="\/admin\/[^"]+"/g) || [];
+      assert.ok(refs.length >= 2, '未找到后台 css/js 引用');
+      refs.forEach((r) => assert.ok(/\?v=\d{8}"$/.test(r), `缺少缓存破坏版本号：${r}`));
+    });
+    ok('E-018: admin.js 全部 import 带 ?v= 且与 index.html 版本一致', () => {
+      const specs = entryJs.match(/from '\.\/admin-[a-z-]+\.js[^']*'/g) || [];
+      const dyn = entryJs.match(/import\('\.\/admin-[a-z-]+\.js[^']*'\)/g) || [];
+      assert.ok(specs.length + dyn.length >= 6, `import 数量异常：${specs.length + dyn.length}`);
+      [...specs, ...dyn].forEach((s) => assert.ok(s.includes(`?v=${V}`), `import 缺少 ?v=${V}：${s}`));
+      assert.ok(html.includes(`?v=${V}`), `index.html 未使用版本号 ${V}`);
+    });
   }
 
   console.log(`\nRESULT: ${passed} 项断言通过${process.exitCode ? '，存在失败' : ''}`);
