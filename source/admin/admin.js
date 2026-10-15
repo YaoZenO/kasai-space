@@ -1,13 +1,15 @@
 /* 管理后台入口：ES module。
  *
  * 拆分结构（P2-2，单文件 ≤300 行）：
- *   admin-core.js    共享层：状态、DOM 工具、API、通用交互、视图切换（不依赖其他模块）
- *   admin-list.js    列表渲染（依赖 core）
- *   admin-post.js    文章编辑器  ┐
- *   admin-item.js    数据条目编辑器├─ 登录成功后才动态加载，登录页不加载编辑器代码
- *   admin-site.js    站点身份设置  │
- *   admin-media.js   图片上传与图库│
- *   admin-deploy.js  部署轮询      ┘
+ *   admin-core.js      共享层：状态、DOM 工具、API、通用交互、视图切换（不依赖其他模块）
+ *   admin-list.js      列表渲染（依赖 core）
+ *   admin-post.js      文章编辑器  ┐
+ *   admin-item.js      数据条目编辑器├─ 登录成功后才动态加载，登录页不加载编辑器代码
+ *   admin-site.js      站点身份设置  │
+ *   admin-media.js     图片上传与图库│
+ *   admin-composer.js  文章正文块编辑器（图文混排发布器，2026-10-15 新增）│
+ *   admin-deploy.js    部署轮询      ┘
+ *   admin-md-blocks.js Markdown⇄块 纯转换（composer 与 test/md-blocks.js 共用）
  *
  * 跨模块调用统一走 admin-core.js 的 hooks 注册表，避免模块间循环依赖。
  */

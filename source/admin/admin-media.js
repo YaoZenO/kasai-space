@@ -4,7 +4,6 @@
 'use strict';
 
 import { S, $, el, api, toast, confirmDialog, handleOpError, hooks, ApiError, reloadList } from './admin-core.js';
-
 // 压缩上限：Vercel 函数请求体限 4.5MB，base64 会放大约 1.37 倍，
 // 因此压缩产物必须控制在 2.5MB 以内，超限则逐级降低尺寸与质量重试。
 const UPLOAD_BLOB_LIMIT = 2.5 * 1024 * 1024;
@@ -62,10 +61,15 @@ async function uploadOneImage(file, module) {
     r.onerror = () => reject(new ApiError(400, { error: 'READ_FAIL', hint: `${file.name} 读取失败` }));
     r.readAsDataURL(blob);
   });
-  return api('/api/upload-image', {
+  const r = await api('/api/upload-image', {
     method: 'POST',
     body: { module, filename: (file.name || 'image').replace(/\.[^.]+$/, '') + '.' + ext, dataBase64: b64, expectedHeadSha: S.lastListSha },
   });
+  // 每次成功上传都推进本地 headSha：否则连传第二张时 expectedHeadSha 还是旧 head，
+  // 服务端判定 HEAD_MOVED 直接 409（E-016）。放在这里而不是各调用方，是因为
+  // 上传入口不止一处（图片页批量上传、发布器插图）。
+  if (r && r.headSha) S.lastListSha = r.headSha;
+  return r;
 }
 
 export async function uploadImages(files, module) {
@@ -92,7 +96,7 @@ export function imageActions(repoPath) {
   const sp = sitePath(repoPath);
   const actions = [
     { label: '复制图片路径', fn: () => navigator.clipboard && navigator.clipboard.writeText(sp).then(() => toast('已复制 ' + sp)) },
-    { label: '插入到文章正文', fn: () => insertToBody(`![](${sp})`) },
+    { label: '插入到文章', fn: () => { if (hooks.composerInsert) hooks.composerInsert(sp); else toast('请先打开文章编辑器'); } },
     { label: '设为当前条目封面', fn: () => { const f = $('item-cover'); if (f) { f.value = sp; toast('已设为封面路径：' + sp); } } },
     { label: '设为文章封面', fn: () => { const f = $('post-cover'); if (f) { f.value = sp; toast('已设为封面路径：' + sp); } } },
     {
@@ -125,15 +129,6 @@ export function imageActions(repoPath) {
   $('modal-picker').hidden = false;
 }
 
-export function insertToBody(text) {
-  const ta = $('post-body');
-  const start = ta.selectionStart || ta.value.length;
-  const end = ta.selectionEnd || ta.value.length;
-  ta.value = ta.value.slice(0, start) + text + ta.value.slice(end);
-  ta.dispatchEvent(new Event('input'));
-  if ($('view-post-editor').hidden) toast('已记录，请回到文章编辑器粘贴：' + text);
-}
-
 // 通用图库选择器：点击图片 → 回调(站点路径)
 export function openImagePicker(onPick) {
   if (!S.data || !S.data.images.length) {
@@ -156,26 +151,8 @@ export function openImagePicker(onPick) {
 }
 
 export function init() {
-  // 文章正文插图按钮
-  $('btn-insert-image').onclick = () => {
-    if (!S.data || !S.data.images.length) {
-      toast('还没有图片，请先到「图片」页上传');
-      return;
-    }
-    const grid = $('picker-grid');
-    grid.innerHTML = '';
-    S.data.images.forEach((p) => {
-      const img = el('img');
-      img.src = sitePath(p);
-      img.loading = 'lazy';
-      img.onclick = () => {
-        $('modal-picker').hidden = true;
-        insertToBody(`![](${sitePath(p)})`);
-      };
-      grid.appendChild(img);
-    });
-    $('modal-picker').hidden = false;
-  };
+  // 文章正文插图已并入块编辑器（admin-composer.js）的工具条，这里不再单独绑定。
+  // 图库选择器的「插入到文章」走 hooks.composerInsert，编辑器未打开时给出提示。
 
   // 登记给 list 模块使用的入口
   hooks.uploadImages = uploadImages;

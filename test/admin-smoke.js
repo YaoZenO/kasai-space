@@ -661,6 +661,46 @@ const PNG_1X1 = Buffer.from(
 
   server.close();
 
+  // ============ 结构锁（E-016 / E-017 防复发） ============
+  // 这三条不是行为断言，而是「防退化」的结构锁：跑在 mock 上的行为测试
+  // 测不出串行/并发与 headSha 回写（mock 立即 resolve），一旦有人重构时
+  // 把并行改回串行、或把回写挪走，功能不会坏、测试也不会红——直到线上变慢
+  // 或多图上传第二张开始 409。因此用源码结构把它们钉死。
+  {
+    const fs = require('node:fs');
+    const read = (p) => fs.readFileSync(require('node:path').join(__dirname, '..', p), 'utf8');
+    const sliceFn = (src, start, end) => src.slice(src.indexOf(start), src.indexOf(end));
+
+    const postsSrc = read('api/_lib/domains/posts.js');
+    const getPostFile = sliceFn(postsSrc, 'async function getPostFile', 'function buildPostText');
+    ok('E-017: getPostFile 内容与 headSha 并行读取', () => {
+      assert.ok(
+        /Promise\.all\(\[store\.getFile\(path\), store\.getHead\(\)\]\)/.test(getPostFile),
+        '应使用 Promise.all([store.getFile(path), store.getHead()])',
+      );
+      assert.ok(!/await store\.getHead\(\)/.test(getPostFile), 'headSha 不得单独 await（会退化为串行往返）');
+    });
+
+    const postFeSrc = read('source/admin/admin-post.js');
+    const openFe = sliceFn(postFeSrc, 'async function openPostEditor', 'function collectEditor');
+    ok('E-017: 编辑器视图切换先于数据拉取（等待期有反馈）', () => {
+      const switchAt = openFe.indexOf("$('view-post-editor').hidden = false");
+      const fetchAt = openFe.indexOf('await api(');
+      assert.ok(switchAt > -1 && fetchAt > -1, '未找到视图切换或数据拉取');
+      assert.ok(switchAt < fetchAt, '视图切换必须发生在 await api(...) 之前');
+      assert.ok(/setEditorBusy\(true\)/.test(openFe), '拉取期间应置忙态');
+    });
+
+    const mediaSrc = read('source/admin/admin-media.js');
+    const uploadOne = sliceFn(mediaSrc, 'async function uploadOneImage', 'export async function uploadImages');
+    ok('E-016: 上传成功后回写 S.lastListSha（多图连传不冲突）', () => {
+      assert.ok(
+        /if \(r && r\.headSha\) S\.lastListSha = r\.headSha/.test(uploadOne),
+        'uploadOneImage 必须在返回前回写 S.lastListSha，否则第二张起 expectedHeadSha 过期必 409',
+      );
+    });
+  }
+
   console.log(`\nRESULT: ${passed} 项断言通过${process.exitCode ? '，存在失败' : ''}`);
   process.exit(process.exitCode || 0);
 })().catch((e) => { console.error('FATAL', e); process.exit(1); });

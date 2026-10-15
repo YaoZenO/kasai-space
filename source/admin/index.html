@@ -54,15 +54,15 @@
         <label class="field field-check"><span>设为首页 FEATURED 代表作</span><input id="post-featured" type="checkbox"></label>
       </div>
       <div class="editor-toolbar">
-        <button class="btn btn-mini" id="btn-insert-image" type="button">插图</button>
         <button class="btn btn-mini" id="btn-toggle-preview" type="button">预览</button>
         <span id="post-wordcount" class="wordcount"></span>
       </div>
-      <textarea id="post-body" class="post-body" spellcheck="false" placeholder="正文 Markdown…"></textarea>
+      <div id="post-composer" class="cps"></div>
       <div id="post-preview" class="post-preview markdown-body" hidden></div>
       <div class="editor-actions">
         <button class="btn" id="btn-save-draft" type="button">保存草稿</button>
         <button class="btn btn-primary" id="btn-publish" type="button">发布</button>
+        <button class="btn btn-danger" id="btn-delete-post" type="button">删除</button>
       </div>
     </div>
 

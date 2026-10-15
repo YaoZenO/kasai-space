@@ -220,6 +220,59 @@ button { font: inherit; }
 .editor-actions { display: flex; gap: .6rem; margin-top: 1rem; }
 .editor-actions .btn { flex: 1; }
 
+/* ---------- 块编辑器（文章发布器） ---------- */
+.cps { display: flex; flex-direction: column; gap: .55rem; }
+.cps.cps-dragover { outline: 2px dashed var(--accent); outline-offset: 4px; border-radius: 10px; }
+.cps-block {
+  position: relative; background: var(--card); border: 1px solid var(--line);
+  border-radius: 10px; padding: .55rem .6rem;
+}
+.cps-block.dragging { opacity: .45; }
+.cps-block.drop-before { box-shadow: 0 -3px 0 0 var(--accent); }
+.cps-block.drop-after { box-shadow: 0 3px 0 0 var(--accent); }
+.cps-ops {
+  position: absolute; top: .35rem; right: .4rem; display: flex; gap: .15rem;
+  opacity: 0; transition: opacity .12s;
+}
+.cps-block:hover .cps-ops, .cps-block:focus-within .cps-ops { opacity: 1; }
+.cps-op {
+  border: 1px solid var(--line); background: var(--card); color: var(--muted);
+  border-radius: 6px; width: 1.5rem; height: 1.5rem; line-height: 1;
+  font-size: .72rem; cursor: pointer; padding: 0;
+}
+.cps-op:hover { color: var(--ink); border-color: var(--ink); }
+.cps-op.danger:hover { color: var(--err); border-color: var(--err); }
+.cps-text {
+  width: 100%; border: 0; background: none; color: var(--ink);
+  font: inherit; font-size: .92rem; line-height: 1.65; resize: none;
+  padding: .1rem 0; min-height: 1.65em; overflow: hidden;
+}
+.cps-text:focus { outline: none; }
+.cps-text::placeholder { color: var(--muted); }
+.cps-image { padding-top: .45rem; }
+.cps-thumb {
+  width: 100%; max-width: 18rem; aspect-ratio: 4/3; object-fit: cover;
+  border-radius: 8px; border: 1px solid var(--line); display: block; margin: .1rem 0 .4rem;
+}
+.cps-alt {
+  width: 100%; border: 1px solid var(--line); border-radius: 8px; background: var(--card);
+  color: var(--ink); padding: .4rem .55rem; font: inherit; font-size: .82rem; min-width: 0;
+}
+.cps-alt:focus { outline: 2px solid color-mix(in srgb, var(--accent) 35%, transparent); border-color: var(--accent); }
+.cps-path { color: var(--muted); font-size: .68rem; margin-top: .3rem; overflow-wrap: anywhere; }
+.cps-pending {
+  color: var(--muted); font-size: .8rem; padding: 1.1rem .6rem; text-align: center;
+  border: 1px dashed var(--line); border-radius: 8px; margin: .1rem 0;
+}
+.cps-toolbar { display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; }
+.cps-add {
+  border: 1px dashed var(--line); background: none; color: var(--muted);
+  border-radius: 10px; padding: .5rem .8rem; font-size: .82rem; cursor: pointer;
+}
+.cps-add:hover { color: var(--accent); border-color: var(--accent); }
+.cps-add.primary { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.cps-hint { color: var(--muted); font-size: .72rem; margin-left: auto; }
+
 /* ---------- 按钮 ---------- */
 .btn {
   border: 1px solid var(--line); background: var(--card); color: var(--ink);

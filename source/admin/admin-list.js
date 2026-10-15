@@ -48,6 +48,7 @@ function renderPostsList(box, d) {
       const edit = el('button', 'btn btn-mini', '编辑');
       edit.onclick = () => hooks.openPostEditor(dr.path);
       acts.appendChild(edit);
+      acts.appendChild(postDeleteButton(dr.path, dr.title || dr.name, '草稿'));
       c.appendChild(acts);
       dl.appendChild(c);
     });
@@ -70,9 +71,28 @@ function renderPostsList(box, d) {
     const edit = el('button', 'btn btn-mini', '编辑');
     edit.onclick = () => hooks.openPostEditor(p.path);
     acts.appendChild(edit);
+    acts.appendChild(postDeleteButton(p.path, p.name, '文章'));
     list.appendChild(c);
   });
   box.appendChild(list);
+}
+
+// 文章 / 草稿删除：移入回收站（可恢复）。与条目删除同一模式。
+function postDeleteButton(path, title, kind) {
+  const del = el('button', 'btn btn-quiet', '删除');
+  del.onclick = async () => {
+    const ok = await confirmDialog(`删除${kind}`, `确定删除「${title}」吗？文件会移入回收站，可恢复；正文引用的图片不会被删除。`, '删除');
+    if (!ok) return;
+    try {
+      const r = await api('/api/content-delete', { method: 'POST', body: { path, title, expectedHeadSha: S.lastListSha } });
+      S.lastListSha = r.headSha || S.lastListSha;
+      toast('已删除并提交（回收站可恢复）');
+      await reloadList();
+    } catch (e) {
+      handleOpError(e);
+    }
+  };
+  return del;
 }
 
 function renderDataList(box, module, items) {

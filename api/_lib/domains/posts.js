@@ -11,7 +11,9 @@ async function getPostFile(path) {
   const inPosts = path.startsWith(`${POSTS_DIR}/`);
   const inDrafts = path.startsWith(`${DRAFTS_DIR}/`);
   if (!inPosts && !inDrafts) throw new HttpError(400, 'BAD_PATH');
-  const f = await store.getFile(path);
+  // headSha 与内容读取并行：编辑入口原本是 getFile → getHead 两次串行往返，
+  // 每次点「编辑」都白等一次 GitHub 请求（E-017 卡顿的主因之一）。
+  const [f, headSha] = await Promise.all([store.getFile(path), store.getHead()]);
   const parsed = posts.parseFrontMatter(f.content);
   return {
     path,
@@ -26,7 +28,7 @@ async function getPostFile(path) {
     },
     body: parsed.body || '',
     sha: f.sha,
-    headSha: await store.getHead(),
+    headSha,
   };
 }
 

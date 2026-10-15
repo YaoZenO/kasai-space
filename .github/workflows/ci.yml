@@ -35,6 +35,9 @@ jobs:
       # 3.6 账本引用可核对性（防止凭空引用 PRD 条款，见 E-015）
       - name: Doc claims
         run: npm run test:claims
+      # 3.7 文章发布器 Markdown⇄块 往返幂等性（见 E-017）
+      - name: Composer blocks roundtrip
+        run: npm run test:blocks
       # 4. 前台构建门禁
       - name: Hexo generate
         run: npm run build

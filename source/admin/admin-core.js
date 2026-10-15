@@ -31,6 +31,7 @@ export const hooks = {
   renderSiteEditor: null, // site 模块（list 调度）
   setDeployCommitted: null, // deploy 模块
   saveCurrentEditing: null, // post 模块
+  composerInsert: null,     // post 模块：把一张已有图片作为图片块插入正文
 };
 
 export const $ = (id) => document.getElementById(id);
