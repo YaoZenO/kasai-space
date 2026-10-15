@@ -385,6 +385,7 @@ navbar:
   # Navigation bar menu. `key` is used to associate languages/*.yml. If there is no association, the value of `key` itself will be displayed; if `icon` is a css class, it can be omitted; adding `name` can force the display of the specified name
   # 2026-10-15：从「博客分类体系」重组为「个人主页内容板块」——分类/标签是文章编目用的博客概念，
   # 已从导航撤下（页面保留，仍可从首页入口格到达）；换成有真实内容页的项目/游戏/收藏。
+  # 2026-10-15 追加：新增的「现在 / 我在用什么 / 友链」收进「更多」下拉，避免胶囊过长。
   menu:
     - { key: "home", link: "/", icon: "iconfont icon-home-fill" }
     - { key: "archive", link: "/archives/", name: "文字", icon: "iconfont icon-archive-fill" }
@@ -392,6 +393,12 @@ navbar:
     - { key: "games", link: "/games/", name: "游戏", icon: "iconfont icon-xbox-fill" }
     - { key: "collections", link: "/collections/", name: "收藏", icon: "iconfont icon-bookmark-fill" }
     - { key: "about", link: "/about/", icon: "iconfont icon-user-fill" }
+    - key: "more"
+      name: "更多"
+      submenu:
+        - { key: "now", link: "/now/", name: "现在" }
+        - { key: "uses", link: "/uses/", name: "我在用什么" }
+        - { key: "links", link: "/links/", name: "友链" }
     #- { key: "links", link: "/links/", icon: "iconfont icon-link-fill" }
 
 # 搜索功能，基于 hexo-generator-search 插件，若已安装其他搜索插件请关闭此功能，以避免生成多余的索引文件
@@ -774,11 +781,14 @@ post:
   # 评论插件
   # Comment plugin
   comments:
+    # 2026-10-15：留言能力已配置好（utterances），但先保持关闭——
+    # utterances 需要一个「公开」仓库承载评论，而博客仓库是私有的。
+    # 主人创建公开评论仓库并安装 utterances App 后，把这里改成 true 即可。
     enable: false
     # 指定的插件，需要同时设置对应插件的必要参数
     # The specified plugin needs to set the necessary parameters at the same time
     # Options: utterances | disqus | gitalk | valine | waline | changyan | livere | remark42 | twikoo | cusdis | giscus | discuss
-    type: disqus
+    type: utterances
 
 
 #---------------------------
@@ -794,7 +804,9 @@ post:
 # Based on GitHub Issues
 # See: https://utteranc.es
 utterances:
-  repo:
+  # 2026-10-15：需主人先创建一个「公开」仓库（如 blog-comments）并安装 utterances App，
+  # 博客仓库是私有的，访客无法读 Issue；仓库就绪后改上面的 post.comments.enable: true
+  repo: "YaoZenO/blog-comments"
   issue_term: pathname
   label: utterances
   theme: github-light
@@ -1056,33 +1068,15 @@ page404:
 # Links Page
 #---------------------------
 links:
-  # 2026-10-15：下架——页面内容是主题默认示例（Fluid 官方三项），未入导航也无入口，
-  # 属占位内容；主人想启用时改回 true 并在 navbar.menu 取消 links 注释
-  enable: false
+  # 2026-10-15：主题示例内容已清空（items 为空），页面改为纸面样式（见 layout/links.ejs），
+  # 无内容时显示诚实空态；已入导航「更多」下拉。主人填名单时补 items 即可
+  enable: true
   banner_img: /img/default.png
   banner_img_height: 60
   banner_mask_alpha: 0.3
   # 友链的成员项
   # Member item of page
-  items:
-    - {
-      title: "Fluid Blog",
-      intro: "主题博客",
-      link: "https://hexo.fluid-dev.com/",
-      avatar: "/img/favicon.png"
-    }
-    - {
-      title: "Fluid Docs",
-      intro: "主题使用指南",
-      link: "https://hexo.fluid-dev.com/docs/",
-      avatar: "/img/favicon.png"
-    }
-    - {
-      title: "Fluid Repo",
-      intro: "主题 GitHub 仓库",
-      link: "https://github.com/fluid-dev/hexo-theme-fluid",
-      avatar: "/img/favicon.png"
-    }
+  items: []   # 主人填写：- { title: 站点名, intro: 一句话介绍, link: "https://...", avatar: "/img/..." }
 
   # 当成员头像加载失败时，替换为指定图片
   # When the member avatar fails to load, replace the specified image

@@ -1,39 +1,35 @@
 <%
-page.layout = "links"
-page.title = theme.links.title || __('links.title')
-page.subtitle = theme.links.subtitle || __('links.subtitle')
-// 2026-10-15：随全站去 Banner 一并拆除（导航栏改裸文字的前提）
+// 友链页（纸面样式）：条目全部来自主题配置 theme.links.items（主人维护）
+// 无内容时显示诚实空态——不渲染任何伪造条目
+page.layout = 'links'
 page.hide_banner = true
-page.comment = theme.links.comments.type
+page.title = theme.links.title || __('links.title')
+var items = (theme.links && theme.links.items) || []
+var valid = []
+for (const each of items) { if (each && each.title && each.link) valid.push(each) }
 %>
 
-<div class="row links">
-  <% for(const each of theme.links.items || []) { %>
-    <% if (!each.title || !each.link) continue %>
-    <div class="card col-lg-4 col-md-6 col-sm-12">
-      <a href="<%= url_for(each.link) %>" class="card-body hover-with-bg" target="_blank" rel="noopener">
-        <div class="card-content">
-          <% if (each.avatar || each.image) { %>
-            <div class="link-avatar my-auto">
-              <img src="<%= url_for(each.avatar || each.image) %>" alt="<%= each.title %>"
-                   onerror="this.onerror=null; this.src=this.srcset='<%= url_for(theme.links.onerror_avatar) %>'"/>
-            </div>
-          <% } %>
-          <div class="link-text">
-            <div class="link-title"><%- each.title %></div>
-            <div class="link-intro"><%- each.intro || '' %></div>
-          </div>
-        </div>
+<div class="paper-page">
+  <div class="home-wrap">
+    <header class="page-head">
+      <p class="page-head-kicker">LINKS</p>
+      <h1 class="page-head-title"><%= page.title %></h1>
+      <p class="archive-total">共 <%= valid.length %> 个</p>
+    </header>
+
+    <% if (valid.length) { %>
+    <div class="module-grid">
+      <% valid.forEach(function (each) { %>
+      <a class="module-card" href="<%= url_for(each.link) %>" target="_blank" rel="noopener">
+        <span class="module-card-body">
+          <span class="module-card-title"><%= each.title %></span>
+          <% if (each.intro) { %><span class="module-card-sum"><%= each.intro %></span><% } %>
+        </span>
       </a>
+      <% }) %>
     </div>
-  <% } %>
-</div>
-
-<% if(theme.links.custom && theme.links.custom.enable && theme.links.custom.content) { %>
-  <!-- Custom -->
-  <div class="custom mx-auto">
-    <%- theme.links.custom.content %>
+    <% } else { %>
+    <p class="post-desc">还没有添加友链。想交换的话，从站内任意一个社交图标找到我——发站点链接和一句话介绍就行。</p>
+    <% } %>
   </div>
-<% } %>
-
-<%- inject_point('linksComments') %>
+</div>

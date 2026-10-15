@@ -1,0 +1,24 @@
+<%
+// 通用纸面页（自定义页面用）：kicker + 标题 + 副标题 + 正文
+// 与关于页同一纸面体系（.paper-page / .page-head / .about-body 正文轨）
+page.layout = 'paper'
+page.hide_banner = true
+page.title = page.title || (page.kicker || '')
+%>
+
+<div class="paper-page">
+  <div class="home-wrap">
+    <header class="page-head">
+      <% if (page.kicker) { %><p class="page-head-kicker"><%= page.kicker %></p><% } %>
+      <h1 class="page-head-title"><%= page.title %></h1>
+      <% if (page.subtitle) { %><p class="archive-total"><%= page.subtitle %></p><% } %>
+    </header>
+    <article class="about-body">
+      <div class="markdown-body">
+        <%- page.content %>
+      </div>
+    </article>
+  </div>
+</div>
+
+<%- partial('_partials/markdown-plugins') %>

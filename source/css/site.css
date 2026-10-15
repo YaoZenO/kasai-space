@@ -120,6 +120,30 @@
   border-radius: 999px;
 }
 
+/* 「更多」下拉：纸面浮层，与胶囊同一视觉体系（2026-10-15） */
+#navbar .site-nav-list .dropdown-menu {
+  min-width: 168px;
+  margin-top: 0.55rem;
+  padding: 0.45rem;
+  border: 1px solid var(--site-chip-border);
+  border-radius: 12px;
+  background-color: #fdfbf6;
+  box-shadow: var(--site-float-shadow);
+}
+
+#navbar .site-nav-list .dropdown-menu .dropdown-item {
+  padding: 0.42rem 0.7rem;
+  border-radius: 8px;
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+
+#navbar .site-nav-list .dropdown-menu .dropdown-item:hover,
+#navbar .site-nav-list .dropdown-menu .dropdown-item:focus-visible {
+  color: var(--accent);
+  background-color: rgba(42, 37, 29, 0.05);
+}
+
 #navbar .site-nav-list .nav-link:hover,
 #navbar .site-nav-list .nav-link:focus-visible {
   color: var(--accent);
