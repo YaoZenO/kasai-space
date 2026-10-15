@@ -5,11 +5,16 @@
 # Site
 title: KASAI'S Bloger
 subtitle: "个人博客"
-description: ""
+description: "KASAI 的个人博客：记录学习、技术与生活随笔"
 keywords:
+  - C++
+  - 学习路线
+  - 技术
+  - 随笔
+  - 个人博客
 author: hanyaoyu
 language: zh-CN
-timezone: ""
+timezone: Asia/Shanghai
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
@@ -98,6 +103,14 @@ ignore:
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
 theme: fluid
+
+# Sitemap / Feed（hexo-generator-sitemap / hexo-generator-feed）
+sitemap:
+  path: sitemap.xml
+feed:
+  type: atom
+  path: atom.xml
+  limit: 20
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment

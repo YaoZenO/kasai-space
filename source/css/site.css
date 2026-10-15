@@ -549,6 +549,11 @@ a.wall-cell:hover {
   color: inherit;
 }
 
+/* 色块格内的条目小字不能沿用 --sec-text-color：
+   黄底 #e6b23c 上仅 2.1:1（P1-3 可访问性），改用格内墨色/纸色 */
+.cell-yellow .wall-cell-item { color: #2a251d; }
+.cell-orange .wall-cell-item { color: #fdfbf6; }
+
 /* 排版格：纸底 hairline（非白底卡） */
 .cell-plain {
   border: 1px solid var(--line-color);
@@ -1057,6 +1062,11 @@ a.feed-title:hover {
 
 .post-foot .post-metas a {
   color: var(--accent);
+}
+
+/* CC 许可证图标：<768px 超出视口被硬裁（P1-4），移动端隐藏 */
+@media (max-width: 767.98px) {
+  .license-icon { display: none; }
 }
 
 /* 目录（右栏，保留 tocbot 行为） */

@@ -8,7 +8,7 @@
  *   2. 走后台真实写入链路：validate.validateItem() → yaml.updateItems() 落盘
  *   3. 进程内调用 Hexo API 生成（不 fork 子进程，Windows/沙箱下 spawn 会 EBUSY）
  *   4. 断言 public/ 下页面与渲染结果（含「空 section 不渲染」）
- *   5. finally 中无条件还原原始数据文件
+ *   5. finally 中无条件还原原始数据文件，并用真实数据全量重建 public/（E-019）
  *
  * 运行：node test/module-pages-e2e.js
  */
@@ -108,6 +108,21 @@ function cleanGenerated() {
     } catch (e) {
       console.log('      （提示：' + dir + ' 测试页未能自动清理，运行 npm run build 即可覆盖）');
     }
+  }
+}
+
+// E-019 防复发：删掉整个 public/ 并用还原后的真实数据重新生成。
+// 少了这一步，跑完测试的 public/ 里会留着 /games/、/projects/e2e-rich/ 死链
+// （测试数据的 hexo.generate 是全量生成过的，只还原 yml 不够）。
+async function rebuildClean() {
+  try {
+    fs.rmSync(PUBLIC, { recursive: true, force: true });
+    const fresh = new Hexo(ROOT, { silent: true });
+    await fresh.init();
+    await fresh.load();
+    await fresh.call('generate');
+  } catch (e) {
+    console.log('      （提示：public/ 重建失败，请手动 npm run build — ' + (e && e.message) + '）');
   }
 }
 
@@ -225,7 +240,10 @@ async function main() {
     restore('projects');
     restore('games');
     cleanGenerated();
-    console.log('\n[8] 还原原始数据文件 + 清理测试生成的页面');
+    // E-019：本测试的 hexo.generate 是用测试数据全量生成过的，
+    // 只还原 yml 不够——index.html、新增标签页等产物仍留着测试条目。
+    await rebuildClean();
+    console.log('\n[8] 还原原始数据文件 + 全量重建 public/');
   }
 
   ok('数据文件已完整还原', () => {
@@ -241,8 +259,15 @@ async function main() {
     );
   });
 
+  ok('public/ 无测试数据残留（E-019 防复发断言）', () => {
+    assert.ok(!fs.existsSync(path.join(PUBLIC, 'games')), 'public/games 仍存在');
+    const home = fs.readFileSync(path.join(PUBLIC, 'index.html'), 'utf8');
+    assert.ok(!home.includes('e2e-rich'), '首页仍含测试条目 e2e-rich');
+    assert.ok(!home.includes('e2e-game'), '首页仍含测试条目 e2e-game');
+  });
+
   console.log('\n' + pass + ' 项断言通过');
-  console.log('提示：public/projects 与 public/games 已清理，需重新 npm run build 生成正式页面。');
+  console.log('提示：public/ 已用真实数据全量重建，工作区可直接预览或部署。');
 }
 
 main().catch((e) => {

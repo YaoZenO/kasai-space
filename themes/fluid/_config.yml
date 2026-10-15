@@ -167,7 +167,7 @@ color:
 
   # 全局次级字体色（摘要、简介等位置）
   # Color of global secondary text (excerpt, introduction, etc.)
-  sec_text_color: "#877d6d"
+  sec_text_color: "#736a5c"
   sec_text_color_dark: "#a7a9ad"
 
   # 主面板背景色
@@ -328,7 +328,7 @@ web_analytics:
 # Canonical, to specify a canonical URL for Google Search, need to set up `url: http://yourdomain.com` in hexo _config.yml
 # See: https://support.google.com/webmasters/answer/139066
 canonical:
-  enable: false
+  enable: true
 
 # 对页面中的图片和评论插件进行懒加载处理，可见范围外的元素不会提前加载
 # Lazy loading of images and comment plugin on the page
@@ -1013,7 +1013,7 @@ about:
   motto: ""
   # 更多图标可从 https://hexo.fluid-dev.com/docs/icon/ 查找，`class` 代表图标的 css class，添加 `qrcode` 后，图标不再是链接而是悬浮二维码
   icons:
-    - { class: "iconfont icon-github-fill", link: "https://github.com", tip: "GitHub" }
+    - { class: "iconfont icon-github-fill", link: "https://github.com/YaoZenO", tip: "GitHub" }
     - { class: "iconfont icon-wechat-fill", qrcode: "/img/wx_2wm.jpg" }
     - { class: "iconfont icon-instagram-fill", link: "https://www.instagram.com/kasa1u", tip: "Instagram" }
 
@@ -1042,7 +1042,7 @@ page404:
   banner_mask_alpha: 0.3
   # 重定向到首页的延迟(毫秒)
   # Delay in redirecting to home page (milliseconds)
-  redirect_delay: 5000
+  redirect_delay: 10000
 
 
 #---------------------------
