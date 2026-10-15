@@ -53,6 +53,7 @@
 | E-017 | P2 | 文章编辑入口卡顿：串行取 head、视图切换晚于拉取、字数统计无防抖 | 已修复 |
 | E-018 | P2 | 后台静态资源无缓存破坏，代码已上线但浏览器仍渲染旧副本 | 已修复 |
 | E-019 | P1 | 模块页 E2E 跑完不重建 public/，残留测试数据死链 | 已修复 |
+| E-020 | P2 | 冒烟测试假设 site.yml 初始为空配置，主人填写后断言失败 | 已修复 |
 
 ---
 
@@ -257,6 +258,21 @@
      `?v=\d{8}`；`admin.js` 全部 import 必须带同一版本号。漏一个即失败（变异验证过）。
   2. `AGENTS.md` 新增约定：**改动 `source/admin/` 下任何前端文件，必须同步 bump
      两处版本号**（index.html 引用 + admin.js import），bump 后强制刷新一次验证。
+
+### E-020 冒烟测试假设 site.yml 初始为空配置
+
+- **发生时间：** 2026-10-15 ｜ **发现方式：** 测试暴露（主人合法填写 site.yml 后 `npm test` 报红）
+- **现象：** `test/admin-smoke.js` 的「listAll: 初始 posts≥3、三模块空、site 空配置」
+  断言失败——`l.site.intro` 不再是 `''`、`l.site.identity_words` 不再是 `[]`。
+- **根因：** fixture 从真实仓库播种，setup 只把 projects/games/collections 三个数据模块
+  重置为空，**漏了 site.yml**——而站点身份配置同样是会随主人填写而变化的真实仓库内容。
+  测试注释写着「保证测试不受仓库内容漂移影响」，实际只做了一半。
+- **修法：** fixture setup 补一步——把 site.yml 重置为空配置
+  （`yaml.updateSite(content, { intro:'', motto:'', avatar:'', identity_words:[] })`），
+  与三个数据模块同一模式。
+- **防复发（机制）：** 初始态由测试自建而非依赖仓库现状；主人今后再改 site.yml 真实
+  内容，该断言不再受影响。fixture 重置范围覆盖 `source/_data/` 下全部会被
+  listAll 读到的文件。
 
 ---
 
