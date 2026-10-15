@@ -238,6 +238,8 @@ P0-3 测试固化 ──┬─→ P0-1 身份域统一 ──→ P0-2 错误契�
 | P2-5 | mock/真实存储行为对齐（双跑同一 smoke） | getLogin/head sha/getCommitStatus 三处语义对齐并有测试锁定 | ✅ 已完成（`fae4006`，补齐 auth-callback 端到端覆盖） |
 | P2-6 | 预览部署分支（admin 提交→preview→验证→合入） | 存在 preview 分支；后台写目标可按配置切换；preview→main 合入脚本 | ⬜ 未启动（涉及分支与部署策略变更，**需主人单独授权**，授权范围见 §P2-6 说明） |
 | P2-7 | 个人 favicon / apple-touch-icon 替换主题默认图 | 32px + 180px 两档图标落入 `source/img/`；主题配置 `favicon` / `apple_touch_icon` 指向新文件；构建后全站 `<link rel="icon">` 不再出现 `/img/fluid.png` | ⬜ 待办（素材待主人提供或授权生成；来源：2026-10-15 全面审查 P1-6，主人明确「留下需求到时候再做」） |
+| P2-8 | 留言板（utterances） | 主人创建「公开」评论仓库（博客仓库为私有，访客读不到 Issue）并安装 utterances App；配置已就绪（`post.comments.type: utterances` + `utterances.repo`），开关置 true 后文章页应出现评论框且可发出一条评论 | ⬜ 待主人（代码侧零改动即可启用） |
+| P2-9 | 碎片 / 说说内容流 | 待主人选实现路径：轻量＝短文发到「碎片」分类（导航项指向分类页，零开发）；完整＝新增内容类型（modules.yml + 校验白名单 + 生成器 + 后台表单 + 测试，属独立建设轮次） | ⬜ 待主人决策 |
 
 > **写作规范：** 本账本凡出现「PRD 要求 / 文档依据」类表述，必须给出可核对的位置
 > （`§` 章节号，或引号包裹的原文）。写不出位置的一律标注「工程自定目标，无 PRD 依据」。
