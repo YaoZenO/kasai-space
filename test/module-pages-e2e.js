@@ -259,8 +259,11 @@ async function main() {
     );
   });
 
-  ok('public/ 无测试数据残留（E-019 防复发断言）', () => {
-    assert.ok(!fs.existsSync(path.join(PUBLIC, 'games')), 'public/games 仍存在');
+  ok('public/ 无测试数据残留（E-019/E-021 防复发断言）', () => {
+    // 只校验测试自身产物被清掉，与仓库真实内容解耦（E-021：不能假设某模块永远为空，
+    // 主人有真实游戏/项目数据时 public/games、public/projects 合法存在）
+    assert.ok(!fs.existsSync(path.join(PUBLIC, 'projects', 'e2e-rich')), 'public/projects/e2e-rich 仍存在');
+    assert.ok(!fs.existsSync(path.join(PUBLIC, 'games', 'e2e-game')), 'public/games/e2e-game 仍存在');
     const home = fs.readFileSync(path.join(PUBLIC, 'index.html'), 'utf8');
     assert.ok(!home.includes('e2e-rich'), '首页仍含测试条目 e2e-rich');
     assert.ok(!home.includes('e2e-game'), '首页仍含测试条目 e2e-game');

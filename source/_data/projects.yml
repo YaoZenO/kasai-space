@@ -13,3 +13,26 @@
 items:
   - title: Ties
     link: "https://github.com/YaoZenO/Ties"
+  - title: 【测试】项目模块全字段演练
+    slug: test-entry
+    date: 2026-10-15
+    summary: 测试条目：验证后台录入到详情页生成的完整链路，确认完毕后可删除。
+    cover: ""
+    link: "https://github.com/YaoZenO"
+    tags: [测试, 可删除]
+    background: |-
+      ## 背景
+
+      这是主人要求的测试素材，用于验证项目详情页的四段长文渲染。
+
+      - 列表项一
+      - 列表项二
+    process: |-
+      ## 过程
+
+      过程段落：包含 **加粗** 与 `代码`。
+    tech: ""
+    outcome: |-
+      ## 成果
+
+      成果段落。

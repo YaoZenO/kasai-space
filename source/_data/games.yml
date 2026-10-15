@@ -14,4 +14,23 @@
 #   links      下载 / 试玩链接数组，如 [{label: 下载, url: https://…}]
 # items 有内容时自动渲染到首页，并生成 /games/ 列表页与各条目详情页；为空时整段不渲染
 
-items: []
+items:
+  - title: 【测试】游戏模块字段演练
+    slug: test-game
+    date: 2026-10-15
+    cover: /img/default.png
+    genre: 测试
+    platform: PC
+    status: 在玩
+    summary: 测试条目：验证游戏专属字段与截图墙渲染，确认后可删除。
+    gameplay: |-
+      ## 玩法
+
+      玩法介绍：包含 **加粗** 与 [示例链接](https://example.com)。
+    media: [/img/default.png, /img/default.png]
+    video: "https://www.bilibili.com/video/BV1xx"
+    links:
+      - label: 下载
+        url: "https://example.com/dl"
+      - label: 试玩
+        url: "https://example.com/play"
