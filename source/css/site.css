@@ -120,10 +120,13 @@
   border-radius: 999px;
 }
 
-/* 「更多」下拉：纸面浮层，与胶囊同一视觉体系（2026-10-15） */
+/* 「更多」下拉：纸面浮层，与胶囊同一视觉体系（2026-10-15）
+   注意不要给菜单加 margin-top/间隔——主题是 hover 驱动的下拉
+   （.navbar .dropdown:hover > .dropdown-menu），菜单与 li 必须相接，
+   否则鼠标下移经过间隙时 hover 断开、菜单收回，选项点不到 */
 #navbar .site-nav-list .dropdown-menu {
   min-width: 168px;
-  margin-top: 0.55rem;
+  margin-top: 0;
   padding: 0.45rem;
   border: 1px solid var(--site-chip-border);
   border-radius: 12px;

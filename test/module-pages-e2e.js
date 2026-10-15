@@ -117,6 +117,11 @@ function cleanGenerated() {
 async function rebuildClean() {
   try {
     fs.rmSync(PUBLIC, { recursive: true, force: true });
+  } catch (e) {
+    // Windows 下若有进程的工作目录在 public/（如本地静态服务），整目录删除会被锁住
+    console.log('      （提示：public/ 目录被占用，未能整体删除——' + (e && e.message) + '；请停掉本地服务后重跑）');
+  }
+  try {
     const fresh = new Hexo(ROOT, { silent: true });
     await fresh.init();
     await fresh.load();
