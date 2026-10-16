@@ -58,6 +58,7 @@
 | E-022 | P3 | 个人主页改组后导航仍是博客分类体系，分类/标签挂在导航上 | 已修复 |
 | E-023 | P3 | 引入 PRD 与备案约束排除的评论/互动功能 | 已修复 |
 | E-024 | P3 | 本地静态服务锁住 public/，E2E 收尾重建失败 | 已修复 |
+| E-025 | P1 | 给 custom_css 拼 `?v=` 后 css() helper 追加 .css，产物链接 404 | 已修复 |
 
 ---
 
@@ -185,6 +186,21 @@
   重新 generate。
 - **防复发（机制）：** 测试末尾断言锁死——`public/games` 不得存在、首页 HTML 不得含
   `e2e-rich` / `e2e-game`；重建失败会打印手动重建提示。测试再污染 public/ 直接 FAIL。
+
+### E-025 给 custom_css 拼 `?v=` 后，css() helper 追加 .css 造成 404
+
+- **发生时间：** 2026-10-17 ｜ **发现方式：** 自查（实现前台缓存破坏后核对构建产物）
+- **现象：** 生成产物里样式链接是 `<link href="/css/site.css?v=8aa1255e.css">`，
+  文件并不存在，浏览器拿到 404 → 全站样式丢失。**构建过程零报错**。
+- **根因：** Hexo 的 `css()` / `js()` helper 会判断传入字符串是否以 `.css` / `.js` 结尾，
+  不是就在末尾补上后缀。它按**整个字符串**判断，遇到带查询串的
+  `/css/site.css?v=<hash>` 便把 `.css` 拼到了 query 之后。
+- **修法：** `themes/fluid/layout/_partials/css.ejs` 与 `scripts.ejs` 改用
+  `url_for()` 手写 `<link>` / `<script>`，不再走 `css()` / `js()` helper。
+- **防复发（机制）：** `test/asset-version.js` 两条断言锁死——① 两个模板中不得出现
+  `css(theme.custom_css)` / `js(theme.custom_js)`；② 产物必须匹配
+  `href="/css/site.css?v=<8位hex>"` 且不得出现 `site.css?v=<hex>.css`。
+  改回 helper 或拼法出错都会直接 FAIL。
 
 ---
 

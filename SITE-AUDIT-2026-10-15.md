@@ -59,8 +59,12 @@
 - **`meta_generator: true`** 在页面输出 `Hexo 8.1.1` 版本号——想消掉可设 false。
 - **`deploy.type: ""`**（`_config.yml` L104-105）——`npm run deploy` 是空操作，但实际发布走 Vercel/GitHub，无害；建议在 README 写清"勿用 hexo deploy"，避免误解。
 - **`/admin/` 可公开访问**——页面本身是 SPA 外壳（18.7KB，无任何硬编码密钥），所有 API 实测有保护（`/api/session-check` 返回 401 UNAUTHENTICATED）。设计上可接受；P0-1 的 robots.txt 里已加 `Disallow: /admin/` 即可。
-- **`/img/wx_2wm.jpg` 140KB**（微信二维码）——偏大，压到 30KB 内无感。
-- **`/img/default.png` 391KB**——实测全站仅 404 页引用它（新设计已去 banner），压缩或删除均可。
+- **`/img/wx_2wm.jpg` 140KB**（微信二维码）——**已处理（2026-10-17，非压缩）**：查证这张是主题自带示例码，
+  扫出来是主题作者的微信，不是本人的。已从关于页 `icons` 下架（配置内注释保留，主人给自己的码再启用）。
+  压缩是错的方向——问题不在体积，在于挂了陌生人的二维码。
+- **`/img/default.png` 391KB**——实测（2026-10-17）当前零渲染：各页 banner 已 `hide_banner`，
+  唯一出现处是测试素材的封面，清掉测试素材后无引用。转 JPEG q85 只需 29KB，
+  但此刻压缩零收益，等恢复 banner 或换真实头图时再处理。结论已写进主题配置注释。
 - **文章页 og:image 输出 6 个**（取了正文所有图）、**og:url 带 `/index.html`**——属主题默认行为，社交分享卡片取第一张图，影响小。
 - **无 RSS/Atom、无 JSON-LD 结构化数据**——装了 hexo-generator-feed 后自然解决 RSS；结构化数据可选。
 - **`/links/` 友链页**——线上 200 可达但未进导航，内容还是主题默认示例（Fluid 官方三项）。要么自定义后放进导航，要么从主题配置关掉。
