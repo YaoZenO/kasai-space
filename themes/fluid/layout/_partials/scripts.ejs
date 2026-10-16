@@ -23,7 +23,8 @@
 <% page.script_snippets = [] %>
 
 <% if (theme.custom_js) { %>
-  <%- js(theme.custom_js) %>
+  <%# 同 css.ejs：不用 js() helper，它会给带 ?v= 的 URL 追加 .js 造成 404。 %>
+  <script src="<%- url_for(theme.custom_js) %>"></script>
 <% } %>
 
 <!-- 主题的启动项，将它保持在最底部 -->

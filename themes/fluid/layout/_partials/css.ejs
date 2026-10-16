@@ -22,5 +22,8 @@
 <% } %>
 
 <% if (theme.custom_css) { %>
-  <%- css(theme.custom_css) %>
+  <%# 不用 css() helper：它会给不以 .css 结尾的 URL 追加 .css，
+      碰到 /css/site.css?v=<hash> 会拼成 .css?v=<hash>.css（404）。
+      版本号由 scripts/filters/asset-version.js 在生成期附加。 %>
+  <link rel="stylesheet" href="<%- url_for(theme.custom_css) %>">
 <% } %>

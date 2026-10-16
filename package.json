@@ -12,7 +12,8 @@
     "test:tokens": "node test/css-tokens.js",
     "test:claims": "node test/docs-claims.js",
     "test:blocks": "node test/md-blocks.js",
-    "test": "npm run test:admin && npm run test:pages && npm run test:tokens && npm run test:claims && npm run test:blocks"
+    "test:assets": "node test/asset-version.js",
+    "test": "npm run test:admin && npm run test:pages && npm run test:tokens && npm run test:claims && npm run test:blocks && npm run test:assets"
   },
   "hexo": {
     "version": "8.1.1"
