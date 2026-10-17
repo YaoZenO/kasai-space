@@ -34,3 +34,15 @@ items:
         url: "https://example.com/dl"
       - label: 试玩
         url: "https://example.com/play"
+  - title: 英雄联盟
+    slug: lol
+    date: ""
+    cover: /img/games/202610180235-v2-1681ff26afbd5f92aa5790b4dee6a63f-1440.jpg
+    genre: ""
+    platform: ""
+    status: ""
+    summary: ""
+    gameplay: ""
+    media: []
+    video: ""
+    links: []
