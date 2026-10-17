@@ -5,8 +5,8 @@
  */
 'use strict';
 
-import { S, $, api, toast, confirmDialog, handleOpError, hooks, guard, reloadList, switchTab } from './admin-core.js?v=20261018';
-import { mountComposer, bindPaste } from './admin-composer.js?v=20261018';
+import { S, $, api, toast, confirmDialog, handleOpError, hooks, guard, reloadList, switchTab } from './admin-core.js?v=20261019';
+import { mountComposer, bindPaste } from './admin-composer.js?v=20261019';
 
 let composer = null;
 

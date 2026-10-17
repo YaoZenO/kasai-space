@@ -794,6 +794,32 @@ const PNG_1X1 = Buffer.from(
       }
       assert.ok(checked >= 5, `比对文件数异常：${checked}`);
     });
+
+    // E-027：列表卡片的按钮组必须真的挂到卡片上。曾出现「编辑 / 删除」按钮
+    // 都创建了、也 append 进 acts 了，但漏了 c.appendChild(acts)，
+    // 结果两个按钮都不进 DOM，主人在后台看不到任何操作入口。
+    // 这类「创建了但没挂上去」的缺陷，功能测试全绿也发现不了——只能靠结构断言。
+    ok('E-027: 列表卡片的按钮组已挂到 DOM（acts → card）', () => {
+      // 判据用行锚定而非括号配平：每个 `const acts = el(...)` 之后的 12 行内，
+      // 必须出现 `c.appendChild(acts)`。卡片渲染块都很短（3~18 行），
+      // 这个窗口足够覆盖，又不会跨越到下一个循环。
+      // 曾用括号配平法，因为 `=>` 定位错乱会扫到无关的箭头函数，导致漏判（实测踩到）。
+      const lines = read('source/admin/admin-list.js').split('\n');
+      // 窗口 26 行：条目卡片块有内联的删除回调（confirmDialog + api + toast），
+      // 声明到挂载实测 20 行，14 行窗口会误报（本次实测踩到）。
+      const WINDOW = 26;
+      let checked = 0;
+      for (let i = 0; i < lines.length; i += 1) {
+        if (!lines[i].includes("const acts = el('div', 'card-actions')")) continue;
+        checked += 1;
+        const seg = lines.slice(i, i + WINDOW).join('\n');
+        assert.ok(
+          seg.includes('c.appendChild(acts)'),
+          `admin-list.js:${i + 1} 创建了 acts 按钮组但后续 ${WINDOW} 行内没有 c.appendChild(acts)，按钮不会进 DOM`
+        );
+      }
+      assert.ok(checked >= 4, `卡片按钮组挂载点数量异常：${checked}（应为 草稿/已发布/条目/回收站 共 4 处）`);
+    });
   }
 
   console.log(`\nRESULT: ${passed} 项断言通过${process.exitCode ? '，存在失败' : ''}`);

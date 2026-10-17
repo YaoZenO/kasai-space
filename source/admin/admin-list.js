@@ -3,7 +3,7 @@
  */
 'use strict';
 
-import { S, $, el, hooks, reloadList, pageHead, subHead, emptyState, api, toast, confirmDialog, handleOpError } from './admin-core.js?v=20261018';
+import { S, $, el, hooks, reloadList, pageHead, subHead, emptyState, api, toast, confirmDialog, handleOpError } from './admin-core.js?v=20261019';
 
 export function renderList() {
   const box = $('view-list');
@@ -72,6 +72,7 @@ function renderPostsList(box, d) {
     edit.onclick = () => hooks.openPostEditor(p.path);
     acts.appendChild(edit);
     acts.appendChild(postDeleteButton(p.path, p.name, '文章'));
+    c.appendChild(acts); // 缺这一行会让「编辑」「删除」两个按钮都不进 DOM（E-027）
     list.appendChild(c);
   });
   box.appendChild(list);

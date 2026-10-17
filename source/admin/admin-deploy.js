@@ -3,7 +3,7 @@
  */
 'use strict';
 
-import { S, $, api, toast, hooks } from './admin-core.js?v=20261018';
+import { S, $, api, toast, hooks } from './admin-core.js?v=20261019';
 
 // 轮询策略：指数退避 8s → 16s → 32s（封顶），总上限 3 分钟。
 // 固定 8s × 45 次既拖慢又浪费：Vercel 一次构建通常 1-2 分钟，
