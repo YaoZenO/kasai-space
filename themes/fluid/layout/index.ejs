@@ -315,7 +315,7 @@ wallModules.forEach(function (m) { if (m.key === 'projects') { featuredModule = 
           <% } else { %>
           <span class="feed-title"><%= f.title %></span>
           <% } %>
-          <time class="feed-date"><%= date(new Date(f.date), config.date_format) %></time>
+          <time class="feed-date" datetime="<%= fmtItemDate(f.date) %>"><%= fmtItemDate(f.date) %></time>
         </li>
         <% }) %>
       </ul>
