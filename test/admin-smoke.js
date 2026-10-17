@@ -12,6 +12,8 @@ process.env.ADMIN_GITHUB_LOGIN = 'YaoZenO';
 
 const assert = require('node:assert');
 const http = require('node:http');
+const fs = require('node:fs');
+const path = require('node:path');
 
 // 清掉 store 缓存，确保 mock 环境变量生效后再加载
 for (const k of Object.keys(require.cache)) {
@@ -713,13 +715,19 @@ const PNG_1X1 = Buffer.from(
     // E-018：后台静态资源缓存破坏。曾出现「代码已部署但浏览器仍用旧副本」，
     // 表现为主人从域名看不到任何改动。要求：index.html 的 css/js 引用与
     // admin.js 的全部 import（静态+动态）都带 ?v=，且版本号一致。
+    // 版本号以 index.html 为单一事实来源动态读取——不必每次 bump 都来改测试
+    // （bump 是 AGENTS.md §5.1 的常规操作，硬编码会让忘记改测试的人误判为回归失败）。
     const html = read('source/admin/index.html');
     const entryJs = read('source/admin/admin.js');
-    const V = '20261015';
+    const refsAll = html.match(/(?:href|src)="\/admin\/[^"]+"/g) || [];
+    const versions = refsAll.map((r) => (r.match(/\?v=(\d{8})/) || [])[1]).filter(Boolean);
+    assert.ok(versions.length >= 2, 'index.html 未找到带版本号的后台资源引用');
+    const V = versions[0];
+    ok('E-018: index.html 各处后台资源版本号一致', () => {
+      assert.ok(versions.every((v) => v === V), `版本号不一致：${versions.join(', ')}`);
+    });
     ok('E-018: index.html 的后台资源引用均带 ?v=', () => {
-      const refs = html.match(/(?:href|src)="\/admin\/[^"]+"/g) || [];
-      assert.ok(refs.length >= 2, '未找到后台 css/js 引用');
-      refs.forEach((r) => assert.ok(/\?v=\d{8}"$/.test(r), `缺少缓存破坏版本号：${r}`));
+      refsAll.forEach((r) => assert.ok(/\?v=\d{8}"$/.test(r), `缺少缓存破坏版本号：${r}`));
     });
     ok('E-018: admin.js 全部 import 带 ?v= 且与 index.html 版本一致', () => {
       const specs = entryJs.match(/from '\.\/admin-[a-z-]+\.js[^']*'/g) || [];
@@ -727,6 +735,64 @@ const PNG_1X1 = Buffer.from(
       assert.ok(specs.length + dyn.length >= 6, `import 数量异常：${specs.length + dyn.length}`);
       [...specs, ...dyn].forEach((s) => assert.ok(s.includes(`?v=${V}`), `import 缺少 ?v=${V}：${s}`));
       assert.ok(html.includes(`?v=${V}`), `index.html 未使用版本号 ${V}`);
+    });
+
+    // E-026：源文件编码完整性。曾用 PowerShell 批量替换 ?v=，GBK→UTF-8 双重编码把
+    // 7 个 admin 文件的中文全部写成乱码（合法 UTF-8、能跑、只有人看不懂），
+    // 连用户可见的 toast / 确认弹窗文案都是乱的。这里做硬失败断言。
+    ok('E-026: 后台与前台样式源文件均为无 BOM 的干净 UTF-8', () => {
+      const roots = ['source/admin', 'source/css'];
+      const files = [];
+      for (const r of roots) {
+        if (!fs.existsSync(r)) continue;
+        for (const e of fs.readdirSync(r)) {
+          const p = path.join(r, e);
+          if (fs.statSync(p).isFile() && /\.(js|css|html)$/.test(e)) files.push(p);
+        }
+      }
+      assert.ok(files.length >= 5, `待检文件数量异常：${files.length}`);
+      for (const p of files) {
+        const buf = fs.readFileSync(p);
+        assert.ok(!(buf[0] === 0xEF && buf[1] === 0xBB && buf[2] === 0xBF), `${p} 不应带 UTF-8 BOM（shell 写入的典型特征）`);
+        const t = buf.toString('utf8');
+        assert.ok(!t.includes('\uFFFD'), `${p} 含 U+FFFD 替换字符，不是合法 UTF-8`);
+      }
+    });
+    ok('E-026: 源文件不含 mojibake（与 git HEAD 原文逐字一致）', () => {
+      // 检测思路：mojibake 字符也落在 CJK 区（「列表渲染」→「鍒楄〃娓叉煋」是
+      // U+9352/U+6944…），且与正常中文混排——码位范围、生僻字密度这类启发式
+      // 全部不可靠（已实测误报正常文件）。可靠判据只有一个：
+      // 被 shell 写坏的文件，其首行注释**一定**与仓库里原本的首行不同。
+      // 做法：从 git HEAD 取原文，逐文件比对首行注释。
+      const { execFileSync } = require('node:child_process');
+      const roots = ['source/admin', 'source/css'];
+      let checked = 0;
+      for (const r of roots) {
+        if (!fs.existsSync(r)) continue;
+        for (const e of fs.readdirSync(r)) {
+          const p = path.join(r, e);
+          if (!fs.statSync(p).isFile() || !/\.(js|css|html)$/.test(e)) continue;
+          let head;
+          try {
+            head = execFileSync('git', ['show', `HEAD:${p.split(path.sep).join('/')}`],
+              { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+          } catch (err) {
+            continue; // HEAD 里没有（新文件），不检
+          }
+          const headFirst = head.split('\n')[0];
+          if (!/[\u4e00-\u9fff]/.test(headFirst)) continue; // 原文无中文首行
+          const curFirst = fs.readFileSync(p, 'utf8').split('\n')[0];
+          // 去掉尾部 \r：Windows 上 git 可能按 core.autocrlf 检出 CRLF，
+          // 与 HEAD 里的 LF 版本做严格相等会误报（本次实测踩到）。
+          const norm = (s) => s.replace(/\r$/, '');
+          checked += 1;
+          assert.strictEqual(
+            norm(curFirst), norm(headFirst),
+            `${p} 首行注释与 git HEAD 不一致，疑似编码损坏。\n  当前: ${curFirst}\n  原版: ${headFirst}`
+          );
+        }
+      }
+      assert.ok(checked >= 5, `比对文件数异常：${checked}`);
     });
   }
 

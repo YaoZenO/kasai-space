@@ -5,8 +5,8 @@
  */
 'use strict';
 
-import { S, $, api, toast, confirmDialog, handleOpError, hooks, guard, reloadList, switchTab } from './admin-core.js?v=20261015';
-import { mountComposer, bindPaste } from './admin-composer.js?v=20261015';
+import { S, $, api, toast, confirmDialog, handleOpError, hooks, guard, reloadList, switchTab } from './admin-core.js?v=20261018';
+import { mountComposer, bindPaste } from './admin-composer.js?v=20261018';
 
 let composer = null;
 
@@ -194,6 +194,8 @@ export async function publishCurrentEditing() {
 }
 
 // 删除当前文章 / 草稿 → 移入回收站（可恢复）
+// 2026-10-18：确认弹窗写清「去哪恢复」，成功 toast 也带上去回收站的路径提示，
+// 并给按钮加忙态禁用（防连点产生第二次提交）。
 async function deleteCurrentPost() {
   const ed = S.editor;
   if (!ed || !ed.path) return;
@@ -201,10 +203,12 @@ async function deleteCurrentPost() {
   const title = $('post-title').value.trim() || ed.path.split('/').pop();
   const ok = await confirmDialog(
     isDraft ? '删除草稿' : '删除文章',
-    `确定删除「${title}」吗？文件会移入回收站，可随时恢复；正文里引用的图片不会被删除。`,
+    `确定删除「${title}」吗？文件会移入回收站（底部「回收站」标签页可随时恢复）；正文里引用的图片不会被删除。`,
     '删除',
   );
   if (!ok) return;
+  const btn = $('btn-delete-post');
+  btn.disabled = true;
   try {
     const r = await api('/api/content-delete', {
       method: 'POST',
@@ -212,10 +216,11 @@ async function deleteCurrentPost() {
     });
     S.lastListSha = r.headSha || S.lastListSha;
     hooks.setDeployCommitted(r.commitSha);
-    toast('已删除并提交（回收站可恢复）');
+    toast(`「${title}」已移入回收站，底部「回收站」标签页可恢复`);
     await reloadList();
     switchTab('posts');
   } catch (e) {
+    btn.disabled = false;
     handleOpError(e);
   }
 }

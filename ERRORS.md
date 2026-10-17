@@ -59,6 +59,7 @@
 | E-023 | P3 | 引入 PRD 与备案约束排除的评论/互动功能 | 已修复 |
 | E-024 | P3 | 本地静态服务锁住 public/，E2E 收尾重建失败 | 已修复 |
 | E-025 | P1 | 给 custom_css 拼 `?v=` 后 css() helper 追加 .css，产物链接 404 | 已修复 |
+| E-026 | P1 | PowerShell `Set-Content` 批量改 7 个 admin 文件，中文全部变成乱码（mojibake） | 已修复 |
 
 ---
 
@@ -205,6 +206,63 @@
 ---
 
 ## 5. P2 — 功能缺陷
+
+### E-026 PowerShell 批量替换把 7 个 admin 文件的中文写成乱码
+
+- **发生时间：** 2026-10-18 ｜ **发现方式：** 自查（验证脚本读出 `鏂囩珷` 等乱码，逐项 FAIL）
+- **现象：** 按 AGENTS.md §5.1 给后台 21 处 `?v=` 做版本号 bump 时，为了少点几次鼠标，
+  对 7 个 `source/admin/*.js` 用了 PowerShell 批量替换：
+
+  ```powershell
+  $c = Get-Content $p -Raw            # ← 按系统 ANSI 代码页（中文 Windows = GBK）解码
+  $n = $c.Replace('?v=20261015', '?v=20261018')
+  Set-Content $p -Value $n -Encoding utf8 -NoNewline   # ← 写成 UTF-8 with BOM
+  ```
+
+  结果：原本正确的 UTF-8 字节被先按 GBK 误解码成另一串 Unicode，再按 UTF-8 写回，
+  中文字符全部二级损坏——`/* 列表渲染 */` 变成 `/* 鍒楄〃娓叉煋 */`。
+  文件仍是合法 UTF-8、`node --check` 照过、测试也能跑，**只有人类可读内容被毁掉**。
+
+- **实际损害：**
+  1. `admin-list.js`、`admin-post.js`（我用 edit 工具改过的文件也被同一循环波及）、
+     `admin-item.js`、`admin-composer.js`、`admin-media.js`、`admin-deploy.js`、
+     `admin-site.js` 共 7 个文件的注释、toast 文案、确认弹窗文案全部乱码；
+  2. 用户可见的后台界面文案（toast / 确认框）会直接显示乱码——**这是会上线给主人看的**；
+  3. 2 个文件被额外写入了 UTF-8 BOM，与仓库其余文件不一致。
+
+- **根因：** 用 shell 做**文本**的读—改—写。PowerShell 5.1 的 `Get-Content -Raw` 不带
+  `-Encoding` 时按 ANSI 代码页解码，`Set-Content -Encoding utf8` 又写成带 BOM 的 UTF-8，
+  两者代码页不一致即产生 mojibake。**与 E-002/E-003 同源：跨边界（编码边界）时依赖了
+  「看起来差不多」的默认行为，没有显式指定。** 另一个诱因是为了省事绕过 edit 工具——
+  而 edit 工具是本项目唯一被验证过保编码的写入路径。
+
+- **修法：** 7 个文件全部 `git checkout --` 恢复到干净状态（丢失的仅是我自己的版本号
+  改动，逻辑改动无损失），随后**只用 edit 工具**重新应用全部改动（21 处 `?v=` +
+  删除按钮改造），逐文件校验「首行中文可读 + 无 BOM」。
+
+- **防复发（机制）：**
+  1. **禁令：本项目禁止用 PowerShell 的 `Set-Content` / `Out-File` 写任何含中文的源文件。**
+     批量文本替换一律走 edit 工具；确实需要脚本时，必须显式
+     `[System.IO.File]::ReadAllText($p, [Text.Encoding]::UTF8)` +
+     `[System.IO.File]::WriteAllText($p, $s, (New-Object Text.UTF8Encoding($false)))`
+     （无 BOM），且改完立即做「首行中文可读」检查。
+  2. `test/admin-smoke.js` 新增 2 条断言，均硬失败：
+     - **BOM / 合法性**：`source/admin` 与 `source/css` 下所有 `.js/.css/.html`
+       必须 ① 无 UTF-8 BOM（shell 写入的典型特征）② 不含 U+FFFD 替换字符；
+     - **mojibake**：与 `git show HEAD:<path>` 的**首行注释逐字相等**（比对前去掉
+       尾部 `\r`——Windows 上 autocrlf 会让严格相等误报，本次实测踩到）。
+       选首行是因为本项目每个源文件首行都是描述性中文注释，shell 写坏后必定失真；
+       正文里的中文可能只坏个别字、其余仍正常，全文关键词法会漏（实测漏过）。
+       曾尝试用「西里尔/希腊码位」「生僻字密度」两类启发式，**均被实测证伪**
+       （mojibake 字符落在 CJK 区 U+4E00-9FFF，与正常中文无法按码位区分），
+       故最终采用与 HEAD 原文比对这一唯一可靠判据。
+  3. 变异验证已做：把 `admin-list.js` 首行写成乱码副本，断言 FAIL 且报错信息
+     同时给出「当前/原版」两行便于直接定位；修复后恢复 PASS。
+  4. 排查顺序教训：**「断言 PASS」不等于「检测方法有效」**——本次第一版检测规则
+     在文件确实损坏的情况下仍然 PASS（因为它根本没覆盖真正的损坏形态），
+     是靠人工核对文件内容才发现规则无效。往测试里加防护时，必须先构造失败样本
+     确认它会红，再相信它。
+
 
 ### E-007 图片上传超限
 

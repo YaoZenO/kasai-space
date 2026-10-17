@@ -284,7 +284,22 @@ button { font: inherit; }
 .btn-mini { padding: .3rem .6rem; font-size: .78rem; border-radius: 8px; }
 .btn-block { width: 100%; }
 .btn-link { border: 0; background: none; color: var(--accent); cursor: pointer; padding: .2rem; font-size: .82rem; }
+
+/* 次级/幽灵按钮。2026-10-18 可发现性改造（此前 color: var(--muted) 在卡片底上约 3.0:1，
+   且无边框无底色，删除这类破坏性操作几乎看不见——主人实测「后台找不到删除按钮」）。
+   现在的分工：btn-quiet 只承载真正的低权重次级操作（行内移除、返回），
+   破坏性操作一律走 btn-danger-quiet，红色文字 + 悬停底色，与「编辑」视觉对等。 */
 .btn-quiet { border: 0; background: none; color: var(--muted); cursor: pointer; padding: .2rem; font-size: .82rem; }
+.btn-quiet:hover { color: var(--ink); }
+
+/* 破坏性操作的显式按钮：与 .btn-mini 同形制（悬停有反馈），但用错误色标注后果 */
+.btn-danger-quiet {
+  border: 1px solid color-mix(in srgb, var(--err) 35%, var(--line));
+  background: var(--card); color: var(--err);
+  border-radius: 8px; padding: .3rem .6rem; font-size: .78rem; cursor: pointer;
+}
+.btn-danger-quiet:hover { border-color: var(--err); background: color-mix(in srgb, var(--err) 8%, var(--card)); }
+.btn-danger-quiet:disabled { opacity: .5; cursor: default; }
 
 /* ---------- 弹窗 ---------- */
 .modal { position: fixed; inset: 0; z-index: 50; background: rgba(28,26,23,.45); display: flex; align-items: flex-end; justify-content: center; }

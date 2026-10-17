@@ -3,7 +3,7 @@
  */
 'use strict';
 
-import { S, $, el, hooks, reloadList, pageHead, subHead, emptyState, api, toast, confirmDialog, handleOpError } from './admin-core.js?v=20261015';
+import { S, $, el, hooks, reloadList, pageHead, subHead, emptyState, api, toast, confirmDialog, handleOpError } from './admin-core.js?v=20261018';
 
 export function renderList() {
   const box = $('view-list');
@@ -78,17 +78,21 @@ function renderPostsList(box, d) {
 }
 
 // 文章 / 草稿删除：移入回收站（可恢复）。与条目删除同一模式。
+// 2026-10-18：改用 .btn-danger-quiet —— 之前是无边框无底色的幽灵文字（.btn-quiet），
+// 主人实测「后台找不到删除文章的地方」。破坏性操作必须与「编辑」视觉对等。
 function postDeleteButton(path, title, kind) {
-  const del = el('button', 'btn btn-quiet', '删除');
+  const del = el('button', 'btn btn-danger-quiet', '删除');
   del.onclick = async () => {
     const ok = await confirmDialog(`删除${kind}`, `确定删除「${title}」吗？文件会移入回收站，可恢复；正文引用的图片不会被删除。`, '删除');
     if (!ok) return;
+    del.disabled = true;
     try {
       const r = await api('/api/content-delete', { method: 'POST', body: { path, title, expectedHeadSha: S.lastListSha } });
       S.lastListSha = r.headSha || S.lastListSha;
-      toast('已删除并提交（回收站可恢复）');
+      toast('已移入回收站，可随时恢复');
       await reloadList();
     } catch (e) {
+      del.disabled = false;
       handleOpError(e);
     }
   };
@@ -134,15 +138,18 @@ function renderDataList(box, module, items) {
     const edit = el('button', 'btn btn-mini', '编辑');
     edit.onclick = () => hooks.openItemEditor(module, i);
     acts.appendChild(edit);
-    const del = el('button', 'btn btn-quiet', '删除');
+    const del = el('button', 'btn btn-danger-quiet', '删除');
     del.onclick = async () => {
       const ok = await confirmDialog('删除条目', `确定删除「${it.title || '未命名'}」吗？内容会移入回收站，可恢复。`, '删除');
       if (!ok) return;
+      del.disabled = true;
       try {
-        await api('/api/content-delete', { method: 'POST', body: { module, index: i, title: it.title, expectedHeadSha: S.lastListSha } });
-        toast('已删除并提交');
+        const r = await api('/api/content-delete', { method: 'POST', body: { module, index: i, title: it.title, expectedHeadSha: S.lastListSha } });
+        S.lastListSha = r.headSha || S.lastListSha;
+        toast('已移入回收站，可恢复');
         await reloadList();
       } catch (e) {
+        del.disabled = false;
         handleOpError(e);
       }
     };
