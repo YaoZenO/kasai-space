@@ -968,6 +968,14 @@ archive:
   banner_img_height: 60
   banner_mask_alpha: 0.3
 
+  # 「文字」页顶部的精选摘录：挑几篇值得先读的文章，各附一句说明。
+  # slug 对不上文章就自动跳过，不渲染死链；数组为空则整段不渲染。
+  featured:
+    - slug: C++-Job-StudyRoadMap
+      note: 按「入门 → 打基础 → 精进 → 实战 → 进阶」五个阶段整理的 C++ 求职路线，书与视频都标了必看 / 选看。
+    - slug: personal-reflectio
+      note: 一篇写给自己的随笔：迷茫、不甘心，以及怎么把一条环环相扣的计划重新解开。
+
 
 #---------------------------
 # 分类页

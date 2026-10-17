@@ -100,6 +100,28 @@ bump 后需强制刷新（Ctrl+F5）或无痕窗口验证一次。
 Interrupt the user mid-task only when there is a hard blocker, a major risk, or a
 request for authorization. Do not expand beyond the original scope.
 
+### 5.2 线上可见性铁律：本地改完 ≠ 主人看得到（主人明确要求，2026-10-18）
+
+**这个站的发布链路是：本地改文件 → `git commit` → `git push` 到 GitHub → Vercel
+自动构建部署 → 主人在 <https://www.040925.xyz> 上看到。**
+
+`deploy.type` 是空的，`npm run deploy` 什么都不做；本地 `public/` 也不会上传。
+**所以只改本地文件、只跑 `hexo generate`，主人在域名上永远看不到改动。**
+
+因此：
+
+1. **任何会影响线上内容的改动（数据文件、模板、样式、文章），交付时必须主动推进到
+   `commit` + `push`**，而不是停在"本地已验证"。做完却不说、不推，等于没做——
+   主人看到的是一个毫无变化、可能还是旧数据的站点。
+2. 推送前必须明确列出：改了哪些文件、commit message 用了什么、推到了哪个分支。
+3. 若工作区里有**主人自己未提交的改动**（如 admin 相关文件、文档），
+   先报告再问：只提交本次任务的改动，还是一起提交——**不要擅自把主人的在途改动带上去**。
+4. 若本轮因权限/授权原因未推送，必须在交付报告里用醒目的一句话说明
+   「**改动尚未推送，域名上还看不到**」，并给出待执行的命令。
+5. 数据文件（`source/_data/*.yml`）尤其要小心：本地副本可能**落后于远端**
+   （主人在后台直接改过 GitHub）。改之前先比对线上实际内容，别用陈旧本地副本
+   覆盖掉主人已经在线上录好的数据。
+
 ---
 
 # Project snapshot

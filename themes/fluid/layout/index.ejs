@@ -8,13 +8,36 @@
 // ============================================================
 page.hide_banner = true
 
+/* 正文最少字数：低于此视为「空壳文章」，不进主卡与「最新文字」列表。
+   取 60：挡得住「11」「测试」这类只有一个词的文章，也挡不住一篇正经短评。 */
+var POST_MIN_BODY_CHARS = 60
+
 /* ---------- 文章数据 ---------- */
 var postsArr = page.posts.sort('date', -1).toArray()
+
+/* 主卡候选资格：只认有实质内容的文章。
+   空文（标题即全文）不参与主卡竞争——它是「刚建的空壳」而不是「值得推到首屏的文章」。
+   判定只看渲染后的正文长度：Hexo 会给每篇文章自动生成 excerpt（空文的 excerpt 就两个字符），
+   所以不能用「有无 excerpt / description」判空，必须量正文。 */
+function postHasSubstance(post) {
+  var raw = post.content || post._content || ''
+  var text = String(strip_html(raw) || '').trim()
+  if (text.length >= POST_MIN_BODY_CHARS) { return true }
+  /* 正文短但有封面 / 作者显式 featured 的，仍视为主卡候选 */
+  if (post.cover) { return true }
+  if (post.featured) { return true }
+  return false
+}
+
 var featuredPost = null
 for (var i = 0; i < postsArr.length; i++) {
-  if (postsArr[i].featured) { featuredPost = postsArr[i]; break }
+  if (postsArr[i].featured && postHasSubstance(postsArr[i])) { featuredPost = postsArr[i]; break }
 }
-if (!featuredPost && postsArr.length) { featuredPost = postsArr[0] }
+if (!featuredPost) {
+  for (var k = 0; k < postsArr.length; k++) {
+    if (postHasSubstance(postsArr[k])) { featuredPost = postsArr[k]; break }
+  }
+}
 var LATEST_MAX = 5
 var latestPosts = []
 for (var j = 0; j < postsArr.length; j++) {
@@ -22,6 +45,8 @@ for (var j = 0; j < postsArr.length; j++) {
   if (latestPosts.length >= LATEST_MAX) { break }
   latestPosts.push(postsArr[j])
 }
+/* 「最新文字」只列有内容的文章：空文不进列表（与主卡同一把尺子，避免「点进去只有 11」） */
+latestPosts = latestPosts.filter(function (p) { return postHasSubstance(p) })
 var totalPosts = site.posts.length
 
 function postExcerpt(post, len) {

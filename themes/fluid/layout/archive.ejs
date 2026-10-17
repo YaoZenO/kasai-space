@@ -1,9 +1,14 @@
 <%
-// 归档页（纸面档案）：以时间为主线的文字索引，去 Banner
+// 归档页（纸面档案）：精选摘录 + 以时间为主线的文字索引，去 Banner
 page.layout = "archive"
 page.title = theme.archive.title || __('archive.title')
 page.subtitle = theme.archive.subtitle || __('archive.subtitle')
 page.hide_banner = true
+
+/* ---------- 精选摘录 ----------
+   「文字」页的门面：从全部文章里挑出值得先读的几篇，附一句摘录。
+   铁律：全部真实数据驱动，无数据不渲染；不写没出处的话。 */
+var picks = (theme.archive && theme.archive.featured) || []
 %>
 
 <div class="paper-page">
@@ -12,6 +17,46 @@ page.hide_banner = true
       <p class="page-head-kicker">ARCHIVE</p>
       <h1 class="page-head-title">文字</h1>
     </header>
+
+    <% if (picks.length) { %>
+    <%
+    /* 按 slug 从全站文章里取真实文章对象，同时带上配置里的说明。
+       slug 对不上文章就跳过，不渲染死链；重复 slug 只取第一篇。 */
+    var slugOf = function (p) {
+      return p.slug || String(p.path).replace(/^\//, '').replace(/\/$/, '').split('/').pop()
+    }
+    var picked = []
+    picks.forEach(function (cfg) {
+      site.posts.each(function (p) {
+        if (slugOf(p) !== cfg.slug) { return }
+        for (var i = 0; i < picked.length; i++) { if (picked[i].post.path === p.path) { return } }
+        picked.push({ post: p, note: cfg.note || '' })
+      })
+    })
+    %>
+    <% if (picked.length) { %>
+    <section class="archive-picks">
+      <p class="archive-picks-kicker">精选摘录</p>
+      <div class="pick-list">
+        <% picked.forEach(function (row) { %>
+        <% var post = row.post %>
+        <% var excerpt = post.description || post.excerpt || '' %>
+        <% if (!excerpt) { excerpt = String(strip_html(post.content || '') || '').replace(/\s+/g, ' ').trim().substring(0, 110) } %>
+        <a class="pick-row is-lead" href="<%= url_for(post.path) %>">
+          <% if (post.cover) { %><img class="pick-img" src="<%= url_for(post.cover) %>" alt="<%= post.title %>"><% } %>
+          <div class="pick-main">
+            <span class="pick-title"><%= post.title %></span>
+            <% if (excerpt) { %><span class="pick-desc"><%= excerpt %></span><% } %>
+            <% if (row.note) { %><span class="pick-note"><%= row.note %></span><% } %>
+            <span class="pick-meta"><time class="mono"><%= date(post.date, config.date_format) %></time></span>
+          </div>
+        </a>
+        <% }) %>
+      </div>
+    </section>
+    <% } %>
+    <% } %>
+
     <%- partial('_partials/archive-list.ejs', { params: { key: page.layout, postTotal: site.posts.length } }) %>
   </div>
 </div>

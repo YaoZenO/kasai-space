@@ -1595,3 +1595,22 @@ a.feed-title:hover {
 
 /* 首页精选行外链标注 */
 .pick-ext { display: block; font-family: var(--font-mono); font-size: .7rem; color: var(--sec-text-color); margin-top: .25rem; }
+
+/* --- 4.10 「文字」页精选摘录 --- */
+
+.archive-picks { margin: 0 0 2.8rem; }
+.archive-picks-kicker {
+  font-family: var(--font-mono); font-size: .72rem; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--accent); margin: 0 0 .9rem;
+}
+.archive-picks .pick-row { padding: 1.1rem 0; border-top: 2px solid var(--line-strong, rgba(42, 37, 29, .24)); }
+.archive-picks .pick-row + .pick-row { border-top: 1px solid var(--line-color); }
+.archive-picks .pick-title { font-size: 1.12rem; }
+.archive-picks .pick-desc { font-size: .88rem; line-height: 1.7; color: var(--text-color); margin-top: .4rem; }
+.archive-picks .pick-note {
+  display: block; font-size: .78rem; line-height: 1.6; color: var(--accent);
+  border-left: 2px solid var(--accent-soft, rgba(176, 72, 42, .28));
+  padding-left: .7rem; margin-top: .55rem;
+}
+.archive-picks .pick-meta { display: block; font-family: var(--font-mono); font-size: .7rem; color: var(--sec-text-color); margin-top: .55rem; }
+.archive-picks .pick-img { width: 100%; }
