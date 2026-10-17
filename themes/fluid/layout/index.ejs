@@ -8,34 +8,55 @@
 // ============================================================
 page.hide_banner = true
 
-/* 正文最少字数：低于此视为「空壳文章」，不进主卡与「最新文字」列表。
-   取 60：挡得住「11」「测试」这类只有一个词的文章，也挡不住一篇正经短评。 */
-var POST_MIN_BODY_CHARS = 60
+/* 空壳文章判定：正文去掉空白与标点后没有任何文字，才算「空」。
+   不用固定字数阈值——「我要环游世界。」只有 7 个字，但它是作者真写了的一句话，
+   不该被挡在门外；而「11」这类标题即全文的空壳必须挡掉。 */
+var PUNCT_RE = /[\s\u3000-\u303f\uff00-\uffef!-\/:-@\[-`{-~]/g
 
 /* ---------- 文章数据 ---------- */
 var postsArr = page.posts.sort('date', -1).toArray()
 
-/* 主卡候选资格：只认有实质内容的文章。
-   空文（标题即全文）不参与主卡竞争——它是「刚建的空壳」而不是「值得推到首屏的文章」。
-   判定只看渲染后的正文长度：Hexo 会给每篇文章自动生成 excerpt（空文的 excerpt 就两个字符），
-   所以不能用「有无 excerpt / description」判空，必须量正文。 */
-function postHasSubstance(post) {
+/* 主卡候选资格分级：
+   - 有实质内容（正文去标点后 ≥ 40 字，或有封面）：才配上首屏最大板块；
+   - 只写了极短一句的（如「我要环游世界。」）：算真实文章，进「最新文字」列表，
+     但不占主卡——首屏最大位置留给讲得清楚的那篇。 */
+var POST_FEATURE_MIN_CHARS = 40
+
+function bodyTextLength(post) {
   var raw = post.content || post._content || ''
-  var text = String(strip_html(raw) || '').trim()
-  if (text.length >= POST_MIN_BODY_CHARS) { return true }
-  /* 正文短但有封面 / 作者显式 featured 的，仍视为主卡候选 */
+  return String(strip_html(raw) || '').replace(PUNCT_RE, '')
+}
+
+/* 正文实际写了多少字（排除「正文只是把标题又敲了一遍」这种空壳）。
+   后台新建文章时标题会自动填进正文，这类文章在页面上等于没内容。 */
+function realBodyText(post) {
+  var body = bodyTextLength(post)
+  var title = String(post.title || '').replace(PUNCT_RE, '')
+  if (title && body === title) { return '' }
+  return body
+}
+
+/* 进「最新文字」列表的资格：写了东西就算，空壳除外 */
+function postHasSubstance(post) {
+  if (realBodyText(post).length >= 1) { return true }
   if (post.cover) { return true }
   if (post.featured) { return true }
   return false
 }
 
+/* 占首页主卡的资格：比列表更严一档 */
+function postCanBeFeatured(post) {
+  if (post.cover) { return true }
+  return realBodyText(post).length >= POST_FEATURE_MIN_CHARS
+}
+
 var featuredPost = null
 for (var i = 0; i < postsArr.length; i++) {
-  if (postsArr[i].featured && postHasSubstance(postsArr[i])) { featuredPost = postsArr[i]; break }
+  if (postsArr[i].featured && postCanBeFeatured(postsArr[i])) { featuredPost = postsArr[i]; break }
 }
 if (!featuredPost) {
   for (var k = 0; k < postsArr.length; k++) {
-    if (postHasSubstance(postsArr[k])) { featuredPost = postsArr[k]; break }
+    if (postCanBeFeatured(postsArr[k])) { featuredPost = postsArr[k]; break }
   }
 }
 var LATEST_MAX = 5

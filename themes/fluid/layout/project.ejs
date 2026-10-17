@@ -20,7 +20,7 @@ var sections = [
         <h1 class="page-head-title"><%= it.title %></h1>
         <% if (it.summary) { %><p class="about-head-intro"><%= it.summary %></p><% } %>
         <p class="detail-meta">
-          <% if (it.date) { %><time class="mono"><%= it.date %></time><% } %>
+          <% if (it.date) { %><time class="mono" datetime="<%= fmtItemDate(it.date, 'YYYY-MM-DD') %>"><%= fmtItemDate(it.date) %></time><% } %>
           <% (it.tags || []).forEach(function (t) { %><span class="detail-tag">#<%= t %></span><% }) %>
         </p>
         <% if (it.link) { %><a class="cta-solid" href="<%= it.link %>" target="_blank" rel="noopener">访问项目 →</a><% } %>

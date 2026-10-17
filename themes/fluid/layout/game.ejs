@@ -16,7 +16,7 @@ var links = it.links || []
         <h1 class="page-head-title"><%= it.title %></h1>
         <% if (it.summary) { %><p class="about-head-intro"><%= it.summary %></p><% } %>
         <p class="detail-meta">
-          <% if (it.date) { %><time class="mono"><%= it.date %></time><% } %>
+          <% if (it.date) { %><time class="mono" datetime="<%= fmtItemDate(it.date, 'YYYY-MM-DD') %>"><%= fmtItemDate(it.date) %></time><% } %>
           <% if (it.genre) { %><span class="detail-tag detail-tag-solid"><%= it.genre %></span><% } %>
           <% if (it.platform) { %><span class="detail-tag"><%= it.platform %></span><% } %>
           <% if (it.status) { %><span class="detail-tag"><%= it.status %></span><% } %>

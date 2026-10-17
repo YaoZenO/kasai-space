@@ -31,7 +31,7 @@ var isCollections = mod === 'collections'
           <% var sum = it.summary || it.desc %>
           <% if (sum) { %><span class="module-card-sum"><%= sum %></span><% } %>
           <span class="module-card-meta">
-            <% if (it.date) { %><time class="mono"><%= it.date %></time><% } %>
+            <% if (it.date) { %><time class="mono" datetime="<%= fmtItemDate(it.date, 'YYYY-MM-DD') %>"><%= fmtItemDate(it.date) %></time><% } %>
             <% if (mod === 'games' && it.genre) { %><span class="detail-tag detail-tag-solid"><%= it.genre %></span><% } %>
             <% if (mod === 'games' && it.status) { %><span class="detail-tag"><%= it.status %></span><% } %>
             <% if (isCollections && collHref) { %><span class="detail-tag">外链</span><% } %>

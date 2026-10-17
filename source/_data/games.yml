@@ -52,7 +52,7 @@ items:
   - title: Counter-Strike 2
     slug: cs2
     date: 2026-10-18
-    cover: ""
+    cover: /img/games/game-counter-strike-2.jpg
     genre: FPS
     platform: PC
     status: 在玩
@@ -82,7 +82,7 @@ items:
   - title: 守望先锋
     slug: overwatch
     date: 2026-10-18
-    cover: ""
+    cover: /img/games/game-overwatch.jpg
     genre: 英雄射击
     platform: PC
     status: 在玩
@@ -114,7 +114,7 @@ items:
   - title: Esports Manager 2026
     slug: esports-manager-2026
     date: 2026-10-18
-    cover: ""
+    cover: /img/games/game-esports-manager-2026.jpg
     genre: 体育模拟
     platform: PC
     status: 在玩
@@ -146,7 +146,7 @@ items:
   - title: 绝地求生
     slug: pubg
     date: 2026-10-18
-    cover: ""
+    cover: /img/games/game-pubg.jpg
     genre: 大逃杀
     platform: PC
     status: 在玩
