@@ -21,6 +21,7 @@ var sections = [
         <% if (it.summary) { %><p class="about-head-intro"><%= it.summary %></p><% } %>
         <p class="detail-meta">
           <% if (it.date) { %><time class="mono" datetime="<%= fmtItemDate(it.date, 'YYYY-MM-DD') %>"><%= fmtItemDate(it.date) %></time><% } %>
+          <% if (it.status) { %><span class="detail-tag detail-tag-solid"><%= it.status %></span><% } %>
           <% (it.tags || []).forEach(function (t) { %><span class="detail-tag">#<%= t %></span><% }) %>
         </p>
         <% if (it.link) { %><a class="cta-solid" href="<%= it.link %>" target="_blank" rel="noopener">访问项目 →</a><% } %>
@@ -45,6 +46,16 @@ var sections = [
     </article>
 
     <footer class="detail-foot">
+      <% if (page.prevItem || page.nextItem) { %>
+      <nav class="detail-prevnext" aria-label="项目之间的前后导航">
+        <% if (page.prevItem) { %>
+        <a class="detail-prev" href="<%= url_for(page.prevItem.path) %>">← <%= page.prevItem.title %></a>
+        <% } %>
+        <% if (page.nextItem) { %>
+        <a class="detail-next" href="<%= url_for(page.nextItem.path) %>"><%= page.nextItem.title %> →</a>
+        <% } %>
+      </nav>
+      <% } %>
       <a class="cta-link" href="<%= url_for('/projects/') %>">← 返回项目列表</a>
     </footer>
   </div>

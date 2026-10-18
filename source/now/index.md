@@ -1,7 +1,10 @@
 ---
 title: 现在
 kicker: NOW
-subtitle: 更新于 2026-10-15
+# 日期走结构化字段，由 paper.ejs 统一渲染「更新于 YYYY-MM-DD」。
+# 不用文件 mtime：Vercel 每次都是全新 git checkout，mtime 等于部署时刻，
+# 渲染出来永远是「今天」，比手填更假。改内容时同步改这一行。
+show_updated: 2026-10-15
 layout: paper
 ---
 

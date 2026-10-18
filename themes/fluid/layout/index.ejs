@@ -222,18 +222,23 @@ wallModules.forEach(function (m) { if (m.key === 'projects') { featuredModule = 
 
       <% wallModules.forEach(function (m) { %>
       <<%= m.page ? 'a' : 'div' %> class="wall-cell cell-<%= m.accent || 'plain' %>"<% if (m.page) { %> href="<%= url_for(m.page) %>"<% } %>>
+        <% var latestTitle = (m.items && m.items.length) ? m.items[0].title : '' %>
         <% if (m.cover) { %>
         <img class="wall-cell-img" src="<%= url_for(m.cover) %>" alt="<%= m.title %>">
         <div class="wall-cell-mask"></div>
         <div class="wall-cell-body">
-          <span class="wall-cell-tag"># <%= m.title %> / <%= m.count %></span>
-          <span class="wall-cell-name"><%= m.items[0].title %> →</span>
+          <% if (latestTitle) { %>
+          <span class="wall-cell-tag">最新 · <%= latestTitle %></span>
+          <% } else { %>
+          <span class="wall-cell-tag"># <%= m.title %></span>
+          <% } %>
+          <span class="wall-cell-name"><%= m.title %> / <%= m.count %> →</span>
         </div>
         <% } else { %>
         <div class="wall-cell-body">
           <span class="wall-cell-count"><%= m.count %></span>
           <span class="wall-cell-title"><%= m.title %></span>
-          <span class="wall-cell-item"><%= m.items[0].title %></span>
+          <% if (latestTitle) { %><span class="wall-cell-item">最新 · <%= latestTitle %></span><% } %>
         </div>
         <% } %>
       </<%= m.page ? 'a' : 'div' %>>

@@ -57,9 +57,7 @@
 
 /* ===== 2. 基础样式 ===== */
 
-::selection {
-  background: rgba(176, 72, 42, 0.18);
-}
+/* ::selection 见 §7.1（A8）：选中文字用墨色淡底，不再发红 */
 
 /* ===== 3. 公共组件 ===== */
 
@@ -216,9 +214,12 @@
 }
 
 /* 动效降级 */
+/* 动效降级（规范 §6.5）：从导航推广到全站——引入水波过渡后，
+   减弱动效偏好必须一并覆盖新链路 */
 @media (prefers-reduced-motion: reduce) {
-  #navbar *,
-  #mobile-grid-menu * {
+  *,
+  *::before,
+  *::after {
     transition: none !important;
     animation: none !important;
   }
@@ -341,19 +342,39 @@
   overflow-wrap: anywhere;
 }
 
-/* 身份词竖列（配置驱动，theme.about.identity_words） */
+/* 身份词铭牌（A9，主人 2026-10-19 拍板）：等宽装饰升格为「署名规格表」——
+   墨色 0.9rem（14.4px，过中文 12px 下限）+ 0.2em 字距 + 词间 hairline
+   + 等宽序数前缀（01 / 02），读作规格表而不是标签。
+   序数属静态信息，走 --info-mark 中性色（VD-11 分流纪律）。 */
 .identity-words {
+  counter-reset: identity-word;
   list-style: none;
-  margin: 0.35rem 0 0;
+  margin: 0.5rem 0 0;
   padding: 0 0 0 1.4rem;
   border-left: 1px solid var(--line-color);
   display: flex;
   flex-direction: column;
-  gap: 0.28rem;
   font-family: var(--font-mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.12em;
-  color: var(--sec-text-color);
+  font-size: 0.9rem;
+  letter-spacing: 0.2em;
+  color: var(--text-color);
+}
+
+.identity-words li {
+  counter-increment: identity-word;
+  padding: 0.34rem 0;
+  /* 字距在末字后多出 0.2em 空隙，负值回补让 hairline 与文字右端对齐 */
+  margin-right: -0.2em;
+}
+
+.identity-words li + li {
+  border-top: 1px solid var(--line-color);
+}
+
+.identity-words li::before {
+  content: counter(identity-word, decimal-leading-zero) " ";
+  color: var(--info-mark);
+  letter-spacing: 0.1em;
 }
 
 .identity-tagline {
@@ -398,7 +419,6 @@
 .cta-link:hover {
   color: var(--accent);
   text-decoration: underline;
-  text-underline-offset: 4px;
 }
 
 /* --- B 内容墙：主卡 + 入口格网格 --- */
@@ -456,7 +476,6 @@
 .wall-feature-meta a {
   color: rgba(245, 241, 233, 0.88);
   text-decoration: underline;
-  text-underline-offset: 3px;
 }
 
 .wall-feature-meta a:hover {
@@ -479,8 +498,6 @@
 .wall-feature-title a:hover {
   color: #f5f1e9;
   text-decoration: underline;
-  text-decoration-thickness: 3px;
-  text-underline-offset: 6px;
 }
 
 .wall-feature-desc {
@@ -501,7 +518,6 @@
 
 .wall-feature-more:hover {
   text-decoration: underline;
-  text-underline-offset: 4px;
 }
 
 /* 入口格三形态：照片格（有 cover）/ 色块格（accent）/ 排版格 */
@@ -735,7 +751,6 @@ a.cell-plain:hover {
 .post-cat:hover {
   color: var(--accent);
   text-decoration: underline;
-  text-underline-offset: 3px;
 }
 
 /* C 精选内容：首条主行 + 其余行 */
@@ -902,12 +917,25 @@ a.feed-title:hover {
     gap: 1rem;
   }
 
+  /* 窄屏横排：词间 hairline 由横线转竖线，间距由竖线两侧均分 */
   .identity-words {
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 0.4rem 1.1rem;
+    gap: 0.4rem 0;
     padding-left: 0;
     border-left: 0;
+  }
+
+  .identity-words li {
+    padding: 0;
+    margin-right: 0;
+  }
+
+  .identity-words li + li {
+    border-top: 0;
+    border-left: 1px solid var(--line-color);
+    margin-left: 0.9rem;
+    padding-left: 0.9rem;
   }
 
   .home-end {
@@ -1035,7 +1063,6 @@ a.feed-title:hover {
 .post-head-meta .category-chain-item:hover,
 .post-head-meta .post-head-tags a:hover {
   text-decoration: underline;
-  text-underline-offset: 3px;
 }
 
 /* 正文轨：17px / 1.75 / measure 38em（设计语言定稿） */
@@ -1629,16 +1656,26 @@ a.feed-title:hover {
  *   不读 scroll-margin-top，也不补偿——任何「清空 ::before / 改 scroll-margin」的改法
  *   都会让那 78px 消失且无人兜底。
  *
- * top 的三次校准（勿按公式推算，em 盒顶 ≠ 墨迹顶）：
- *   ① .16em（按 (line-height−1)/2 推算）——实测竖标浮在文字上方约 74px 的空白里，否决。
+ * top 的四次校准（每一步都靠实测，不靠公式）：
+ *   ① .16em（初版按 (line-height−1)/2 推算）——竖标浮在文字上方约 74px 的空白里，否决。
  *      原因：::after 的 top 相对**h2 盒顶**，而文字被 ::before 的 -5rem/5rem 推到盒内
- *      78px 处，两者根本不在同一坐标系。
+ *      78px 处，两者根本不在同一坐标系。**不是 .16em 这个值错，是坐标系错。**
  *   ② 5rem（与 ::before 的 -5rem 对称）——主题避让还在时对齐正确，GAP −2px。
- *   ③ 0（现值）——主人拍板清掉模块页的 80px 避让占位后（见下方归零规则），文字回到盒顶，
- *      top 同步归零。三个阶段都是实测值，不是公式值。
+ *   ③ 0——避让归零后（见下方归零规则）坐标系统一了，但竖标顶直接压在盒顶：
+ *      4x 像素复核显示竖标顶比文字墨迹顶**高 4.00px**，视觉略偏上（阈值 ≤4px 的边界）。
+ *   ④ .16em（现值）——归零后 .16em 才是正解。像素复核：竖标 400.00–421.75 /
+ *      文字墨迹 404.00–427.00 → 需下移 4.00px，而 .16em ≈ 3.84px（h2 font-size 24px），吻合。
+ *      用 em 而非 px：h2 字号随视口 clamp(1.25rem, 2.2vw, 1.5rem) 变化，em 让偏移量同步缩放。
  *
  * 配套要点：h2 需 position:relative 作为 ::after 的定位上下文，padding-left 让出竖标宽度。
  * ::after 不进文档流 → h2 盒高与文字基线不变。
+ *
+ * ⚠️ 验收判据（2026-10-19 更正，勿用旧口径）：用 **4x 像素复核**（逐像素解码量竖标顶 vs
+ *   文字墨迹顶），不要用 Range.getBoundingClientRect() 的顶边当墨迹顶——Range 的 rect 顶比
+ *   真实墨迹顶高约 0.24em（24px 时 ≈5.8px）。光学居中后 Range 口径读数必然 ≈ +5.84px，
+ *   拿旧的「|GAP| ≤ 4px」判据会**误报成一个不存在的回归**。
+ *   现值实测：1440/1000/768/375 四视口 Δ顶分别为 0.00 / −0.75 / −0.25 / −0.25 px，均 ≤0.75px。
+ *   竖标 height 是 .92em，天生比墨迹矮约 0.05em，底部恒差 1–2px——那是比例不是错位，别去调。
  *
  * 主题那条避让规则**文章页仍然依赖**（导航栏遮挡 + tocbot 跳转），模块页已不依赖。
  * 详见 REVIEW-2026-10-18-PM.md §八-4 与 §六 第 7 项。
@@ -1662,9 +1699,10 @@ a.feed-title:hover {
   content: "";
   position: absolute;
   left: 0;
-  /* top 为 0 而非 5rem：上方 `.rich-section h2::before` 已把主题避让归零，文字就在盒顶。
-     ::after 的 top 相对盒顶，故直接取 0。若哪天撤销归零规则，此处必须跟着改回 5rem。 */
-  top: 0;
+  /* top 取 .16em（≈3.84px）而非 0：上方归零后文字回到盒顶，但「盒顶」比「文字墨迹顶」
+     高约 4px（em 盒含升部），top 取 0 会让竖标视觉偏上。.16em 是像素复核后的实测值。
+     ⚠️ 与上方的归零规则耦合：一旦撤销归零，此处必须改回 5rem。 */
+  top: .16em;
   width: 4px;
   height: .92em;
   background: var(--accent);
@@ -1684,6 +1722,19 @@ a.feed-title:hover {
 .detail-links a:hover { background: var(--accent); }
 
 .detail-foot { margin-top: 2.5rem; padding-top: 1.2rem; border-top: 1px solid var(--line-color); }
+
+/* 同模块前后条目导航（D-3）：一左一右，与下方「返回列表」分两行，
+   小于 12px 的中文下限已由 0.88rem（14px）满足 */
+.detail-prevnext {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.88rem;
+}
+
+.detail-prevnext a { color: var(--sec-text-color); }
+.detail-prevnext a:hover { color: var(--accent); text-decoration: underline; }
+.detail-prevnext .detail-next { margin-left: auto; text-align: right; }
 
 /* 模块列表页 */
 .page-head-plain { margin: 0 0 1.6rem; }
@@ -1759,5 +1810,69 @@ a.feed-title:hover {
 .post-home-link a:hover {
   color: var(--accent);
   text-decoration: underline;
+}
+
+/* ===== 6. 代码块融纸面（A7，主人 2026-10-19 拍板） ===== */
+
+/* 6.1 代码块底改纸面同色：主题默认 #f6f8fa 是 GitHub 冷灰，与纸面不同温。
+   产物结构为 Hexo 原生 highlight：<figure class="highlight"><table>
+   <td class="gutter"><pre>行号</pre></td><td class="code"><pre>正文</pre></td>，
+   背景由主题 highlight.styl 下发到 .highlight pre 与 td.gutter 两处，需同时覆盖。 */
+.markdown-body .hljs,
+.markdown-body .highlight pre,
+.markdown-body .code-wrapper pre,
+.markdown-body figure.highlight td.gutter {
+  background-color: var(--cream);
+}
+
+/* 6.2 细边框收口：代码块靠 hairline 与正文分开，不靠色差（规范 §4.3）。
+   边框加在外层 figure/容器上，行号槽不再各自加框。 */
+.markdown-body figure.highlight,
+.markdown-body .highlight,
+.markdown-body .code-wrapper {
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-tile);
+}
+
+/* 6.3 行号槽分隔线：主题写死 #999 冷灰，换 hairline（同一改动面） */
+.markdown-body figure.highlight td.gutter pre {
+  border-right-color: var(--line-color);
+}
+
+/* 6.4 行内 code：主题 rgba(175,184,193,.2) 是冷灰，换墨色 8% 暖灰。
+   背景变浅不影响墨字对比度（原 4.9:1 → 现约 12:1）。 */
+.markdown-body code {
+  background-color: rgba(42, 37, 29, 0.08);
+  border-radius: 4px;
+  padding: 0.1em 0.3em;
+}
+
+.markdown-body pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+/* ===== 7. 水波下划线 hover 母题（A8，主人 2026-10-19 拍板） ===== */
+
+/* 7.1 选中文字不再发红（规范 §6.2 配套）：砖红只留给交互与强调，
+   选中是阅读行为不是交互行为，用墨色 12% 淡底 */
+::selection {
+  background: rgba(42, 37, 29, 0.12);
+  color: var(--text-color);
+}
+
+/* 7.2 文字链基线（全站唯一定义处）：默认细线贴近，hover 变粗并下沉，
+   元素本身零位移。各处 hover 只负责「要不要显示下划线」（text-decoration），
+   粗细与位置一律由这里接管，不再各自写死数值。
+   卡 / 格的 translateY(-2px) 上浮保留——那是「可提起的物件」（规范 §6.2 边界）。 */
+a {
+  text-decoration-thickness: 1px;
   text-underline-offset: 3px;
+  transition: text-decoration-thickness 0.2s ease, text-underline-offset 0.2s ease,
+    color 0.2s ease;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
 }

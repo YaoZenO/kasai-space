@@ -9,7 +9,8 @@ layout: paper
 
 - **语言**：C++（在学）、JavaScript / Node.js；
 - **前端**：Vue 3 · Vite（项目里用）；
-- **数据库**：SQLite。
+- **数据库**：SQLite；
+- **项目**：[Ties](/projects/Ties/)，一个本地跑的关系管理系统。
 
 ## 这个站
 

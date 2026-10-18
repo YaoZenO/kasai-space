@@ -72,6 +72,16 @@ var links = it.links || []
     </article>
 
     <footer class="detail-foot">
+      <% if (page.prevItem || page.nextItem) { %>
+      <nav class="detail-prevnext" aria-label="游戏之间的前后导航">
+        <% if (page.prevItem) { %>
+        <a class="detail-prev" href="<%= url_for(page.prevItem.path) %>">← <%= page.prevItem.title %></a>
+        <% } %>
+        <% if (page.nextItem) { %>
+        <a class="detail-next" href="<%= url_for(page.nextItem.path) %>"><%= page.nextItem.title %> →</a>
+        <% } %>
+      </nav>
+      <% } %>
       <a class="cta-link" href="<%= url_for('/games/') %>">← 返回游戏列表</a>
     </footer>
   </div>

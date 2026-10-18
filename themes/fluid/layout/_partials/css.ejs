@@ -15,9 +15,13 @@
 <%- css_ex(theme.static_prefix.internal_css, 'main.css') %>
 
 <% if (theme.code.highlight.enable) { %>
-  <%- css_ex(theme.static_prefix.internal_css, 'highlight.css', 'id="highlight-css"') %>
+  <%# 代码配色不参与首屏渲染，改异步加载（T3-3）：先以 media="print" 进入，
+      加载完 onload 切回 all。这里手写标签而不用 css_ex——它拼出的标签
+      只有 rel 与 href，加不了 media 与 onload。 %>
+  <link id="highlight-css" rel="stylesheet" href="<%= url_join(theme.static_prefix.internal_css, 'highlight.css') %>" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="<%= url_join(theme.static_prefix.internal_css, 'highlight.css') %>"></noscript>
   <% if (theme.dark_mode.enable) { %>
-    <%- css_ex(theme.static_prefix.internal_css, 'highlight-dark.css', 'id="highlight-css-dark"') %>
+    <link id="highlight-css-dark" rel="stylesheet" href="<%= url_join(theme.static_prefix.internal_css, 'highlight-dark.css') %>" media="print" onload="this.media='all'">
   <% } %>
 <% } %>
 

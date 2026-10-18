@@ -266,6 +266,29 @@ async function main() {
     ok('原有条目 Ties 详情页仍生成', () =>
       assert.ok(fs.existsSync(path.join(PUBLIC, 'projects', 'Ties', 'index.html'))));
 
+    // E-038 防复发：生成器脚本一旦语法错误，Hexo 只打印一行「Script load failed」
+    // 就继续跑完整个构建，退出码仍是 0——详情页全部消失却不报错。
+    // 这里按「数据条目 → 详情页」逐条核对（而不是只盯 Ties 一条），
+    // 判据只看结果：每个条目都要有一个非空 HTML。
+    ok('每个数据条目都有对应的详情页且非 0 字节（E-038 防复发）', () => {
+      const mods = [
+        { key: 'projects', file: 'projects.yml' },
+        { key: 'games', file: 'games.yml' },
+      ];
+      for (const m of mods) {
+        const text = fs.readFileSync(path.join(DATA_DIR, m.file), 'utf8');
+        const items = yaml.parseItems(text).filter((it) => it && it.title);
+        assert.ok(items.length > 0, m.file + ' 解析出 0 条条目，本断言失去意义');
+        for (const it of items) {
+          const slug = it.slug || encodeURIComponent(String(it.title));
+          const rel = path.join(m.key, slug, 'index.html');
+          const p = path.join(PUBLIC, rel);
+          assert.ok(fs.existsSync(p), '缺少详情页: ' + rel);
+          assert.ok(fs.statSync(p).size > 0, '详情页是 0 字节: ' + rel);
+        }
+      }
+    });
+
     console.log('\n[4] 项目列表页');
     const projList = readPage(path.join('projects', 'index.html'));
     ok('列表页含两条条目', () => {

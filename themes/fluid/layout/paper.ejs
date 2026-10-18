@@ -11,7 +11,11 @@ page.title = page.title || (page.kicker || '')
     <header class="page-head">
       <% if (page.kicker) { %><p class="page-head-kicker"><%= page.kicker %></p><% } %>
       <h1 class="page-head-title"><%= page.title %></h1>
-      <% if (page.subtitle) { %><p class="archive-total"><%= page.subtitle %></p><% } %>
+      <% if (page.show_updated) { %>
+      <p class="archive-total">更新于 <%= fmtItemDate(page.show_updated) %></p>
+      <% } else if (page.subtitle) { %>
+      <p class="archive-total"><%= page.subtitle %></p>
+      <% } %>
     </header>
     <article class="about-body">
       <div class="markdown-body">

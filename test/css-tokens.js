@@ -78,12 +78,13 @@ if (fs.existsSync(mainCssPath)) {
     assert.match(rule[0], /height:\s*0/, '避让未归零：height 不是 0');
   });
 
-  ok('竖标 ::after 的 top 与归零状态联动（现为 0）', () => {
+  ok('竖标 ::after 的 top 与归零状态联动（现为 .16em）', () => {
     const rule = siteCss.match(/\.rich-section h2::after\s*\{[^}]*\}/);
     assert.ok(rule, 'site.css 缺少 .rich-section h2::after 规则');
     assert.match(rule[0], /position:\s*absolute/, '竖标必须是 absolute，否则会进文档流、挤动版式');
-    assert.match(rule[0], /top:\s*0(?:;|\s)/, 'top 不是 0：避让已归零、文字在盒顶，'
-      + 'top 必须同步为 0，否则竖标掉到标题下方 78px（改归零规则时此处必须一起改）');
+    assert.match(rule[0], /top:\s*\.16em/, 'top 不是 .16em：'
+      + '避让归零后盒顶比文字墨迹顶高约 4px，取 0 会视觉偏上、取 5rem 会掉到标题下方 78px。'
+      + '撤销归零规则时此处必须改回 5rem');
   });
 } else {
   console.log('  SKIP 主题 hack 耦合检查（无 public/css/main.css，先跑 hexo generate）');

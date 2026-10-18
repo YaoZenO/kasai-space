@@ -31,7 +31,13 @@ hexo.extend.generator.register('module-pages', async function (locals) {
     if (!valid.length) continue;
 
     if (!mod.listOnly) {
-      for (const it of valid) {
+      // 同模块前后条目导航（D-3）：按 yml 中的条目顺序取相邻两项，
+      // 首尾项对应侧为 null，模板侧按「无数据不渲染」处理。
+      // 用带索引的 for 循环而不是 forEach：循环体内要 await 渲染长文本，
+      // 箭头函数里写 await 会直接语法错误（踩过，见 ERRORS.md）。
+      const slugOf = (x) => x.slug || encodeURIComponent(String(x.title));
+      for (let idx = 0; idx < valid.length; idx++) {
+        const it = valid[idx];
         for (const f of mod.longFields) {
           const text = it[f];
           if (!text || !String(text).trim()) continue;
@@ -49,7 +55,9 @@ hexo.extend.generator.register('module-pages', async function (locals) {
           }
           it[`${f}_html`] = html;
         }
-        const slug = it.slug || encodeURIComponent(String(it.title));
+        const slug = slugOf(it);
+        const prev = idx > 0 ? valid[idx - 1] : null;
+        const next = idx < valid.length - 1 ? valid[idx + 1] : null;
         routes.push({
           path: `${mod.key}/${slug}/index.html`,
           layout: mod.layout,
@@ -59,6 +67,8 @@ hexo.extend.generator.register('module-pages', async function (locals) {
             moduleKey: mod.key,
             moduleTitle: mod.indexTitle,
             item: it,
+            prevItem: prev ? { title: prev.title, path: `${mod.key}/${slugOf(prev)}/` } : null,
+            nextItem: next ? { title: next.title, path: `${mod.key}/${slugOf(next)}/` } : null,
           },
         });
       }
