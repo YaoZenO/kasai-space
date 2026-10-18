@@ -17,7 +17,14 @@ var currentPath = ('/' + (page.path || '')).replace(/index\.html$/, '')
           <% var text = each.name || __(each.key + '.menu') || __(each.key + '.title') %>
           <% if (text.indexOf('.menu') !== -1 || text.indexOf('.title') !== -1) { text = each.key } %>
           <% if (each.submenu) { %>
-            <li class="nav-item dropdown">
+            <%
+            /* IA-11：下拉子项命中当前路径时，父项与子项都要有「你在这里」 */
+            var subActive = false
+            for (const s of (each.submenu || [])) {
+              if (s && s.link && currentPath.indexOf(url_for(s.link)) === 0) { subActive = true; break }
+            }
+            %>
+            <li class="nav-item dropdown<%= subActive ? ' active' : '' %>">
               <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
                  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <%- each.icon ? '<i class="' + each.icon + '"></i>' : '' %>
@@ -28,7 +35,10 @@ var currentPath = ('/' + (page.path || '')).replace(/index\.html$/, '')
                   <% if (!subEach.link) continue %>
                   <% var subText = subEach.name || __(subEach.key + '.title') %>
                   <% if (subText.indexOf('.title') !== -1) { subText = subEach.key } %>
-                  <a class="dropdown-item" href="<%= url_for(subEach.link) %>" target="<%= subEach.target || '_self' %>">
+                  <%
+                  var subIsActive = currentPath.indexOf(url_for(subEach.link)) === 0
+                  %>
+                  <a class="dropdown-item<%= subIsActive ? ' active' : '' %>" href="<%= url_for(subEach.link) %>" target="<%= subEach.target || '_self' %>"<%= subIsActive ? ' aria-current="page"' : '' %>>
                     <%- subEach.icon ? '<i class="' + subEach.icon + '"></i>' : '' %>
                     <span><%- subText %></span>
                   </a>
@@ -40,7 +50,7 @@ var currentPath = ('/' + (page.path || '')).replace(/index\.html$/, '')
               ? currentPath === '/'
               : currentPath.indexOf(url_for(each.link)) === 0 %>
             <li class="nav-item<%= isActive ? ' active' : '' %>">
-              <a class="nav-link" href="<%= url_for(each.link) %>" target="<%= each.target || '_self' %>">
+              <a class="nav-link" href="<%= url_for(each.link) %>" target="<%= each.target || '_self' %>"<%= isActive ? ' aria-current="page"' : '' %>>
                 <%- each.icon ? '<i class="' + each.icon + '"></i>' : '' %>
                 <span><%- text %></span>
               </a>

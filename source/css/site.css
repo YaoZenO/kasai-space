@@ -1681,3 +1681,17 @@ a.feed-title:hover {
   color: var(--accent);
   animation: none !important;
 }
+
+/* 5.3 文章页脚「回到首页」出口（UX-14） */
+.post-home-link {
+  margin: 1.4rem 0 0;
+  font-size: .88rem;
+}
+.post-home-link a {
+  color: var(--sec-text-color);
+}
+.post-home-link a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

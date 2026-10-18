@@ -109,6 +109,8 @@ if (theme.post.category_bar && theme.post.category_bar.enable) {
                 </article>
               </div>
             <% } %>
+
+            <p class="post-home-link"><a href="<%= url_for('/') %>">← 回到首页</a></p>
           </div>
 
           <%- inject_point('postComments') %>

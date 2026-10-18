@@ -30,7 +30,11 @@ hexo.extend.generator.register('_hexo_generator_search', function(locals) {
       : base;
   });
 
-  const searchTmplSrc = pathFn.join(hexo.theme_dir, './source/xml/local-search.xml');
+  // IA-6/T3-4：模板移出 theme source/，避免它作为静态资源被原样复制进 public/
+  // （原位置会泄漏未渲染的 {% ... %} 模板，可公开访问）。
+  // 位置必须在 scripts/ 之外：Hexo 会把 scripts/ 下所有文件当 JS 脚本加载，
+  // 放在那里会报 "Unexpected token '<'" 并导致整个搜索索引不生成。
+  const searchTmplSrc = pathFn.join(hexo.theme_dir, './templates/local-search.xml');
   const searchTmpl = nunjucks.compile(fs.readFileSync(searchTmplSrc, 'utf8'), env);
 
   const searchConfig = config.search;

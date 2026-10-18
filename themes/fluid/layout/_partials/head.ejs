@@ -10,7 +10,11 @@ if (description) {
   description = strip_html(description).substring(0, 200).trim().replace(/\n/g, ' ')
 }
 var ogImage = page.og_img || page.index_img
-var ogConfig = Object.assign({ image: ogImage && url_for(ogImage) }, theme.open_graph)
+var ogConfig = Object.assign({
+  image: ogImage && url_for(ogImage),
+  // IA-12：og:url 去掉 index.html 后缀，与 canonical 同源
+  url: url_join(config.url, (page.canonical_path || page.path || '').replace('index.html', ''))
+}, theme.open_graph)
 %>
 
 <head>
@@ -19,6 +23,7 @@ var ogConfig = Object.assign({ image: ogImage && url_for(ogImage) }, theme.open_
   <link rel="apple-touch-icon" sizes="180x180" href="<%= url_for(theme.apple_touch_icon) %>">
   <link rel="icon" type="image/png" sizes="32x32" href="<%= url_for(theme.favicon) %>">
   <link rel="icon" type="image/png" sizes="16x16" href="<%= url_for(theme.favicon_16 || theme.favicon) %>">
+  <link rel="preload" href="<%= url_for('/fonts/archivo-latin-var.woff2') %>" as="font" type="font/woff2" crossorigin>
   <% if (theme.canonical.enable) { %>
     <link rel="canonical" href="<%= url_join(config.url, page.canonical_path.replace('index.html', '')) %>"/>
   <% } %>

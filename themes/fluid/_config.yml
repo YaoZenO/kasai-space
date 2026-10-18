@@ -87,7 +87,9 @@ fun_features:
   # 为 subtitle 添加打字机效果
   # Typing animation for subtitle
   typing:
-    enable: true
+    # 2026-10-18（UX-11）：全站已无 #subtitle（banner 已拆），打字机插件空载；
+    # 若恢复 banner 标题打字效果，把此项改回 true
+    enable: false
 
     # 打印速度，数字越大越慢
     # Typing speed, the larger the number, the slower
@@ -132,6 +134,9 @@ fun_features:
 # 主题暗色模式，开启后菜单中会出现切换按钮，用户浏览器会存储切换选项，并且会遵循 prefers-color-scheme 自动切换
 # Theme dark mode. If enable, a switch button will appear on the menu, each of the visitor's browser will store his switch option
 dark_mode:
+  # 2026-10-18（C-7）：保持关闭。下方 *_dark 值仍是 Fluid 原厂冷蓝组，与暖纸体系不同偶，
+  # 未经校准——不要直接 enable。若确要启用，先按 DESIGN-LANGUAGE.md §2.5 校准：
+  # body #1a1814 / 次级 #a7a9ad / accent 提亮到 #d9724a（现值在暗底仅 3.21:1）。
   enable: false
   # 默认的选项（当用户手动切换后则不再按照默认模式），选择 `auto` 会优先遵循 prefers-color-scheme，其次按用户本地时间 18 点到次日 6 点之间进入暗色模式
   # Default option (when the visitor switches manually, the default mode is no longer followed), choosing `auto` will give priority to prefers-color-scheme, and then enter the dark mode from 18:00 to 6:00 in the visitor's local time
@@ -244,7 +249,7 @@ custom_js:
 custom_css: /css/site.css
 
 # 额外注入 <head> 的 HTML（2026-10-15：为按需加载的 CDN 插件预连接，P1-10）
-custom_head: '<link rel="preconnect" href="https://lib.baomitu.com">'
+custom_head: ''
 
 # 网页访问统计
 # Analysis of website visitors
@@ -613,10 +618,10 @@ post:
     # Post date, based on `date` field in front-matter, if not set, based on create date of .md file
     date:
       enable: true
-      # 格式参照 ISO-8601 日期格式化
+      # 格式参照 ISO-8601 日期格式化（UX-9：与全站等宽元信息轨统一为 YYYY-MM-DD）
       # ISO-8601 date format
       # See: http://momentjs.cn/docs/#/parsing/string-format/
-      format: "LL a"
+      format: "YYYY-MM-DD"
 
     # 字数统计
     # Word count
@@ -1082,6 +1087,8 @@ page404:
   banner_img: /img/default.png
   banner_img_height: 85
   banner_mask_alpha: 0.3
+  # 副标题（UX-8：原副标题与主标题同为「页面不存在」，改为引导文案）
+  subtitle: "你要找的内容不在这个位置，可以从首页或下面的按钮重新出发。"
   # 重定向到首页的延迟(毫秒)
   # Delay in redirecting to home page (milliseconds)
   redirect_delay: 10000
@@ -1132,11 +1139,9 @@ links:
 # DO NOT EDIT THE FOLLOWING SETTINGS UNLESS YOU KNOW WHAT YOU ARE DOING
 #
 # 2026-10-15（P1-10 消除 CDN 单点故障）：bootstrap / jquery / nprogress / typed /
-# fancybox / github-markdown-css / hint 已全部自托管到 source/lib/，
-# 下方对应前缀指向本地路径；图标字体在 source/lib/iconfont*.css + source/fonts/。
-# 全站（首页与文章页）已无任何外部渲染阻塞资源；仅剩 tocbot/anchor/clipboard 等
-# 按需 JS 插件仍走 CDN（页面加载后异步获取，故障仅影响单项功能，不影响布局），
-# 已配 custom_head preconnect。其余未启用的插件前缀未做改动。
+# fancybox / github-markdown-css / hint / tocbot / anchor / clipboard 已全部自托管到
+# source/lib/，下方对应前缀指向本地路径；图标字体在 source/lib/iconfont*.css + source/fonts/。
+# 全站已无任何外部 CDN 资源引用（剩余 mathjax/katex/mermaid/valine/waline 等未启用的插件前缀未改动）。
 #---------------------------
 
 static_prefix:
@@ -1146,7 +1151,7 @@ static_prefix:
   internal_css: /css
   internal_img: /img
 
-  anchor: https://lib.baomitu.com/anchor-js/5.0.0/
+  anchor: /lib/anchor-js/5.0.0/
 
   github_markdown: /lib/github-markdown-css/4.0.0/
 
@@ -1156,7 +1161,7 @@ static_prefix:
 
   prismjs: https://lib.baomitu.com/prism/1.29.0/
 
-  tocbot: https://lib.baomitu.com/tocbot/4.20.1/
+  tocbot: /lib/tocbot/4.20.1/
 
   typed: /lib/typed/2.0.12/
 
@@ -1170,7 +1175,7 @@ static_prefix:
 
   busuanzi: https://busuanzi.ibruce.info/busuanzi/2.3/
 
-  clipboard: https://lib.baomitu.com/clipboard.js/2.0.11/
+  clipboard: /lib/clipboard.js/2.0.11/
 
   mermaid: https://lib.baomitu.com/mermaid/8.14.0/
 
