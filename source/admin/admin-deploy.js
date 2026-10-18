@@ -12,13 +12,21 @@ const POLL_FIRST_MS = 8000;
 const POLL_MAX_MS = 32000;
 const POLL_TIMEOUT_MS = 180000;
 
+// commitSha 为空表示「本次保存没有可跟踪的 commit」（data/site 类保存不走 publish 链路，
+// 或后端未回传）。此时不能只点亮「已提交」就收工——pill 会永久停在这个状态，
+// 主人无法判断内容到底有没有上线。改为直接显示「已保存，待部署」，并给出自查入口。
 export function setDeployCommitted(commitSha) {
   stopPolling();
   const pill = $('deploy-pill');
   pill.hidden = false;
+  if (commitSha) {
+    pill.dataset.state = 'committed';
+    pill.textContent = '已提交';
+    startPolling(commitSha);
+    return;
+  }
   pill.dataset.state = 'committed';
-  pill.textContent = '已提交';
-  if (commitSha) startPolling(commitSha);
+  pill.textContent = '已保存，待部署（无构建跟踪）';
 }
 
 function startPolling(commitSha) {

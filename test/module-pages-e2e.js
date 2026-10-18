@@ -133,6 +133,19 @@ async function rebuildClean() {
   } catch (e) {
     console.log('      （提示：public/ 重建失败，请手动 npm run build — ' + (e && e.message) + '）');
   }
+  // 补齐 main.css 的产物 hash。
+  //
+  // 契约说明（2026-10-18）：asset-version.js 的 main.css 版本号注册在 after_generate 与 exit，
+  // 生产链路（`hexo generate`，含 Vercel）两条都会触发；但本测试用的
+  // `hexo.call('generate')` 是**进程内**调用，实测不触发这两个 filter，
+  // 于是测试跑完 public/ 里的 main.css 版本号是空的（test/asset-version.js 的产物断言会红）。
+  // 这里显式补一次，把契约写在测试侧而不是藏在过滤器里。
+  //
+  // 失败必须显式抛出，不能只打提示：曾经这里吞掉了一个 ReferenceError
+  // （filter 模块顶层直接用 hexo 全局，裸 require 时不存在），表现是「补写没生效」
+  // 但测试仍然绿，真正的红是 test/asset-version.js 里的产物断言，报错点离病因很远。
+  const { stampAll } = require('../themes/fluid/scripts/filters/asset-version.js');
+  stampAll(PUBLIC);
 }
 
 function readPage(rel) {

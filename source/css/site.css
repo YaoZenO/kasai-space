@@ -465,9 +465,11 @@
 
 .wall-feature-title {
   margin: 0 0 0.9rem;
-  font-size: clamp(1.9rem, 3.6vw, 3rem);
+  /* 2026-10-18 主理人调整：站名 4.6rem → 本档 3rem → 页头 2.4rem 原本只差一档，
+     全站缺第二档大尺度（REVIEW-2026-10-18-PM.md §1.1 D-5）。提到 3.4rem 补上断档。 */
+  font-size: clamp(2.1rem, 4.2vw, 3.4rem);
   font-weight: 900;
-  line-height: 1.18;
+  line-height: 1.14;
 }
 
 .wall-feature-title a {
@@ -1594,16 +1596,67 @@ a.feed-title:hover {
   display: inline-block; font-size: .75rem; line-height: 1; padding: .32rem .6rem;
   border: 1px solid var(--line-color); border-radius: 999px; color: var(--sec-text-color);
 }
-.detail-tag-solid { border-color: transparent; background: var(--accent-soft, rgba(176, 72, 42, .12)); color: var(--accent); }
+.detail-tag-solid { border-color: transparent; background: var(--accent-soft); color: var(--accent); }
 
-.detail-cover img { width: 100%; height: auto; border-radius: var(--r-tile, 22px); border: 1px solid var(--line-color); display: block; }
+.detail-cover img { width: 100%; height: auto; border-radius: var(--r-tile); border: 1px solid var(--line-color); display: block; }
 
 .rich-section { margin: 0 0 2.6rem; }
 .rich-section h2 {
   font-size: clamp(1.25rem, 2.2vw, 1.5rem); font-weight: 800; letter-spacing: .01em;
   margin: 0 0 .9rem; padding-bottom: .5rem; border-bottom: 1px solid var(--line-color);
 }
-.rich-section h2::before { content: ""; display: inline-block; width: 4px; height: .92em; background: var(--accent); margin-right: .55rem; vertical-align: -0.1em; border-radius: 1px; }
+/* 砖红标题竖标（2026-10-18 重写）。
+ *
+ * 起因：这根竖标在全站从未显示过。视觉线与前端工程线各自独立定位到同一根因——
+ * 主题 main.css 有一条锚点避让 hack，命中 `.markdown-body h2::before`，声明了
+ *   display:block; content:""; margin-top:-5rem; height:5rem; width:1px; visibility:hidden
+ * 本站旧规则 `.rich-section h2::before` 未声明 `visibility` 与 `margin-top`，
+ * 于是本站的 4px / 砖红 / 圆角与主题的 1px / visibility:hidden 按属性逐条合并，
+ * 落得「有 4px 宽、砖红色，但 visibility:hidden」——竖标一直存在，只是不可见。
+ *
+ * 关于特异性（本段早期写错过，已更正）：两条选择器构成完全对称——各 1 个类 + 1 个元素
+ * + 1 个伪元素，特异性**相同**，并不存在谁更高；胜负由加载顺序决定，site.css 在
+ * main.css 之后加载，故本站的同属性声明胜出。本站随后声明的 `border-radius:1px`
+ * （主题无此属性）也印证了本站规则确实生效。结论与谁赢无关：visibility:hidden
+ * 未被任何本站声明覆盖，竖标不可见是确定的。
+ *
+ * 为什么改用 ::after 而不是「提权 ::before」：
+ *   ::after 是干净画布——grep 全站 main.css 对 `markdown-body h[1-6]::after` 零命中。
+ *   而 ::before 上那条 hack 的 -5rem 是**真实的锚点避让量**：Playwright 实测文章页与
+ *   模块页的「h2 盒顶 → 文字顶」间距一致为 78px（由 5rem 这个绝对长度决定，与 h2 自身的
+ *   font-size 无关，故两页读数相同；scroll-margin-top 实测为 0）。
+ *   提权 ::before 无法绕开它而不破坏避让。tocbot v4 走 window.scrollTo 自算坐标、
+ *   不读 scroll-margin-top，也不补偿——任何「清空 ::before / 改 scroll-margin」的改法
+ *   都会让那 78px 消失且无人兜底。
+ *
+ * top 的两次校准（勿按公式推算，em 盒顶 ≠ 墨迹顶）：
+ *   ① 初值 .16em（按 (line-height−1)/2 推算）——实测竖标浮在文字上方约 74px 的空白里，
+ *      已否决。原因：::after 的 top 相对**h2 盒顶**，而文字被 ::before 的 -5rem/5rem
+ *      推到盒内 78px 处，两者根本不在同一坐标系。
+ *   ② 现值 5rem——与 ::before 的 -5rem 对称，直接对齐到文字所在的那一层。
+ *      复测：模块页全部 6 个 h2 的「竖标顶 → 文字墨迹顶」偏差均为 −2px（阈值 ≤4px）。
+ *
+ * 配套要点：h2 需 position:relative 作为 ::after 的定位上下文，padding-left 让出竖标宽度。
+ * ::after 不进文档流 → h2 盒高与文字基线不变 → 78px 锚点避让完整保留。
+ *
+ * 若日后主题调整或移除这条避让规则，`top: 5rem` 需重新用「盒顶 → 文字墨迹顶」实测校准。
+ * 详见 REVIEW-2026-10-18-PM.md §八-4。
+ */
+.rich-section h2 { position: relative; padding-left: 1.1rem; }
+.rich-section h2::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  /* 5rem 而非小值：主题 main.css 的 `.markdown-body h2::before` 带 margin-top:-5rem + height:5rem，
+     这条「锚点避让」规则把文字推到 h2 盒顶下方 78px 处（文章页与模块页实测一致，由 5rem
+     这个绝对长度决定）。::after 的 top 是相对**盒顶**而不是文字顶，故取对称的 5rem 对齐到
+     文字那一层；取 .16em 这类小值会让竖标浮在标题上方的空白里（已实测否决，见上方注释）。 */
+  top: 5rem;
+  width: 4px;
+  height: .92em;
+  background: var(--accent);
+  border-radius: 1px;
+}
 
 .media-wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .8rem; }
 .media-wall figure { margin: 0; }
@@ -1624,11 +1677,11 @@ a.feed-title:hover {
 .page-head-plain .page-head-title { font-size: clamp(1.8rem, 3.4vw, 2.4rem); font-weight: 800; margin: .3rem 0 .4rem; }
 .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
 .module-card {
-  display: block; background: var(--cream, #f9f6f1); border: 1px solid var(--line-color);
-  border-radius: var(--r-tile, 22px); overflow: hidden; color: var(--text-color);
+  display: block; background: var(--cream); border: 1px solid var(--line-color);
+  border-radius: var(--r-tile); overflow: hidden; color: var(--text-color);
   text-decoration: none; transition: transform .12s ease, border-color .12s ease;
 }
-.module-card:hover { transform: translateY(-2px); border-color: var(--line-strong, rgba(42, 37, 29, .24)); }
+.module-card:hover { transform: translateY(-2px); border-color: var(--line-strong); }
 .module-card-img { display: block; }
 .module-card-img img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; border-bottom: 1px solid var(--line-color); }
 .module-card-body { display: block; padding: .9rem 1rem 1rem; }

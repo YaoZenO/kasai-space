@@ -24,7 +24,7 @@ global.hexo = {
   extend: { filter: { register: (name, fn) => registered.push({ name, fn }) } },
 };
 
-const { versionedUrl, fileHash } = require(path.join(ROOT, 'themes/fluid/scripts/filters/asset-version.js'));
+const { versionedUrl, fileHash, absHash, stampMainCss } = require(path.join(ROOT, 'themes/fluid/scripts/filters/asset-version.js'));
 
 let passed = 0;
 function ok(label, fn) {
@@ -142,8 +142,92 @@ ok('模板不用 css()/js() helper 处理带版本号的自定义资源', () => 
       assert.match(html, /href="\/css\/site\.css\?v=[0-9a-f]{8}"/, 'site.css 未带版本号');
       assert.ok(!/site\.css\?v=[0-9a-f]+\.css/.test(html), 'site.css 被拼上了 .css 后缀（404 形态）');
     });
+    ok('产物中 main.css 链接带 8 位 hash（改了 _config.yml 的颜色也要能被浏览器看到）', () => {
+      assert.match(html, /href="\/css\/main\.css\?v=[0-9a-f]{8}"/,
+        'main.css 未带版本号——改 _config.yml 颜色后浏览器会继续用旧副本，主人看不到改动');
+    });
   }
 }
+
+// ---------------------------------------------------------------------------
+// 2026-10-18 新增：main.css 的缓存破坏
+//
+// 问题（已实证）：main.css 由 styl 从 themes/fluid/_config.yml 的 color 段编译而来。
+// 主人改那份配置 → site.css 内容不变 → 它的 hash 不变；main.css 内容变了，
+// 但它在 css.ejs 里是裸拼 URL（href="/css/main.css"，无任何版本参数）→ 浏览器命中旧副本
+// → **改了配置但主人看不到**。这条链路此前完全没有防复发机制。
+//
+// 这里锁：① 纯函数把 ?v=<产物 hash> 正确盖到 main.css 上；② 幂等（不叠加 ?v=..?v=..）；
+// ③ 只影响 main.css，不碰 site.css 与外链；④ filter 注册在 after_generate（须等文件写盘）。
+// ---------------------------------------------------------------------------
+console.log('\nmain.css 缓存破坏（产物内容 hash）');
+
+{
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'maincss-'));
+  try {
+    fs.mkdirSync(path.join(tmp, 'css'), { recursive: true });
+    fs.writeFileSync(path.join(tmp, 'css', 'main.css'), ':root{--line-color:#cfc6b2}');
+    const h = absHash(path.join(tmp, 'css', 'main.css'));
+
+    ok('absHash 等于 main.css 产物的 sha1 前 8 位', () => {
+      assert.match(h, /^[0-9a-f]{8}$/, 'absHash 不是 8 位 hex');
+      assert.strictEqual(h, crypto.createHash('sha1').update(fs.readFileSync(path.join(tmp, 'css', 'main.css'))).digest('hex').slice(0, 8));
+    });
+
+    ok('给裸拼的 main.css 链接盖上 ?v=<hash8>', () => {
+      const out = stampMainCss('<link rel="stylesheet" href="/css/main.css">', tmp);
+      assert.ok(out.includes(`href="/css/main.css?v=${h}"`), `未盖上版本号：${out}`);
+    });
+
+    ok('幂等：已带 v= 的链接重盖后不叠加版本参数', () => {
+      const out = stampMainCss(`<link rel="stylesheet" href="/css/main.css?v=${h}">`, tmp);
+      assert.strictEqual((out.match(/\?/g) || []).length, 1, `叠加出多个查询串：${out}`);
+      assert.ok(out.includes(`?v=${h}`), '幂等重算后 hash 变了');
+    });
+
+    ok('只盖 main.css：site.css 的版本号不受影响', () => {
+      const out = stampMainCss('<link href="/css/site.css?v=aaaaaaaa"><link href="/css/main.css">', tmp);
+      assert.ok(out.includes('/css/site.css?v=aaaaaaaa'), 'site.css 的版本号被误改');
+      assert.ok(out.includes(`/css/main.css?v=${h}`), 'main.css 未被盖上版本号');
+    });
+
+    ok('不碰外链与其它 css', () => {
+      const html = '<link href="https://cdn.example.com/main.css"><link href="/css/other.css">';
+      assert.strictEqual(stampMainCss(html, tmp), html, '误改了非 main.css 资源');
+    });
+
+    ok('main.css 产物缺失时原样返回，不制造坏链接', () => {
+      const empty = fs.mkdtempSync(path.join(os.tmpdir(), 'maincss-none-'));
+      try {
+        const html = '<link href="/css/main.css">';
+        assert.strictEqual(stampMainCss(html, empty), html);
+      } finally {
+        fs.rmSync(empty, { recursive: true, force: true });
+      }
+    });
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+}
+
+ok('main.css 的 filter 注册在 after_generate 与 exit', () => {
+  // 2026-10-18 实测否决了 after_render:html：逐页渲染发生在 CSS 编译之前，
+  // 冷启动（Vercel 的干净 checkout 正是这条路径）下触发时 public/css/main.css 还不存在，
+  // hash 恒为 null → 生产必然失效。详见 filter 文件内的注释。
+  assert.ok(registered.some((r) => r.name === 'after_generate'),
+    '未注册 after_generate —— 正常 hexo generate（含 Vercel）不会给 main.css 盖 hash');
+  assert.ok(registered.some((r) => r.name === 'exit'),
+    '未注册 exit 兜底');
+});
+
+ok('测试侧补写契约存在（E2E 的进程内调用不触发上述 filter）', () => {
+  // test/module-pages-e2e.js 的 rebuildClean() 用 hexo.call('generate') 进程内重建 public/，
+  // 实测不触发 after_generate / exit，因此那里必须显式调用 stampAll 补齐。
+  // 缺了这一句，测试跑完 public/ 里 main.css 的版本号会被清空 → 下面的产物断言红。
+  const e2e = fs.readFileSync(path.join(ROOT, 'test/module-pages-e2e.js'), 'utf8');
+  assert.ok(/stampAll\(PUBLIC\)/.test(e2e),
+    'rebuildClean() 里没有显式调用 stampAll —— E2E 跑完产物会丢 main.css 版本号');
+});
 
 console.log(`\nRESULT: ${passed} 项断言通过${process.exitCode ? '，存在失败' : ''}`);
 process.exit(process.exitCode || 0);

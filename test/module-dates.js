@@ -165,6 +165,23 @@ ok('themes/fluid/layout 下无任何模板把 Date 对象直出', () => {
 });
 
 console.log('\n[3] 构建产物回归（public/ 存在时）');
+// E-030：数据文件 YAML 解析失败时 Hexo 只报一行 ERROR，仍打印「N files generated」、
+// 退出码 0，但对应模块的页面根本没生成。必须直接解析验证。
+const yaml = require('js-yaml');
+const DATA_DIR = path.join(ROOT, 'source/_data');ok('source/_data/*.yml 全部可解析（E-030：块标量缩进错误会让整站不生成）', () => {
+  const broken = [];
+  for (const n of fs.readdirSync(DATA_DIR)) {
+    if (!n.endsWith('.yml')) continue;
+    try {
+      const d = yaml.load(fs.readFileSync(path.join(DATA_DIR, n), 'utf8'));
+      assert(d && typeof d === 'object', `${n}: 顶层不是对象`);
+    } catch (e) {
+      broken.push(`${n}: ${e.message.split('\n')[0]}`);
+    }
+  }
+  assert(!broken.length, `YAML 解析失败: ${broken.join(' | ')}`);
+});
+
 const PUBLIC = path.join(ROOT, 'public');
 if (!fs.existsSync(PUBLIC)) {
   console.log('  SKIP  public/ 不存在（先 npm run build）');
@@ -178,13 +195,18 @@ if (!fs.existsSync(PUBLIC)) {
       if (fs.statSync(p).isDirectory()) { walk(p); continue; }
       if (!n.endsWith('.html')) continue;
       count++;
-      if (RAW_RE.test(fs.readFileSync(p, 'utf8'))) bad.push(path.relative(PUBLIC, p).replace(/\\/g, '/'));
+      const html = fs.readFileSync(p, 'utf8');
+      // 只查 <time> 标签：文章正文里提到机器串（如记录本 bug 的文章）是正常内容，
+      // 那不是渲染缺陷。真正的缺陷一定出现在 <time> 元素里。
+      const times = html.match(/<time\b[\s\S]*?<\/time>/g) || [];
+      const raw = times.filter((t) => RAW_RE.test(t));
+      if (raw.length) bad.push(`${path.relative(PUBLIC, p).replace(/\\/g, '/')} → ${raw[0].replace(/\s+/g, ' ').slice(0, 80)}`);
     }
   })(PUBLIC);
-  ok(`public/ 共 ${count} 个 HTML，无机器串日期`, () => {
-    assert(!bad.length, `含机器串日期: ${bad.slice(0, 8).join(', ')}`);
+  ok(`public/ 共 ${count} 个 HTML，<time> 标签无机器串日期`, () => {
+    assert(!bad.length, `<time> 含机器串日期: ${bad.slice(0, 8).join(', ')}`);
   });
-  // E-029：Hexo 渲染抛错时会写入 0 字节 HTML，但构建仍报「N files generated」、退出码 0。
+  // E-029：Hexo 渲染抛错会写入 0 字节 HTML，但构建仍报「N files generated」、退出码 0。
   // 只看构建输出与退出码会完全漏掉，必须直接量字节数。
   ok('public/ 下无 0 字节 HTML（E-029：渲染失败静默产出空页面）', () => {
     const empties = [];
@@ -223,6 +245,72 @@ if (!fs.existsSync(PUBLIC)) {
     assert(!problems.length, problems.slice(0, 5).join(' | '));
   });
 }
+
+/* ---------- 变异自检 ----------
+ * 「测试通过」不代表「检测方法有效」（E-026/E-027 的教训）。这里主动把代码改坏，
+ * 验证上面的断言真的会红。E-032：一律走 test/mutate.js 的内存备份 + finally 写回，
+ * 严禁 git checkout / git restore —— 那会冲掉同文件里他人未提交的改动。
+ */
+console.log('\n[4] 变异自检（把代码改坏，断言必须 FAIL）');
+const mut = require('./mutate');
+
+// 期望变异后验证函数抛出断言错误（即检测到变异、断言会红）
+function expectFail(label, rel, mutate, verify) {
+  let threw = false;
+  let reason = '';
+  try {
+    const r = mut.run(label, rel, mutate, verify);
+    if (!r.ran) reason = r.reason || '';
+  } catch (e) {
+    threw = true;
+  }
+  if (threw) {
+    console.log(`  PASS  ${label} → 断言如预期 FAIL（检测有效）`);
+    return;
+  }
+  // 没跑成不算测试失败：目标文本 / 文件状态会随真实内容变化（E-021 同源：
+  // 断言不能耦合仓库内容）。但必须显式说明，不能默默通过。
+  console.log(`  SKIP  ${label}（${reason || '变异未执行'}）`);
+}
+
+// 模板变异一定能跑（模板内容由本测试套件锁定）。
+// verify 复现 [2] 里的真实检测逻辑：变异后它必须抛错，说明那条断言确实拦得住退化。
+expectFail(
+  '模板直出 Date 被检出',
+  'themes/fluid/layout/game.ejs',
+  (t) => t.replace('<%= fmtItemDate(it.date) %>', '<%= new Date(it.date) %>'),
+  () => {
+    // 与 [2] 中「不出现 <%= new Date(」同一条判定
+    const src = fs.readFileSync(path.join(ROOT, 'themes/fluid/layout/game.ejs'), 'utf8');
+    assert(!/<%=[^%]*new Date\(/.test(src), '发现 <%= new Date(...) %>：Date 直出会渲染成机器串');
+  }
+);
+
+// YAML 变异：不依赖具体文案，取第一个 gameplay 块标量的第二行、把缩进减一。
+// 这样无论主人把文案改成什么样，变异都能构造出来（E-032 后原文已不可用）。
+expectFail(
+  'YAML 块标量缩进错误被检出',
+  'source/_data/games.yml',
+  (t) => {
+    const lines = t.split('\n');
+    const start = lines.findIndex((l) => /^\s{2}gameplay: \|-\s*$/.test(l));
+    assert(start >= 0, 'games.yml 里找不到 gameplay 块标量');
+    // 找块内第一行有内容的行（缩进 6），把它改成 5
+    for (let i = start + 1; i < lines.length; i++) {
+      if (lines[i].trim() === '') continue;
+      if (/^\s+links:/.test(lines[i])) break;
+      if (/^ {6}\S/.test(lines[i])) {
+        lines[i] = lines[i].slice(1); // 6 → 5
+        return lines.join('\n');
+      }
+    }
+    assert(false, 'gameplay 块内找不到可变异的内容行');
+  },
+  () => {
+    // 与 [3] 中「*.yml 全部可解析」同一条判定
+    yaml.load(fs.readFileSync(path.join(ROOT, 'source/_data/games.yml'), 'utf8'));
+  }
+);
 
 console.log(`\n结果：${passed} 通过，${failures} 失败\n`);
 process.exit(failures ? 1 : 0);
