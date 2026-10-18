@@ -64,19 +64,26 @@ if (fs.existsSync(mainCssPath)) {
   const at = mainCss.indexOf('.markdown-body h2::before');
   const block = at === -1 ? '' : mainCss.slice(mainCss.indexOf('{', at), mainCss.indexOf('}', at));
 
-  ok('主题锚点避让 hack 仍是 -5rem + visibility:hidden（变了必须重新校准 site.css 的 top:5rem）', () => {
+  ok('主题锚点避让 hack 仍是 -5rem + visibility:hidden（文章页跳转依赖它）', () => {
     assert.ok(at !== -1, 'main.css 找不到 .markdown-body h2::before —— 主题升级改动了这条规则，'
-      + 'site.css 的 `.rich-section h2::after` 的 top:5rem 需按「盒顶→文字墨迹顶」重新实测校准');
-    assert.match(block, /margin-top:\s*-5rem/, '避让量变了：-5rem 不再是现值');
-    assert.match(block, /visibility:\s*hidden/, '避让 hack 不再隐藏 —— 竖标方案的前提变了');
+      + '文章页的锚点跳转会失去避让，需复查 post 页面跳转位置');
+    assert.match(block, /margin-top:\s*-5rem/, '避让量变了：不再是 -5rem');
+    assert.match(block, /visibility:\s*hidden/, '避让 hack 不再隐藏 —— 文章页版式会变');
   });
 
-  ok('site.css 竖标保持 ::after + top:5rem（勿按 line-height 公式改成 em 小值）', () => {
+  ok('模块页已把主题避让归零（.rich-section h2::before）', () => {
+    const rule = siteCss.match(/\.rich-section h2::before\s*\{[^}]*\}/);
+    assert.ok(rule, 'site.css 缺少 .rich-section h2::before 归零规则 —— 模块页每个标题上方会白留 80px');
+    assert.match(rule[0], /margin-top:\s*0/, '避让未归零：margin-top 不是 0');
+    assert.match(rule[0], /height:\s*0/, '避让未归零：height 不是 0');
+  });
+
+  ok('竖标 ::after 的 top 与归零状态联动（现为 0）', () => {
     const rule = siteCss.match(/\.rich-section h2::after\s*\{[^}]*\}/);
     assert.ok(rule, 'site.css 缺少 .rich-section h2::after 规则');
-    assert.match(rule[0], /position:\s*absolute/, '竖标必须是 absolute，否则会进文档流、破坏 78px 避让');
-    assert.match(rule[0], /top:\s*5rem/, 'top 被改了：5rem 是与 ::before 的 -5rem 对称的实测值，'
-      + '按 (line-height-1)/2 推算的 .16em 会让竖标浮在标题上方 74px（已实测否决）');
+    assert.match(rule[0], /position:\s*absolute/, '竖标必须是 absolute，否则会进文档流、挤动版式');
+    assert.match(rule[0], /top:\s*0(?:;|\s)/, 'top 不是 0：避让已归零、文字在盒顶，'
+      + 'top 必须同步为 0，否则竖标掉到标题下方 78px（改归零规则时此处必须一起改）');
   });
 } else {
   console.log('  SKIP 主题 hack 耦合检查（无 public/css/main.css，先跑 hexo generate）');

@@ -155,13 +155,46 @@ if (typeof hexo !== 'undefined' && hexo && hexo.extend && hexo.extend.filter) {
 
   // 生产链路：hexo generate（含 Vercel）走这里。
   hexo.extend.filter.register('after_generate', function () {
+    if (process.env.ASSET_VERSION_DEBUG) {
+      const p = path.join(hexo.public_dir || '', 'css', 'main.css');
+      console.log('[asset-version] after_generate main.css exists =', fs.existsSync(p));
+    }
     stampAll(hexo.public_dir);
   });
 
-  // 兜底：进程正常退出前再扫一次。CLI 路径 after_generate 已覆盖，此处防的是
-  // 「after_generate 未触发但进程仍正常退出」的情形（如某些 CI 调用方式）。
+  // 真正的写盘完成点：generateAfter 事件（after_generate 时 CSS 常尚未落盘，实测踩到）。
+  if (typeof hexo.on === 'function') {
+    hexo.on('generateAfter', function () {
+      if (process.env.ASSET_VERSION_DEBUG) {
+        const p = path.join(hexo.public_dir || '', 'css', 'main.css');
+        console.log('[asset-version] generateAfter main.css exists =', fs.existsSync(p));
+      }
+      stampAll(hexo.public_dir);
+    });
+  }
+
+  // 兜底：Hexo 自己的 exit filter。⚠️ 实测它在 CLI `hexo generate` 路径下**不触发**
+  // （只有 `hexo.call('exit')` 之类显式调用才走），所以下面那条 process 级钩子才是主力。
   hexo.extend.filter.register('exit', function () {
     stampAll(hexo.public_dir);
+  });
+
+  // 主力：Node 进程级 exit（2026-10-19 实测补上）。
+  //
+  // 为什么必须到这一层：干净/全量构建时（Vercel 每次都是干净 checkout），
+  // after_generate 与 generateAfter 触发的那一刻 public/css/main.css **尚未落盘**
+  // （实测 exists = false），stampAll 会因拿不到 hash 直接返回；而 Hexo 的 exit filter
+  // 在 CLI 下又不触发 → 全站 HTML 拿不到版本号。上一轮「41/42 覆盖」的验证是**假阳性**：
+  // 那次跑的是增量构建，main.css 早就躺在盘上，after_generate 才有得盖。
+  // 进程退出前所有写盘均已完成，这里扫盘盖章是唯一对全量构建也成立的时序。
+  //
+  // 只用同步 API：process 的 exit 事件里异步写盘不会被执行完。
+  process.on('exit', function () {
+    try {
+      stampAll(hexo.public_dir);
+    } catch (e) {
+      /* 退出阶段的失败不应影响构建退出码 */
+    }
   });
 }
 

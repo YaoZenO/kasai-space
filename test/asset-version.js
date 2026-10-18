@@ -229,5 +229,60 @@ ok('测试侧补写契约存在（E2E 的进程内调用不触发上述 filter�
     'rebuildClean() 里没有显式调用 stampAll —— E2E 跑完产物会丢 main.css 版本号');
 });
 
+// ---------------------------------------------------------------------------
+// 2026-10-19 补：真·冷启动全量构建（Vercel 生产路径）的产物断言
+//
+// 上一轮的「41/42 覆盖」是**假阳性**——那次跑的是增量构建，main.css 早就在盘上，
+// 于是 after_generate 有得盖。真实生产（Vercel 每次干净 checkout）是全量构建：
+// 实测 after_generate 与 generateAfter 触发时 public/css/main.css exists = false，
+// 而 Hexo 的 exit filter 在 CLI 下根本不触发 → 全站拿不到版本号，
+// main.css 的缓存破坏在生产上等于没做（正是 E-035 要治的那个病）。
+//
+// 判据只看结果、不看实现：删光 public/ 后跑一次真实 CLI 构建，产物必须带 hash。
+// ---------------------------------------------------------------------------
+console.log('\n冷启动全量构建（模拟 Vercel 干净 checkout）');
+
+{
+  const PUBLIC = path.join(ROOT, 'public');
+  const { execSync } = require('node:child_process');
+  let out = '';
+  try {
+    fs.rmSync(PUBLIC, { recursive: true, force: true });
+    out = execSync('npx hexo generate', { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
+  } catch (e) {
+    out = String((e && e.stdout) || '');
+  }
+
+  ok('冷启动构建成功产出 public/index.html', () => {
+    assert.ok(fs.existsSync(path.join(PUBLIC, 'index.html')), `构建没有产出 index.html：${out.slice(-300)}`);
+  });
+
+  if (fs.existsSync(path.join(PUBLIC, 'index.html'))) {
+    const html = fs.readFileSync(path.join(PUBLIC, 'index.html'), 'utf8');
+    const realHash = absHash(path.join(PUBLIC, 'css', 'main.css'));
+
+    ok('全量构建也盖上版本号（此前只有增量构建能盖）', () => {
+      assert.ok(realHash, '构建后 public/css/main.css 不存在');
+      assert.ok(html.includes(`/css/main.css?v=${realHash}`),
+        `index.html 的 main.css 没带正确版本号（应为 ?v=${realHash}）——全量构建路径失效`);
+    });
+
+    ok('全站覆盖：除 admin/ 外每个 HTML 都带版本号', () => {
+      const all = [];
+      (function walk(dir) {
+        for (const name of fs.readdirSync(dir)) {
+          const abs = path.join(dir, name);
+          if (fs.statSync(abs).isDirectory()) walk(abs);
+          else if (/\.html$/i.test(name)) all.push(path.relative(PUBLIC, abs).replace(/\\/g, '/'));
+        }
+      })(PUBLIC);
+      const expect = all.filter((n) => !n.startsWith('admin/'));
+      const missing = expect.filter((n) => !fs.readFileSync(path.join(PUBLIC, n), 'utf8').includes('main.css?v='));
+      assert.strictEqual(missing.length, 0,
+        `${missing.length} 个页面缺少 main.css 版本号：${missing.slice(0, 5).join(', ')}`);
+    });
+  }
+}
+
 console.log(`\nRESULT: ${passed} 项断言通过${process.exitCode ? '，存在失败' : ''}`);
 process.exit(process.exitCode || 0);

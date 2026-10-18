@@ -1629,29 +1629,42 @@ a.feed-title:hover {
  *   不读 scroll-margin-top，也不补偿——任何「清空 ::before / 改 scroll-margin」的改法
  *   都会让那 78px 消失且无人兜底。
  *
- * top 的两次校准（勿按公式推算，em 盒顶 ≠ 墨迹顶）：
- *   ① 初值 .16em（按 (line-height−1)/2 推算）——实测竖标浮在文字上方约 74px 的空白里，
- *      已否决。原因：::after 的 top 相对**h2 盒顶**，而文字被 ::before 的 -5rem/5rem
- *      推到盒内 78px 处，两者根本不在同一坐标系。
- *   ② 现值 5rem——与 ::before 的 -5rem 对称，直接对齐到文字所在的那一层。
- *      复测：模块页全部 6 个 h2 的「竖标顶 → 文字墨迹顶」偏差均为 −2px（阈值 ≤4px）。
+ * top 的三次校准（勿按公式推算，em 盒顶 ≠ 墨迹顶）：
+ *   ① .16em（按 (line-height−1)/2 推算）——实测竖标浮在文字上方约 74px 的空白里，否决。
+ *      原因：::after 的 top 相对**h2 盒顶**，而文字被 ::before 的 -5rem/5rem 推到盒内
+ *      78px 处，两者根本不在同一坐标系。
+ *   ② 5rem（与 ::before 的 -5rem 对称）——主题避让还在时对齐正确，GAP −2px。
+ *   ③ 0（现值）——主人拍板清掉模块页的 80px 避让占位后（见下方归零规则），文字回到盒顶，
+ *      top 同步归零。三个阶段都是实测值，不是公式值。
  *
  * 配套要点：h2 需 position:relative 作为 ::after 的定位上下文，padding-left 让出竖标宽度。
- * ::after 不进文档流 → h2 盒高与文字基线不变 → 78px 锚点避让完整保留。
+ * ::after 不进文档流 → h2 盒高与文字基线不变。
  *
- * 若日后主题调整或移除这条避让规则，`top: 5rem` 需重新用「盒顶 → 文字墨迹顶」实测校准。
- * 详见 REVIEW-2026-10-18-PM.md §八-4。
+ * 主题那条避让规则**文章页仍然依赖**（导航栏遮挡 + tocbot 跳转），模块页已不依赖。
+ * 详见 REVIEW-2026-10-18-PM.md §八-4 与 §六 第 7 项。
  */
-.rich-section h2 { position: relative; padding-left: 1.1rem; }
+
+/* 模块页专属：把主题那条锚点避让归零（2026-10-19，主人拍板「清理」）。
+ *
+ * 文章页需要避让（顶部固定导航会盖住标题，tocbot 跳转要把标题让到导航下方）；
+ * 但模块详情页**没有 TOC，也不加载 anchorjs**（REVIEW §8-7 第 3 例），
+ * -5rem / 5rem 在这里没有对象可避——它只是在每个 h2 上方白撑出 80px。
+ * 归零后间距交回 `.rich-section` 自己的 margin 控制（底部 2.6rem + h2 上边距 1.4rem）。
+ *
+ * ⚠️ 与紧随其后的 `::after { top: 0 }` 是联动的：避让一归零，文字就回到盒顶，
+ * top 必须同步归零，否则竖标会掉到标题下方 78px。改一处必须改另一处。
+ * 特异性：本站选择器与主题 `.markdown-body h2::before` 构成对称，靠 site.css 后加载胜出。
+ */
+.rich-section h2::before { margin-top: 0; height: 0; }
+
+.rich-section h2 { position: relative; padding-left: 1.1rem; margin-top: 1.4rem; }
 .rich-section h2::after {
   content: "";
   position: absolute;
   left: 0;
-  /* 5rem 而非小值：主题 main.css 的 `.markdown-body h2::before` 带 margin-top:-5rem + height:5rem，
-     这条「锚点避让」规则把文字推到 h2 盒顶下方 78px 处（文章页与模块页实测一致，由 5rem
-     这个绝对长度决定）。::after 的 top 是相对**盒顶**而不是文字顶，故取对称的 5rem 对齐到
-     文字那一层；取 .16em 这类小值会让竖标浮在标题上方的空白里（已实测否决，见上方注释）。 */
-  top: 5rem;
+  /* top 为 0 而非 5rem：上方 `.rich-section h2::before` 已把主题避让归零，文字就在盒顶。
+     ::after 的 top 相对盒顶，故直接取 0。若哪天撤销归零规则，此处必须跟着改回 5rem。 */
+  top: 0;
   width: 4px;
   height: .92em;
   background: var(--accent);
