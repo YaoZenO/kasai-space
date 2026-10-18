@@ -216,7 +216,7 @@
 
 1. **站名排印三件套受保护**：Archivo 900 + `letter-spacing: -0.02em` + `clamp` 流式字号（site.css L316-326）。任何改站名、改字重、改字距的提案，先过本条；N-3「站名去 Blog」待主人确认——若改，只改字符串，不动排印三件套。
 2. 中文不进紧字距的 unicode-range 机制不得移除。
-3. `::selection` 现状 `rgba(176,72,42,.18)`（纸面复合 `#e9d3c7`，墨字 10.58:1 可读）。H-4 建议「选中不再发红」**【建议值 · 待主人确认】**，未确认前维持现状。
+3. `::selection` 已于 2026-10-19 按 H-4 采纳改为墨色 `rgba(42,37,29,.12)`（选中是阅读行为，不是交互行为，砖红只留给交互与强调）。原 `rgba(176,72,42,.18)` 已停用。
 4. 等宽轨的 `letter-spacing` 既有分工（kicker 0.22em / 身份词 0.12em / 元信息 0.04–0.08em）不得拉平成单一值。
 
 ---
@@ -298,8 +298,8 @@
 
 ### 5.2 首页身份域（`.identity`）
 
-- **构成**（自上而下）：头像卡（84px、12px 圆角、1px chip border、float shadow）→ 站名 h1（`.identity-name`，D0）→ 身份词竖列（等宽 0.78rem、次级色、左 hairline、0.12em 字距，`site.yml identity_words` 驱动，空数组不渲染）→ tagline（系统黑体 1.02rem / 1.9、次级色、`max-width: 44ch`）→ CTA 组（一实一虚）。
-- **状态**：`.cta-solid` hover → accent 底 + `#fdfbf6` 字；`.cta-link` hover → accent + 下划线（`text-underline-offset: 4px`）；头像卡无独立 hover（非链接）。
+- **构成**（自上而下）：头像卡（84px、12px 圆角、1px chip border、float shadow）→ 站名 h1（`.identity-name`，D0）→ 身份词铭牌（墨色 0.9rem、0.2em 字距、词间 hairline、`01 / 02` 序数前缀走 `--info-mark`，`site.yml identity_words` 驱动，空数组不渲染；2026-10-19 按 A9 升格，原「等宽 0.78rem 次级色」已停用）→ tagline（系统黑体 1.02rem / 1.9、次级色、`max-width: 44ch`）→ CTA 组（一实一虚）。
+- **状态**：`.cta-solid` hover → accent 底 + `#fdfbf6` 字；`.cta-link` hover → accent + 下划线（粗细与 offset 由 §7 水波基线接管，本处只声明 `text-decoration`）；头像卡无独立 hover（非链接）。
 - **空态 / 降级**：`site.yml avatar` 为空 → 触发首字母 monogram 降级（VD-7 短期方案：比展示主题作者示例图专业）；`identity_words` 空 → 竖列不渲染。
 - **可访问性**：头像 `alt` 为站名或主人名（待 §10 确认后定值）；h1 全页唯一。
 - **待确认（进 §10）**：真名上首屏及形式（F-2 / H-1，建议副行「KASAI · 韩耀宇」）；身份词竖列升格为「身份铭牌」（H-2）；档案页入口行文案与形式（IA-10）；头像素材与形态（VD-7）。
@@ -426,12 +426,12 @@
 
 **白名单外一律禁止**；时长上限 0.25s。验收：grep `transition` / `animation` / `@keyframes`，属性与时长落在白名单内。
 
-### 6.2 「水波下划线」hover 母题（H-4，建议新增 · 待主人确认）
+### 6.2 「水波下划线」hover 母题（H-4，2026-10-19 主人拍板采纳，已落地）
 
 - 内容：文字链 hover 用 `text-underline-offset` 3px→6px + `text-decoration-thickness` 1px→2px 过渡，**零位移**；不适配色移。
 - 理由：「hover 上浮」是最容易被读成模板的手法（所有模板都做）；motto 已是「Be water, my friends.」——水波与 motto 是同一个人的两处签名，投入最小、去模板感收益最大（H-4）。
 - 边界：不取代全部 `translateY(-2px)`（卡 / 格保留上浮，那是「可提起的物件」；文字链是「纸上的字」，不该浮起来）；配套 `::selection` 不再发红（§3.5.3）。
-- 未确认前，hover 维持现行白名单三种。
+- **落地方式（2026-10-19 主人拍板采纳）**：`site.css` §7 定义全站文字链基线（默认 thickness 1px / offset 3px，hover 2px / 6px）作为**唯一定义处**；各组件的 hover 只声明「要不要显示下划线」（`text-decoration`），粗细与位置一律不再写死，原先散落 6 处的 offset 值已删除收归基线。调水波只需改这一处。
 
 ### 6.3 阴影纪律
 
@@ -616,9 +616,9 @@
 | A4 | `--accent-soft` 定值 | 现行两处 fallback `.12` / `.28` 不一致，补齐时必改一处视觉 | 本规范新发现（附录 B-2） |
 | A5 | 圆角与 7 token 补齐 | `--r-tile` 22px → 12px；`--cream` 复用 `#fdfbf6`；补齐 `--r-card/--ink-warm/--cream-on-dark/--line-strong/--accent-soft` | VD-5 / C-6 |
 | A6 | 暗色校准值（仅当启用） | body `#1a1814` / sec `#a7a9ad` / text `#c4c6c9` / accent 提亮 `#d9724a`（5.45:1） | C-7 |
-| A7 | 代码块底色（可选） | `pre` 底 `#fdfbf6` + 1px hairline | VD-10 |
-| A8 | 水波下划线母题 + `::selection` 不发红 | 新增 hover 母题（offset 3→6px、粗细 1→2px、零位移） | H-4 |
-| A9 | 身份词竖列升格 | mono 0.78rem 次级 → 墨色 0.9rem + ls .2em + 词间 hairline（或等宽序数前缀） | H-2 |
+| ~~A7~~ | ~~代码块底色~~ **已定（2026-10-19 采纳）** | `pre` 底 `#fdfbf6` + 1px hairline；行号槽分隔线与行内 code 底同步去冷灰 | VD-10 |
+| ~~A8~~ | ~~水波下划线母题~~ **已定（2026-10-19 采纳）** | 文字链 hover：offset 3→6px、粗细 1→2px、零位移；`::selection` 改墨色 12%；卡 / 格上浮保留 | H-4 |
+| ~~A9~~ | ~~身份词竖列升格~~ **已定（2026-10-19 采纳）** | mono 0.78rem 次级 → 墨色 0.9rem + ls .2em + 词间 hairline + `01 / 02` 序数前缀 | H-2 |
 | A10 | 头像圆形化 | 12px 方卡 → 圆形 + 1px 描边 + 去阴影（圆角标尺唯一例外） | VD-7 / F-1 |
 
 ### B. 品牌、内容与露出位（主人决策，规范只给框架）
