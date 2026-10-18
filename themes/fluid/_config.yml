@@ -971,6 +971,10 @@ archive:
   # 「文字」页顶部的精选摘录：挑几篇值得先读的文章，各附一句说明。
   # slug 对不上文章就自动跳过，不渲染死链；数组为空则整段不渲染。
   featured:
+    - slug: empty-card-and-latest-post
+      note: 一篇测试文章怎么占住了首页最大的板块，以及「最新」为什么不能等于「最好」。
+    - slug: date-becomes-machine-string
+      note: 一个日期怎么变成了 GMT+0000 的长串，以及一次「构建成功但产物是 0 字节」的静默失败。
     - slug: C++-Job-StudyRoadMap
       note: 按「入门 → 打基础 → 精进 → 实战 → 进阶」五个阶段整理的 C++ 求职路线，书与视频都标了必看 / 选看。
     - slug: personal-reflectio
