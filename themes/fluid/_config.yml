@@ -18,11 +18,15 @@
 
 # 用于浏览器标签的图标
 # Icon for browser tab
-favicon: /img/fluid.png
+favicon: /img/favicon-32.png
+
+# 小尺寸标签图标（16x16，非高分屏标签页像素级呈现）
+# Small tab icon for non-hidpi displays
+favicon_16: /img/favicon-16.png
 
 # 用于苹果设备的图标
 # Icon for Apple touch
-apple_touch_icon: /img/fluid.png
+apple_touch_icon: /img/apple-touch-icon.png
 
 # 浏览器标签页中的标题分隔符，效果：文章名 - 站点名
 # Title separator in browser tab, eg: article - site
