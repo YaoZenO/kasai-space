@@ -40,8 +40,7 @@ var picks = (theme.archive && theme.archive.featured) || []
       <div class="pick-list">
         <% picked.forEach(function (row) { %>
         <% var post = row.post %>
-        <% var excerpt = post.description || post.excerpt || '' %>
-        <% if (!excerpt) { excerpt = String(strip_html(post.content || '') || '').replace(/\s+/g, ' ').trim().substring(0, 110) } %>
+        <% var excerpt = excerptText(post, 110) %>
         <a class="pick-row is-lead" href="<%= url_for(post.path) %>">
           <% if (post.cover) { %><img class="pick-img" src="<%= url_for(post.cover) %>" alt="<%= post.title %>"><% } %>
           <div class="pick-main">

@@ -29,7 +29,8 @@ var links = it.links || []
       <% } %>
     </header>
 
-    <article class="about-body markdown-body">
+    <article class="about-body">
+      <div class="markdown-body">
       <% if (it.gameplay_html) { %>
       <section class="rich-section">
         <h2>玩法介绍</h2>
@@ -67,6 +68,7 @@ var links = it.links || []
       <% } %>
 
       <% if (!it.gameplay_html && !media.length && !it.video && !links.length) { %><p class="empty">详细介绍整理中。</p><% } %>
+      </div>
     </article>
 
     <footer class="detail-foot">

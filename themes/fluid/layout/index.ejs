@@ -70,10 +70,10 @@ for (var j = 0; j < postsArr.length; j++) {
 latestPosts = latestPosts.filter(function (p) { return postHasSubstance(p) })
 var totalPosts = site.posts.length
 
+/* 摘要统一走 helper（VD-8）：strip_html 后解码 HTML 实体、去代码块行号，
+   避免 EJS 输出标签二次转义成 &amp;amp;，也让摘要回归人话 */
 function postExcerpt(post, len) {
-  if (post.encrypt) { return '' }
-  var raw = post.description || post.excerpt || post.content || ''
-  return strip_html(raw).substring(0, len).trim().replace(/\s+/g, ' ')
+  return excerptText(post, len)
 }
 
 /* 文章可选封面：front-matter cover 字段，无则降级排版形态 */
@@ -131,7 +131,10 @@ wallModules.forEach(function (m) {
     var key = m.title + '|' + it.title
     if (feedSeen[key]) { return }
     feedSeen[key] = 1
-    feed.push({ type: m.title, title: it.title, link: it.link || '', date: new Date(it.date).valueOf() })
+    /* 模块条目优先链到站内详情页（UX-4）：与精选栏同一套 slug 拼接；
+       it.link 仅作无详情页时的外链兜底 */
+    var feedDetail = m.page ? '/' + m.key + '/' + (it.slug || encodeURIComponent(String(it.title))) + '/' : ''
+    feed.push({ type: m.title, title: it.title, link: feedDetail || it.link || '', date: new Date(it.date).valueOf() })
   })
 })
 feed.sort(function (a, b) { return b.date - a.date })
@@ -167,7 +170,7 @@ var featuredModule = null
 wallModules.forEach(function (m) { if (m.key === 'projects') { featuredModule = m } })
 %>
 
-<div class="home">
+<div class="home" id="top">
 
   <!-- 首屏：身份域 + 内容墙 -->
   <section class="home-hero home-wrap">
@@ -196,6 +199,10 @@ wallModules.forEach(function (m) { if (m.key === 'projects') { featuredModule = 
       </div>
     </div>
 
+    <%
+    /* 墙格收口（RL-1）：入口格总数为奇数时，末格跨 2 列把网格填满 */
+    var wallCellCount = wallModules.length + 2
+    %>
     <div class="wall">
       <% if (featuredPost) { %>
       <article class="wall-feature<%= postCover(featuredPost) ? ' has-cover' : '' %>">
@@ -239,7 +246,7 @@ wallModules.forEach(function (m) { if (m.key === 'projects') { featuredModule = 
           <span class="wall-cell-item">按主题浏览</span>
         </div>
       </a>
-      <a class="wall-cell cell-plain" href="<%= url_for('/tags/') %>">
+      <a class="wall-cell cell-plain<%= wallCellCount % 2 === 1 ? ' wall-cell-wide' : '' %>" href="<%= url_for('/tags/') %>">
         <div class="wall-cell-body">
           <span class="wall-cell-count"><%= site.tags.length %></span>
           <span class="wall-cell-title">标签</span>
@@ -262,6 +269,7 @@ wallModules.forEach(function (m) { if (m.key === 'projects') { featuredModule = 
     <section class="home-col">
       <div class="col-head">
         <h2 class="col-title">精选内容 <span class="col-count">/<%= featuredModule.count %></span></h2>
+        <a class="col-more" href="<%= url_for(featuredModule.page || '/projects/') %>">查看全部项目 →</a>
       </div>
       <div class="pick-list">
         <% featuredModule.items.forEach(function (it, idx) { %>
@@ -304,7 +312,7 @@ wallModules.forEach(function (m) { if (m.key === 'projects') { featuredModule = 
     <% if (feedRows.length) { %>
     <section class="home-col">
       <div class="col-head">
-        <h2 class="col-title">近期动态 <span class="col-count">/<%= feedRows.length %></span></h2>
+        <h2 class="col-title">近期动态 <span class="col-count">/<%= feed.length %></span></h2>
       </div>
       <ul class="feed-list">
         <% feedRows.forEach(function (f) { %>
@@ -327,7 +335,7 @@ wallModules.forEach(function (m) { if (m.key === 'projects') { featuredModule = 
   <!-- 页脚收尾 -->
   <footer class="home-end">
     <p class="end-line"><% if (motto) { %>—— <%= motto %><% } else if (sinceYear) { %>SINCE <%= sinceYear %> · <%= config.title %><% } %></p>
-    <a class="end-top" href="#">TOP ↑</a>
+    <a class="end-top" href="#top">TOP ↑</a>
   </footer>
 
 </div>

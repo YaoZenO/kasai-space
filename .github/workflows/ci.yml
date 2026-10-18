@@ -9,6 +9,12 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    # 构建时区统一（IA-3 / D0-3）：GitHub Actions 构建机默认 UTC，而 Hexo 的 permalink
+    # 用构建机系统时区格式化日期，导致与本地（Asia/Shanghai）产出的文章 URL 日期漂移
+    # （线上 /04/23 vs 本地 /04/24）。Vercel 侧须在项目环境变量设 TZ=Asia/Shanghai，
+    # 说明见 ENVIRONMENT.md「构建时区」一节。
+    env:
+      TZ: Asia/Shanghai
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

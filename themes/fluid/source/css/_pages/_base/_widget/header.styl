@@ -189,6 +189,9 @@
   transform translateY(-12px)
   transition opacity .18s ease, transform .18s ease
   will-change opacity, transform
+  // 关闭态必须移出可交互性（UX-6）：仅 opacity:0 时内部链接仍在 Tab 序列里，
+  // 键盘/读屏用户会逐一穿越看不见的菜单
+  visibility hidden
 
   if $navbar-glass-enable
     ground-glass($navbar-glass-px, $navbar-bg-color, $navbar-glass-alpha)
@@ -199,6 +202,7 @@
     pointer-events auto
     opacity 1
     transform translateY(0)
+    visibility visible
 
     // Staggered cell pop-in — delays are set via JS
     .mobile-grid-cell, .mobile-grid-group-header

@@ -13,8 +13,3 @@ items:
     desc: Esports Manager 2026 的 Mod 社区站，已收录 62 个 mod。涵盖 EM Mod Loader（全自动 mod 管理器，解决 Unity 6000.5.10 / metadata v107 补丁后的崩溃）、界面整体重制，以及写实化赛事包——约 300 场真实 CS 赛事、四级别赛制、Valve VRS 排名与 PGL/ESL/BLAST/IEM 风格的转播 HUD。官方不提供 mod 支持，这些 mod 全部由社区自制。
     cover: /img/collections/esports-manager-2026-mods.jpg
     date: 2026-10-18
-  - title: 【测试】收藏模块演练
-    link: "https://example.com"
-    desc: 测试条目：验证收藏入口格渲染，确认后可删除。
-    cover: ""
-    date: 2026-10-15

@@ -32,7 +32,8 @@ var sections = [
       <% } %>
     </header>
 
-    <article class="about-body markdown-body">
+    <article class="about-body">
+      <div class="markdown-body">
       <% sections.forEach(function (s) { %>
       <section class="rich-section">
         <h2><%= s[0] %></h2>
@@ -40,6 +41,7 @@ var sections = [
       </section>
       <% }) %>
       <% if (!sections.length) { %><p class="empty">详细介绍整理中。</p><% } %>
+      </div>
     </article>
 
     <footer class="detail-foot">

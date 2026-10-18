@@ -125,17 +125,22 @@ Fluid.events = {
       return;
     }
     var board = jQuery('#board');
-    if (board.length === 0) {
-      return;
-    }
     var posDisplay = false;
     var scrollDisplay = false;
     // Position
     var setTopArrowPos = function() {
-      var boardRight = board[0].getClientRects()[0].right;
-      var bodyWidth = document.body.offsetWidth;
-      var right = bodyWidth - boardRight;
-      posDisplay = right >= 50;
+      var right;
+      if (board.length) {
+        var boardRight = board[0].getClientRects()[0].right;
+        var bodyWidth = document.body.offsetWidth;
+        right = bodyWidth - boardRight;
+        posDisplay = right >= 50;
+      } else {
+        // 全站自定义页面没有 #board（UX-1）：固定视口右下 24px。
+        // 原逻辑在此直接 return，按钮永远停在 bottom:-60px 静默失效。
+        right = 88;
+        posDisplay = true;
+      }
       topArrow.css({
         'bottom': posDisplay && scrollDisplay ? '20px' : '-60px',
         'right' : right - 64 + 'px'
@@ -144,7 +149,7 @@ Fluid.events = {
     setTopArrowPos();
     jQuery(window).resize(setTopArrowPos);
     // Display
-    var headerHeight = board.offset().top;
+    var headerHeight = board.length ? board.offset().top : 480;
     Fluid.utils.listenScroll(function() {
       var scrollHeight = document.body.scrollTop + document.documentElement.scrollTop;
       scrollDisplay = scrollHeight >= headerHeight;

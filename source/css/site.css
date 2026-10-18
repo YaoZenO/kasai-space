@@ -24,12 +24,18 @@
      两处必须同步修改（见 ENGINEERING.md P2-3 与 test/css-tokens.js 锁定） */
   --accent: #b0482a;
 
+  /* 静态信息标记色（VD-11/A2）：计数 / 分类 / 类型词等静态信息用中性墨阶，
+     accent 只留给交互态。与次级色同色相、明度略深，纸底 5.32:1 达 AA */
+  --info-mark: #6b6255;
+
   /* 展示轨：拉丁品牌字与大数字；中文字符自动回退黑体（不进紧字距） */
   --font-display: "Archivo", "Arial Black", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
 
-  /* 块色（仅作内容入口卡底，整页 ≤2 处；落点由数据决定） */
+  /* 块色（仅作内容入口卡底，整页 ≤2 处；落点由数据决定）
+     用字锁定：黄块 #e6b23c 内只能用墨色（7.82:1）；
+     橙块 #c0491f 内只能用纸色（4.82:1）——加深后墨字仅 3.05:1，禁止照黄块模式用墨字 */
   --block-yellow: #e6b23c;
-  --block-orange: #dd5a2f;
+  --block-orange: #c0491f;
 
   /* 等宽字体（元信息 / 日期 / 标签 / counter） */
   --font-mono: "Cascadia Code", "JetBrains Mono", Consolas, "SF Mono", Menlo, "Courier New", monospace;
@@ -37,6 +43,16 @@
   /* 胶囊/浮层阴影 */
   --site-float-shadow: 0 12px 32px -14px rgba(42, 37, 29, 0.28);
   --site-chip-border: rgba(42, 37, 29, 0.10);
+
+  /* 组件标尺（VD-5 收口：原先只以 var(--x, fallback) 存在的 token 在此定义，
+     从此改值只有单一入口；22px 大圆角已废止，不得扩散到首页入口格） */
+  --r-tile: 12px;
+  --r-card: 12px;
+  --cream: #fdfbf6;               /* 模块卡底：第三纸色 #f9f6f1 已废止 */
+  --ink-warm: #2a251d;
+  --cream-on-dark: #f5f1e9;
+  --line-strong: rgba(42, 37, 29, 0.24);
+  --accent-soft: rgba(176, 72, 42, 0.12); /* A4 定值 .12；原 pick-note fallback .28 视觉随之变浅 */
 }
 
 /* ===== 2. 基础样式 ===== */
@@ -533,7 +549,7 @@ a.wall-cell:hover {
 
 .wall-cell-tag {
   font-family: var(--font-mono);
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   color: rgba(245, 241, 233, 0.78);
   margin-bottom: 0.35rem;
@@ -594,7 +610,8 @@ a.cell-plain:hover {
 .wall-cell-item {
   margin-top: 0.2rem;
   font-family: var(--font-mono);
-  font-size: 0.74rem;
+  font-size: 0.8rem;
+  font-weight: 700;
   letter-spacing: 0.06em;
   color: var(--sec-text-color);
   overflow: hidden;
@@ -633,7 +650,7 @@ a.cell-plain:hover {
   font-size: 0.85rem;
   font-weight: 400;
   letter-spacing: 0.06em;
-  color: var(--accent);
+  color: var(--info-mark);
   margin-left: 0.35rem;
 }
 
@@ -709,7 +726,7 @@ a.cell-plain:hover {
   font-family: var(--font-mono);
   font-size: 0.76rem;
   letter-spacing: 0.04em;
-  color: var(--accent);
+  color: var(--info-mark);
   white-space: nowrap;
 }
 
@@ -785,9 +802,9 @@ a.pick-row:hover .pick-title {
 
 .feed-type {
   font-family: var(--font-mono);
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
-  color: var(--accent);
+  color: var(--info-mark);
   white-space: nowrap;
 }
 
@@ -809,7 +826,7 @@ a.feed-title:hover {
 .feed-date {
   margin-left: auto;
   font-family: var(--font-mono);
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   color: var(--sec-text-color);
   white-space: nowrap;
 }
@@ -1010,7 +1027,7 @@ a.feed-title:hover {
 
 .post-head-meta .category-chain-item,
 .post-head-meta .post-head-tags a {
-  color: var(--accent);
+  color: var(--info-mark);
 }
 
 .post-head-meta .category-chain-item:hover,
@@ -1032,13 +1049,30 @@ a.feed-title:hover {
 }
 
 .post-content .markdown-body a {
-  color: var(--post_link_color, #0366d6);
+  color: var(--post-link-color);
 }
 
 .post-content hr {
   border: 0;
   border-top: 1px solid var(--line-color);
   margin: 2.6rem 0 1.6rem;
+}
+
+/* 正文轨等宽（RL-3）：主题给 .post-content 左右各 10% padding，把 38em 定宽
+   二次压缩到 ≈624px；桌面归零与关于页同轨，移动端保留主题的 2rem */
+@media (min-width: 768px) {
+  .post-content {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+/* 墙格收口（RL-1）：入口格总数为奇数时末格跨 2 列，3 列与 2 列布局均填满无洞；
+   1 列布局（≤575.98px）不适用跨列 */
+@media (min-width: 576px) {
+  .wall-cell-wide {
+    grid-column: span 2;
+  }
 }
 
 /* 上一篇 / 下一篇 */
@@ -1102,9 +1136,13 @@ a.feed-title:hover {
   color: var(--sec-text-color);
 }
 
-.post-side-right #toc .toc-body a:hover,
-.post-side-right #toc .toc-body .tocbot-active-link {
+.post-side-right #toc .toc-body a:hover {
   color: var(--accent);
+}
+
+/* 当前阅读位置是指引不是交互：用中性墨阶（VD-11），hover 才回到 accent */
+.post-side-right #toc .toc-body .tocbot-active-link {
+  color: var(--info-mark);
 }
 
 @media (max-width: 991.98px) {
@@ -1256,7 +1294,7 @@ a.feed-title:hover {
   font-family: var(--font-mono);
   font-size: 0.8rem;
   letter-spacing: 0.05em;
-  color: var(--accent);
+  color: var(--info-mark);
   white-space: nowrap;
 }
 
@@ -1379,8 +1417,8 @@ a.feed-title:hover {
 
 .tag-chip-count {
   font-family: var(--font-mono);
-  font-size: 0.74rem;
-  color: var(--accent);
+  font-size: 0.75rem;
+  color: var(--info-mark);
 }
 
 /* --- 4.7 关于页（身份区 + 正文档案轨） --- */
@@ -1540,15 +1578,20 @@ a.feed-title:hover {
   color: var(--accent);
 }
 
-#modalSearch #local-search-result .search-keyword {
+#modalSearch #local-search-result .search-word {
   color: var(--accent);
+}
+
+/* 搜索结果标题的竖边（主题默认深蓝 #0d47a1）收归 accent */
+#modalSearch #local-search-result .search-list-title {
+  border-left: 3px solid var(--accent);
 }
 
 /* --- 4.9 模块详情页 / 列表页（项目 / 游戏） --- */
 
 .detail-meta { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin: .9rem 0 0; color: var(--sec-text-color); font-size: .82rem; }
 .detail-tag {
-  display: inline-block; font-size: .74rem; line-height: 1; padding: .32rem .6rem;
+  display: inline-block; font-size: .75rem; line-height: 1; padding: .32rem .6rem;
   border: 1px solid var(--line-color); border-radius: 999px; color: var(--sec-text-color);
 }
 .detail-tag-solid { border-color: transparent; background: var(--accent-soft, rgba(176, 72, 42, .12)); color: var(--accent); }
@@ -1594,7 +1637,7 @@ a.feed-title:hover {
 .module-card-meta { display: flex; align-items: center; gap: .45rem; flex-wrap: wrap; margin-top: .6rem; }
 
 /* 首页精选行外链标注 */
-.pick-ext { display: block; font-family: var(--font-mono); font-size: .7rem; color: var(--sec-text-color); margin-top: .25rem; }
+.pick-ext { display: block; font-family: var(--font-mono); font-size: .75rem; color: var(--sec-text-color); margin-top: .25rem; }
 
 /* --- 4.10 「文字」页精选摘录 --- */
 
@@ -1612,5 +1655,29 @@ a.feed-title:hover {
   border-left: 2px solid var(--accent-soft, rgba(176, 72, 42, .28));
   padding-left: .7rem; margin-top: .55rem;
 }
-.archive-picks .pick-meta { display: block; font-family: var(--font-mono); font-size: .7rem; color: var(--sec-text-color); margin-top: .55rem; }
+.archive-picks .pick-meta { display: block; font-family: var(--font-mono); font-size: .75rem; color: var(--sec-text-color); margin-top: .55rem; }
 .archive-picks .pick-img { width: 100%; }
+
+/* ===== 5. 第三方组件纸面化（site.css 在 main.css 之后加载，覆盖即生效） ===== */
+
+/* 5.1 nprogress 顶部进度条（VD-2）：主题 L124 的 color 配置是死配置，
+   颜色写死在 nprogress.min.css（Material 蓝 #29d），只能在此覆盖 */
+#nprogress .bar { background: var(--accent); }
+#nprogress .peg { box-shadow: 0 0 10px var(--accent), 0 0 5px var(--accent); }
+#nprogress .spinner-icon { border-top-color: var(--accent); border-left-color: var(--accent); }
+
+/* 5.2 回到顶部浮动按钮（UX-1）：复活后纸面化——面板底 + 1px hairline
+   + 12px 圆角 + 全站唯一阴影 token，去掉主题的 Material 双阴影与无限弹跳动画 */
+#scroll-top-button {
+  background: var(--board-color);
+  border: 1px solid var(--site-chip-border);
+  border-radius: 12px;
+  box-shadow: var(--site-float-shadow);
+  color: var(--text-color);
+  animation: none !important;
+}
+
+#scroll-top-button:hover {
+  color: var(--accent);
+  animation: none !important;
+}

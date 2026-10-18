@@ -1,7 +1,8 @@
 /**
- * P1-9 前台模块页端到端验证
+ * P1-9 前台模块页端到端验证 + IA-1 数据诚信防复发断言（D0-2）
  *
- * 目的：证明「后台富文本录入 → YAML 落盘 → Hexo 生成详情页/列表页」整条链路可用。
+ * 目的：证明「后台富文本录入 → YAML 落盘 → Hexo 生成详情页/列表页」整条链路可用；
+ *       并断言生产数据（source/_data/*.yml）不得含 example.com 外链与「【测试】」标题条目。
  *
  * 做法（关键：不手工拼 YAML，避免构造出非法文件）：
  *   1. 备份 source/_data/{projects,games}.yml
@@ -9,6 +10,8 @@
  *   3. 进程内调用 Hexo API 生成（不 fork 子进程，Windows/沙箱下 spawn 会 EBUSY）
  *   4. 断言 public/ 下页面与渲染结果（含「空 section 不渲染」）
  *   5. finally 中无条件还原原始数据文件，并用真实数据全量重建 public/（E-019）
+ *   6. 还原后做数据诚信扫描；扫描函数目录参数化，变异验证走临时目录坏样本
+ *      （塞坏条目 → 断言 FAIL → 移除 → PASS），不碰真实数据文件
  *
  * 运行：node test/module-pages-e2e.js
  */
@@ -17,6 +20,7 @@
 
 const assert = require('node:assert');
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const Hexo = require('hexo');
 
@@ -135,6 +139,51 @@ function readPage(rel) {
   const p = path.join(PUBLIC, rel);
   assert.ok(fs.existsSync(p), '页面不存在: ' + rel);
   return fs.readFileSync(p, 'utf8');
+}
+
+// ---------- 数据诚信扫描（IA-1 防复发，D0-2） ----------
+// 目录参数化：默认扫真实 source/_data；变异验证传临时目录。
+// 规则（规范 §8.7）：_data/*.yml 不得含 example.com 外链；不得含标题带「【测试】」的条目。
+// 返回问题描述数组，空数组 = 通过。
+function scanDataIntegrity(dir) {
+  const problems = [];
+  const files = fs.readdirSync(dir).filter((f) => f.endsWith('.yml'));
+  for (const f of files) {
+    const text = fs.readFileSync(path.join(dir, f), 'utf8');
+    let items = null;
+    try {
+      items = yaml.parseItems(text);
+    } catch (e) {
+      items = null; // 无 items: 段或结构不支持（如 site.yml）→ 退化为原文扫描
+    }
+    if (items === null) {
+      if (/example\.com/i.test(text)) {
+        problems.push(f + ': 含 example.com 外链（无 items 段文件按原文扫描）');
+      }
+      continue;
+    }
+    for (const it of items) {
+      const title = String(it.title || '');
+      if (title.includes('【测试】')) {
+        problems.push(f + ': 标题含「【测试】」的条目「' + title + '」');
+      }
+      // 递归遍历条目全部字符串值（含块标量长文与 links 对象数组），查 example.com 外链
+      const stack = [it];
+      while (stack.length) {
+        const v = stack.pop();
+        if (typeof v === 'string') {
+          if (/example\.com/i.test(v)) {
+            problems.push(f + ': 条目「' + title + '」含 example.com 外链「' + v.slice(0, 60) + '」');
+          }
+        } else if (Array.isArray(v)) {
+          for (const x of v) stack.push(x);
+        } else if (v && typeof v === 'object') {
+          for (const k of Object.keys(v)) stack.push(v[k]);
+        }
+      }
+    }
+  }
+  return problems;
 }
 
 // ---------- 主流程 ----------
@@ -272,6 +321,46 @@ async function main() {
     const home = fs.readFileSync(path.join(PUBLIC, 'index.html'), 'utf8');
     assert.ok(!home.includes('e2e-rich'), '首页仍含测试条目 e2e-rich');
     assert.ok(!home.includes('e2e-game'), '首页仍含测试条目 e2e-game');
+  });
+
+  // ---------- [9] 数据诚信：变异验证 + 生产数据扫描（D0-2 / IA-1 防复发） ----------
+  // 变异验证用临时目录造坏样本，不碰真实数据文件（真实数据的扫描在上面还原之后做）。
+  console.log('\n[9] 数据诚信断言（example.com 外链 / 【测试】标题）');
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'data-integrity-'));
+  try {
+    const sample = path.join(tmpDir, 'projects.yml');
+    const cleanText = ['# 变异验证样本（非生产数据）', 'items:', '  - title: 真实条目', '    link: "https://github.com/YaoZenO"', ''].join('\n');
+    fs.writeFileSync(sample, cleanText, 'utf8');
+
+    ok('干净样本通过数据诚信扫描', () => {
+      assert.deepStrictEqual(scanDataIntegrity(tmpDir), [], '干净样本不应报问题');
+    });
+
+    fs.writeFileSync(
+      sample,
+      cleanText + '  - title: 【测试】变异样本\n    link: "https://example.com"\n',
+      'utf8'
+    );
+    ok('含【测试】标题 + example.com 外链的坏样本被断言抓获', () => {
+      const problems = scanDataIntegrity(tmpDir);
+      assert.ok(problems.length >= 2, '应同时报出标题与外链两类问题，实际: ' + JSON.stringify(problems));
+      assert.ok(problems.some((p) => p.includes('【测试】')), '未报出【测试】标题: ' + JSON.stringify(problems));
+      assert.ok(problems.some((p) => p.includes('example.com')), '未报出 example.com 外链: ' + JSON.stringify(problems));
+    });
+
+    fs.writeFileSync(sample, cleanText, 'utf8');
+    ok('移除坏条目后扫描恢复通过', () => {
+      assert.deepStrictEqual(scanDataIntegrity(tmpDir), [], '移除坏样本后应恢复通过');
+    });
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+
+  // 生产数据扫描放在 finally 还原之后：本测试自身的 RICH_GAME 含 example.com 链接，
+  // 还原前扫描会误报（E-031 同类教训：断言必须与测试自身造的数据解耦）。
+  ok('生产数据无 example.com 外链与【测试】标题条目（IA-1）', () => {
+    const problems = scanDataIntegrity(DATA_DIR);
+    assert.deepStrictEqual(problems, [], problems.join('; '));
   });
 
   console.log('\n' + pass + ' 项断言通过');

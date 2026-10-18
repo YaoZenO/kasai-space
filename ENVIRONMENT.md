@@ -34,3 +34,11 @@
 - GitHub App 的 **Callback URL** 必须精确为 `https://www.040925.xyz/api/auth-callback`（另可加本地回调用于调试）
 - App 权限仅：**Contents 读写 + Metadata 只读**；Webhook 关闭
 - 回调、App ID、Installation ID 等如需变更，同步更新 Vercel 环境变量并重新部署
+
+## 构建时区（TZ）
+
+**必须设 `TZ=Asia/Shanghai`**：Vercel → 项目 `my-hexo-blog` → Settings → Environment Variables，全部环境勾选，改后重新部署生效。GitHub Actions 侧已在 `.github/workflows/ci.yml` 的 job 级加 `env: TZ: Asia/Shanghai`。
+
+**原因**：Hexo 的 permalink（`:year/:month/:day/:title/`）用**构建机系统时区**格式化 front-matter 日期。Vercel 与 GitHub Actions 构建机默认 UTC，与本地（Asia/Shanghai）不一致：本地构建产出 `/2026/04/24/…`，线上稳定产出 `/2026/04/23/…`（Node 双时区实测复现：同一 `date: "2026-04-24 05:12:39"`，TZ=UTC 时 permalink 落到 04-23，而页面显示时间两边都是 4 月 24 日——日期显示走 `config.timezone` 修正，permalink 不走）。受影响范围为 front-matter 时间在 00:00–08:00(+08) 的文章（当前 2 篇：`a-dream-from-nobody` 05:12、`personal-reflectio` 04:52）；夜间写作会反复踩此陷阱。permalink 规则本身不变（红线 R-7）。
+
+**待主人决策（B14）**：已上线的两个 `/2026/04/23/` URL，在设好 TZ 重新部署后会变为 `/2026/04/24/`——旧链是否加 301 重定向保护已分享外链，待主人定；二者（重定向 / 接受线上既有形态）必须清其一，不允许长期双形并存。

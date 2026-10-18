@@ -179,19 +179,19 @@ color:
   board_color: "#fdfbf6"
   board_color_dark: "#252d38"
 
-  # 文章正文字体色
+  # 文章正文字体色（VD-1：回归全站墨色，文章页不再脱离暖纸体系）
   # Color of post text
-  post_text_color: "#2c3e50"
+  post_text_color: "#2a251d"
   post_text_color_dark: "#c4c6c9"
 
-  # 文章正文字体色（h1 h2 h3...）
+  # 文章正文字体色（h1 h2 h3...）（分层靠字重，不再用冷黑 #1a202c）
   # Color of Article heading (h1 h2 h3...)
-  post_heading_color: "#1a202c"
+  post_heading_color: "#2a251d"
   post_heading_color_dark: "#c4c6c9"
 
-  # 文章超链接字体色
+  # 文章超链接字体色（VD-1：回归砖红，纸底 4.90:1 达 AA）
   # Color of post link
-  post_link_color: "#0366d6"
+  post_link_color: "#b0482a"
   post_link_color_dark: "#1589e9"
 
   # 超链接悬浮时字体色
@@ -1040,7 +1040,10 @@ about:
   banner_img: /img/default.png
   banner_img_height: 60
   banner_mask_alpha: 0.3
-  avatar: /img/avatar/11.jpg
+  # 2026-10-18（VD-7 短期止损）：置空触发 monogram 降级——site.yml avatar 为空时
+  # 回退到此配置，原值 /img/avatar/11.jpg 是主题作者示例图，首屏与关于页都在展示
+  # 陌生人插画。正式头像素材由主人提供后填入此路径（建议同步改圆形+1px 描边，见 DESIGN-LANGUAGE.md §5.2）。
+  avatar: ""
   name: "韩耀宇 ʕ´• ᴥ•̥`ʔ"
   intro: "Be water, my friends."
   # 首页身份域的身份词竖列（对齐效果图 Developer/Writer/... 位置），留空数组则不渲染该竖列
