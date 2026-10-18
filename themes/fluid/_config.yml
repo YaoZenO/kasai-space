@@ -1040,10 +1040,10 @@ about:
   banner_img: /img/default.png
   banner_img_height: 60
   banner_mask_alpha: 0.3
-  # 2026-10-18（VD-7 短期止损）：置空触发 monogram 降级——site.yml avatar 为空时
-  # 回退到此配置，原值 /img/avatar/11.jpg 是主题作者示例图，首屏与关于页都在展示
-  # 陌生人插画。正式头像素材由主人提供后填入此路径（建议同步改圆形+1px 描边，见 DESIGN-LANGUAGE.md §5.2）。
-  avatar: ""
+  # 个人头像：/img/avatar/11.jpg 是主人自己的头像（提交 a90325e「更换个人头像」替换过，
+  # 只是沿用了主题同名文件），不是主题示例图——后续审查不要按"模板残留"处理。
+  # 换真实头像时直接把文件替换到 themes/fluid/source/img/avatar/11.jpg 即可。
+  avatar: /img/avatar/11.jpg
   name: "韩耀宇 ʕ´• ᴥ•̥`ʔ"
   intro: "Be water, my friends."
   # 首页身份域的身份词竖列（对齐效果图 Developer/Writer/... 位置），留空数组则不渲染该竖列
