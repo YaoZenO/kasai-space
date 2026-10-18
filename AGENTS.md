@@ -65,6 +65,11 @@ No exceptions for small ones, and no "I'll log it later".
   everything there. Test code goes in `test/`. See E-004.
 - Never trust a silent success. If a library returns output without erroring,
   verify the output actually changed. See E-002.
+- **Never use `git checkout --` / `git restore` to undo test damage.** It rolls
+  back the *whole file*, silently destroying the owner's uncommitted work in it.
+  See E-032: this destroyed an in-progress `games.yml` rewrite. Mutation tests
+  must back up the original string in memory and write it back in `finally`
+  (`test/mutate.js`), and must skip files that already have uncommitted changes.
 
 ## 4. Verification requirements
 
@@ -100,7 +105,24 @@ bump 后需强制刷新（Ctrl+F5）或无痕窗口验证一次。
 Interrupt the user mid-task only when there is a hard blocker, a major risk, or a
 request for authorization. Do not expand beyond the original scope.
 
-### 5.2 线上可见性铁律：本地改完 ≠ 主人看得到（主人明确要求，2026-10-18）
+### 5.2 前台日期/时间渲染约定（E-028 / E-029）
+
+1. **禁止在 EJS 模板里把 `Date` 对象交给 `<%= %>` 直出。**
+   `<%= new Date(x) %>` 会渲染成 `Sun Oct 18 2026 00:00:00 GMT+0000 (Coordinated
+   Universal Time)`。模块的 `it.date` 一律走 helper：
+   `<%= fmtItemDate(it.date) %>`（可选第二参数指定格式）。
+   helper 在 `themes/fluid/scripts/helpers/fmt-item-date.js`。
+2. **`source/_data/*.yml` 里 `date: 2026-10-18`（无引号）会被 js-yaml 解析成
+   Date 对象**，不是字符串。它只有「日期」粒度，没有真实时分秒；任何显示
+   「00:00:00」的地方都是把日期当时间显示了。
+3. **helper 必须放 `themes/fluid/scripts/` 下且自包含**（实现与注册同一文件）。
+   项目根 `scripts/` 在 `hexo server` 预览时不加载；跨文件 `require` 在 Hexo 的
+   vm 加载上下文里解析失败。
+4. **改模板 / helper 后必须抽查产物字节数。** Hexo 渲染抛错会写入 **0 字节 HTML**，
+   但构建仍打印「N files generated」、退出码 0（E-029）。只看构建输出必漏。
+   `test/module-dates.js` 已锁死这四类问题并串入 `npm test`。
+
+### 5.3 线上可见性铁律：本地改完 ≠ 主人看得到（主人明确要求，2026-10-18）
 
 **这个站的发布链路是：本地改文件 → `git commit` → `git push` 到 GitHub → Vercel
 自动构建部署 → 主人在 <https://www.040925.xyz> 上看到。**
