@@ -822,6 +822,19 @@ const PNG_1X1 = Buffer.from(
     });
   }
 
+  // E-036 防复发：没有 commitSha 时，部署 pill 不许再冒「已提交」。
+  // 曾经前端两个调用点硬编码传 null，后端返回的真 sha 被丢弃，pill 永久停在
+  // 「已提交」却从不轮询部署状态——页面上的状态是伪造的，主人无从判断是否已上线。
+  ok('E-036 无 commitSha 时部署 pill 不冒「已提交」', () => {
+    const src = fs.readFileSync(path.join(__dirname, '..', 'source/admin/admin-deploy.js'), 'utf8');
+    const start = src.indexOf('export function setDeployCommitted');
+    assert.ok(start !== -1, 'admin-deploy.js 找不到 setDeployCommitted');
+    const body = src.slice(start, src.indexOf('\n}', start));
+    const hits = (body.match(/已提交/g) || []).length;
+    assert.strictEqual(hits, 1, `无 sha 分支也在冒「已提交」：函数内出现 ${hits} 次（应只在有 sha 分支出现 1 次）`);
+    assert.match(body, /待部署/, '无 sha 分支应如实写明「待部署」，而不是伪装成已提交');
+  });
+
   console.log(`\nRESULT: ${passed} 项断言通过${process.exitCode ? '，存在失败' : ''}`);
   process.exit(process.exitCode || 0);
 })().catch((e) => { console.error('FATAL', e); process.exit(1); });
