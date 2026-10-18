@@ -4,18 +4,10 @@ page.title = theme.page404.title || __('page404.title')
 page.subtitle = theme.page404.subtitle || __('page404.subtitle')
 // 2026-10-15：随全站去 Banner 一并拆除最后两页横幅（导航栏改裸文字的前提），
 // 内容改为纸面样式，并补「返回首页」入口——原仅 10 秒自动跳转，用户来不及反应
+// 2026-10-18（B10）：主人定「去掉自动跳转」——访客可能正在看链接错在哪，
+// 页面自己跑掉像被推着走；保留「返回首页」按钮，跳不跳由访客决定
 page.hide_banner = true
 %>
-
-<script>
-  function redirect() {
-    location.href = "<%- url_for('/') %>";
-  }
-
-  <% if (theme.page404.redirect_delay) { %>
-    setTimeout(redirect, <%= parseInt(theme.page404.redirect_delay) %>)
-  <% } %>
-</script>
 
 <div class="paper-page">
   <div class="home-wrap">
@@ -27,6 +19,5 @@ page.hide_banner = true
     <div class="identity-cta">
       <a class="cta-solid" href="<%= url_for('/') %>">返回首页</a>
     </div>
-    <p class="page-404-note">页面将在 <%= Math.round((parseInt(theme.page404.redirect_delay) || 0) / 1000) %> 秒后自动跳转</p>
   </div>
 </div>
