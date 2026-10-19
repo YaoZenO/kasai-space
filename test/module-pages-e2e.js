@@ -319,12 +319,35 @@ async function main() {
     console.log('\n[6] 游戏列表页');
     const gameList = readPage(path.join('games', 'index.html'));
     ok('列表页含游戏条目', () => assert.ok(gameList.includes('e2e-game')));
+    ok('游戏列表页是封面网格（games-wall），不是均质卡片阵列', () => {
+      // 主人 2026-10-19 定「封面网格」。修订后 R-3 允许非均质拼贴、禁止均质阵列，
+      // 这条断言把形态锁住：游戏分支不得回退到 module-grid。
+      assert.ok(gameList.includes('class="games-wall"'), '游戏列表页不是 games-wall 形态');
+      assert.ok(!gameList.includes('class="module-grid"'), '游戏列表页仍渲染均质 module-grid');
+      const tiles = (gameList.match(/class="games-tile[ "]/g) || []).length;
+      assert.ok(tiles >= 5, `games-tile 数量异常：${tiles}（真实 5 条 + 测试 1 条应 ≥5）`);
+    });
+    ok('项目列表页仍是行式卡片网格（未被游戏改动牵连）', () => {
+      const projListNow = readPage(path.join('projects', 'index.html'));
+      assert.ok(projListNow.includes('class="module-grid"'), '项目列表页丢了 module-grid');
+    });
 
     console.log('\n[7] 首页联动');
     const home = readPage('index.html');
     ok('首页模块入口链接可用（无 HTML 实体转义）', () => {
       assert.ok(home.includes('href="/projects/"'), '首页缺少 /projects/ 链接');
       assert.ok(!home.includes('&#34;/projects/'), '链接被转义成实体，浏览器点不动');
+    });
+    ok('墨底区块与两栏容器平级（否则墨底通不了铺）', () => {
+      // 2026-10-19 实测：ink-band 放进 .home-cols 里会变成两栏网格的第三个格子，
+      // 只占第一列宽（@1440 只有 623px，右侧 697px 是纸面空白）。
+      // 断言模板结构：feedRows 守卫之前，home-cols 必须已经闭合。
+      const tpl = fs.readFileSync(path.join(ROOT, 'themes/fluid/layout/index.ejs'), 'utf8');
+      const colsStart = tpl.indexOf('<div class="home-wrap home-cols');
+      const bandGuard = tpl.indexOf('<% if (feedRows.length) { %>', colsStart);
+      assert.ok(colsStart !== -1 && bandGuard !== -1, '模板结构变化：找不到 home-cols 或 feedRows 守卫');
+      assert.ok(tpl.slice(colsStart, bandGuard).trimEnd().endsWith('</div>'),
+        'home-cols 在 ink-band 之前没有闭合 —— 墨底会变成两栏网格的第三个格子，只占第一列宽');
     });
   } finally {
     restore('projects');

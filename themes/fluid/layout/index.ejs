@@ -262,11 +262,11 @@ wallModules.forEach(function (m) { if (m.key === 'projects') { featuredModule = 
   </section>
 
   <%
-  /* 下半部三栏：C 精选内容（projects 有条目才渲染）+ D 最新文字 + E 近期动态（>1 类型才渲染） */
+  /* 下半部两栏：C 精选内容（projects 有条目才渲染）+ D 最新文字。
+     E 最近更新按方向 A 提为墨底整屏区块（R-1 豁免：每屏最多一个反色区块），见文件末尾。 */
   var activeCols = []
   if (featuredModule) { activeCols.push('c') }
   activeCols.push('d')
-  if (feedRows.length) { activeCols.push('e') }
   %>
   <div class="home-wrap home-cols cols-<%= activeCols.length %>">
 
@@ -314,14 +314,24 @@ wallModules.forEach(function (m) { if (m.key === 'projects') { featuredModule = 
       </ol>
     </section>
 
-    <% if (feedRows.length) { %>
-    <section class="home-col">
+  </div>
+
+  <% if (feedRows.length) { %>
+  <% /* 墨底整屏区块（方向 A，2026-10-19 落地）：R-1 豁免允许每屏一个反相墨底区块。
+         区块内一切文字只用纸色及其透明度衍生（13.5:1 / 7.69:1，均过 AA），
+         不引入第二彩色、不放装饰色块；全站同时只允许存在这一个墨底区块。
+         ⚠️ 必须与上面的 .home-cols **平级**：放进两栏容器里它会变成网格的第三个
+         格子、只占第一列宽，墨底就通不了铺（2026-10-19 实测踩到）。
+         计数用 feedRows.length（FEED_MAX 截断后的实际渲染数），不用 feed.length。
+         样式见 site.css §4.11。 */ %>
+  <section class="ink-band">
+    <div class="home-wrap">
       <div class="col-head">
-        <h2 class="col-title">最近更新 <span class="col-count">/<%= feed.length %></span></h2>
+        <h2 class="col-title">最近更新 <span class="col-count">/<%= feedRows.length %></span></h2>
       </div>
-      <ul class="feed-list">
+      <div class="feed-grid">
         <% feedRows.forEach(function (f) { %>
-        <li class="feed-row">
+        <div class="feed-row">
           <span class="feed-type"># <%= f.type %></span>
           <% if (f.link) { %>
           <a class="feed-title" href="<%= f.link %>" target="<%= f.link.indexOf('http') === 0 ? '_blank' : '_self' %>" rel="noopener"><%= f.title %></a>
@@ -329,13 +339,12 @@ wallModules.forEach(function (m) { if (m.key === 'projects') { featuredModule = 
           <span class="feed-title"><%= f.title %></span>
           <% } %>
           <time class="feed-date" datetime="<%= fmtItemDate(f.date) %>"><%= fmtItemDate(f.date) %></time>
-        </li>
+        </div>
         <% }) %>
-      </ul>
-    </section>
-    <% } %>
-
-  </div>
+      </div>
+    </div>
+  </section>
+  <% } %>
 
   <!-- 页脚收尾 -->
   <footer class="home-end">

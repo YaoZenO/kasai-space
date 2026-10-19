@@ -90,5 +90,21 @@ if (fs.existsSync(mainCssPath)) {
   console.log('  SKIP 主题 hack 耦合检查（无 public/css/main.css，先跑 hexo generate）');
 }
 
+// 方向 A：墨底整屏区块（2026-10-19 落地，R-1 豁免的唯一一处反相）
+ok('墨底 token 已定义（--surface-ink / --on-ink）', () => {
+  assert.match(siteCss, /--surface-ink:\s*#2a251d/, '缺少 --surface-ink');
+  assert.match(siteCss, /--on-ink:\s*#f5f1e9/, '缺少 --on-ink（墨底上的纸色）');
+});
+
+ok('墨底区块样式存在，且区块内不引入交互色', () => {
+  // 按空行切块，只取含 .ink-band 的规则块——避免按字符数硬切时越界读到后面的 accent 规则。
+  const blocks = siteCss.split(/\n\s*\n/).filter((b) => b.includes('.ink-band'));
+  assert.ok(blocks.length > 0, 'site.css 缺少 .ink-band 规则');
+  const band = blocks.join('\n');
+  assert.match(band, /var\(--surface-ink\)/, '墨底没有用 --surface-ink');
+  assert.ok(!/var\(--accent\)/.test(band),
+    '墨底区块内出现了交互色 —— R-2：反相区块不得引入第二彩色，只用纸色透明度衍生');
+});
+
 console.log(`\nRESULT: ${passed} 项断言通过${process.exitCode ? '，存在失败' : ''}`);
 process.exit(process.exitCode || 0);

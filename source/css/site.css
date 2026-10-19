@@ -53,6 +53,14 @@
   --cream-on-dark: #f5f1e9;
   --line-strong: rgba(42, 37, 29, 0.24);
   --accent-soft: rgba(176, 72, 42, 0.12); /* A4 定值 .12；原 pick-note fallback .28 视觉随之变浅 */
+
+  /* 方向 A：反色墨底整屏区块（2026-10-19 落地）。R-1 豁免允许每屏最多一个。
+     用字锁定：墨底上一切文字用纸色及其透明度衍生（10.81:1 / 7.4:1，均过 AA），
+     不引入第二彩色、不放装饰色块；新增第二个墨底区块需重新过 R-1 豁免。 */
+  --surface-ink: #2a251d;
+  --on-ink: #f5f1e9;
+  --on-ink-sec: rgba(245, 241, 233, .72);
+  --on-ink-line: rgba(245, 241, 233, .16);
 }
 
 /* ===== 2. 基础样式 ===== */
@@ -646,7 +654,9 @@ a.cell-plain:hover {
 }
 
 .cols-3 { grid-template-columns: minmax(0, 4fr) minmax(0, 3.4fr) minmax(0, 2.8fr); }
-.cols-2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+/* cols-2 即「精选内容 + 最新文字」（最近更新已提为墨底区块）。精选栏带封面图，
+   按原三栏比例 4:3.4 折算成 1.2:1，保持主次而不是等宽。 */
+.cols-2 { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
 .cols-1 { grid-template-columns: minmax(0, 1fr); }
 
 .col-head {
@@ -1752,6 +1762,84 @@ a.feed-title:hover {
 .module-card-title { display: block; font-weight: 700; font-size: 1rem; }
 .module-card-sum { display: block; color: var(--sec-text-color); font-size: .84rem; margin-top: .3rem; }
 .module-card-meta { display: flex; align-items: center; gap: .45rem; flex-wrap: wrap; margin-top: .6rem; }
+
+/* --- 4.9.1 游戏封面网格（主人 2026-10-19 定：封面网格模型）---
+   非均质：1 大（2×2）+ 4 小（1×1）。这正是修订后 R-3 允许、修订前禁止的形态
+   （修订前禁「均质卡片阵列」，非均质拼贴合法）。
+   摘要默认收起，hover / focus-visible 展开；卡与格的上浮按 A8 结论保留。
+
+   ⚠️ 布局两次实测修正（2026-10-19，视觉线）：
+     ① 初版是 1 大(2×2) + 1 宽(2×1) + 2 小(1×1) + 1 横幅(4×1)、行高 88px。
+        横幅槽 1200×88 = 13.6:1，配 600×900 的竖封面只剩 4.9% 可见，封面认不出；
+     ② 同时 1×1 小格只有 88px 高，hover 展开后 cap 高 116px，标题被 overflow 切到格子上方。
+     现版去掉横幅、行高提到 130px：5 项无洞铺满 4×3，小格 cap 展开后 ≈93px < 130px。
+     封面多为 2:3 竖图，横槽必然裁切，这是图墙的常态；关键是别退化成一条色带。 */
+.games-wall { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 130px; gap: .5rem; }
+.games-tile {
+  position: relative; display: block; overflow: hidden; text-decoration: none;
+  background: var(--cream); border: 1px solid var(--line-color); border-radius: var(--r-tile);
+  transition: transform .12s ease, border-color .12s ease;
+}
+.games-tile:hover { transform: translateY(-2px); border-color: var(--line-strong); }
+.games-tile-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.games-tile.no-cover { background: var(--cream); }
+.games-tile.no-cover::before {
+  content: ""; position: absolute; inset: 0;
+  background: repeating-linear-gradient(45deg, rgba(42,37,29,.045) 0 8px, transparent 8px 16px);
+}
+.games-tile-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: .5rem .7rem .55rem; background: rgba(42, 37, 29, .72); color: var(--cream-on-dark); }
+/* 标题强制单行 + ellipsis：折行会让 cap 高度不可预测，375 档会高过格子、削掉标题第一行
+   （2026-10-19 实测：Esports Manager 2026 折两行 → cap 117.3 > 108）。 */
+.games-tile-title { display: block; font-weight: 700; font-size: .92rem; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.games-tile-meta { display: block; font-family: var(--font-mono); font-size: .7rem; letter-spacing: .06em; color: rgba(245, 241, 233, .72); margin-top: .15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.games-tile-sum {
+  display: block; font-size: .78rem; line-height: 1.55; color: rgba(245, 241, 233, .86);
+  margin-top: .2rem; max-height: 0; opacity: 0; overflow: hidden;
+  transition: max-height .18s ease, opacity .18s ease, margin-top .18s ease;
+}
+/* 摘要行数按格子高度分档：小格桌面 3 行、小格移动端 2 行、大图格桌面 4 行 / 移动端 3 行。
+   ⚠️ max-height 必须用「行高 × 行数」的 calc，不能直接用 em：行高是 1.55，em 与它
+   不是整数倍，多出的 1.3px 会把下一行的头顶露出一条边（2026-10-19 实测，
+   375 档 3.2em = 39.94px vs 2 行 38.69px，第 3 行露出 1.25px 头顶）。
+   桌面小格 3 行 cap ≈114.4px < 130px 行高；375 小格 2 行 ≈96.9px < 108px；
+   桌面大格 4 行 ≈98.2px < 268px；375 大格 3 行 ≈118.2px < 224px。 */
+.games-tile:hover .games-tile-sum, .games-tile:focus-visible .games-tile-sum { max-height: calc(1.55em * 3); opacity: 1; }
+.games-tile:nth-child(1):hover .games-tile-sum, .games-tile:nth-child(1):focus-visible .games-tile-sum { max-height: calc(1.55em * 4); }
+.games-wall .games-tile:nth-child(1) { grid-column: span 2; grid-row: span 2; }
+.games-wall .games-tile:nth-child(1) .games-tile-title { font-size: 1.1rem; }
+
+@media (max-width: 720px) {
+  .games-wall { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 108px; }
+  .games-wall .games-tile:nth-child(1) { grid-column: span 2; grid-row: span 2; }
+  /* 移动端行高只有 108px，摘要收回 2 行，保证 cap 不溢出格子 */
+  .games-tile:hover .games-tile-sum, .games-tile:focus-visible .games-tile-sum { max-height: calc(1.55em * 2); }
+  .games-tile:nth-child(1):hover .games-tile-sum, .games-tile:nth-child(1):focus-visible .games-tile-sum { max-height: calc(1.55em * 3); }
+}
+
+/* --- 4.11 墨底整屏区块（方向 A：深色反相分节，2026-10-19）---
+   首页「最近更新」从三栏提为 full-width 墨底区块，是全站唯一一处反相。
+   它是节奏锚点：纸面 → 墨底的明暗交替，不新增任何色相。
+   条目为「类型 + 标题 + 日期」三件套，横排多列比原来的竖列更适合整屏宽度。 */
+.ink-band { background: var(--surface-ink); color: var(--on-ink); padding: 3rem 0 3.4rem; }
+.ink-band .col-head { margin-bottom: 1.4rem; }
+.ink-band .col-title { color: var(--on-ink); }
+.ink-band .col-count { color: var(--on-ink-sec); }
+.ink-band .feed-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 0 2.6rem; }
+.ink-band .feed-row {
+  display: flex; align-items: baseline; gap: .6rem;
+  padding: .66rem 0;
+  /* 纸面侧 .feed-row 自带 border-bottom: 1px solid var(--line-color)（L822-828），
+     对墨底只有 1.62:1，会挂出一条亮暖线。上下两条都显式收归墨底 hairline。
+     墨底 hairline 合成后 ≈ rgb(75,70,62)，对墨底同为 1.62:1——与纸面侧 --line-color
+     的 1.51:1 同一口径（层级线而非装饰线，目标是可辨识，不追求非文本 3:1；
+     要够 3:1 得不透明度提到 .38，会明显变亮、与「墨底下沉」的意图冲突）。 */
+  border-top: 1px solid var(--on-ink-line);
+  border-bottom: 1px solid var(--on-ink-line);
+}
+.ink-band .feed-type { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .06em; color: var(--on-ink-sec); flex: none; }
+.ink-band .feed-title { color: var(--on-ink); font-size: .92rem; min-width: 0; }
+.ink-band .feed-title:hover { color: var(--on-ink); text-decoration: underline; text-underline-offset: .28em; }
+.ink-band .feed-date { margin-left: auto; font-family: var(--font-mono); font-size: .74rem; color: var(--on-ink-sec); flex: none; }
 
 /* 首页精选行外链标注 */
 .pick-ext { display: block; font-family: var(--font-mono); font-size: .75rem; color: var(--sec-text-color); margin-top: .25rem; }

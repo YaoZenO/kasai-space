@@ -17,6 +17,24 @@ var isCollections = mod === 'collections'
       <p class="list-count">共 <%= items.length %> 个</p>
     </header>
 
+    <% if (mod === 'games') { %>
+    <% /* 游戏模块用「封面网格」（主人 2026-10-19 定）：非均质图墙，1 大 + 2 中 + 2 小 + 1 横幅，
+           摘要 hover 时展开，样式见 site.css §4.10。项目 / 收藏仍是行式卡片网格，不受影响。
+           cover 缺失的条目降级为纸底格（铁律：无数据不渲染，也不制造空图位）。 */ %>
+    <div class="games-wall">
+      <% items.forEach(function (it) { %>
+      <a class="games-tile<%= it.cover ? '' : ' no-cover' %>" href="<%= url_for('/' + mod + '/' + (it.slug || encodeURIComponent(String(it.title))) + '/') %>">
+        <% if (it.cover) { %><img class="games-tile-img" src="<%= url_for(it.cover) %>" alt="<%= it.title %>" loading="lazy"><% } %>
+        <span class="games-tile-cap">
+          <span class="games-tile-title"><%= it.title %></span>
+          <% var gsum = it.summary || it.desc %>
+          <% if (gsum) { %><span class="games-tile-sum"><%= gsum %></span><% } %>
+          <% if (it.genre || it.status) { %><span class="games-tile-meta"><%= [it.genre, it.status].filter(Boolean).join(' · ') %></span><% } %>
+        </span>
+      </a>
+      <% }) %>
+    </div>
+    <% } else { %>
     <div class="module-grid">
       <% items.forEach(function (it) { %>
       <% var collHref = isCollections ? (it.link || '') : '' %>
@@ -40,5 +58,6 @@ var isCollections = mod === 'collections'
       </<%= Card %>>
       <% }) %>
     </div>
+    <% } %>
   </div>
 </div>
