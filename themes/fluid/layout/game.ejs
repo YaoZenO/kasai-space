@@ -6,6 +6,11 @@ page.hide_banner = true
 var it = page.item || {}
 var media = it.media || []
 var links = it.links || []
+/* 正文自带 h2 时不渲染壳标题「玩法介绍」：否则壳标题与正文第一个 ## 之间零内容、
+   只隔 22px，读起来像两个标题打堆（2026-10-19 实测；lol 的 gameplay 正是以
+   「## 为什么还在玩」开头）。壳标题的职责是给没有小标题的长文一个概要，
+   正文已有小标题时它是冗余层级。正则只认渲染后 HTML 的行首 <h2，不猜原文。 */
+var gameplayHasOwnH2 = /^\s*<h2[\s>]/.test(String(it.gameplay_html || ''))
 %>
 
 <div class="paper-page">
@@ -33,7 +38,7 @@ var links = it.links || []
       <div class="markdown-body">
       <% if (it.gameplay_html) { %>
       <section class="rich-section">
-        <h2>玩法介绍</h2>
+        <% if (!gameplayHasOwnH2) { %><h2>玩法介绍</h2><% } %>
         <%- it.gameplay_html %>
       </section>
       <% } %>

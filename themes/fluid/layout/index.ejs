@@ -200,8 +200,13 @@ wallModules.forEach(function (m) { if (m.key === 'projects') { featuredModule = 
     </div>
 
     <%
-    /* 墙格收口（RL-1）：入口格总数为奇数时，末格跨 2 列把网格填满 */
-    var wallCellCount = wallModules.length + 2
+    /* 墙格收口（RL-1）。主卡 .wall-feature 占 col1 两行 → 前两行留给入口格的空位是
+       2 列 × 2 行 = 4 个。入口格 ≤4 时正好铺满、不产生第三行；超过 4 个时由末格
+       （分类格）跨剩余列兜住。
+       2026-10-19：标签格按方案 A 撤出（标签不占首页入口格，只活在详情页），
+       入口格数从「模块 + 分类 + 标签」改为「模块 + 分类」。 */
+    var wallCellCount = wallModules.length + 1
+    var wallOverflow = wallCellCount > 4
     %>
     <div class="wall">
       <% if (featuredPost) { %>
@@ -244,20 +249,15 @@ wallModules.forEach(function (m) { if (m.key === 'projects') { featuredModule = 
       </<%= m.page ? 'a' : 'div' %>>
       <% }) %>
 
-      <a class="wall-cell cell-plain" href="<%= url_for('/categories/') %>">
+      <a class="wall-cell cell-plain<%= wallOverflow ? ' wall-cell-wide' : '' %>" href="<%= url_for('/categories/') %>">
         <div class="wall-cell-body">
           <span class="wall-cell-count"><%= site.categories.length %></span>
           <span class="wall-cell-title">分类</span>
           <span class="wall-cell-item">按主题浏览</span>
         </div>
       </a>
-      <a class="wall-cell cell-plain<%= wallCellCount % 2 === 1 ? ' wall-cell-wide' : '' %>" href="<%= url_for('/tags/') %>">
-        <div class="wall-cell-body">
-          <span class="wall-cell-count"><%= site.tags.length %></span>
-          <span class="wall-cell-title">标签</span>
-          <span class="wall-cell-item">按关键词探索</span>
-        </div>
-      </a>
+      <% /* 标签格已撤（2026-10-19，方案 A：标签降级为详情页检索）。/tags/ 页面与所有
+          标签 URL 保留可访问，只是不再占首页入口格；文章详情页的标签行是它该在的地方。 */ %>
     </div>
   </section>
 

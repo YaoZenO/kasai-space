@@ -4,6 +4,11 @@
 page.layout = 'project'
 page.hide_banner = true
 var it = page.item || {}
+/* 正文自带 h2 时不渲染壳标题：否则壳标题与正文第一个 ## 之间零内容、只隔 22px，
+   读起来像两个标题打堆（2026-10-19 实测，Ties 四处：项目背景→它解决什么、
+   实现过程→工程过程、技术方案→技术栈、成果→目前的状态，四个长文都以 ## 开头）。
+   壳标题的职责是给没有小标题的长文一个概要，正文已有小标题时它是冗余层级。 */
+var startsWithH2 = (html) => html && /^\s*<h2[\s>]/.test(String(html))
 var sections = [
   ['项目背景', it.background_html],
   ['实现过程', it.process_html],
@@ -37,7 +42,7 @@ var sections = [
       <div class="markdown-body">
       <% sections.forEach(function (s) { %>
       <section class="rich-section">
-        <h2><%= s[0] %></h2>
+        <% if (!startsWithH2(s[1])) { %><h2><%= s[0] %></h2><% } %>
         <%- s[1] %>
       </section>
       <% }) %>

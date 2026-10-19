@@ -256,6 +256,17 @@ async function main() {
     ok('Markdown 加粗被渲染为 strong', () => assert.ok(projHtml.includes('<strong>加粗</strong>')));
     ok('Markdown 行内代码被渲染为 code', () => assert.ok(projHtml.includes('<code>代码</code>')));
     ok('Markdown 列表被渲染为 li', () => assert.ok(projHtml.includes('<li>列表项一</li>')));
+    ok('壳标题不会与正文首个 h2 相邻打堆', () => {
+      // 2026-10-19：正文长文自带 h2 时不再渲染壳标题（模板按渲染后 HTML 行首判断）。
+      // 两个 h2 直接相邻就是这个缺陷的特征——壳标题与正文第一个 ## 之间零内容、
+      // 只隔 22px，读起来像两个标题打堆（Ties 四处 + lol 一处）。
+      // 正文不以 h2 开头时壳标题仍渲染（它的职责是给没有小标题的长文一个概要）。
+      for (const rel of [path.join('games', 'lol', 'index.html'), path.join('games', 'e2e-game', 'index.html'), path.join('projects', 'Ties', 'index.html'), path.join('projects', 'e2e-rich', 'index.html')]) {
+        const html = readPage(rel);
+        assert.ok(!/<h2[^>]*>[^<]*<\/h2>\s*<h2/.test(html),
+          `${rel} 存在两个相邻 h2 —— 壳标题与正文小标题打堆`);
+      }
+    });
     ok('process / outcome 段内容存在', () => {
       assert.ok(projHtml.includes('过程内容'), '缺少 process');
       assert.ok(projHtml.includes('成果内容'), '缺少 outcome');
@@ -337,6 +348,15 @@ async function main() {
     ok('首页模块入口链接可用（无 HTML 实体转义）', () => {
       assert.ok(home.includes('href="/projects/"'), '首页缺少 /projects/ 链接');
       assert.ok(!home.includes('&#34;/projects/'), '链接被转义成实体，浏览器点不动');
+    });
+    ok('标签不占首页入口格，但 /tags/ 页面仍可访问（方案 A）', () => {
+      // 2026-10-19 主人拍板：标签降级为详情页检索。撤首页入口格、不删页面（R-8 保护数据，
+      // permalink 不动）。这两条必须同时成立——只撤格会丢 URL，只留格等于没降级。
+      assert.ok(!home.includes('href="/tags/"'), '首页仍有 /tags/ 入口格链接 —— 标签应降级为详情页检索');
+      assert.ok(fs.existsSync(path.join(PUBLIC, 'tags', 'index.html')),
+        '/tags/ 页面不存在 —— 方案 A 要求保留标签页与所有标签 URL');
+      const cells = (home.match(/class="wall-cell[ "]/g) || []).length;
+      assert.ok(cells >= 3, `首页入口格数量异常：${cells}`);
     });
     ok('墨底区块与两栏容器平级（否则墨底通不了铺）', () => {
       // 2026-10-19 实测：ink-band 放进 .home-cols 里会变成两栏网格的第三个格子，
