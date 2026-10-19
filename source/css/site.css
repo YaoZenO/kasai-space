@@ -48,6 +48,9 @@
      从此改值只有单一入口；22px 大圆角已废止，不得扩散到首页入口格） */
   --r-tile: 12px;
   --r-card: 12px;
+  /* 超大尺度档（方向 B，2026-10-19）：站名 4.6rem → 本档 5.5rem → 页头 3.2rem，
+     三级断崖。只用于首页 FEATURED 主卡标题（.wall-feature-title），别处引用需重新过尺度纪律。 */
+  --fs-hero: clamp(2.6rem, 5.8vw, 5.5rem);
   --cream: #fdfbf6;               /* 模块卡底：第三纸色 #f9f6f1 已废止 */
   --ink-warm: #2a251d;
   --cream-on-dark: #f5f1e9;
@@ -492,11 +495,14 @@
 
 .wall-feature-title {
   margin: 0 0 0.9rem;
-  /* 2026-10-18 主理人调整：站名 4.6rem → 本档 3rem → 页头 2.4rem 原本只差一档，
-     全站缺第二档大尺度（REVIEW-2026-10-18-PM.md §1.1 D-5）。提到 3.4rem 补上断档。 */
-  font-size: clamp(2.1rem, 4.2vw, 3.4rem);
+  /* 尺度档演进（REVIEW §1.1 D-5 → 方向 B）：
+     10-18：3rem → 3.4rem，补上「站名 4.6rem 与本档只差一档」的断档；
+     10-19：方向 B 落地，新增超大档 5.5rem。站名 4.6rem → 主卡 5.5rem → 页头 3.2rem
+     形成三级断崖，这是 B 的「字号断崖」主张：尺度对比替代色相对比。
+     用 token --fs-hero 而不是写死 clamp，改档位只有一处入口。 */
+  font-size: var(--fs-hero);
   font-weight: 900;
-  line-height: 1.14;
+  line-height: 1.1;
 }
 
 .wall-feature-title a {
@@ -863,7 +869,8 @@ a.feed-title:hover {
 .home-end {
   margin-top: clamp(3rem, 7vh, 5rem);
   padding-top: 1.3rem;
-  border-top: 1px solid var(--line-color);
+  /* 组分隔（方向 B）：区块之间用 2px 墨线，hairline 只留描边与行分隔 */
+  border-top: 2px solid var(--line-strong);
   width: min(1200px, 100% - clamp(36px, 8vw, 96px));
   margin-left: auto;
   margin-right: auto;
@@ -1080,7 +1087,7 @@ a.feed-title:hover {
   max-width: 38em;
   font-size: 1.0625rem;
   line-height: 1.75;
-  color: var(--post-text-color, var(--text-color));
+  color: var(--post-text-color);
   background: transparent;
   padding: 0;
   box-shadow: none;
@@ -1119,7 +1126,7 @@ a.feed-title:hover {
 /* 上一篇 / 下一篇 */
 .post-prevnext {
   display: flex;
-  border-top: 1px solid var(--line-color);
+  border-top: 2px solid var(--line-strong);
   padding-top: 1.2rem;
 }
 
@@ -1526,7 +1533,7 @@ a.feed-title:hover {
   max-width: 38em;
   font-size: 1.0625rem;
   line-height: 1.75;
-  color: var(--post-text-color, var(--text-color));
+  color: var(--post-text-color);
   background: transparent;
   padding: 0;
   box-shadow: none;
@@ -1642,7 +1649,9 @@ a.feed-title:hover {
 .rich-section { margin: 0 0 2.6rem; }
 .rich-section h2 {
   font-size: clamp(1.25rem, 2.2vw, 1.5rem); font-weight: 800; letter-spacing: .01em;
-  margin: 0 0 .9rem; padding-bottom: .5rem; border-bottom: 1px solid var(--line-color);
+  margin: 0 0 .9rem; padding-bottom: .5rem;
+  /* 标题下的分组线（方向 B）：与组顶 2px 墨线同级，hairline 不再承担分隔 */
+  border-bottom: 2px solid var(--line-strong);
 }
 /* 砖红标题竖标（2026-10-18 重写）。
  *
@@ -1723,17 +1732,17 @@ a.feed-title:hover {
 
 .media-wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .8rem; }
 .media-wall figure { margin: 0; }
-.media-wall img { width: 100%; aspect-ratio: 16/10; object-fit: cover; border-radius: var(--r-card, 12px); border: 1px solid var(--line-color); display: block; }
+.media-wall img { width: 100%; aspect-ratio: 16/10; object-fit: cover; border-radius: var(--r-card); border: 1px solid var(--line-color); display: block; }
 
 .detail-links { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .6rem; }
 .detail-links a {
   display: inline-block; padding: .5rem 1rem; border-radius: 999px;
-  background: var(--ink-warm, #2a251d); color: var(--cream-on-dark, #f5f1e9);
+  background: var(--ink-warm); color: var(--cream-on-dark);
   font-size: .88rem; text-decoration: none;
 }
 .detail-links a:hover { background: var(--accent); }
 
-.detail-foot { margin-top: 2.5rem; padding-top: 1.2rem; border-top: 1px solid var(--line-color); }
+.detail-foot { margin-top: 2.5rem; padding-top: 1.2rem; border-top: 2px solid var(--line-strong); }
 
 /* 同模块前后条目导航（D-3）：一左一右，与下方「返回列表」分两行，
    小于 12px 的中文下限已由 0.88rem（14px）满足 */
@@ -1793,7 +1802,7 @@ a.feed-title:hover {
 /* 标题强制单行 + ellipsis：折行会让 cap 高度不可预测，375 档会高过格子、削掉标题第一行
    （2026-10-19 实测：Esports Manager 2026 折两行 → cap 117.3 > 108）。 */
 .games-tile-title { display: block; font-weight: 700; font-size: .92rem; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.games-tile-meta { display: block; font-family: var(--font-mono); font-size: .7rem; letter-spacing: .06em; color: rgba(245, 241, 233, .72); margin-top: .15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.games-tile-meta { display: block; font-family: var(--font-mono); font-size: .75rem; letter-spacing: .06em; color: rgba(245, 241, 233, .72); margin-top: .15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .games-tile-sum {
   display: block; font-size: .78rem; line-height: 1.55; color: rgba(245, 241, 233, .86);
   margin-top: .2rem; max-height: 0; opacity: 0; overflow: hidden;
@@ -1838,10 +1847,10 @@ a.feed-title:hover {
   border-top: 1px solid var(--on-ink-line);
   border-bottom: 1px solid var(--on-ink-line);
 }
-.ink-band .feed-type { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .06em; color: var(--on-ink-sec); flex: none; }
+.ink-band .feed-type { font-family: var(--font-mono); font-size: .75rem; letter-spacing: .06em; color: var(--on-ink-sec); flex: none; }
 .ink-band .feed-title { color: var(--on-ink); font-size: .92rem; min-width: 0; }
 .ink-band .feed-title:hover { color: var(--on-ink); text-decoration: underline; text-underline-offset: .28em; }
-.ink-band .feed-date { margin-left: auto; font-family: var(--font-mono); font-size: .74rem; color: var(--on-ink-sec); flex: none; }
+.ink-band .feed-date { margin-left: auto; font-family: var(--font-mono); font-size: .75rem; color: var(--on-ink-sec); flex: none; }
 
 /* 首页精选行外链标注 */
 .pick-ext { display: block; font-family: var(--font-mono); font-size: .75rem; color: var(--sec-text-color); margin-top: .25rem; }
@@ -1850,16 +1859,16 @@ a.feed-title:hover {
 
 .archive-picks { margin: 0 0 2.8rem; }
 .archive-picks-kicker {
-  font-family: var(--font-mono); font-size: .72rem; letter-spacing: .14em;
+  font-family: var(--font-mono); font-size: .75rem; letter-spacing: .14em;
   text-transform: uppercase; color: var(--accent); margin: 0 0 .9rem;
 }
-.archive-picks .pick-row { padding: 1.1rem 0; border-top: 2px solid var(--line-strong, rgba(42, 37, 29, .24)); }
+.archive-picks .pick-row { padding: 1.1rem 0; border-top: 2px solid var(--line-strong); }
 .archive-picks .pick-row + .pick-row { border-top: 1px solid var(--line-color); }
 .archive-picks .pick-title { font-size: 1.12rem; }
 .archive-picks .pick-desc { font-size: .88rem; line-height: 1.7; color: var(--text-color); margin-top: .4rem; }
 .archive-picks .pick-note {
   display: block; font-size: .78rem; line-height: 1.6; color: var(--accent);
-  border-left: 2px solid var(--accent-soft, rgba(176, 72, 42, .28));
+  border-left: 2px solid var(--accent-soft);
   padding-left: .7rem; margin-top: .55rem;
 }
 .archive-picks .pick-meta { display: block; font-family: var(--font-mono); font-size: .75rem; color: var(--sec-text-color); margin-top: .55rem; }

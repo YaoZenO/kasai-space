@@ -9,14 +9,16 @@
  *   admin-media.js     图片上传与图库│
  *   admin-composer.js  文章正文块编辑器（图文混排发布器，2026-10-15 新增）│
  *   admin-deploy.js    部署轮询      ┘
+ *   admin-quick.js     快捷入口「发一条」（FAB + 菜单，只导航到新建表单）
  *   admin-md-blocks.js Markdown⇄块 纯转换（composer 与 test/md-blocks.js 共用）
  *
  * 跨模块调用统一走 admin-core.js 的 hooks 注册表，避免模块间循环依赖。
  */
 'use strict';
 
-import { S, hooks, $, api, showLogin, showApp, switchTab, reloadList } from './admin-core.js?v=20261018';
-import { renderList } from './admin-list.js?v=20261018';
+import { S, hooks, $, api, showLogin, showApp, switchTab, reloadList } from './admin-core.js?v=20261019';
+import { renderList } from './admin-list.js?v=20261019';
+import { init as initQuick } from './admin-quick.js?v=20261019';
 
 // ---------- 启动 ----------
 (async function boot() {
@@ -32,14 +34,15 @@ import { renderList } from './admin-list.js?v=20261018';
     // 登录成功才加载编辑器等重模块——登录页不下载这部分代码。
     // ?v= 与 index.html 的 ASSET_V 保持一致（bump 时两处同步，admin-smoke 有断言锁）。
     const [post, item, site, media, deploy] = await Promise.all([
-      import('./admin-post.js?v=20261018'),
-      import('./admin-item.js?v=20261018'),
-      import('./admin-site.js?v=20261018'),
-      import('./admin-media.js?v=20261018'),
-      import('./admin-deploy.js?v=20261018'),
+      import('./admin-post.js?v=20261019'),
+      import('./admin-item.js?v=20261019'),
+      import('./admin-site.js?v=20261019'),
+      import('./admin-media.js?v=20261019'),
+      import('./admin-deploy.js?v=20261019'),
     ]);
     post.init();
     item.init();
+    initQuick();
     site.init();
     media.init();
     deploy.init();

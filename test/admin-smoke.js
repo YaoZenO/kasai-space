@@ -835,6 +835,30 @@ const PNG_1X1 = Buffer.from(
     assert.match(body, /待部署/, '无 sha 分支应如实写明「待部署」，而不是伪装成已提交');
   });
 
+  // 快捷入口「发一条」（2026-10-19，主人拍板「先③再①」的③）
+  ok('快捷入口 DOM 与接线齐全（FAB + 菜单 + 5 个菜单项）', () => {
+    const html = fs.readFileSync(path.join(__dirname, '..', 'source/admin/index.html'), 'utf8');
+    assert.ok(html.includes('id="fab-compose"'), 'index.html 缺少 FAB 按钮');
+    assert.ok(html.includes('id="fab-menu"'), 'index.html 缺少 FAB 菜单容器');
+    const quick = fs.readFileSync(path.join(__dirname, '..', 'source/admin/admin-quick.js'), 'utf8');
+    for (const k of ['post', 'projects', 'games', 'collections', 'images']) {
+      assert.ok(quick.includes(`key: '${k}'`), `快捷菜单缺少「${k}」项`);
+    }
+    const js = fs.readFileSync(path.join(__dirname, '..', 'source/admin/admin.js'), 'utf8');
+    assert.ok(/admin-quick\.js\?v=/.test(js), 'admin.js 没有 import admin-quick.js');
+    assert.ok(/initQuick\(\)/.test(js), 'admin.js 没有调用 initQuick()');
+  });
+
+  ok('快捷入口不含自己的保存逻辑（只导航到既有新建表单）', () => {
+    // 边界断言：聚合发布页（①）做成前，快捷入口不得复制出第二套提交流程。
+    // 保存必须继续走 admin-post.js / admin-item.js 的 hooks.openPostEditor / openItemEditor。
+    const quick = fs.readFileSync(path.join(__dirname, '..', 'source/admin/admin-quick.js'), 'utf8');
+    assert.ok(!/await api\(/.test(quick), 'admin-quick.js 里出现了 api 调用——保存逻辑不应在这里');
+    assert.ok(!/content-save/.test(quick), 'admin-quick.js 里出现了 content-save——不得自建提交流程');
+    assert.ok(/hooks\.openPostEditor/.test(quick) && /hooks\.openItemEditor/.test(quick),
+      'admin-quick.js 没有复用既有的 openPostEditor / openItemEditor 钩子');
+  });
+
   console.log(`\nRESULT: ${passed} 项断言通过${process.exitCode ? '，存在失败' : ''}`);
   process.exit(process.exitCode || 0);
 })().catch((e) => { console.error('FATAL', e); process.exit(1); });

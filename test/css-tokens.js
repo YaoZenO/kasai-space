@@ -106,5 +106,16 @@ ok('墨底区块样式存在，且区块内不引入交互色', () => {
     '墨底区块内出现了交互色 —— R-2：反相区块不得引入第二彩色，只用纸色透明度衍生');
 });
 
+// 前台中文字号 ≥12px（VD-4 / T1-4）。中文小字低于 12px 在纸底上不可读，
+// 这条锁死「新增样式时不许再写出 .7xrem 以下的中文」。
+ok('前台字号全部 ≥12px（0.75rem）', () => {
+  const bad = [];
+  siteCss.split('\n').forEach((line, i) => {
+    const m = line.match(/font-size:\s*([\d.]+)rem/);
+    if (m && parseFloat(m[1]) < 0.75) bad.push(`L${i + 1}: ${m[1]}rem`);
+  });
+  assert.deepStrictEqual(bad, [], `存在 <12px 的字号：${bad.join(' / ')}`);
+});
+
 console.log(`\nRESULT: ${passed} 项断言通过${process.exitCode ? '，存在失败' : ''}`);
 process.exit(process.exitCode || 0);

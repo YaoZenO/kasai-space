@@ -9,7 +9,7 @@
 <!-- ASSET_V：后台静态资源缓存破坏版本号。改动 source/admin/ 下任何前端文件后，
      必须同步 bump 此处与 admin.js 动态 import 的 ?v=（由 test/admin-smoke.js 断言两处一致），
      否则浏览器会继续用本地缓存的旧副本，表现为「改了线上看不到」（2026-10-15 实际发生过）。 -->
-<link rel="stylesheet" href="/admin/admin.css?v=20261018">
+<link rel="stylesheet" href="/admin/admin.css?v=20261019">
 </head>
 <body>
 
@@ -240,6 +240,14 @@
   </nav>
 </section>
 
+  <!-- 快捷入口「发一条」（2026-10-19，先③再① 的③）：浮动按钮 + 菜单。
+       菜单项只负责切 tab 并打开对应新建表单，保存逻辑仍走各编辑器既有路径。 -->
+  <button class="fab" id="fab-compose" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="fab-menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+    <span class="fab-txt">发一条</span>
+  </button>
+  <div class="fab-menu" id="fab-menu" role="menu" aria-label="快捷发布" hidden></div>
+
 <!-- 图片选择器 -->
 <div id="modal-picker" class="modal" hidden>
   <div class="modal-box">
@@ -276,6 +284,6 @@
 <div id="toast" class="toast" hidden></div>
 <!-- ES module：admin-core / admin-list 静态加载；编辑器等重模块在登录成功后动态 import，
      登录页不会下载这部分代码（P2-2） -->
-<script type="module" src="/admin/admin.js?v=20261018"></script>
+<script type="module" src="/admin/admin.js?v=20261019"></script>
 </body>
 </html>
