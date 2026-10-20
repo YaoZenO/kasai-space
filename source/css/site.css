@@ -50,11 +50,23 @@
   --r-card: 12px;
   /* 超大尺度档（方向 B，2026-10-19）：站名 4.6rem → 本档 5.5rem → 页头 3.2rem，
      三级断崖。只用于首页 FEATURED 主卡标题（.wall-feature-title），别处引用需重新过尺度纪律。 */
-  --fs-hero: clamp(2.6rem, 5.8vw, 5.5rem);
+  /* vh 上限是必需的：只用 vw 时 @1440×900 主卡标题 83.5px 会把内容墙撑到 976px，
+     超出折叠线 76px，第二行入口格的标签条被切一半（2026-10-19 实测）。
+     min(5.8vw, 8.5vh) 在 1080/1920 两档仍吃到 5.5rem 完整断崖，900/800 收回线内。 */
+  /* 375 档下限 3.4rem：2.6rem 时移动端站名与主卡都落 clamp 下限、两级完全打平
+     （视觉线复测实测都等于 41.6px）。3.4rem = 54.4px，与站名 41.6 拉开 31%。 */
+  --fs-hero: clamp(3.4rem, min(5.8vw, 8.5vh), 5.5rem);
   --cream: #fdfbf6;               /* 模块卡底：第三纸色 #f9f6f1 已废止 */
   --ink-warm: #2a251d;
   --cream-on-dark: #f5f1e9;
   --line-strong: rgba(42, 37, 29, 0.24);
+  /* 两级分组线（方向 B，2026-10-19 显式命名）：
+     --rule        区块分隔（页脚收尾 / 上下篇 / 标题下 / 详情页脚），2px、.24 墨、1.62:1——
+                   与纸面 hairline 的 1.51:1 同口径（层级线，可辨识而非 3:1）
+     --rule-strong 组顶线（列表组第一条之上），2px、全墨、13.5:1
+     拆开是为了让「两级」是设计而不是顺手取值；墨底区块用 --on-ink-line 保持 1px 行分隔对称 */
+  --rule: var(--line-strong);
+  --rule-strong: var(--text-color);
   --accent-soft: rgba(176, 72, 42, 0.12); /* A4 定值 .12；原 pick-note fallback .28 视觉随之变浅 */
 
   /* 方向 A：反色墨底整屏区块（2026-10-19 落地）。R-1 豁免允许每屏最多一个。
@@ -452,7 +464,10 @@
   overflow: hidden;
   background-color: #2a251d;
   color: #f5f1e9;
-  padding: clamp(1.5rem, 2.6vw, 2.4rem);
+  /* 2026-10-19 方向 B：hero 提到 5.5rem 后，原 clamp(1.5rem,2.6vw,2.4rem) 在 @1440 是 37px，
+     加上 6 行标题把主卡撑到 976px、超出折叠线。padding 收到 24px 是方案 A 的一环
+     （配 --fs-hero 的 8.5vh 上限与标题行高 1.04），四档实测见视觉线报告。 */
+  padding: 24px;
 }
 
 .wall-feature-img {
@@ -477,7 +492,9 @@
 }
 
 .wall-feature-meta {
-  margin: 0 0 0.7rem;
+  /* 1.5rem：hero 提到 76–88px 后，原 0.7rem(11.2px) 只等于 0.15em，
+     排印惯例大标题上方要 ≥0.5em；标题占卡高 66%、描述被压到 111px，这是主因。 */
+  margin: 0 0 1.5rem;
   font-family: var(--font-mono);
   font-size: 0.76rem;
   letter-spacing: 0.16em;
@@ -493,16 +510,18 @@
   color: #f5f1e9;
 }
 
+/* 尺度档演进（REVIEW §1.1 D-5 → 方向 B）：
+   10-18：3rem → 3.4rem，补上「站名 4.6rem 与本档只差一档」的断档；
+   10-19：方向 B 落地，新增超大档 5.5rem。站名 4.6rem → 主卡 5.5rem → 页头 3.2rem
+   形成三级断崖，这是 B 的「字号断崖」主张：尺度对比替代色相对比。
+   用 token --fs-hero 而不是写死 clamp，改档位只有一处入口。 */
 .wall-feature-title {
-  margin: 0 0 0.9rem;
-  /* 尺度档演进（REVIEW §1.1 D-5 → 方向 B）：
-     10-18：3rem → 3.4rem，补上「站名 4.6rem 与本档只差一档」的断档；
-     10-19：方向 B 落地，新增超大档 5.5rem。站名 4.6rem → 主卡 5.5rem → 页头 3.2rem
-     形成三级断崖，这是 B 的「字号断崖」主张：尺度对比替代色相对比。
-     用 token --fs-hero 而不是写死 clamp，改档位只有一处入口。 */
+  /* 1.6rem：标题到描述也要跟上 hero 尺度（原 0.9rem 在大字号下显挤） */
+  margin: 0 0 1.6rem;
   font-size: var(--fs-hero);
   font-weight: 900;
-  line-height: 1.1;
+  /* 1.04：5.5rem 大字需要更紧的行距，否则 6 行标题会吃掉主卡高度（方案 A 的一环） */
+  line-height: 1.04;
 }
 
 .wall-feature-title a {
@@ -706,7 +725,7 @@ a.cell-plain:hover {
   list-style: none;
   margin: 0;
   padding: 0;
-  border-top: 2px solid var(--text-color);
+  border-top: 2px solid var(--rule-strong);
 }
 
 .post-row {
@@ -773,7 +792,7 @@ a.cell-plain:hover {
 .pick-list {
   display: flex;
   flex-direction: column;
-  border-top: 2px solid var(--text-color);
+  border-top: 2px solid var(--rule-strong);
 }
 
 .pick-row {
@@ -822,7 +841,7 @@ a.pick-row:hover .pick-title {
   list-style: none;
   margin: 0;
   padding: 0;
-  border-top: 2px solid var(--text-color);
+  border-top: 2px solid var(--rule-strong);
 }
 
 .feed-row {
@@ -870,7 +889,7 @@ a.feed-title:hover {
   margin-top: clamp(3rem, 7vh, 5rem);
   padding-top: 1.3rem;
   /* 组分隔（方向 B）：区块之间用 2px 墨线，hairline 只留描边与行分隔 */
-  border-top: 2px solid var(--line-strong);
+  border-top: 2px solid var(--rule);
   width: min(1200px, 100% - clamp(36px, 8vw, 96px));
   margin-left: auto;
   margin-right: auto;
@@ -1100,7 +1119,9 @@ a.feed-title:hover {
 
 .post-content hr {
   border: 0;
-  border-top: 1px solid var(--line-color);
+  /* 正文内的区块分隔：与 .home-end / .post-prevnext 同组，上 2px --rule
+     （2026-10-19 视觉线复测揪出这处漏网——分组线一刀切时漏了正文 hr） */
+  border-top: 2px solid var(--rule);
   margin: 2.6rem 0 1.6rem;
 }
 
@@ -1126,7 +1147,7 @@ a.feed-title:hover {
 /* 上一篇 / 下一篇 */
 .post-prevnext {
   display: flex;
-  border-top: 2px solid var(--line-strong);
+  border-top: 2px solid var(--rule);
   padding-top: 1.2rem;
 }
 
@@ -1313,7 +1334,7 @@ a.feed-title:hover {
 /* --- 4.5 分类页（分类名=有效入口；计数=真实文章数） --- */
 
 .category-list .cat-group {
-  border-top: 2px solid var(--text-color);
+  border-top: 2px solid var(--rule-strong);
 }
 
 .cat-row {
@@ -1583,7 +1604,7 @@ a.feed-title:hover {
 #modalSearch .form-control {
   background-color: transparent;
   border: none;
-  border-bottom: 2px solid var(--text-color);
+  border-bottom: 2px solid var(--rule-strong);
   border-radius: 0;
   color: var(--text-color);
   font-family: var(--font-mono);
@@ -1651,7 +1672,7 @@ a.feed-title:hover {
   font-size: clamp(1.25rem, 2.2vw, 1.5rem); font-weight: 800; letter-spacing: .01em;
   margin: 0 0 .9rem; padding-bottom: .5rem;
   /* 标题下的分组线（方向 B）：与组顶 2px 墨线同级，hairline 不再承担分隔 */
-  border-bottom: 2px solid var(--line-strong);
+  border-bottom: 2px solid var(--rule);
 }
 /* 砖红标题竖标（2026-10-18 重写）。
  *
@@ -1742,7 +1763,7 @@ a.feed-title:hover {
 }
 .detail-links a:hover { background: var(--accent); }
 
-.detail-foot { margin-top: 2.5rem; padding-top: 1.2rem; border-top: 2px solid var(--line-strong); }
+.detail-foot { margin-top: 2.5rem; padding-top: 1.2rem; border-top: 2px solid var(--rule); }
 
 /* 同模块前后条目导航（D-3）：一左一右，与下方「返回列表」分两行，
    小于 12px 的中文下限已由 0.88rem（14px）满足 */
@@ -1862,7 +1883,7 @@ a.feed-title:hover {
   font-family: var(--font-mono); font-size: .75rem; letter-spacing: .14em;
   text-transform: uppercase; color: var(--accent); margin: 0 0 .9rem;
 }
-.archive-picks .pick-row { padding: 1.1rem 0; border-top: 2px solid var(--line-strong); }
+.archive-picks .pick-row { padding: 1.1rem 0; border-top: 2px solid var(--rule); }
 .archive-picks .pick-row + .pick-row { border-top: 1px solid var(--line-color); }
 .archive-picks .pick-title { font-size: 1.12rem; }
 .archive-picks .pick-desc { font-size: .88rem; line-height: 1.7; color: var(--text-color); margin-top: .4rem; }

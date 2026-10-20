@@ -178,9 +178,10 @@
 
 | 级别 | 字号 | 字重 | 行高 | 字距 | 轨道 | 用在哪 |
 |---|---|---|---|---|---|---|
-| D0+ 主卡超大档 | `clamp(2.6rem, 5.8vw, 5.5rem)`（token `--fs-hero`） | 900 | 1.1 | — | 展示 | `.wall-feature-title`（2026-10-19 方向 B 新增） |
+| D0+ 主卡超大档 | `clamp(2.6rem, min(5.8vw, 8.5vh), 5.5rem)`（token `--fs-hero`） | 900 | 1.04 | — | 展示 | `.wall-feature-title`（2026-10-19 方向 B 新增；vh 上限防 1440×900 档把墙撑出折叠线） |
 | D0 站名 | `clamp(2.6rem, 5.6vw, 4.6rem)` | 900 | 1.08 | **-0.02em** | 展示 | `.identity-name` |
-| D1 页头标题 | `clamp(2.1rem, 4.2vw, 3.2rem)` | 900 | 1.15 | — | 正文轨 | `.page-head-title`、模块列表页标题 |
+| D1 页头标题 | `clamp(2.1rem, 4.2vw, 3.2rem)` | 900 | 1.15 | — | 正文轨 | `.page-head-title`（文章页等） |
+| D1- 模块列表页标题 | `clamp(1.8rem, 3.4vw, 2.4rem)` | 800 | — | — | 正文轨 | `.page-head-plain .page-head-title`（2026-10-19 视觉线复测指出文档与实现不一致：模块页用小一档更合理，改文档不改实现） |
 | D2 文章标题 | `clamp(1.9rem, 3.8vw, 2.9rem)` | 900 | 1.22 | — | 正文轨 | `.post-head-title` |
 | D3 主卡标题 | `clamp(1.9rem, 3.6vw, 3rem)` | 900 | 1.18 | — | 正文轨 | `.wall-feature-title` |
 | D4 栏标题 | `clamp(1.25rem, 2.2vw, 1.6rem)` | 900 | — | — | 正文轨 | `.col-title`、详情页 `rich-section h2` |
@@ -329,7 +330,10 @@
 - **构成**：`cols-2` = `1.2fr / 1fr`（精选内容 / 最新文字）；栏头 `.col-head` = 栏标题（D4）+ 计数（mono）+ `col-more` 出口（`margin-left: auto`，mono 0.78rem 次级，hover accent）。
 - **栏头节奏纪律（UX-3）**：栏头必须齐整——**每栏都要有出口链接**。
 - **行式列表通用形态**：**组顶 2px 墨线 + 行底 1px hairline**；行内 mono 日期 / 类型词 + 墨色标题 + 次级描述。
-- **分隔职能分层（方向 B，2026-10-19）**：hairline 只保留**描边**（卡片 / 图片 / tag 边）与**行分隔**（feed-row / post-row / pick-row 的行底）；**组分隔**一律 2px 墨线 `var(--line-strong)`——已覆盖 `.home-end` 页脚收尾区顶线、`.post-prevnext` 上下篇顶线、`.rich-section h2` 标题下分组线、`.detail-foot` 详情页页脚顶线。新增区块分隔不要再写 1px。
+- **分隔职能分层（方向 B，2026-10-19）**：hairline 只保留**描边**（卡片 / 图片 / tag 边）与**行分隔**（feed-row / post-row / pick-row 的行底，含墨底区块的 `.ink-band .feed-row`——它与纸面侧行分隔的 1.62:1 对称，是行分隔不是分组线）；**组分隔**一律 2px，两个显式 token：
+  - `--rule`：区块分隔（`.home-end` / `.post-prevnext` / `.rich-section h2` / `.detail-foot` / `.archive-picks .pick-row`），2px、`.24` 墨、1.62:1——与纸面 hairline 的 1.51:1 同口径（层级线，可辨识而非 3:1）；
+  - `--rule-strong`：组顶线（列表组第一条之上），2px、全墨、13.5:1。
+  两级是显式设计而非顺手取值；新增区块分隔不要再写 1px。
 - **精选栏**：`88×60` 封面（8px 圆角）+ 标题 + 一句描述；外链条目挂 `.pick-ext`（mono、次级色、↗ 标注）。
 - **最新文字栏**：mono 日期 + 标题 + 单行描述截断 + 分类名。
 - **计数口径**：栏头计数 = **实际渲染行数**（2026-10-19 统一：原「最近更新」栏用 `feed.length` 13 冒充总数，实际 `FEED_MAX` 截断后只渲染 6 条，与同页其它计数一页两义；现已改为 `feedRows.length`）。
