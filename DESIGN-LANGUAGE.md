@@ -178,12 +178,12 @@
 
 | 级别 | 字号 | 字重 | 行高 | 字距 | 轨道 | 用在哪 |
 |---|---|---|---|---|---|---|
-| D0+ 主卡超大档 | `clamp(2.6rem, min(5.8vw, 8.5vh), 5.5rem)`（token `--fs-hero`） | 900 | 1.04 | — | 展示 | `.wall-feature-title`（2026-10-19 方向 B 新增；vh 上限防 1440×900 档把墙撑出折叠线） |
+| D0+ 主卡标题档 | `clamp(2.2rem, min(4.2vw, 6vh), 3.4rem)`（token `--fs-hero`） | 900 | 1.04 | — | 展示 | `.wall-feature-title`（2026-10-19 方向 B 曾设 5.5rem 超大断崖档；2026-10-21 E-041 主人反馈 76.5px 纸色 on 近墨底 6 行占满主卡「太大、刺眼」，回落至 3.4rem，「字号断崖」主张暂停；vh 上限防大视口把墙撑出折叠线的结论仍成立） |
 | D0 站名 | `clamp(2.6rem, 5.6vw, 4.6rem)` | 900 | 1.08 | **-0.02em** | 展示 | `.identity-name` |
 | D1 页头标题 | `clamp(2.1rem, 4.2vw, 3.2rem)` | 900 | 1.15 | — | 正文轨 | `.page-head-title`（文章页等） |
 | D1- 模块列表页标题 | `clamp(1.8rem, 3.4vw, 2.4rem)` | 800 | — | — | 正文轨 | `.page-head-plain .page-head-title`（2026-10-19 视觉线复测指出文档与实现不一致：模块页用小一档更合理，改文档不改实现） |
 | D2 文章标题 | `clamp(1.9rem, 3.8vw, 2.9rem)` | 900 | 1.22 | — | 正文轨 | `.post-head-title` |
-| D3 主卡标题 | `clamp(1.9rem, 3.6vw, 3rem)` | 900 | 1.18 | — | 正文轨 | `.wall-feature-title` |
+| D3 主卡标题（已停用） | `clamp(1.9rem, 3.6vw, 3rem)` | 900 | 1.18 | — | 正文轨 | 原 `.wall-feature-title` 档位；2026-10-19 起该元素改走 `--fs-hero`（D0+），本档已无用点，留档备查 |
 | D4 栏标题 | `clamp(1.25rem, 2.2vw, 1.6rem)` | 900 | — | — | 正文轨 | `.col-title`、详情页 `rich-section h2` |
 | D5 归档年份 | 1.5rem | 700 | — | 0.06em | 等宽 | `.archive-year-title` |
 | B1 正文 | 1.0625rem（17px） | 400 | 1.75 | — | 正文轨 | 正文轨全部长文（§4.2） |
@@ -304,7 +304,7 @@
 
 ### 5.2 首页身份域（`.identity`）
 
-- **构成**（自上而下）：头像（96px 圆形、1px `--line-strong` 描边、无阴影，A10）→ 站名 h1（`.identity-name`，D0）→ 身份词铭牌（墨色 0.9rem、0.2em 字距、词间 hairline、`01 / 02` 序数前缀走 `--info-mark`，`site.yml identity_words` 驱动，空数组不渲染；2026-10-19 按 A9 升格，原「等宽 0.78rem 次级色」已停用）→ tagline（系统黑体 1.02rem / 1.9、次级色、`max-width: 44ch`）→ CTA 组（一实一虚）。
+- **构成**（自上而下）：头像（96px 圆形、1px `--line-strong` 描边、无阴影，A10）→ 站名 h1（`.identity-name`，D0）→ 身份词铭牌（竖排于站名下方；墨色 0.9rem、0.2em 字距、词间 hairline、`01 / 02` 序数前缀走 `--info-mark`，`site.yml identity_words` 驱动，空数组不渲染；2026-10-19 按 A9 升格，原「等宽 0.78rem 次级色」已停用；2026-10-21 E-040 确认竖排为唯一排法——横排会把 D0 站名挤压成词中断行）→ tagline（系统黑体 1.02rem / 1.9、次级色、`max-width: 44ch`）→ CTA 组（一实一虚）。
 - **状态**：`.cta-solid` hover → accent 底 + `#fdfbf6` 字；`.cta-link` hover → accent + 下划线（粗细与 offset 由 §7 水波基线接管，本处只声明 `text-decoration`）；头像卡无独立 hover（非链接）。
 - **空态 / 降级**：`site.yml avatar` 为空 → 触发首字母 monogram 降级（VD-7 短期方案：比展示主题作者示例图专业）；`identity_words` 空 → 竖列不渲染。
 - **可访问性**：头像 `alt` 为站名或主人名（待 §10 确认后定值）；h1 全页唯一。
