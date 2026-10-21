@@ -3,7 +3,7 @@
  */
 'use strict';
 
-import { S, $, el, hooks, reloadList, pageHead, subHead, emptyState, api, toast, confirmDialog, handleOpError } from './admin-core.js?v=20261019';
+import { S, $, el, hooks, reloadList, pageHead, subHead, emptyState, api, toast, confirmDialog, handleOpError } from './admin-core.js?v=20261021';
 
 export function renderList() {
   const box = $('view-list');

@@ -16,9 +16,9 @@
  */
 'use strict';
 
-import { S, hooks, $, api, showLogin, showApp, switchTab, reloadList } from './admin-core.js?v=20261019';
-import { renderList } from './admin-list.js?v=20261019';
-import { init as initQuick } from './admin-quick.js?v=20261019';
+import { S, hooks, $, api, showLogin, showApp, switchTab, reloadList } from './admin-core.js?v=20261021';
+import { renderList } from './admin-list.js?v=20261021';
+import { init as initQuick } from './admin-quick.js?v=20261021';
 
 // ---------- 启动 ----------
 (async function boot() {
@@ -34,11 +34,11 @@ import { init as initQuick } from './admin-quick.js?v=20261019';
     // 登录成功才加载编辑器等重模块——登录页不下载这部分代码。
     // ?v= 与 index.html 的 ASSET_V 保持一致（bump 时两处同步，admin-smoke 有断言锁）。
     const [post, item, site, media, deploy] = await Promise.all([
-      import('./admin-post.js?v=20261019'),
-      import('./admin-item.js?v=20261019'),
-      import('./admin-site.js?v=20261019'),
-      import('./admin-media.js?v=20261019'),
-      import('./admin-deploy.js?v=20261019'),
+      import('./admin-post.js?v=20261021'),
+      import('./admin-item.js?v=20261021'),
+      import('./admin-site.js?v=20261021'),
+      import('./admin-media.js?v=20261021'),
+      import('./admin-deploy.js?v=20261021'),
     ]);
     post.init();
     item.init();
@@ -71,4 +71,13 @@ document.querySelectorAll('[data-back]').forEach((b) => {
 });
 document.querySelectorAll('[data-close-modal]').forEach((b) => {
   b.onclick = () => (b.closest('.modal').hidden = true);
+});
+
+// 关页面 / 刷新前，编辑器有未保存内容时先拦一道（2026-10-21，
+// REVIEW-2026-10-18-PM §2.4.1 摩擦③：此前无任何拦截，写一半刷新即丢稿）。
+window.addEventListener('beforeunload', (e) => {
+  if (S.dirty) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
 });

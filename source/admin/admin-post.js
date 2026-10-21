@@ -5,8 +5,8 @@
  */
 'use strict';
 
-import { S, $, api, toast, confirmDialog, handleOpError, hooks, guard, reloadList, switchTab } from './admin-core.js?v=20261019';
-import { mountComposer, bindPaste } from './admin-composer.js?v=20261019';
+import { S, $, api, toast, confirmDialog, handleOpError, hooks, guard, reloadList, switchTab, markDirty, clearDirty } from './admin-core.js?v=20261021';
+import { mountComposer, bindPaste } from './admin-composer.js?v=20261021';
 
 let composer = null;
 
@@ -83,6 +83,8 @@ async function openPostEditor(path) {
       $('btn-delete-post').hidden = false;
       $('btn-delete-post').textContent = '删除文章';
     }
+    // 表单全部填充完毕再清 dirty：程序化赋值不触发 input，不会被误标未保存
+    clearDirty();
   } catch (e) {
     handleOpError(e);
   } finally {
@@ -157,6 +159,7 @@ export async function saveCurrentEditing(opts) {
     hooks.setDeployCommitted(r.commitSha);
     toast('草稿已保存');
   }
+  clearDirty();
 }
 
 export async function publishCurrentEditing() {
@@ -190,6 +193,7 @@ export async function publishCurrentEditing() {
     toast(`已发布 ${r.permalink}`);
   }
   await reloadList();
+  clearDirty();
   switchTab('posts');
 }
 
@@ -217,6 +221,7 @@ async function deleteCurrentPost() {
     S.lastListSha = r.headSha || S.lastListSha;
     hooks.setDeployCommitted(r.commitSha);
     toast(`「${title}」已移入回收站，底部「回收站」标签页可恢复`);
+    clearDirty();
     await reloadList();
     switchTab('posts');
   } catch (e) {
@@ -240,9 +245,16 @@ function renderMarkdown(md) {
 }
 
 export function init() {
+  // 文章编辑器非正文字段（标题 / slug / 标签 / 分类 / 封面）输入时标记未保存；
+  // 正文块编辑器走 composer 的 onInput（2026-10-21，切 tab / 关页面丢稿拦截）
+  document.addEventListener('input', (e) => {
+    if (e.target.closest && e.target.closest('#view-post-editor')) markDirty();
+  });
+
   composer = mountComposer($('post-composer'), {
     onInput: () => {
       if (S.editor) S.editor.dirty = true;
+      markDirty();
       updateWordCount();
     },
   });

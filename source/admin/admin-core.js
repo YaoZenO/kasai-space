@@ -18,6 +18,7 @@ export const S = {
   pollStartedAt: 0,
   lastDeployUrl: '',
   busy: false,
+  dirty: false, // 任一编辑器有未保存修改（切 tab / 关页面前拦截用）
 };
 
 // 跨模块入口注册表：由各功能模块 init() 填充，core 与 list 通过它调用
@@ -189,7 +190,31 @@ export function showApp() {
   switchTab(S.tab || 'posts');
 }
 
+// ---------- 未保存修改拦截 ----------
+// 2026-10-21（REVIEW-2026-10-18-PM §2.4.1 摩擦③）：此前切 tab 无提示、无 confirm，
+// 写了一半的稿子点一下标签就没了。现在各编辑器在用户输入时 markDirty()，
+// 打开新编辑器 / 保存成功后 clearDirty()，switchTab 与关页面两道拦截。
+export function markDirty() { S.dirty = true; }
+export function clearDirty() { S.dirty = false; }
+
 export function switchTab(tab) {
+  if (S.dirty) {
+    confirmDialog(
+      '有未保存的修改',
+      '当前编辑器里有未保存的内容，切换页面将丢失这些修改。确定放弃并切换吗？',
+      '放弃并切换',
+    ).then((ok) => {
+      if (ok) {
+        clearDirty();
+        doSwitchTab(tab);
+      }
+    });
+    return;
+  }
+  doSwitchTab(tab);
+}
+
+function doSwitchTab(tab) {
   S.tab = tab;
   document.querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b.dataset.tab === tab));
   $('view-list').hidden = false;

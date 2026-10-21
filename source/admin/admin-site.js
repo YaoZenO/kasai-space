@@ -3,11 +3,12 @@
  */
 'use strict';
 
-import { S, $, api, toast, guard, reloadList, hooks , handleOpError } from './admin-core.js?v=20261019';
-import { uploadOneImage, sitePath } from './admin-media.js?v=20261019';
+import { S, $, api, toast, guard, reloadList, hooks , handleOpError, markDirty, clearDirty } from './admin-core.js?v=20261021';
+import { uploadOneImage, sitePath } from './admin-media.js?v=20261021';
 
 // 设置 tab 直接展示编辑器视图（无列表态）；进入时填充表单
 export function renderSiteEditor(box, site) {
+  clearDirty();
   const filled = ['intro', 'motto', 'avatar'].filter((k) => site && site[k]).length + ((site && site.identity_words && site.identity_words.length) ? 1 : 0);
   fillSiteEditor(site);
   $('view-list').hidden = true;
@@ -23,6 +24,11 @@ function fillSiteEditor(site) {
 }
 
 export function init() {
+  // 设置表单的文本输入标记未保存（切 tab / 关页面前拦截用，2026-10-21）
+  document.addEventListener('input', (e) => {
+    if (e.target.closest && e.target.closest('#view-site-editor')) markDirty();
+  });
+
   $('btn-save-site').onclick = guard(async () => {
     const body = {
       kind: 'site',
@@ -32,8 +38,10 @@ export function init() {
       identity_words: $('site-identity').value,
       expectedHeadSha: S.lastListSha,
     };
-    await api('/api/content-save', { method: 'POST', body });
-    hooks.setDeployCommitted(null);
+    const r = await api('/api/content-save', { method: 'POST', body });
+    // 2026-10-21：回传真实 commitSha（此前硬编码 null，pill 无构建跟踪）
+    hooks.setDeployCommitted(r.commitSha || null);
+    clearDirty();
     toast('站点身份已保存并提交');
     await reloadList();
   });

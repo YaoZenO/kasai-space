@@ -3,8 +3,8 @@
  */
 'use strict';
 
-import { S, $, el, api, toast, hooks, handleOpError, guard, reloadList, switchTab } from './admin-core.js?v=20261019';
-import { uploadOneImage, sitePath, openImagePicker } from './admin-media.js?v=20261019';
+import { S, $, el, api, toast, hooks, handleOpError, guard, reloadList, markDirty, clearDirty } from './admin-core.js?v=20261021';
+import { uploadOneImage, sitePath, openImagePicker } from './admin-media.js?v=20261021';
 
 const MODULE_META = {
   projects: { label: '项目', form: 'projects' },
@@ -54,7 +54,7 @@ function renderMediaList() {
     img.onerror = () => img.remove();
     const name = el('span', 'media-name', p.split('/').pop());
     const del = el('button', 'btn btn-quiet', '移除');
-    del.onclick = () => { S_media.splice(i, 1); renderMediaList(); };
+    del.onclick = () => { S_media.splice(i, 1); renderMediaList(); markDirty(); };
     row.appendChild(img);
     row.appendChild(name);
     row.appendChild(del);
@@ -80,7 +80,7 @@ function renderLinkRows() {
     url.value = l.url || '';
     url.oninput = () => { S_links[i].url = url.value; };
     const del = el('button', 'btn btn-quiet', '移除');
-    del.onclick = () => { S_links.splice(i, 1); renderLinkRows(); };
+    del.onclick = () => { S_links.splice(i, 1); renderLinkRows(); markDirty(); };
     row.appendChild(label);
     row.appendChild(url);
     row.appendChild(del);
@@ -91,6 +91,7 @@ function renderLinkRows() {
 export function openItemEditor(module, index) {
   const item = index === null ? {} : (S.data.data[module][index] || {});
   S.itemEditor = { module, index };
+  clearDirty();
   const meta = MODULE_META[module] || {};
   $('view-list').hidden = true;
   $('view-post-editor').hidden = true;
@@ -209,6 +210,7 @@ function bindCoverUpload(btnId, inputId, module) {
         const mine = (S.data.images || []).filter((p) => p.startsWith(`source/img/${module}/`)).sort();
         const latest = mine[mine.length - 1];
         $(inputId).value = latest ? sitePath(latest) : '';
+        markDirty();
         toast('上传成功，路径已回填');
       } catch (e) {
         handleOpError(e);
@@ -219,6 +221,11 @@ function bindCoverUpload(btnId, inputId, module) {
 }
 
 export function init() {
+  // 数据条目表单的文本输入标记未保存（切 tab / 关页面前拦截用，2026-10-21）
+  document.addEventListener('input', (e) => {
+    if (e.target.closest && e.target.closest('#view-data-editor')) markDirty();
+  });
+
   // 保存按钮（三表单各一个，class 绑定）
   document.querySelectorAll('.btn-save-item').forEach((btn) => {
     btn.onclick = guard(async () => {
@@ -229,11 +236,18 @@ export function init() {
         toast('标题不能为空');
         return;
       }
-      await api('/api/content-save', { method: 'POST', body });
-      hooks.setDeployCommitted(null);
+      const r = await api('/api/content-save', { method: 'POST', body });
+      // 2026-10-21：回传真实 commitSha，部署 pill 才能继续轮询构建状态；
+      // 此前硬编码 null，pill 永远停在「已保存，待部署（无构建跟踪）」。
+      hooks.setDeployCommitted(r.commitSha || null);
       toast('已保存并提交');
+      clearDirty();
       await reloadList();
-      switchTab(ie.module);
+      // 2026-10-21（REVIEW-2026-10-18-PM §2.4.1 摩擦②）：保存后不跳回列表，
+      // 直接重开刚保存的条目——改完一处接着改，不必回列表里重新找。
+      const items = S.data.data[ie.module] || [];
+      const saved = items.findIndex((it) => (body.item.slug && it.slug === body.item.slug) || (!body.item.slug && it.title === body.item.title));
+      openItemEditor(ie.module, saved >= 0 ? saved : null);
     });
   });
 
@@ -245,9 +259,9 @@ export function init() {
   bindRichTextarea('btn-insert-gameplay', 'game-gameplay');
 
   // 封面：图库选择 + 直传
-  $('btn-item-cover-pick').onclick = () => openImagePicker((sp) => { $('item-cover').value = sp; });
-  $('btn-game-cover-pick').onclick = () => openImagePicker((sp) => { $('game-cover').value = sp; });
-  $('btn-coll-cover-pick').onclick = () => openImagePicker((sp) => { $('coll-cover').value = sp; });
+  $('btn-item-cover-pick').onclick = () => openImagePicker((sp) => { $('item-cover').value = sp; markDirty(); });
+  $('btn-game-cover-pick').onclick = () => openImagePicker((sp) => { $('game-cover').value = sp; markDirty(); });
+  $('btn-coll-cover-pick').onclick = () => openImagePicker((sp) => { $('coll-cover').value = sp; markDirty(); });
   bindCoverUpload('btn-item-cover-upload', 'item-cover', 'projects');
   bindCoverUpload('btn-game-cover-upload', 'game-cover', 'games');
   bindCoverUpload('btn-coll-cover-upload', 'coll-cover', 'collections');
@@ -265,9 +279,9 @@ export function init() {
           await uploadOneImage(file, 'games');
           await reloadList();
           const mine = (S.data.images || []).filter((p) => p.startsWith('source/img/games/')).sort();
-          const latest = mine[mine.length - 1];
-          if (latest) S_media.push(sitePath(latest));
-          toast(`已上传 ${file.name}`);
+        const latest = mine[mine.length - 1];
+        if (latest) { S_media.push(sitePath(latest)); markDirty(); }
+        toast(`已上传 ${file.name}`);
         } catch (e) {
           handleOpError(e);
         }
@@ -281,6 +295,7 @@ export function init() {
   $('btn-game-link-add').onclick = () => {
     S_links.push({ label: '', url: '' });
     renderLinkRows();
+    markDirty();
   };
 
   // 登记给 core / list 使用的入口

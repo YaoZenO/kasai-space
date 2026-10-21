@@ -859,6 +859,49 @@ const PNG_1X1 = Buffer.from(
       'admin-quick.js 没有复用既有的 openPostEditor / openItemEditor 钩子');
   });
 
+  // 2026-10-21 一轮：E-036 遗留（pill 无构建跟踪）+ REVIEW-2026-10-18-PM §2.4.1 摩擦②③。
+  // 这四个毛病都是「不报错、静默受损」型，用源码结构断言钉死，退化即红。
+  ok('部署 pill：数据条目与设置保存必须回传真实 commitSha', () => {
+    for (const f of ['source/admin/admin-item.js', 'source/admin/admin-site.js']) {
+      const src = fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
+      assert.ok(/hooks\.setDeployCommitted\(r\.commitSha/.test(src),
+        `${f} 未回传 r.commitSha——pill 会退化成「已保存，待部署（无构建跟踪）」，主人看不到构建状态`);
+      assert.ok(!/setDeployCommitted\(null\)/.test(src),
+        `${f} 仍硬编码 setDeployCommitted(null)——E-036 的伪装状态复活`);
+    }
+  });
+
+  ok('保存后重开编辑器：数据条目保存不跳回列表', () => {
+    // REVIEW §2.4.1 摩擦②：保存后 reset + showList，要改只能回列表重找。
+    const src = fs.readFileSync(path.join(__dirname, '..', 'source/admin/admin-item.js'), 'utf8');
+    const save = src.slice(src.indexOf("document.querySelectorAll('.btn-save-item')"));
+    assert.ok(/openItemEditor\(ie\.module/.test(save),
+      '保存成功后没有重开刚保存的条目——摩擦②复发');
+    assert.ok(!/switchTab\(/.test(save.split('});')[0]),
+      '保存成功后又跳回列表——摩擦②复发');
+  });
+
+  ok('丢稿拦截：switchTab 有未保存确认，关页面有 beforeunload', () => {
+    // REVIEW §2.4.1 摩擦③：切 tab 无提示无 confirm，写一半点一下标签就丢。
+    const core = fs.readFileSync(path.join(__dirname, '..', 'source/admin/admin-core.js'), 'utf8');
+    assert.ok(/export function markDirty\(\)/.test(core) && /export function clearDirty\(\)/.test(core),
+      'admin-core.js 缺 markDirty / clearDirty');
+    assert.ok(/if \(S\.dirty\) \{[\s\S]*?confirmDialog\(/.test(core),
+      'switchTab 没有未保存确认分支——切 tab 丢稿复发');
+    const entry = fs.readFileSync(path.join(__dirname, '..', 'source/admin/admin.js'), 'utf8');
+    assert.ok(/beforeunload/.test(entry) && /if \(S\.dirty\)/.test(entry.split('beforeunload')[1] || ''),
+      'admin.js 缺 beforeunload 拦截或拦截不判 S.dirty');
+  });
+
+  ok('三个编辑器均接线 dirty 标记（输入即标未保存）', () => {
+    const post = fs.readFileSync(path.join(__dirname, '..', 'source/admin/admin-post.js'), 'utf8');
+    assert.ok(/markDirty\(\)/.test(post), 'admin-post.js 没有调用 markDirty');
+    const item = fs.readFileSync(path.join(__dirname, '..', 'source/admin/admin-item.js'), 'utf8');
+    assert.ok(/closest\('#view-data-editor'\)\) markDirty/.test(item), 'admin-item.js 缺数据表单 input 监听');
+    const site = fs.readFileSync(path.join(__dirname, '..', 'source/admin/admin-site.js'), 'utf8');
+    assert.ok(/closest\('#view-site-editor'\)\) markDirty/.test(site), 'admin-site.js 缺设置表单 input 监听');
+  });
+
   console.log(`\nRESULT: ${passed} 项断言通过${process.exitCode ? '，存在失败' : ''}`);
   process.exit(process.exitCode || 0);
 })().catch((e) => { console.error('FATAL', e); process.exit(1); });
