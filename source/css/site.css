@@ -353,18 +353,6 @@
   color: var(--sec-text-color);
 }
 
-.identity-title-row {
-  /* E-040：铭牌与站名竖排，恢复 DESIGN-LANGUAGE「自上而下」构成与 R-5「身份词竖列」。
-     横排在此栏宽下几何上无解：1200px 版心的身份栏 476px，装不下 D0 站名最长词
-     「Personal」（73.6px 下约 370px）+ 铭牌自然宽（约 161px）+ 行间距（22.4px）。
-     横排叠加 overflow-wrap:anywhere 曾把站名挤压成「Persona / l Space」词中断行。
-     竖排后站名独享整栏宽，只在词边界换行；≤576px 铭牌转横排见文末媒体查询。 */
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 1rem;
-}
-
 .identity-name {
   margin: 0;
   font-family: var(--font-display);
@@ -379,41 +367,6 @@
      （塌成 1 字符宽），行内一旦被挤压就从词中断行——站名曾显示成
      「Persona / l Space」。break-word 保留超长单词的保护，又不参与 min-content 塌陷。 */
   overflow-wrap: break-word;
-}
-
-/* 身份词铭牌（A9，主人 2026-10-19 拍板）：等宽装饰升格为「署名规格表」——
-   墨色 0.9rem（14.4px，过中文 12px 下限）+ 0.2em 字距 + 词间 hairline
-   + 等宽序数前缀（01 / 02），读作规格表而不是标签。
-   序数属静态信息，走 --info-mark 中性色（VD-11 分流纪律）。 */
-.identity-words {
-  counter-reset: identity-word;
-  list-style: none;
-  margin: 0.5rem 0 0;
-  padding: 0 0 0 1.4rem;
-  border-left: 1px solid var(--line-color);
-  display: flex;
-  flex-direction: column;
-  font-family: var(--font-mono);
-  font-size: 0.9rem;
-  letter-spacing: 0.2em;
-  color: var(--text-color);
-}
-
-.identity-words li {
-  counter-increment: identity-word;
-  padding: 0.34rem 0;
-  /* 字距在末字后多出 0.2em 空隙，负值回补让 hairline 与文字右端对齐 */
-  margin-right: -0.2em;
-}
-
-.identity-words li + li {
-  border-top: 1px solid var(--line-color);
-}
-
-.identity-words li::before {
-  content: counter(identity-word, decimal-leading-zero) " ";
-  color: var(--info-mark);
-  letter-spacing: 0.1em;
 }
 
 .identity-tagline {
@@ -963,28 +916,6 @@ a.feed-title:hover {
 @media (max-width: 575.98px) {
   .wall {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  /* 竖排已是基础样式（E-040）；窄屏只需把铭牌自身转横排：
-     词间 hairline 由横线转竖线，间距由竖线两侧均分 */
-  .identity-words {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 0.4rem 0;
-    padding-left: 0;
-    border-left: 0;
-  }
-
-  .identity-words li {
-    padding: 0;
-    margin-right: 0;
-  }
-
-  .identity-words li + li {
-    border-top: 0;
-    border-left: 1px solid var(--line-color);
-    margin-left: 0.9rem;
-    padding-left: 0.9rem;
   }
 
   .home-end {

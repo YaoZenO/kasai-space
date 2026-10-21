@@ -148,9 +148,10 @@ var feedRows = feedTypeCount > 1 ? feed.slice(0, FEED_MAX) : []
 
 /* ---------- 身份域 / 页脚配置（site.data.site 优先，回退主题配置；不编造文案） ---------- */
 var siteCfg = (site.data && site.data.site) || {}
-var identityWords = (siteCfg.identity_words && siteCfg.identity_words.length)
-  ? siteCfg.identity_words
-  : ((theme.about && theme.about.identity_words) || [])
+/* A9 身份词铭牌已于 2026-10-21 被主人整块撤回（「01 Developer / 02 Writer 哪好看」，
+   见 ERRORS.md E-040 后续记录与 DESIGN-LANGUAGE §10 拍板状态）。
+   site.yml 的 identity_words 数据保留不删，但本模板不再渲染该块；
+   恢复展示需重新加回模板块与 .identity-words 样式，并先走 §10 拍板流程。 */
 var motto = siteCfg.motto || (theme.about && theme.about.motto) || ''
 var identityIntro = siteCfg.intro || (theme.about && theme.about.intro) || ''
 var identityAvatar = siteCfg.avatar || (theme.about && theme.about.avatar) || ''
@@ -182,14 +183,7 @@ wallModules.forEach(function (m) { if (m.key === 'projects') { featuredModule = 
           <span class="identity-avatar-fallback"><%= (config.title || 'K').substring(0, 1) %></span>
         <% } %>
       </div>
-      <div class="identity-title-row">
-        <h1 class="identity-name"><%= config.title %></h1>
-        <% if (identityWords.length) { %>
-        <ul class="identity-words">
-          <% identityWords.forEach(function (w) { %><li><%= w %></li><% }) %>
-        </ul>
-        <% } %>
-      </div>
+      <h1 class="identity-name"><%= config.title %></h1>
       <% if (identityIntro) { %>
       <p class="identity-tagline"><%= identityIntro %></p>
       <% } %>

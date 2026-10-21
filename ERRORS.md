@@ -767,6 +767,13 @@
   `flex-direction: column`（断言内附理由：D0 最长词 + 铭牌宽在 476px 身份栏里横排
   必挤压；如确需改回横排，须先按 DESIGN-LANGUAGE §3.5 复核站名字号并同步更新断言）。
   变异验证：h1 改回 `anywhere` → 断言 FAIL 并打印原因；竖排改横排 → FAIL；恢复 → PASS。
+- **后续（2026-10-21 晚，主人撤回 A9）：** 主人复审铭牌造型后选择整块撤掉
+  （原话「01 Developer / 02 Writer 这哪好看」），属设计偏好逆转、不是缺陷。
+  `index.ejs` 的身份词模板块与 `.identity-words` 全部样式（含 ≤576px 横排变体）
+  已删除；`site.yml` 的 `identity_words` 数据保留但不渲染。断言 ②（竖排结构锁）
+  随之退役，改为「`.identity-words` 不得出现在 site.css」的缺失锁——恢复展示须
+  先走 DESIGN-LANGUAGE §10 拍板流程并同步更新断言。`overflow-wrap:anywhere` 禁令
+  独立保留：它防的是未来任何把站名放进 flex 行的改法，与铭牌是否存在无关。
 
 ### E-041 主卡标题 5.5rem 断崖档过大、刺眼（方向 B 回落）
 

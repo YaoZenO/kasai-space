@@ -47,7 +47,7 @@
 | R-2 <br>（2026-10-19 修订） | **从「token 数」改为「色相数」约束**：全站**交互**色相仍只有砖红一个（此条保留）。**允许装饰性非交互色块存在**，前提是：该色块上无任何交互元素、不承载 hover/focus 状态、不改变链接色。全站装饰色相总计 ≤2 个 | 全站仅 `--accent` 一个**交互**色 token；链接 / hover 色全部指向 `--accent` 或墨色；装饰色块内不得出现可点击元素 |
 | R-3 <br>（2026-10-19 修订） | 禁止的是**均质卡片阵列**（图标 + 标题 + 文字 ×N 的同款卡），不是「有图」本身。**允许：非均质拼贴、跨列、尺寸不等、无阴影或极弱阴影、圆角 ≤12px。** 禁止项收窄为三条：① 均质阵列 ② 投影浮起 ③ Hero 大图横幅 | 首页不得出现统一等大的卡片阵列；首页入口格圆角 ≤12px；无全宽 Hero 大图；拼贴块尺寸须不等 |
 | R-4 | **禁止补装饰性社会证明**：不开 PV/UV 大数字，不加「共 XXX 篇文章」「最后更新于」「访问量」类统计露出 | grep 模板不得出现 busuanzi / leancloud / umami 计数渲染；页脚 statistics 保持 `enable: false` |
-| R-5 | **禁止在首屏身份域加 Emoji、图标符号或手写体装饰。** 桌面身份域只允许：头像（或 monogram）+ 站名 + 身份词竖列 + tagline + CTA 组 | 身份域 DOM 内不得出现 emoji / 手写体 font-family；关于页既有颜文字属既有信息，去留待主人确认 |
+| R-5 | **禁止在首屏身份域加 Emoji、图标符号或手写体装饰。** 桌面身份域只允许：头像（或 monogram）+ 站名 + tagline + CTA 组（身份词铭牌 A9 已于 2026-10-21 被主人整块撤回，见 §10） | 身份域 DOM 内不得出现 emoji / 手写体 font-family；关于页既有颜文字属既有信息，去留待主人确认 |
 | R-6 | **禁止评论 / 留言 / UGC / 用户登录类功能。** 站点未备案，PRD §2.2 已列为非目标 | `_config.yml` 全部 comments 段保持 `enable: false` |
 | R-7 | **禁止改变 permalink 规则**（`:year/:month/:day/:title/`）。URL 日期漂移的修法是统一构建环境时区（IA-3），不是改规则 | `_config.yml` L22 permalink 行不得改动 |
 | R-8 | **禁止删除分类 / 标签数据；禁止重写文章正文。** 文章正文、永久链接、发布日期、已有元数据受保护（PRD §9.2） | 分类 / 标签数据文件与文章 Markdown 正文 diff 为空 |
@@ -167,7 +167,7 @@
 | 轨道 | Token / 栈 | 用途 | 禁用场景 |
 |---|---|---|---|
 | **展示轨** | `--font-display`：`"Archivo", "Arial Black", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif`（latin 子集 34KB 自托管 + swap + unicode-range） | 站名等品牌字与大写字母展示；当前唯一用点是 `.identity-name`（site.css L318） | 不得用于中文长文本；不得用于正文；紧字距只随拉丁字符（unicode-range 保证中文回退黑体，不得移除该机制） |
-| **等宽元信息轨** | `--font-mono`：`"Cascadia Code", "JetBrains Mono", Consolas, "SF Mono", Menlo, "Courier New", monospace` | 日期、计数、kicker、身份词、外链标注、tag 行、目录标题、归档年份 | 不得用于正文长文；不得用于栏目标题 / 文章标题 |
+| **等宽元信息轨** | `--font-mono`：`"Cascadia Code", "JetBrains Mono", Consolas, "SF Mono", Menlo, "Courier New", monospace` | 日期、计数、kicker、外链标注、tag 行、目录标题、归档年份 | 不得用于正文长文；不得用于栏目标题 / 文章标题 |
 | **正文轨** | 系统黑体：主题 `font.family` 为空 → 继承 Bootstrap `--font-family-sans-serif` 系统栈（`-apple-system / Segoe UI / Roboto / Helvetica Neue / Arial / Noto Sans` + 系统中文字体回退） | tagline、正文、列表行标题、摘要、描述 | 不得用于 kicker / 计数 / 日期（那是等宽轨职责） |
 
 **混用验收口径**：任一文字元素的 `font-family` 必须落在三轨之一；不得出现第四种字体栈；展示轨元素 grep 只得 `.identity-name` 一处（新增须经 §10 确认）。
@@ -190,7 +190,7 @@
 | B2 行标题 | `clamp(1.05rem, 1.8vw, 1.3rem)` | 800 | 1.4 | — | 正文轨 | `.post-title`、`.pick-title`、`.archive-row-title` |
 | B3 次级正文 | 1.02rem / 0.87rem / 0.85rem | 400 | 1.9 / 1.75 / 1.7 | — | 正文轨 | tagline / 行描述 / 摘录描述 |
 | M1 kicker | 0.76rem | 700 | — | 0.22em | 等宽 | `.page-head-kicker`、`.post-head-kicker`（每页 1 处） |
-| M2 元信息 | 0.8rem / 0.78rem / 0.76rem | 400 | — | 0.04–0.16em | 等宽 | 日期、meta、tag、身份词、导航品牌 |
+| M2 元信息 | 0.8rem / 0.78rem / 0.76rem | 400 | — | 0.04–0.16em | 等宽 | 日期、meta、tag、导航品牌 |
 | M3 计数 / 小字 | `clamp(1.7rem, 2.6vw, 2.3rem)`（大数字）/ 0.75rem（小字，见 §3.3） | 700 | 1.1 / — | — | 等宽 | `.wall-cell-count`、`.tag-chip-count` |
 | C1 控件文字 | 0.92rem | 600 | 1.5 | — | 正文轨 | `.cta-solid`、`.cta-link` |
 
@@ -223,7 +223,7 @@
 1. **站名排印三件套受保护**：Archivo 900 + `letter-spacing: -0.02em` + `clamp` 流式字号（site.css L316-326）。任何改站名、改字重、改字距的提案，先过本条；N-3「站名去 Blog」待主人确认——若改，只改字符串，不动排印三件套。
 2. 中文不进紧字距的 unicode-range 机制不得移除。
 3. `::selection` 已于 2026-10-19 按 H-4 采纳改为墨色 `rgba(42,37,29,.12)`（选中是阅读行为，不是交互行为，砖红只留给交互与强调）。原 `rgba(176,72,42,.18)` 已停用。
-4. 等宽轨的 `letter-spacing` 既有分工（kicker 0.22em / 身份词 0.12em / 元信息 0.04–0.08em）不得拉平成单一值。
+4. 等宽轨的 `letter-spacing` 既有分工（kicker 0.22em / 元信息 0.04–0.08em）不得拉平成单一值。
 
 ---
 
@@ -304,11 +304,11 @@
 
 ### 5.2 首页身份域（`.identity`）
 
-- **构成**（自上而下）：头像（96px 圆形、1px `--line-strong` 描边、无阴影，A10）→ 站名 h1（`.identity-name`，D0）→ 身份词铭牌（竖排于站名下方；墨色 0.9rem、0.2em 字距、词间 hairline、`01 / 02` 序数前缀走 `--info-mark`，`site.yml identity_words` 驱动，空数组不渲染；2026-10-19 按 A9 升格，原「等宽 0.78rem 次级色」已停用；2026-10-21 E-040 确认竖排为唯一排法——横排会把 D0 站名挤压成词中断行）→ tagline（系统黑体 1.02rem / 1.9、次级色、`max-width: 44ch`）→ CTA 组（一实一虚）。
+- **构成**（自上而下）：头像（96px 圆形、1px `--line-strong` 描边、无阴影，A10）→ 站名 h1（`.identity-name`，D0）→ tagline（系统黑体 1.02rem / 1.9、次级色，`max-width: 44ch`）→ CTA 组（一实一虚）。身份词铭牌（A9）曾位于站名下方，2026-10-21 被主人整块撤回（原话「01 Developer / 02 Writer 这哪好看」），`site.yml` 的 `identity_words` 数据保留但不渲染；恢复须走 §10 拍板流程。
 - **状态**：`.cta-solid` hover → accent 底 + `#fdfbf6` 字；`.cta-link` hover → accent + 下划线（粗细与 offset 由 §7 水波基线接管，本处只声明 `text-decoration`）；头像卡无独立 hover（非链接）。
 - **空态 / 降级**：`site.yml avatar` 为空 → 触发首字母 monogram 降级（VD-7 短期方案：比展示主题作者示例图专业）；`identity_words` 空 → 竖列不渲染。
 - **可访问性**：头像 `alt` 为站名或主人名（待 §10 确认后定值）；h1 全页唯一。
-- **待确认（进 §10）**：真名上首屏及形式（F-2 / H-1，建议副行「KASAI · 韩耀宇」）；身份词竖列升格为「身份铭牌」（H-2）；档案页入口行文案与形式（IA-10）；头像素材与形态（VD-7）。
+- **待确认（进 §10）**：真名上首屏及形式（F-2 / H-1，建议副行「KASAI · 韩耀宇」）；档案页入口行文案与形式（IA-10）；头像素材与形态（VD-7）。
 - **禁止**：Emoji / 图标符号 / 手写体（红线 R-5）；社交证明（红线 R-4）。
 
 ### 5.3 内容墙（`.wall`）
@@ -511,7 +511,7 @@
 | ≥992px | 桌面全形态：hero 双栏、wall 3 列、三栏、文章页双栏 + 右栏 TOC |
 | 768–991.98px | hero 单列、wall 2 列、三栏单列、文章页无侧栏、正文全宽 |
 | 576–767.98px | wall 2 列、身份域标题行准备竖排 |
-| ≤575.98px | wall 1 列、身份词横排、页脚纵排 |
+| ≤575.98px | wall 1 列、页脚纵排 |
 
 - **双约定消灭（RL-2）**：site.css 现行 `991.98 / 767.98 / 575.98`（.98 家族）与主题 styl 的 `767 / 424` 等整数断点并存，767.01–767.98px 区间两套规则可能同时生效。规则：**全站断点统一 .98 家族**，主题 styl 源一并收拢；验收：该区间只有一套规则生效。
 - 流式排版用 `clamp()`（既有纪律，保持）；上轮 375 / 768 / 1440 三档零横向溢出是**保持项**，不是历史成绩。
@@ -642,7 +642,7 @@
 | A6 | 暗色校准值（仅当启用） | body `#1a1814` / sec `#a7a9ad` / text `#c4c6c9` / accent 提亮 `#d9724a`（5.45:1） | C-7 |
 | ~~A7~~ | ~~代码块底色~~ **已定（2026-10-19 采纳）** | `pre` 底 `#fdfbf6` + 1px hairline；行号槽分隔线与行内 code 底同步去冷灰 | VD-10 |
 | ~~A8~~ | ~~水波下划线母题~~ **已定（2026-10-19 采纳）** | 文字链 hover：offset 3→6px、粗细 1→2px、零位移；`::selection` 改墨色 12%；卡 / 格上浮保留 | H-4 |
-| ~~A9~~ | ~~身份词竖列升格~~ **已定（2026-10-19 采纳）** | mono 0.78rem 次级 → 墨色 0.9rem + ls .2em + 词间 hairline + `01 / 02` 序数前缀 | H-2 |
+| ~~A9~~ | ~~身份词竖列升格~~ **已撤回（2026-10-21 主人：「01 Developer / 02 Writer 这哪好看」）**：模板块与 `.identity-words` 样式全删，`site.yml identity_words` 数据保留不渲染；2026-10-19 的「已定（采纳）」作废 | mono 0.78rem 次级 → 墨色 0.9rem + ls .2em + 词间 hairline + `01 / 02` 序数前缀 | H-2 |
 | ~~A10~~ | ~~头像圆形化~~ **已定（2026-10-21 采纳）** | 12px 方卡 → 96px 圆形 + 1px `--line-strong` 描边 + 去阴影；84→96px 为面积补偿（π/4≈0.785）；圆角标尺唯一例外 | VD-7 / F-1 |
 
 ### B. 品牌、内容与露出位（主人决策，规范只给框架）

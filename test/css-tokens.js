@@ -154,9 +154,11 @@ ok('头像 96px 是 84px 的面积补偿（圆形 π/4≈0.785），不得无依
 
 // --- E-040：站名词中断行（2026-10-21 主人反馈「Personal 都没在一行出现」）---
 // 两件事绑死：① .identity-name 禁用 overflow-wrap:anywhere——它击穿 flex 子项的
-// min-content（塌成 1 字符宽），同行元素一挤压就从词中间断行；② 身份词铭牌必须与
-// 站名竖排——横排时 476px 身份栏装不下「D0 站名最长词 + 铭牌自然宽 + 间距」，
-// 几何上必挤压（DESIGN-LANGUAGE 身份域「自上而下」构成与 R-5「身份词竖列」即竖排）。
+// min-content（塌成 1 字符宽），同行元素一挤压就从词中间断行；
+// ② A9 身份词铭牌已于 2026-10-21 被主人整块撤回（原话「01 Developer / 02 Writer
+// 这哪好看」），模板不再渲染、样式整体删除；site.yml 的 identity_words 数据保留
+// 但不渲染。这里锁死「样式不得静默回归」——.identity-words 重新出现在 site.css
+// 即 FAIL：要恢复身份词展示，须先走 DESIGN-LANGUAGE §10 拍板流程并同步更新本断言。
 ok('站名不得词中断行：.identity-name 禁用 overflow-wrap:anywhere（E-040）', () => {
   const rule = siteCss.match(/\.identity-name\s*\{[^}]*\}/);
   assert.ok(rule, 'site.css 缺少 .identity-name 规则');
@@ -166,13 +168,11 @@ ok('站名不得词中断行：.identity-name 禁用 overflow-wrap:anywhere（E-
     + '超长单词保护用 break-word，不参与 min-content 塌陷');
 });
 
-ok('身份词铭牌与站名竖排（E-040）', () => {
-  const rule = siteCss.match(/\.identity-title-row\s*\{[^}]*\}/);
-  assert.ok(rule, 'site.css 缺少 .identity-title-row 规则');
-  assert.match(rule[0], /flex-direction:\s*column/,
-    '铭牌与站名不是竖排 —— D0 站名最长词（Personal @73.6px 约 370px）+ 铭牌自然宽'
-    + '（约 161px）+ 间距在 476px 身份栏里横排必挤压。如确需改回横排，'
-    + '先按 DESIGN-LANGUAGE §3.5 复核站名字号并同步更新本断言');
+ok('A9 身份词铭牌样式不得回归（2026-10-21 主人撤回）', () => {
+  assert.ok(!/\.identity-words/.test(siteCss),
+    'site.css 出现了 .identity-words 规则 —— A9 铭牌已被主人整块撤回'
+    + '（数据在 site.yml 保留但不渲染，首页模板已删除该块）。'
+    + '如确需恢复身份词展示，先在 DESIGN-LANGUAGE §10 走拍板流程，再同步更新本断言');
 });
 
 // --- E-041：主卡标题尺度档回落（2026-10-21 主人反馈「太大、刺眼」）---
