@@ -3,9 +3,10 @@ page.layout = "404"
 page.title = theme.page404.title || __('page404.title')
 page.subtitle = theme.page404.subtitle || __('page404.subtitle')
 // 2026-10-15：随全站去 Banner 一并拆除最后两页横幅（导航栏改裸文字的前提），
-// 内容改为纸面样式，并补「返回首页」入口——原仅 10 秒自动跳转，用户来不及反应
-// 2026-10-18（B10）：主人定「去掉自动跳转」——访客可能正在看链接错在哪，
-// 页面自己跑掉像被推着走；保留「返回首页」按钮，跳不跳由访客决定
+// 内容改为纸面样式，并补「返回首页」入口——原仅自动跳转，用户来不及反应
+// 2026-10-18（B10）：主人定「去掉自动跳转」，只留「返回首页」按钮
+// 2026-10-21（B10 复议）：主人定「提醒一下 + 留下」——恢复自动跳转，
+// 但页面明示倒数秒数与立即返回入口：页面会走，但访客知情、有即时出口
 page.hide_banner = true
 %>
 
@@ -15,9 +16,23 @@ page.hide_banner = true
       <p class="page-head-kicker">404</p>
       <h1 class="page-head-title"><%= page.title %></h1>
       <% if (page.subtitle) { %><p class="archive-total"><%= page.subtitle %></p><% } %>
+      <p class="archive-total" id="redirect-note"><span id="redirect-count">10</span> 秒后自动返回首页，也可以点击下方按钮立即返回。</p>
     </header>
     <div class="identity-cta">
       <a class="cta-solid" href="<%= url_for('/') %>">返回首页</a>
     </div>
   </div>
 </div>
+<script>
+  // 倒数只是提醒；到 0 即跳转（2026-10-21 B10：保留自动跳转 + 明示）
+  (function () {
+    var left = 10;
+    var n = document.getElementById('redirect-count');
+    var t = setInterval(function () {
+      left -= 1;
+      if (left <= 0) { clearInterval(t); return; }
+      if (n) n.textContent = String(left);
+    }, 1000);
+    setTimeout(function () { window.location.href = '<%= url_for('/') %>'; }, 10000);
+  })();
+</script>
