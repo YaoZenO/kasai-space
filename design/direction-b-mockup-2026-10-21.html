@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>方向 B 效果图 · 2026-10-21 模拟（KASAI'S Personal Space）</title>
+<style>
+  :root {
+    --paper: #f5f1e9;
+    --cream: #fdfbf6;
+    --ink: #2a251d;
+    --accent: #b0482a;
+    --sec: #736a5c;
+    --line: #cfc6b2;
+    --sans: "Archivo", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #e9e4d8; font-family: var(--sans); color: var(--ink); padding: 32px 20px 64px; }
+  .note { max-width: 1080px; margin: 0 auto 20px; background: var(--cream); border: 2px solid var(--ink); padding: 14px 18px; font-size: 13px; line-height: 1.7; }
+  .note b { font-weight: 700; }
+  .screen { max-width: 1080px; margin: 0 auto; background: var(--paper); border: 2px solid var(--ink); box-shadow: 8px 8px 0 rgba(42,37,29,.18); }
+
+  /* ---- 身份域 ---- */
+  .identity { display: flex; gap: 28px; align-items: flex-start; padding: 44px 48px 36px; }
+  .identity img { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(42,37,29,.24); flex: none; }
+  .identity-name { font-weight: 900; letter-spacing: -.02em; font-size: 3.4rem; line-height: 1.04; }
+  .identity-intro { margin-top: 10px; color: var(--sec); font-size: 15px; }
+  .identity-plate { margin-top: 14px; display: inline-flex; gap: 10px; align-items: center; font-size: 13px; letter-spacing: .18em; color: var(--ink); }
+  .identity-plate span { border-left: 1px solid var(--line); padding-left: 10px; }
+  .identity-plate span:first-child { border-left: none; padding-left: 0; }
+
+  /* ---- FEATURED 墨底大卡（B：明暗反相 + 尺度断崖） ---- */
+  .feature { background: var(--ink); color: var(--paper); margin: 0 48px; padding: 40px 44px 36px; display: flex; flex-direction: column; gap: 14px; }
+  .feature .kick { color: var(--accent); font-size: 12px; letter-spacing: .3em; font-weight: 500; }
+  .feature h2 { font-size: 4.2rem; line-height: 1.06; font-weight: 900; letter-spacing: -.015em; max-width: 18em; }
+  .feature .meta { color: rgba(245,241,233,.62); font-size: 13px; }
+  .feature .sum { color: rgba(245,241,233,.85); font-size: 15px; max-width: 46em; line-height: 1.7; }
+
+  /* ---- 入口格（B：1px hairline → 2px 墨线） ---- */
+  .cells { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; padding: 36px 48px 8px; }
+  .cell { border: 2px solid var(--ink); background: var(--cream); padding: 20px 22px; display: flex; flex-direction: column; gap: 6px; min-height: 108px; }
+  .cell .t { font-size: 1.35rem; font-weight: 700; }
+  .cell .n { color: var(--sec); font-size: 13px; }
+  .cell .go { margin-top: auto; color: var(--accent); font-size: 13px; font-weight: 500; }
+
+  /* ---- 栏头（B：2px 墨线） ---- */
+  .sec-head { display: flex; align-items: baseline; gap: 14px; padding: 34px 48px 0; }
+  .sec-head h3 { font-size: 1.6rem; font-weight: 700; }
+  .sec-head .c { color: var(--sec); font-size: 13px; }
+  .sec-head .rule { flex: 1; border-top: 2px solid var(--ink); align-self: center; }
+
+  /* ---- 游戏封面图墙（B：非均质拼贴，5 张全露） ---- */
+  .wall { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 118px; gap: 12px; padding: 18px 48px 8px; }
+  .wall .g { position: relative; overflow: hidden; border: 2px solid var(--ink); background: var(--cream); }
+  .wall .g:first-child { grid-column: span 2; grid-row: span 2; }
+  .wall img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .wall .cap { position: absolute; left: 0; right: 0; bottom: 0; background: var(--ink); color: var(--paper); font-size: 12px; padding: 6px 10px; line-height: 1.5; }
+  .wall .g:first-child .cap { font-size: 13px; }
+
+  /* ---- 最近更新（B：行式 + 2px 墨线） ---- */
+  .rows { padding: 12px 48px 44px; }
+  .row { display: grid; grid-template-columns: 92px 1fr auto; gap: 16px; align-items: baseline; padding: 13px 2px; border-bottom: 2px solid var(--ink); font-size: 14px; }
+  .row:last-child { border-bottom: none; }
+  .row .d { color: var(--sec); font-size: 13px; }
+  .row .k { color: var(--accent); font-size: 12px; letter-spacing: .12em; }
+
+  /* ---- 差异对照 ---- */
+  .cmp { max-width: 1080px; margin: 28px auto 0; background: var(--cream); border: 2px solid var(--ink); padding: 20px 24px; }
+  .cmp h3 { font-size: 15px; margin-bottom: 12px; }
+  .cmp table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .cmp th, .cmp td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; line-height: 1.6; }
+  .cmp th { color: var(--sec); font-weight: 500; }
+  .cmp tr:last-child td { border-bottom: none; }
+  .tag { display: inline-block; font-size: 11px; padding: 1px 8px; border: 1px solid var(--ink); margin-right: 6px; }
+  .tag.now { background: var(--ink); color: var(--paper); }
+  .cmp .foot { margin-top: 12px; font-size: 12px; color: var(--sec); line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<div class="note">
+  <b>方向 B 效果图（2026-10-21 模拟）。</b>方向 A（墨底反相分节）已上线，就是站点现状；本图模拟的是方向 B「版式尺度对比 + 大图主导」。
+  全部使用真实数据与真实色值（纸底 #f5f1e9 / 墨 #2a251d / 砖红 #b0482a），图片为仓库内真实封面。栏名字号按预览宽度等比缩小，上线时按真实断崖值（站名 4.6rem → 主卡 5.5rem → 栏头 1.6rem）。
+</div>
+
+<div class="screen">
+  <div class="identity">
+    <img src="../themes/fluid/source/img/avatar/11.jpg" alt="头像">
+    <div>
+      <div class="identity-name">KASAI'S<br>Personal Space</div>
+      <p class="identity-intro">日常把咖啡转化为代码，顺便把 Bug 写进系统里。</p>
+      <div class="identity-plate"><span>01 / Developer</span><span>02 / Writer</span></div>
+    </div>
+  </div>
+
+  <div class="feature">
+    <p class="kick">FEATURED</p>
+    <h2>DeepSeek AI产品经理面试全过程整理</h2>
+    <p class="meta">2026-10-21 · 职业发展</p>
+    <p class="sum">B 的主张：站名之后必须再有第二档超大字号。主卡标题吃到 5.5rem 断崖，配墨底反相——这是全页视觉张力的来源，零新增素材。</p>
+  </div>
+
+  <div class="cells">
+    <div class="cell"><span class="t">项目</span><span class="n">3 个</span><span class="go">进入 →</span></div>
+    <div class="cell"><span class="t">游戏</span><span class="n">5 款</span><span class="go">进入 →</span></div>
+    <div class="cell"><span class="t">收藏</span><span class="n">1 条</span><span class="go">进入 →</span></div>
+  </div>
+
+  <div class="sec-head"><h3>游戏</h3><span class="c">5 款</span><span class="rule"></span></div>
+  <div class="wall">
+    <div class="g"><img src="../source/img/games/202610180235-v2-1681ff26afbd5f92aa5790b4dee6a63f-1440.jpg" alt="英雄联盟封面"><span class="cap">英雄联盟 · 从 2011 年国服开服玩到现在，最近又捡回来了。</span></div>
+    <div class="g"><img src="../source/img/games/game-counter-strike-2.jpg" alt="CS2 封面"><span class="cap">Counter-Strike 2</span></div>
+    <div class="g"><img src="../source/img/games/game-overwatch.jpg" alt="守望先锋封面"><span class="cap">守望先锋</span></div>
+    <div class="g"><img src="../source/img/games/game-esports-manager-2026.jpg" alt="EM 封面"><span class="cap">Esports Manager 2026</span></div>
+    <div class="g"><img src="../source/img/games/game-pubg.jpg" alt="PUBG 封面"><span class="cap">绝地求生</span></div>
+  </div>
+
+  <div class="sec-head"><h3>最近更新</h3><span class="c">真实聚合</span><span class="rule"></span></div>
+  <div class="rows">
+    <div class="row"><span class="d">2026-10-21</span><span>DeepSeek AI产品经理面试全过程整理</span><span class="k">文章</span></div>
+    <div class="row"><span class="d">2026-10-18</span><span>我在玩的几个游戏，和为什么写在这</span><span class="k">文章</span></div>
+    <div class="row"><span class="d">2026-10-18</span><span>日期怎么会变成一长串</span><span class="k">文章</span></div>
+    <div class="row"><span class="d">2026-10-15</span><span>Ties · 私有、单人使用的本地关系管理系统</span><span class="k">项目</span></div>
+    <div class="row"><span class="d">—</span><span>英雄联盟 · 补刀手感和资源判断都还在</span><span class="k">游戏</span></div>
+  </div>
+</div>
+
+<div class="cmp">
+  <h3>方向 A（线上现状） vs 方向 B（本图）——三处核心差异</h3>
+  <table>
+    <tr><th style="width:90px">差异点</th><th>A · 线上现状</th><th>B · 本图</th><th style="width:110px">素材依赖</th></tr>
+    <tr><td>分隔线</td><td>1px hairline（#cfc6b2），实测 14 处，层级信号弱</td><td>2px 墨线（#2a251d），列表组/栏头/入口格全部换轨</td><td><span class="tag now">零素材</span>可做</td></tr>
+    <tr><td>尺度</td><td>站名 4.6rem 之后无第二档超大字号，全站尺度单一</td><td>主卡标题补 5.5rem 断崖 + 墨底反相，明暗交替成节奏锚点</td><td><span class="tag now">零素材</span>可做</td></tr>
+    <tr><td>图密度</td><td>首页只露 2-3 张图；5 张游戏封面只取第一张</td><td>游戏 5 张封面全露，非均质拼贴（1 大 2×2 + 4 小）</td><td><span class="tag now">零素材</span>可做（用现有封面）</td></tr>
+    <tr><td>大图主导</td><td>—</td><td>文章封面、首页个人照、游戏 media 截图墙</td><td><span class="tag">等素材</span>主人提供</td></tr>
+  </table>
+  <p class="foot">结论：前三行零素材即可落地（已排入下一轮）；第四行等主人素材。若 B 的非素材部分做完仍觉得「平」，再评估是否值得为第四行补素材。</p>
+</div>
+
+</body>
+</html>
