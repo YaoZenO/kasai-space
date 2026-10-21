@@ -237,11 +237,12 @@ P0-3 测试固化 ──┬─→ P0-1 身份域统一 ──→ P0-2 错误契�
 | P2-4 | 部署轮询指数退避 + 构建日志链接 | 轮询间隔 8s→16s→32s，上限 3 分钟；pill 可点开 Vercel 部署页 | ✅ 已完成（`3e386dc`） |
 | P2-5 | mock/真实存储行为对齐（双跑同一 smoke） | getLogin/head sha/getCommitStatus 三处语义对齐并有测试锁定 | ✅ 已完成（`fae4006`，补齐 auth-callback 端到端覆盖） |
 | P2-6 | 预览部署分支（admin 提交→preview→验证→合入） | 存在 preview 分支；后台写目标可按配置切换；preview→main 合入脚本 | ⬜ 未启动（涉及分支与部署策略变更，**需主人单独授权**，授权范围见 §P2-6 说明） |
-| P2-7 | 个人 favicon / apple-touch-icon 替换主题默认图 | 32px + 180px 两档图标落入 `source/img/`；主题配置 `favicon` / `apple_touch_icon` 指向新文件；构建后全站 `<link rel="icon">` 不再出现 `/img/fluid.png` | ⬜ 待办（素材待主人提供或授权生成；来源：2026-10-15 全面审查 P1-6，主人明确「留下需求到时候再做」） |
+| P2-7 | 个人 favicon / apple-touch-icon 替换主题默认图 | 32px + 180px 两档图标落入 `source/img/`；主题配置 `favicon` / `apple_touch_icon` 指向新文件；构建后全站 `<link rel="icon">` 不再出现 `/img/fluid.png` | ✅ 已完成（2026-10-18 落位候选 B：`source/img/favicon-16/32.png`、`apple-touch-icon.png`、`source/favicon.ico`，配置三处已改；2026-10-21 复核确认在位。DESIGN-ROADMAP §四 T2-2✅） |
 | P2-8 | 留言 / 评论互动 | **不做**：站点未备案，上用户生成内容（UGC）有合规风险；PRD §2.2 亦将「评论管理后台」列为非目标 | ⛔ 不做（2026-10-15 主人明确；配置已还原为关闭并加约束注释） |
 | P2-9 | 碎片 / 说说内容流 | 待主人选实现路径：轻量＝短文发到「碎片」分类（导航项指向分类页，零开发）；完整＝新增内容类型（modules.yml + 校验白名单 + 生成器 + 后台表单 + 测试，属独立建设轮次） | ⬜ 待主人决策 |
 | P2-10 | 前台静态资源缓存破坏 | `site.css` 链接带内容 hash（`?v=<sha1 前8位>`）；内容不变 hash 不变，内容一变立即刷新 | ✅ 已完成（`themes/fluid/scripts/filters/asset-version.js` + `test/asset-version.js` 14 项断言；未用手动 bump，避免「改了样式忘了 bump」） |
 | P2-11 | 下架主题自带示例二维码 | 关于页 `icons` 不再指向 `themes/fluid/source/img/wx_2wm.jpg`（主题作者的码，扫出来是陌生人） | ✅ 已完成（主人提供自己的二维码后启用，图片放 `source/img/`） |
+| P2-12 | 私密文章：只想自己看、不删除、不上线 | 文章移入 `source/_drafts/` 后线上与 GitHub 双不可见（仓库私有 + `render_drafts: false`，`_config.yml:48`）；后台草稿列表可打开编辑，「发布」一键转正且保留原 date；验收：`hexo generate` 产物不含该文、`/api/content-list` 草稿列表含该文 | 🔶 需求已登记（2026-10-21 主人提出）；方案＝既有草稿机制零开发，通俗方案已出，待主人点名哪几篇后执行迁移 |
 
 > **写作规范：** 本账本凡出现「PRD 要求 / 文档依据」类表述，必须给出可核对的位置
 > （`§` 章节号，或引号包裹的原文）。写不出位置的一律标注「工程自定目标，无 PRD 依据」。
@@ -309,3 +310,38 @@ P0-3 测试固化 ──┬─→ P0-1 身份域统一 ──→ P0-2 错误契�
 | 模块页「壳 h2 + markdown 首个 h2」零内容相邻 | 80px 避让清零后只剩 22px 间距，视觉上像两个标题打堆（lol 1 处、Ties 4 处）。修法在模板层（markdown 以 h2 开头时不渲染壳 h2，或正文 h2 降 h3），与竖标改动分开做 |
 | 渲染层验收只读 computed style，会漏掉「已配置但未生效」 | E-034 已证明主题 CSS 覆盖能让规则层断言全绿、浏览器里却不长这样。凡涉及 `border-radius` / `overflow` / 伪元素这类「规则生效但可能被层叠废掉」的视觉改动，补一层像素复核（`npm run test:a10-render`，判据用占比不用全零，见 E-039） |
 | 桌面站名换行成 3 行，96px 头像在身份域里显得小 | 实测 1440×900：`.identity-name` h1 高 238px（`KASAI'S Personal Space` 在 5fr 列宽 + D0 4.6rem 下必然换行），头像 96px。归 B 组决策（站名去 Blog 后缀 / 真名副行）一并处理；A10 不动站名，改完站名后需复测头像与站名的体量比 |
+
+---
+
+## 附：2026-10-21 后台修复批次与后续排期（主人授权「待排期工程项你可以排期」）
+
+### 本轮已完成（2026-10-21，代码 + 4 条断言锁死，变异自检通过）
+
+| # | 事项 | 做法 | 锁死方式 |
+|---|---|---|---|
+| 1 | 部署 pill 回传真实 commitSha（E-036 遗留） | `admin-item.js` / `admin-site.js` 的 content-save 调用点由硬编码 `setDeployCommitted(null)` 改为 `r.commitSha \|\| null`，项目/游戏/收藏/设置的保存现在都进入构建轮询 | smoke 断言：两文件必须含 `setDeployCommitted(r.commitSha` 且不得含 `setDeployCommitted(null)` |
+| 2 | 保存后重开编辑器（REVIEW-PM §2.4.1 摩擦②） | 数据条目保存成功后按 slug/标题重开刚保存的条目，不再跳回列表 | smoke 断言：保存分支必须调 `openItemEditor(ie.module` 且不得 `switchTab` |
+| 3 | 切 tab / 关页面丢稿拦截（摩擦③） | `admin-core.js` 新增 `markDirty/clearDirty` 与 `S.dirty`；`switchTab` 有未保存时弹确认；`admin.js` 加 `beforeunload` 拦截；三个编辑器（文章/数据/设置）输入即标脏 | smoke 断言：switchTab 必须含 `if (S.dirty)` + confirmDialog；admin.js 必须含 beforeunload 且判 `S.dirty` |
+| 4 | E-018 缓存破坏 bump | `source/admin/` 全部 `?v=20261019` → `?v=20261021`（index.html 2 处 + admin.js 8 处 import 及其他模块） | 既有 E-018 三条断言 |
+| 5 | 清理测试残留 | 删除 `source/_drafts/test-draft.md`（【测试】演练草稿，含 example.com 外链） | — |
+
+### 文档纠偏（以仓库为准，本轮同步）
+
+- ROADMAP §十/§十三：标签降级（✅ 2026-10-19 `2f196ac`）、快捷入口 ③（✅ 2026-10-19 `admin-quick.js`）、A10 头像圆形化（✅ 2026-10-20 `a4999a6`）三项「待排期/仍未定」与实际状态不符，已更正。
+- SITE-AUDIT-2026-10-15：P0/P1 清单逐条复核已关闭，结论附于该文 §九。
+- P2-7 favicon「待办」已过期，本账本行已更新为已完成。
+
+### 后续排期（按序，阻塞项单独标注）
+
+| 顺序 | 事项 | 规模 | 阻塞 |
+|---|---|---|---|
+| 1 | 后台聚合发布页（REVIEW-PM 方案①，~200 行新模块 + index.html tab + E-018 bump） | 中（半天~一天） | 无 |
+| 2 | 数据模块草稿态（项目/游戏/收藏改到一半可中途保存，摩擦①） | 中，需先定草稿存储设计（`_drafts/` 现仅支持文章） | 无 |
+| 3 | 方向 B 非素材部分（1px hairline → 2px 墨线、尺度断档、异质拼贴） | 中，随下一轮设计批次 | 无 |
+| 4 | 三档视口实测截图（375/768/1440，REVIEW-PM §九未验证项） | 小 | 无 |
+| 5 | 档案页入口文案（T3-14） | 小 | B11 文案待主人 |
+| 6 | 私密文章迁移（P2-12） | 极小（git mv + push） | 待主人点名哪几篇 |
+| 7 | P2-6 预览部署分支 | 大 | 需主人授权三选（建分支/写目标可切换/合入方式） |
+| 8 | P2-9 碎片/说说内容流 | 小或一轮建设 | 待主人选路线 |
+| 9 | 方向 B 素材部分（游戏截图墙、文章封面、个人照） | — | 主人明示素材暂不提供 |
+| 10 | E-032 games.yml 文案丢失处置 | — | 待主人（恢复或接受现状） |

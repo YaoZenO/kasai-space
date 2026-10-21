@@ -124,3 +124,27 @@
 6. 确认发布方式（Vercel 自动构建 vs CLI 直推），以决定 P0-3 的防范是否紧急。
 
 **验收结论重申：⚠️ 修改后可交付。** P0 三项均为小范围可改项（改配置、处置一篇文章、clean 一次构建），无模块缺失、无工程性阻塞；改完 P0 后，建议按 P1 顺序排期处理可访问性四项（标题层级/alt/对比度/图标裁切），这些直接影响真实访客的阅读与使用。
+
+---
+
+## 九、2026-10-21 复核结论（文档与仓库对账，以仓库为准）
+
+本报告为 2026-10-15 时点记录，以下为 2026-10-21 对 P0/P1 清单的逐条复核：
+
+| 原条目 | 复核状态 | 依据 |
+|---|---|---|
+| P0-1 SEO 基础 | ✅ 已补齐 | `_config.yml` L8 description、L9-14 keywords、L17 `timezone: Asia/Shanghai`；`source/robots.txt` 在位（含 `Disallow: /admin/` 与 Sitemap 行）；主题 `canonical` 已开。sitemap 插件只覆盖 posts/pages/tags/categories，模块页覆盖一项另有结论（DESIGN-ROADMAP T1-18 判 blocked，建议接受现状） |
+| P0-2 C++ 转载文 | ✅ 已处置 | commit `4c95cf1`：改为作者自己的话重写，front-matter 无第三方 author，正文为原创摘要，外链图已清 |
+| P0-3 public/ 污染 | ✅ 已治理 | E-019 防复发机制在位（E2E 结束重建 public/ + 断言），`npm test` 的 dates 套件每轮校验无 0 字节 HTML |
+| P1-1 标题层级 / P1-2 图片 alt | ✅ 已随重写修复 | 文章正文以 `##` 起笔，无双 h1、无跳级 |
+| P1-3 次级文字对比度 | ✅ 已修 | 主题 `sec_text_color` 已改 `#736a5c`（`themes/fluid/_config.yml` L179）；黄格文字对比度另在 ROADMAP T1-4 处理（`--block-orange` → `#c0491f`） |
+| P1-4 CC 许可证图标裁切 | ✅ 已修 | `source/css/site.css` 移动端 `.license-icon { display: none; }` 在位 |
+| P1-5 GitHub 占位链接 | ✅ 已修 | 关于页 GitHub 图标为 `https://github.com/YaoZenO`（主题配置 L1066） |
+| P1-6 favicon | ✅ 已完成 | 2026-10-18 落位候选 B（`source/img/favicon-16/32.png`、`apple-touch-icon.png`、`source/favicon.ico`）；ENGINEERING.md P2-7 行已同步更正 |
+| P1-7 关于页过薄 | ✅ 已补 | `source/about/index.md` 已有真实内容（在学 C++、自搭 Hexo 后台、健身） |
+| P1-8 Ties 项目页 | ✅ 已补 | `source/_data/projects.yml` 的 Ties 含 summary + 背景/过程/技术/成果四段长文 + tags；cover/link 为空属「无数据不渲染」，非缺陷 |
+| P1-9 FEATURED 一句话文章 | ✅ 已缓解 | 「一句话文章」为 `a-dream-from-nobody`，属主人真实随笔；FEATURED 选取逻辑未改，本条从「必须改」降为「内容侧可选优化」 |
+| P1-10 CDN 单点故障 | ✅ 已治理 | ROADMAP T3-2：tocbot/anchor/clipboard 已自托管至 `source/lib/`，产物无 `lib.baomitu.com` 请求；bootstrap 与图标字体维持 CDN（ROADMAP 批 3 收尾决策） |
+| P1-11 404 自动跳转 | 🔶 部分 | 副标题已改引导文案（T3-7）；10 秒自动跳转保留与否仍待 B10 拍板 |
+
+**结论**：本报告 P0 全部关闭、P1 基本关闭，唯一未闭项（404 跳转）已并入 ROADMAP §七 B10 决策清单。后续待办的统一入口为 `ENGINEERING.md` P2 表与后续排期附则。
