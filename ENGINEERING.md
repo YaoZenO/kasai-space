@@ -307,3 +307,5 @@ P0-3 测试固化 ──┬─→ P0-1 身份域统一 ──→ P0-2 错误契�
 | CI 在公开仓库运行消耗 Actions 额度 | 仅在 push/PR 到 main 触发；node --check + smoke + generate 均为秒级 |
 | 竖标验收用 Range 口径会误报回归 | Range 的 rect 顶比真实墨迹顶高约 0.24em（24px 时 ≈5.8px），光学居中后读数必然 ≈+5.84px，会被旧的「\|GAP\| ≤4px」判成失败。验收一律用 **4x 像素复核**，判据已写在 `site.css` 竖标注释里 |
 | 模块页「壳 h2 + markdown 首个 h2」零内容相邻 | 80px 避让清零后只剩 22px 间距，视觉上像两个标题打堆（lol 1 处、Ties 4 处）。修法在模板层（markdown 以 h2 开头时不渲染壳 h2，或正文 h2 降 h3），与竖标改动分开做 |
+| 渲染层验收只读 computed style，会漏掉「已配置但未生效」 | E-034 已证明主题 CSS 覆盖能让规则层断言全绿、浏览器里却不长这样。凡涉及 `border-radius` / `overflow` / 伪元素这类「规则生效但可能被层叠废掉」的视觉改动，补一层像素复核（`npm run test:a10-render`，判据用占比不用全零，见 E-039） |
+| 桌面站名换行成 3 行，96px 头像在身份域里显得小 | 实测 1440×900：`.identity-name` h1 高 238px（`KASAI'S Personal Space` 在 5fr 列宽 + D0 4.6rem 下必然换行），头像 96px。归 B 组决策（站名去 Blog 后缀 / 真名副行）一并处理；A10 不动站名，改完站名后需复测头像与站名的体量比 |
