@@ -68,3 +68,82 @@ items:
       数据全部留在本机：一个 SQLite 文件 + 一个上传目录，没有云端。
 
       > **仓库说明**：本项目仓库目前设为私有（GitHub），暂未公开。
+  - title: 校园课程资源共享平台
+    date: 2026-05-12
+    summary: 毕业设计。基于 Django + Vue 3 的校园课程资源管理与共享平台：多角色权限、资源上传下载、论坛交流、AI 智能助手与积分激励一体化。
+    cover: ""
+    link: "https://github.com/YaoZenO/campus-resource-platform"
+    tags: [Django, Vue 3, TypeScript, DRF, JWT]
+    background: |-
+      ## 它解决什么
+
+      课程资料散落在群聊、网盘和个人电脑里，共享与检索都不方便；师生之间除了课堂，也缺少一个围绕课程本身交流的地方。
+
+      这个平台（毕业设计）把四件事装进一个系统：**课程资源管理**（上传、下载、收藏、评论、评分）、**论坛交流**（发帖、评论，可设公开或指定范围可见）、**AI 智能助手**（集成豆包 AI 做智能问答）和**积分激励**（积分获取与兑换，鼓励持续参与），外加公告发布与数据统计。
+
+      ## 三种角色
+
+      - **学生**：浏览、搜索、下载资源，收藏与评论，参与论坛，用 AI 助手，攒积分兑换奖品；
+      - **教师**：上传与管理课程资源，审核资源评论，查看学生情况；
+      - **管理员**：用户与资源管理审核、论坛管理、公告发布、积分系统管理与数据统计。
+    process: |-
+      ## 工程过程
+
+      - **前后端分离**：后端 Django 按业务域拆成 users / courses / forum / announcements / points / ai 六个应用，前端 Vue 3 单页应用通过 REST API 对接；
+      - **权限**：JWT 无状态认证 + 基于角色的访问控制（RBAC），三种角色各有功能边界，前端组件按 admin / teacher / student 分目录维护；
+      - **数据模型先行**：围绕 User、CourseResource、ForumPost、PointRecord、PrizeExchange 等核心模型组织资源流、互动流与积分流；
+      - **体验细节**：全局 Toast 统一消息提示、骨架屏与加载动画、主题色与样式变量可定制，响应式布局兼顾移动端。
+    tech: |-
+      ## 技术栈
+
+      | 层 | 选型 |
+      |---|---|
+      | 后端 | Django 4.2 + Django REST Framework |
+      | 认证 | JWT（djangorestframework-simplejwt），Django 内置密码哈希 |
+      | 数据库 | SQLite（开发）/ MySQL（生产） |
+      | 前端 | Vue 3（Composition API）+ TypeScript + Vite |
+      | UI / 状态 | Element Plus · Pinia · Vue Router · Axios |
+      | AI | 豆包 AI（字节跳动火山方舟） |
+    outcome: |-
+      ## 目前的状态
+
+      毕业设计，已完成并提交。系统可完整运行：多角色登录与权限隔离、资源上传下载与审核、论坛发帖评论、AI 问答、积分获取与奖品兑换、公告与数据统计均已实现，仓库内附一键启动 / 停止脚本与部署说明。
+
+      > **仓库说明**：GitHub 公开仓库 campus-resource-platform。
+  - title: 资产追踪系统
+    date: 2026-04-07
+    summary: Tauri 2 + Vue 3 的桌面应用：追踪个人资产的全生命周期与日均成本，附带心愿清单、时间轴与统计分析，数据存本地 SQLite。
+    cover: ""
+    link: "https://github.com/YaoZenO/asset-tracker"
+    tags: [Tauri 2, Vue 3, TypeScript, Rust, SQLite]
+    background: |-
+      ## 它解决什么
+
+      东西越买越多：什么时候买的、花了多少钱、保修到没到、平均每天摊多少钱，很少有人算得清。
+
+      资产追踪系统把每一件物品当作一条有生命周期的记录：买入价与购买日期、保修截止、当前状态（保障中 / 活跃中 / 已退役 / 已用完 / 已售出），核心指标是**日均成本**——一件东西到底值不值，看它每天摊多少钱。
+
+      买之前的那一半也管：**心愿清单**记录想买的物品、预期价格与优先级，配合保修到期提醒，避免冲动下单和过期失保。
+    process: |-
+      ## 工程过程
+
+      - **桌面化选型**：用 Tauri 2 而非 Electron，Rust 做后端、系统 WebView 渲染前端，体积与资源占用更克制；
+      - **数据本地化**：SQLite 只存两张核心表（assets / wishlist），字段围绕生命周期设计，售出价与售出日期单独留痕；
+      - **分析围绕日均成本**：统计页用 ECharts 做分类占比、日均成本趋势、持有周期、价格-成本散点与月度新增，图表支持近 3 / 6 / 12 个月与全部时间范围切换；
+      - **细节**：8 种排序与多维筛选、保修到期与高优先级心愿的智能提醒、中英文界面动态切换（无需重启）。
+    tech: |-
+      ## 技术栈
+
+      | 层 | 选型 |
+      |---|---|
+      | 桌面框架 | Tauri 2（Rust 后端） |
+      | 前端 | Vue 3（Composition API）+ TypeScript + Vite |
+      | UI / 状态 | Naive UI · Pinia |
+      | 图表 | ECharts |
+      | 数据库 | SQLite |
+    outcome: |-
+      ## 目前的状态
+
+      主要功能均已实现：资产卡片列表与统计概览、心愿清单、按购买时间的时间轴、多维度统计分析、智能提醒与中英双语。支持 Windows / macOS / Linux 构建。
+
+      > **仓库说明**：GitHub 公开仓库 asset-tracker，MIT 许可证。
