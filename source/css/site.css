@@ -1058,8 +1058,16 @@ a.feed-title:hover {
   margin: 0 auto;
 }
 
+/* 标题区与正文的分界（2026-10-21，主人指出文章页「通铺」）：
+   此前 .post-head 只有 margin-bottom，POST kicker + 大标题 + 三行元信息
+   整块直接流进正文第一段，一口气铺到底。首页每个栏目都有 2px 分组线
+   压顶，文章页一条都没有——这就是通铺感的直接来源。
+   按 L63-69 的两级分组线语义，「标题下」归 --rule（区块分隔，2px .24 墨）；
+   不用 --rule-strong，那是「列表组第一条之上」的组顶线，用在这里会压过标题。 */
 .post-head {
   margin-bottom: 2.2rem;
+  padding-bottom: 1.6rem;
+  border-bottom: 2px solid var(--rule);
 }
 
 .post-head-kicker {
@@ -1203,7 +1211,12 @@ a.feed-title:hover {
   background: transparent;
   box-shadow: none;
   border: none;
-  padding: 0;
+  /* hairline 左边界（2026-10-21，通铺修复第二步）：让目录成为独立一栏。
+     此前无边框无背景，模板 sidebar-right.ejs 又写 style="margin-left: -1rem"
+     主动往左贴近正文栏，两栏之间没有任何分界。
+     border-left 必须写在 border: none 之后才会生效。 */
+  border-left: 1px solid var(--line-color);
+  padding-left: 1.2rem;
 }
 
 .post-side-right #toc .toc-header {

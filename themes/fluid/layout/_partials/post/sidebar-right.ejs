@@ -1,10 +1,13 @@
 <% if(theme.post.toc.enable && theme.post.toc.placement !== 'left' && page.toc !== false){ %>
-  <aside class="sidebar" style="margin-left: -1rem">
+  <%# 2026-10-21：去掉原 style="margin-left: -1rem"。那个负 margin 把目录往左拉、
+      主动贴近正文栏；右栏现已由 site.css 给 #toc 加 hairline 左边界，
+      再贴近就把分界线糊掉了。间距统一交给 .post-side-right 的 margin-left。 %>
+  <aside class="sidebar">
     <%- partial('_partials/post/toc') %>
   </aside>
 <% } else if (theme.post.category_bar.enable && theme.post.category_bar.placement === 'right' && !page.hide &&
   (!theme.post.category_bar.specific || (theme.post.category_bar.specific && page.category_bar))) { %>
-  <aside class="sidebar category-bar" style="margin-left: -1rem">
+  <aside class="sidebar category-bar">
     <%- partial('_partials/post/category-bar') %>
   </aside>
 <% } %>
