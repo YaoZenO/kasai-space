@@ -48,14 +48,14 @@
      从此改值只有单一入口；22px 大圆角已废止，不得扩散到首页入口格） */
   --r-tile: 12px;
   --r-card: 12px;
-  /* 超大尺度档（方向 B，2026-10-19）：站名 4.6rem → 本档 5.5rem → 页头 3.2rem，
-     三级断崖。只用于首页 FEATURED 主卡标题（.wall-feature-title），别处引用需重新过尺度纪律。 */
-  /* vh 上限是必需的：只用 vw 时 @1440×900 主卡标题 83.5px 会把内容墙撑到 976px，
-     超出折叠线 76px，第二行入口格的标签条被切一半（2026-10-19 实测）。
-     min(5.8vw, 8.5vh) 在 1080/1920 两档仍吃到 5.5rem 完整断崖，900/800 收回线内。 */
-  /* 375 档下限 3.4rem：2.6rem 时移动端站名与主卡都落 clamp 下限、两级完全打平
-     （视觉线复测实测都等于 41.6px）。3.4rem = 54.4px，与站名 41.6 拉开 31%。 */
-  --fs-hero: clamp(3.4rem, min(5.8vw, 8.5vh), 5.5rem);
+  /* 主卡标题尺度档（E-041，2026-10-21 主人反馈「右边文字太大、刺眼」后回落）。
+     演进：3rem（10-18）→ 5.5rem（10-19 方向 B「字号断崖」）→ 3.4rem（10-21 回落）。
+     方向 B 的 5.5rem 断崖主张暂停：900 字重纸色 on 近墨底在 76.5px 下 6 行占满主卡，
+     主人实测刺眼。本档仍是卡内最大字，但不越过站名（4.6rem）一档。
+     vh 上限保留：只用 vw 时大视口会把内容墙撑出折叠线（2026-10-19 实测结论仍成立，
+     字号变小后只是更宽裕）。min(4.2vw, 6vh) 在 1440×900 落到 3.4rem 上限。
+     375 档下限 2.2rem：移动端主卡满栏宽，35.2px 两行收得下 14 字标题。 */
+  --fs-hero: clamp(2.2rem, min(4.2vw, 6vh), 3.4rem);
   --cream: #fdfbf6;               /* 模块卡底：第三纸色 #f9f6f1 已废止 */
   --ink-warm: #2a251d;
   --cream-on-dark: #f5f1e9;
@@ -354,9 +354,15 @@
 }
 
 .identity-title-row {
+  /* E-040：铭牌与站名竖排，恢复 DESIGN-LANGUAGE「自上而下」构成与 R-5「身份词竖列」。
+     横排在此栏宽下几何上无解：1200px 版心的身份栏 476px，装不下 D0 站名最长词
+     「Personal」（73.6px 下约 370px）+ 铭牌自然宽（约 161px）+ 行间距（22.4px）。
+     横排叠加 overflow-wrap:anywhere 曾把站名挤压成「Persona / l Space」词中断行。
+     竖排后站名独享整栏宽，只在词边界换行；≤576px 铭牌转横排见文末媒体查询。 */
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
-  gap: 1.4rem;
+  gap: 1rem;
 }
 
 .identity-name {
@@ -368,7 +374,11 @@
   /* 拉丁紧字距（纸面档案：−0.04~−0.02em）；站名为中文时视觉效果仍稳定 */
   letter-spacing: -0.02em;
   color: var(--text-color);
-  overflow-wrap: anywhere;
+  /* E-040：只能是 break-word，不能是 anywhere。
+     overflow-wrap 是继承属性，且 anywhere 会击穿 flex 子项的 min-content
+     （塌成 1 字符宽），行内一旦被挤压就从词中断行——站名曾显示成
+     「Persona / l Space」。break-word 保留超长单词的保护，又不参与 min-content 塌陷。 */
+  overflow-wrap: break-word;
 }
 
 /* 身份词铭牌（A9，主人 2026-10-19 拍板）：等宽装饰升格为「署名规格表」——
@@ -498,8 +508,9 @@
 }
 
 .wall-feature-meta {
-  /* 1.5rem：hero 提到 76–88px 后，原 0.7rem(11.2px) 只等于 0.15em，
-     排印惯例大标题上方要 ≥0.5em；标题占卡高 66%、描述被压到 111px，这是主因。 */
+  /* 1.5rem：源自方向 B 时期（hero 76–88px、标题占卡高 66%）的排印修正。
+     E-041 回落后标题为卡内最大字但不再撑满卡片，该间距保留作 meta 与标题的
+     稳定呼吸量；如后续再调 --fs-hero，此处按 0.5em 惯例复核。 */
   margin: 0 0 1.5rem;
   font-family: var(--font-mono);
   font-size: 0.76rem;
@@ -516,17 +527,17 @@
   color: #f5f1e9;
 }
 
-/* 尺度档演进（REVIEW §1.1 D-5 → 方向 B）：
+/* 尺度档演进（REVIEW §1.1 D-5 → 方向 B → E-041 回落）：
    10-18：3rem → 3.4rem，补上「站名 4.6rem 与本档只差一档」的断档；
-   10-19：方向 B 落地，新增超大档 5.5rem。站名 4.6rem → 主卡 5.5rem → 页头 3.2rem
-   形成三级断崖，这是 B 的「字号断崖」主张：尺度对比替代色相对比。
+   10-19：方向 B 落地，新增超大档 5.5rem，形成「站名 4.6 → 主卡 5.5 → 页头 3.2」
+          三级断崖（B 的「字号断崖」主张：尺度对比替代色相对比）；
+   10-21：E-041——主人反馈 76.5px 纸色 on 近墨底 6 行占满主卡「太大、刺眼」，
+          断崖主张暂停，档位回落到 3.4rem（仍为卡内最大字，低于站名一档）。
    用 token --fs-hero 而不是写死 clamp，改档位只有一处入口。 */
 .wall-feature-title {
-  /* 1.6rem：标题到描述也要跟上 hero 尺度（原 0.9rem 在大字号下显挤） */
   margin: 0 0 1.6rem;
   font-size: var(--fs-hero);
   font-weight: 900;
-  /* 1.04：5.5rem 大字需要更紧的行距，否则 6 行标题会吃掉主卡高度（方案 A 的一环） */
   line-height: 1.04;
 }
 
@@ -954,12 +965,8 @@ a.feed-title:hover {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .identity-title-row {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  /* 窄屏横排：词间 hairline 由横线转竖线，间距由竖线两侧均分 */
+  /* 竖排已是基础样式（E-040）；窄屏只需把铭牌自身转横排：
+     词间 hairline 由横线转竖线，间距由竖线两侧均分 */
   .identity-words {
     flex-direction: row;
     flex-wrap: wrap;

@@ -152,5 +152,45 @@ ok('头像 96px 是 84px 的面积补偿（圆形 π/4≈0.785），不得无依
   assert.strictEqual(w[1], h[1], '头像宽高不相等 —— border-radius:50% 会渲染成椭圆');
 });
 
+// --- E-040：站名词中断行（2026-10-21 主人反馈「Personal 都没在一行出现」）---
+// 两件事绑死：① .identity-name 禁用 overflow-wrap:anywhere——它击穿 flex 子项的
+// min-content（塌成 1 字符宽），同行元素一挤压就从词中间断行；② 身份词铭牌必须与
+// 站名竖排——横排时 476px 身份栏装不下「D0 站名最长词 + 铭牌自然宽 + 间距」，
+// 几何上必挤压（DESIGN-LANGUAGE 身份域「自上而下」构成与 R-5「身份词竖列」即竖排）。
+ok('站名不得词中断行：.identity-name 禁用 overflow-wrap:anywhere（E-040）', () => {
+  const rule = siteCss.match(/\.identity-name\s*\{[^}]*\}/);
+  assert.ok(rule, 'site.css 缺少 .identity-name 规则');
+  assert.ok(!/overflow-wrap:\s*anywhere/.test(rule[0]),
+    '.identity-name 用了 overflow-wrap:anywhere —— 它把 flex 子项 min-content 击穿成 1 字符，'
+    + '站名会被同行元素挤压成词中断行（线上曾显示成 Persona / l Space）。'
+    + '超长单词保护用 break-word，不参与 min-content 塌陷');
+});
+
+ok('身份词铭牌与站名竖排（E-040）', () => {
+  const rule = siteCss.match(/\.identity-title-row\s*\{[^}]*\}/);
+  assert.ok(rule, 'site.css 缺少 .identity-title-row 规则');
+  assert.match(rule[0], /flex-direction:\s*column/,
+    '铭牌与站名不是竖排 —— D0 站名最长词（Personal @73.6px 约 370px）+ 铭牌自然宽'
+    + '（约 161px）+ 间距在 476px 身份栏里横排必挤压。如确需改回横排，'
+    + '先按 DESIGN-LANGUAGE §3.5 复核站名字号并同步更新本断言');
+});
+
+// --- E-041：主卡标题尺度档回落（2026-10-21 主人反馈「太大、刺眼」）---
+// --fs-hero 是单入口 token，但「改代码不改文档」曾让字阶表与实际值漂移过
+// （D1-/D3 两行都漂过）。这里把代码值与 DESIGN-LANGUAGE 字阶表锁成一致：
+// 只改一边即 FAIL，每一次调档都被迫显式过一次文档，不留静默漂移空间。
+ok('--fs-hero 与 DESIGN-LANGUAGE 字阶表一致（E-041）', () => {
+  const cssVal = tokenOf(siteCss, 'fs-hero');
+  assert.ok(cssVal, 'site.css 缺少 --fs-hero');
+  const doc = read('DESIGN-LANGUAGE.md');
+  const row = doc.split('\n').find((l) => l.includes('--fs-hero'));
+  assert.ok(row, 'DESIGN-LANGUAGE.md 字阶表缺少 --fs-hero 行');
+  const m = row.match(/`(clamp\([^`]+\))`/);
+  assert.ok(m, `字阶表行里找不到 clamp() 值：${row.trim()}`);
+  assert.strictEqual(m[1], cssVal,
+    `--fs-hero 代码与文档不一致：site.css=${cssVal} / DESIGN-LANGUAGE=${m[1]}。`
+    + '调档必须两处同步改（E-041：方向 B 的 5.5rem 档已因刺眼回落，断崖主张暂停）');
+});
+
 console.log(`\nRESULT: ${passed} 项断言通过${process.exitCode ? '，存在失败' : ''}`);
 process.exit(process.exitCode || 0);
