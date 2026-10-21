@@ -1,0 +1,219 @@
+# 节假日数据 —— /holidays/ 页面的唯一数据源
+#
+# 结构：
+#   meta.updated    本文件最后核对日期（页面「更新于」由它渲染，不读文件 mtime——E-028 教训）
+#   meta.official   本年安排是否已由国务院办公厅正式公布
+#   meta.notice     页面顶部的说明文案
+#   meta.sources    数据来源（页面底部原样列出）
+#   years[]         年份列表，目前只有一项。新增年份时在数组尾部追加一项即可，模板按第一项渲染。
+#     holidays      法定节假日：date 是「节日当天」，start/end 是放假区间（含首尾）
+#                   statutory 是其中真正的法定假日天数；makeup 是调休上班日（无则空数组）
+#     festivals     不放假的其他节日与纪念日
+#     terms         二十四节气（按北京时间计）
+#
+# 纪律：
+#   1. 日期一律写成带引号的 "YYYY-MM-DD"。不加引号时 js-yaml 会解析成 Date 对象，
+#      模板直出会变成 "Sat Feb 06 2027 00:00:00 GMT+0000"（E-028 踩过）。
+#   2. 预计值必须能在数据里看出「预计」：official: false + label: 预计。
+#      官方通知发布后只改本文件：official 改 true、label 改「官方」，再校准 start/end/makeup。
+#   3. 不写没有来源的日期。2027 年法定节假日的公历日期已核对（春节 2 月 6 日等），
+#      放假区间与天数按 2025 年起施行的规则推算，属预计值，不得表述为官方安排。
+
+meta:
+  updated: "2026-10-21"
+  official: false
+  # 说明文案写成单行：中文段落用 YAML 的折叠标量（>-）换行时，折行处会被插进空格，
+  # 渲染出来是「通知 （2026 年」这种夹空格的句子。
+  notice: "2027 年的放假安排还没有官方版本。国务院办公厅通常在前一年 11 月前后发布次年通知（2026 年的通知发布于 2025 年 11 月 4 日），所以下面这些放假区间是按 2024 年 11 月修订、2025 年 1 月 1 日起施行的《全国年节及纪念日放假办法》以及近年调休惯例推算出来的预期值，不是国务院公布的安排。节日当天的公历日期本身是确定的，可能变动的只有放假区间的起止与调休上班日。"
+  sources:
+    - label: "国务院办公厅关于 2026 年部分节假日安排的通知（人民网转载，现行规则依据）"
+      url: "https://cpc.people.com.cn/BIG5/n1/2025/1105/c64387-40596912.html"
+      date: "2025-11-04"
+    - label: "令和 9 年（2027）二十四节气时刻（日本国立天文台，换算北京时间）"
+      url: "https://eco.mtk.nao.ac.jp/koyomi/yoko/2027/rekiyou272.html"
+      date: "2026-02-02"
+
+years:
+  - year: 2027
+    label: "预计"
+    official: false
+    zodiac: "丁未羊年"
+    holidays:
+      - id: yuandan
+        name: "元旦"
+        pinyin: "Yuándàn"
+        date: "2027-01-01"
+        start: "2027-01-01"
+        end: "2027-01-03"
+        days: 3
+        statutory: 1
+        makeup: []
+        arrange: "周五至周日，不调休"
+        desc: "公历新年的第一天。法定假日只有 1 天，与周末相连就成了 3 天小长假。"
+      - id: chunjie
+        name: "春节"
+        pinyin: "Chūnjié"
+        date: "2027-02-06"
+        start: "2027-02-05"
+        end: "2027-02-12"
+        days: 8
+        statutory: 4
+        makeup: []
+        arrange: "除夕至正月初七；调休上班日待官方公布"
+        desc: "农历正月初一，除夕也在假期内。年夜饭、红包、守岁都集中在这几天，也是全年最大规模的人口迁徙。"
+      - id: qingming
+        name: "清明节"
+        pinyin: "Qīngmíngjié"
+        date: "2027-04-05"
+        start: "2027-04-03"
+        end: "2027-04-05"
+        days: 3
+        statutory: 1
+        makeup: []
+        arrange: "周六至周一，不调休"
+        desc: "既是节气也是节日。清明节气 2027 年落在 4 月 5 日，扫墓与踏青同期，日期每年在 4 月 4 日至 6 日之间浮动。"
+      - id: laodong
+        name: "劳动节"
+        pinyin: "Láodòngjié"
+        date: "2027-05-01"
+        start: "2027-05-01"
+        end: "2027-05-05"
+        days: 5
+        statutory: 2
+        makeup: []
+        arrange: "周六至周三；调休上班日待官方公布"
+        desc: "5 月 1 日国际劳动节。2024 年修订后法定假日由 1 天增加到 2 天，通常再拼出 5 天连休。"
+      - id: duanwu
+        name: "端午节"
+        pinyin: "Duānwǔjié"
+        date: "2027-06-09"
+        start: "2027-06-09"
+        end: "2027-06-09"
+        days: 1
+        statutory: 1
+        makeup: []
+        arrange: "当天为周三，前后接不上周末"
+        desc: "农历五月初五，包粽子、赛龙舟。2027 年落在周三，前后都接不上周末，只放当天 1 天。"
+      - id: zhongqiu
+        name: "中秋节"
+        pinyin: "Zhōngqiūjié"
+        date: "2027-09-15"
+        start: "2027-09-15"
+        end: "2027-09-15"
+        days: 1
+        statutory: 1
+        makeup: []
+        arrange: "当天为周三，前后接不上周末"
+        desc: "农历八月十五，赏月、吃月饼。2027 年落在周三，与国庆之间隔着半个月，只放当天 1 天。"
+      - id: guoqing
+        name: "国庆节"
+        pinyin: "Guóqìngjié"
+        date: "2027-10-01"
+        start: "2027-10-01"
+        end: "2027-10-07"
+        days: 7
+        statutory: 3
+        makeup: []
+        arrange: "周五至下周四；调休上班日待官方公布"
+        desc: "10 月 1 日。法定假日 3 天，与前后周末调休后拼成 7 天黄金周，是国内出行最集中的一周。"
+
+    festivals:
+      - name: "腊八节"
+        pinyin: "Làbājié"
+        date: "2027-01-15"
+        kind: "传统节日"
+        note: "腊月初八，喝腊八粥"
+      - name: "小年"
+        pinyin: "Xiǎonián"
+        date: "2027-01-30"
+        kind: "传统节日"
+        note: "腊月廿三，北方小年；南方多在廿四（1 月 31 日）"
+      - name: "元宵节"
+        pinyin: "Yuánxiāojié"
+        date: "2027-02-20"
+        kind: "传统节日"
+        note: "正月十五，春节的收尾"
+      - name: "妇女节"
+        pinyin: "Fùnǚjié"
+        date: "2027-03-08"
+        kind: "部分公民放假"
+        note: "妇女放假半天，不涉及全体公民"
+      - name: "植树节"
+        pinyin: "Zhíshùjié"
+        date: "2027-03-12"
+        kind: "纪念日"
+        note: "不放假"
+      - name: "青年节"
+        pinyin: "Qīngniánjié"
+        date: "2027-05-04"
+        kind: "部分公民放假"
+        note: "14 周岁以上的青年放假半天"
+      - name: "儿童节"
+        pinyin: "Értóngjié"
+        date: "2027-06-01"
+        kind: "部分公民放假"
+        note: "不满 14 周岁的少年儿童放假 1 天"
+      - name: "建党节"
+        pinyin: "Jiàndǎngjié"
+        date: "2027-07-01"
+        kind: "纪念日"
+        note: "中国共产党成立纪念日，不放假"
+      - name: "建军节"
+        pinyin: "Jiànjūnjié"
+        date: "2027-08-01"
+        kind: "部分公民放假"
+        note: "现役军人放假半天"
+      - name: "七夕节"
+        pinyin: "Qīxījié"
+        date: "2027-08-08"
+        kind: "传统节日"
+        note: "七月初七，不放假"
+      - name: "中元节"
+        pinyin: "Zhōngyuánjié"
+        date: "2027-08-16"
+        kind: "传统节日"
+        note: "七月十五，不放假"
+      - name: "教师节"
+        pinyin: "Jiàoshījié"
+        date: "2027-09-10"
+        kind: "纪念日"
+        note: "不放假"
+      - name: "重阳节"
+        pinyin: "Chóngyángjié"
+        date: "2027-10-08"
+        kind: "传统节日"
+        note: "九月初九，不放假"
+      - name: "光棍节"
+        pinyin: "Guānggùnjié"
+        date: "2027-11-11"
+        kind: "民间节日"
+        note: "不放假"
+
+    # 二十四节气：日期按北京时间，来源见 meta.sources。
+    # 部分节气与节日落在同一天（清明、立秋、冬至等），一格只显示一个标记，
+    # 悬停时两者都会出现在说明里。
+    terms:
+      - { name: "小寒", pinyin: "Xiǎohán", date: "2027-01-05" }
+      - { name: "大寒", pinyin: "Dàhán", date: "2027-01-20" }
+      - { name: "立春", pinyin: "Lìchūn", date: "2027-02-04" }
+      - { name: "雨水", pinyin: "Yǔshuǐ", date: "2027-02-19" }
+      - { name: "惊蛰", pinyin: "Jīngzhé", date: "2027-03-06" }
+      - { name: "春分", pinyin: "Chūnfēn", date: "2027-03-21" }
+      - { name: "清明", pinyin: "Qīngmíng", date: "2027-04-05" }
+      - { name: "谷雨", pinyin: "Gǔyǔ", date: "2027-04-20" }
+      - { name: "立夏", pinyin: "Lìxià", date: "2027-05-06" }
+      - { name: "小满", pinyin: "Xiǎomǎn", date: "2027-05-21" }
+      - { name: "芒种", pinyin: "Mángzhòng", date: "2027-06-06" }
+      - { name: "夏至", pinyin: "Xiàzhì", date: "2027-06-21" }
+      - { name: "小暑", pinyin: "Xiǎoshǔ", date: "2027-07-07" }
+      - { name: "大暑", pinyin: "Dàshǔ", date: "2027-07-23" }
+      - { name: "立秋", pinyin: "Lìqiū", date: "2027-08-08" }
+      - { name: "处暑", pinyin: "Chǔshǔ", date: "2027-08-23" }
+      - { name: "白露", pinyin: "Báilù", date: "2027-09-08" }
+      - { name: "秋分", pinyin: "Qiūfēn", date: "2027-09-23" }
+      - { name: "寒露", pinyin: "Hánlù", date: "2027-10-08" }
+      - { name: "霜降", pinyin: "Shuāngjiàng", date: "2027-10-23" }
+      - { name: "立冬", pinyin: "Lìdōng", date: "2027-11-07" }
+      - { name: "小雪", pinyin: "Xiǎoxuě", date: "2027-11-22" }
+      - { name: "大雪", pinyin: "Dàxuě", date: "2027-12-07" }
+      - { name: "冬至", pinyin: "Dōngzhì", date: "2027-12-22" }

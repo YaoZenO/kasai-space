@@ -1,0 +1,247 @@
+<%
+// 节假日页（/holidays/）：法定节假日表 + 全年一览格 + 其他节日 + 说明与常见问题
+// 数据：source/_data/holidays.yml（唯一数据源）
+// 计算：themes/fluid/scripts/helpers/holiday-calendar.js（逐日状态、月份行、统计、浮层数据）
+// 样式：site.css §4.12
+// 脚本：source/js/holidays.js（悬停/点击浮层，纯增强，无脚本时表格仍然完整可读）
+page.layout = 'holidays'
+page.hide_banner = true
+
+var raw = (site.data && site.data.holidays) || {}
+var cal = holidayCalendar(raw)
+var tips = cal ? holidayTips(cal) : {}
+var faq = page.faq || []
+%>
+
+<div class="paper-page cal-page">
+  <div class="home-wrap">
+    <header class="page-head">
+      <p class="page-head-kicker">CALENDAR</p>
+      <h1 class="page-head-title"><%= page.title %></h1>
+      <% if (cal) { %>
+      <p class="archive-total">
+        <% if (cal.updated) { %>更新于 <%= fmtItemDate(cal.updated) %> · <% } %><%= cal.label %>安排 ·
+        <%= cal.stats.holidayCount %> 个法定节假日 · 合计 <%= cal.stats.holidayDays %> 天 · 其中法定假日 <%= cal.stats.statutoryDays %> 天
+      </p>
+      <% } %>
+    </header>
+
+    <% if (!cal) { %>
+    <p class="post-desc">这一年的节假日数据还没填。先在 <code>source/_data/holidays.yml</code> 里补上，页面会自动生成。</p>
+    <% } else { %>
+
+    <% if (cal.notice) { %>
+    <p class="cal-notice">
+      <span class="cal-notice-tag"><%= cal.label %></span><%= cal.notice %>
+    </p>
+    <% } %>
+
+    <div class="cal-top">
+      <section class="cal-block">
+        <div class="col-head">
+          <h2 class="col-title"><%= cal.year %> 年法定节假日</h2>
+          <span class="col-count">/ <%= cal.stats.holidayCount %></span>
+          <span class="col-more"><%= cal.label %></span>
+        </div>
+
+        <div class="cal-table-wrap">
+          <table class="cal-table">
+            <thead>
+              <tr>
+                <th scope="col">节日</th>
+                <th scope="col">节日当天</th>
+                <th scope="col">放假安排</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% for (var i = 0; i < cal.holidays.length; i++) { var h = cal.holidays[i] %>
+              <tr id="<%= h.anchor %>">
+                <th scope="row">
+                  <span class="cal-name"><%= h.name %></span>
+                  <span class="cal-pinyin"><%= h.pinyin %></span>
+                </th>
+                <td class="cal-when">
+                  <time datetime="<%= h.date %>"><%= h.dateMd %></time>
+                  <span class="cal-weekday"><%= h.wDate %></span>
+                </td>
+                <td class="cal-arrange">
+                  <span class="cal-range">
+                    <time datetime="<%= h.start %>"><%= h.startMd %></time>
+                    <% if (h.startMd !== h.endMd) { %>
+                    <span class="cal-arrow" aria-label="至">→</span>
+                    <time datetime="<%= h.end %>"><%= h.endMd %></time>
+                    <% } %>
+                  </span>
+                  <span class="cal-days"><%= h.days %> 天</span>
+                  <% if (h.arrange) { %><span class="cal-hint"><%= h.arrange %></span><% } %>
+                </td>
+              </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <aside class="cal-side">
+        <div class="col-head">
+          <h2 class="col-title">这一年的数</h2>
+        </div>
+        <dl class="cal-stats">
+          <div class="cal-stat">
+            <dt>法定节假日</dt>
+            <dd><%= cal.stats.holidayCount %> <span>个</span></dd>
+          </div>
+          <div class="cal-stat">
+            <dt>合计放假</dt>
+            <dd><%= cal.stats.holidayDays %> <span>天</span></dd>
+          </div>
+          <div class="cal-stat">
+            <dt>其中法定假日</dt>
+            <dd><%= cal.stats.statutoryDays %> <span>天</span></dd>
+          </div>
+          <div class="cal-stat">
+            <dt>其他节日与纪念日</dt>
+            <dd><%= cal.stats.festivalCount %> <span>个</span></dd>
+          </div>
+          <div class="cal-stat">
+            <dt>二十四节气</dt>
+            <dd><%= cal.stats.termCount %> <span>个</span></dd>
+          </div>
+        </dl>
+        <p class="cal-side-note">
+          「法定假日」指《全国年节及纪念日放假办法》规定的那几天，其余是周末与调休拼出来的。
+          放假区间是<%= cal.label %>值，可能随官方通知变动。
+        </p>
+      </aside>
+    </div>
+
+    <section class="cal-year">
+      <div class="col-head">
+        <h2 class="col-title"><%= cal.year %> 年一览</h2>
+        <span class="col-count">/ <%= cal.stats.totalDays %> 天</span>
+        <span class="col-more">悬停查看当天</span>
+      </div>
+
+      <div class="cal-grid-wrap">
+        <div class="cal-grid" data-cal-grid
+             aria-label="<%= cal.year %> 年放假日历一览：图形总览，逐日说明见上方法定节假日表与其他节日列表">
+          <div class="cal-row cal-ruler" aria-hidden="true">
+            <span class="cal-month"></span>
+            <div class="cal-cells">
+              <% var ticks = [1, 5, 10, 15, 20, 25, 30] %>
+              <% for (var d = 1; d <= 31; d += 1) { %>
+              <span class="cal-tick"><%= ticks.indexOf(d) !== -1 ? d : '' %></span>
+              <% } %>
+            </div>
+          </div>
+          <% for (var mi = 0; mi < cal.months.length; mi += 1) { var mo = cal.months[mi] %>
+          <div class="cal-row">
+            <span class="cal-month"><%= mo.label %></span>
+            <div class="cal-cells">
+              <% for (var ci = 0; ci < mo.cells.length; ci += 1) { var c = mo.cells[ci] %>
+              <span class="cal-cell is-<%= c.state %><%= c.dot ? ' has-dot' : '' %>"
+                    data-date="<%= c.key %>" data-w="<%= c.w %>"
+                    aria-hidden="true"></span>
+              <% } %>
+            </div>
+          </div>
+          <% } %>
+        </div>
+      </div>
+
+      <ul class="cal-legend">
+        <li><span class="cal-swatch is-holiday" aria-hidden="true"></span><%= cal.label %>放假</li>
+        <li><span class="cal-swatch is-weekend" aria-hidden="true"></span>周末</li>
+        <li><span class="cal-dot-mark" aria-hidden="true"></span>节日或纪念日</li>
+        <% if (cal.stats.makeupDays) { %>
+        <li><span class="cal-swatch is-makeup" aria-hidden="true"></span>调休上班</li>
+        <% } %>
+        <li class="cal-legend-note">格子里没有数字：横轴是当月第几天，悬停任意一格看具体日期。</li>
+      </ul>
+    </section>
+
+    <section class="cal-fest">
+      <div class="col-head">
+        <h2 class="col-title"><%= cal.year %> 年的其他节日和纪念日</h2>
+        <span class="col-count">/ <%= cal.stats.festivalCount %></span>
+      </div>
+      <p class="cal-fest-lead">这些日子都是中国传统的节日、纪念日，绝大多数不放假；个别日子只对某一部分人放半天（下表「备注」列写明）。</p>
+
+      <div class="cal-fest-cols">
+        <% var half = Math.ceil(cal.festivals.length / 2) %>
+        <% [cal.festivals.slice(0, half), cal.festivals.slice(half)].forEach(function (group, gi) { %>
+        <ul class="cal-fest-list">
+          <% for (var fi = 0; fi < group.length; fi += 1) { var f = group[fi] %>
+          <li class="cal-fest-row">
+            <span class="cal-fest-date">
+              <time datetime="<%= f.date %>"><%= f.dateMd %></time>
+              <span class="cal-weekday"><%= f.wName %></span>
+            </span>
+            <span class="cal-fest-main">
+              <span class="cal-fest-name"><%= f.name %></span>
+              <span class="cal-pinyin"><%= f.pinyin %></span>
+              <span class="cal-fest-kind"><%= f.kind %></span>
+            </span>
+            <span class="cal-fest-note"><%= f.note %></span>
+          </li>
+          <% } %>
+        </ul>
+        <% }) %>
+      </div>
+
+      <% if (cal.terms.length) { %>
+      <div class="cal-terms">
+        <h3 class="cal-terms-title">二十四节气</h3>
+        <p class="cal-terms-line">
+          <% for (var ti = 0; ti < cal.terms.length; ti += 1) { var t = cal.terms[ti] %>
+          <span class="cal-term"><span class="cal-term-name"><%= t.name %></span> <time datetime="<%= t.date %>"><%= t.dateMd %></time></span>
+          <% } %>
+        </p>
+        <p class="cal-terms-note">节气按太阳黄经划分，公历日期每年只差一两天，标注为北京时间。</p>
+      </div>
+      <% } %>
+
+    </section>
+
+    <div class="cal-notes">
+      <article class="about-body cal-prose">
+        <div class="markdown-body">
+          <%- page.content %>
+        </div>
+      </article>
+
+      <% if (faq.length) { %>
+      <aside class="cal-faq">
+        <h2 class="col-title">关于 <%= cal.year %> 年节假日的常见问题</h2>
+        <% for (var qi = 0; qi < faq.length; qi += 1) { var item = faq[qi] %>
+        <details class="cal-faq-item">
+          <summary><%= item.q %></summary>
+          <p><%= item.a %></p>
+        </details>
+        <% } %>
+      </aside>
+      <% } %>
+    </div>
+
+    <% if (cal.sources.length) { %>
+    <footer class="cal-sources">
+      <h2 class="cal-sources-title">数据来源</h2>
+      <ul>
+        <% for (var si = 0; si < cal.sources.length; si += 1) { var s = cal.sources[si] %>
+        <li>
+          <span class="cal-source-date"><%= s.date || '' %></span>
+          <a href="<%= s.url %>" target="_blank" rel="noopener"><%= s.label %></a>
+        </li>
+        <% } %>
+      </ul>
+    </footer>
+    <% } %>
+
+    <% } %>
+  </div>
+</div>
+
+<% if (cal) { %>
+<script type="application/json" id="cal-day-data"><%- JSON.stringify(tips).replace(/</g, '\\u003c') %></script>
+<script src="<%= versionedAsset('/js/holidays.js') %>" defer></script>
+<% } %>
