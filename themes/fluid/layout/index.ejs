@@ -61,8 +61,11 @@ if (!featuredPost) {
 }
 var LATEST_MAX = 5
 var latestPosts = []
+/* 2026-10-21 主人拍板：不再跳过主卡那一篇。「最新文字」从全站真正最新开始列，
+   与首屏主卡重复出现同一标题是可接受结果——栏目标题承诺的就是全站最新，
+   读者有权期待列表头条与主卡是同一篇；此前的去重过滤（跳过 featuredPost）
+   会让列表「最新」一篇比主卡旧，标题与范围不一致。 */
 for (var j = 0; j < postsArr.length; j++) {
-  if (featuredPost && postsArr[j].path === featuredPost.path) { continue }
   if (latestPosts.length >= LATEST_MAX) { break }
   latestPosts.push(postsArr[j])
 }
