@@ -317,13 +317,19 @@
   padding: 1rem 0;
 }
 
+/* A10（2026-10-21 主人确认）：头像圆形化，圆角标尺的唯一例外。
+ * 84px → 96px 是面积补偿：圆面积 = 同边长方形的 π/4 ≈ 0.785，
+ * 96 = 84 / √0.785，视觉重量与原方卡等价，不让身份锚点缩水。
+ * 阴影移除：纸面体系里阴影只归浮层与「可提起」元素（见 DESIGN-LANGUAGE §5.1），
+ * 头像既不是浮层也不可提起。
+ * 描边从 --site-chip-border（墨 .10）提到 --line-strong（墨 .24）：圆形弧线的
+ * 感知强度低于直线，同墨量下边界会发虚，取纸面 hairline 的墨量才「可辨识」。 */
 .identity-avatar {
-  width: 84px;
-  height: 84px;
-  border-radius: 12px;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
   overflow: hidden;
-  border: 1px solid var(--site-chip-border);
-  box-shadow: var(--site-float-shadow);
+  border: 1px solid var(--line-strong);
   background-color: rgba(42, 37, 29, 0.05);
   margin-bottom: 1.6rem;
 }

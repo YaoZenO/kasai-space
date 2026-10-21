@@ -14,6 +14,7 @@
     "test:blocks": "node test/md-blocks.js",
     "test:assets": "node test/asset-version.js",
     "test:dates": "node test/module-dates.js",
+    "test:a10-render": "node test/a10-avatar-render.js",
     "test": "npm run test:admin && npm run test:pages && npm run test:tokens && npm run test:claims && npm run test:blocks && npm run test:assets && npm run test:dates"
   },
   "hexo": {

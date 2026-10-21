@@ -117,5 +117,40 @@ ok('前台字号全部 ≥12px（0.75rem）', () => {
   assert.deepStrictEqual(bad, [], `存在 <12px 的字号：${bad.join(' / ')}`);
 });
 
+// A10：头像圆形化（2026-10-21 主人确认）。圆角标尺的唯一例外，
+// 且三件事是绑在一起的：圆形、去阴影、描边提到 --line-strong。
+// 单独回退任一项都会让头像退化成「方卡贴圆角」或「圆形发虚」。
+ok('头像是圆形、无阴影、描边走 hairline 墨量（A10）', () => {
+  const rule = siteCss.match(/\.identity-avatar\s*\{[^}]*\}/);
+  assert.ok(rule, 'site.css 缺少 .identity-avatar 规则');
+  assert.match(rule[0], /border-radius:\s*50%/, '头像不是圆形 —— A10 已确认圆形化');
+  assert.ok(!/box-shadow/.test(rule[0]),
+    '头像还带着阴影：纸面体系里阴影只归浮层与可提起元素，圆形 + 阴影会发虚');
+  assert.match(rule[0], /border:\s*1px solid var\(--line-strong\)/,
+    '头像描边不是 1px --line-strong：圆形弧线感知弱于直线，'
+    + '沿用 chip border 的墨 .10 会让边界发虚，须取 hairline 的墨 .24');
+});
+
+ok('圆角标尺：50% 只允许出现在头像一处（唯一例外）', () => {
+  const hits = siteCss.split('\n')
+    .map((l, i) => ({ l: l.trim(), n: i + 1 }))
+    .filter((x) => /border-radius:\s*50%/.test(x.l))
+    .filter((x) => !x.l.startsWith('/*') && !x.l.startsWith('*'));
+  assert.strictEqual(hits.length, 1,
+    `50% 圆角出现在 ${hits.length} 处（L${hits.map((h) => h.n).join(', L')}）`
+    + ' —— 圆角标尺的唯一例外是头像，不得扩散到其他容器');
+});
+
+ok('头像 96px 是 84px 的面积补偿（圆形 π/4≈0.785），不得无依据改尺寸', () => {
+  const rule = siteCss.match(/\.identity-avatar\s*\{[^}]*\}/);
+  assert.match(rule[0], /width:\s*96px/, '头像宽度不是 96px');
+  assert.match(rule[0], /height:\s*96px/, '头像高度不是 96px');
+  // 反算依据：84 / Math.sqrt(Math.PI / 4) = 94.75 → 取整 96 上下，
+  // 断言锁定「宽高相等」这一真正约束，防止改成椭圆。
+  const w = rule[0].match(/width:\s*(\d+)px/);
+  const h = rule[0].match(/height:\s*(\d+)px/);
+  assert.strictEqual(w[1], h[1], '头像宽高不相等 —— border-radius:50% 会渲染成椭圆');
+});
+
 console.log(`\nRESULT: ${passed} 项断言通过${process.exitCode ? '，存在失败' : ''}`);
 process.exit(process.exitCode || 0);
