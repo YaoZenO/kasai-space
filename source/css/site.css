@@ -1964,7 +1964,9 @@ a.feed-title:hover {
   gap: clamp(1.5rem, 4vw, 3.5rem);
 }
 
-.cal-years { flex: none; text-align: right; }
+/* 年份导航必须允许收缩换行：写 flex:none 时它会按 max-content 撑开，
+   16 个年份在手机上把整页顶出横向滚动条（E-049）。 */
+.cal-years { flex: 0 1 auto; min-width: 0; text-align: right; }
 
 .cal-years-label {
   display: block;
@@ -2472,6 +2474,10 @@ a.feed-title:hover {
 }
 
 @media (max-width: 575.98px) {
+  /* 页头左右两栏在手机上改成上下堆叠，年份导航回到左对齐 */
+  .cal-head-row { flex-direction: column; align-items: flex-start; gap: 1.1rem; }
+  .cal-years { text-align: left; }
+  .cal-years ul { justify-content: flex-start; }
   /* 31 列在手机上每格不足 10px；给一个最小宽度让容器内部横向滚动，
      页面本身不产生横向溢出（滚动发生在这条容器里） */
   .cal-grid { min-width: 560px; }

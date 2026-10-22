@@ -64,6 +64,50 @@ ok('法定假日合计 13 天（2025 年起施行的《全国年节及纪念日�
     '法定假日合计不是 13 天 —— 要么数据错了，要么规则变了，两种情况都必须人工复核后再改断言');
 });
 
+// 2024-11 修订的《全国年节及纪念日放假办法》自 2025-01-01 起施行，法定假日由 11 天增到 13 天。
+// 所以 2024 及以前是 11 天、2025 起是 13 天 —— 两条都写死，跨过这条分界线的数据必须人工复核。
+ok('十六个年份逐个核对：放假跨度、声明天数、法定合计', () => {
+  cal.years.forEach((y) => {
+    const c = buildCalendar(raw, y);
+    const expect = y >= 2025 ? 13 : 11;
+    assert.strictEqual(c.stats.statutoryDays, expect, y + ' 年法定假日合计不是 ' + expect + ' 天');
+    c.holidays.forEach((h) => {
+      assert.strictEqual(h.days, spanDays(h.start, h.end), y + ' ' + h.name + '：days 与 start/end 跨度不符');
+      assert.strictEqual(h.days, h.daysDeclared, y + ' ' + h.name + '：days 声明值与跨度不符');
+      // 跨年元旦（2023、2024）一律截断到本年内，跨年那一段写在 arrange 里说明。
+      // 这条防止有人把 2022-12-31 直接写进 2023 —— 那样逐日表会少一格、统计也对不上。
+      assert.ok(toKey(h.start).indexOf(String(y)) === 0, y + ' ' + h.name + ' 的 start 越界：' + h.start);
+      assert.ok(toKey(h.end).indexOf(String(y)) === 0, y + ' ' + h.name + ' 的 end 越界：' + h.end);
+    });
+  });
+});
+
+// 曾经所有年份的 terms 都是空的，模板里 `if (cal.terms.length)` 一直不成立，
+// 「二十四节气」区块从来没渲染过（E-047）。这条把「每年 24 个节气」钉死。
+ok('每年都有全部 24 个节气，且都落在本年内（E-047）', () => {
+  cal.years.forEach((y) => {
+    const c = buildCalendar(raw, y);
+    assert.strictEqual(c.terms.length, 24, y + ' 年节气不是 24 个（实际 ' + c.terms.length + '）');
+    assert.strictEqual(new Set(c.terms.map((t) => t.name)).size, 24, y + ' 年节气名有重复');
+    c.terms.forEach((t) => {
+      assert.ok(t.date.indexOf(String(y)) === 0, y + ' 年 ' + t.name + ' 日期越界：' + t.date);
+    });
+  });
+});
+
+// 节气是用通用寿星公式算的，必须有独立于公式的锚点。官方年份的清明节放假当天
+// 就是清明节气日本身，拿它当校验点，把公式与国务院通知钉在一起。
+ok('清明节气日与官方通知里的清明节日期一致（节气公式的独立校验点）', () => {
+  [2021, 2022, 2023, 2024, 2025, 2026].forEach((y) => {
+    const c = buildCalendar(raw, y);
+    const qm = c.holidays.find((h) => h.id === 'qingming');
+    const term = c.terms.find((t) => t.name === '清明');
+    assert.ok(qm && term, y + ' 年缺清明节数据');
+    assert.strictEqual(term.date, qm.date,
+      y + ' 年清明节气 ' + term.date + ' 与通知里的放假当天 ' + qm.date + ' 不一致');
+  });
+});
+
 ok('预计放假合计 28 天，且统计值来自逐日状态而非手填', () => {
   assert.strictEqual(cal.stats.holidayDays, 28, '合计放假天数变了');
   const counted = Object.keys(cal.days).filter((k) => cal.days[k].state === 'holiday').length;
@@ -178,9 +222,11 @@ if (!fs.existsSync(PUBLIC)) {
     assert.strictEqual(err, null, 'holidays.ejs 编译失败：' + (err && err.message.split('\n')[0]));
   });
 
-  ok('十二年数据齐全，且年份页全部生成', () => {
-    assert.strictEqual(cal.years.length, 12, '年份不是 12 个');
-    assert.deepStrictEqual(cal.years, [2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 2033, 2034, 2035, 2036]);
+  ok('十六年数据齐全，且年份页全部生成', () => {
+    assert.strictEqual(cal.years.length, 16, '年份不是 16 个');
+    assert.deepStrictEqual(cal.years,
+      [2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 2033, 2034, 2035, 2036],
+      '年份族不是 2021-2036 连续十六年');
     if (!fs.existsSync(PUBLIC)) return;
     cal.years.forEach((y) => {
       const abs = path.join(PUBLIC, 'holidays', String(y), 'index.html');
@@ -189,12 +235,16 @@ if (!fs.existsSync(PUBLIC)) {
     });
   });
 
-  ok('年度状态标对：2025/2026 为官方，2027 起为预计', () => {
+  ok('年度状态标对：2021-2026 为官方，2027 起为预计', () => {
     const byYear = (y) => buildCalendar(raw, y);
-    assert.strictEqual(byYear(2026).label, '官方', '2026 是国务院通知年，应标官方');
-    assert.strictEqual(byYear(2026).official, true);
-    assert.strictEqual(byYear(2027).label, '预计', '2027 起应标预计');
-    assert.strictEqual(byYear(2027).official, false);
+    [2021, 2022, 2023, 2024, 2025, 2026].forEach((y) => {
+      assert.strictEqual(byYear(y).label, '官方', y + ' 是国务院通知年，应标官方');
+      assert.strictEqual(byYear(y).official, true);
+    });
+    [2027, 2030, 2036].forEach((y) => {
+      assert.strictEqual(byYear(y).label, '预计', y + ' 应标预计');
+      assert.strictEqual(byYear(y).official, false);
+    });
   });
 
   ok('发布页不出现内部维护说明，也不出现「悬停查看」提示', () => {
@@ -299,6 +349,22 @@ ok('参考站配色只落在 .cal-page 作用域，没有写进 :root', () => {
   assert.ok(!/#f7f6f4/.test(root), '参考站的纸底被写进了 :root');
 });
 
+// 年份导航从 12 个变 16 个时，`.cal-years { flex: none }` 让它按 max-content 撑到
+// 621px，手机上把整页顶出 351px 横向滚动条（E-049）。这条锁「必须允许收缩」。
+ok('年份导航允许收缩换行，不会把页面撑出横向滚动条（E-049）', () => {
+  const css = fs.readFileSync(path.join(ROOT, 'source/css/site.css'), 'utf8');
+  const at = css.indexOf('.cal-years {');
+  assert.ok(at !== -1, 'site.css 缺少 .cal-years 规则');
+  const rule = css.slice(at, css.indexOf('}', at));
+  assert.ok(!/flex:\s*none/.test(rule),
+    '.cal-years 用了 flex:none —— 年份一多就会按 max-content 撑开，窄屏出现整页横向滚动');
+  assert.ok(/min-width:\s*0/.test(rule), '.cal-years 缺 min-width:0，flex 项目不会收缩到内容以下');
+  // 窄屏断点里还要把页头改成上下堆叠，否则左右两栏挤在一行仍然会溢出
+  const mq = css.slice(css.indexOf('@media (max-width: 575.98px)'));
+  assert.ok(mq.indexOf('.cal-head-row { flex-direction: column') !== -1,
+    '窄屏断点里没有把 .cal-head-row 改成上下堆叠');
+});
+
 ok('字体产物已随构建落到 public/fonts/（public/ 存在时）', () => {
   if (!fs.existsSync(PUBLIC)) return;
   ['fraunces-600-latin.woff2', 'nunito-sans-var-latin.woff2'].forEach((f) => {
@@ -310,9 +376,33 @@ ok('字体产物已随构建落到 public/fonts/（public/ 存在时）', () => 
 
 ok('自检：把法定假日数改错必须被抓到', () => {
   const bad = JSON.parse(JSON.stringify(raw));
-  bad.years[0].holidays[0].statutory = 2; // 元旦应为 1 天
-  const c2 = buildCalendar(bad);
+  bad.years.find((y) => y.year === 2027).holidays[0].statutory = 2; // 元旦应为 1 天
+  const c2 = buildCalendar(bad, 2027);
   assert.notStrictEqual(c2.stats.statutoryDays, 13, '数据改动没有被统计反映出来——断言会空转');
+});
+
+ok('自检：删掉某年的节气必须被抓到（E-047 防复发）', () => {
+  const bad = JSON.parse(JSON.stringify(raw));
+  bad.years.find((y) => y.year === 2027).terms = [];
+  const c2 = buildCalendar(bad, 2027);
+  assert.strictEqual(c2.terms.length, 0, '数据改动没生效——断言会空转');
+  // 真正起作用的是上面那条「每年 24 个节气」：这里确认它统计的是 terms 而不是别的。
+  assert.notStrictEqual(c2.terms.length, 24);
+});
+
+ok('自检：把节气日期改到上一年必须被抓到', () => {
+  const bad = JSON.parse(JSON.stringify(raw));
+  bad.years.find((y) => y.year === 2027).terms[0].date = '2026-01-05';
+  const c2 = buildCalendar(bad, 2027);
+  assert.notStrictEqual(c2.terms[0].date, buildCalendar(raw, 2027).terms[0].date,
+    '数据改动没生效——断言会空转');
+});
+
+ok('自检：把 .cal-years 改回 flex:none 必须被抓到（E-049 防复发）', () => {
+  const broken = '.cal-years { flex: none; text-align: right; }';
+  assert.ok(/flex:\s*none/.test(broken), '自检样本应当命中规则，否则断言空转');
+  const fixed = '.cal-years { flex: 0 1 auto; min-width: 0; text-align: right; }';
+  assert.ok(!/flex:\s*none/.test(fixed) && /min-width:\s*0/.test(fixed), '修好的写法应当通过');
 });
 
 ok('自检：模板编译断言对语法错误确实会失败（E-045 防复发）', () => {
