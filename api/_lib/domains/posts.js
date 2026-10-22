@@ -5,12 +5,13 @@
 const store = require('../store');
 const posts = require('../posts');
 const { HttpError } = require('../http');
-const { assertSlug, normTags, nowCst, POSTS_DIR, DRAFTS_DIR } = require('../shared');
+const { assertSlug, normTags, nowCst, POSTS_DIR, DRAFTS_DIR, PRIVATE_DIR } = require('../shared');
 
 async function getPostFile(path) {
   const inPosts = path.startsWith(`${POSTS_DIR}/`);
   const inDrafts = path.startsWith(`${DRAFTS_DIR}/`);
-  if (!inPosts && !inDrafts) throw new HttpError(400, 'BAD_PATH');
+  const inPrivate = path.startsWith(`${PRIVATE_DIR}/`);
+  if (!inPosts && !inDrafts && !inPrivate) throw new HttpError(400, 'BAD_PATH');
   // headSha 与内容读取并行：编辑入口原本是 getFile → getHead 两次串行往返，
   // 每次点「编辑」都白等一次 GitHub 请求（E-017 卡顿的主因之一）。
   const [f, headSha] = await Promise.all([store.getFile(path), store.getHead()]);
@@ -18,6 +19,7 @@ async function getPostFile(path) {
   return {
     path,
     isDraft: inDrafts,
+    isPrivate: inPrivate,
     frontmatter: {
       title: parsed.fm.title || '',
       date: parsed.fm.date || '',
@@ -111,10 +113,11 @@ async function publishNew(input) {
 }
 
 // 已发布文章转为私密（2026-10-22，P2-12 主人要求「只想自己看、不删除」）：
-// 整文原样移入草稿箱，一增一删同 commit；date / 标题 / 正文逐字保留，
-// 日后 publishDraft 按原 date 发布，permalink 不变。
-// 草稿箱在 source/ 之外（DRAFTS_DIR，与 _trash 同一约定），Hexo 任何模式下
-// 都不会渲染——线上立即不可见，且不依赖 render_drafts 配置（双保险）。
+// 整文原样移入私密区，一增一删同 commit；date / 标题 / 正文逐字保留，
+// 日后发布按原 date 回到 _posts，permalink 不变。
+// 私密区在 source/ 之外（PRIVATE_DIR，与 _drafts / _trash 同一约定），
+// Hexo 任何模式下都不会渲染——线上立即不可见，且不依赖 render_drafts 配置。
+// 与草稿是两回事：草稿是「没写完」，私密是「写完了只是不给别人看」（2026-10-22 分离）。
 async function unpublishPost(input) {
   const path = String(input.path || '');
   if (!path.startsWith(`${POSTS_DIR}/`) || !path.endsWith('.md')) throw new HttpError(400, 'BAD_PATH');
@@ -128,28 +131,56 @@ async function unpublishPost(input) {
     e.conflictPayload = { current: normalizePostFile(cur.content), sha: cur.sha };
     throw e;
   }
-  // 草稿箱已有同名文章时拒绝：那篇可能是另一内容，静默覆盖会丢东西
-  const clash = await store.getFile(`${DRAFTS_DIR}/${slug}.md`).catch(() => null);
+  // 私密区已有同名文章时拒绝：那篇可能是另一内容，静默覆盖会丢东西
+  const clash = await store.getFile(`${PRIVATE_DIR}/${slug}.md`).catch(() => null);
   if (clash) {
-    const e = new HttpError(409, 'DRAFT_EXISTS', { hint: '草稿箱里已有同名文章，请先发布或删除那篇' });
+    const e = new HttpError(409, 'PRIVATE_EXISTS', { hint: '私密区里已有同名文章，请先发布或删除那篇' });
     e.conflictPayload = { current: normalizePostFile(clash.content), sha: clash.sha };
     throw e;
   }
   const r = await store.commitFiles(
     [
-      { path: `${DRAFTS_DIR}/${slug}.md`, contentUtf8: cur.content },
+      { path: `${PRIVATE_DIR}/${slug}.md`, contentUtf8: cur.content },
       { path, delete: true },
     ],
     `后台：文章转为私密 ${slug}`,
     input.expectedHeadSha
   );
-  return { path: `${DRAFTS_DIR}/${slug}.md`, slug, headSha: r.headSha, commitSha: r.commitSha };
+  return { path: `${PRIVATE_DIR}/${slug}.md`, slug, headSha: r.headSha, commitSha: r.commitSha };
+}
+
+// 私密文章发布回线上（unpublishPost 的逆操作）：date 原样保留时
+// permalink 与转私密前一致；已发布位有同名文章时拒绝（POST_EXISTS）。
+async function publishPrivatePost(input) {
+  const slug = assertSlug(input.slug);
+  const privatePath = `${PRIVATE_DIR}/${slug}.md`;
+  const cur = await store.getFile(privatePath).catch(() => {
+    throw new HttpError(404, 'PRIVATE_NOT_FOUND');
+  });
+  const postPath = `${POSTS_DIR}/${slug}.md`;
+  const existing = await store.getFile(postPath).catch(() => null);
+  if (existing) throw new HttpError(409, 'POST_EXISTS', { path: postPath });
+  const parsed = posts.parseFrontMatter(cur.content);
+  const date = parsed.fm.date || nowCst();
+  const postText = buildPostText(parsed.fm.title || 'Untitled', parsed.fm.tags, parsed.fm.categories, parsed.body, date, parsed.fm);
+  const r = await store.commitFiles(
+    [
+      { path: postPath, contentUtf8: postText },
+      { path: privatePath, delete: true },
+    ],
+    `后台：发布私密文章 ${slug}`,
+    input.expectedHeadSha
+  );
+  return { path: postPath, slug, permalink: permalinkFor(slug, date), date, headSha: r.headSha, commitSha: r.commitSha };
 }
 
 // 编辑已发布文章：文件名与 date 锁定，标题可改但文件名不变
+// 2026-10-22 起同时接受私密区路径：私密文章的「保存修改」走同一条链路，锁定语义一致。
 async function updatePost(input) {
   const path = String(input.path || '');
-  if (!path.startsWith(`${POSTS_DIR}/`) || !path.endsWith('.md')) throw new HttpError(400, 'BAD_PATH');
+  const inPosts = path.startsWith(`${POSTS_DIR}/`) && path.endsWith('.md');
+  const inPrivate = path.startsWith(`${PRIVATE_DIR}/`) && path.endsWith('.md');
+  if (!inPosts && !inPrivate) throw new HttpError(400, 'BAD_PATH');
   const cur = await store.getFile(path).catch(() => {
     throw new HttpError(404, 'POST_NOT_FOUND');
   });
@@ -183,5 +214,6 @@ module.exports = {
   publishDraft,
   publishNew,
   unpublishPost,
+  publishPrivatePost,
   updatePost,
 };

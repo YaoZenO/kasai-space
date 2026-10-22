@@ -3,7 +3,7 @@
  */
 'use strict';
 
-import { S, $, el, hooks, reloadList, pageHead, subHead, emptyState, api, toast, confirmDialog, handleOpError } from './admin-core.js?v=20261023';
+import { S, $, el, hooks, reloadList, pageHead, subHead, emptyState, api, toast, confirmDialog, handleOpError } from './admin-core.js?v=20261024';
 
 export function renderList() {
   const box = $('view-list');
@@ -55,6 +55,30 @@ function renderPostsList(box, d) {
     box.appendChild(dl);
   }
 
+  // 私密文章（2026-10-22 与草稿分离）：写完了、只是不给别人看。
+  // 与草稿并列成独立分区，卡片上直接「发布」回线上，不必开编辑器。
+  const priv = d.private || [];
+  if (priv.length) {
+    subHead(box, '私密', `${priv.length} 篇`);
+    const plist = el('div', 'card-list');
+    priv.forEach((p) => {
+      const c = el('div', 'card');
+      const body = el('div', 'card-body');
+      body.appendChild(el('div', 'card-title', p.title || p.name));
+      body.appendChild(el('div', 'card-sub', p.path));
+      c.appendChild(body);
+      const acts = el('div', 'card-actions');
+      const edit = el('button', 'btn btn-mini', '编辑');
+      edit.onclick = () => hooks.openPostEditor(p.path);
+      acts.appendChild(edit);
+      acts.appendChild(privatePublishButton(p));
+      acts.appendChild(postDeleteButton(p.path, p.title || p.name, '私密文章'));
+      c.appendChild(acts);
+      plist.appendChild(c);
+    });
+    box.appendChild(plist);
+  }
+
   subHead(box, '已发布', `${d.posts.length} 篇`);
   if (!d.posts.length) {
     box.appendChild(emptyState('暂无已发布文章'));
@@ -71,6 +95,7 @@ function renderPostsList(box, d) {
     const edit = el('button', 'btn btn-mini', '编辑');
     edit.onclick = () => hooks.openPostEditor(p.path);
     acts.appendChild(edit);
+    acts.appendChild(postUnpublishButton(p));
     acts.appendChild(postDeleteButton(p.path, p.name, '文章'));
     c.appendChild(acts); // 缺这一行会让「编辑」「删除」两个按钮都不进 DOM（E-027）
     list.appendChild(c);
@@ -98,6 +123,50 @@ function postDeleteButton(path, title, kind) {
     }
   };
   return del;
+}
+
+// 文章转私密（卡片级按钮，2026-10-22 主人要求外置：不必开编辑器就能操作）。
+// 与删除同形制但用强调色：不删内容，只改变「谁能看到」。
+function postUnpublishButton(p) {
+  const btn = el('button', 'btn btn-warn-quiet', '转私密');
+  btn.onclick = async () => {
+    const ok = await confirmDialog('转为私密', `「${p.name}」将从线上消失：访客打不开、搜索引擎与站内搜索都找不到、首页不再显示。正文原样移入私密区保留，随时可以点「发布」放回去，日期和网址不变。注意：正文里已上传的图片，其网址仍可匿名访问。`, '转私密');
+    if (!ok) return;
+    btn.disabled = true;
+    try {
+      const r = await api('/api/content-save', { method: 'POST', body: { kind: 'post', action: 'unpublish', path: p.path, expectedHeadSha: S.lastListSha } });
+      S.lastListSha = r.headSha || S.lastListSha;
+      hooks.setDeployCommitted(r.commitSha);
+      toast('已转为私密，部署完成后线上不可见');
+      await reloadList();
+    } catch (e) {
+      btn.disabled = false;
+      handleOpError(e);
+    }
+  };
+  return btn;
+}
+
+// 私密文章发布回线上（卡片级按钮，unpublish 的逆操作）：date 原样保留，permalink 不变
+function privatePublishButton(p) {
+  const btn = el('button', 'btn btn-warn-quiet', '发布');
+  btn.onclick = async () => {
+    const ok = await confirmDialog('发布到线上', `将「${p.name}」从私密区发布到线上，日期和网址按原文保留。发布后访客立即可见。`, '发布');
+    if (!ok) return;
+    btn.disabled = true;
+    try {
+      const slug = p.name.replace(/\.md$/, '');
+      const r = await api('/api/content-save', { method: 'POST', body: { kind: 'post', action: 'publish-private', slug, expectedHeadSha: S.lastListSha } });
+      S.lastListSha = r.headSha || S.lastListSha;
+      hooks.setDeployCommitted(r.commitSha);
+      toast(`已发布 ${r.permalink}`);
+      await reloadList();
+    } catch (e) {
+      btn.disabled = false;
+      handleOpError(e);
+    }
+  };
+  return btn;
 }
 
 function renderDataList(box, module, items) {

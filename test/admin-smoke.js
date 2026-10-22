@@ -167,45 +167,60 @@ const PNG_1X1 = Buffer.from(
     assert.ok(/^\/\d{4}\/\d{2}\/\d{2}\/smoke-draft\/$/.test(r.permalink));
   });
 
-  // --- P2-12：转为私密（unpublish）往返，2026-10-22 主人要求「只想自己看、不删除」 ---
-  // 语义：已发布文章整文原样移入草稿箱（source/ 之外，Hexo 任何模式不渲染），
-  // 线上立即不可见；发布回来时 date 与 permalink 逐字不变。
+  // --- P2-12：私密文章（unpublish / publish-private）往返，2026-10-22 ---
+  // 语义：已发布文章整文原样移入私密区（_private/，source/ 之外，Hexo 任何模式
+  // 不渲染），与草稿是两回事（草稿=没写完，私密=写完了只是不给别人看）；
+  // 发布回来时 date 与 permalink 逐字不变。
   const pubR = await content.publishNew({ slug: 'private-probe', title: '私密探测', tags: 'x', categories: '', body: '正文甲', expectedHeadSha: await store.getHead() });
   const upR = await content.unpublishPost({ path: 'source/_posts/private-probe.md', expectedHeadSha: pubR.headSha });
   l = await content.listAll();
-  ok('unpublishPost: 文章移入草稿箱，已发布列表即不可见', () => {
-    assert.strictEqual(l.drafts.length, 1);
-    assert.strictEqual(l.drafts[0].title, '私密探测');
-    assert.ok(l.posts.every((p) => p.name !== 'private-probe'), '已发布列表仍包含该文');
+  ok('unpublishPost: 文章移入私密区（不是草稿区），已发布列表即不可见', () => {
+    assert.strictEqual(l.private.length, 1);
+    assert.strictEqual(l.private[0].title, '私密探测');
+    assert.strictEqual(l.drafts.length, 0, '私密文章不得混进草稿区');
+    // 列表 name 带 .md 后缀（与卡片显示一致），断言必须带后缀才是实质断言
+    assert.ok(l.posts.every((p) => p.name !== 'private-probe.md'), '已发布列表仍包含该文');
   });
-  const probeDraft = await store.getFile('_drafts/private-probe.md');
+  const probePrivate = await store.getFile('_private/private-probe.md');
   ok('unpublishPost: 正文与 front matter 原样搬运（不重写、不丢字段）', () => {
-    assert.ok(probeDraft.content.includes('正文甲'));
-    assert.ok(probeDraft.content.includes('title: 私密探测'));
-    assert.ok(probeDraft.content.includes(pubR.date.slice(0, 10)), 'date 必须原样保留');
+    assert.ok(probePrivate.content.includes('正文甲'));
+    assert.ok(probePrivate.content.includes('title: 私密探测'));
+    assert.ok(probePrivate.content.includes(pubR.date.slice(0, 10)), 'date 必须原样保留');
   });
-  const backR = await content.publishDraft({ slug: 'private-probe', expectedHeadSha: upR.headSha });
-  ok('unpublish→publishDraft 往返：permalink 与原发布逐字一致', () => {
+  // 私密文章的保存修改：走 update 写回私密区，文件名与 date 锁定
+  await content.updatePost({ path: '_private/private-probe.md', title: '私密探测改', expectedHeadSha: upR.headSha });
+  const probeEdited = await store.getFile('_private/private-probe.md');
+  ok('updatePost: 私密区路径可保存修改（仍留私密区、正文不丢）', () => {
+    assert.ok(probeEdited.content.includes('title: 私密探测改'));
+    assert.ok(probeEdited.content.includes('正文甲'));
+  });
+  const backR = await content.publishPrivatePost({ slug: 'private-probe', expectedHeadSha: await store.getHead() });
+  l = await content.listAll();
+  ok('publishPrivatePost: 发布回线上，permalink 与原发布逐字一致', () => {
     assert.strictEqual(backR.permalink, pubR.permalink);
+    assert.strictEqual(l.private.length, 0, '私密区应已清空');
+    assert.ok(l.posts.some((p) => p.name === 'private-probe.md'), '已发布列表应恢复该文');
   });
-
-  // 草稿箱已有同名文章时拒绝，不静默覆盖（那篇可能是另一内容）
-  await content.saveDraft({ slug: 'private-probe', title: '占位稿', expectedHeadSha: backR.headSha });
+  // 私密区已有同名文章时拒绝（播种一篇占位私密稿），不静默覆盖
+  await store.commitFiles([{ path: '_private/private-probe.md', contentUtf8: '---\ntitle: 占位私密稿\n---\n占位' }], 'test: seed private', null);
   let clashErr = '';
   try {
     await content.unpublishPost({ path: 'source/_posts/private-probe.md', expectedHeadSha: await store.getHead() });
   } catch (e) { clashErr = e.message; }
-  ok('unpublishPost: 草稿箱有同名文章 → 409 DRAFT_EXISTS', () => {
-    assert.strictEqual(clashErr, 'DRAFT_EXISTS');
+  ok('unpublishPost: 私密区有同名文章 → 409 PRIVATE_EXISTS', () => {
+    assert.strictEqual(clashErr, 'PRIVATE_EXISTS');
   });
   let nfErr = '';
   try { await content.unpublishPost({ path: 'source/_posts/no-such-post.md', expectedHeadSha: await store.getHead() }); } catch (e) { nfErr = e.message; }
   ok('unpublishPost: 文章不存在 → 404 POST_NOT_FOUND', () => assert.strictEqual(nfErr, 'POST_NOT_FOUND'));
   let bpErr = '';
-  try { await content.unpublishPost({ path: '_drafts/private-probe.md', expectedHeadSha: await store.getHead() }); } catch (e) { bpErr = e.message; }
-  ok('unpublishPost: 草稿路径 → 400 BAD_PATH（只能转已发布文章）', () => assert.strictEqual(bpErr, 'BAD_PATH'));
-  // 收尾：探测稿发布回正式位（date 不变），fixture 不留孤儿草稿、不污染回收站计数
-  await content.publishDraft({ slug: 'private-probe', expectedHeadSha: await store.getHead() });
+  try { await content.unpublishPost({ path: '_private/private-probe.md', expectedHeadSha: await store.getHead() }); } catch (e) { bpErr = e.message; }
+  ok('unpublishPost: 私密区路径 → 400 BAD_PATH（只能转已发布文章）', () => assert.strictEqual(bpErr, 'BAD_PATH'));
+  let pnfErr = '';
+  try { await content.publishPrivatePost({ slug: 'no-such-private', expectedHeadSha: await store.getHead() }); } catch (e) { pnfErr = e.message; }
+  ok('publishPrivatePost: 私密文章不存在 → 404 PRIVATE_NOT_FOUND', () => assert.strictEqual(pnfErr, 'PRIVATE_NOT_FOUND'));
+  // 收尾：清掉占位私密稿，探测稿留在已发布位（date 不变），fixture 不留孤儿
+  await store.commitFiles([{ path: '_private/private-probe.md', delete: true }], 'test: cleanup private', null);
 
   // --- P1-7：summary 模式（跳过草稿逐篇读取） ---
   const headForProbe = await store.getHead();
@@ -971,14 +986,37 @@ const PNG_1X1 = Buffer.from(
 
   // P2-12（2026-10-22）：「转为私密」按钮与处理逻辑。公开状态的改变必须二次确认，
   // 且只对已发布文章可用——结构断言钉死，退化即红。
-  ok('转为私密：按钮、确认弹窗、仅已发布可用三要素齐全', () => {
+  // P2-12 第二轮（2026-10-22 主人两点反馈）：① 私密不该混进草稿——独立 _private/
+  // 分区；② 转私密/重新发布外置到列表卡片，不必开编辑器。结构断言按新设计重写。
+  ok('P2-12: 转私密与发布按钮外置到列表卡片，编辑器不再承载', () => {
     const html = fs.readFileSync(path.join(__dirname, '..', 'source/admin/index.html'), 'utf8');
-    assert.ok(html.includes('id="btn-unpublish"'), 'index.html 缺「转为私密」按钮');
+    assert.ok(!html.includes('id="btn-unpublish"'), 'index.html 仍有编辑器内「转为私密」按钮——已按主人要求外置');
+    const list = fs.readFileSync(path.join(__dirname, '..', 'source/admin/admin-list.js'), 'utf8');
+    assert.ok(/action: 'unpublish'/.test(list), 'admin-list.js 的卡片没有调用 unpublish 动作');
+    assert.ok(/action: 'publish-private'/.test(list), 'admin-list.js 的卡片没有调用 publish-private 动作');
+    assert.ok(/subHead\(box, '私密'/.test(list), '文章列表缺「私密」分区——私密与草稿必须并列分离');
+    assert.ok(/btn-warn-quiet/.test(list), '卡片缺公开状态变更按钮的样式类');
+    // 两个动作都改公开状态，必须二次确认
+    assert.ok(/confirmDialog\('转为私密'/.test(list), '卡片转私密缺确认弹窗');
+    assert.ok(/confirmDialog\('发布到线上'/.test(list), '卡片发布缺确认弹窗');
+    const post = fs.readFileSync(path.join(__dirname, '..', 'source/admin/admin-post.js'), 'utf8');
+    assert.ok(!/action: 'unpublish'/.test(post), 'admin-post.js 仍承载 unpublish——外置后编辑器不应再有此动作');
+  });
+
+  ok('P2-12: 私密文章在编辑器内可改可发（mode private）', () => {
     const src = fs.readFileSync(path.join(__dirname, '..', 'source/admin/admin-post.js'), 'utf8');
-    assert.ok(/action: 'unpublish'/.test(src), 'admin-post.js 没有调用 unpublish 动作');
-    assert.ok(/confirmDialog\(\s*\n?\s*'转为私密'/.test(src), '转为私密缺确认弹窗——公开状态改变必须二次确认');
-    assert.ok(/ed\.mode !== 'published'/.test(src), '转为私密没有限制仅已发布文章可用');
-    assert.ok(/btn-unpublish'\)\.hidden = false/.test(src), '已发布文章视图没有显示「转为私密」按钮');
+    assert.ok(/f\.isPrivate \? 'private'/.test(src), 'openPostEditor 不识别私密文章');
+    assert.ok(/ed\.mode === 'published' \|\| ed\.mode === 'private'/.test(src), '保存分支没有覆盖私密文章（保存修改写回私密区）');
+    assert.ok(/action: 'publish-private', slug: ed\.slug/.test(src), '编辑器缺 publish-private 发布分支');
+  });
+
+  ok('P2-12: publish-private 路由与校验白名单齐全', () => {
+    const route = fs.readFileSync(path.join(__dirname, '..', 'api/content-save.js'), 'utf8');
+    assert.ok(/publish-private'\) return committed/.test(route), 'content-save.js 未路由 publish-private');
+    const validateSrc = fs.readFileSync(path.join(__dirname, '..', 'api/_lib/validate.js'), 'utf8');
+    assert.ok(/POST_ACTIONS = \[[^\]]*'publish-private'/.test(validateSrc), 'validate.js 白名单缺 publish-private');
+    const contentSrc = fs.readFileSync(path.join(__dirname, '..', 'api/_lib/content.js'), 'utf8');
+    assert.ok(/private: privateFull/.test(contentSrc), 'listAll 未返回 private 分区');
   });
 
   console.log(`\nRESULT: ${passed} 项断言通过${process.exitCode ? '，存在失败' : ''}`);

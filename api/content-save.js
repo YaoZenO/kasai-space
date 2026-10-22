@@ -1,6 +1,6 @@
 'use strict';
 // POST /api/content-save —— 统一保存入口
-// {kind:'post', action:'save-draft'|'publish-draft'|'publish-new'|'update'|'unpublish', ...}
+// {kind:'post', action:'save-draft'|'publish-draft'|'publish-new'|'update'|'unpublish'|'publish-private', ...}
 // {kind:'data', module, index, item, expectedHeadSha}
 // {kind:'site', intro, motto, avatar, identity_words, expectedHeadSha}
 // 返回统一带 commitSha（内容已提交）与 headSha，发布状态由 /api/deploy-status 单独判定。
@@ -22,6 +22,7 @@ module.exports = route(async ({ body }) => {
     if (body.action === 'publish-new') return committed(await content.publishNew(body));
     if (body.action === 'update') return committed(await content.updatePost(body));
     if (body.action === 'unpublish') return committed(await content.unpublishPost(body));
+    if (body.action === 'publish-private') return committed(await content.publishPrivatePost(body));
     throw new HttpError(400, 'BAD_ACTION', { hint: '不支持的操作类型' });
   }
   if (kind === 'data') return committed(await content.saveData(body));

@@ -16,9 +16,9 @@
  */
 'use strict';
 
-import { S, hooks, $, api, showLogin, showApp, switchTab, reloadList } from './admin-core.js?v=20261023';
-import { renderList } from './admin-list.js?v=20261023';
-import { init as initQuick } from './admin-quick.js?v=20261023';
+import { S, hooks, $, api, showLogin, showApp, switchTab, reloadList } from './admin-core.js?v=20261024';
+import { renderList } from './admin-list.js?v=20261024';
+import { init as initQuick } from './admin-quick.js?v=20261024';
 
 // ---------- 启动 ----------
 (async function boot() {
@@ -34,11 +34,11 @@ import { init as initQuick } from './admin-quick.js?v=20261023';
     // 登录成功才加载编辑器等重模块——登录页不下载这部分代码。
     // ?v= 与 index.html 的 ASSET_V 保持一致（bump 时两处同步，admin-smoke 有断言锁）。
     const [post, item, site, media, deploy] = await Promise.all([
-      import('./admin-post.js?v=20261023'),
-      import('./admin-item.js?v=20261023'),
-      import('./admin-site.js?v=20261023'),
-      import('./admin-media.js?v=20261023'),
-      import('./admin-deploy.js?v=20261023'),
+      import('./admin-post.js?v=20261024'),
+      import('./admin-item.js?v=20261024'),
+      import('./admin-site.js?v=20261024'),
+      import('./admin-media.js?v=20261024'),
+      import('./admin-deploy.js?v=20261024'),
     ]);
     post.init();
     item.init();

@@ -163,11 +163,12 @@ export async function reloadList(opts) {
   if (hooks.renderList) hooks.renderList();
 }
 
-// summary 模式下草稿只有文件名；进入文章 tab 时若发现缺标题，再全量拉一次补齐。
+// summary 模式下草稿与私密文章只有文件名；进入文章 tab 时若发现缺标题，再全量拉一次补齐。
 export async function ensureDraftTitles() {
   const drafts = (S.data && S.data.drafts) || [];
-  if (!drafts.length) return;
-  if (drafts.every((d) => d.title)) return;
+  const priv = (S.data && S.data.private) || [];
+  if (!drafts.length && !priv.length) return;
+  if (drafts.every((d) => d.title) && priv.every((p) => p.title)) return;
   await reloadList();
 }
 

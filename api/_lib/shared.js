@@ -7,6 +7,10 @@ const { HttpError } = require('./http');
 
 const POSTS_DIR = 'source/_posts';
 const DRAFTS_DIR = '_drafts';
+// 私密文章：写完了、只是不给别人看。与 _drafts（没写完的草稿）是两件事，
+// 分目录存放（2026-10-22 主人指出「私密怎么能放到草稿呢」后分离）。
+// 与 _drafts / _trash 同约定：都在 source/ 之外，Hexo 任何模式不渲染。
+const PRIVATE_DIR = '_private';
 const TRASH_DIR = '_trash';
 const IMG_DIR = 'source/img';
 const DATA_DIR = 'source/_data';
@@ -60,6 +64,7 @@ function normTags(v) {
 module.exports = {
   POSTS_DIR,
   DRAFTS_DIR,
+  PRIVATE_DIR,
   TRASH_DIR,
   IMG_DIR,
   DATA_DIR,

@@ -5,8 +5,8 @@
  */
 'use strict';
 
-import { S, $, api, toast, confirmDialog, handleOpError, hooks, guard, reloadList, switchTab, markDirty, clearDirty } from './admin-core.js?v=20261023';
-import { mountComposer, bindPaste } from './admin-composer.js?v=20261023';
+import { S, $, api, toast, confirmDialog, handleOpError, hooks, guard, reloadList, switchTab, markDirty, clearDirty } from './admin-core.js?v=20261024';
+import { mountComposer, bindPaste } from './admin-composer.js?v=20261024';
 
 let composer = null;
 
@@ -16,7 +16,7 @@ function slugifyClient(title) {
 }
 
 function setEditorBusy(busy) {
-  ['post-title', 'post-slug', 'post-tags', 'post-categories', 'post-cover', 'post-featured', 'btn-save-draft', 'btn-publish', 'btn-unpublish', 'btn-delete-post', 'btn-toggle-preview'].forEach((id) => {
+  ['post-title', 'post-slug', 'post-tags', 'post-categories', 'post-cover', 'post-featured', 'btn-save-draft', 'btn-publish', 'btn-delete-post', 'btn-toggle-preview'].forEach((id) => {
     const n = $(id);
     if (n) n.disabled = busy;
   });
@@ -42,7 +42,7 @@ async function openPostEditor(path) {
       name = '';
     } else {
       const f = await api('/api/content-get?path=' + encodeURIComponent(path));
-      mode = f.isDraft ? 'draft' : 'published';
+      mode = f.isDraft ? 'draft' : (f.isPrivate ? 'private' : 'published');
       frontmatter = f.frontmatter;
       body = f.body;
       sha = f.sha;
@@ -51,7 +51,7 @@ async function openPostEditor(path) {
     S.editor = { mode, path: path || null, sha: sha || null, slug: name, dirty: false };
     $('post-title').value = frontmatter.title || '';
     $('post-slug').value = name;
-    $('post-slug').disabled = mode === 'published';
+    $('post-slug').disabled = mode === 'published' || mode === 'private';
     $('post-tags').value = (frontmatter.tags || []).join(',');
     $('post-categories').value = (frontmatter.categories || []).join(',');
     $('post-cover').value = frontmatter.cover || '';
@@ -63,6 +63,8 @@ async function openPostEditor(path) {
       pl.textContent = `永久链接锁定：/${(frontmatter.date || '').slice(0, 10).replace(/-/g, '/')}/${name}/`;
     } else if (mode === 'draft') {
       pl.textContent = '草稿（不会被构建发布）';
+    } else if (mode === 'private') {
+      pl.textContent = '私密（不在构建中，仅后台可见；发布后链接锁定）';
     } else {
       pl.textContent = '新文章';
     }
@@ -70,19 +72,23 @@ async function openPostEditor(path) {
       $('btn-save-draft').textContent = '保存草稿';
       $('btn-publish').textContent = '直接发布';
       $('btn-save-draft').hidden = false;
-      $('btn-unpublish').hidden = true;
       $('btn-delete-post').hidden = true;
     } else if (mode === 'draft') {
       $('btn-save-draft').textContent = '保存草稿';
       $('btn-publish').textContent = '发布草稿';
       $('btn-save-draft').hidden = false;
-      $('btn-unpublish').hidden = true;
       $('btn-delete-post').hidden = false;
       $('btn-delete-post').textContent = '删除草稿';
+    } else if (mode === 'private') {
+      // 私密文章：保存修改写回私密区（文件名与 date 锁定），发布走 publish-private
+      $('btn-save-draft').textContent = '保存修改';
+      $('btn-save-draft').hidden = false;
+      $('btn-publish').textContent = '发布到线上';
+      $('btn-delete-post').hidden = false;
+      $('btn-delete-post').textContent = '删除';
     } else {
       $('btn-save-draft').hidden = true;
       $('btn-publish').textContent = '保存修改';
-      $('btn-unpublish').hidden = false;
       $('btn-delete-post').hidden = false;
       $('btn-delete-post').textContent = '删除文章';
     }
@@ -130,7 +136,8 @@ export async function saveCurrentEditing(opts) {
     $('post-slug').value = e.slug;
   }
   const ed = S.editor;
-  if (ed.mode === 'published') {
+  if (ed.mode === 'published' || ed.mode === 'private') {
+    // 已发布与私密文章都走 update：文件名与 date 锁定，正文/标题/元信息可改
     const r = await api('/api/content-save', {
       method: 'POST',
       body: {
@@ -143,7 +150,7 @@ export async function saveCurrentEditing(opts) {
     ed.sha = r.sha;
     S.lastListSha = r.headSha;
     hooks.setDeployCommitted(r.commitSha);
-    toast('修改已保存并提交');
+    toast(ed.mode === 'private' ? '修改已保存（仍在私密区）' : '修改已保存并提交');
   } else {
     const r = await api('/api/content-save', {
       method: 'POST',
@@ -175,6 +182,19 @@ export async function publishCurrentEditing() {
   if (ed.mode === 'published') {
     return saveCurrentEditing();
   }
+  if (ed.mode === 'private') {
+    // 私密文章发布回线上：date 原样保留，permalink 与转私密前一致
+    const okP = await confirmDialog('发布到线上', `将「${e.title}」从私密区发布到线上，日期和网址按原文保留。发布后访客立即可见。`, '发布');
+    if (!okP) return;
+    const r = await api('/api/content-save', { method: 'POST', body: { kind: 'post', action: 'publish-private', slug: ed.slug, expectedHeadSha: S.lastListSha } });
+    S.lastListSha = r.headSha;
+    hooks.setDeployCommitted(r.commitSha);
+    toast(`已发布 ${r.permalink}`);
+    await reloadList();
+    clearDirty();
+    switchTab('posts');
+    return;
+  }
   let slug = e.slug || slugifyClient(e.title) || 'post-' + Date.now();
   const dateGuess = new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10).replace(/-/g, '/');
   const ok = await confirmDialog('发布确认', `将发布为 /${dateGuess}/${slug}/（以实际发布日期为准）。发布后永久链接固定，标题可改但链接不变。`, '发布');
@@ -198,39 +218,6 @@ export async function publishCurrentEditing() {
   await reloadList();
   clearDirty();
   switchTab('posts');
-}
-
-// 转为私密（2026-10-22，P2-12）：已发布文章整文移入草稿箱，线上立即不可见；
-// 内容不删除，后台草稿区随时可打开发回，日期与 permalink 锁定保留。
-// 与删除的区别说清：删除进回收站（可恢复但不在前台管线里），私密进草稿箱
-// （仍是正式内容，只差一个「发布」动作）。
-async function unpublishCurrentPost() {
-  const ed = S.editor;
-  if (!ed || ed.mode !== 'published' || !ed.path) return;
-  const title = $('post-title').value.trim() || ed.path.split('/').pop();
-  const ok = await confirmDialog(
-    '转为私密',
-    `「${title}」将从线上消失：访客打不开、搜索引擎与站内搜索都找不到、首页不再显示。正文原样移入草稿箱保留，你随时可以点「发布」放回去，日期和网址不变。注意：正文里已上传的图片，其网址仍可匿名访问。`,
-    '转为私密',
-  );
-  if (!ok) return;
-  const btn = $('btn-unpublish');
-  btn.disabled = true;
-  try {
-    const r = await api('/api/content-save', {
-      method: 'POST',
-      body: { kind: 'post', action: 'unpublish', path: ed.path, sha: ed.sha, expectedHeadSha: S.lastListSha },
-    });
-    S.lastListSha = r.headSha;
-    hooks.setDeployCommitted(r.commitSha);
-    toast(`「${title}」已转为私密，部署完成后线上不可见`);
-    clearDirty();
-    await reloadList();
-    switchTab('posts');
-  } catch (e) {
-    btn.disabled = false;
-    handleOpError(e);
-  }
 }
 
 // 删除当前文章 / 草稿 → 移入回收站（可恢复）
@@ -307,7 +294,6 @@ export function init() {
     await reloadList();
   });
   $('btn-publish').onclick = guard(publishCurrentEditing);
-  $('btn-unpublish').onclick = guard(unpublishCurrentPost);
   $('btn-delete-post').onclick = guard(deleteCurrentPost);
 
   // 预览

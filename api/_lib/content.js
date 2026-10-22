@@ -3,7 +3,9 @@
 // 子域实现见 ./domains/{posts,data,site,images,trash}.js；共享常量与工具见 ./shared.js。
 // 不变量：
 //  - 已发布文章的文件名与 date 字段永不因编辑而改变（永久链接稳定）
-//  - 草稿位于仓库根 _drafts/（source/ 之外），回收站位于 _trash/（source/ 之外），均不进入 Hexo 构建
+//  - 草稿位于仓库根 _drafts/（source/ 之外），私密文章位于 _private/（source/ 之外），
+//    回收站位于 _trash/（source/ 之外），均不进入 Hexo 构建
+//  - 私密与草稿是两回事：草稿是「没写完」，私密是「写完了只是不给别人看」（2026-10-22 分离）
 //  - 所有变更都是单次原子提交；manifest 与内容同 commit 更新
 
 const store = require('./store');
@@ -17,7 +19,7 @@ const imageDomain = require('./domains/images');
 const trashDomain = require('./domains/trash');
 const shared = require('./shared');
 
-const { POSTS_DIR, DRAFTS_DIR, IMG_DIR, DATA_DIR, SITE_PATH, MANIFEST_PATH } = shared;
+const { POSTS_DIR, DRAFTS_DIR, PRIVATE_DIR, IMG_DIR, DATA_DIR, SITE_PATH, MANIFEST_PATH } = shared;
 
 async function listAll(opts) {
   // opts.summary=1 时跳过草稿逐篇读取（列表只给文件名，标题在打开编辑器时按需取）
@@ -34,14 +36,16 @@ async function listAll(opts) {
   const paths = tree.filter((e) => e.type === 'blob').map((e) => e.path);
   const posts_ = [];
   const drafts = [];
+  const private_ = [];
   const images = [];
   for (const p of paths) {
     if (p.startsWith(`${POSTS_DIR}/`) && p.endsWith('.md')) posts_.push({ path: p, name: p.slice(POSTS_DIR.length + 1) });
     else if (p.startsWith(`${DRAFTS_DIR}/`) && p.endsWith('.md')) drafts.push({ path: p, name: p.slice(DRAFTS_DIR.length + 1) });
+    else if (p.startsWith(`${PRIVATE_DIR}/`) && p.endsWith('.md')) private_.push({ path: p, name: p.slice(PRIVATE_DIR.length + 1) });
     else if (p.startsWith(`${IMG_DIR}/`) && /\.(jpe?g|png|webp|gif)$/i.test(p)) images.push(p);
   }
 
-  const [dataFiles, siteFile, trashFile, draftsFull] = await Promise.all([
+  const [dataFiles, siteFile, trashFile, draftsFull, privateFull] = await Promise.all([
     Promise.all(modKeys.map((m) => {
       const p = `${DATA_DIR}/${m}.yml`;
       return paths.includes(p) ? store.getFile(p) : null;
@@ -52,6 +56,13 @@ async function listAll(opts) {
     summary
       ? drafts
       : Promise.all(drafts.map(async (d) => {
+        const f = await store.getFile(d.path);
+        return Object.assign({}, d, { title: posts.extractTitle(f.content, d.name), sha: f.sha });
+      })),
+    // 私密文章与草稿同构：summary 模式只给文件名，标题在打开编辑器时按需取
+    summary
+      ? private_
+      : Promise.all(private_.map(async (d) => {
         const f = await store.getFile(d.path);
         return Object.assign({}, d, { title: posts.extractTitle(f.content, d.name), sha: f.sha });
       })),
@@ -73,7 +84,7 @@ async function listAll(opts) {
       trash = [];
     }
   }
-  return { posts: posts_, drafts: draftsFull, data, site, images: images.sort(), trash, headSha, mockMode: store.mockMode };
+  return { posts: posts_, drafts: draftsFull, private: privateFull, data, site, images: images.sort(), trash, headSha, mockMode: store.mockMode };
 }
 
 // 对外契约保持不变：调用方无需感知内部已拆分。
@@ -96,6 +107,7 @@ module.exports = {
   publishNew: postDomain.publishNew,
   updatePost: postDomain.updatePost,
   unpublishPost: postDomain.unpublishPost,
+  publishPrivatePost: postDomain.publishPrivatePost,
   saveData: dataDomain.saveData,
   saveSite: siteDomain.saveSite,
   deleteItem: trashDomain.deleteItem,

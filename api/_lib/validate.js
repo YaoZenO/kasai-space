@@ -75,7 +75,7 @@ function validateItem(module, raw) {
 
 // ---------- 文章（post）校验 ----------
 // 白名单必须与 source/admin/admin.js 实际发送的字段一致，漏一个就会让保存功能 400。
-const POST_ACTIONS = ['save-draft', 'publish-draft', 'publish-new', 'update', 'unpublish'];
+const POST_ACTIONS = ['save-draft', 'publish-draft', 'publish-new', 'update', 'unpublish', 'publish-private'];
 const POST_FIELDS = [
   'kind', 'action', 'slug', 'prevSlug', 'path',
   'title', 'tags', 'categories', 'body', 'cover', 'featured',

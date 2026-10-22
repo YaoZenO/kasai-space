@@ -301,6 +301,16 @@ button { font: inherit; }
 .btn-danger-quiet:hover { border-color: var(--err); background: color-mix(in srgb, var(--err) 8%, var(--card)); }
 .btn-danger-quiet:disabled { opacity: .5; cursor: default; }
 
+/* 公开状态变更（转私密 / 发布回线上）的显式按钮：与 danger-quiet 同形制，
+   用强调色标注「这条会改变谁能看到」，与「编辑」区分开防误点（2026-10-22） */
+.btn-warn-quiet {
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line));
+  background: var(--card); color: var(--accent);
+  border-radius: 8px; padding: .3rem .6rem; font-size: .78rem; cursor: pointer;
+}
+.btn-warn-quiet:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--card)); }
+.btn-warn-quiet:disabled { opacity: .5; cursor: default; }
+
 /* ---------- 弹窗 ---------- */
 .modal { position: fixed; inset: 0; z-index: 50; background: rgba(28,26,23,.45); display: flex; align-items: flex-end; justify-content: center; }
 .modal-box { background: var(--card); width: 100%; max-width: 30rem; border-radius: 16px 16px 0 0; padding: 1rem 1.1rem calc(1rem + env(safe-area-inset-bottom)); max-height: 80vh; overflow: auto; }
