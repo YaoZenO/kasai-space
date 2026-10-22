@@ -437,6 +437,20 @@ ok('年份导航允许收缩换行，不会把页面撑出横向滚动条（E-04
     '窄屏断点里没有把 .cal-head-row 改成单列');
 });
 
+// §4.12 是节假日页的全部样式，集中在一段里。历史上它被「整份 site.css 覆盖写」的提交
+// 整块带回旧版本过（E-052：cal-head-row / cal-years / cal-panel 全部消失，页面照常能开，
+// 只是样式全塌）。这条按选择器清单做段完整性检查——少任何一个都 FAIL。
+ok('§4.12 节假日样式段完整（E-052：整份覆盖站点样式时最容易丢的就是这一段）', () => {
+  const css = fs.readFileSync(path.join(ROOT, 'source/css/site.css'), 'utf8');
+  const must = [
+    '.cal-page {', '.cal-head-row', '.cal-years', '.cal-year-current',
+    '.cal-table', '.cal-makeup', '.cal-fest-col', '.cal-fest-head', '.cal-terms',
+    '.cal-prose', '.cal-faq', '.cal-panel {', '.cal-panel-credit', '.cal-after',
+  ];
+  const missing = must.filter((s) => css.indexOf(s) === -1);
+  assert.deepStrictEqual(missing, [], 'site.css 丢了这些节假日样式：' + missing.join('、'));
+});
+
 ok('字体产物已随构建落到 public/fonts/（public/ 存在时）', () => {
   if (!fs.existsSync(PUBLIC)) return;
   ['fraunces-600-latin.woff2', 'nunito-sans-var-latin.woff2'].forEach((f) => {
