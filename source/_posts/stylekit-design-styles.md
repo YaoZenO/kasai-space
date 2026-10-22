@@ -10,7 +10,7 @@ index_img: https://www.stylekit.top/brand/v3/social-preview.png
 > 来源：[StyleKit 设计风格库](https://www.stylekit.top/zh/styles)（开源项目）
 > 说明：全库149种风格，每张卡片的预览图是该风格在原站实时演示页的真实截图（2026-10-22截取），色带取自截图本身的实际配色；一句话特征为个人转述，色板、组件模板与AI实现规则以原站详情页为准。
 
-<img class="sk-hero" alt="StyleKit风格演示拼图：新野兽派、玻璃拟态、赛博霓虹、编辑杂志、像素艺术、合成波" data-b64="/img/stylekit/_banner.txt">
+<img class="sk-hero" alt="StyleKit风格演示拼图：新野兽派、玻璃拟态、赛博霓虹、编辑杂志、像素艺术、合成波" data-b64="/img/stylekit/banner.txt">
 <p class="sk-cap">头图拼图：新野兽派 / 玻璃拟态 / 赛博霓虹 / 编辑杂志风 / 像素艺术 / 合成波的演示页实拍。</p>
 
 <style>
