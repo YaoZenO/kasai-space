@@ -9,7 +9,7 @@
  */
 'use strict';
 
-import { $, hooks, switchTab, toast } from './admin-core.js?v=20261022';
+import { $, hooks, switchTab, toast } from './admin-core.js?v=20261023';
 
 /* 菜单项与目标 tab 的映射。images 没有「新建表单」，只切 tab（上传区在该页顶部）。 */
 const QUICK = [

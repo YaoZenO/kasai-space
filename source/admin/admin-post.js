@@ -5,8 +5,8 @@
  */
 'use strict';
 
-import { S, $, api, toast, confirmDialog, handleOpError, hooks, guard, reloadList, switchTab, markDirty, clearDirty } from './admin-core.js?v=20261022';
-import { mountComposer, bindPaste } from './admin-composer.js?v=20261022';
+import { S, $, api, toast, confirmDialog, handleOpError, hooks, guard, reloadList, switchTab, markDirty, clearDirty } from './admin-core.js?v=20261023';
+import { mountComposer, bindPaste } from './admin-composer.js?v=20261023';
 
 let composer = null;
 
@@ -282,15 +282,21 @@ function renderMarkdown(md) {
 
 export function init() {
   // 文章编辑器非正文字段（标题 / slug / 标签 / 分类 / 封面）输入时标记未保存；
-  // 正文块编辑器走 composer 的 onInput（2026-10-21，切 tab / 关页面丢稿拦截）
+  // 正文块编辑器走 composer 的 onInput（2026-10-21，切 tab / 关页面丢稿拦截）。
+  // S.editor 守卫见 E-046：没有打开编辑器时不得置脏。
   document.addEventListener('input', (e) => {
-    if (e.target.closest && e.target.closest('#view-post-editor')) markDirty();
+    if (S.editor && e.target.closest && e.target.closest('#view-post-editor')) markDirty();
   });
 
   composer = mountComposer($('post-composer'), {
     onInput: () => {
-      if (S.editor) S.editor.dirty = true;
-      markDirty();
+      // 状态守卫（E-046）：mountComposer 挂载与 setValue 都会走 rerender → emit
+      // 触发本回调，彼时可能没有打开任何编辑器（开机挂载）——不判 S.editor
+      // 会把「挂载」误判成「用户输入」，开机即置脏、弹未保存确认。
+      if (S.editor) {
+        S.editor.dirty = true;
+        markDirty();
+      }
       updateWordCount();
     },
   });

@@ -952,6 +952,23 @@ const PNG_1X1 = Buffer.from(
     assert.ok(/closest\('#view-site-editor'\)\) markDirty/.test(site), 'admin-site.js 缺设置表单 input 监听');
   });
 
+  // E-046（2026-10-22）：mountComposer 挂载即合成一次 onInput，无守卫的 markDirty
+  // 会把「挂载」误判成「用户输入」，每次打开后台都弹未保存确认。四个调用点必须带
+  // 编辑器状态守卫——判据是业务状态（编辑器开着吗），不是结构状态（事件落在哪个容器）。
+  ok('E-046: dirty 标记的四个调用点均带编辑器状态守卫', () => {
+    const post = fs.readFileSync(path.join(__dirname, '..', 'source/admin/admin-post.js'), 'utf8');
+    assert.ok(/if \(S\.editor\) \{\s*S\.editor\.dirty = true;\s*markDirty\(\);/.test(post),
+      'composer onInput 的 markDirty 未置于 S.editor 守卫内——挂载合成事件会误置脏（E-046 复发）');
+    assert.ok(/if \(S\.editor &&[\s\S]{0,90}closest\('#view-post-editor'\)\) markDirty/.test(post),
+      '文章表单 input 监听未判 S.editor（E-046 复发）');
+    const item = fs.readFileSync(path.join(__dirname, '..', 'source/admin/admin-item.js'), 'utf8');
+    assert.ok(/if \(S\.itemEditor &&[\s\S]{0,90}closest\('#view-data-editor'\)\) markDirty/.test(item),
+      '数据表单 input 监听未判 S.itemEditor（E-046 复发）');
+    const site = fs.readFileSync(path.join(__dirname, '..', 'source/admin/admin-site.js'), 'utf8');
+    assert.ok(/if \(!\$\('view-site-editor'\)\.hidden &&[\s\S]{0,90}closest\('#view-site-editor'\)\) markDirty/.test(site),
+      '设置表单 input 监听未判视图可见（E-046 复发）');
+  });
+
   // P2-12（2026-10-22）：「转为私密」按钮与处理逻辑。公开状态的改变必须二次确认，
   // 且只对已发布文章可用——结构断言钉死，退化即红。
   ok('转为私密：按钮、确认弹窗、仅已发布可用三要素齐全', () => {

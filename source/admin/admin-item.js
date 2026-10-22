@@ -3,8 +3,8 @@
  */
 'use strict';
 
-import { S, $, el, api, toast, hooks, handleOpError, guard, reloadList, markDirty, clearDirty } from './admin-core.js?v=20261022';
-import { uploadOneImage, sitePath, openImagePicker } from './admin-media.js?v=20261022';
+import { S, $, el, api, toast, hooks, handleOpError, guard, reloadList, markDirty, clearDirty } from './admin-core.js?v=20261023';
+import { uploadOneImage, sitePath, openImagePicker } from './admin-media.js?v=20261023';
 
 const MODULE_META = {
   projects: { label: '项目', form: 'projects' },
@@ -221,9 +221,10 @@ function bindCoverUpload(btnId, inputId, module) {
 }
 
 export function init() {
-  // 数据条目表单的文本输入标记未保存（切 tab / 关页面前拦截用，2026-10-21）
+  // 数据条目表单的文本输入标记未保存（切 tab / 关页面前拦截用，2026-10-21）。
+  // S.itemEditor 守卫见 E-046：没有打开条目编辑器时不得置脏。
   document.addEventListener('input', (e) => {
-    if (e.target.closest && e.target.closest('#view-data-editor')) markDirty();
+    if (S.itemEditor && e.target.closest && e.target.closest('#view-data-editor')) markDirty();
   });
 
   // 保存按钮（三表单各一个，class 绑定）

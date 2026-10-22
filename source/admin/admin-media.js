@@ -3,7 +3,7 @@
  */
 'use strict';
 
-import { S, $, el, api, toast, confirmDialog, handleOpError, hooks, ApiError, reloadList } from './admin-core.js?v=20261022';
+import { S, $, el, api, toast, confirmDialog, handleOpError, hooks, ApiError, reloadList } from './admin-core.js?v=20261023';
 // 压缩上限：Vercel 函数请求体限 4.5MB，base64 会放大约 1.37 倍，
 // 因此压缩产物必须控制在 2.5MB 以内，超限则逐级降低尺寸与质量重试。
 const UPLOAD_BLOB_LIMIT = 2.5 * 1024 * 1024;

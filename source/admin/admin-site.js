@@ -3,8 +3,8 @@
  */
 'use strict';
 
-import { S, $, api, toast, guard, reloadList, hooks , handleOpError, markDirty, clearDirty } from './admin-core.js?v=20261022';
-import { uploadOneImage, sitePath } from './admin-media.js?v=20261022';
+import { S, $, api, toast, guard, reloadList, hooks , handleOpError, markDirty, clearDirty } from './admin-core.js?v=20261023';
+import { uploadOneImage, sitePath } from './admin-media.js?v=20261023';
 
 // 设置 tab 直接展示编辑器视图（无列表态）；进入时填充表单
 export function renderSiteEditor(box, site) {
@@ -24,9 +24,10 @@ function fillSiteEditor(site) {
 }
 
 export function init() {
-  // 设置表单的文本输入标记未保存（切 tab / 关页面前拦截用，2026-10-21）
+  // 设置表单的文本输入标记未保存（切 tab / 关页面前拦截用，2026-10-21）。
+  // 视图可见性守卫见 E-046：设置编辑器未展示时不得置脏。
   document.addEventListener('input', (e) => {
-    if (e.target.closest && e.target.closest('#view-site-editor')) markDirty();
+    if (!$('view-site-editor').hidden && e.target.closest && e.target.closest('#view-site-editor')) markDirty();
   });
 
   $('btn-save-site').onclick = guard(async () => {
