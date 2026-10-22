@@ -1,10 +1,12 @@
 /* ============================================================
-   site.css — 全站设计规范层（V3.2）
+   site.css — 全站设计规范层（V3.3）
    加载于全站（custom_css: /css/site.css）
    分区：1 设计 tokens / 2 基础 / 3 公共组件 / 4 逐页样式
    纪律：新布局一律自有语义 class；main.styl 不改，残留
    Bootstrap 样式仅做定向覆盖。
    V3.2：自托管 Archivo 展示轨 + --font-display token。
+   V3.3：正文栈收口为 --font-sans 全站共用（原 .cal-page 专属栈升格）；
+   标题轨 --font-serif-title 扩展至文章页（此前只覆盖站名与 .cal-page）。
    ============================================================ */
 
 /* ===== 1. 设计 tokens ===== */
@@ -30,6 +32,16 @@
 
   /* 展示轨：拉丁品牌字与大数字；中文字符自动回退黑体（不进紧字距） */
   --font-display: "Archivo", "Arial Black", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+
+  /* 正文轨（V3.3 收口）：原为 .cal-page 专属字体栈，主人定轻量改后升为全站正文栈。
+     中文按现代黑体优先序（苹方→鸿蒙→MiSans→冬青→思源），微软雅黑仅作兜底，
+     不再由 Windows 系统默认字体决定全站中文观感。改值只改这一处。 */
+  --font-sans: "Nunito Sans", "PingFang SC", "HarmonyOS Sans SC", "MiSans",
+    "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Noto Sans SC",
+    "Microsoft YaHei", sans-serif;
+
+  /* 标题轨（衬线）：拉丁 Fraunces 600 + 中文宋体系回退，与 .cal-page 标题同轨 */
+  --font-serif-title: "Fraunces", Georgia, "Times New Roman", serif;
 
   /* 块色（仅作内容入口卡底，整页 ≤2 处；落点由数据决定）
      用字锁定：黄块 #e6b23c 内只能用墨色（7.82:1）；
@@ -85,6 +97,35 @@
 /* ===== 2. 基础样式 ===== */
 
 /* ::selection 见 §7.1（A8）：选中文字用墨色淡底，不再发红 */
+
+/* 全站正文栈（V3.3）：body 与文章正文统一走 --font-sans。
+   主题 main.css 对 body / .markdown-body 声明了主题默认字体栈，
+   特异性与本站相同，靠 site.css 后加载胜出（同 §4 竖标注释的原理）。 */
+body { font-family: var(--font-sans); }
+.markdown-body { font-family: var(--font-sans); }
+
+/* 标题轨上文章页（V3.3）：文章大标题、列表标题、通用页头标题与正文内标题
+   统一走 --font-serif-title（Fraunces 600 + 宋体系），与节假日页标题同轨。
+   字重 600 在各标题自身的规则里就地对齐（Fraunces 仅托管 600 一档，
+   请求更粗字重只会触发浏览器合成加粗，故不用 800/900）。 */
+.post-head-title,
+.post-title,
+.page-head-plain .page-head-title,
+.post-content .markdown-body h1,
+.post-content .markdown-body h2,
+.post-content .markdown-body h3,
+.post-content .markdown-body h4 {
+  font-family: var(--font-serif-title);
+  letter-spacing: -0.01em;
+  font-optical-sizing: auto;
+}
+
+.post-content .markdown-body h1,
+.post-content .markdown-body h2,
+.post-content .markdown-body h3,
+.post-content .markdown-body h4 {
+  font-weight: 600;
+}
 
 /* ===== 3. 公共组件 ===== */
 
@@ -728,7 +769,7 @@ a.cell-plain:hover {
 
 .post-title {
   font-size: clamp(1.05rem, 1.8vw, 1.3rem);
-  font-weight: 800;
+  font-weight: 600;
   line-height: 1.4;
   color: var(--text-color);
 }
@@ -1017,7 +1058,7 @@ a.feed-title:hover {
 .post-head-title {
   margin: 0 0 1.1rem;
   font-size: clamp(1.9rem, 3.8vw, 2.9rem);
-  font-weight: 900;
+  font-weight: 600;
   line-height: 1.22;
   color: var(--text-color);
   overflow-wrap: anywhere;
@@ -1741,7 +1782,7 @@ a.feed-title:hover {
 
 /* 模块列表页 */
 .page-head-plain { margin: 0 0 1.6rem; }
-.page-head-plain .page-head-title { font-size: clamp(1.8rem, 3.4vw, 2.4rem); font-weight: 800; margin: .3rem 0 .4rem; }
+.page-head-plain .page-head-title { font-size: clamp(1.8rem, 3.4vw, 2.4rem); font-weight: 600; margin: .3rem 0 .4rem; }
 .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
 .module-card {
   display: block; background: var(--cream); border: 1px solid var(--line-color);
@@ -1893,9 +1934,7 @@ a.feed-title:hover {
   --text-color: #1a1a1a;
   --sec-text-color: #6b6b6b;
   --info-mark: #6b6b6b;
-  font-family: "Nunito Sans", "PingFang SC", "HarmonyOS Sans SC", "MiSans",
-    "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Noto Sans SC",
-    "Microsoft YaHei", sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -1904,7 +1943,7 @@ a.feed-title:hover {
 .cal-page .col-title,
 .cal-page .cal-terms-title,
 .cal-page .cal-sources-title {
-  font-family: "Fraunces", Georgia, "Times New Roman", serif;
+  font-family: var(--font-serif-title);
   font-weight: 600;
   letter-spacing: -0.01em;
   font-optical-sizing: auto;
