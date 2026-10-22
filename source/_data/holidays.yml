@@ -22,29 +22,79 @@
 
 meta:
   updated: "2026-10-22"
+  # 配图按节日类型挂在 meta 上（不随年份重复），详情卡按节假日 id 取用。
+  # 全部来自 Wikimedia Commons 的自由授权图，署名与授权写在卡内，不得删。
+  images:
+    yuandan:
+      file: "/img/holidays/yuandan.jpg"
+      alt: "跨年夜城市上空的烟花"
+      author: "Chris Phutully"
+      license: "CC BY 2.0"
+      page: "https://commons.wikimedia.org/wiki/File:Melbourne_New_Year_2014_(11726618003).jpg"
+    chunjie:
+      file: "/img/holidays/chunjie.jpg"
+      alt: "成串亮起的红灯笼"
+      author: "Dileep Kaluaratchie"
+      license: "CC BY-SA 4.0"
+      page: "https://commons.wikimedia.org/wiki/File:Chinese_New_Year_Celebrations_with_Lanterns_in_Singapore.jpg"
+    qingming:
+      file: "/img/holidays/qingming.jpg"
+      alt: "清明上河图局部（虹桥一段）"
+      author: "张择端"
+      license: "公有领域"
+      page: "https://commons.wikimedia.org/wiki/File:Along_the_River_During_the_Qingming_Festival_(detail_of_original).jpg"
+    laodong:
+      file: "/img/holidays/laodong.jpg"
+      alt: "深圳一家电子厂的车间"
+      author: "Steve Jurvetson"
+      license: "CC BY 2.0"
+      page: "https://commons.wikimedia.org/wiki/File:Electronics_factory_in_Shenzhen.jpg"
+    duanwu:
+      file: "/img/holidays/duanwu.jpg"
+      alt: "龙舟的彩绘船头与远处的比赛"
+      author: "Peter Olshevsky"
+      license: "CC BY-SA 4.0"
+      page: "https://commons.wikimedia.org/wiki/File:Dragon_Boat_race,_China.jpg"
+    zhongqiu:
+      file: "/img/holidays/zhongqiu.jpg"
+      alt: "摆着月饼、茶具与莲花的节日餐桌"
+      author: "Nowforever"
+      license: "CC BY-SA 4.0"
+      page: "https://commons.wikimedia.org/wiki/File:Mid_autumn_festival.jpg"
+    guoqing:
+      file: "/img/holidays/guoqing.jpg"
+      alt: "天安门广场上的国庆花篮"
+      author: "Gerd Eichmann"
+      license: "CC BY-SA 4.0"
+      page: "https://commons.wikimedia.org/wiki/File:Beijing-Tiananmen-24-Menschen-Blumenkorb-gje.jpg"
   notice: "2027 年的放假安排还没有官方版本。国务院办公厅通常在前一年 11 月前后发布次年通知，所以 2027 年起的放假区间是按《全国年节及纪念日放假办法》与近年调休惯例推算出来的预期值。节日当天的公历日期本身是确定的，可能变动的只有放假区间的起止与调休上班日。"
+  # 来源只给官方年份标一行（页面在「年一览」下方输出「来源：…」）。
+  # 预计年份不标来源——那段「以上均为预计日期」的说明已经交代清楚了。
   sources:
-    - label: "国务院办公厅关于 2021 年部分节假日安排的通知（国办发明电〔2020〕27 号）"
+    "2021":
+      label: "国务院办公厅关于 2021 年部分节假日安排的通知"
       url: "https://www.gov.cn/zhengce/zhengceku/2020-11/25/content_5564127.htm"
       date: "2020-11-25"
-    - label: "国务院办公厅关于 2022 年部分节假日安排的通知（国办发明电〔2021〕11 号）"
+    "2022":
+      label: "国务院办公厅关于 2022 年部分节假日安排的通知"
       url: "https://www.gov.cn/gongbao/content/2021/content_5651728.htm"
       date: "2021-10-25"
-    - label: "国务院办公厅关于 2023 年部分节假日安排的通知（国办发明电〔2022〕16 号）"
+    "2023":
+      label: "国务院办公厅关于 2023 年部分节假日安排的通知"
       url: "https://cpc.people.com.cn/BIG5/n1/2022/1209/c64387-32583588.html"
       date: "2022-12-08"
-    - label: "国务院办公厅关于 2024 年部分节假日安排的通知（国办发明电〔2023〕7 号）"
+    "2024":
+      label: "国务院办公厅关于 2024 年部分节假日安排的通知"
       url: "https://www.gov.cn/zhengce/content/202310/content_6911527.htm"
       date: "2023-10-25"
-    - label: "国务院办公厅关于 2026 年部分节假日安排的通知（人民网转载，现行规则依据）"
-      url: "https://cpc.people.com.cn/BIG5/n1/2025/1105/c64387-40596912.html"
-      date: "2025-11-04"
-    - label: "国务院办公厅关于 2025 年部分节假日安排的通知（中国政府网）"
+    "2025":
+      label: "国务院办公厅关于 2025 年部分节假日安排的通知"
       url: "https://www.gov.cn/zhengce/zhengceku/202411/content_6986383.htm"
       date: "2024-11-12"
-    - label: "2027 年之后各年的节假日日期（推算值来源）"
-      url: "https://studycli.org/zh-CN/chinese-holidays/"
-      date: "2026-10-22"
+    "2026":
+      label: "国务院办公厅关于 2026 年部分节假日安排的通知"
+      url: "https://cpc.people.com.cn/BIG5/n1/2025/1105/c64387-40596912.html"
+      date: "2025-11-04"
   faq:
     - q: "2027 年的放假安排官方公布了吗？"
       a: "还没有。国务院办公厅通常在前一年 11 月前后发布次年通知，2026 年的通知发布于 2025 年 11 月 4 日。本页 2027 年起的放假区间是推算值。"
@@ -80,11 +130,8 @@ years:
         end: "2021-01-03"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周五至周日，与周末连休"
         desc: "公历新年的第一天。法定假日只有 1 天，与周末相连就是 3 天小长假。"
-        img: ""
-        alt: "元旦插图"
       - id: chunjie
         name: "春节"
         pinyin: "Chūnjié"
@@ -93,11 +140,8 @@ years:
         end: "2021-02-17"
         days: 7
         statutory: 3
-        makeup: ["2021-02-07", "2021-02-20"]
         arrange: "除夕至正月初六"
         desc: "农历正月初一，除夕也在假期内。2021 年就地过年的倡议下，很多人第一次没回老家。"
-        img: ""
-        alt: "春节插图"
       - id: qingming
         name: "清明节"
         pinyin: "Qīngmíngjié"
@@ -106,11 +150,8 @@ years:
         end: "2021-04-05"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周六至周一"
         desc: "既是节气也是节日。清明节气每年落在 4 月 4 日至 6 日之间，扫墓与踏青同期。"
-        img: ""
-        alt: "清明节插图"
       - id: laodong
         name: "劳动节"
         pinyin: "Láodòngjié"
@@ -119,11 +160,8 @@ years:
         end: "2021-05-05"
         days: 5
         statutory: 1
-        makeup: ["2021-04-25", "2021-05-08"]
         arrange: "周六至周三"
         desc: "5 月 1 日国际劳动节。法定假日 1 天，调休后拼成 5 天连休。"
-        img: ""
-        alt: "劳动节插图"
       - id: duanwu
         name: "端午节"
         pinyin: "Duānwǔjié"
@@ -132,11 +170,8 @@ years:
         end: "2021-06-14"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周六至周一"
         desc: "农历五月初五，包粽子、赛龙舟。"
-        img: ""
-        alt: "端午节插图"
       - id: zhongqiu
         name: "中秋节"
         pinyin: "Zhōngqiūjié"
@@ -145,11 +180,8 @@ years:
         end: "2021-09-21"
         days: 3
         statutory: 1
-        makeup: ["2021-09-18"]
         arrange: "周日至周二"
         desc: "农历八月十五，赏月、吃月饼。"
-        img: ""
-        alt: "中秋节插图"
       - id: guoqing
         name: "国庆节"
         pinyin: "Guóqìngjié"
@@ -158,11 +190,8 @@ years:
         end: "2021-10-07"
         days: 7
         statutory: 3
-        makeup: ["2021-09-26", "2021-10-09"]
         arrange: "周五至周四"
         desc: "10 月 1 日。法定假日 3 天，与前后周末调休后拼成 7 天黄金周。"
-        img: ""
-        alt: "国庆节插图"
     festivals:
       - name: "腊八节"
         pinyin: "Làbājié"
@@ -362,11 +391,8 @@ years:
         end: "2022-01-03"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周六至周一，与周末连休"
         desc: "公历新年的第一天。法定假日只有 1 天，与周末相连就是 3 天小长假。"
-        img: ""
-        alt: "元旦插图"
       - id: chunjie
         name: "春节"
         pinyin: "Chūnjié"
@@ -375,11 +401,8 @@ years:
         end: "2022-02-06"
         days: 7
         statutory: 3
-        makeup: ["2022-01-29", "2022-01-30"]
         arrange: "除夕至正月初六"
         desc: "农历正月初一，除夕也在假期内。年夜饭、红包、守岁都集中在这几天。"
-        img: ""
-        alt: "春节插图"
       - id: qingming
         name: "清明节"
         pinyin: "Qīngmíngjié"
@@ -388,11 +411,8 @@ years:
         end: "2022-04-05"
         days: 3
         statutory: 1
-        makeup: ["2022-04-02"]
         arrange: "周日至周二"
         desc: "既是节气也是节日。清明节气每年落在 4 月 4 日至 6 日之间。"
-        img: ""
-        alt: "清明节插图"
       - id: laodong
         name: "劳动节"
         pinyin: "Láodòngjié"
@@ -401,11 +421,8 @@ years:
         end: "2022-05-04"
         days: 5
         statutory: 1
-        makeup: ["2022-04-24", "2022-05-07"]
         arrange: "周六至周三"
         desc: "5 月 1 日国际劳动节。法定假日 1 天，调休后拼成 5 天连休。"
-        img: ""
-        alt: "劳动节插图"
       - id: duanwu
         name: "端午节"
         pinyin: "Duānwǔjié"
@@ -414,11 +431,8 @@ years:
         end: "2022-06-05"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周五至周日"
         desc: "农历五月初五，包粽子、赛龙舟。"
-        img: ""
-        alt: "端午节插图"
       - id: zhongqiu
         name: "中秋节"
         pinyin: "Zhōngqiūjié"
@@ -427,11 +441,8 @@ years:
         end: "2022-09-12"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周六至周一，与教师节同日"
         desc: "农历八月十五，赏月、吃月饼。2022 年中秋与教师节是同一天。"
-        img: ""
-        alt: "中秋节插图"
       - id: guoqing
         name: "国庆节"
         pinyin: "Guóqìngjié"
@@ -440,11 +451,8 @@ years:
         end: "2022-10-07"
         days: 7
         statutory: 3
-        makeup: ["2022-10-08", "2022-10-09"]
         arrange: "周六至周五"
         desc: "10 月 1 日。法定假日 3 天，调休后拼成 7 天黄金周。"
-        img: ""
-        alt: "国庆节插图"
     festivals:
       - name: "腊八节"
         pinyin: "Làbājié"
@@ -644,11 +652,8 @@ years:
         end: "2023-01-02"
         days: 2
         statutory: 1
-        makeup: []
         arrange: "官方为 2022 年 12 月 31 日至 2023 年 1 月 2 日放假调休共 3 天，其中 12 月 31 日属上一年，本页只统计落在 2023 年的 2 天"
         desc: "公历新年的第一天。法定假日只有 1 天，与周末相连就是小长假。"
-        img: ""
-        alt: "元旦插图"
       - id: chunjie
         name: "春节"
         pinyin: "Chūnjié"
@@ -657,11 +662,8 @@ years:
         end: "2023-01-27"
         days: 7
         statutory: 3
-        makeup: ["2023-01-28", "2023-01-29"]
         arrange: "除夕至正月初六"
         desc: "农历正月初一，除夕也在假期内。疫情防控转段后的第一个春节，出行量明显回升。"
-        img: ""
-        alt: "春节插图"
       - id: qingming
         name: "清明节"
         pinyin: "Qīngmíngjié"
@@ -670,11 +672,8 @@ years:
         end: "2023-04-05"
         days: 1
         statutory: 1
-        makeup: []
         arrange: "周三当天，不调休"
         desc: "既是节气也是节日。2023 年清明落在周三，只在当天放假 1 天。"
-        img: ""
-        alt: "清明节插图"
       - id: laodong
         name: "劳动节"
         pinyin: "Láodòngjié"
@@ -683,11 +682,8 @@ years:
         end: "2023-05-03"
         days: 5
         statutory: 1
-        makeup: ["2023-04-23", "2023-05-06"]
         arrange: "周六至周三"
         desc: "5 月 1 日国际劳动节。法定假日 1 天，调休后拼成 5 天连休。"
-        img: ""
-        alt: "劳动节插图"
       - id: duanwu
         name: "端午节"
         pinyin: "Duānwǔjié"
@@ -696,11 +692,8 @@ years:
         end: "2023-06-24"
         days: 3
         statutory: 1
-        makeup: ["2023-06-25"]
         arrange: "周四至周六"
         desc: "农历五月初五，包粽子、赛龙舟。"
-        img: ""
-        alt: "端午节插图"
       - id: zhongqiu
         name: "中秋节"
         pinyin: "Zhōngqiūjié"
@@ -709,11 +702,8 @@ years:
         end: "2023-09-29"
         days: 1
         statutory: 1
-        makeup: []
         arrange: "与国庆节合并放假 8 天"
         desc: "农历八月十五，赏月、吃月饼。2023 年与国庆连在一起放。"
-        img: ""
-        alt: "中秋节插图"
       - id: guoqing
         name: "国庆节"
         pinyin: "Guóqìngjié"
@@ -722,11 +712,8 @@ years:
         end: "2023-10-06"
         days: 8
         statutory: 3
-        makeup: ["2023-10-07", "2023-10-08"]
         arrange: "国庆与中秋合并放假 8 天"
         desc: "10 月 1 日。2023 年国庆与中秋合并放假 8 天，是当年最长的一个假期。"
-        img: ""
-        alt: "国庆节插图"
     festivals:
       - name: "元宵节"
         pinyin: "Yuánxiāojié"
@@ -919,11 +906,8 @@ years:
         end: "2024-01-01"
         days: 1
         statutory: 1
-        makeup: []
         arrange: "1 月 1 日放假，与周末连休（2023 年 12 月 30 日至 2024 年 1 月 1 日共 3 天，落在 2024 年的只有 1 月 1 日）"
         desc: "公历新年的第一天。2024 年元旦是周一，与前一个周末连休。"
-        img: ""
-        alt: "元旦插图"
       - id: chunjie
         name: "春节"
         pinyin: "Chūnjié"
@@ -932,11 +916,8 @@ years:
         end: "2024-02-17"
         days: 8
         statutory: 3
-        makeup: ["2024-02-04", "2024-02-18"]
         arrange: "正月初一至正月初八；除夕 2 月 9 日鼓励安排休息，不算法定假日"
         desc: "农历正月初一。2024 年第一次出现「鼓励除夕休息」的表述，法定假期仍从正月初一起算。"
-        img: ""
-        alt: "春节插图"
       - id: qingming
         name: "清明节"
         pinyin: "Qīngmíngjié"
@@ -945,11 +926,8 @@ years:
         end: "2024-04-06"
         days: 3
         statutory: 1
-        makeup: ["2024-04-07"]
         arrange: "周四至周六"
         desc: "既是节气也是节日。清明节气每年落在 4 月 4 日至 6 日之间。"
-        img: ""
-        alt: "清明节插图"
       - id: laodong
         name: "劳动节"
         pinyin: "Láodòngjié"
@@ -958,11 +936,8 @@ years:
         end: "2024-05-05"
         days: 5
         statutory: 1
-        makeup: ["2024-04-28", "2024-05-11"]
         arrange: "周三至周日"
         desc: "5 月 1 日国际劳动节。法定假日 1 天，调休后拼成 5 天连休。"
-        img: ""
-        alt: "劳动节插图"
       - id: duanwu
         name: "端午节"
         pinyin: "Duānwǔjié"
@@ -971,11 +946,8 @@ years:
         end: "2024-06-10"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "与周末连休"
         desc: "农历五月初五，包粽子、赛龙舟。2024 年端午是周一，与周末连休。"
-        img: ""
-        alt: "端午节插图"
       - id: zhongqiu
         name: "中秋节"
         pinyin: "Zhōngqiūjié"
@@ -984,11 +956,8 @@ years:
         end: "2024-09-17"
         days: 3
         statutory: 1
-        makeup: ["2024-09-14"]
         arrange: "周日至周二"
         desc: "农历八月十五，赏月、吃月饼。"
-        img: ""
-        alt: "中秋节插图"
       - id: guoqing
         name: "国庆节"
         pinyin: "Guóqìngjié"
@@ -997,11 +966,8 @@ years:
         end: "2024-10-07"
         days: 7
         statutory: 3
-        makeup: ["2024-09-29", "2024-10-12"]
         arrange: "周二至周一"
         desc: "10 月 1 日。法定假日 3 天，调休后拼成 7 天黄金周。"
-        img: ""
-        alt: "国庆节插图"
     festivals:
       - name: "腊八节"
         pinyin: "Làbājié"
@@ -1202,11 +1168,8 @@ years:
         end: "2025-01-01"
         days: 1
         statutory: 1
-        makeup: []
         arrange: "周三当天，不调休"
         desc: "公历新年的第一天。法定假日只有 1 天，与周末相连就成了 3 天小长假。"
-        img: ""
-        alt: "元旦插图"
       - id: chunjie
         name: "春节"
         pinyin: "Chūnjié"
@@ -1215,11 +1178,8 @@ years:
         end: "2025-02-04"
         days: 8
         statutory: 4
-        makeup: ["2025-01-26", "2025-02-08", "2025-04-27", "2025-09-28", "2025-10-11"]
         arrange: "除夕至正月初七"
         desc: "农历正月初一，除夕也在假期内。年夜饭、红包、守岁都集中在这几天，也是全年最大规模的人口迁徙。"
-        img: ""
-        alt: "春节插图"
       - id: qingming
         name: "清明节"
         pinyin: "Qīngmíngjié"
@@ -1228,11 +1188,8 @@ years:
         end: "2025-04-06"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周五至周日"
         desc: "既是节气也是节日。清明节气每年落在 4 月 4 日至 6 日之间，扫墓与踏青同期。"
-        img: ""
-        alt: "清明节插图"
       - id: laodong
         name: "劳动节"
         pinyin: "Láodòngjié"
@@ -1241,11 +1198,8 @@ years:
         end: "2025-05-05"
         days: 5
         statutory: 2
-        makeup: ["2025-01-26", "2025-02-08", "2025-04-27", "2025-09-28", "2025-10-11"]
         arrange: "周四至周一"
         desc: "5 月 1 日国际劳动节。2024 年修订后法定假日由 1 天增加到 2 天，通常再拼出 5 天连休。"
-        img: ""
-        alt: "劳动节插图"
       - id: duanwu
         name: "端午节"
         pinyin: "Duānwǔjié"
@@ -1254,11 +1208,8 @@ years:
         end: "2025-06-02"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周六至周一"
         desc: "农历五月初五，包粽子、赛龙舟。落在周三时只放当天 1 天。"
-        img: ""
-        alt: "端午节插图"
       - id: guoqing
         name: "国庆节"
         pinyin: "Guóqìngjié"
@@ -1267,11 +1218,8 @@ years:
         end: "2025-10-08"
         days: 8
         statutory: 3
-        makeup: ["2025-01-26", "2025-02-08", "2025-04-27", "2025-09-28", "2025-10-11"]
         arrange: "国庆与中秋合并放假 8 天"
         desc: "10 月 1 日。2025 年国庆与中秋合并放假 8 天，法定假日 3 天，其余由周末和调休补足，是国内出行最集中的一周。"
-        img: ""
-        alt: "国庆节插图"
       - id: zhongqiu
         name: "中秋节"
         pinyin: "Zhōngqiūjié"
@@ -1280,11 +1228,8 @@ years:
         end: "2025-10-08"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "与国庆节合并放假 8 天"
         desc: "农历八月十五，赏月、吃月饼。落在周三时只放当天 1 天。"
-        img: ""
-        alt: "中秋节插图"
     festivals:
       - name: "元宵节"
         pinyin: "Yuánxiāojié"
@@ -1434,11 +1379,8 @@ years:
         end: "2026-01-03"
         days: 3
         statutory: 1
-        makeup: ["2026-01-04", "2026-02-14", "2026-02-28", "2026-05-09", "2026-09-20", "2026-10-10"]
         arrange: "周四至周六"
         desc: "公历新年的第一天。法定假日只有 1 天，与周末相连就成了 3 天小长假。"
-        img: ""
-        alt: "元旦插图"
       - id: chunjie
         name: "春节"
         pinyin: "Chūnjié"
@@ -1447,11 +1389,8 @@ years:
         end: "2026-02-23"
         days: 9
         statutory: 4
-        makeup: ["2026-01-04", "2026-02-14", "2026-02-28", "2026-05-09", "2026-09-20", "2026-10-10"]
         arrange: "周日至周一"
         desc: "农历正月初一，除夕也在假期内。年夜饭、红包、守岁都集中在这几天，也是全年最大规模的人口迁徙。"
-        img: ""
-        alt: "春节插图"
       - id: qingming
         name: "清明节"
         pinyin: "Qīngmíngjié"
@@ -1460,11 +1399,8 @@ years:
         end: "2026-04-06"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周六至周一"
         desc: "既是节气也是节日。清明节气每年落在 4 月 4 日至 6 日之间，扫墓与踏青同期。"
-        img: ""
-        alt: "清明节插图"
       - id: laodong
         name: "劳动节"
         pinyin: "Láodòngjié"
@@ -1473,11 +1409,8 @@ years:
         end: "2026-05-05"
         days: 5
         statutory: 2
-        makeup: ["2026-01-04", "2026-02-14", "2026-02-28", "2026-05-09", "2026-09-20", "2026-10-10"]
         arrange: "周五至周二"
         desc: "5 月 1 日国际劳动节。2024 年修订后法定假日由 1 天增加到 2 天，通常再拼出 5 天连休。"
-        img: ""
-        alt: "劳动节插图"
       - id: duanwu
         name: "端午节"
         pinyin: "Duānwǔjié"
@@ -1486,11 +1419,8 @@ years:
         end: "2026-06-21"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周五至周日"
         desc: "农历五月初五，包粽子、赛龙舟。落在周三时只放当天 1 天。"
-        img: ""
-        alt: "端午节插图"
       - id: zhongqiu
         name: "中秋节"
         pinyin: "Zhōngqiūjié"
@@ -1499,11 +1429,8 @@ years:
         end: "2026-09-27"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周五至周日"
         desc: "农历八月十五，赏月、吃月饼。落在周三时只放当天 1 天。"
-        img: ""
-        alt: "中秋节插图"
       - id: guoqing
         name: "国庆节"
         pinyin: "Guóqìngjié"
@@ -1512,11 +1439,8 @@ years:
         end: "2026-10-07"
         days: 7
         statutory: 3
-        makeup: ["2026-01-04", "2026-02-14", "2026-02-28", "2026-05-09", "2026-09-20", "2026-10-10"]
         arrange: "周四至周三"
         desc: "10 月 1 日。法定假日 3 天，与前后周末调休后拼成 7 天黄金周，是国内出行最集中的一周。"
-        img: ""
-        alt: "国庆节插图"
     festivals:
       - name: "腊八节"
         pinyin: "Làbājié"
@@ -1755,11 +1679,8 @@ years:
         end: "2027-01-03"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周五至周日"
         desc: "公历新年的第一天。法定假日只有 1 天，与周末相连就成了 3 天小长假。"
-        img: ""
-        alt: "元旦插图"
       - id: chunjie
         name: "春节"
         pinyin: "Chūnjié"
@@ -1768,11 +1689,8 @@ years:
         end: "2027-02-12"
         days: 8
         statutory: 4
-        makeup: []
         arrange: "周五至周五"
         desc: "农历正月初一，除夕也在假期内。年夜饭、红包、守岁都集中在这几天，也是全年最大规模的人口迁徙。"
-        img: ""
-        alt: "春节插图"
       - id: qingming
         name: "清明节"
         pinyin: "Qīngmíngjié"
@@ -1781,11 +1699,8 @@ years:
         end: "2027-04-05"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周六至周一"
         desc: "既是节气也是节日。清明节气每年落在 4 月 4 日至 6 日之间，扫墓与踏青同期。"
-        img: ""
-        alt: "清明节插图"
       - id: laodong
         name: "劳动节"
         pinyin: "Láodòngjié"
@@ -1794,11 +1709,8 @@ years:
         end: "2027-05-05"
         days: 5
         statutory: 2
-        makeup: []
         arrange: "周六至周三"
         desc: "5 月 1 日国际劳动节。2024 年修订后法定假日由 1 天增加到 2 天，通常再拼出 5 天连休。"
-        img: ""
-        alt: "劳动节插图"
       - id: duanwu
         name: "端午节"
         pinyin: "Duānwǔjié"
@@ -1807,11 +1719,8 @@ years:
         end: "2027-06-09"
         days: 1
         statutory: 1
-        makeup: []
         arrange: "周三至周三"
         desc: "农历五月初五，包粽子、赛龙舟。落在周三时只放当天 1 天。"
-        img: ""
-        alt: "端午节插图"
       - id: zhongqiu
         name: "中秋节"
         pinyin: "Zhōngqiūjié"
@@ -1820,11 +1729,8 @@ years:
         end: "2027-09-15"
         days: 1
         statutory: 1
-        makeup: []
         arrange: "周三至周三"
         desc: "农历八月十五，赏月、吃月饼。落在周三时只放当天 1 天。"
-        img: ""
-        alt: "中秋节插图"
       - id: guoqing
         name: "国庆节"
         pinyin: "Guóqìngjié"
@@ -1833,11 +1739,8 @@ years:
         end: "2027-10-07"
         days: 7
         statutory: 3
-        makeup: []
         arrange: "周五至周四"
         desc: "10 月 1 日。法定假日 3 天，与前后周末调休后拼成 7 天黄金周，是国内出行最集中的一周。"
-        img: ""
-        alt: "国庆节插图"
     festivals:
       - name: "腊八节"
         pinyin: "Làbājié"
@@ -2066,11 +1969,8 @@ years:
         end: "2028-01-03"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周六至周一"
         desc: "公历新年的第一天。法定假日只有 1 天，与周末相连就成了 3 天小长假。"
-        img: ""
-        alt: "元旦插图"
       - id: chunjie
         name: "春节"
         pinyin: "Chūnjié"
@@ -2079,11 +1979,8 @@ years:
         end: "2028-02-01"
         days: 8
         statutory: 4
-        makeup: []
         arrange: "周二至周二"
         desc: "农历正月初一，除夕也在假期内。年夜饭、红包、守岁都集中在这几天，也是全年最大规模的人口迁徙。"
-        img: ""
-        alt: "春节插图"
       - id: qingming
         name: "清明节"
         pinyin: "Qīngmíngjié"
@@ -2092,11 +1989,8 @@ years:
         end: "2028-04-04"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周日至周二"
         desc: "既是节气也是节日。清明节气每年落在 4 月 4 日至 6 日之间，扫墓与踏青同期。"
-        img: ""
-        alt: "清明节插图"
       - id: laodong
         name: "劳动节"
         pinyin: "Láodòngjié"
@@ -2105,11 +1999,8 @@ years:
         end: "2028-05-05"
         days: 5
         statutory: 2
-        makeup: []
         arrange: "周一至周五"
         desc: "5 月 1 日国际劳动节。2024 年修订后法定假日由 1 天增加到 2 天，通常再拼出 5 天连休。"
-        img: ""
-        alt: "劳动节插图"
       - id: duanwu
         name: "端午节"
         pinyin: "Duānwǔjié"
@@ -2118,11 +2009,8 @@ years:
         end: "2028-05-29"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周六至周一"
         desc: "农历五月初五，包粽子、赛龙舟。落在周三时只放当天 1 天。"
-        img: ""
-        alt: "端午节插图"
       - id: zhongqiu
         name: "中秋节"
         pinyin: "Zhōngqiūjié"
@@ -2131,11 +2019,8 @@ years:
         end: "2028-10-08"
         days: 8
         statutory: 1
-        makeup: []
         arrange: "周日至周日"
         desc: "农历八月十五，赏月、吃月饼。落在周三时只放当天 1 天。"
-        img: ""
-        alt: "中秋节插图"
       - id: guoqing
         name: "国庆节"
         pinyin: "Guóqìngjié"
@@ -2144,11 +2029,8 @@ years:
         end: "2028-10-08"
         days: 8
         statutory: 3
-        makeup: []
         arrange: "周日至周日"
         desc: "10 月 1 日。法定假日 3 天，与前后周末调休后拼成 7 天黄金周，是国内出行最集中的一周。"
-        img: ""
-        alt: "国庆节插图"
     festivals:
       - name: "腊八节"
         pinyin: "Làbājié"
@@ -2379,11 +2261,8 @@ years:
         end: "2029-01-01"
         days: 1
         statutory: 1
-        makeup: []
         arrange: "假期从上一年 12 月 30 日（周六）起共 3 天，其中只有 1 月 1 日（周一）落在 2029 年"
         desc: "公历新年的第一天。法定假日只有 1 天，与周末相连就成了 3 天小长假。"
-        img: ""
-        alt: "元旦插图"
       - id: chunjie
         name: "春节"
         pinyin: "Chūnjié"
@@ -2392,11 +2271,8 @@ years:
         end: "2029-02-19"
         days: 9
         statutory: 4
-        makeup: []
         arrange: "周日至周一"
         desc: "农历正月初一，除夕也在假期内。年夜饭、红包、守岁都集中在这几天，也是全年最大规模的人口迁徙。"
-        img: ""
-        alt: "春节插图"
       - id: qingming
         name: "清明节"
         pinyin: "Qīngmíngjié"
@@ -2405,11 +2281,8 @@ years:
         end: "2029-04-04"
         days: 1
         statutory: 1
-        makeup: []
         arrange: "周三至周三"
         desc: "既是节气也是节日。清明节气每年落在 4 月 4 日至 6 日之间，扫墓与踏青同期。"
-        img: ""
-        alt: "清明节插图"
       - id: laodong
         name: "劳动节"
         pinyin: "Láodòngjié"
@@ -2418,11 +2291,8 @@ years:
         end: "2029-05-05"
         days: 5
         statutory: 2
-        makeup: []
         arrange: "周二至周六"
         desc: "5 月 1 日国际劳动节。2024 年修订后法定假日由 1 天增加到 2 天，通常再拼出 5 天连休。"
-        img: ""
-        alt: "劳动节插图"
       - id: duanwu
         name: "端午节"
         pinyin: "Duānwǔjié"
@@ -2431,11 +2301,8 @@ years:
         end: "2029-06-18"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周六至周一"
         desc: "农历五月初五，包粽子、赛龙舟。落在周三时只放当天 1 天。"
-        img: ""
-        alt: "端午节插图"
       - id: zhongqiu
         name: "中秋节"
         pinyin: "Zhōngqiūjié"
@@ -2444,11 +2311,8 @@ years:
         end: "2029-09-24"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周六至周一"
         desc: "农历八月十五，赏月、吃月饼。落在周三时只放当天 1 天。"
-        img: ""
-        alt: "中秋节插图"
       - id: guoqing
         name: "国庆节"
         pinyin: "Guóqìngjié"
@@ -2457,11 +2321,8 @@ years:
         end: "2029-10-07"
         days: 7
         statutory: 3
-        makeup: []
         arrange: "周一至周日"
         desc: "10 月 1 日。法定假日 3 天，与前后周末调休后拼成 7 天黄金周，是国内出行最集中的一周。"
-        img: ""
-        alt: "国庆节插图"
     festivals:
       - name: "腊八节"
         pinyin: "Làbājié"
@@ -2690,11 +2551,8 @@ years:
         end: "2030-01-01"
         days: 1
         statutory: 1
-        makeup: []
         arrange: "假期从上一年 12 月 30 日（周日）起共 3 天，其中只有 1 月 1 日（周二）落在 2030 年"
         desc: "公历新年的第一天。法定假日只有 1 天，与周末相连就成了 3 天小长假。"
-        img: ""
-        alt: "元旦插图"
       - id: chunjie
         name: "春节"
         pinyin: "Chūnjié"
@@ -2703,11 +2561,8 @@ years:
         end: "2030-02-09"
         days: 8
         statutory: 4
-        makeup: []
         arrange: "周六至周六"
         desc: "农历正月初一，除夕也在假期内。年夜饭、红包、守岁都集中在这几天，也是全年最大规模的人口迁徙。"
-        img: ""
-        alt: "春节插图"
       - id: qingming
         name: "清明节"
         pinyin: "Qīngmíngjié"
@@ -2716,11 +2571,8 @@ years:
         end: "2030-04-07"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周五至周日"
         desc: "既是节气也是节日。清明节气每年落在 4 月 4 日至 6 日之间，扫墓与踏青同期。"
-        img: ""
-        alt: "清明节插图"
       - id: laodong
         name: "劳动节"
         pinyin: "Láodòngjié"
@@ -2729,11 +2581,8 @@ years:
         end: "2030-05-05"
         days: 5
         statutory: 2
-        makeup: []
         arrange: "周三至周日"
         desc: "5 月 1 日国际劳动节。2024 年修订后法定假日由 1 天增加到 2 天，通常再拼出 5 天连休。"
-        img: ""
-        alt: "劳动节插图"
       - id: duanwu
         name: "端午节"
         pinyin: "Duānwǔjié"
@@ -2742,11 +2591,8 @@ years:
         end: "2030-06-05"
         days: 1
         statutory: 1
-        makeup: []
         arrange: "周三至周三"
         desc: "农历五月初五，包粽子、赛龙舟。落在周三时只放当天 1 天。"
-        img: ""
-        alt: "端午节插图"
       - id: zhongqiu
         name: "中秋节"
         pinyin: "Zhōngqiūjié"
@@ -2755,11 +2601,8 @@ years:
         end: "2030-09-14"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周四至周六"
         desc: "农历八月十五，赏月、吃月饼。落在周三时只放当天 1 天。"
-        img: ""
-        alt: "中秋节插图"
       - id: guoqing
         name: "国庆节"
         pinyin: "Guóqìngjié"
@@ -2768,11 +2611,8 @@ years:
         end: "2030-10-07"
         days: 7
         statutory: 3
-        makeup: []
         arrange: "周二至周一"
         desc: "10 月 1 日。法定假日 3 天，与前后周末调休后拼成 7 天黄金周，是国内出行最集中的一周。"
-        img: ""
-        alt: "国庆节插图"
     festivals:
       - name: "腊八节"
         pinyin: "Làbājié"
@@ -2999,11 +2839,8 @@ years:
         end: "2031-01-01"
         days: 1
         statutory: 1
-        makeup: []
         arrange: "周三至周三"
         desc: "公历新年的第一天。法定假日只有 1 天，与周末相连就成了 3 天小长假。"
-        img: ""
-        alt: "元旦插图"
       - id: chunjie
         name: "春节"
         pinyin: "Chūnjié"
@@ -3012,11 +2849,8 @@ years:
         end: "2031-01-29"
         days: 8
         statutory: 4
-        makeup: []
         arrange: "周三至周三"
         desc: "农历正月初一，除夕也在假期内。年夜饭、红包、守岁都集中在这几天，也是全年最大规模的人口迁徙。"
-        img: ""
-        alt: "春节插图"
       - id: qingming
         name: "清明节"
         pinyin: "Qīngmíngjié"
@@ -3025,11 +2859,8 @@ years:
         end: "2031-04-07"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周六至周一"
         desc: "既是节气也是节日。清明节气每年落在 4 月 4 日至 6 日之间，扫墓与踏青同期。"
-        img: ""
-        alt: "清明节插图"
       - id: laodong
         name: "劳动节"
         pinyin: "Láodòngjié"
@@ -3038,11 +2869,8 @@ years:
         end: "2031-05-05"
         days: 5
         statutory: 2
-        makeup: []
         arrange: "周四至周一"
         desc: "5 月 1 日国际劳动节。2024 年修订后法定假日由 1 天增加到 2 天，通常再拼出 5 天连休。"
-        img: ""
-        alt: "劳动节插图"
       - id: duanwu
         name: "端午节"
         pinyin: "Duānwǔjié"
@@ -3051,11 +2879,8 @@ years:
         end: "2031-06-24"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周日至周二"
         desc: "农历五月初五，包粽子、赛龙舟。落在周三时只放当天 1 天。"
-        img: ""
-        alt: "端午节插图"
       - id: zhongqiu
         name: "中秋节"
         pinyin: "Zhōngqiūjié"
@@ -3064,11 +2889,8 @@ years:
         end: "2031-10-08"
         days: 8
         statutory: 1
-        makeup: []
         arrange: "周三至周三"
         desc: "农历八月十五，赏月、吃月饼。落在周三时只放当天 1 天。"
-        img: ""
-        alt: "中秋节插图"
       - id: guoqing
         name: "国庆节"
         pinyin: "Guóqìngjié"
@@ -3077,11 +2899,8 @@ years:
         end: "2031-10-08"
         days: 8
         statutory: 3
-        makeup: []
         arrange: "周三至周三"
         desc: "10 月 1 日。法定假日 3 天，与前后周末调休后拼成 7 天黄金周，是国内出行最集中的一周。"
-        img: ""
-        alt: "国庆节插图"
     festivals:
       - name: "腊八节"
         pinyin: "Làbājié"
@@ -3309,11 +3128,8 @@ years:
         end: "2032-01-03"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周四至周六"
         desc: "公历新年的第一天。法定假日只有 1 天，与周末相连就成了 3 天小长假。"
-        img: ""
-        alt: "元旦插图"
       - id: chunjie
         name: "春节"
         pinyin: "Chūnjié"
@@ -3322,11 +3138,8 @@ years:
         end: "2032-02-17"
         days: 8
         statutory: 4
-        makeup: []
         arrange: "周二至周二"
         desc: "农历正月初一，除夕也在假期内。年夜饭、红包、守岁都集中在这几天，也是全年最大规模的人口迁徙。"
-        img: ""
-        alt: "春节插图"
       - id: qingming
         name: "清明节"
         pinyin: "Qīngmíngjié"
@@ -3335,11 +3148,8 @@ years:
         end: "2032-04-05"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周六至周一"
         desc: "既是节气也是节日。清明节气每年落在 4 月 4 日至 6 日之间，扫墓与踏青同期。"
-        img: ""
-        alt: "清明节插图"
       - id: laodong
         name: "劳动节"
         pinyin: "Láodòngjié"
@@ -3348,11 +3158,8 @@ years:
         end: "2032-05-05"
         days: 5
         statutory: 2
-        makeup: []
         arrange: "周六至周三"
         desc: "5 月 1 日国际劳动节。2024 年修订后法定假日由 1 天增加到 2 天，通常再拼出 5 天连休。"
-        img: ""
-        alt: "劳动节插图"
       - id: duanwu
         name: "端午节"
         pinyin: "Duānwǔjié"
@@ -3361,11 +3168,8 @@ years:
         end: "2032-06-14"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周六至周一"
         desc: "农历五月初五，包粽子、赛龙舟。落在周三时只放当天 1 天。"
-        img: ""
-        alt: "端午节插图"
       - id: zhongqiu
         name: "中秋节"
         pinyin: "Zhōngqiūjié"
@@ -3374,11 +3178,8 @@ years:
         end: "2032-09-20"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周六至周一"
         desc: "农历八月十五，赏月、吃月饼。落在周三时只放当天 1 天。"
-        img: ""
-        alt: "中秋节插图"
       - id: guoqing
         name: "国庆节"
         pinyin: "Guóqìngjié"
@@ -3387,11 +3188,8 @@ years:
         end: "2032-10-07"
         days: 7
         statutory: 3
-        makeup: []
         arrange: "周五至周四"
         desc: "10 月 1 日。法定假日 3 天，与前后周末调休后拼成 7 天黄金周，是国内出行最集中的一周。"
-        img: ""
-        alt: "国庆节插图"
     festivals:
       - name: "腊八节"
         pinyin: "Làbājié"
@@ -3624,11 +3422,8 @@ years:
         end: "2033-01-03"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周六至周一"
         desc: "公历新年的第一天。法定假日只有 1 天，与周末相连就成了 3 天小长假。"
-        img: ""
-        alt: "元旦插图"
       - id: chunjie
         name: "春节"
         pinyin: "Chūnjié"
@@ -3637,11 +3432,8 @@ years:
         end: "2033-02-06"
         days: 8
         statutory: 4
-        makeup: []
         arrange: "周日至周日"
         desc: "农历正月初一，除夕也在假期内。年夜饭、红包、守岁都集中在这几天，也是全年最大规模的人口迁徙。"
-        img: ""
-        alt: "春节插图"
       - id: qingming
         name: "清明节"
         pinyin: "Qīngmíngjié"
@@ -3650,11 +3442,8 @@ years:
         end: "2033-04-04"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周六至周一"
         desc: "既是节气也是节日。清明节气每年落在 4 月 4 日至 6 日之间，扫墓与踏青同期。"
-        img: ""
-        alt: "清明节插图"
       - id: laodong
         name: "劳动节"
         pinyin: "Láodòngjié"
@@ -3663,11 +3452,8 @@ years:
         end: "2033-05-05"
         days: 5
         statutory: 2
-        makeup: []
         arrange: "周日至周四"
         desc: "5 月 1 日国际劳动节。2024 年修订后法定假日由 1 天增加到 2 天，通常再拼出 5 天连休。"
-        img: ""
-        alt: "劳动节插图"
       - id: duanwu
         name: "端午节"
         pinyin: "Duānwǔjié"
@@ -3676,11 +3462,8 @@ years:
         end: "2033-06-01"
         days: 1
         statutory: 1
-        makeup: []
         arrange: "周三至周三"
         desc: "农历五月初五，包粽子、赛龙舟。落在周三时只放当天 1 天。"
-        img: ""
-        alt: "端午节插图"
       - id: zhongqiu
         name: "中秋节"
         pinyin: "Zhōngqiūjié"
@@ -3689,11 +3472,8 @@ years:
         end: "2033-09-10"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周四至周六"
         desc: "农历八月十五，赏月、吃月饼。落在周三时只放当天 1 天。"
-        img: ""
-        alt: "中秋节插图"
       - id: guoqing
         name: "国庆节"
         pinyin: "Guóqìngjié"
@@ -3702,11 +3482,8 @@ years:
         end: "2033-10-07"
         days: 7
         statutory: 3
-        makeup: []
         arrange: "周六至周五"
         desc: "10 月 1 日。法定假日 3 天，与前后周末调休后拼成 7 天黄金周，是国内出行最集中的一周。"
-        img: ""
-        alt: "国庆节插图"
     festivals:
       - name: "腊八节"
         pinyin: "Làbājié"
@@ -3932,11 +3709,8 @@ years:
         end: "2034-01-02"
         days: 2
         statutory: 1
-        makeup: []
         arrange: "假期从上一年 12 月 31 日（周六）起共 3 天，其中 1 月 1 日（周日）、1 月 2 日（周一）落在 2034 年"
         desc: "公历新年的第一天。法定假日只有 1 天，与周末相连就成了 3 天小长假。"
-        img: ""
-        alt: "元旦插图"
       - id: chunjie
         name: "春节"
         pinyin: "Chūnjié"
@@ -3945,11 +3719,8 @@ years:
         end: "2034-02-25"
         days: 8
         statutory: 4
-        makeup: []
         arrange: "周六至周六"
         desc: "农历正月初一，除夕也在假期内。年夜饭、红包、守岁都集中在这几天，也是全年最大规模的人口迁徙。"
-        img: ""
-        alt: "春节插图"
       - id: qingming
         name: "清明节"
         pinyin: "Qīngmíngjié"
@@ -3958,11 +3729,8 @@ years:
         end: "2034-04-05"
         days: 1
         statutory: 1
-        makeup: []
         arrange: "周三至周三"
         desc: "既是节气也是节日。清明节气每年落在 4 月 4 日至 6 日之间，扫墓与踏青同期。"
-        img: ""
-        alt: "清明节插图"
       - id: laodong
         name: "劳动节"
         pinyin: "Láodòngjié"
@@ -3971,11 +3739,8 @@ years:
         end: "2034-05-05"
         days: 5
         statutory: 2
-        makeup: []
         arrange: "周一至周五"
         desc: "5 月 1 日国际劳动节。2024 年修订后法定假日由 1 天增加到 2 天，通常再拼出 5 天连休。"
-        img: ""
-        alt: "劳动节插图"
       - id: duanwu
         name: "端午节"
         pinyin: "Duānwǔjié"
@@ -3984,11 +3749,8 @@ years:
         end: "2034-06-20"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周日至周二"
         desc: "农历五月初五，包粽子、赛龙舟。落在周三时只放当天 1 天。"
-        img: ""
-        alt: "端午节插图"
       - id: zhongqiu
         name: "中秋节"
         pinyin: "Zhōngqiūjié"
@@ -3997,11 +3759,8 @@ years:
         end: "2034-09-27"
         days: 1
         statutory: 1
-        makeup: []
         arrange: "周三至周三"
         desc: "农历八月十五，赏月、吃月饼。落在周三时只放当天 1 天。"
-        img: ""
-        alt: "中秋节插图"
       - id: guoqing
         name: "国庆节"
         pinyin: "Guóqìngjié"
@@ -4010,11 +3769,8 @@ years:
         end: "2034-10-07"
         days: 7
         statutory: 3
-        makeup: []
         arrange: "周日至周六"
         desc: "10 月 1 日。法定假日 3 天，与前后周末调休后拼成 7 天黄金周，是国内出行最集中的一周。"
-        img: ""
-        alt: "国庆节插图"
     festivals:
       - name: "腊八节"
         pinyin: "Làbājié"
@@ -4242,11 +3998,8 @@ years:
         end: "2035-01-01"
         days: 1
         statutory: 1
-        makeup: []
         arrange: "假期从上一年 12 月 30 日（周六）起共 3 天，其中只有 1 月 1 日（周一）落在 2035 年"
         desc: "公历新年的第一天。法定假日只有 1 天，与周末相连就成了 3 天小长假。"
-        img: ""
-        alt: "元旦插图"
       - id: chunjie
         name: "春节"
         pinyin: "Chūnjié"
@@ -4255,11 +4008,8 @@ years:
         end: "2035-02-14"
         days: 8
         statutory: 4
-        makeup: []
         arrange: "周三至周三"
         desc: "农历正月初一，除夕也在假期内。年夜饭、红包、守岁都集中在这几天，也是全年最大规模的人口迁徙。"
-        img: ""
-        alt: "春节插图"
       - id: qingming
         name: "清明节"
         pinyin: "Qīngmíngjié"
@@ -4268,11 +4018,8 @@ years:
         end: "2035-04-07"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周四至周六"
         desc: "既是节气也是节日。清明节气每年落在 4 月 4 日至 6 日之间，扫墓与踏青同期。"
-        img: ""
-        alt: "清明节插图"
       - id: laodong
         name: "劳动节"
         pinyin: "Láodòngjié"
@@ -4281,11 +4028,8 @@ years:
         end: "2035-05-05"
         days: 5
         statutory: 2
-        makeup: []
         arrange: "周二至周六"
         desc: "5 月 1 日国际劳动节。2024 年修订后法定假日由 1 天增加到 2 天，通常再拼出 5 天连休。"
-        img: ""
-        alt: "劳动节插图"
       - id: duanwu
         name: "端午节"
         pinyin: "Duānwǔjié"
@@ -4294,11 +4038,8 @@ years:
         end: "2035-06-11"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周六至周一"
         desc: "农历五月初五，包粽子、赛龙舟。落在周三时只放当天 1 天。"
-        img: ""
-        alt: "端午节插图"
       - id: zhongqiu
         name: "中秋节"
         pinyin: "Zhōngqiūjié"
@@ -4307,11 +4048,8 @@ years:
         end: "2035-09-17"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周六至周一"
         desc: "农历八月十五，赏月、吃月饼。落在周三时只放当天 1 天。"
-        img: ""
-        alt: "中秋节插图"
       - id: guoqing
         name: "国庆节"
         pinyin: "Guóqìngjié"
@@ -4320,11 +4058,8 @@ years:
         end: "2035-10-07"
         days: 7
         statutory: 3
-        makeup: []
         arrange: "周一至周日"
         desc: "10 月 1 日。法定假日 3 天，与前后周末调休后拼成 7 天黄金周，是国内出行最集中的一周。"
-        img: ""
-        alt: "国庆节插图"
     festivals:
       - name: "腊八节"
         pinyin: "Làbājié"
@@ -4555,11 +4290,8 @@ years:
         end: "2036-01-01"
         days: 1
         statutory: 1
-        makeup: []
         arrange: "假期从上一年 12 月 30 日（周日）起共 3 天，其中只有 1 月 1 日（周二）落在 2036 年"
         desc: "公历新年的第一天。法定假日只有 1 天，与周末相连就成了 3 天小长假。"
-        img: ""
-        alt: "元旦插图"
       - id: chunjie
         name: "春节"
         pinyin: "Chūnjié"
@@ -4568,11 +4300,8 @@ years:
         end: "2036-02-03"
         days: 8
         statutory: 4
-        makeup: []
         arrange: "周日至周日"
         desc: "农历正月初一，除夕也在假期内。年夜饭、红包、守岁都集中在这几天，也是全年最大规模的人口迁徙。"
-        img: ""
-        alt: "春节插图"
       - id: qingming
         name: "清明节"
         pinyin: "Qīngmíngjié"
@@ -4581,11 +4310,8 @@ years:
         end: "2036-04-06"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周五至周日"
         desc: "既是节气也是节日。清明节气每年落在 4 月 4 日至 6 日之间，扫墓与踏青同期。"
-        img: ""
-        alt: "清明节插图"
       - id: laodong
         name: "劳动节"
         pinyin: "Láodòngjié"
@@ -4594,11 +4320,8 @@ years:
         end: "2036-05-05"
         days: 5
         statutory: 2
-        makeup: []
         arrange: "周四至周一"
         desc: "5 月 1 日国际劳动节。2024 年修订后法定假日由 1 天增加到 2 天，通常再拼出 5 天连休。"
-        img: ""
-        alt: "劳动节插图"
       - id: duanwu
         name: "端午节"
         pinyin: "Duānwǔjié"
@@ -4607,11 +4330,8 @@ years:
         end: "2036-06-01"
         days: 3
         statutory: 1
-        makeup: []
         arrange: "周五至周日"
         desc: "农历五月初五，包粽子、赛龙舟。落在周三时只放当天 1 天。"
-        img: ""
-        alt: "端午节插图"
       - id: zhongqiu
         name: "中秋节"
         pinyin: "Zhōngqiūjié"
@@ -4620,11 +4340,8 @@ years:
         end: "2036-10-08"
         days: 8
         statutory: 1
-        makeup: []
         arrange: "周三至周三"
         desc: "农历八月十五，赏月、吃月饼。落在周三时只放当天 1 天。"
-        img: ""
-        alt: "中秋节插图"
       - id: guoqing
         name: "国庆节"
         pinyin: "Guóqìngjié"
@@ -4633,11 +4350,8 @@ years:
         end: "2036-10-08"
         days: 8
         statutory: 3
-        makeup: []
         arrange: "周三至周三"
         desc: "10 月 1 日。法定假日 3 天，与前后周末调休后拼成 7 天黄金周，是国内出行最集中的一周。"
-        img: ""
-        alt: "国庆节插图"
     festivals:
       - name: "腊八节"
         pinyin: "Làbājié"

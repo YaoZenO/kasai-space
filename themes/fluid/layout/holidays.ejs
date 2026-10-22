@@ -67,6 +67,7 @@ var isDefault = page.default ? true : false
                 <th scope="col">节日</th>
                 <th scope="col">节日当天</th>
                 <th scope="col">放假安排</th>
+                <% if (cal.official) { %><th scope="col">调休上班日</th><% } %>
               </tr>
             </thead>
             <tbody>
@@ -91,6 +92,13 @@ var isDefault = page.default ? true : false
                   <span class="cal-days"><%= h.days %> 天</span>
                   <% if (h.arrange) { %><span class="cal-hint"><%= h.arrange %></span><% } %>
                 </td>
+                <% if (cal.official) { %>
+                <td class="cal-makeup">
+                  <% if (h.makeupLabel.length) { %>
+                  <% for (var ki = 0; ki < h.makeupLabel.length; ki += 1) { %><span class="cal-makeup-day"><%= h.makeupLabel[ki] %></span><% } %>
+                  <% } else { %><span class="cal-makeup-none">无</span><% } %>
+                </td>
+                <% } %>
               </tr>
               <% } %>
             </tbody>
@@ -148,7 +156,17 @@ var isDefault = page.default ? true : false
           <span>节气 <%= cal.stats.termCount %> 个</span>
         </p>
 
-        <p class="cal-note"><% if (cal.official) { %>以上为国务院办公厅公布的正式安排，节日当天的公历日期是确定的，<% } else { %>以上均为<%= cal.label %>日期，根据农历和 2025 年起施行的放假规定推算得出。国务院办公厅将在前一年 11 月前后公布正式的放假调休安排，其中包括调休上班日。可以先按这些假期做规划，<% } %>订票与出行前请务必再确认。</p>
+        <%# 页尾这一组小字（说明 / 调休释义 / 来源）整体贴在栏底，与左表底边齐平；
+            来源与调休释义只在官方年份出现（预计年份既没有公布的调休日，也没有通知可引）。 %>
+        <div class="cal-after">
+          <p class="cal-note"><% if (cal.official) { %>以上为国务院办公厅公布的正式安排，节日当天的公历日期是确定的，<% } else { %>以上均为<%= cal.label %>日期，根据农历和 2025 年起施行的放假规定推算得出。国务院办公厅将在前一年 11 月前后公布正式的放假调休安排，其中包括调休上班日。可以先按这些假期做规划，<% } %>订票与出行前请务必再确认。</p>
+          <% if (cal.official) { %>
+          <p class="cal-after-line"><strong>调休上班日</strong>是为了凑出连休而需要上班的周末。日历里把它标为「调休上班」，放假日标为「放假」。</p>
+          <% } %>
+          <% if (cal.source) { %>
+          <p class="cal-after-line">来源：国务院办公厅<a href="<%= cal.source.url %>" target="_blank" rel="noopener"><%= cal.source.dateLabel %>的通知</a>（中文）。</p>
+          <% } %>
+        </div>
       </section>
     </div>
 
@@ -222,20 +240,6 @@ var isDefault = page.default ? true : false
       </aside>
       <% } %>
     </div>
-
-    <% if (cal.sources.length) { %>
-    <footer class="cal-sources">
-      <h2 class="cal-sources-title">数据来源</h2>
-      <ul>
-        <% for (var si = 0; si < cal.sources.length; si += 1) { var s = cal.sources[si] %>
-        <li>
-          <span class="cal-source-date"><%= s.date || '' %></span>
-          <a href="<%= s.url %>" target="_blank" rel="noopener"><%= s.label %></a>
-        </li>
-        <% } %>
-      </ul>
-    </footer>
-    <% } %>
 
     <% } %>
   </div>

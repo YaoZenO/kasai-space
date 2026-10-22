@@ -80,13 +80,17 @@ function mdCn(key) {
   return m + ' 月 ' + d + ' 日';
 }
 
-function normalizeHoliday(raw, label) {
+// 配图按节日类型挂在 meta.images 上，不随年份重复；单个节假日自己写了 img 时以它为准。
+// 图片是 Wikimedia Commons 的自由授权图，署名与授权是使用条件，必须一路带到详情卡。
+function normalizeHoliday(raw, label, images) {
   const start = toKey(raw.start) || toKey(raw.date);
   const end = toKey(raw.end) || start;
   if (!start) return null;
   const date = toKey(raw.date) || start;
+  const id = raw.id || date;
+  const pic = (images && images[id]) || {};
   return {
-    id: raw.id || date,
+    id: id,
     name: raw.name || '',
     pinyin: raw.pinyin || '',
     date: date,
@@ -106,9 +110,12 @@ function normalizeHoliday(raw, label) {
     arrange: raw.arrange || '',
     desc: raw.desc || '',
     label: label,
-    anchor: 'holiday-' + (raw.id || date),
-    img: raw.img || '',
-    alt: raw.alt || '',
+    anchor: 'holiday-' + id,
+    img: raw.img || pic.file || '',
+    alt: raw.alt || pic.alt || '',
+    credit: pic.author || '',
+    creditLicense: pic.license || '',
+    creditUrl: pic.page || '',
     lunar: (raw.lunar && typeof raw.lunar === 'object') ? raw.lunar : null,
   };
 }
@@ -144,6 +151,29 @@ function normalizeTerm(raw) {
   };
 }
 
+// 「来源」只给官方年份标一行（参考站也只在这类年份下标）：
+//   meta.sources 按年份存 → sources: { "2026": { date, url, label } }
+// 预计年份返回 null，页面上靠「以上均为预计日期」那段说明。
+function cnDate(key) {
+  const { y, m, d } = keyToParts(key);
+  return y + ' 年 ' + m + ' 月 ' + d + ' 日';
+}
+
+function sourceOf(data, src) {
+  if (!src || !src.official) return null;
+  const map = (data.meta && data.meta.sources) || null;
+  if (!map || Array.isArray(map)) return null;
+  const s = map[String(src.year)];
+  if (!s || !s.url) return null;
+  const dk = toKey(s.date);
+  return {
+    url: s.url,
+    label: s.label || '',
+    date: dk || '',
+    dateLabel: dk ? cnDate(dk) : '',
+  };
+}
+
 // 主入口。数据为空时返回 null，模板据此渲染「还没填」的诚实空态。
 // year 为页面 front-matter 里声明的年份；缺省或找不到时回落到第一年（默认年）。
 function buildCalendar(raw, wantYear) {
@@ -163,11 +193,42 @@ function buildCalendar(raw, wantYear) {
   // 供详情卡按日期取农历；单个节假日自己带 lunar 映射时以它为准。
   const yearLunar = (src.lunar && typeof src.lunar === 'object') ? src.lunar : null;
 
+  // 配图按节日类型共用（meta.images），十六个年份共用同一套图，不在每年重复写一遍。
+  const images = (data.meta && data.meta.images) || null;
+
   const holidays = (Array.isArray(src.holidays) ? src.holidays : [])
-    .map((h) => normalizeHoliday(h, label))
+    .map((h) => normalizeHoliday(h, label, images))
     .filter(Boolean)
     .sort((a, b) => (a.start < b.start ? -1 : 1));
   holidays.forEach((h) => { if (!h.lunar) h.lunar = yearLunar; });
+
+  // ---- 调休上班日归属 ----
+  // 数据里只有年份级的 makeup 列表，逐节日那一份以前是手工复制进去的，2025/2026 被复制成
+  // 「每个节日都挂着整年 5~6 个调休日」——表里一列出来就是错的。改成按「离哪个假期最近」
+  // 自动归属：调休日一定紧挨着它服务的那个假期（节前或节后），这个规则对十六年全部成立。
+  //
+  // 平局要偏向「节前」：2021-09-26 离中秋结束（09-21）和离国庆开始（10-01）都是 5 天，
+  // 官方通知里它是国庆的节前调休日。所以打分写成 gap*2 + (节后 ? 1 : 0)。
+  holidays.forEach((h) => { h.makeup = []; });
+  (Array.isArray(src.makeup) ? src.makeup : []).map(toKey).filter(Boolean).forEach((mk) => {
+    let best = null;
+    let bestScore = Infinity;
+    holidays.forEach((h) => {
+      let gap = 0;
+      let after = false;
+      if (mk < h.start) gap = spanDays(mk, h.start) - 1;
+      else if (mk > h.end) { gap = spanDays(h.end, mk) - 1; after = true; }
+      const score = gap * 2 + (after ? 1 : 0);
+      if (score < bestScore) { bestScore = score; best = h; }
+    });
+    if (best) {
+      best.makeup.push(mk);
+      best.makeup.sort();
+    }
+  });
+  holidays.forEach((h) => {
+    h.makeupLabel = h.makeup.map((mk) => md(mk) + ' ' + WEEK_CN[weekdayOf(mk)]);
+  });
 
   const festivals = (Array.isArray(src.festivals) ? src.festivals : [])
     .map(normalizeFestival)
@@ -286,7 +347,9 @@ function buildCalendar(raw, wantYear) {
     zodiac: src.zodiac || '',
     updated: (data.meta && toKey(data.meta.updated)) || '',
     notice: (data.meta && data.meta.notice) || '',
-    sources: (data.meta && Array.isArray(data.meta.sources) ? data.meta.sources : []),
+    // 只有官方年份才有「来源」可标（参考站也只在这类年份下标一行）。
+    // 预计年份不标来源——页面上「以上均为预计日期」那段已经说清了。
+    source: sourceOf(data, src),
     holidays: holidays,
     festivals: festivals,
     terms: terms,
@@ -330,6 +393,11 @@ function tipPayload(cal) {
       tip.anchor = h.anchor;
       tip.img = h.img;
       tip.alt = h.alt;
+      // 自由授权图必须带署名与授权，卡里显示、链回 Commons 原文件页
+      if (h.credit) {
+        tip.credit = '图：' + h.credit + ' / ' + h.creditLicense;
+        tip.creditUrl = h.creditUrl;
+      }
       // 放假期间撞上节日或节气时，作为补充说明（例如清明当天也是清明节气）
       const extra = [];
       if (r.festival) extra.push(r.festival.kind + '：' + r.festival.name);

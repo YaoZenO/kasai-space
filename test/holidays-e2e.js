@@ -64,6 +64,33 @@ ok('法定假日合计 13 天（2025 年起施行的《全国年节及纪念日�
     '法定假日合计不是 13 天 —— 要么数据错了，要么规则变了，两种情况都必须人工复核后再改断言');
 });
 
+// 调休日只存在于年份级列表里，逐节日那一份由 helper 就近归属。2025/2026 曾经是
+// 「每个节日都挂着整年调休日」，直接列进表里就是错的（E-051）。
+ok('调休上班日按「离哪个假期最近」归属，且平局偏向节前', () => {
+  // 2021 通知：春节 2/7、2/20；劳动 4/25、5/8；中秋 9/18；国庆 9/26、10/9。
+  // 其中 9/26 离中秋结束与国庆开始都是 5 天，是这条规则唯一的平局样本。
+  const c = buildCalendar(raw, 2021);
+  const byId = (id) => c.holidays.find((h) => h.id === id);
+  assert.deepStrictEqual(byId('chunjie').makeup, ['2021-02-07', '2021-02-20']);
+  assert.deepStrictEqual(byId('laodong').makeup, ['2021-04-25', '2021-05-08']);
+  assert.deepStrictEqual(byId('zhongqiu').makeup, ['2021-09-18'], '9/26 不该算到中秋头上');
+  assert.deepStrictEqual(byId('guoqing').makeup, ['2021-09-26', '2021-10-09']);
+  // 每个年度的调休日必须一个不多一个不少地分配下去
+  cal.years.forEach((y) => {
+    const cc = buildCalendar(raw, y);
+    const rawYear = raw.years.find((v) => Number(v.year) === y);
+    const expected = Array.isArray(rawYear.makeup) ? rawYear.makeup.length : 0;
+    const assigned = cc.holidays.reduce((n, h) => n + h.makeup.length, 0);
+    assert.strictEqual(assigned, expected, y + ' 年调休日没分完（' + assigned + '/' + expected + '）');
+  });
+});
+
+ok('「来源」只给官方年份标一行，预计年份不标（参考站的做法）', () => {
+  assert.ok(buildCalendar(raw, 2026).source, '2026 是通知年，应当有来源');
+  assert.strictEqual(buildCalendar(raw, 2026).source.dateLabel, '2025 年 11 月 4 日');
+  assert.strictEqual(buildCalendar(raw, 2027).source, null, '预计年份不该标来源');
+});
+
 // 2024-11 修订的《全国年节及纪念日放假办法》自 2025-01-01 起施行，法定假日由 11 天增到 13 天。
 // 所以 2024 及以前是 11 天、2025 起是 13 天 —— 两条都写死，跨过这条分界线的数据必须人工复核。
 ok('十六个年份逐个核对：放假跨度、声明天数、法定合计', () => {
@@ -296,6 +323,15 @@ if (!fs.existsSync(PUBLIC)) {
     assert.strictEqual(data['2027-02-05'].name, '春节');
   });
 
+  ok('详情卡的数据里带着图片署名与授权（产物层，授权条件）', () => {
+    const m = html.match(/id="cal-day-data">([\s\S]*?)<\/script>/);
+    assert.ok(m, '页面里没有 cal-day-data');
+    const data = JSON.parse(m[1]);
+    assert.strictEqual(data['2027-02-06'].img, '/img/holidays/chunjie.jpg', '春节卡片没带配图');
+    assert.match(data['2027-02-06'].credit || '', /^图：.+ \/ CC /, '春节卡片没带署名/授权');
+    assert.match(data['2027-02-06'].creditUrl || '', /^https:\/\/commons\.wikimedia\.org\//, '署名没有指回原文件页');
+  });
+
   // .cal-fest-cols 是两列网格。表头曾经是它的独立子元素，于是「表头 + 两个列表」三个
   // 子元素被塞进两列：表头占 (1,1)、第一个列表 (1,2)、第二个列表 (2,1)，
   // 第一行高度 = 列表高度，表头下方空出 600 多像素（E-050）。
@@ -318,6 +354,23 @@ if (!fs.existsSync(PUBLIC)) {
   ok('表格渲染了 7 行且带锚点', () => {
     const rows = (html.match(/<tr id="holiday-/g) || []).length;
     assert.strictEqual(rows, 7, '表格行数不是 7（实际 ' + rows + '）');
+  });
+
+  // 官方年份的表比预计年份多一列「调休上班日」，并在年一览下方多一行「来源」——两者都是
+  // 参考站的做法：没公布的年份不编调休、也不标来源。
+  ok('官方年份多一列调休上班日 + 一行来源，预计年份两者都没有', () => {
+    const off = fs.readFileSync(path.join(PUBLIC, 'holidays', '2026', 'index.html'), 'utf8');
+    const exp = fs.readFileSync(path.join(PUBLIC, 'holidays', '2027', 'index.html'), 'utf8');
+    assert.ok(off.indexOf('>调休上班日</th>') !== -1, '2026 页缺「调休上班日」列表头');
+    assert.ok(off.indexOf('class="cal-makeup"') !== -1, '2026 页的调休列没渲染出来');
+    assert.ok(exp.indexOf('>调休上班日</th>') === -1, '2027 是预计年份，不该有调休列');
+    assert.ok(off.indexOf('来源：国务院办公厅') !== -1, '2026 页缺「来源：…」那一行');
+    assert.ok(exp.indexOf('来源：国务院办公厅') === -1, '2027 页不该有来源行');
+    assert.ok(off.indexOf('>数据来源<') === -1, '「数据来源」大块又回来了——只留一行来源');
+    assert.ok(off.indexOf('是为了凑出连休而需要上班的周末') !== -1, '缺「调休上班日」释义那一行');
+    // 调休日期要真落到对应的节日行上（2026 春节的 02-14、02-28）
+    assert.ok(off.indexOf('02-14 周六') !== -1 && off.indexOf('02-28 周六') !== -1,
+      '2026 春节的调休日没渲染出来');
   });
 
   ok('导航与页面互链存在（/holidays/ 进了「更多」下拉）', () => {
@@ -380,14 +433,72 @@ ok('年份导航允许收缩换行，不会把页面撑出横向滚动条（E-04
   assert.ok(/min-width:\s*0/.test(rule), '.cal-years 缺 min-width:0，flex 项目不会收缩到内容以下');
   // 窄屏断点里还要把页头改成上下堆叠，否则左右两栏挤在一行仍然会溢出
   const mq = css.slice(css.indexOf('@media (max-width: 575.98px)'));
-  assert.ok(mq.indexOf('.cal-head-row { flex-direction: column') !== -1,
-    '窄屏断点里没有把 .cal-head-row 改成上下堆叠');
+  assert.ok(mq.indexOf('.cal-head-row { grid-template-columns: minmax(0, 1fr)') !== -1,
+    '窄屏断点里没有把 .cal-head-row 改成单列');
 });
 
 ok('字体产物已随构建落到 public/fonts/（public/ 存在时）', () => {
   if (!fs.existsSync(PUBLIC)) return;
   ['fraunces-600-latin.woff2', 'nunito-sans-var-latin.woff2'].forEach((f) => {
     assert.ok(fs.existsSync(path.join(PUBLIC, 'fonts', f)), 'public/fonts/ 缺少 ' + f);
+  });
+});
+
+// ---------- ④ 配图（Wikimedia Commons 自由授权图） ----------
+//
+// 这一节锁的不是「好不好看」，而是**授权条件**：CC BY / CC BY-SA 要求署名 + 授权声明 +
+// 指回原文件页。这三样任何一样被后续改动弄丢，图就变成无授权使用——而页面照常渲染，
+// 没有任何东西会报警。所以要按「数据里必须齐 → 文件必须真 → 产物里必须带出去」三层锁死。
+
+const IMG_DIR = path.join(ROOT, 'source/img/holidays');
+const META_IMAGES = (raw.meta && raw.meta.images) || {};
+
+// 只读 SOF 段拿宽高，不引第三方库
+function jpegSize(buf) {
+  if (buf.length < 4 || buf[0] !== 0xFF || buf[1] !== 0xD8) return null;
+  let i = 2;
+  while (i + 9 < buf.length) {
+    if (buf[i] !== 0xFF) { i += 1; continue; }
+    const marker = buf[i + 1];
+    if (marker === 0xD8 || marker === 0x01 || (marker >= 0xD0 && marker <= 0xD7)) { i += 2; continue; }
+    const len = buf.readUInt16BE(i + 2);
+    if (marker >= 0xC0 && marker <= 0xCF && marker !== 0xC4 && marker !== 0xC8 && marker !== 0xCC) {
+      return { h: buf.readUInt16BE(i + 5), w: buf.readUInt16BE(i + 7) };
+    }
+    i += 2 + len;
+  }
+  return null;
+}
+
+ok('七个法定节假日都有配图，且署名 / 授权 / 原文件页齐全（授权条件）', () => {
+  const ids = ['yuandan', 'chunjie', 'qingming', 'laodong', 'duanwu', 'zhongqiu', 'guoqing'];
+  ids.forEach((id) => {
+    const m = META_IMAGES[id];
+    assert.ok(m, 'meta.images 缺少 ' + id);
+    assert.match(m.file, /^\/img\/holidays\/[a-z]+\.jpg$/, id + ' 的 file 路径不对：' + m.file);
+    assert.ok((m.alt || '').length >= 4, id + ' 缺 alt 文字');
+    assert.ok((m.author || '').length >= 2, id + ' 缺作者署名');
+    assert.match(m.license || '', /^(CC0|CC BY|CC BY-SA|公有领域|Public domain)/, id + ' 的授权写错了：' + m.license);
+    assert.match(m.page || '', /^https:\/\/commons\.wikimedia\.org\/wiki\/File:/, id + ' 的原文件页不是 Commons 链接');
+  });
+  // 反查：数据里的每个 holiday id 都必须能拿到图，不能出现「图挂在没人用的 id 上」
+  const cal2027 = buildCalendar(raw, 2027);
+  cal2027.holidays.forEach((h) => {
+    assert.ok(h.img, h.name + ' 在详情卡里没有配图');
+    assert.ok(h.credit, h.name + ' 的详情卡没有署名');
+    assert.strictEqual(h.img, META_IMAGES[h.id].file, h.name + ' 取到的图不是 meta.images 里那张');
+  });
+});
+
+ok('配图文件存在、确实是 JPEG、宽度足够', () => {
+  ['yuandan', 'chunjie', 'qingming', 'laodong', 'duanwu', 'zhongqiu', 'guoqing'].forEach((id) => {
+    const f = path.join(IMG_DIR, id + '.jpg');
+    assert.ok(fs.existsSync(f), '缺少配图文件：source/img/holidays/' + id + '.jpg');
+    const buf = fs.readFileSync(f);
+    const size = jpegSize(buf);
+    assert.ok(size, id + '.jpg 不是可解析的 JPEG');
+    assert.ok(size.w >= 800, id + '.jpg 只有 ' + size.w + 'px 宽，详情卡放大后会糊');
+    assert.ok(buf.length > 50 * 1024, id + '.jpg 只有 ' + buf.length + ' 字节，像是压坏了');
   });
 });
 
@@ -398,6 +509,15 @@ ok('自检：把法定假日数改错必须被抓到', () => {
   bad.years.find((y) => y.year === 2027).holidays[0].statutory = 2; // 元旦应为 1 天
   const c2 = buildCalendar(bad, 2027);
   assert.notStrictEqual(c2.stats.statutoryDays, 13, '数据改动没有被统计反映出来——断言会空转');
+});
+
+ok('自检：把配图的署名删掉，详情卡必须也跟着没有署名（说明断言在查数据而非常量）', () => {
+  const bad = JSON.parse(JSON.stringify(raw));
+  delete bad.meta.images.chunjie.author;
+  const c2 = buildCalendar(bad, 2027);
+  const cj = c2.holidays.find((h) => h.id === 'chunjie');
+  assert.strictEqual(cj.credit, '', '删了作者还拿得到署名——断言会空转');
+  assert.ok(cj.img, '配图本身不该跟着丢');
 });
 
 ok('自检：删掉某年的节气必须被抓到（E-047 防复发）', () => {

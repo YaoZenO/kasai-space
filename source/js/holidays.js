@@ -43,8 +43,17 @@
   var img = document.createElement('img');
   img.className = 'cal-panel-img';
   img.alt = '';
+  img.loading = 'lazy';
+  img.decoding = 'async';
   img.hidden = true;
   media.appendChild(img);
+  // 自由授权图的署名行：作者 / 授权 + 链回 Commons 原文件页。授权要求，不能省。
+  var credit = document.createElement('a');
+  credit.className = 'cal-panel-credit';
+  credit.target = '_blank';
+  credit.rel = 'noopener nofollow';
+  credit.hidden = true;
+  media.appendChild(credit);
 
   var close = document.createElement('button');
   close.type = 'button';
@@ -116,9 +125,15 @@
       img.alt = rec.alt || '';
       img.hidden = false;
       media.hidden = false;
+      credit.textContent = rec.credit || '';
+      credit.hidden = !rec.credit;
+      if (rec.creditUrl) credit.setAttribute('href', rec.creditUrl);
+      else credit.removeAttribute('href');
     } else {
       img.removeAttribute('src');
       img.hidden = true;
+      credit.textContent = '';
+      credit.hidden = true;
       media.hidden = true;
     }
   }
