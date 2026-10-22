@@ -17,6 +17,7 @@ index_img: https://www.stylekit.top/brand/v3/social-preview.png
 /* 本页无章节目录：收起右侧空目录栏，正文加宽铺满（仅本页生效） */
 .post-side-right{display:none!important}
 .post-main-col{max-width:1100px!important}
+.post-content .markdown-body{max-width:1100px!important}
 .sk-wrap{margin:8px 0 24px}
 .sk-hero{width:100%;border-radius:14px;display:block;margin:10px 0 4px;background:#111;aspect-ratio:12/5;object-fit:cover}
 .sk-cap{font-size:12px;opacity:.65;margin:2px 0 10px}
