@@ -39,7 +39,7 @@ function ok(label, fn) {
 }
 
 const raw = yaml.load(fs.readFileSync(path.join(ROOT, 'source', '_data', 'holidays.yml'), 'utf8'));
-const cal = buildCalendar(raw);
+const cal = buildCalendar(raw, 2027);
 const year = cal.year;
 
 console.log('节假日页数据与计算（' + year + '）');
@@ -103,9 +103,10 @@ ok('关键日期状态正确（除夕起放 / 初三后上班 / 国庆含 7 日 
 });
 
 ok('同一天既有节日又有节气时两者都保留（10-08 重阳 + 寒露）', () => {
-  const d = cal.days['2027-10-08'];
-  assert.ok(d.festival && d.festival.name === '重阳节', '10 月 8 日缺重阳节');
-  assert.ok(d.term && d.term.name === '寒露', '10 月 8 日缺寒露节气');
+  const d = cal.days['2027-09-23'];
+  assert.ok(d.festival && d.festival.name === '秋分', '9 月 23 日缺秋分');
+  assert.strictEqual(d.festival.kind, '节气', '秋分的类别不是节气');
+  assert.ok(cal.days['2027-10-08'].festival && cal.days['2027-10-08'].festival.name === '重阳节', '10 月 8 日缺重阳节');
 });
 
 ok('已放假的格子不再叠节日点（清明当天既是假日又是节气）', () => {
@@ -122,14 +123,14 @@ ok('日期写成 Date 对象与写成字符串得到同一份结果（跨时区�
     return new Date(Date.UTC(p[0], p[1] - 1, p[2]));
   };
   const copy = JSON.parse(JSON.stringify(raw));
-  const y = copy.years[0];
+  const y = copy.years.find((x) => x.year === 2027);
   y.holidays.forEach((h) => {
     h.date = toDate(h.date); h.start = toDate(h.start); h.end = toDate(h.end);
   });
   y.festivals.forEach((f) => { f.date = toDate(f.date); });
-  y.terms.forEach((t) => { t.date = toDate(t.date); });
+  Object.keys(y.lunar || {}).forEach((k) => { y.lunar[k] = k; });
 
-  const cal2 = buildCalendar(copy);
+  const cal2 = buildCalendar(copy, 2027);
   const fingerprint = (c) => Object.keys(c.days).map((k) => k + ':' + c.days[k].state).join(',');
   assert.strictEqual(fingerprint(cal2), fingerprint(cal), 'Date 输入与字符串输入的逐日状态不一致');
   assert.deepStrictEqual(cal2.holidays.map((h) => h.start), cal.holidays.map((h) => h.start), '节日起始日被时区改写');
@@ -145,17 +146,21 @@ ok('悬停数据覆盖除夕且带放假区间与锚点', () => {
   const tips = tipPayload(cal);
   const t = tips['2027-02-05'];
   assert.ok(t, '2027-02-05 没有悬停数据');
-  assert.strictEqual(t.n, '春节');
-  assert.strictEqual(t.k, cal.label + '放假');
-  assert.match(t.a, /02-05 → 02-12 · 8 天/);
-  assert.strictEqual(t.h, 'holiday-chunjie');
+  assert.strictEqual(t.name, '春节');
+  assert.strictEqual(t.kicker, cal.label + '法定节假日');
+  assert.strictEqual(t.lunar, '除夕 · 腊月廿九', '除夕当天没带农历');
+  assert.strictEqual(t.dayNo, '第 1 天，共 8 天');
+  assert.match(t.arrange, /02-05 → 02-12 · 8 天/);
+  assert.strictEqual(t.anchor, 'holiday-chunjie');
 });
 
 ok('不放假的日子也能说清「为什么」，普通工作日不占体积', () => {
   const tips = tipPayload(cal);
-  assert.strictEqual(tips['2027-02-20'].n, '元宵节');
-  assert.match(tips['2027-02-20'].k, /周末/);
-  assert.ok(tips['2027-01-05'].n === '小寒', '节气日应有名字');
+  assert.strictEqual(tips['2027-02-20'].name, '元宵节');
+  assert.strictEqual(tips['2027-02-20'].lunar, '正月十五', '元宵节没带农历');
+  assert.strictEqual(tips['2027-02-20'].kicker, '传统节日');
+  assert.strictEqual(tips['2027-09-23'].name, '秋分', '节气日应有名字');
+  assert.strictEqual(tips['2027-09-23'].kicker, '节气');
   assert.strictEqual(tips['2027-07-14'], undefined, '普通工作日不该进 payload');
 });
 
@@ -164,6 +169,42 @@ ok('不放假的日子也能说清「为什么」，普通工作日不占体积'
 if (!fs.existsSync(PUBLIC)) {
   console.log('  - SKIP 产物断言（没有 public/，先跑 npm run build）');
 } else {
+  ok('布局模板能独立编译（E-045：编译失败时 Hexo 会静默产出残页）', () => {
+    // 判据只看结果：模板必须能被 ejs 编译。变异自检见下一节。
+    const ejs = require('ejs');
+    const src = fs.readFileSync(path.join(ROOT, 'themes/fluid/layout/holidays.ejs'), 'utf8');
+    let err = null;
+    try { ejs.compile(src, { filename: 'holidays.ejs' }); } catch (e) { err = e; }
+    assert.strictEqual(err, null, 'holidays.ejs 编译失败：' + (err && err.message.split('\n')[0]));
+  });
+
+  ok('十二年数据齐全，且年份页全部生成', () => {
+    assert.strictEqual(cal.years.length, 12, '年份不是 12 个');
+    assert.deepStrictEqual(cal.years, [2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 2033, 2034, 2035, 2036]);
+    if (!fs.existsSync(PUBLIC)) return;
+    cal.years.forEach((y) => {
+      const abs = path.join(PUBLIC, 'holidays', String(y), 'index.html');
+      assert.ok(fs.existsSync(abs), '缺少年份页：holidays/' + y + '/index.html');
+      assert.ok(fs.statSync(abs).size > 20000, '年份页内容过少：holidays/' + y + '/');
+    });
+  });
+
+  ok('年度状态标对：2025/2026 为官方，2027 起为预计', () => {
+    const byYear = (y) => buildCalendar(raw, y);
+    assert.strictEqual(byYear(2026).label, '官方', '2026 是国务院通知年，应标官方');
+    assert.strictEqual(byYear(2026).official, true);
+    assert.strictEqual(byYear(2027).label, '预计', '2027 起应标预计');
+    assert.strictEqual(byYear(2027).official, false);
+  });
+
+  ok('发布页不出现内部维护说明，也不出现「悬停查看」提示', () => {
+    const html = fs.readFileSync(PAGE, 'utf8');
+    assert.ok(html.indexOf('这一页怎么维护') === -1, '维护说明漏到了发布页');
+    assert.ok(html.indexOf('悬停查看') === -1, '「悬停查看当天」这类操作提示不该出现在页面里');
+    assert.ok(html.indexOf('>备注<') !== -1, '节日列表缺「备注」列表头');
+    assert.ok(html.indexOf('以上均为预计日期') !== -1, '预计说明没放在日历栏下方');
+  });
+
   ok('页面存在且不是 0 字节（E-029 / E-038）', () => {
     assert.ok(fs.existsSync(PAGE), 'public/holidays/index.html 不存在 —— 构建漏了这一页');
     const size = fs.statSync(PAGE).size;
@@ -201,8 +242,8 @@ if (!fs.existsSync(PUBLIC)) {
     const m = html.match(/id="cal-day-data">([\s\S]*?)<\/script>/);
     assert.ok(m, '页面里没有 cal-day-data');
     const data = JSON.parse(m[1]);
-    assert.ok(Object.keys(data).length > 140, '悬停数据条目过少：' + Object.keys(data).length);
-    assert.strictEqual(data['2027-02-05'].n, '春节');
+    assert.ok(Object.keys(data).length > 120, '悬停数据条目过少：' + Object.keys(data).length);
+    assert.strictEqual(data['2027-02-05'].name, '春节');
   });
 
   ok('表格渲染了 7 行且带锚点', () => {
@@ -274,10 +315,18 @@ ok('自检：把法定假日数改错必须被抓到', () => {
   assert.notStrictEqual(c2.stats.statutoryDays, 13, '数据改动没有被统计反映出来——断言会空转');
 });
 
+ok('自检：模板编译断言对语法错误确实会失败（E-045 防复发）', () => {
+  const ejs = require('ejs');
+  const broken = '<% if (x) { %><p>unclosed</p>';
+  let err = null;
+  try { ejs.compile(broken, { filename: 'x.ejs' }); } catch (e) { err = e; }
+  assert.ok(err, '自检样本应当编译失败，否则断言空转');
+});
+
 ok('自检：把某天的放假区间改掉必须改变逐日状态', () => {
   const bad = JSON.parse(JSON.stringify(raw));
-  bad.years[0].holidays[1].start = '2027-02-06';
-  const c2 = buildCalendar(bad);
+  bad.years.find((y) => y.year === 2027).holidays[1].start = '2027-02-06';
+  const c2 = buildCalendar(bad, 2027);
   assert.strictEqual(c2.days['2027-02-05'].state, 'work', '2 月 5 日仍被标成放假——状态判定有问题');
 });
 

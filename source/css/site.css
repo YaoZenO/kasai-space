@@ -1956,15 +1956,56 @@ a.feed-title:hover {
   letter-spacing: 0;
 }
 
-.cal-lead {
-  margin: 0 0 clamp(2rem, 4vw, 2.8rem);
-  max-width: 46em;
-  font-size: 1rem;
-  line-height: 1.9;
+/* 左表 + 右年历格 */
+.cal-head-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+}
+
+.cal-years { flex: none; text-align: right; }
+
+.cal-years-label {
+  display: block;
+  margin-bottom: .5rem;
+  font-family: var(--font-mono);
+  font-size: .75rem;
+  letter-spacing: .1em;
   color: var(--sec-text-color);
 }
 
-/* 左表 + 右年历格 */
+.cal-years ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: .3rem .55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cal-years li { font-family: var(--font-mono); font-size: .76rem; }
+
+.cal-years a { color: var(--sec-text-color); }
+.cal-years a:hover { color: var(--accent); }
+
+.cal-year-current {
+  padding: .1rem .38rem;
+  border-radius: 4px;
+  background: var(--accent);
+  color: #f7f6f4;
+}
+
+/* 表头右侧的状态标签（预计 / 官方） */
+.cal-tag {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: .75rem;
+  letter-spacing: .1em;
+  color: var(--sec-text-color);
+}
+
 .cal-top {
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
@@ -2007,7 +2048,7 @@ a.feed-title:hover {
   display: block;
   font-size: 1.02rem;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--text-color);
   white-space: nowrap;
 }
 
@@ -2147,62 +2188,126 @@ a.feed-title:hover {
 }
 
 .cal-stats-line i { font-style: normal; color: rgba(26, 26, 26, 0.3); margin: 0 .1rem; }
-.cal-side-note { margin: .55rem 0 0; font-size: .78rem; line-height: 1.8; color: var(--sec-text-color); }
+.cal-note {
+  margin: .9rem 0 0;
+  font-size: .78rem;
+  line-height: 1.85;
+  color: var(--sec-text-color);
+}
 
-/* 悬停浮层：纸面浮层 = 面板底 + 12px + chip border + 全站唯一阴影（§4.3 / §6.3） */
-.cal-tip {
+/* 常驻详情卡：纸面浮层 = 面板底 + 12px + chip border + 全站唯一阴影（§4.3 / §6.3）。
+   位置由 JS 决定（优先贴在格子左侧），这里只定外观；内容居中，对齐参考站。 */
+.cal-panel {
   position: fixed;
   z-index: 1080;
-  width: min(19rem, calc(100vw - 24px));
-  padding: .95rem 1.1rem 1rem;
+  width: min(21rem, calc(100vw - 24px));
+  padding: 0 0 1rem;
   background: #f7f6f4;
   border: 1px solid rgba(26, 26, 26, 0.12);
   border-radius: 12px;
   box-shadow: var(--site-float-shadow);
   color: #1a1a1a;
+  text-align: center;
 }
 
-.cal-tip[hidden] { display: none; }
-.cal-tip > * { margin: 0; }
-.cal-tip > * + * { margin-top: .45rem; }
+.cal-panel[hidden] { display: none; }
+.cal-panel > * { margin: 0; }
+.cal-panel-media { position: relative; overflow: hidden; border-radius: 11px 11px 0 0; }
+.cal-panel-media[hidden] { display: none; }
+.cal-panel-img { display: block; width: 100%; height: 148px; object-fit: cover; }
 
-.cal-tip-date {
+.cal-panel-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(26, 26, 26, 0.45);
+  color: #fff;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.cal-panel-close:hover { background: rgba(26, 26, 26, 0.7); }
+
+.cal-panel-date {
+  margin: 1rem 1.1rem 0;
   font-family: var(--font-mono);
   font-size: .78rem;
   letter-spacing: .06em;
   color: #6b6b6b;
 }
 
-.cal-tip-kind {
+.cal-panel-lunar {
+  margin: .18rem 1.1rem 0;
+  font-size: .78rem;
+  color: #6b6b6b;
+}
+
+.cal-panel-kicker {
+  margin: .7rem 1.1rem 0;
   font-size: .75rem;
   font-weight: 700;
   letter-spacing: .12em;
   color: #c4463a;
 }
 
-/* 参考站的浮层节日名走 --serif（拉丁 Fraunces + 中文宋体），这里对齐 */
-.cal-tip-name { font-family: "Fraunces", Georgia, "Times New Roman", serif; font-weight: 600; font-size: 1.05rem; line-height: 1.4; }
-.cal-tip-desc { font-size: .84rem; line-height: 1.75; color: #1a1a1a; }
-.cal-tip-extra { font-size: .78rem; line-height: 1.7; color: #6b6b6b; }
+/* 参考站的卡片节日名走 --serif（拉丁 Fraunces + 中文宋体），这里对齐 */
+.cal-panel-name {
+  margin: .3rem 1.1rem 0;
+  font-family: "Fraunces", Georgia, "Times New Roman", serif;
+  font-weight: 600;
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
 
-.cal-tip-arrange {
-  padding-top: .55rem;
-  border-top: 1px solid rgba(26, 26, 26, 0.12);
-  font-family: var(--font-mono);
-  font-size: .78rem;
-  line-height: 1.6;
+.cal-panel-pinyin {
+  margin: .1rem 1.1rem 0;
+  font-family: "Nunito Sans", "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: .82rem;
   color: #6b6b6b;
 }
 
-.cal-tip-link {
+.cal-panel-dayno {
+  margin: .5rem 1.1rem 0;
+  font-family: var(--font-mono);
+  font-size: .78rem;
+  color: #1a1a1a;
+}
+
+.cal-panel-desc {
+  margin: .7rem 1.4rem 0;
+  font-size: .84rem;
+  line-height: 1.8;
+  color: #1a1a1a;
+}
+
+.cal-panel-extra { margin: .35rem 1.4rem 0; font-size: .78rem; line-height: 1.7; color: #6b6b6b; }
+
+.cal-panel-foot {
+  margin: .9rem 1.1rem 0;
+  padding-top: .7rem;
+  border-top: 1px solid rgba(26, 26, 26, 0.12);
+}
+
+.cal-panel-foot[hidden] { display: none; }
+.cal-panel-arrange { font-family: var(--font-mono); font-size: .78rem; line-height: 1.6; color: #1a1a1a; }
+.cal-panel-stat { font-size: .78rem; line-height: 1.7; color: #6b6b6b; }
+
+.cal-panel-link {
   display: block;
+  margin-top: .5rem;
   font-family: var(--font-mono);
   font-size: .75rem;
   letter-spacing: .06em;
   color: #c4463a;
 }
 
-.cal-tip-link[hidden] { display: none; }
+.cal-panel-link[hidden] { display: none; }
 
 /* 其他节日和纪念日 */
 .cal-fest { margin-top: clamp(3rem, 7vh, 5rem); }
@@ -2220,6 +2325,19 @@ a.feed-title:hover {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0 clamp(2rem, 4vw, 3.6rem);
 }
+
+.cal-fest-head {
+  display: grid;
+  grid-template-columns: 5.2rem minmax(0, 1fr);
+  column-gap: 1rem;
+  padding: 0 0 .5rem;
+  font-family: var(--font-mono);
+  font-size: .75rem;
+  letter-spacing: .1em;
+  color: var(--sec-text-color);
+}
+
+.cal-fest-head .cal-fest-note { margin-top: 0; }
 
 .cal-fest-list { margin: 0; padding: 0; list-style: none; border-top: 2px solid var(--rule-strong); }
 
@@ -2282,7 +2400,7 @@ a.feed-title:hover {
   margin-top: clamp(3rem, 7vh, 5rem);
 }
 
-.cal-faq { border-top: 2px solid var(--rule-strong); padding-top: 1.1rem; }
+.cal-faq { border-top: 2px solid var(--rule-strong); padding-top: 0; }
 .cal-faq .col-title { margin-bottom: 1rem; font-size: 1.25rem; }
 .cal-faq-item { border-bottom: 1px solid var(--line-color); }
 

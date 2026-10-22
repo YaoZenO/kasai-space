@@ -107,6 +107,9 @@ function normalizeHoliday(raw, label) {
     desc: raw.desc || '',
     label: label,
     anchor: 'holiday-' + (raw.id || date),
+    img: raw.img || '',
+    alt: raw.alt || '',
+    lunar: (raw.lunar && typeof raw.lunar === 'object') ? raw.lunar : null,
   };
 }
 
@@ -122,6 +125,7 @@ function normalizeFestival(raw) {
     wName: WEEK_CN[weekdayOf(date)],
     kind: raw.kind || '节日',
     note: raw.note || '',
+    lunar: raw.lunar || '',
   };
 }
 
@@ -141,19 +145,29 @@ function normalizeTerm(raw) {
 }
 
 // 主入口。数据为空时返回 null，模板据此渲染「还没填」的诚实空态。
-function buildCalendar(raw) {
+// year 为页面 front-matter 里声明的年份；缺省或找不到时回落到第一年（默认年）。
+function buildCalendar(raw, wantYear) {
   const data = raw || {};
   const years = Array.isArray(data.years) ? data.years : [];
-  const src = years[0];
+  let src = years[0];
+  if (wantYear != null && wantYear !== '') {
+    const hit = years.find((y) => Number(y.year) === Number(wantYear));
+    if (hit) src = hit;
+  }
   if (!src || !src.year) return null;
 
   const year = Number(src.year);
   const label = src.label || (src.official || (data.meta && data.meta.official) ? '官方' : '预计');
 
+  // 年份级农历映射（春节区间的「除夕 / 正月初N」等）挂到每个节假日上，
+  // 供详情卡按日期取农历；单个节假日自己带 lunar 映射时以它为准。
+  const yearLunar = (src.lunar && typeof src.lunar === 'object') ? src.lunar : null;
+
   const holidays = (Array.isArray(src.holidays) ? src.holidays : [])
     .map((h) => normalizeHoliday(h, label))
     .filter(Boolean)
     .sort((a, b) => (a.start < b.start ? -1 : 1));
+  holidays.forEach((h) => { if (!h.lunar) h.lunar = yearLunar; });
 
   const festivals = (Array.isArray(src.festivals) ? src.festivals : [])
     .map(normalizeFestival)
@@ -263,6 +277,10 @@ function buildCalendar(raw) {
 
   return {
     year: year,
+    years: years.map((y) => y.year),
+    current: Number(src.year),
+    prose: (data.meta && data.meta.prose) || '',
+    faq: (data.meta && Array.isArray(data.meta.faq) ? data.meta.faq : []),
     label: label,
     official: Boolean(src.official || (data.meta && data.meta.official)),
     zodiac: src.zodiac || '',
@@ -278,42 +296,59 @@ function buildCalendar(raw) {
   };
 }
 
-// 悬停浮层的数据：只带「有内容可说」的日子（非普通工作日），
+// 常驻详情卡的数据：只带「有内容可说」的日子（非普通工作日），
 // 普通工作日的日期与星期由格子上的 data 属性在浏览器端拼出来，没必要上传 365 份。
+//
+// 字段与参考站的详情卡一一对应（date / lunar / kicker / name / pinyin / dayNo /
+// desc / arrange / statutory / img），浏览器端按这个顺序渲染。
 function tipPayload(cal) {
   const out = Object.create(null);
   if (!cal) return out;
+
+  const dateLabel = (key) => {
+    const { y, m, d } = keyToParts(key);
+    return y + '年' + m + '月' + d + '日 ' + WEEK_CN[weekdayOf(key)];
+  };
+
   Object.keys(cal.days).forEach((k) => {
     const r = cal.days[k];
     const isPlain = r.state === 'work' && !r.festival && !r.term;
     if (isPlain) return;
 
-    const tip = { s: r.state };
+    const tip = { s: r.state, date: dateLabel(k) };
+
     if (r.holiday) {
-      // 放假日的标题永远是节日本身，status 用「预计放假 / 官方放假」
-      tip.n = r.holiday.name;
-      tip.p = r.holiday.pinyin;
-      tip.k = r.holiday.label + '放假';
-      tip.d = r.holiday.desc;
-      tip.a = r.holiday.startMd + ' → ' + r.holiday.endMd + ' · ' + r.holiday.days + ' 天';
-      tip.h = r.holiday.anchor;
+      const h = r.holiday;
+      tip.kicker = h.label + '法定节假日';
+      tip.name = h.name;
+      tip.pinyin = h.pinyin;
+      tip.lunar = (h.lunar && h.lunar[k]) || '';
+      tip.dayNo = '第 ' + (spanDays(h.start, k)) + ' 天，共 ' + h.days + ' 天';
+      tip.desc = h.desc;
+      tip.arrange = h.label + '放假：' + h.startMd + ' → ' + h.endMd + ' · ' + h.days + ' 天';
+      tip.statutory = '法定假日 ' + h.statutory + ' 天，其余由周末与调休补足';
+      tip.anchor = h.anchor;
+      tip.img = h.img;
+      tip.alt = h.alt;
       // 放假期间撞上节日或节气时，作为补充说明（例如清明当天也是清明节气）
       const extra = [];
       if (r.festival) extra.push(r.festival.kind + '：' + r.festival.name);
       if (r.term) extra.push('节气：' + r.term.name);
-      if (extra.length) tip.x = extra.join('；');
+      if (extra.length) tip.extra = extra.join('；');
     } else {
-      // 不放假的普通日子：k 是这一天的「是否休息」，标题交给节日 / 节气
-      tip.k = r.state === 'weekend' ? '周末' : (r.state === 'makeup' ? '调休上班' : '工作日');
+      tip.kicker = r.state === 'weekend' ? '周末' : (r.state === 'makeup' ? '调休上班' : '工作日');
       if (r.festival) {
-        tip.n = r.festival.name;
-        tip.p = r.festival.pinyin;
-        tip.d = r.festival.kind + (r.festival.note ? '，' + r.festival.note : '');
-        if (r.term) tip.x = '节气：' + r.term.name;
+        tip.kicker = r.festival.kind;
+        tip.name = r.festival.name;
+        tip.pinyin = r.festival.pinyin;
+        tip.lunar = r.festival.lunar || '';
+        tip.desc = r.festival.note;
+        if (r.term) tip.extra = '节气：' + r.term.name;
       } else if (r.term) {
-        tip.n = r.term.name;
-        tip.p = r.term.pinyin;
-        tip.d = '二十四节气之一';
+        tip.kicker = '节气';
+        tip.name = r.term.name;
+        tip.pinyin = r.term.pinyin;
+        tip.desc = '二十四节气之一';
       }
     }
     out[k] = tip;
@@ -321,8 +356,8 @@ function tipPayload(cal) {
   return out;
 }
 
-function holidayCalendar(raw) {
-  return buildCalendar(raw);
+function holidayCalendar(raw, year) {
+  return buildCalendar(raw, year);
 }
 
 if (typeof hexo !== 'undefined' && hexo && hexo.extend && hexo.extend.helper) {

@@ -1,12 +1,16 @@
-/* 节假日页（/holidays/）年历一览的悬停说明。
+/* 节假日页的年历常驻详情卡。
  *
- * 设计约束：
- *   1. 纯增强。关掉脚本，上方的法定节假日表与下方的节日列表仍然完整可读，
- *      年历格子只是图形总览，不承载唯一信息。
- *   2. 浮层内容一律用 textContent 写入，不拼 innerHTML。数据虽然是自己写的 YAML，
- *      但「数据 → HTML 字符串」这条路一旦打开，以后加字段就会变成注入口子。
- *   3. 不做动效（DESIGN-LANGUAGE §6.1 白名单里没有浮层淡入，浮层出现即出现）。
- *   4. 位置用 position: fixed + 视口坐标，横向越界时翻到格子左侧，纵向钳在视口内。
+ * 与参考站对齐的交互（主人 2026-10-22 明确要求）：
+ *   1. 常驻 —— 鼠标移开格子不消失，用户可以慢慢读、去点卡片里的链接；
+ *      只有点右上角的 ×、按 Esc、或点到页面别处才收起。
+ *   2. 位置固定在格子左侧（格子在最右列时，卡片盖在表格上方），
+ *      左侧放不下就翻到右侧，都放不下才回落到格子上方；
+ *      纵向以格子为中心并钳在视口内。
+ *   3. 内容居中排布，与参考站的 .hc-tip 一致。
+ *   4. 纯增强：脚本不加载时，左表与下方节日列表仍完整可读。
+ *
+ * 内容一律 textContent 写入，不拼 innerHTML——「数据 → HTML 字符串」这条路一旦打开，
+ * 以后加字段就会变成注入口子。
  */
 
 (function () {
@@ -24,37 +28,55 @@
   }
 
   var WEEK = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-  var GAP = 10;     // 浮层与格子之间的间距
-  var EDGE = 12;    // 浮层与视口边缘的最小距离
+  var GAP = 14;   // 卡片与格子/视口的间距
+  var EDGE = 12;  // 卡片与视口边缘的最小距离
 
-  var tip = document.createElement('div');
-  tip.className = 'cal-tip';
-  tip.setAttribute('role', 'tooltip');
-  tip.setAttribute('aria-hidden', 'true');
-  tip.hidden = true;
+  // ---- 建卡片（一次，复用）----
+  var panel = document.createElement('div');
+  panel.className = 'cal-panel';
+  panel.setAttribute('role', 'tooltip');
+  panel.setAttribute('aria-hidden', 'true');
+  panel.hidden = true;
 
-  var elDate = document.createElement('p');
-  elDate.className = 'cal-tip-date';
-  var elKind = document.createElement('p');
-  elKind.className = 'cal-tip-kind';
-  var elName = document.createElement('p');
-  elName.className = 'cal-tip-name';
-  var elDesc = document.createElement('p');
-  elDesc.className = 'cal-tip-desc';
-  var elExtra = document.createElement('p');
-  elExtra.className = 'cal-tip-extra';
-  var elArrange = document.createElement('p');
-  elArrange.className = 'cal-tip-arrange';
+  var media = document.createElement('div');
+  media.className = 'cal-panel-media';
+  var img = document.createElement('img');
+  img.className = 'cal-panel-img';
+  img.alt = '';
+  img.hidden = true;
+  media.appendChild(img);
+
+  var close = document.createElement('button');
+  close.type = 'button';
+  close.className = 'cal-panel-close';
+  close.setAttribute('aria-label', '关闭');
+  close.textContent = '×';
+
+  function mk(cls) { var e = document.createElement('p'); e.className = cls; return e; }
+  var elDate = mk('cal-panel-date');
+  var elLunar = mk('cal-panel-lunar');
+  var elKicker = mk('cal-panel-kicker');
+  var elName = mk('cal-panel-name');
+  var elPinyin = mk('cal-panel-pinyin');
+  var elDayNo = mk('cal-panel-dayno');
+  var elDesc = mk('cal-panel-desc');
+  var elExtra = mk('cal-panel-extra');
+  var foot = document.createElement('div');
+  foot.className = 'cal-panel-foot';
+  var elArrange = mk('cal-panel-arrange');
+  var elStat = mk('cal-panel-stat');
   var elLink = document.createElement('a');
-  elLink.className = 'cal-tip-link';
+  elLink.className = 'cal-panel-link';
+  foot.appendChild(elArrange);
+  foot.appendChild(elStat);
+  foot.appendChild(elLink);
 
-  [elDate, elKind, elName, elDesc, elExtra, elArrange, elLink].forEach(function (el) {
-    tip.appendChild(el);
+  [elDate, elLunar, elKicker, elName, elPinyin, elDayNo, elDesc, elExtra, foot].forEach(function (el) {
+    panel.appendChild(el);
   });
-  document.body.appendChild(tip);
-
-  var hideTimer = null;
-  var pinned = false;
+  panel.insertBefore(media, panel.firstChild);
+  panel.appendChild(close);
+  document.body.appendChild(panel);
 
   function setText(el, value) {
     el.textContent = value || '';
@@ -68,105 +90,115 @@
     var weekday = isNaN(w) ? '' : WEEK[w];
 
     setText(elDate, weekday ? key + ' · ' + weekday : key);
-    // 普通工作日不进 payload（省体积），这里兜一个状态词，保证每张浮层都有状态行
-    setText(elKind, rec.k || '工作日');
-    setText(elName, rec.n ? (rec.p ? rec.n + ' ' + rec.p : rec.n) : '');
-    setText(elDesc, rec.d || '');
-    setText(elExtra, rec.x || '');
-    setText(elArrange, rec.a || '');
+    setText(elLunar, rec.lunar || '');
+    setText(elKicker, rec.kicker || '');
+    setText(elName, rec.name || '');
+    setText(elPinyin, rec.pinyin || '');
+    setText(elDayNo, rec.dayNo || '');
+    setText(elDesc, rec.desc || '');
+    setText(elExtra, rec.extra || '');
+    setText(elArrange, rec.arrange || '');
+    setText(elStat, rec.statutory || '');
+    foot.hidden = !rec.arrange && !rec.statutory && !rec.anchor;
 
-    if (rec.h) {
+    if (rec.anchor) {
       elLink.textContent = '查看放假安排';
-      elLink.setAttribute('href', '#' + rec.h);
+      elLink.setAttribute('href', '#' + rec.anchor);
       elLink.hidden = false;
     } else {
       elLink.textContent = '';
       elLink.removeAttribute('href');
       elLink.hidden = true;
     }
+
+    if (rec.img) {
+      img.src = rec.img;
+      img.alt = rec.alt || '';
+      img.hidden = false;
+      media.hidden = false;
+    } else {
+      img.removeAttribute('src');
+      img.hidden = true;
+      media.hidden = true;
+    }
   }
 
   function place(cell) {
+    var g = grid.getBoundingClientRect();
     var r = cell.getBoundingClientRect();
-    var tw = tip.offsetWidth;
-    var th = tip.offsetHeight;
+    var w = panel.offsetWidth;
+    var h = panel.offsetHeight;
+    var left = g.left - GAP - w;
 
-    var left = r.right + GAP;
-    if (left + tw > window.innerWidth - EDGE) left = r.left - tw - GAP;
+    if (left < EDGE) left = g.right + GAP;              // 格子在最右列：优先放左边
+    if (left + w > window.innerWidth - EDGE) {           // 左边也放不下：翻到右边
+      left = g.right + GAP;
+    }
+    if (left + w > window.innerWidth - EDGE) {           // 右边也放不下：格子上方
+      left = r.left + r.width / 2 - w / 2;
+    }
     if (left < EDGE) left = EDGE;
+    if (left + w > window.innerWidth - EDGE) left = window.innerWidth - w - EDGE;
 
-    var top = r.top + r.height / 2 - th / 2;
-    var maxTop = window.innerHeight - th - EDGE;
-    if (top > maxTop) top = maxTop;
+    var top = r.top + r.height / 2 - h / 2;
+    if (top > window.innerHeight - h - EDGE) top = window.innerHeight - h - EDGE;
     if (top < EDGE) top = EDGE;
 
-    tip.style.left = Math.round(left) + 'px';
-    tip.style.top = Math.round(top) + 'px';
+    panel.style.left = Math.round(left) + 'px';
+    panel.style.top = Math.round(top) + 'px';
   }
 
-  function show(cell) {
-    clearTimeout(hideTimer);
+  function open(cell) {
     fill(cell);
-    tip.hidden = false;
+    panel.hidden = false;
+    panel.setAttribute('data-date', cell.getAttribute('data-date'));
     place(cell);
   }
 
-  function hide() {
-    tip.hidden = true;
-    pinned = false;
-  }
-
-  function scheduleHide() {
-    if (pinned) return;
-    clearTimeout(hideTimer);
-    hideTimer = setTimeout(hide, 140);
+  function closePanel() {
+    panel.hidden = true;
   }
 
   function cellOf(node) {
     return node && node.closest ? node.closest('.cal-cell') : null;
   }
 
+  // 悬停即开、移开不走（常驻）
   grid.addEventListener('mouseover', function (e) {
     var cell = cellOf(e.target);
-    if (cell) {
-      pinned = false;
-      show(cell);
-    }
+    if (cell) open(cell);
   });
 
-  grid.addEventListener('mouseout', function (e) {
-    var to = e.relatedTarget;
-    if (to && to.closest && to.closest('.cal-tip')) return;
-    scheduleHide();
-  });
-
-  // 触屏：点一下就地钉住，点别处再收起。鼠标点击同样走这里，
-  // 行为一致（点一下固定住，方便去点浮层里的链接）。
+  // 触屏 / 鼠标点击：同一格再点一次收起
   grid.addEventListener('click', function (e) {
     var cell = cellOf(e.target);
     if (!cell) return;
-    if (pinned) {
-      hide();
+    if (!panel.hidden && panel.getAttribute('data-date') === cell.getAttribute('data-date')) {
+      closePanel();
       return;
     }
-    pinned = true;
-    show(cell);
+    open(cell);
   });
+
+  close.addEventListener('click', closePanel);
 
   document.addEventListener('click', function (e) {
-    if (!pinned) return;
-    if (cellOf(e.target) || (e.target.closest && e.target.closest('.cal-tip'))) return;
-    hide();
+    if (panel.hidden) return;
+    if (cellOf(e.target)) return;
+    if (e.target.closest && e.target.closest('.cal-panel')) return;
+    closePanel();
   });
 
-  tip.addEventListener('mouseenter', function () {
-    clearTimeout(hideTimer);
-  });
-  tip.addEventListener('mouseleave', scheduleHide);
-
-  window.addEventListener('scroll', hide, true);
-  window.addEventListener('resize', hide);
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') hide();
+    if (e.key === 'Escape') closePanel();
   });
+
+  // 滚动 / 缩放时卡片跟着走，不收起（收起会让「想读的内容」突然消失）
+  function reposition() {
+    if (panel.hidden) return;
+    var cell = grid.querySelector('.cal-cell[data-date="' + panel.getAttribute('data-date') + '"]');
+    if (cell) place(cell);
+  }
+  window.addEventListener('scroll', reposition, true);
+  window.addEventListener('resize', reposition);
 })();
