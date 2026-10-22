@@ -50,7 +50,10 @@ items:
     platform: PC
     status: 在玩
     summary: "从CS:GO一路玩过来的牢玩家了，CS2上线了玩的少了。"
-    gameplay: ""
+    gameplay: |-
+      ## 比赛
+
+      现在看比赛看的更多一点，确实是慢慢变云玩家了，看比赛比自己打有乐趣。
     media: []
     video: ""
     links:
