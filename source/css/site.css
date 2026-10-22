@@ -2328,9 +2328,16 @@ a.feed-title:hover {
   gap: 0 clamp(2rem, 4vw, 3.6rem);
 }
 
+/* 每一列自带一份表头，列里只有「表头 + 列表」两个子元素（E-050）。
+   表头与行的网格模板必须一致：「备注」标签落在它标注的那一列的第二行。 */
+.cal-fest-col { min-width: 0; }
+
 .cal-fest-head {
   display: grid;
   grid-template-columns: 5.2rem minmax(0, 1fr);
+  grid-template-areas:
+    "date main"
+    ". note";
   column-gap: 1rem;
   padding: 0 0 .5rem;
   font-family: var(--font-mono);
@@ -2339,7 +2346,9 @@ a.feed-title:hover {
   color: var(--sec-text-color);
 }
 
-.cal-fest-head .cal-fest-note { margin-top: 0; }
+.cal-fest-head .cal-fest-date { grid-area: date; align-self: start; }
+.cal-fest-head .cal-fest-main { grid-area: main; }
+.cal-fest-head .cal-fest-note { grid-area: note; margin-top: .18rem; }
 
 .cal-fest-list { margin: 0; padding: 0; list-style: none; border-top: 2px solid var(--rule-strong); }
 
@@ -2470,7 +2479,7 @@ a.feed-title:hover {
 
 @media (max-width: 767.98px) {
   .cal-fest-cols { grid-template-columns: minmax(0, 1fr); }
-  .cal-fest-list + .cal-fest-list { margin-top: 2rem; }
+  .cal-fest-col + .cal-fest-col { margin-top: 2rem; }
 }
 
 @media (max-width: 575.98px) {

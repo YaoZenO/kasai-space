@@ -159,30 +159,34 @@ var isDefault = page.default ? true : false
       </div>
       <p class="cal-fest-lead">这些是中国人会过的传统节日、纪念日与节气，大多数并不放假；个别日子只对某一部分人放半天，见备注。</p>
 
+      <%# 两列各自带一份表头：.cal-fest-cols 是两列网格，表头若是独立子元素
+          就会占掉第一格，把两个列表挤成「右上 / 左下」，中间空一大片（E-050）。 %>
       <div class="cal-fest-cols">
-        <div class="cal-fest-head" aria-hidden="true">
-          <span class="cal-fest-date">日期</span>
-          <span class="cal-fest-main">节日</span>
-          <span class="cal-fest-note">备注</span>
-        </div>
         <% var half = Math.ceil(cal.festivals.length / 2) %>
         <% [cal.festivals.slice(0, half), cal.festivals.slice(half)].forEach(function (group) { %>
-        <ul class="cal-fest-list">
-          <% for (var fi = 0; fi < group.length; fi += 1) { var f = group[fi] %>
-          <li class="cal-fest-row">
-            <span class="cal-fest-date">
-              <time datetime="<%= f.date %>"><%= f.dateMd %></time>
-              <span class="cal-weekday"><%= f.wName %></span>
-            </span>
-            <span class="cal-fest-main">
-              <span class="cal-fest-name"><%= f.name %></span>
-              <span class="cal-pinyin"><%= f.pinyin %></span>
-              <span class="cal-fest-kind"><%= f.kind %></span>
-            </span>
-            <span class="cal-fest-note"><%= f.note %></span>
-          </li>
-          <% } %>
-        </ul>
+        <div class="cal-fest-col">
+          <div class="cal-fest-head" aria-hidden="true">
+            <span class="cal-fest-date">日期</span>
+            <span class="cal-fest-main">节日</span>
+            <span class="cal-fest-note">备注</span>
+          </div>
+          <ul class="cal-fest-list">
+            <% for (var fi = 0; fi < group.length; fi += 1) { var f = group[fi] %>
+            <li class="cal-fest-row">
+              <span class="cal-fest-date">
+                <time datetime="<%= f.date %>"><%= f.dateMd %></time>
+                <span class="cal-weekday"><%= f.wName %></span>
+              </span>
+              <span class="cal-fest-main">
+                <span class="cal-fest-name"><%= f.name %></span>
+                <span class="cal-pinyin"><%= f.pinyin %></span>
+                <span class="cal-fest-kind"><%= f.kind %></span>
+              </span>
+              <span class="cal-fest-note"><%= f.note %></span>
+            </li>
+            <% } %>
+          </ul>
+        </div>
         <% }) %>
       </div>
 

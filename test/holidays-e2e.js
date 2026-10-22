@@ -296,6 +296,25 @@ if (!fs.existsSync(PUBLIC)) {
     assert.strictEqual(data['2027-02-05'].name, '春节');
   });
 
+  // .cal-fest-cols 是两列网格。表头曾经是它的独立子元素，于是「表头 + 两个列表」三个
+  // 子元素被塞进两列：表头占 (1,1)、第一个列表 (1,2)、第二个列表 (2,1)，
+  // 第一行高度 = 列表高度，表头下方空出 600 多像素（E-050）。
+  // 现在每个 .cal-fest-col 自带一份表头，列里只有「表头 + 列表」两个子元素。
+  ok('节日列表两列各带表头，不会出现半屏空白（E-050）', () => {
+    const cols = (html.match(/class="cal-fest-col"/g) || []).length;
+    const heads = (html.match(/class="cal-fest-head"/g) || []).length;
+    const lists = (html.match(/class="cal-fest-list"/g) || []).length;
+    assert.strictEqual(cols, 2, '节日列表不是两列（实际 ' + cols + '）');
+    assert.strictEqual(heads, cols, '表头数量与列数不一致：表头又跑出列外了');
+    assert.strictEqual(lists, cols, '列表数量与列数不一致');
+    // 表头与行用的是同一套网格模板，「备注」标签必须落在它标注的那一列
+    const css = fs.readFileSync(path.join(ROOT, 'source/css/site.css'), 'utf8');
+    const at = css.indexOf('.cal-fest-head {');
+    const rule = css.slice(at, css.indexOf('}', at));
+    assert.ok(/grid-template-areas:\s*"date main"\s*"\. note"/.test(rule.replace(/\s+/g, ' ')),
+      '.cal-fest-head 的网格区域与 .cal-fest-row 不一致，「备注」标签会对不齐');
+  });
+
   ok('表格渲染了 7 行且带锚点', () => {
     const rows = (html.match(/<tr id="holiday-/g) || []).length;
     assert.strictEqual(rows, 7, '表格行数不是 7（实际 ' + rows + '）');
