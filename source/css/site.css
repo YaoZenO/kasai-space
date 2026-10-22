@@ -1,5 +1,5 @@
 /* ============================================================
-   site.css — 全站设计规范层（V3.3）
+   site.css — 全站设计规范层（V3.4）
    加载于全站（custom_css: /css/site.css）
    分区：1 设计 tokens / 2 基础 / 3 公共组件 / 4 逐页样式
    纪律：新布局一律自有语义 class；main.styl 不改，残留
@@ -7,6 +7,8 @@
    V3.2：自托管 Archivo 展示轨 + --font-display token。
    V3.3：正文栈收口为 --font-sans 全站共用（原 .cal-page 专属栈升格）；
    标题轨 --font-serif-title 扩展至文章页（此前只覆盖站名与 .cal-page）。
+   V3.4：中文改走自托管子集 Web 字体——思源黑体（正文 400/500/700）+
+   思源宋体（标题 600/700），不再依赖访客设备本地中文字体。
    ============================================================ */
 
 /* ===== 1. 设计 tokens ===== */
@@ -21,6 +23,50 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+/* 思源黑体 / 思源宋体子集（V3.4 自托管）：Noto Sans SC 400/500/700、Noto Serif SC 600/700。
+   子集字表 = GB2312 一级字 3755 + 全站现有语料 + 标点/全角区，共 4193 个码位；
+   子集外字符由字体栈后续本地字体兜底，不缺字。源字体为可变字体，定字重后切分；
+   SIL OFL 1.1 授权，授权文本见 /fonts/OFL-Noto.txt。 */
+@font-face {
+  font-family: "Noto Sans SC";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/noto-sans-sc-400.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Noto Sans SC";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/noto-sans-sc-500.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Noto Sans SC";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/noto-sans-sc-700.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Noto Serif SC";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/noto-serif-sc-600.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Noto Serif SC";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/noto-serif-sc-700.woff2") format("woff2");
+}
+
 :root {
   /* 墨色 / 强调 —— 后台 source/admin/admin.css 的 --accent 与此等值，
      两处必须同步修改（见 ENGINEERING.md P2-3 与 test/css-tokens.js 锁定） */
@@ -31,17 +77,17 @@
   --info-mark: #6b6255;
 
   /* 展示轨：拉丁品牌字与大数字；中文字符自动回退黑体（不进紧字距） */
-  --font-display: "Archivo", "Arial Black", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --font-display: "Archivo", "Arial Black", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
 
   /* 正文轨（V3.3 收口）：原为 .cal-page 专属字体栈，主人定轻量改后升为全站正文栈。
      中文按现代黑体优先序（苹方→鸿蒙→MiSans→冬青→思源），微软雅黑仅作兜底，
      不再由 Windows 系统默认字体决定全站中文观感。改值只改这一处。 */
-  --font-sans: "Nunito Sans", "PingFang SC", "HarmonyOS Sans SC", "MiSans",
-    "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Noto Sans SC",
+  --font-sans: "Nunito Sans", "Noto Sans SC", "PingFang SC", "HarmonyOS Sans SC", "MiSans",
+    "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC",
     "Microsoft YaHei", sans-serif;
 
   /* 标题轨（衬线）：拉丁 Fraunces 600 + 中文宋体系回退，与 .cal-page 标题同轨 */
-  --font-serif-title: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-serif-title: "Fraunces", "Noto Serif SC", Georgia, "Times New Roman", serif;
 
   /* 块色（仅作内容入口卡底，整页 ≤2 处；落点由数据决定）
      用字锁定：黄块 #e6b23c 内只能用墨色（7.82:1）；
@@ -1956,58 +2002,15 @@ a.feed-title:hover {
   letter-spacing: 0;
 }
 
+.cal-lead {
+  margin: 0 0 clamp(2rem, 4vw, 2.8rem);
+  max-width: 46em;
+  font-size: 1rem;
+  line-height: 1.9;
+  color: var(--sec-text-color);
+}
+
 /* 左表 + 右年历格 */
-.cal-head-row {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: clamp(1.5rem, 4vw, 3.5rem);
-}
-
-/* 年份导航必须允许收缩换行：写 flex:none 时它会按 max-content 撑开，
-   16 个年份在手机上把整页顶出横向滚动条（E-049）。 */
-.cal-years { flex: 0 1 auto; min-width: 0; text-align: right; }
-
-.cal-years-label {
-  display: block;
-  margin-bottom: .5rem;
-  font-family: var(--font-mono);
-  font-size: .75rem;
-  letter-spacing: .1em;
-  color: var(--sec-text-color);
-}
-
-.cal-years ul {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: .3rem .55rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.cal-years li { font-family: var(--font-mono); font-size: .76rem; }
-
-.cal-years a { color: var(--sec-text-color); }
-.cal-years a:hover { color: var(--accent); }
-
-.cal-year-current {
-  padding: .1rem .38rem;
-  border-radius: 4px;
-  background: var(--accent);
-  color: #f7f6f4;
-}
-
-/* 表头右侧的状态标签（预计 / 官方） */
-.cal-tag {
-  margin-left: auto;
-  font-family: var(--font-mono);
-  font-size: .75rem;
-  letter-spacing: .1em;
-  color: var(--sec-text-color);
-}
-
 .cal-top {
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
@@ -2050,7 +2053,7 @@ a.feed-title:hover {
   display: block;
   font-size: 1.02rem;
   font-weight: 700;
-  color: var(--text-color);
+  color: var(--accent);
   white-space: nowrap;
 }
 
@@ -2190,126 +2193,62 @@ a.feed-title:hover {
 }
 
 .cal-stats-line i { font-style: normal; color: rgba(26, 26, 26, 0.3); margin: 0 .1rem; }
-.cal-note {
-  margin: .9rem 0 0;
-  font-size: .78rem;
-  line-height: 1.85;
-  color: var(--sec-text-color);
-}
+.cal-side-note { margin: .55rem 0 0; font-size: .78rem; line-height: 1.8; color: var(--sec-text-color); }
 
-/* 常驻详情卡：纸面浮层 = 面板底 + 12px + chip border + 全站唯一阴影（§4.3 / §6.3）。
-   位置由 JS 决定（优先贴在格子左侧），这里只定外观；内容居中，对齐参考站。 */
-.cal-panel {
+/* 悬停浮层：纸面浮层 = 面板底 + 12px + chip border + 全站唯一阴影（§4.3 / §6.3） */
+.cal-tip {
   position: fixed;
   z-index: 1080;
-  width: min(21rem, calc(100vw - 24px));
-  padding: 0 0 1rem;
+  width: min(19rem, calc(100vw - 24px));
+  padding: .95rem 1.1rem 1rem;
   background: #f7f6f4;
   border: 1px solid rgba(26, 26, 26, 0.12);
   border-radius: 12px;
   box-shadow: var(--site-float-shadow);
   color: #1a1a1a;
-  text-align: center;
 }
 
-.cal-panel[hidden] { display: none; }
-.cal-panel > * { margin: 0; }
-.cal-panel-media { position: relative; overflow: hidden; border-radius: 11px 11px 0 0; }
-.cal-panel-media[hidden] { display: none; }
-.cal-panel-img { display: block; width: 100%; height: 148px; object-fit: cover; }
+.cal-tip[hidden] { display: none; }
+.cal-tip > * { margin: 0; }
+.cal-tip > * + * { margin-top: .45rem; }
 
-.cal-panel-close {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 1;
-  width: 24px;
-  height: 24px;
-  border: none;
-  border-radius: 999px;
-  background: rgba(26, 26, 26, 0.45);
-  color: #fff;
-  font-size: 15px;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.cal-panel-close:hover { background: rgba(26, 26, 26, 0.7); }
-
-.cal-panel-date {
-  margin: 1rem 1.1rem 0;
+.cal-tip-date {
   font-family: var(--font-mono);
   font-size: .78rem;
   letter-spacing: .06em;
   color: #6b6b6b;
 }
 
-.cal-panel-lunar {
-  margin: .18rem 1.1rem 0;
-  font-size: .78rem;
-  color: #6b6b6b;
-}
-
-.cal-panel-kicker {
-  margin: .7rem 1.1rem 0;
+.cal-tip-kind {
   font-size: .75rem;
   font-weight: 700;
   letter-spacing: .12em;
   color: #c4463a;
 }
 
-/* 参考站的卡片节日名走 --serif（拉丁 Fraunces + 中文宋体），这里对齐 */
-.cal-panel-name {
-  margin: .3rem 1.1rem 0;
-  font-family: "Fraunces", Georgia, "Times New Roman", serif;
-  font-weight: 600;
-  font-size: 1.25rem;
-  line-height: 1.3;
-}
+/* 参考站的浮层节日名走 --serif（拉丁 Fraunces + 中文宋体），这里对齐 */
+.cal-tip-name { font-family: "Fraunces", Georgia, "Times New Roman", serif; font-weight: 600; font-size: 1.05rem; line-height: 1.4; }
+.cal-tip-desc { font-size: .84rem; line-height: 1.75; color: #1a1a1a; }
+.cal-tip-extra { font-size: .78rem; line-height: 1.7; color: #6b6b6b; }
 
-.cal-panel-pinyin {
-  margin: .1rem 1.1rem 0;
-  font-family: "Nunito Sans", "Segoe UI", Roboto, Arial, sans-serif;
-  font-size: .82rem;
+.cal-tip-arrange {
+  padding-top: .55rem;
+  border-top: 1px solid rgba(26, 26, 26, 0.12);
+  font-family: var(--font-mono);
+  font-size: .78rem;
+  line-height: 1.6;
   color: #6b6b6b;
 }
 
-.cal-panel-dayno {
-  margin: .5rem 1.1rem 0;
-  font-family: var(--font-mono);
-  font-size: .78rem;
-  color: #1a1a1a;
-}
-
-.cal-panel-desc {
-  margin: .7rem 1.4rem 0;
-  font-size: .84rem;
-  line-height: 1.8;
-  color: #1a1a1a;
-}
-
-.cal-panel-extra { margin: .35rem 1.4rem 0; font-size: .78rem; line-height: 1.7; color: #6b6b6b; }
-
-.cal-panel-foot {
-  margin: .9rem 1.1rem 0;
-  padding-top: .7rem;
-  border-top: 1px solid rgba(26, 26, 26, 0.12);
-}
-
-.cal-panel-foot[hidden] { display: none; }
-.cal-panel-arrange { font-family: var(--font-mono); font-size: .78rem; line-height: 1.6; color: #1a1a1a; }
-.cal-panel-stat { font-size: .78rem; line-height: 1.7; color: #6b6b6b; }
-
-.cal-panel-link {
+.cal-tip-link {
   display: block;
-  margin-top: .5rem;
   font-family: var(--font-mono);
   font-size: .75rem;
   letter-spacing: .06em;
   color: #c4463a;
 }
 
-.cal-panel-link[hidden] { display: none; }
+.cal-tip-link[hidden] { display: none; }
 
 /* 其他节日和纪念日 */
 .cal-fest { margin-top: clamp(3rem, 7vh, 5rem); }
@@ -2327,28 +2266,6 @@ a.feed-title:hover {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0 clamp(2rem, 4vw, 3.6rem);
 }
-
-/* 每一列自带一份表头，列里只有「表头 + 列表」两个子元素（E-050）。
-   表头与行的网格模板必须一致：「备注」标签落在它标注的那一列的第二行。 */
-.cal-fest-col { min-width: 0; }
-
-.cal-fest-head {
-  display: grid;
-  grid-template-columns: 5.2rem minmax(0, 1fr);
-  grid-template-areas:
-    "date main"
-    ". note";
-  column-gap: 1rem;
-  padding: 0 0 .5rem;
-  font-family: var(--font-mono);
-  font-size: .75rem;
-  letter-spacing: .1em;
-  color: var(--sec-text-color);
-}
-
-.cal-fest-head .cal-fest-date { grid-area: date; align-self: start; }
-.cal-fest-head .cal-fest-main { grid-area: main; }
-.cal-fest-head .cal-fest-note { grid-area: note; margin-top: .18rem; }
 
 .cal-fest-list { margin: 0; padding: 0; list-style: none; border-top: 2px solid var(--rule-strong); }
 
@@ -2411,7 +2328,7 @@ a.feed-title:hover {
   margin-top: clamp(3rem, 7vh, 5rem);
 }
 
-.cal-faq { border-top: 2px solid var(--rule-strong); padding-top: 0; }
+.cal-faq { border-top: 2px solid var(--rule-strong); padding-top: 1.1rem; }
 .cal-faq .col-title { margin-bottom: 1rem; font-size: 1.25rem; }
 .cal-faq-item { border-bottom: 1px solid var(--line-color); }
 
@@ -2479,14 +2396,10 @@ a.feed-title:hover {
 
 @media (max-width: 767.98px) {
   .cal-fest-cols { grid-template-columns: minmax(0, 1fr); }
-  .cal-fest-col + .cal-fest-col { margin-top: 2rem; }
+  .cal-fest-list + .cal-fest-list { margin-top: 2rem; }
 }
 
 @media (max-width: 575.98px) {
-  /* 页头左右两栏在手机上改成上下堆叠，年份导航回到左对齐 */
-  .cal-head-row { flex-direction: column; align-items: flex-start; gap: 1.1rem; }
-  .cal-years { text-align: left; }
-  .cal-years ul { justify-content: flex-start; }
   /* 31 列在手机上每格不足 10px；给一个最小宽度让容器内部横向滚动，
      页面本身不产生横向溢出（滚动发生在这条容器里） */
   .cal-grid { min-width: 560px; }
