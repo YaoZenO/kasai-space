@@ -3,238 +3,81 @@ title: StyleKit设计风格库全库整理（149种）
 date: 2026-10-21 23:30:00
 tags: [设计风格, 建站]
 categories: 设计资源
+banner_img: https://www.stylekit.top/brand/v3/social-preview.png
+index_img: https://www.stylekit.top/brand/v3/social-preview.png
 ---
 
-> 来源：StyleKit 设计风格库（开源项目），全库页 https://www.stylekit.top/zh/styles
-> 说明：本文把 StyleKit 全库 149 种风格按气质分成 15 个族群逐条整理，描述为个人转述，具体细节以原站详情页为准。
-> 可视化画廊版：[StyleKit设计风格画廊（149种）](/stylekit/) —— 每种风格一张带预览图与配色带的卡片，可按族群筛选、搜索，先看图挑中风格，再回这篇看文字整理。
+> 来源：[StyleKit 设计风格库](https://www.stylekit.top/zh/styles)（开源项目）
+> 说明：全库149种风格，每张卡片的预览图是该风格在原站实时演示页的真实截图（2026-10-22截取），色带取自截图本身的实际配色；一句话特征为个人转述，色板、组件模板与AI实现规则以原站详情页为准。
 
-StyleKit 是一个按场景组织的设计风格库，全库共 149 种：视觉风格 131 种、布局模式 18 种。每种风格在原站都配有实际预览、色板、字体说明、组件模板和可直接用于 AI 生成页面的实现规则，选风格时可以先在这篇里按族群缩小范围，再去详情页拿色板和模板。
+<img class="sk-hero" alt="StyleKit风格演示拼图：新野兽派、玻璃拟态、赛博霓虹、编辑杂志、像素艺术、合成波" data-b64="/img/stylekit/_banner.txt">
+<p class="sk-cap">头图拼图：新野兽派 / 玻璃拟态 / 赛博霓虹 / 编辑杂志风 / 像素艺术 / 合成波的演示页实拍。</p>
 
-## 布局模式
+<style>
+.sk-wrap{margin:8px 0 24px}
+.sk-hero{width:100%;border-radius:14px;display:block;margin:10px 0 4px;background:#111;aspect-ratio:12/5;object-fit:cover}
+.sk-cap{font-size:12px;opacity:.65;margin:2px 0 10px}
+.sk-stats{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+.sk-stat{border:1px solid rgba(127,127,127,.25);border-radius:12px;padding:8px 14px;font-size:14px}
+.sk-stat b{font-size:18px}
+.sk-chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.sk-chip{border:1px solid rgba(127,127,127,.35);background:transparent;color:inherit;border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer}
+.sk-chip.on{background:#222;color:#f5f1e9;border-color:#222}
+.sk-search{width:100%;max-width:420px;padding:8px 12px;border:1px solid rgba(127,127,127,.35);border-radius:10px;background:transparent;color:inherit;font-size:14px;margin:6px 0 4px}
+.sk-count{font-size:13px;opacity:.75;margin:8px 0}
+.sk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.sk-card{border:1px solid rgba(127,127,127,.25);border-radius:14px;overflow:hidden;text-decoration:none;color:inherit;display:flex;flex-direction:column;background:rgba(127,127,127,.04)}
+.sk-card:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,.14)}
+.sk-img{width:100%;aspect-ratio:8/5;object-fit:cover;display:block;background:#1a1a1a}
+.sk-strip{display:flex;height:9px}
+.sk-strip i{flex:1;display:block}
+.sk-body{padding:11px 13px 13px;display:flex;flex-direction:column;gap:5px;flex:1}
+.sk-name{font-weight:700;font-size:15px}
+.sk-en{font-size:12px;opacity:.65;font-weight:400}
+.sk-desc{font-size:13px;line-height:1.55;opacity:.88;flex:1}
+.sk-meta{font-size:11px;opacity:.65;display:flex;gap:6px;flex-wrap:wrap}
+.sk-tag{border:1px solid rgba(127,127,127,.3);border-radius:999px;padding:1px 7px}
+</style>
 
-页面骨架怎么搭：网格、分屏、滚动与画廊，决定内容的第一层秩序。
+<div class="sk-wrap">
+<div class="sk-stats"><span class="sk-stat"><b>149</b> 全部风格</span><span class="sk-stat"><b>131</b> 视觉风格</span><span class="sk-stat"><b>18</b> 布局模式</span><span class="sk-stat"><b>15</b> 族群</span></div>
+<input id="skQ" class="sk-search" type="text" placeholder="搜索风格名 / 英文名 / 特征，如：玻璃、霓虹、杂志…">
+<div class="sk-chips" id="skChips"></div>
+<div class="sk-count" id="skCount"></div>
+<div class="sk-grid" id="skGrid"></div>
+</div>
 
-- **便当盒布局（Bento Grid）**：大小不一的卡片错落拼合，分区清晰又有节奏感。[详情](https://www.stylekit.top/zh/styles/bento-grid)
-- **瀑布流布局（Masonry Flow）**：不等高卡片自然垂落成流，适合海量图片内容陈列。[详情](https://www.stylekit.top/zh/styles/masonry-flow)
-- **分屏布局（Split Screen）**：画面一分为二，用对峙与呼应制造视觉张力。[详情](https://www.stylekit.top/zh/styles/split-screen)
-- **全屏滚动布局（Full Page Scroll）**：一屏一个场景，滚动即翻页，沉浸感拉满。[详情](https://www.stylekit.top/zh/styles/full-page-scroll)
-- **垂直时间线布局（Vertical Timeline）**：沿时间轴串起节点，把经历与里程碑讲成故事。[详情](https://www.stylekit.top/zh/styles/timeline-vertical)
-- **卡片堆叠布局（Card Stack）**：卡片沿纵深层层错开，滑动时自带立体纵深感。[详情](https://www.stylekit.top/zh/styles/card-stack)
-- **固定侧边栏布局（Fixed Sidebar）**：导航常驻左侧、内容独立滚动，后台文档常用。[详情](https://www.stylekit.top/zh/styles/sidebar-fixed)
-- **杂志网格布局（Magazine Grid）**：借印刷杂志的多栏网格，安放疏密有致的内容块。[详情](https://www.stylekit.top/zh/styles/magazine-grid)
-- **全屏英雄区布局（Fullscreen Hero）**：整屏大图或视频打头阵，第一眼就抓住注意力。[详情](https://www.stylekit.top/zh/styles/hero-fullscreen)
-- **F型布局（F-Pattern Layout）**：顺着F形扫视路径排布重点，适合信息密集页面。[详情](https://www.stylekit.top/zh/styles/f-pattern-layout)
-- **Z型布局（Z-Pattern Layout）**：视线沿Z字折线推进，天然适合着陆页叙事。[详情](https://www.stylekit.top/zh/styles/z-pattern-layout)
-- **圣杯布局（Holy Grail Layout）**：经典三栏范式，页眉页脚加左右栏与主内容。[详情](https://www.stylekit.top/zh/styles/holy-grail-layout)
-- **仪表盘布局（Dashboard Layout）**：侧栏、工具栏与数据面板拼合的后台标准骨架。[详情](https://www.stylekit.top/zh/styles/dashboard-layout)
-- **非对称网格（Asymmetric Grid）**：故意错开的列宽与重叠元素，打破网格的呆板。[详情](https://www.stylekit.top/zh/styles/asymmetric-grid)
-- **视差滚动（Parallax Sections）**：前后景以不同速度滚动，平面页面有了景深。[详情](https://www.stylekit.top/zh/styles/parallax-sections)
-- **横滚画廊（Horizontal Gallery）**：作品沿水平展线排开，像走在美术馆长廊里。[详情](https://www.stylekit.top/zh/styles/horizontal-gallery)
-- **滚动叙事（Scrollytelling）**：滚动驱动画面状态切换，长报道式的数据叙事。[详情](https://www.stylekit.top/zh/styles/scrollytelling)
+<script>
+var SK={"f":["布局模式","极简与理性","玻璃与拟态","品牌风格","野兽派与强对比实验","复古与怀旧","暗色与霓虹科技","动漫与游戏","艺术与文化","自然与有机","开发者与学术","电商与奢华零售","影像与首屏","故障与信号","移动端应用"],"s":[{"n":"便当盒布局","e":"Bento Grid","d":"大小不一的卡片错落拼合，分区清晰又有节奏感","s":"bento-grid","f":0,"t":"RESPONSIVE","p":["#fafafa","#bab8d0","#f4fbf8","#fdfdfd","#fbfaf8"]},{"n":"瀑布流布局","e":"Masonry Flow","d":"不等高卡片自然垂落成流，适合海量图片内容陈列","s":"masonry-flow","f":0,"t":"RESPONSIVE","p":["#1a1a2e","#48314b","#221d32","#a5a3a8","#17162a"]},{"n":"分屏布局","e":"Split Screen","d":"画面一分为二，用对峙与呼应制造视觉张力","s":"split-screen","f":0,"t":"RESPONSIVE","p":["#fefefe","#111111","#0f0f0f","#0a0a0a","#7b7b7b"]},{"n":"全屏滚动布局","e":"Full Page Scroll","d":"一屏一个场景，滚动即翻页，沉浸感拉满","s":"full-page-scroll","f":0,"t":"","p":["#0f0a18","#0d070f","#030307","#151124","#6e6280"]},{"n":"垂直时间线布局","e":"Vertical Timeline","d":"沿时间轴串起节点，把经历与里程碑讲成故事","s":"timeline-vertical","f":0,"t":"","p":["#f8fafc","#e5e7ea","#f8fafb","#f9fbfc","#f9fafc"]},{"n":"卡片堆叠布局","e":"Card Stack","d":"卡片沿纵深层层错开，滑动时自带立体纵深感","s":"card-stack","f":0,"t":"","p":["#1a1a2e","#1a1a30","#5f5e76","#1a1a2d","#17172b"]},{"n":"固定侧边栏布局","e":"Fixed Sidebar","d":"导航常驻左侧、内容独立滚动，后台文档常用","s":"sidebar-fixed","f":0,"t":"RESPONSIVE","p":["#fafafa","#f9fafa","#f7f7f8","#fdfdfd","#c2c7d2"]},{"n":"杂志网格布局","e":"Magazine Grid","d":"借印刷杂志的多栏网格，安放疏密有致的内容块","s":"magazine-grid","f":0,"t":"RESPONSIVE","p":["#fafafa","#e2d1d2","#fbfcfc","#f6fbfb","#fafafb"]},{"n":"全屏英雄区布局","e":"Fullscreen Hero","d":"整屏大图或视频打头阵，第一眼就抓住注意力","s":"hero-fullscreen","f":0,"t":"","p":["#171925","#0c0c0f","#262b3a","#1d2135","#787f8d"]},{"n":"F型布局","e":"F-Pattern Layout","d":"顺着F形扫视路径排布重点，适合信息密集页面","s":"f-pattern-layout","f":0,"t":"RESPONSIVE","p":["#ffffff","#f5f1f2","#fcfbfc","#e8d8da","#feffff"]},{"n":"Z型布局","e":"Z-Pattern Layout","d":"视线沿Z字折线推进，天然适合着陆页叙事","s":"z-pattern-layout","f":0,"t":"RESPONSIVE","p":["#f9fafc","#fafbfc","#fdfdfe","#fcfbfc","#d6deea"]},{"n":"圣杯布局","e":"Holy Grail Layout","d":"经典三栏范式，页眉页脚加左右栏与主内容","s":"holy-grail-layout","f":0,"t":"RESPONSIVE","p":["#f1f5f9","#fafbfc","#f0f5f9","#d1dbea","#f3f5f7"]},{"n":"仪表盘布局","e":"Dashboard Layout","d":"侧栏、工具栏与数据面板拼合的后台标准骨架","s":"dashboard-layout","f":0,"t":"RESPONSIVE","p":["#101828","#10182b","#50566a","#0f1827","#0c1525"]},{"n":"非对称网格","e":"Asymmetric Grid","d":"故意错开的列宽与重叠元素，打破网格的呆板","s":"asymmetric-grid","f":0,"t":"HIGH-CONTRAST","p":["#ff3366","#33151c","#e4bf94","#ff3367","#f13364"]},{"n":"视差滚动","e":"Parallax Sections","d":"前后景以不同速度滚动，平面页面有了景深","s":"parallax-sections","f":0,"t":"RESPONSIVE","p":["#152b45","#132e48","#162640","#131f35","#374a63"]},{"n":"横滚画廊","e":"Horizontal Gallery","d":"作品沿水平展线排开，像走在美术馆长廊里","s":"horizontal-gallery","f":0,"t":"","p":["#fcfcfa","#fcfcf9","#cacac8","#fefefd","#fbfcfa"]},{"n":"滚动叙事","e":"Scrollytelling","d":"滚动驱动画面状态切换，长报道式的数据叙事","s":"scrollytelling","f":0,"t":"DARK-THEME","p":["#0e1116","#4f5663","#0f1116","#0b0e13","#0d1116"]},{"n":"编辑杂志风","e":"Editorial","d":"衬线标题配无衬线正文，留白与网格透着纸刊高级感","s":"editorial","f":1,"t":"","p":["#f9f8f6","#a9a8a7","#f9f8f5","#fcfbf9","#f9f8f7"]},{"n":"极简扁平风","e":"Minimalist Flat","d":"去掉阴影与渐变，只靠色块和留白区分层次","s":"minimalist-flat","f":1,"t":"","p":["#ffffff","#824f3b","#fdfefe","#9ee4d0","#fffefd"]},{"n":"企业简洁风","e":"Corporate Clean","d":"干净专业的企业面孔，传递可读性与信任感","s":"corporate-clean","f":1,"t":"","p":["#f8fafc","#ffffff","#f7fafc","#dfe6f6","#f9fafc"]},{"n":"柔和界面风","e":"Soft UI","d":"阴影柔和、边角圆润、低饱和配色，亲和力十足","s":"soft-ui","f":1,"t":"","p":["#e8ecf0","#e5e9f1","#c1c2d7","#f6f7fa","#e4edef"]},{"n":"瑞士国际风格","e":"Swiss International","d":"严谨网格与无衬线字体，理性客观地传递信息","s":"swiss-style","f":1,"t":"GEOMETRIC","p":["#ffffff","#db2121","#dfdfe0","#f9f9fa","#feffff"]},{"n":"瑞士海报风","e":"Swiss Poster","d":"巨字、原色块与网格对齐，海报式的实验排版","s":"swiss-poster","f":1,"t":"HIGH-CONTRAST, GEOMETRIC","p":["#ffffff","#f00000","#fafafa","#be9e9e","#f9ffff"]},{"n":"北欧极简风","e":"Scandinavian Minimalism","d":"自然材质与木色调，大量留白透着北欧暖意","s":"scandinavian","f":1,"t":"","p":["#f5f0eb","#f5f0ea","#a6a39f","#f9f4ef","#f6f0eb"]},{"n":"韩式极简","e":"Korean Minimal","d":"粉彩配色加精致圆角，克制中带一点温柔","s":"korean-minimal","f":1,"t":"","p":["#faf9f7","#faf9f6","#c5c4c2","#f9f9f7","#ffffff"]},{"n":"日系清新风","e":"Japanese Fresh","d":"淡雅色调与纤细线条，大面积留白清透治愈","s":"japanese-fresh","f":1,"t":"","p":["#fafaf8","#e4eaed","#f9faf8","#fdfcf9","#fbfaf8"]},{"n":"可爱极简","e":"Kawaii Minimal","d":"粉彩圆润元素点缀极简版面，轻盈又讨喜","s":"kawaii-minimal","f":1,"t":"","p":["#fff7ed","#e5d7dd","#fcf7ee","#fffaf2","#fff7eb"]},{"n":"单色极简","e":"Monochrome","d":"只用黑白灰，以字重和负空间撑起全部层次","s":"monochrome","f":1,"t":"HIGH-CONTRAST","p":["#fafafa","#9f9f9f","#fafaf9","#fdfdfd","#fbfafa"]},{"n":"视差杂志","e":"Parallax Editorial","d":"杂志排版叠上景深，图文交错、首字下沉","s":"parallax-editorial","f":1,"t":"","p":["#f5f0e6","#dbd6cd","#f4f0e6","#f7f3e9","#f6f0e6"]},{"n":"玻璃拟态","e":"Glassmorphism","d":"半透明面板叠加背景模糊，界面像毛玻璃般通透","s":"glassmorphism","f":2,"t":"GLASSMORPHIC","p":["#0c1423","#131c2b","#394456","#0a1221","#0b1424"]},{"n":"macOS 毛玻璃","e":"macOS Vibrancy","d":"深灰多层面板配高斯模糊，原生 macOS 的质感","s":"macos-vibrancy","f":2,"t":"GLASSMORPHIC","p":["#1c1c1e","#2d2d2f","#1b1b1d","#1c1c1f","#1b1c1e"]},{"n":"Apple 流动玻璃","e":"Apple Liquid Glass","d":"折射滤镜让玻璃边缘流动形变，WWDC 2025 新语言","s":"liquid-glass","f":2,"t":"BRAND-INSPIRED","p":["#1b1d37","#292245","#271f41","#212640","#232f45"]},{"n":"粘土拟态","e":"Claymorphism","d":"鼓胀的粘土质感、超大圆角，像捏出来的 3D 界面","s":"claymorphism","f":2,"t":"GLASSMORPHIC","p":["#fffbeb","#ddd9cc","#fdfbeb","#fffded","#fffbea"]},{"n":"新拟物派","e":"Neumorphism","d":"同色系凸起与双重阴影，在平面上模拟浮雕","s":"neumorphism","f":2,"t":"","p":["#e0e5ec","#dfe5ec","#ced3db","#e1e5ec","#e5e9ef"]},{"n":"流利设计","e":"Fluent Design","d":"光线、深度与材质动效交织的微软设计体系","s":"fluent-design","f":2,"t":"BRAND-INSPIRED, GLASSMORPHIC","p":["#eaeef0","#e6ebee","#eff0f1","#f6f6f7","#b7c6d3"]},{"n":"Frutiger Aero","e":"Frutiger Aero","d":"蓝天渐变与玻璃光泽，Vista 时代的清新科技感","s":"frutiger-aero","f":2,"t":"RETRO","p":["#6fd2fd","#74d5fb","#89d9fe","#bce9fc","#7cb4cd"]},{"n":"Apple 风格","e":"Apple Style","d":"海量留白与精致细节，克制而高端的科技气场","s":"apple-style","f":3,"t":"BRAND-INSPIRED","p":["#000000","#000407","#4e5965","#000102","#000001"]},{"n":"Stripe 风格","e":"Stripe Style","d":"标志性紫色、渐变网格与精巧的卡片阴影","s":"stripe-style","f":3,"t":"BRAND-INSPIRED","p":["#e8ebf8","#f0f4fb","#f4f7fc","#92a4dd","#f7f9fc"]},{"n":"Notion 风格","e":"Notion Style","d":"极简文档气质，用细边框衬托内容的可读性","s":"notion-style","f":3,"t":"BRAND-INSPIRED","p":["#f7f6f3","#e9ece9","#fefefd","#f7f6f2","#f6f6f4"]},{"n":"GitHub 风格","e":"GitHub Style","d":"柔和灰度、蓝色交互与等宽字体，开发者很熟悉","s":"github-style","f":3,"t":"BRAND-INSPIRED","p":["#ffffff","#fbfcfd","#fefefe","#a6acb0","#fffefe"]},{"n":"材料设计","e":"Material Design","d":"以纸墨为喻的谷歌体系，层次与动效皆有章法","s":"material-design","f":3,"t":"BRAND-INSPIRED","p":["#763ff9","#7c52fd","#8360fc","#651beb","#8c7cf8"]},{"n":"Linear 风格","e":"Linear Style","d":"暗色极简、排版精确，克制的动效透着高级感","s":"linear-style","f":3,"t":"","p":["#0a0a0b","#0a0a0c","#201f27","#08080a","#0a0a0a"]},{"n":"清爽电商","e":"Shopify Clean","d":"干净现代的独立站面孔，一切为产品与转化让路","s":"shopify-clean","f":3,"t":"BRAND-INSPIRED","p":["#f7f7f8","#fefefe","#929393","#f6f7f8","#f8f7f8"]},{"n":"发布会主题","e":"Launch Keynote","d":"纯黑舞台与逐帧揭幕，复刻苹果发布会的仪式感","s":"launch-keynote","f":3,"t":"","p":["#000000","#020508","#07111a","#5f6a75","#000002"]},{"n":"创意工作室风","e":"Creative Studio","d":"超大字重排版配珊瑚色强调，自信张扬的声明感","s":"studio-bold","f":3,"t":"RESPONSIVE, HIGH-CONTRAST, BRAND-INSPIRED","p":["#1a1a1a","#624949","#1b1a1a","#161717","#191a1a"]},{"n":"新野兽派","e":"Neo-Brutalist","d":"粗黑边框、硬阴影、拒绝圆角，对比直接拉满","s":"neo-brutalist","f":4,"t":"HIGH-CONTRAST","p":["#ccff00","#88952d","#cfff00","#ffffff","#c8ed2d"]},{"n":"柔和野兽派","e":"Neo-Brutalist Soft","d":"保留野兽派骨架，换上柔和配色与细一号边框","s":"neo-brutalist-soft","f":4,"t":"HIGH-CONTRAST","p":["#f5f5f5","#e7e9e5","#f7f7f7","#c9b8c1","#f3f5f3"]},{"n":"俏皮野兽派","e":"Neo-Brutalist Playful","d":"野兽派底子上再加多彩、倾斜与俏皮微交互","s":"neo-brutalist-playful","f":4,"t":"COLORFUL","p":["#4ecdc4","#d2e6ae","#609180","#4ecfc6","#4acfc7"]},{"n":"网页粗野主义","e":"Brutalist Web","d":"系统字体与裸露结构，回到早期互联网的粗粝","s":"brutalist-web","f":4,"t":"RETRO, HIGH-CONTRAST","p":["#ffffff","#f2f2f2","#a1a1a3","#fefefe","#fffefe"]},{"n":"反设计","e":"Anti-Design","d":"故意违和与不协调，把打破规范本身当风格","s":"anti-design","f":4,"t":"HIGH-CONTRAST","p":["#ffffff","#55175b","#c6cbc3","#fffffa","#ccfffe"]},{"n":"酸性平面设计","e":"Acid Graphics","d":"荧光高饱和、扭曲字形与液态形态的锐舞美学","s":"acid-graphics","f":4,"t":"HIGH-CONTRAST, COLORFUL","p":["#0a0a0a","#121412","#287719","#090a09","#09070a"]},{"n":"多巴胺设计","e":"Dopamine Design","d":"高饱和霓虹与大胆排版，看一眼就分泌快乐","s":"dopamine-design","f":4,"t":"HIGH-CONTRAST, COLORFUL","p":["#ffffff","#e9e8ee","#a584b7","#f7fbfc","#fffcfb"]},{"n":"极繁主义","e":"Maximalism","d":"图案层层叠加、字体混搭，多就是多的宣言","s":"maximalism","f":4,"t":"HIGH-CONTRAST, COLORFUL, TEXTURE-HEAVY","p":["#251139","#25163f","#190d2d","#341138","#604751"]},{"n":"超大字体排版","e":"Oversized Typography","d":"视口级巨字直接当布局主体，黑白配一抹橙","s":"oversized-typography","f":4,"t":"HIGH-CONTRAST","p":["#fafaf8","#b6b5b4","#f9faf8","#fdfdfc","#fbfaf8"]},{"n":"动力学排印","e":"Kinetic Typography","d":"可变字体的字重字宽会动，文字本身就是动画","s":"kinetic-typography","f":4,"t":"","p":["#0b0b0c","#55463f","#0c0b0c","#0a0b0c","#060709"]},{"n":"动力学构成主义","e":"Kinetic Constructivism","d":"红蓝黄几何沿轴线机械运转，构成主义活了过来","s":"kinetic-constructivism","f":4,"t":"HIGH-CONTRAST, COLORFUL","p":["#efe9dc","#5d4729","#ddd3bd","#f2ede0","#ede9e1"]},{"n":"几何大胆风","e":"Geometric Bold","d":"强形状对比与鲜明色块，几何图形大声说话","s":"geometric-bold","f":4,"t":"HIGH-CONTRAST, COLORFUL, GEOMETRIC","p":["#000000","#5382d8","#0b0001","#654974","#4e141a"]},{"n":"涂鸦街头","e":"Graffiti Street","d":"喷漆质感、撞色与手写标签，砖墙上的街头气","s":"graffiti-street","f":4,"t":"HIGH-CONTRAST","p":["#1c1c1e","#201c20","#605554","#1b1a1c","#1a1c1e"]},{"n":"量化线场","e":"Quantized Line Field","d":"把画面明暗转成四档竖线，品牌标志也能交互探索","s":"quantized-line-field","f":4,"t":"HIGH-CONTRAST, RESPONSIVE, BRAND-INSPIRED","p":["#fafaf8","#1f1f37","#667dc1","#f0f0ee","#fefefc"]},{"n":"复古怀旧风","e":"Retro Vintage","d":"老式排版、怀旧色调与手工质感的老派韵味","s":"retro-vintage","f":5,"t":"RETRO, TEXTURE-HEAVY","p":["#f5e6d3","#e5ceb6","#f5e6d2","#f6e8d5","#f6e6d4"]},{"n":"像素艺术风","e":"Pixel Art","d":"8-bit 像素块、硬边无圆角，游戏机的童年回忆","s":"pixel-art","f":5,"t":"RETRO, GAME-UI","p":["#1a1c2c","#181c2c","#545045","#211c28","#2a1528"]},{"n":"霓虹复古","e":"Neon Retro","d":"粉紫渐变与复古未来主义，蒸汽波的经典面孔","s":"vaporwave","f":5,"t":"RETRO, HIGH-CONTRAST, COLORFUL, GRADIENT","p":["#1e043b","#1b0437","#2a1145","#1f0939","#6c408e"]},{"n":"千禧风格","e":"Y2K","d":"金属光泽、透明塑料与气泡，千禧年的未来幻想","s":"y2k","f":5,"t":"RETRO, COLORFUL, GRADIENT","p":["#f8eaf4","#fef2f9","#fefcfe","#eff7fa","#a69bb7"]},{"n":"孟菲斯风格","e":"Memphis","d":"几何撞色与不规则图形，八十年代的张扬设计","s":"memphis","f":5,"t":"RETRO, HIGH-CONTRAST, COLORFUL, GEOMETRIC","p":["#eda7da","#a3bfe7","#895c77","#feb3ae","#fec377"]},{"n":"装饰艺术风格","e":"Art Deco","d":"几何对称与金色线条，二十年代的奢华秩序","s":"art-deco","f":5,"t":"RETRO, GEOMETRIC","p":["#1a1a2e","#1b1a2e","#312e36","#17182c","#191a2d"]},{"n":"包豪斯风格","e":"Bauhaus","d":"原色与几何形式至上，功能主义的设计原点","s":"bauhaus","f":5,"t":"HIGH-CONTRAST, COLORFUL, GEOMETRIC","p":["#ffffff","#914b58","#d9c580","#f0eeed","#faffff"]},{"n":"拟物设计","e":"Skeuomorphism","d":"用纹理光影仿造真实材质，老派的数字手艺","s":"skeuomorphism","f":5,"t":"RETRO","p":["#d1c1a4","#d2c2a6","#746a5a","#cdbda1","#d7caaf"]},{"n":"合成波","e":"Synthwave","d":"霓虹粉紫与网格地平线，八十年代的电子梦境","s":"synthwave","f":5,"t":"RETRO, HIGH-CONTRAST, DARK-THEME, COLORFUL, GRADIENT","p":["#0d0123","#583586","#13012e","#2d0548","#210037"]},{"n":"Outrun 复古未来","e":"Outrun","d":"赛车游戏式的透视网格，霓虹黄昏一路向西","s":"outrun","f":5,"t":"RETRO, HIGH-CONTRAST, DARK-THEME, COLORFUL, GRADIENT","p":["#0d0419","#490b40","#9e1b4f","#ba4244","#7e054f"]},{"n":"VHS 美学","e":"VHS Aesthetic","d":"录像带的色偏、噪点与抖动，磁带时代的瑕疵美","s":"vhs-aesthetic","f":5,"t":"RETRO, HIGH-CONTRAST, TEXTURE-HEAVY","p":["#0c0210","#0f0316","#070109","#17071c","#53505c"]},{"n":"街机 CRT","e":"Arcade CRT","d":"扫描线、屏幕弧度与 RGB 色差，街机厅的氛围","s":"arcade-crt","f":5,"t":"RETRO, HIGH-CONTRAST, DARK-THEME, GAME-UI","p":["#060b05","#070d07","#050805","#1d561d","#040b04"]},{"n":"中世纪现代","e":"Mid-Century Modern","d":"原子时代的几何图案、星芒元素与有机曲线","s":"mid-century-modern","f":5,"t":"GEOMETRIC","p":["#f5f0e1","#e3d5c5","#f3f0e1","#f6f3e4","#f6f0e1"]},{"n":"构成主义","e":"Constructivism","d":"红黑配色与对角线构图，苏联海报的革命气势","s":"constructivism","f":5,"t":"RETRO, HIGH-CONTRAST, COLORFUL","p":["#f2e8d5","#cc0000","#704843","#ebdbc9","#f4ebd8"]},{"n":"新艺术运动风","e":"Art Nouveau","d":"藤蔓花卉般的有机曲线，装饰线条优雅蔓延","s":"art-nouveau","f":5,"t":"RETRO","p":["#f5f0e1","#f4f0e0","#dcdac3","#f6f0e2","#f7f2e3"]},{"n":"暗黑学院风","e":"Dark Academia","d":"深棕旧书与古典排版，图书馆深处的学术氛围","s":"dark-academia","f":5,"t":"RETRO, DARK-THEME, TEXTURE-HEAVY","p":["#515549","#616f63","#413327","#4b483b","#484034"]},{"n":"暗黑模式","e":"Dark Mode","d":"深色基底配微妙边框高亮，低调而有层次","s":"dark-mode","f":6,"t":"DARK-THEME","p":["#0f172a","#0f1a32","#2c3f60","#0e172c","#0d1529"]},{"n":"现代渐变风","e":"Modern Gradient","d":"多彩渐变铺底、玻璃卡片浮动，光影流动","s":"modern-gradient","f":6,"t":"COLORFUL, GRADIENT","p":["#03061a","#221345","#160b36","#12062a","#4f3b74"]},{"n":"赛博朋克霓虹","e":"Cyberpunk Neon","d":"深色夜幕下霓虹发光，高科技都市的标配","s":"cyberpunk-neon","f":6,"t":"HIGH-CONTRAST, DARK-THEME, COLORFUL","p":["#090c11","#090d12","#314043","#07090f","#070c11"]},{"n":"霓虹渐变","e":"Neon Gradient","d":"深底之上渐变卡片发光，边框粗粝、色彩鲜明","s":"neon-gradient","f":6,"t":"DARK-THEME, GRADIENT","p":["#180d2a","#0d081c","#5d4e76","#120a20","#140821"]},{"n":"霓虹东京","e":"Neon Tokyo","d":"歌舞伎町的霓虹夜色，湿润街道映着倒影","s":"neon-tokyo","f":6,"t":"GRADIENT","p":["#0d071b","#11061e","#0d0a1a","#0d091b","#352642"]},{"n":"科幻 HUD","e":"Sci-Fi HUD","d":"全息面板与青色发光边框，飞船驾驶舱既视感","s":"sci-fi-hud","f":6,"t":"HIGH-CONTRAST, DARK-THEME, GAME-UI","p":["#020617","#020a1b","#010618","#020616","#010514"]},{"n":"粒子系统","e":"Particle System","d":"粒子连成网络脉动，深色背景里的数据流","s":"particle","f":6,"t":"DARK-THEME","p":["#0a0e1a","#090d19","#323f4f","#090e19","#080b17"]},{"n":"着色器渐变","e":"Shader Gradient","d":"WebGL 着色器生成流动渐变，高端 SaaS 的门面","s":"shader-gradient","f":6,"t":"","p":["#23344b","#21263a","#415882","#152432","#15192b"]},{"n":"黑色电影","e":"Film Noir","d":"极致的明暗对比与斜射光影，四十年代的悬疑","s":"film-noir","f":6,"t":"HIGH-CONTRAST, DARK-THEME","p":["#0b0a0a","#180f10","#070707","#2f171b","#575656"]},{"n":"生成艺术","e":"Generative Art","d":"数学函数与噪声纹理，由算法绘成独特视觉","s":"generative-art","f":6,"t":"HIGH-CONTRAST","p":["#0a0a0a","#1f1f25","#090908","#090a09","#090a0a"]},{"n":"全息渐变","e":"Holographic","d":"彩虹虹彩与棱镜折射，光一动颜色就跟着变","s":"holographic","f":6,"t":"HIGH-CONTRAST, DARK-THEME, COLORFUL, GRADIENT","p":["#402c26","#2f3527","#243e34","#856441","#24201f"]},{"n":"机甲风","e":"Mecha","d":"钢铁质感、警示标识与参数标注，机甲迷狂喜","s":"mecha","f":7,"t":"HIGH-CONTRAST, DARK-THEME, GAME-UI, ANIME-AESTHETIC","p":["#1a2744","#1a2742","#353b3f","#172443","#192744"]},{"n":"视觉小说风","e":"Visual Novel","d":"立绘、半透明对话框与选项按钮的游戏界面","s":"visual-novel","f":7,"t":"DARK-THEME, GAME-UI, ANIME-AESTHETIC","p":["#6281ac","#7d99bd","#3b404b","#c9ad89","#aaa297"]},{"n":"少女漫画风","e":"Shoujo Manga","d":"樱花闪光与粉色调，浪漫梦幻的少女漫氛围","s":"shoujo-manga","f":7,"t":"RETRO, ANIME-AESTHETIC","p":["#fff4f6","#fff4f4","#c3a8bd","#fef4f7","#fff7f8"]},{"n":"赛博动漫风","e":"Cyber Anime","d":"赛博界面混搭动漫美学，霓虹与全息齐飞","s":"cyber-anime","f":7,"t":"HIGH-CONTRAST, DARK-THEME, ANIME-AESTHETIC, GAME-UI","p":["#131022","#18122d","#151127","#100f1e","#4c3c79"]},{"n":"像素动漫风","e":"Pixel Anime","d":"像素世界里住着 Q 版角色，复古游戏 UI 感","s":"pixel-anime","f":7,"t":"RETRO, DARK-THEME, ANIME-AESTHETIC, GAME-UI","p":["#2c1b67","#2d1b67","#221b53","#483e6c","#241656"]},{"n":"霓虹武士风","e":"Neon Samurai","d":"刀锋线条与汉字书法，武士魂撞上霓虹","s":"neon-samurai","f":7,"t":"HIGH-CONTRAST, DARK-THEME, ANIME-AESTHETIC","p":["#080818","#100a1a","#0a0819","#090715","#070818"]},{"n":"魔法阵风","e":"Magic Circle","d":"几何法阵、符文与金色辉光在深蓝底上旋转","s":"magic-circle","f":7,"t":"DARK-THEME, GEOMETRIC, ANIME-AESTHETIC","p":["#0a0920","#0c0a20","#2a2223","#0a091b","#09081d"]},{"n":"赛博和风","e":"Cyber Wafuu","d":"青海波与折纸几何被数字化，传统纹样通了电","s":"cyber-wafuu","f":7,"t":"HIGH-CONTRAST, DARK-THEME, ANIME-AESTHETIC","p":["#0b0a15","#080814","#1b2229","#0a0814","#070713"]},{"n":"日式 RPG","e":"JRPG","d":"华丽边框与状态面板，经典日式角色扮演味","s":"jrpg","f":7,"t":"RETRO, HIGH-CONTRAST, DARK-THEME, ANIME-AESTHETIC, GAME-UI","p":["#0f1729","#131e38","#10192f","#1b253c","#4a5146"]},{"n":"赛璐璐动画风","e":"Cel Shading","d":"粗黑轮廓与平涂色块，老动画的利落渲染","s":"cel-shading","f":7,"t":"HIGH-CONTRAST, GAME-UI, ANIME-AESTHETIC","p":["#fbfbf6","#f9f9f4","#f4f3ef","#a39ea3","#faf9f3"]},{"n":"赛博中华风","e":"Cyber Chinese","d":"霓虹灯笼、数字山水与电路纹样，中华赛博风","s":"cyber-chinese","f":7,"t":"HIGH-CONTRAST, DARK-THEME, ANIME-AESTHETIC","p":["#0a090a","#110c0d","#0b0a0b","#343935","#090a0a"]},{"n":"吉卜力风格","e":"Ghibli Style","d":"手绘质感与柔和自然色，温暖治愈的动画世界","s":"ghibli-style","f":7,"t":"RETRO, HAND-DRAWN","p":["#8acfe9","#8bd0eb","#88cfeb","#9ed7eb","#6b9eb2"]},{"n":"浮世绘数字风","e":"Ukiyo-e Digital","d":"版画的扁平色块与精细线描，被搬进数字界面","s":"ukiyo-e-digital","f":8,"t":"RETRO","p":["#f5f0e1","#a7a09c","#f2f0e3","#f9f4e4","#f6f0e1"]},{"n":"水墨画风","e":"Ink Wash","d":"墨分五色、留白空灵，中国水墨的写意气韵","s":"ink-wash","f":8,"t":"","p":["#f8f5f0","#f7f5f0","#b5b3af","#fcf9f4","#f8f5ef"]},{"n":"侘寂风","e":"Wabi-Sabi","d":"在不完美与旧痕里见美，墨茶纸色的禅意","s":"wabi-sabi","f":8,"t":"","p":["#f7f3ec","#f6f3eb","#e2dfd8","#f8f3ec","#f9f5ee"]},{"n":"枯山水","e":"Zen Garden","d":"砂纹、石组与苔绿，一方庭院装下静谧","s":"zen-garden","f":8,"t":"","p":["#f5f3ee","#f4f3ed","#c3c2be","#faf8f3","#f6f3ee"]},{"n":"哥特式风","e":"Gothic","d":"尖拱、深色与华丽纹样，中世纪的神秘庄严","s":"gothic","f":8,"t":"RETRO, HIGH-CONTRAST, DARK-THEME","p":["#261834","#0c0b0e","#1b1327","#15101a","#402c3a"]},{"n":"哥特萝莉风","e":"Gothic Lolita","d":"暗黑哥特遇上蕾丝玫瑰，维多利亚式的华丽","s":"gothic-lolita","f":8,"t":"RETRO, DARK-THEME","p":["#0e0a0d","#130a13","#180a18","#201820","#110711"]},{"n":"粉彩哥特","e":"Pastel Goth","d":"糖果粉彩配骷髅十字，甜与暗的反差混搭","s":"pastel-goth","f":8,"t":"HIGH-CONTRAST, DARK-THEME","p":["#191124","#1f142c","#221630","#261834","#1b1227"]},{"n":"巫术核心","e":"Witchcore","d":"塔罗、月相与水晶草药，深紫金色的神秘学","s":"witchcore","f":8,"t":"HIGH-CONTRAST, DARK-THEME","p":["#481840","#45183e","#471840","#4c1f42","#170e1b"]},{"n":"蒸汽朋克","e":"Steampunk","d":"黄铜齿轮与蒸汽管道，维多利亚的工业幻想","s":"steampunk","f":8,"t":"RETRO, HIGH-CONTRAST, DARK-THEME, TEXTURE-HEAVY","p":["#3d2b1f","#3e2b1f","#453324","#3c2b1e","#34251a"]},{"n":"波普艺术","e":"Pop Art","d":"半调网点与重复图案，大众文化的鲜明色彩","s":"pop-art","f":8,"t":"RETRO, HIGH-CONTRAST, COLORFUL","p":["#fedc01","#472e2a","#bb8095","#48c5c8","#fef5b0"]},{"n":"拼贴艺术风","e":"Collage Art","d":"撕纸边缘与多层剪贴，杂志拼贴的手作感","s":"collage-art","f":8,"t":"RETRO, HAND-DRAWN, TEXTURE-HEAVY","p":["#f5f0e8","#e7e2da","#f2f0e8","#f5f0e7","#f6f1e9"]},{"n":"水彩画风","e":"Watercolor Style","d":"色彩在纸面晕开扩散，边缘柔软得像会呼吸","s":"watercolor-style","f":8,"t":"HAND-DRAWN","p":["#f8f4f0","#e4e5e6","#f3e4db","#eaeeec","#969598"]},{"n":"水彩艺术风","e":"Watercolor Art","d":"真实水彩的透明叠染，纸纹里透着颜料感","s":"watercolor-art","f":8,"t":"HAND-DRAWN","p":["#faf6f0","#f5f0eb","#f8f4ee","#e4d6d2","#fbf8f1"]},{"n":"油画印象派风","e":"Impressionist Oil","d":"点彩笔触捕捉光影，画布质感扑面而来","s":"impressionist-oil","f":8,"t":"RETRO, HAND-DRAWN, TEXTURE-HEAVY","p":["#f5f0e1","#e2d7c7","#f4f0e1","#f7f0e0","#f6f2e3"]},{"n":"漫画风格","e":"Comic Style","d":"浓墨线、网点与分镜格，跃然纸上的连环画","s":"comic-style","f":8,"t":"HIGH-CONTRAST, HAND-DRAWN","p":["#fffef9","#9d8c8a","#f3f1ed","#fffef6","#fdfefb"]},{"n":"铅笔手绘风","e":"Sketch Style","d":"不规则的铅笔线与素描排线，未完成的手稿感","s":"sketch-style","f":8,"t":"RETRO, HAND-DRAWN","p":["#f4efe7","#d4cfc9","#f5efe7","#f3efe8","#f7f3ec"]},{"n":"手绘涂鸦风","e":"Hand-Drawn Doodle","d":"随手涂鸦与手写字，像笔记本边角的涂鸦墙","s":"hand-drawn-doodle","f":8,"t":"HAND-DRAWN","p":["#fdfdf5","#fffef5","#c4c1bb","#fefdf4","#fffff9"]},{"n":"纸艺手作","e":"Paper Craft","d":"层层纸片以柔影分出深度，手工剪贴的温度","s":"paper-craft","f":8,"t":"HAND-DRAWN","p":["#fdf6ee","#e9d5d0","#f9f6ee","#fef9f3","#fef6ed"]},{"n":"Risograph 印刷风","e":"Risograph","d":"专色叠印与套印错位，孔版印刷的复古颗粒","s":"risograph","f":8,"t":"HIGH-CONTRAST, TEXTURE-HEAVY","p":["#fdf9ef","#eeeade","#c4b4bc","#faf7ed","#fcf6ed"]},{"n":"欧普艺术","e":"Op Art","d":"几何图案制造视错幻象，眼睛被节奏带着走","s":"op-art","f":8,"t":"","p":["#ffffff","#010101","#7a7a7a","#f5f5f5","#feffff"]},{"n":"立体主义","e":"Cubism","d":"多视角的几何碎片拼贴，大地色调的理性构成","s":"cubism","f":8,"t":"RETRO","p":["#e8dcc8","#ded3c0","#bca997","#eadeca","#e7dbc7"]},{"n":"超现实主义风","e":"Surrealism","d":"梦境与现实错位拼接，潜意识里的奇异图景","s":"surrealism","f":8,"t":"RETRO, HAND-DRAWN","p":["#1a1a3e","#1d1c3f","#18183c","#52485c","#1a1a3c"]},{"n":"伊斯兰几何","e":"Islamic Geometric","d":"精密镶嵌的几何与阿拉伯纹样，金蓝交辉","s":"islamic-geometric","f":8,"t":"GEOMETRIC, TEXTURE-HEAVY","p":["#1a3a5c","#1b3a5c","#354d60","#18385a","#193a5c"]},{"n":"印度节庆","e":"Indian Festive","d":"宝石色调与曼荼罗，金饰点亮节庆的热闹","s":"indian-festive","f":8,"t":"HIGH-CONTRAST, COLORFUL, TEXTURE-HEAVY","p":["#feedd4","#fff3dd","#fff1d9","#fff6e3","#bca084"]},{"n":"非洲纺织","e":"African Textile","d":"肯特布的几何编织，大地色撞上鲜明亮色","s":"african-textile","f":8,"t":"HIGH-CONTRAST, COLORFUL, TEXTURE-HEAVY","p":["#2e1910","#372316","#331e13","#684a2c","#24150f"]},{"n":"维多利亚植物","e":"Victorian Botanical","d":"植物学线描插画配暗绿与金，标本馆的优雅","s":"victorian-botanical","f":8,"t":"RETRO, TEXTURE-HEAVY","p":["#faf5ef","#f9f5ef","#bdbbb4","#fdf8f3","#fbf5f0"]},{"n":"中世纪手抄本","e":"Medieval Manuscript","d":"泥金装饰与花体首字母，羊皮纸上的典籍","s":"medieval-manuscript","f":8,"t":"","p":["#ece0ca","#ede1cb","#eee3cc","#f0e6cf","#b4a796"]},{"n":"大理石奢华","e":"Marble Luxury","d":"大理石纹配金色细线，白底黑字的贵气","s":"marble-luxury","f":8,"t":"","p":["#f3f0ec","#f7f5f1","#f5f2ee","#f6f3ef","#ebe8e3"]},{"n":"自然有机风","e":"Natural Organic","d":"大地色与自然纹理，透着手工与环保气息","s":"natural-organic","f":9,"t":"","p":["#faf6f1","#eeeae3","#d6c8b9","#f9f6f1","#fcfaf6"]},{"n":"暖感有机风","e":"Warm Organic","d":"赤陶黏土色调与有机曲线，温暖柔和的包裹感","s":"warm-organic","f":9,"t":"TEXTURE-HEAVY","p":["#eee5dd","#f5f0eb","#f2ece6","#ab9a91","#f9f4ef"]},{"n":"赤陶暖调","e":"Terracotta","d":"地中海的陶土赭石色，粗粝里带手工温度","s":"terracotta","f":9,"t":"","p":["#faf5ef","#faf5ee","#b8b4af","#f9f5ef","#fcf9f3"]},{"n":"太阳朋克","e":"Solarpunk","d":"绿意与科技共生的乌托邦，明亮乐观的未来","s":"solarpunk","f":9,"t":"","p":["#eefbee","#eff7e1","#def8e1","#e2fae9","#e8e7bc"]},{"n":"田园核风","e":"Cottagecore","d":"花卉、田园与手工感，是对乡村慢生活的向往","s":"cottagecore","f":9,"t":"RETRO, HAND-DRAWN, TEXTURE-HEAVY","p":["#faf6f0","#f9f6ef","#bdbfb3","#fefaf4","#fcf6ee"]},{"n":"热带天堂","e":"Tropical Paradise","d":"棕榈叶与艳丽花卉，阳光沙滩的明快假日感","s":"tropical-paradise","f":9,"t":"COLORFUL","p":["#fffde7","#fff7d7","#fffde6","#a2d2bd","#fffee8"]},{"n":"终端风","e":"Developer Terminal","d":"整个网站是一场终端会话，绿字与提示符齐飞","s":"developer-terminal","f":10,"t":"","p":["#0b0f14","#131b1f","#b9c4bb","#090c10","#0a0f13"]},{"n":"论文排版风","e":"LaTeX Paper","d":"公式编号与三线表上网页，学术论文的仪式感","s":"latex-paper","f":10,"t":"RETRO","p":["#ffffff","#fdfdfd","#909191","#fffffe","#feffff"]},{"n":"学术科普风","e":"Distill Style","d":"窄栏衬线正文加边注，图表撑破版心讲证据","s":"distill-style","f":10,"t":"BRAND-INSPIRED","p":["#ffffff","#f4f4f5","#fefefe","#949697","#feffff"]},{"n":"工程蓝图","e":"Blueprint","d":"蓝底白线的工程图，坐标网格与尺寸标注齐全","s":"blueprint","f":10,"t":"","p":["#1e395e","#1f3c61","#224067","#203d64","#1d365a"]},{"n":"数据密集","e":"Data Dense","d":"紧凑面板塞满小组件，数据效率压倒一切","s":"data-dense","f":10,"t":"DARK-THEME, RESPONSIVE","p":["#f7f9fb","#ffffff","#fcfdfd","#abb2bb","#fffefe"]},{"n":"暖色仪表盘","e":"Warm Dashboard","d":"珊瑚赤陶打底、奶油白卡片，仪表盘也可以温暖","s":"warm-dashboard","f":10,"t":"","p":["#d4a088","#deb69d","#c89d86","#d7a087","#aca68c"]},{"n":"奢品零售","e":"Luxury Retail","d":"大量留白、衬线字与金色大理石，尊贵感拉满","s":"luxury-retail","f":11,"t":"","p":["#faf9f6","#f9f9f6","#a9a8a5","#fdfcfa","#fbf9f7"]},{"n":"奢华画册","e":"Luxe Lookbook","d":"瓷白墨黑配哑光金，高定画册般的时装气场","s":"luxe-lookbook","f":11,"t":"","p":["#d6cfc1","#9e988c","#c8bdac","#e0d7c8","#e8e1d4"]},{"n":"鲜活市集","e":"Fresh Market","d":"暖色圆润卡片与自然纹理，生鲜的新鲜信任感","s":"fresh-market","f":11,"t":"","p":["#3a5721","#fef9f0","#fefdf7","#223b13","#d7d9c8"]},{"n":"沉浸摄影","e":"Immersive Photo","d":"大图铺满整屏、文字浮在遮罩上，照片即界面","s":"immersive-photo","f":12,"t":"DARK-THEME","p":["#4f4447","#6f5a55","#2c2a35","#8b736b","#bfb1ae"]},{"n":"电影视频首屏","e":"Cinematic Video Hero","d":"循环短片开场、暗场调色，电影预告般的登场","s":"cinematic-video-hero","f":12,"t":"DARK-THEME","p":["#1b1c23","#07070a","#0f0e12","#5e5c5e","#0a0b0f"]},{"n":"暗色画廊风","e":"Dark Gallery","d":"近黑底色托起大图，琥珀色细节为影像让路","s":"gallery-dark","f":12,"t":"DARK-THEME, RESPONSIVE","p":["#161616","#111111","#1a1a1a","#0d0d0d","#363636"]},{"n":"故障艺术风","e":"Glitch Art","d":"像素错位、RGB 分离与扫描线，数据损坏的美学","s":"glitch-art","f":13,"t":"HIGH-CONTRAST","p":["#0a0e0e","#0f0e10","#090e0d","#173333","#0d0b0e"]},{"n":"故障广播","e":"Broadcast Glitch","d":"老电视的扫描线、色彩错位与测试卡彩条","s":"broadcast-glitch","f":13,"t":"RETRO, DARK-THEME","p":["#0b0b0e","#6a6868","#100b0f","#08080b","#090b0d"]},{"n":"粉彩应用风","e":"Pastel App UI","d":"奶油底色配淡紫薄荷，温柔治愈的移动界面","s":"pastel-ui","f":14,"t":"RESPONSIVE, COLORFUL","p":["#fff8f0","#a7a1a7","#fef8f0","#fffcf3","#fff8ef"]},{"n":"移动编辑风","e":"Mobile Editorial","d":"杂志排版塞进手机屏，衬线标题配暖纸底","s":"mobile-editorial","f":14,"t":"RESPONSIVE, HIGH-CONTRAST","p":["#fffdf8","#a39b98","#fefdf8","#fffffc","#fffdf9"]},{"n":"柔和工具风","e":"Soft Utility","d":"浅色底与清晰状态色，工具 App 的高效与亲和","s":"soft-utility","f":14,"t":"RESPONSIVE, HIGH-CONTRAST","p":["#f4f8f6","#99a3a3","#f4f8f5","#f8fcfa","#f5f8f7"]}]};
+function loadImg(img){
+ if(img.dataset.done)return; img.dataset.done=1;
+ fetch(img.dataset.b64).then(function(r){return r.text()}).then(function(t){img.src='data:image/webp;base64,'+t.trim()}).catch(function(){});
+}
+var io=('IntersectionObserver' in window)?new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){loadImg(e.target);io.unobserve(e.target)}})},{rootMargin:'600px'}):null;
+function watchImgs(){var imgs=document.querySelectorAll('img[data-b64]');for(var i=0;i<imgs.length;i++){if(io)io.observe(imgs[i]);else loadImg(imgs[i])}}
+var curF=-1;
+function render(){
+ var q=document.getElementById('skQ').value.trim().toLowerCase();
+ var grid=document.getElementById('skGrid');var html='';var n=0;
+ for(var i=0;i<SK.s.length;i++){var d=SK.s[i];
+  if(curF>=0&&d.f!==curF)continue;
+  if(q&&(d.n.toLowerCase().indexOf(q)<0&&d.e.toLowerCase().indexOf(q)<0&&d.d.toLowerCase().indexOf(q)<0&&d.t.toLowerCase().indexOf(q)<0))continue;
+  n++;
+  var tags=d.t?d.t.split(',').map(function(x){return '<span class="sk-tag">'+x.trim()+'</span>'}).join(''):'';
+  var strip=d.p.map(function(c){return '<i style="background:'+c+'"></i>'}).join('');
+  html+='<a class="sk-card" target="_blank" rel="noopener" href="https://www.stylekit.top/zh/styles/'+d.s+'"><img class="sk-img" loading="lazy" alt="'+d.n+' '+d.e+' 演示截图" data-b64="/img/stylekit/'+d.s+'.txt"><span class="sk-strip">'+strip+'</span><span class="sk-body"><span class="sk-name">'+d.n+' <span class="sk-en">'+d.e+'</span></span><span class="sk-desc">'+d.d+'。</span><span class="sk-meta"><span class="sk-tag">'+SK.f[d.f]+'</span>'+tags+'</span></span></a>';
+ }
+ grid.innerHTML=html||'<p>没找到匹配的风格，换个关键词试试。</p>';
+ document.getElementById('skCount').textContent='显示 '+n+' / 149 种'+(curF>=0?' · 族群：'+SK.f[curF]:'');
+ watchImgs();
+}
+var chips=document.getElementById('skChips');
+var ch='<button class="sk-chip on" data-f="-1">全部 149</button>';
+for(var j=0;j<SK.f.length;j++){var c=0;for(var k=0;k<SK.s.length;k++)if(SK.s[k].f===j)c++;ch+='<button class="sk-chip" data-f="'+j+'">'+SK.f[j]+' '+c+'</button>'}
+chips.innerHTML=ch;
+chips.addEventListener('click',function(e){if(e.target.dataset.f===undefined)return;curF=parseInt(e.target.dataset.f);var bs=chips.querySelectorAll('.sk-chip');for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');e.target.classList.add('on');render()});
+document.getElementById('skQ').addEventListener('input',render);
+render();
+</script>
 
-## 极简与理性
-
-少即是多：靠网格、留白和字体本身建立秩序与可信度。
-
-- **编辑杂志风（Editorial）**：衬线标题配无衬线正文，留白与网格透着纸刊高级感。[详情](https://www.stylekit.top/zh/styles/editorial)
-- **极简扁平风（Minimalist Flat）**：去掉阴影与渐变，只靠色块和留白区分层次。[详情](https://www.stylekit.top/zh/styles/minimalist-flat)
-- **企业简洁风（Corporate Clean）**：干净专业的企业面孔，传递可读性与信任感。[详情](https://www.stylekit.top/zh/styles/corporate-clean)
-- **柔和界面风（Soft UI）**：阴影柔和、边角圆润、低饱和配色，亲和力十足。[详情](https://www.stylekit.top/zh/styles/soft-ui)
-- **瑞士国际风格（Swiss International）**：严谨网格与无衬线字体，理性客观地传递信息。[详情](https://www.stylekit.top/zh/styles/swiss-style)
-- **瑞士海报风（Swiss Poster）**：巨字、原色块与网格对齐，海报式的实验排版。[详情](https://www.stylekit.top/zh/styles/swiss-poster)
-- **北欧极简风（Scandinavian Minimalism）**：自然材质与木色调，大量留白透着北欧暖意。[详情](https://www.stylekit.top/zh/styles/scandinavian)
-- **韩式极简（Korean Minimal）**：粉彩配色加精致圆角，克制中带一点温柔。[详情](https://www.stylekit.top/zh/styles/korean-minimal)
-- **日系清新风（Japanese Fresh）**：淡雅色调与纤细线条，大面积留白清透治愈。[详情](https://www.stylekit.top/zh/styles/japanese-fresh)
-- **可爱极简（Kawaii Minimal）**：粉彩圆润元素点缀极简版面，轻盈又讨喜。[详情](https://www.stylekit.top/zh/styles/kawaii-minimal)
-- **单色极简（Monochrome）**：只用黑白灰，以字重和负空间撑起全部层次。[详情](https://www.stylekit.top/zh/styles/monochrome)
-- **视差杂志（Parallax Editorial）**：杂志排版叠上景深，图文交错、首字下沉。[详情](https://www.stylekit.top/zh/styles/parallax-editorial)
-
-## 玻璃与拟态
-
-让界面有材质：毛玻璃的通透、粘土的鼓胀、新拟物的浮雕。
-
-- **玻璃拟态（Glassmorphism）**：半透明面板叠加背景模糊，界面像毛玻璃般通透。[详情](https://www.stylekit.top/zh/styles/glassmorphism)
-- **macOS 毛玻璃（macOS Vibrancy）**：深灰多层面板配高斯模糊，原生 macOS 的质感。[详情](https://www.stylekit.top/zh/styles/macos-vibrancy)
-- **Apple 流动玻璃（Apple Liquid Glass）**：折射滤镜让玻璃边缘流动形变，WWDC 2025 新语言。[详情](https://www.stylekit.top/zh/styles/liquid-glass)
-- **粘土拟态（Claymorphism）**：鼓胀的粘土质感、超大圆角，像捏出来的 3D 界面。[详情](https://www.stylekit.top/zh/styles/claymorphism)
-- **新拟物派（Neumorphism）**：同色系凸起与双重阴影，在平面上模拟浮雕。[详情](https://www.stylekit.top/zh/styles/neumorphism)
-- **流利设计（Fluent Design）**：光线、深度与材质动效交织的微软设计体系。[详情](https://www.stylekit.top/zh/styles/fluent-design)
-- **Frutiger Aero（Frutiger Aero）**：蓝天渐变与玻璃光泽，Vista 时代的清新科技感。[详情](https://www.stylekit.top/zh/styles/frutiger-aero)
-
-## 品牌风格
-
-直接借成熟产品的设计语言：辨识度、完成度和信任感都是现成的。
-
-- **Apple 风格（Apple Style）**：海量留白与精致细节，克制而高端的科技气场。[详情](https://www.stylekit.top/zh/styles/apple-style)
-- **Stripe 风格（Stripe Style）**：标志性紫色、渐变网格与精巧的卡片阴影。[详情](https://www.stylekit.top/zh/styles/stripe-style)
-- **Notion 风格（Notion Style）**：极简文档气质，用细边框衬托内容的可读性。[详情](https://www.stylekit.top/zh/styles/notion-style)
-- **GitHub 风格（GitHub Style）**：柔和灰度、蓝色交互与等宽字体，开发者很熟悉。[详情](https://www.stylekit.top/zh/styles/github-style)
-- **材料设计（Material Design）**：以纸墨为喻的谷歌体系，层次与动效皆有章法。[详情](https://www.stylekit.top/zh/styles/material-design)
-- **Linear 风格（Linear Style）**：暗色极简、排版精确，克制的动效透着高级感。[详情](https://www.stylekit.top/zh/styles/linear-style)
-- **清爽电商（Shopify Clean）**：干净现代的独立站面孔，一切为产品与转化让路。[详情](https://www.stylekit.top/zh/styles/shopify-clean)
-- **发布会主题（Launch Keynote）**：纯黑舞台与逐帧揭幕，复刻苹果发布会的仪式感。[详情](https://www.stylekit.top/zh/styles/launch-keynote)
-- **创意工作室风（Creative Studio）**：超大字重排版配珊瑚色强调，自信张扬的声明感。[详情](https://www.stylekit.top/zh/styles/studio-bold)
-
-## 野兽派与强对比实验
-
-粗边框、高饱和、巨字与动效：不求讨好，只求过目不忘。
-
-- **新野兽派（Neo-Brutalist）**：粗黑边框、硬阴影、拒绝圆角，对比直接拉满。[详情](https://www.stylekit.top/zh/styles/neo-brutalist)
-- **柔和野兽派（Neo-Brutalist Soft）**：保留野兽派骨架，换上柔和配色与细一号边框。[详情](https://www.stylekit.top/zh/styles/neo-brutalist-soft)
-- **俏皮野兽派（Neo-Brutalist Playful）**：野兽派底子上再加多彩、倾斜与俏皮微交互。[详情](https://www.stylekit.top/zh/styles/neo-brutalist-playful)
-- **网页粗野主义（Brutalist Web）**：系统字体与裸露结构，回到早期互联网的粗粝。[详情](https://www.stylekit.top/zh/styles/brutalist-web)
-- **反设计（Anti-Design）**：故意违和与不协调，把打破规范本身当风格。[详情](https://www.stylekit.top/zh/styles/anti-design)
-- **酸性平面设计（Acid Graphics）**：荧光高饱和、扭曲字形与液态形态的锐舞美学。[详情](https://www.stylekit.top/zh/styles/acid-graphics)
-- **多巴胺设计（Dopamine Design）**：高饱和霓虹与大胆排版，看一眼就分泌快乐。[详情](https://www.stylekit.top/zh/styles/dopamine-design)
-- **极繁主义（Maximalism）**：图案层层叠加、字体混搭，多就是多的宣言。[详情](https://www.stylekit.top/zh/styles/maximalism)
-- **超大字体排版（Oversized Typography）**：视口级巨字直接当布局主体，黑白配一抹橙。[详情](https://www.stylekit.top/zh/styles/oversized-typography)
-- **动力学排印（Kinetic Typography）**：可变字体的字重字宽会动，文字本身就是动画。[详情](https://www.stylekit.top/zh/styles/kinetic-typography)
-- **动力学构成主义（Kinetic Constructivism）**：红蓝黄几何沿轴线机械运转，构成主义活了过来。[详情](https://www.stylekit.top/zh/styles/kinetic-constructivism)
-- **几何大胆风（Geometric Bold）**：强形状对比与鲜明色块，几何图形大声说话。[详情](https://www.stylekit.top/zh/styles/geometric-bold)
-- **涂鸦街头（Graffiti Street）**：喷漆质感、撞色与手写标签，砖墙上的街头气。[详情](https://www.stylekit.top/zh/styles/graffiti-street)
-- **量化线场（Quantized Line Field）**：把画面明暗转成四档竖线，品牌标志也能交互探索。[详情](https://www.stylekit.top/zh/styles/quantized-line-field)
-
-## 复古与怀旧
-
-从像素游戏机到录像带：每个年代都留了一套可复用的视觉语法。
-
-- **复古怀旧风（Retro Vintage）**：老式排版、怀旧色调与手工质感的老派韵味。[详情](https://www.stylekit.top/zh/styles/retro-vintage)
-- **像素艺术风（Pixel Art）**：8-bit 像素块、硬边无圆角，游戏机的童年回忆。[详情](https://www.stylekit.top/zh/styles/pixel-art)
-- **霓虹复古（Neon Retro）**：粉紫渐变与复古未来主义，蒸汽波的经典面孔。[详情](https://www.stylekit.top/zh/styles/vaporwave)
-- **千禧风格（Y2K）**：金属光泽、透明塑料与气泡，千禧年的未来幻想。[详情](https://www.stylekit.top/zh/styles/y2k)
-- **孟菲斯风格（Memphis）**：几何撞色与不规则图形，八十年代的张扬设计。[详情](https://www.stylekit.top/zh/styles/memphis)
-- **装饰艺术风格（Art Deco）**：几何对称与金色线条，二十年代的奢华秩序。[详情](https://www.stylekit.top/zh/styles/art-deco)
-- **包豪斯风格（Bauhaus）**：原色与几何形式至上，功能主义的设计原点。[详情](https://www.stylekit.top/zh/styles/bauhaus)
-- **拟物设计（Skeuomorphism）**：用纹理光影仿造真实材质，老派的数字手艺。[详情](https://www.stylekit.top/zh/styles/skeuomorphism)
-- **合成波（Synthwave）**：霓虹粉紫与网格地平线，八十年代的电子梦境。[详情](https://www.stylekit.top/zh/styles/synthwave)
-- **Outrun 复古未来（Outrun）**：赛车游戏式的透视网格，霓虹黄昏一路向西。[详情](https://www.stylekit.top/zh/styles/outrun)
-- **VHS 美学（VHS Aesthetic）**：录像带的色偏、噪点与抖动，磁带时代的瑕疵美。[详情](https://www.stylekit.top/zh/styles/vhs-aesthetic)
-- **街机 CRT（Arcade CRT）**：扫描线、屏幕弧度与 RGB 色差，街机厅的氛围。[详情](https://www.stylekit.top/zh/styles/arcade-crt)
-- **中世纪现代（Mid-Century Modern）**：原子时代的几何图案、星芒元素与有机曲线。[详情](https://www.stylekit.top/zh/styles/mid-century-modern)
-- **构成主义（Constructivism）**：红黑配色与对角线构图，苏联海报的革命气势。[详情](https://www.stylekit.top/zh/styles/constructivism)
-- **新艺术运动风（Art Nouveau）**：藤蔓花卉般的有机曲线，装饰线条优雅蔓延。[详情](https://www.stylekit.top/zh/styles/art-nouveau)
-- **暗黑学院风（Dark Academia）**：深棕旧书与古典排版，图书馆深处的学术氛围。[详情](https://www.stylekit.top/zh/styles/dark-academia)
-
-## 暗色与霓虹科技
-
-深色打底，让光效、渐变和粒子成为主角。
-
-- **暗黑模式（Dark Mode）**：深色基底配微妙边框高亮，低调而有层次。[详情](https://www.stylekit.top/zh/styles/dark-mode)
-- **现代渐变风（Modern Gradient）**：多彩渐变铺底、玻璃卡片浮动，光影流动。[详情](https://www.stylekit.top/zh/styles/modern-gradient)
-- **赛博朋克霓虹（Cyberpunk Neon）**：深色夜幕下霓虹发光，高科技都市的标配。[详情](https://www.stylekit.top/zh/styles/cyberpunk-neon)
-- **霓虹渐变（Neon Gradient）**：深底之上渐变卡片发光，边框粗粝、色彩鲜明。[详情](https://www.stylekit.top/zh/styles/neon-gradient)
-- **霓虹东京（Neon Tokyo）**：歌舞伎町的霓虹夜色，湿润街道映着倒影。[详情](https://www.stylekit.top/zh/styles/neon-tokyo)
-- **科幻 HUD（Sci-Fi HUD）**：全息面板与青色发光边框，飞船驾驶舱既视感。[详情](https://www.stylekit.top/zh/styles/sci-fi-hud)
-- **粒子系统（Particle System）**：粒子连成网络脉动，深色背景里的数据流。[详情](https://www.stylekit.top/zh/styles/particle)
-- **着色器渐变（Shader Gradient）**：WebGL 着色器生成流动渐变，高端 SaaS 的门面。[详情](https://www.stylekit.top/zh/styles/shader-gradient)
-- **黑色电影（Film Noir）**：极致的明暗对比与斜射光影，四十年代的悬疑。[详情](https://www.stylekit.top/zh/styles/film-noir)
-- **生成艺术（Generative Art）**：数学函数与噪声纹理，由算法绘成独特视觉。[详情](https://www.stylekit.top/zh/styles/generative-art)
-- **全息渐变（Holographic）**：彩虹虹彩与棱镜折射，光一动颜色就跟着变。[详情](https://www.stylekit.top/zh/styles/holographic)
-
-## 动漫与游戏
-
-二次元美学与游戏 UI 的全面入侵：立绘、法阵、状态面板都来了。
-
-- **机甲风（Mecha）**：钢铁质感、警示标识与参数标注，机甲迷狂喜。[详情](https://www.stylekit.top/zh/styles/mecha)
-- **视觉小说风（Visual Novel）**：立绘、半透明对话框与选项按钮的游戏界面。[详情](https://www.stylekit.top/zh/styles/visual-novel)
-- **少女漫画风（Shoujo Manga）**：樱花闪光与粉色调，浪漫梦幻的少女漫氛围。[详情](https://www.stylekit.top/zh/styles/shoujo-manga)
-- **赛博动漫风（Cyber Anime）**：赛博界面混搭动漫美学，霓虹与全息齐飞。[详情](https://www.stylekit.top/zh/styles/cyber-anime)
-- **像素动漫风（Pixel Anime）**：像素世界里住着 Q 版角色，复古游戏 UI 感。[详情](https://www.stylekit.top/zh/styles/pixel-anime)
-- **霓虹武士风（Neon Samurai）**：刀锋线条与汉字书法，武士魂撞上霓虹。[详情](https://www.stylekit.top/zh/styles/neon-samurai)
-- **魔法阵风（Magic Circle）**：几何法阵、符文与金色辉光在深蓝底上旋转。[详情](https://www.stylekit.top/zh/styles/magic-circle)
-- **赛博和风（Cyber Wafuu）**：青海波与折纸几何被数字化，传统纹样通了电。[详情](https://www.stylekit.top/zh/styles/cyber-wafuu)
-- **日式 RPG（JRPG）**：华丽边框与状态面板，经典日式角色扮演味。[详情](https://www.stylekit.top/zh/styles/jrpg)
-- **赛璐璐动画风（Cel Shading）**：粗黑轮廓与平涂色块，老动画的利落渲染。[详情](https://www.stylekit.top/zh/styles/cel-shading)
-- **赛博中华风（Cyber Chinese）**：霓虹灯笼、数字山水与电路纹样，中华赛博风。[详情](https://www.stylekit.top/zh/styles/cyber-chinese)
-- **吉卜力风格（Ghibli Style）**：手绘质感与柔和自然色，温暖治愈的动画世界。[详情](https://www.stylekit.top/zh/styles/ghibli-style)
-
-## 艺术与文化
-
-把美术史和世界各地的传统纹样，做成可以落地的界面语言。
-
-- **浮世绘数字风（Ukiyo-e Digital）**：版画的扁平色块与精细线描，被搬进数字界面。[详情](https://www.stylekit.top/zh/styles/ukiyo-e-digital)
-- **水墨画风（Ink Wash）**：墨分五色、留白空灵，中国水墨的写意气韵。[详情](https://www.stylekit.top/zh/styles/ink-wash)
-- **侘寂风（Wabi-Sabi）**：在不完美与旧痕里见美，墨茶纸色的禅意。[详情](https://www.stylekit.top/zh/styles/wabi-sabi)
-- **枯山水（Zen Garden）**：砂纹、石组与苔绿，一方庭院装下静谧。[详情](https://www.stylekit.top/zh/styles/zen-garden)
-- **哥特式风（Gothic）**：尖拱、深色与华丽纹样，中世纪的神秘庄严。[详情](https://www.stylekit.top/zh/styles/gothic)
-- **哥特萝莉风（Gothic Lolita）**：暗黑哥特遇上蕾丝玫瑰，维多利亚式的华丽。[详情](https://www.stylekit.top/zh/styles/gothic-lolita)
-- **粉彩哥特（Pastel Goth）**：糖果粉彩配骷髅十字，甜与暗的反差混搭。[详情](https://www.stylekit.top/zh/styles/pastel-goth)
-- **巫术核心（Witchcore）**：塔罗、月相与水晶草药，深紫金色的神秘学。[详情](https://www.stylekit.top/zh/styles/witchcore)
-- **蒸汽朋克（Steampunk）**：黄铜齿轮与蒸汽管道，维多利亚的工业幻想。[详情](https://www.stylekit.top/zh/styles/steampunk)
-- **波普艺术（Pop Art）**：半调网点与重复图案，大众文化的鲜明色彩。[详情](https://www.stylekit.top/zh/styles/pop-art)
-- **拼贴艺术风（Collage Art）**：撕纸边缘与多层剪贴，杂志拼贴的手作感。[详情](https://www.stylekit.top/zh/styles/collage-art)
-- **水彩画风（Watercolor Style）**：色彩在纸面晕开扩散，边缘柔软得像会呼吸。[详情](https://www.stylekit.top/zh/styles/watercolor-style)
-- **水彩艺术风（Watercolor Art）**：真实水彩的透明叠染，纸纹里透着颜料感。[详情](https://www.stylekit.top/zh/styles/watercolor-art)
-- **油画印象派风（Impressionist Oil）**：点彩笔触捕捉光影，画布质感扑面而来。[详情](https://www.stylekit.top/zh/styles/impressionist-oil)
-- **漫画风格（Comic Style）**：浓墨线、网点与分镜格，跃然纸上的连环画。[详情](https://www.stylekit.top/zh/styles/comic-style)
-- **铅笔手绘风（Sketch Style）**：不规则的铅笔线与素描排线，未完成的手稿感。[详情](https://www.stylekit.top/zh/styles/sketch-style)
-- **手绘涂鸦风（Hand-Drawn Doodle）**：随手涂鸦与手写字，像笔记本边角的涂鸦墙。[详情](https://www.stylekit.top/zh/styles/hand-drawn-doodle)
-- **纸艺手作（Paper Craft）**：层层纸片以柔影分出深度，手工剪贴的温度。[详情](https://www.stylekit.top/zh/styles/paper-craft)
-- **Risograph 印刷风（Risograph）**：专色叠印与套印错位，孔版印刷的复古颗粒。[详情](https://www.stylekit.top/zh/styles/risograph)
-- **欧普艺术（Op Art）**：几何图案制造视错幻象，眼睛被节奏带着走。[详情](https://www.stylekit.top/zh/styles/op-art)
-- **立体主义（Cubism）**：多视角的几何碎片拼贴，大地色调的理性构成。[详情](https://www.stylekit.top/zh/styles/cubism)
-- **超现实主义风（Surrealism）**：梦境与现实错位拼接，潜意识里的奇异图景。[详情](https://www.stylekit.top/zh/styles/surrealism)
-- **伊斯兰几何（Islamic Geometric）**：精密镶嵌的几何与阿拉伯纹样，金蓝交辉。[详情](https://www.stylekit.top/zh/styles/islamic-geometric)
-- **印度节庆（Indian Festive）**：宝石色调与曼荼罗，金饰点亮节庆的热闹。[详情](https://www.stylekit.top/zh/styles/indian-festive)
-- **非洲纺织（African Textile）**：肯特布的几何编织，大地色撞上鲜明亮色。[详情](https://www.stylekit.top/zh/styles/african-textile)
-- **维多利亚植物（Victorian Botanical）**：植物学线描插画配暗绿与金，标本馆的优雅。[详情](https://www.stylekit.top/zh/styles/victorian-botanical)
-- **中世纪手抄本（Medieval Manuscript）**：泥金装饰与花体首字母，羊皮纸上的典籍。[详情](https://www.stylekit.top/zh/styles/medieval-manuscript)
-- **大理石奢华（Marble Luxury）**：大理石纹配金色细线，白底黑字的贵气。[详情](https://www.stylekit.top/zh/styles/marble-luxury)
-
-## 自然与有机
-
-大地色、植物与阳光：给界面一点泥土和呼吸感。
-
-- **自然有机风（Natural Organic）**：大地色与自然纹理，透着手工与环保气息。[详情](https://www.stylekit.top/zh/styles/natural-organic)
-- **暖感有机风（Warm Organic）**：赤陶黏土色调与有机曲线，温暖柔和的包裹感。[详情](https://www.stylekit.top/zh/styles/warm-organic)
-- **赤陶暖调（Terracotta）**：地中海的陶土赭石色，粗粝里带手工温度。[详情](https://www.stylekit.top/zh/styles/terracotta)
-- **太阳朋克（Solarpunk）**：绿意与科技共生的乌托邦，明亮乐观的未来。[详情](https://www.stylekit.top/zh/styles/solarpunk)
-- **田园核风（Cottagecore）**：花卉、田园与手工感，是对乡村慢生活的向往。[详情](https://www.stylekit.top/zh/styles/cottagecore)
-- **热带天堂（Tropical Paradise）**：棕榈叶与艳丽花卉，阳光沙滩的明快假日感。[详情](https://www.stylekit.top/zh/styles/tropical-paradise)
-
-## 开发者与学术
-
-终端、论文与蓝图：把专业工具的视觉语言直接搬上网页。
-
-- **终端风（Developer Terminal）**：整个网站是一场终端会话，绿字与提示符齐飞。[详情](https://www.stylekit.top/zh/styles/developer-terminal)
-- **论文排版风（LaTeX Paper）**：公式编号与三线表上网页，学术论文的仪式感。[详情](https://www.stylekit.top/zh/styles/latex-paper)
-- **学术科普风（Distill Style）**：窄栏衬线正文加边注，图表撑破版心讲证据。[详情](https://www.stylekit.top/zh/styles/distill-style)
-- **工程蓝图（Blueprint）**：蓝底白线的工程图，坐标网格与尺寸标注齐全。[详情](https://www.stylekit.top/zh/styles/blueprint)
-- **数据密集（Data Dense）**：紧凑面板塞满小组件，数据效率压倒一切。[详情](https://www.stylekit.top/zh/styles/data-dense)
-- **暖色仪表盘（Warm Dashboard）**：珊瑚赤陶打底、奶油白卡片，仪表盘也可以温暖。[详情](https://www.stylekit.top/zh/styles/warm-dashboard)
-
-## 电商与奢华零售
-
-卖货的归卖货，卖格调的归格调。
-
-- **奢品零售（Luxury Retail）**：大量留白、衬线字与金色大理石，尊贵感拉满。[详情](https://www.stylekit.top/zh/styles/luxury-retail)
-- **奢华画册（Luxe Lookbook）**：瓷白墨黑配哑光金，高定画册般的时装气场。[详情](https://www.stylekit.top/zh/styles/luxe-lookbook)
-- **鲜活市集（Fresh Market）**：暖色圆润卡片与自然纹理，生鲜的新鲜信任感。[详情](https://www.stylekit.top/zh/styles/fresh-market)
-
-## 影像与首屏
-
-让照片和视频当主角，文字退到遮罩后面。
-
-- **沉浸摄影（Immersive Photo）**：大图铺满整屏、文字浮在遮罩上，照片即界面。[详情](https://www.stylekit.top/zh/styles/immersive-photo)
-- **电影视频首屏（Cinematic Video Hero）**：循环短片开场、暗场调色，电影预告般的登场。[详情](https://www.stylekit.top/zh/styles/cinematic-video-hero)
-- **暗色画廊风（Dark Gallery）**：近黑底色托起大图，琥珀色细节为影像让路。[详情](https://www.stylekit.top/zh/styles/gallery-dark)
-
-## 故障与信号
-
-信号坏掉的那一瞬间，反而最有风格。
-
-- **故障艺术风（Glitch Art）**：像素错位、RGB 分离与扫描线，数据损坏的美学。[详情](https://www.stylekit.top/zh/styles/glitch-art)
-- **故障广播（Broadcast Glitch）**：老电视的扫描线、色彩错位与测试卡彩条。[详情](https://www.stylekit.top/zh/styles/broadcast-glitch)
-
-## 移动端应用
-
-为手机屏幕准备的柔和、圆润与高信息效率。
-
-- **粉彩应用风（Pastel App UI）**：奶油底色配淡紫薄荷，温柔治愈的移动界面。[详情](https://www.stylekit.top/zh/styles/pastel-ui)
-- **移动编辑风（Mobile Editorial）**：杂志排版塞进手机屏，衬线标题配暖纸底。[详情](https://www.stylekit.top/zh/styles/mobile-editorial)
-- **柔和工具风（Soft Utility）**：浅色底与清晰状态色，工具 App 的高效与亲和。[详情](https://www.stylekit.top/zh/styles/soft-utility)
-
----
-
-来源：StyleKit 设计风格库（开源项目），全库页 https://www.stylekit.top/zh/styles 。本文为个人整理转述，色板、字体与实现规则请以原站各风格详情页为准。
+先在上面看图缩小范围，相中了点卡片去原站详情页：每个风格在原站都有完整演示、色板（含hex值）、组件模板和可直接用于AI生成页面的实现规则。
