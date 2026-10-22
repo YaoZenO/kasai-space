@@ -1856,44 +1856,80 @@ a.feed-title:hover {
 .archive-picks .pick-meta { display: block; font-family: var(--font-mono); font-size: .75rem; color: var(--sec-text-color); margin-top: .55rem; }
 .archive-picks .pick-img { width: 100%; }
 
-/* --- 4.12 节假日页（/holidays/）：法定节假日表 + 全年一览格（2026-10-21）---
-   参考的是 studycli 那版的阅读模型（表格 + 12×31 的年历格 + 悬停说明），
-   配色与字体不照搬，映射回纸面体系：
-     放假     实心砖红 --accent —— 最强信号，一年里只有 28 天
-     周末     墨 13% 实心 —— 「休息但不是法定」
-     节日     格内墨点 —— 与「是否休息」正交，可以和周末底色叠加
-     普通     墨 4.5% 实心 —— 几乎不可见，只提供格位
-   状态不靠颜色单独表达：实心块 / 淡底 / 点 三种形态并存（§9.4）。
-   格子里不放数字：31 列在 1200px 版心下每格约 35px，放数字会退化成表格，
-   日期交给悬停浮层与上方表格。 */
+/* --- 4.12 节假日页（/holidays/，2026-10-22 对齐参考站观感）---
+   结构对齐 studycli.org 的「2027 年中国节假日」页：左「法定节假日表」+ 右「全年一览格」
+   双栏，其下其他节日双列表、说明正文、常见问题。
+   视觉是经主人 2026-10-22 拍板的**单页破例**——在 .cal-page 作用域内换成参考站那套
+   纸底 / 墨 / 砖红，站点 token 与其它页面一律不动：
+     纸底 #f7f6f4 · 墨 #1a1a1a · 次级 #6b6b6b · 强调 #c4463a（hover #a83a30）
+   字体：参考站正文用 Avenir W01（Monotype 商业授权，不能随仓库分发），
+   以同为 SIL OFL 的 Nunito Sans（可变字重 200-1000，拉丁子集）替代；
+   标题用 Fraunces 600（OFL，拉丁子集，与参考站同样只覆盖拉丁，中文回退宋体系）。
+   两个 woff2 共 66KB，走 font-display: swap，加载失败回退系统字体，布局不塌。 */
 
-.cal-notice {
-  display: flex;
-  align-items: flex-start;
-  gap: .7rem;
-  margin: 0 0 clamp(2rem, 4vw, 3rem);
-  padding: .9rem 1.1rem;
-  border-left: 2px solid var(--accent);
-  background: var(--accent-soft);
-  font-size: .87rem;
-  line-height: 1.85;
-  color: var(--text-color);
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/fraunces-600-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-.cal-notice-tag {
-  flex: none;
-  padding-top: .1rem;
-  font-family: var(--font-mono);
-  font-size: .75rem;
-  font-weight: 700;
-  letter-spacing: .14em;
-  color: var(--accent);
+@font-face {
+  font-family: "Nunito Sans";
+  font-style: normal;
+  font-weight: 200 1000;
+  font-display: swap;
+  src: url("/fonts/nunito-sans-var-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+/* 单页作用域内的参考站配色。CSS 自定义属性会继承，这里改一次，
+   页内所有消费 var(--accent) / var(--text-color) 的组件一起换色。 */
+.cal-page {
+  background: #f7f6f4;
+  --accent: #c4463a;
+  --text-color: #1a1a1a;
+  --sec-text-color: #6b6b6b;
+  --info-mark: #6b6b6b;
+  font-family: "Nunito Sans", "PingFang SC", "HarmonyOS Sans SC", "MiSans",
+    "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Noto Sans SC",
+    "Microsoft YaHei", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 标题轨：Fraunces 600（拉丁）+ 宋体系（中文），对齐参考站 --serif */
+.cal-page .page-head-title,
+.cal-page .col-title,
+.cal-page .cal-terms-title,
+.cal-page .cal-sources-title {
+  font-family: "Fraunces", Georgia, "Times New Roman", serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-optical-sizing: auto;
+}
+
+/* 拼音轨：Nunito Sans（参考站的 --pinyin 是 Avenir Next / Segoe UI 一系） */
+.cal-page .cal-pinyin {
+  font-family: "Nunito Sans", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: #6b6b6b;
+  letter-spacing: 0;
+}
+
+.cal-lead {
+  margin: 0 0 clamp(2rem, 4vw, 2.8rem);
+  max-width: 46em;
+  font-size: 1rem;
+  line-height: 1.9;
+  color: var(--sec-text-color);
+}
+
+/* 左表 + 右年历格 */
 .cal-top {
   display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
-  gap: clamp(2.2rem, 4vw, 3.6rem);
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  gap: clamp(2rem, 3.6vw, 3.2rem);
   align-items: start;
 }
 
@@ -1908,7 +1944,7 @@ a.feed-title:hover {
 }
 
 .cal-table thead th {
-  padding: .6rem 0;
+  padding: .55rem 0;
   border-bottom: 1px solid var(--line-color);
   font-family: var(--font-mono);
   font-size: .75rem;
@@ -1919,22 +1955,27 @@ a.feed-title:hover {
 
 .cal-table tbody th,
 .cal-table tbody td {
-  padding: 1.05rem 0;
+  padding: .95rem 0;
   border-bottom: 1px solid var(--line-color);
   vertical-align: baseline;
   font-weight: 400;
 }
 
-.cal-table tbody th { width: 7.5rem; }
+.cal-table tbody th { width: 6.4rem; }
 
-.cal-name { display: block; font-size: 1.02rem; font-weight: 700; color: var(--text-color); white-space: nowrap; }
+/* 参考站把节日名做成砖红，这里沿用；中文不进 Fraunces（它只有拉丁字形） */
+.cal-name {
+  display: block;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+}
 
 .cal-pinyin {
   display: block;
   margin-top: .18rem;
-  font-family: var(--font-mono);
   font-size: .75rem;
-  letter-spacing: .04em;
   color: var(--sec-text-color);
 }
 
@@ -1957,7 +1998,7 @@ a.feed-title:hover {
 .cal-range { display: inline-flex; align-items: baseline; gap: .3rem; }
 .cal-arrow { color: var(--sec-text-color); font-size: .8rem; }
 
-/* 天数与「共 8 天」这类静态信息走中性色（§2.4：accent 只留给交互态） */
+/* 天数这类静态信息走中性色（§2.4：accent 只留给交互态） */
 .cal-days {
   margin-left: .5rem;
   font-family: var(--font-mono);
@@ -1969,48 +2010,22 @@ a.feed-title:hover {
 
 .cal-hint { display: block; margin-top: .22rem; font-size: .78rem; line-height: 1.6; color: var(--sec-text-color); }
 
-/* 右栏统计 */
-.cal-stats { margin: 0; display: grid; border-top: 2px solid var(--rule-strong); }
-
-.cal-stat {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: .72rem 0;
-  border-bottom: 1px solid var(--line-color);
-}
-
-.cal-stat dt { font-size: .85rem; line-height: 1.6; color: var(--sec-text-color); }
-
-.cal-stat dd {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--text-color);
-}
-
-.cal-stat dd span { font-size: .75rem; font-weight: 400; color: var(--sec-text-color); }
-
-.cal-side-note { margin: 1.1rem 0 0; font-size: .8rem; line-height: 1.85; color: var(--sec-text-color); }
-
-/* 全年一览：12 行 × 31 列 */
-.cal-year { margin-top: clamp(3rem, 7vh, 5rem); }
+/* 全年一览：12 行 × 31 列，格子约 12px，对齐参考站密度 */
+.cal-year { margin-top: 0; }
 .cal-grid-wrap { overflow-x: auto; }
 .cal-grid { display: grid; gap: 2px; }
 
 .cal-row {
   display: grid;
-  grid-template-columns: 2.6rem minmax(0, 1fr);
+  grid-template-columns: 1.8rem minmax(0, 1fr);
   align-items: center;
-  gap: .6rem;
+  gap: .4rem;
 }
 
 .cal-month {
   font-family: var(--font-mono);
-  font-size: .76rem;
-  letter-spacing: .06em;
+  font-size: .75rem;
+  letter-spacing: -.02em;
   color: var(--sec-text-color);
   /* 「10 月」在窄屏会折成两行，月份标签永远单行 */
   white-space: nowrap;
@@ -2026,64 +2041,74 @@ a.feed-title:hover {
   display: grid;
   place-items: center;
   aspect-ratio: 1 / 1;
-  background: rgba(42, 37, 29, 0.045);
+  background: rgba(26, 26, 26, 0.06);
 }
 
-.cal-cell.is-weekend { background: rgba(42, 37, 29, 0.11); }
+.cal-cell.is-weekend { background: rgba(26, 26, 26, 0.13); }
 .cal-cell.is-holiday { background: var(--accent); }
 
 /* 调休上班：周末底色 + 一圈砖红内描边。2027 年数据为空时不渲染，
    官方通知发布后填入 makeup 即自动出现 */
 .cal-cell.is-makeup {
-  background: rgba(42, 37, 29, 0.11);
+  background: rgba(26, 26, 26, 0.13);
   box-shadow: inset 0 0 0 1.5px var(--accent);
 }
 
 .cal-cell.has-dot::after {
   content: "";
-  width: 4px;
-  height: 4px;
+  width: 3px;
+  height: 3px;
   border-radius: 999px;
   background: var(--text-color);
-  opacity: .55;
+  opacity: .5;
 }
 
 .cal-ruler .cal-cells { align-items: end; }
 
 .cal-tick {
-  font-family: var(--font-mono);
+  font-family: "Nunito Sans", var(--font-mono);
   font-size: .75rem;
   line-height: 1;
-  color: var(--sec-text-color);
+  letter-spacing: -.03em;
+  color: #6b6b6b;
 }
 
 .cal-legend {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: .5rem 1.2rem;
-  margin: 1.2rem 0 0;
+  gap: .4rem 1rem;
+  margin: 1rem 0 0;
   padding: 0;
   list-style: none;
-  font-family: var(--font-mono);
-  font-size: .76rem;
-  letter-spacing: .04em;
+  font-size: .75rem;
   color: var(--sec-text-color);
 }
 
-.cal-legend li { display: inline-flex; align-items: center; gap: .45rem; }
-.cal-legend-note { flex-basis: 100%; color: var(--sec-text-color); }
-
-.cal-swatch { display: block; width: 12px; height: 12px; }
+.cal-legend li { display: inline-flex; align-items: center; gap: .4rem; }
+.cal-swatch { display: block; width: 10px; height: 10px; }
 .cal-swatch.is-holiday { background: var(--accent); }
-.cal-swatch.is-weekend { background: rgba(42, 37, 29, 0.11); }
+.cal-swatch.is-weekend { background: rgba(26, 26, 26, 0.13); }
 
 .cal-swatch.is-makeup {
-  background: rgba(42, 37, 29, 0.11);
+  background: rgba(26, 26, 26, 0.13);
   box-shadow: inset 0 0 0 1.5px var(--accent);
 }
 
-.cal-dot-mark { display: block; width: 4px; height: 4px; border-radius: 999px; background: var(--text-color); opacity: .55; }
+.cal-dot-mark { display: block; width: 3px; height: 3px; border-radius: 999px; background: var(--text-color); opacity: .5; }
+
+.cal-stats-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .3rem;
+  margin: .9rem 0 0;
+  font-family: var(--font-mono);
+  font-size: .75rem;
+  color: var(--sec-text-color);
+}
+
+.cal-stats-line i { font-style: normal; color: rgba(26, 26, 26, 0.3); margin: 0 .1rem; }
+.cal-side-note { margin: .55rem 0 0; font-size: .78rem; line-height: 1.8; color: var(--sec-text-color); }
 
 /* 悬停浮层：纸面浮层 = 面板底 + 12px + chip border + 全站唯一阴影（§4.3 / §6.3） */
 .cal-tip {
@@ -2091,11 +2116,11 @@ a.feed-title:hover {
   z-index: 1080;
   width: min(19rem, calc(100vw - 24px));
   padding: .95rem 1.1rem 1rem;
-  background: var(--cream);
-  border: 1px solid var(--site-chip-border);
+  background: #f7f6f4;
+  border: 1px solid rgba(26, 26, 26, 0.12);
   border-radius: 12px;
   box-shadow: var(--site-float-shadow);
-  color: var(--text-color);
+  color: #1a1a1a;
 }
 
 .cal-tip[hidden] { display: none; }
@@ -2106,28 +2131,28 @@ a.feed-title:hover {
   font-family: var(--font-mono);
   font-size: .78rem;
   letter-spacing: .06em;
-  color: var(--sec-text-color);
+  color: #6b6b6b;
 }
 
 .cal-tip-kind {
-  font-family: var(--font-mono);
   font-size: .75rem;
   font-weight: 700;
   letter-spacing: .12em;
-  color: var(--accent);
+  color: #c4463a;
 }
 
-.cal-tip-name { font-size: 1rem; font-weight: 800; line-height: 1.4; }
-.cal-tip-desc { font-size: .82rem; line-height: 1.75; color: var(--text-color); }
-.cal-tip-extra { font-size: .78rem; line-height: 1.7; color: var(--sec-text-color); }
+/* 参考站的浮层节日名走 --serif（拉丁 Fraunces + 中文宋体），这里对齐 */
+.cal-tip-name { font-family: "Fraunces", Georgia, "Times New Roman", serif; font-weight: 600; font-size: 1.05rem; line-height: 1.4; }
+.cal-tip-desc { font-size: .84rem; line-height: 1.75; color: #1a1a1a; }
+.cal-tip-extra { font-size: .78rem; line-height: 1.7; color: #6b6b6b; }
 
 .cal-tip-arrange {
   padding-top: .55rem;
-  border-top: 1px solid var(--line-color);
+  border-top: 1px solid rgba(26, 26, 26, 0.12);
   font-family: var(--font-mono);
   font-size: .78rem;
   line-height: 1.6;
-  color: var(--sec-text-color);
+  color: #6b6b6b;
 }
 
 .cal-tip-link {
@@ -2135,7 +2160,7 @@ a.feed-title:hover {
   font-family: var(--font-mono);
   font-size: .75rem;
   letter-spacing: .06em;
-  color: var(--accent);
+  color: #c4463a;
 }
 
 .cal-tip-link[hidden] { display: none; }
@@ -2166,7 +2191,7 @@ a.feed-title:hover {
     "date main"
     "date note";
   column-gap: 1rem;
-  padding: .85rem 0;
+  padding: .8rem 0;
   border-bottom: 1px solid var(--line-color);
 }
 
@@ -2194,7 +2219,7 @@ a.feed-title:hover {
 
 /* 二十四节气：一行等宽排开，不占表格高度 */
 .cal-terms { margin-top: 2.4rem; padding-top: 1.6rem; border-top: 2px solid var(--rule); }
-.cal-terms-title { margin: 0 0 .8rem; font-size: .95rem; font-weight: 800; color: var(--text-color); }
+.cal-terms-title { margin: 0 0 .8rem; font-size: .95rem; font-weight: 600; color: var(--text-color); }
 
 .cal-terms-line {
   display: flex;
@@ -2219,7 +2244,7 @@ a.feed-title:hover {
 }
 
 .cal-faq { border-top: 2px solid var(--rule-strong); padding-top: 1.1rem; }
-.cal-faq .col-title { margin-bottom: 1rem; }
+.cal-faq .col-title { margin-bottom: 1rem; font-size: 1.25rem; }
 .cal-faq-item { border-bottom: 1px solid var(--line-color); }
 
 .cal-faq-item summary {
@@ -2261,9 +2286,7 @@ a.feed-title:hover {
 
 .cal-sources-title {
   margin: 0 0 .9rem;
-  font-family: var(--font-mono);
   font-size: .76rem;
-  font-weight: 700;
   letter-spacing: .18em;
   color: var(--sec-text-color);
 }
@@ -2297,7 +2320,7 @@ a.feed-title:hover {
   .cal-grid { min-width: 560px; }
   .cal-row { grid-template-columns: 2.6rem minmax(0, 1fr); gap: .45rem; }
   .cal-table .cal-pinyin { display: none; }
-  /* 名称列在窄屏收窄到 3 个汉字宽；再窄会从词中间断行（E-040 同型） */
+  /* 名称列在窄屏收窄到 3 个汉字宽；再窄会从词中间断行（E-043 同型） */
   .cal-table tbody th { width: 4.8rem; }
 }
 

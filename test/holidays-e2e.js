@@ -218,6 +218,53 @@ if (!fs.existsSync(PUBLIC)) {
   });
 }
 
+// ---------- ⑤ 字体与单页配色（2026-10-22 对齐参考站观感） ----------
+//
+// 这一页的视觉是主人拍板的「单页破例」：配色与字体只在 .cal-page 作用域内换成
+// 参考站那套，站点 token 与其它页面一律不动。破例一旦溢出成全站换色，
+// 没有任何测试会报警——所以这里显式锁「破例的边界」。
+
+ok('自托管字体文件存在且确实是 woff2', () => {
+  ['fraunces-600-latin.woff2', 'nunito-sans-var-latin.woff2'].forEach((f) => {
+    const abs = path.join(ROOT, 'source/fonts', f);
+    assert.ok(fs.existsSync(abs), '缺少 source/fonts/' + f);
+    assert.strictEqual(fs.readFileSync(abs).subarray(0, 4).toString('latin1'), 'wOF2',
+      f + ' 不是 woff2（magic 不是 wOF2）——下载被截断或拿到了错误响应体');
+  });
+});
+
+ok('site.css 注册了 Fraunces 与 Nunito Sans，且不含商业字体 Avenir', () => {
+  const css = fs.readFileSync(path.join(ROOT, 'source/css/site.css'), 'utf8');
+  assert.ok(css.indexOf('font-family: "Fraunces"') !== -1, 'site.css 没有注册 Fraunces');
+  assert.ok(css.indexOf('font-family: "Nunito Sans"') !== -1, 'site.css 没有注册 Nunito Sans');
+  // 先去注释再查：§4.12 的注释里会写明「参考站用 Avenir，我们不用」，那是说明文字，
+  // 不是 font-family 声明（E-031 同型：按整页文本搜关键词会被注释误报）。
+  const code = css.replace(/\/[\s\S]*?\*\//g, '');
+  assert.ok(!/Avenir/.test(code),
+    'site.css 的 font-family 里出现了 Avenir —— 那是 Monotype 的商业授权字体，不能随仓库分发');
+});
+
+ok('参考站配色只落在 .cal-page 作用域，没有写进 :root', () => {
+  const css = fs.readFileSync(path.join(ROOT, 'source/css/site.css'), 'utf8');
+  const at = css.indexOf('.cal-page {');
+  assert.ok(at !== -1, 'site.css 缺少 .cal-page 规则');
+  const scoped = css.slice(at, css.indexOf('}', at));
+  assert.ok(scoped.indexOf('--accent: #c4463a') !== -1, '.cal-page 里没有把 --accent 换成参考站的 #c4463a');
+  assert.ok(scoped.indexOf('background: #f7f6f4') !== -1, '.cal-page 没有换成参考站的纸底 #f7f6f4');
+
+  const rootAt = css.indexOf(':root {');
+  const root = css.slice(rootAt, css.indexOf('}', rootAt));
+  assert.ok(!/#c4463a/.test(root), '参考站的强调色被写进了 :root —— 单页破例会溢出成全站换色');
+  assert.ok(!/#f7f6f4/.test(root), '参考站的纸底被写进了 :root');
+});
+
+ok('字体产物已随构建落到 public/fonts/（public/ 存在时）', () => {
+  if (!fs.existsSync(PUBLIC)) return;
+  ['fraunces-600-latin.woff2', 'nunito-sans-var-latin.woff2'].forEach((f) => {
+    assert.ok(fs.existsSync(path.join(PUBLIC, 'fonts', f)), 'public/fonts/ 缺少 ' + f);
+  });
+});
+
 // ---------- ④ 断言自检 ----------
 
 ok('自检：把法定假日数改错必须被抓到', () => {
