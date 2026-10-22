@@ -75,7 +75,7 @@ function validateItem(module, raw) {
 
 // ---------- 文章（post）校验 ----------
 // 白名单必须与 source/admin/admin.js 实际发送的字段一致，漏一个就会让保存功能 400。
-const POST_ACTIONS = ['save-draft', 'publish-draft', 'publish-new', 'update'];
+const POST_ACTIONS = ['save-draft', 'publish-draft', 'publish-new', 'update', 'unpublish'];
 const POST_FIELDS = [
   'kind', 'action', 'slug', 'prevSlug', 'path',
   'title', 'tags', 'categories', 'body', 'cover', 'featured',
@@ -95,8 +95,8 @@ function validatePost(raw) {
   const action = str(b.action);
   if (!POST_ACTIONS.includes(action)) fail('action', `不支持的操作（可选：${POST_ACTIONS.join(' / ')}）`);
 
-  // 按 action 区分必填：update 定位靠 path，其余靠 slug
-  if (action === 'update') {
+  // 按 action 区分必填：update / unpublish 定位靠 path，其余靠 slug
+  if (action === 'update' || action === 'unpublish') {
     if (!str(b.path).trim()) fail('path', '缺少文章路径');
   } else if (!str(b.slug).trim()) {
     fail('slug', '缺少文件名（slug）');

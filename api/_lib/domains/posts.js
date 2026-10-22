@@ -110,6 +110,42 @@ async function publishNew(input) {
   return { path: postPath, permalink: permalinkFor(slug, date), date, headSha: r.headSha, commitSha: r.commitSha };
 }
 
+// 已发布文章转为私密（2026-10-22，P2-12 主人要求「只想自己看、不删除」）：
+// 整文原样移入草稿箱，一增一删同 commit；date / 标题 / 正文逐字保留，
+// 日后 publishDraft 按原 date 发布，permalink 不变。
+// 草稿箱在 source/ 之外（DRAFTS_DIR，与 _trash 同一约定），Hexo 任何模式下
+// 都不会渲染——线上立即不可见，且不依赖 render_drafts 配置（双保险）。
+async function unpublishPost(input) {
+  const path = String(input.path || '');
+  if (!path.startsWith(`${POSTS_DIR}/`) || !path.endsWith('.md')) throw new HttpError(400, 'BAD_PATH');
+  const slug = path.slice(POSTS_DIR.length + 1, -3);
+  assertSlug(slug);
+  const cur = await store.getFile(path).catch(() => {
+    throw new HttpError(404, 'POST_NOT_FOUND');
+  });
+  if (input.sha && cur.sha !== input.sha) {
+    const e = new HttpError(409, 'CONFLICT');
+    e.conflictPayload = { current: normalizePostFile(cur.content), sha: cur.sha };
+    throw e;
+  }
+  // 草稿箱已有同名文章时拒绝：那篇可能是另一内容，静默覆盖会丢东西
+  const clash = await store.getFile(`${DRAFTS_DIR}/${slug}.md`).catch(() => null);
+  if (clash) {
+    const e = new HttpError(409, 'DRAFT_EXISTS', { hint: '草稿箱里已有同名文章，请先发布或删除那篇' });
+    e.conflictPayload = { current: normalizePostFile(clash.content), sha: clash.sha };
+    throw e;
+  }
+  const r = await store.commitFiles(
+    [
+      { path: `${DRAFTS_DIR}/${slug}.md`, contentUtf8: cur.content },
+      { path, delete: true },
+    ],
+    `后台：文章转为私密 ${slug}`,
+    input.expectedHeadSha
+  );
+  return { path: `${DRAFTS_DIR}/${slug}.md`, slug, headSha: r.headSha, commitSha: r.commitSha };
+}
+
 // 编辑已发布文章：文件名与 date 锁定，标题可改但文件名不变
 async function updatePost(input) {
   const path = String(input.path || '');
@@ -146,5 +182,6 @@ module.exports = {
   saveDraft,
   publishDraft,
   publishNew,
+  unpublishPost,
   updatePost,
 };

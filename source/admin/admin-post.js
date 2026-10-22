@@ -5,8 +5,8 @@
  */
 'use strict';
 
-import { S, $, api, toast, confirmDialog, handleOpError, hooks, guard, reloadList, switchTab, markDirty, clearDirty } from './admin-core.js?v=20261021';
-import { mountComposer, bindPaste } from './admin-composer.js?v=20261021';
+import { S, $, api, toast, confirmDialog, handleOpError, hooks, guard, reloadList, switchTab, markDirty, clearDirty } from './admin-core.js?v=20261022';
+import { mountComposer, bindPaste } from './admin-composer.js?v=20261022';
 
 let composer = null;
 
@@ -16,7 +16,7 @@ function slugifyClient(title) {
 }
 
 function setEditorBusy(busy) {
-  ['post-title', 'post-slug', 'post-tags', 'post-categories', 'post-cover', 'post-featured', 'btn-save-draft', 'btn-publish', 'btn-delete-post', 'btn-toggle-preview'].forEach((id) => {
+  ['post-title', 'post-slug', 'post-tags', 'post-categories', 'post-cover', 'post-featured', 'btn-save-draft', 'btn-publish', 'btn-unpublish', 'btn-delete-post', 'btn-toggle-preview'].forEach((id) => {
     const n = $(id);
     if (n) n.disabled = busy;
   });
@@ -70,16 +70,19 @@ async function openPostEditor(path) {
       $('btn-save-draft').textContent = '保存草稿';
       $('btn-publish').textContent = '直接发布';
       $('btn-save-draft').hidden = false;
+      $('btn-unpublish').hidden = true;
       $('btn-delete-post').hidden = true;
     } else if (mode === 'draft') {
       $('btn-save-draft').textContent = '保存草稿';
       $('btn-publish').textContent = '发布草稿';
       $('btn-save-draft').hidden = false;
+      $('btn-unpublish').hidden = true;
       $('btn-delete-post').hidden = false;
       $('btn-delete-post').textContent = '删除草稿';
     } else {
       $('btn-save-draft').hidden = true;
       $('btn-publish').textContent = '保存修改';
+      $('btn-unpublish').hidden = false;
       $('btn-delete-post').hidden = false;
       $('btn-delete-post').textContent = '删除文章';
     }
@@ -197,6 +200,39 @@ export async function publishCurrentEditing() {
   switchTab('posts');
 }
 
+// 转为私密（2026-10-22，P2-12）：已发布文章整文移入草稿箱，线上立即不可见；
+// 内容不删除，后台草稿区随时可打开发回，日期与 permalink 锁定保留。
+// 与删除的区别说清：删除进回收站（可恢复但不在前台管线里），私密进草稿箱
+// （仍是正式内容，只差一个「发布」动作）。
+async function unpublishCurrentPost() {
+  const ed = S.editor;
+  if (!ed || ed.mode !== 'published' || !ed.path) return;
+  const title = $('post-title').value.trim() || ed.path.split('/').pop();
+  const ok = await confirmDialog(
+    '转为私密',
+    `「${title}」将从线上消失：访客打不开、搜索引擎与站内搜索都找不到、首页不再显示。正文原样移入草稿箱保留，你随时可以点「发布」放回去，日期和网址不变。注意：正文里已上传的图片，其网址仍可匿名访问。`,
+    '转为私密',
+  );
+  if (!ok) return;
+  const btn = $('btn-unpublish');
+  btn.disabled = true;
+  try {
+    const r = await api('/api/content-save', {
+      method: 'POST',
+      body: { kind: 'post', action: 'unpublish', path: ed.path, sha: ed.sha, expectedHeadSha: S.lastListSha },
+    });
+    S.lastListSha = r.headSha;
+    hooks.setDeployCommitted(r.commitSha);
+    toast(`「${title}」已转为私密，部署完成后线上不可见`);
+    clearDirty();
+    await reloadList();
+    switchTab('posts');
+  } catch (e) {
+    btn.disabled = false;
+    handleOpError(e);
+  }
+}
+
 // 删除当前文章 / 草稿 → 移入回收站（可恢复）
 // 2026-10-18：确认弹窗写清「去哪恢复」，成功 toast 也带上去回收站的路径提示，
 // 并给按钮加忙态禁用（防连点产生第二次提交）。
@@ -265,6 +301,7 @@ export function init() {
     await reloadList();
   });
   $('btn-publish').onclick = guard(publishCurrentEditing);
+  $('btn-unpublish').onclick = guard(unpublishCurrentPost);
   $('btn-delete-post').onclick = guard(deleteCurrentPost);
 
   // 预览

@@ -167,6 +167,46 @@ const PNG_1X1 = Buffer.from(
     assert.ok(/^\/\d{4}\/\d{2}\/\d{2}\/smoke-draft\/$/.test(r.permalink));
   });
 
+  // --- P2-12：转为私密（unpublish）往返，2026-10-22 主人要求「只想自己看、不删除」 ---
+  // 语义：已发布文章整文原样移入草稿箱（source/ 之外，Hexo 任何模式不渲染），
+  // 线上立即不可见；发布回来时 date 与 permalink 逐字不变。
+  const pubR = await content.publishNew({ slug: 'private-probe', title: '私密探测', tags: 'x', categories: '', body: '正文甲', expectedHeadSha: await store.getHead() });
+  const upR = await content.unpublishPost({ path: 'source/_posts/private-probe.md', expectedHeadSha: pubR.headSha });
+  l = await content.listAll();
+  ok('unpublishPost: 文章移入草稿箱，已发布列表即不可见', () => {
+    assert.strictEqual(l.drafts.length, 1);
+    assert.strictEqual(l.drafts[0].title, '私密探测');
+    assert.ok(l.posts.every((p) => p.name !== 'private-probe'), '已发布列表仍包含该文');
+  });
+  const probeDraft = await store.getFile('_drafts/private-probe.md');
+  ok('unpublishPost: 正文与 front matter 原样搬运（不重写、不丢字段）', () => {
+    assert.ok(probeDraft.content.includes('正文甲'));
+    assert.ok(probeDraft.content.includes('title: 私密探测'));
+    assert.ok(probeDraft.content.includes(pubR.date.slice(0, 10)), 'date 必须原样保留');
+  });
+  const backR = await content.publishDraft({ slug: 'private-probe', expectedHeadSha: upR.headSha });
+  ok('unpublish→publishDraft 往返：permalink 与原发布逐字一致', () => {
+    assert.strictEqual(backR.permalink, pubR.permalink);
+  });
+
+  // 草稿箱已有同名文章时拒绝，不静默覆盖（那篇可能是另一内容）
+  await content.saveDraft({ slug: 'private-probe', title: '占位稿', expectedHeadSha: backR.headSha });
+  let clashErr = '';
+  try {
+    await content.unpublishPost({ path: 'source/_posts/private-probe.md', expectedHeadSha: await store.getHead() });
+  } catch (e) { clashErr = e.message; }
+  ok('unpublishPost: 草稿箱有同名文章 → 409 DRAFT_EXISTS', () => {
+    assert.strictEqual(clashErr, 'DRAFT_EXISTS');
+  });
+  let nfErr = '';
+  try { await content.unpublishPost({ path: 'source/_posts/no-such-post.md', expectedHeadSha: await store.getHead() }); } catch (e) { nfErr = e.message; }
+  ok('unpublishPost: 文章不存在 → 404 POST_NOT_FOUND', () => assert.strictEqual(nfErr, 'POST_NOT_FOUND'));
+  let bpErr = '';
+  try { await content.unpublishPost({ path: '_drafts/private-probe.md', expectedHeadSha: await store.getHead() }); } catch (e) { bpErr = e.message; }
+  ok('unpublishPost: 草稿路径 → 400 BAD_PATH（只能转已发布文章）', () => assert.strictEqual(bpErr, 'BAD_PATH'));
+  // 收尾：探测稿发布回正式位（date 不变），fixture 不留孤儿草稿、不污染回收站计数
+  await content.publishDraft({ slug: 'private-probe', expectedHeadSha: await store.getHead() });
+
   // --- P1-7：summary 模式（跳过草稿逐篇读取） ---
   const headForProbe = await store.getHead();
   await content.saveDraft({ slug: 'summary-probe', title: '摘要探测', tags: '', categories: '', body: '正文', expectedHeadSha: headForProbe });
@@ -339,6 +379,16 @@ const PNG_1X1 = Buffer.from(
   ok('validatePost: categories 数组原样通过', () => {
     assert.deepStrictEqual(catBody.categories, ['随笔', '技术']);
   });
+
+  // P2-12（2026-10-22）：unpublish 定位靠 path，且只接受 _posts 下的路径
+  const upBody = { kind: 'post', action: 'unpublish', path: 'source/_posts/a.md' };
+  validate.validatePost(upBody);
+  ok('validatePost: unpublish 带 path 通过', () => {
+    assert.strictEqual(upBody.action, 'unpublish');
+  });
+  let upPathErr = '';
+  try { validate.validatePost({ kind: 'post', action: 'unpublish' }); } catch (e) { upPathErr = (e.extra && e.extra.hint) || e.message; }
+  ok('validatePost: unpublish 缺 path 被拒绝', () => assert.match(upPathErr, /path/));
 
   // --- P1-6：模块注册表单一数据源 ---
   const registry = require('../api/_lib/modules');
@@ -900,6 +950,18 @@ const PNG_1X1 = Buffer.from(
     assert.ok(/closest\('#view-data-editor'\)\) markDirty/.test(item), 'admin-item.js 缺数据表单 input 监听');
     const site = fs.readFileSync(path.join(__dirname, '..', 'source/admin/admin-site.js'), 'utf8');
     assert.ok(/closest\('#view-site-editor'\)\) markDirty/.test(site), 'admin-site.js 缺设置表单 input 监听');
+  });
+
+  // P2-12（2026-10-22）：「转为私密」按钮与处理逻辑。公开状态的改变必须二次确认，
+  // 且只对已发布文章可用——结构断言钉死，退化即红。
+  ok('转为私密：按钮、确认弹窗、仅已发布可用三要素齐全', () => {
+    const html = fs.readFileSync(path.join(__dirname, '..', 'source/admin/index.html'), 'utf8');
+    assert.ok(html.includes('id="btn-unpublish"'), 'index.html 缺「转为私密」按钮');
+    const src = fs.readFileSync(path.join(__dirname, '..', 'source/admin/admin-post.js'), 'utf8');
+    assert.ok(/action: 'unpublish'/.test(src), 'admin-post.js 没有调用 unpublish 动作');
+    assert.ok(/confirmDialog\(\s*\n?\s*'转为私密'/.test(src), '转为私密缺确认弹窗——公开状态改变必须二次确认');
+    assert.ok(/ed\.mode !== 'published'/.test(src), '转为私密没有限制仅已发布文章可用');
+    assert.ok(/btn-unpublish'\)\.hidden = false/.test(src), '已发布文章视图没有显示「转为私密」按钮');
   });
 
   console.log(`\nRESULT: ${passed} 项断言通过${process.exitCode ? '，存在失败' : ''}`);

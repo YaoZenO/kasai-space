@@ -3,8 +3,8 @@
  */
 'use strict';
 
-import { S, $, el, api, toast, hooks, handleOpError, guard, reloadList, markDirty, clearDirty } from './admin-core.js?v=20261021';
-import { uploadOneImage, sitePath, openImagePicker } from './admin-media.js?v=20261021';
+import { S, $, el, api, toast, hooks, handleOpError, guard, reloadList, markDirty, clearDirty } from './admin-core.js?v=20261022';
+import { uploadOneImage, sitePath, openImagePicker } from './admin-media.js?v=20261022';
 
 const MODULE_META = {
   projects: { label: '项目', form: 'projects' },

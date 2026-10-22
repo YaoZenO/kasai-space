@@ -95,6 +95,7 @@ module.exports = {
   publishDraft: postDomain.publishDraft,
   publishNew: postDomain.publishNew,
   updatePost: postDomain.updatePost,
+  unpublishPost: postDomain.unpublishPost,
   saveData: dataDomain.saveData,
   saveSite: siteDomain.saveSite,
   deleteItem: trashDomain.deleteItem,
