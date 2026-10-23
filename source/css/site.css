@@ -1,5 +1,5 @@
 /* ============================================================
-   site.css — 全站设计规范层（V3.5）
+   site.css — 全站设计规范层（V3.4）
    加载于全站（custom_css: /css/site.css）
    分区：1 设计 tokens / 2 基础 / 3 公共组件 / 4 逐页样式
    纪律：新布局一律自有语义 class；main.styl 不改，残留
@@ -9,9 +9,6 @@
    标题轨 --font-serif-title 扩展至文章页（此前只覆盖站名与 .cal-page）。
    V3.4：中文改走自托管子集 Web 字体——思源黑体（正文 400/500/700）+
    思源宋体（标题 600/700），不再依赖访客设备本地中文字体。
-   V3.5：标题降重与衬线收敛——思源宋体新增 500 档，展示位标题
-   （文章大标题、通用页头）宋体 600→500；列表标题与正文内标题
-   回黑体轨 600；主卡大标题与栏目题 900→700，消除合成加粗。
    ============================================================ */
 
 /* ===== 1. 设计 tokens ===== */
@@ -52,14 +49,6 @@
   font-weight: 700;
   font-display: swap;
   src: url("/fonts/noto-sans-sc-700.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Noto Serif SC";
-  src: url("/fonts/noto-serif-sc-500.woff2") format("woff2");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
 }
 
 @font-face {
@@ -161,13 +150,17 @@
 body { font-family: var(--font-sans); }
 .markdown-body { font-family: var(--font-sans); }
 
-/* 标题轨（V3.5 收敛）：宋体只留展示位——文章大标题与通用页头标题走
-   --font-serif-title（Fraunces 600 + 思源宋体），字重降到 500（在各
-   标题自身规则里就地对齐；Fraunces 仅托管 600 一档，拉丁字形仍走
-   600，中文走新切的思源宋体 500）。列表标题与正文内标题回黑体轨。
-   V3.3 曾把宋体铺满全部标题层级，观感又黑又满，本版收回。 */
+/* 标题轨上文章页（V3.3）：文章大标题、列表标题、通用页头标题与正文内标题
+   统一走 --font-serif-title（Fraunces 600 + 宋体系），与节假日页标题同轨。
+   字重 600 在各标题自身的规则里就地对齐（Fraunces 仅托管 600 一档，
+   请求更粗字重只会触发浏览器合成加粗，故不用 800/900）。 */
 .post-head-title,
-.page-head-plain .page-head-title {
+.post-title,
+.page-head-plain .page-head-title,
+.post-content .markdown-body h1,
+.post-content .markdown-body h2,
+.post-content .markdown-body h3,
+.post-content .markdown-body h4 {
   font-family: var(--font-serif-title);
   letter-spacing: -0.01em;
   font-optical-sizing: auto;
@@ -177,7 +170,6 @@ body { font-family: var(--font-sans); }
 .post-content .markdown-body h2,
 .post-content .markdown-body h3,
 .post-content .markdown-body h4 {
-  font-family: var(--font-sans);
   font-weight: 600;
 }
 
@@ -589,7 +581,7 @@ body { font-family: var(--font-sans); }
 .wall-feature-title {
   margin: 0 0 1.6rem;
   font-size: var(--fs-hero);
-  font-weight: 700;
+  font-weight: 900;
   line-height: 1.04;
 }
 
@@ -763,7 +755,7 @@ a.cell-plain:hover {
 .col-title {
   margin: 0;
   font-size: clamp(1.25rem, 2.2vw, 1.6rem);
-  font-weight: 700;
+  font-weight: 900;
   color: var(--text-color);
 }
 
@@ -822,7 +814,6 @@ a.cell-plain:hover {
 }
 
 .post-title {
-  font-family: var(--font-sans);
   font-size: clamp(1.05rem, 1.8vw, 1.3rem);
   font-weight: 600;
   line-height: 1.4;
@@ -1113,7 +1104,7 @@ a.feed-title:hover {
 .post-head-title {
   margin: 0 0 1.1rem;
   font-size: clamp(1.9rem, 3.8vw, 2.9rem);
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.22;
   color: var(--text-color);
   overflow-wrap: anywhere;
@@ -1837,7 +1828,7 @@ a.feed-title:hover {
 
 /* 模块列表页 */
 .page-head-plain { margin: 0 0 1.6rem; }
-.page-head-plain .page-head-title { font-size: clamp(1.8rem, 3.4vw, 2.4rem); font-weight: 500; margin: .3rem 0 .4rem; }
+.page-head-plain .page-head-title { font-size: clamp(1.8rem, 3.4vw, 2.4rem); font-weight: 600; margin: .3rem 0 .4rem; }
 .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
 .module-card {
   display: block; background: var(--cream); border: 1px solid var(--line-color);
