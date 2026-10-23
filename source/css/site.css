@@ -2005,6 +2005,11 @@ a.feed-title:hover {
 }
 
 /* 左表 + 右年历格 */
+/* 节假日页的页头间距单独收一档（不动其它纸面页的 .page-head）：
+   右栏比左表多一行图例说明，页头再松一档，「来源」那行就会被视口切掉。 */
+.cal-page .page-head { margin-bottom: 1.5rem; }
+.cal-page .col-head { margin-bottom: 1.05rem; }
+
 /* 面包屑（参考站 .hc-crumbs：14px muted，分隔符更淡） */
 .cal-crumb {
   margin: 0 0 .55rem;
@@ -2019,9 +2024,9 @@ a.feed-title:hover {
 /* 引导段（参考站 .hc-lede：17px / 行高 1.65 / 限宽 800px） */
 .cal-lede {
   max-width: 50rem;
-  margin: 1.1rem 0 0;
+  margin: .8rem 0 0;
   font-size: 1.0625rem;
-  line-height: 1.65;
+  line-height: 1.6;
   color: var(--text-color);
 }
 .cal-lede a { color: var(--text-color); text-decoration: underline; text-underline-offset: 2px; }
@@ -2267,6 +2272,11 @@ a.feed-title:hover {
   line-height: 1;
   letter-spacing: -.03em;
   color: #6b6b6b;
+  /* 横排、不折行、左对齐：一格只有 1/31 宽（约 13px），不设 nowrap 的话
+     "10" "15" 会被折成「1」在上「0」在下竖着排。允许溢出到右邻格，
+     读数时按左边缘对齐，与参考站一致。 */
+  white-space: nowrap;
+  text-align: left;
 }
 
 .cal-legend {
@@ -2274,7 +2284,7 @@ a.feed-title:hover {
   flex-wrap: wrap;
   align-items: center;
   gap: .4rem 1rem;
-  margin: 1rem 0 0;
+  margin: .55rem 0 0;
   padding: 0;
   list-style: none;
   font-size: .75rem;
@@ -2295,19 +2305,19 @@ a.feed-title:hover {
 
 
 .cal-note {
-  margin: .9rem 0 0;
+  margin: .55rem 0 0;
   font-size: .78rem;
-  line-height: 1.85;
+  line-height: 1.7;
   color: var(--sec-text-color);
 }
 
 /* 年一览底部这一组小字（说明 / 调休释义 / 来源）：跟在图例后面自然排下来，
    位置与参考站一致。右栏比左表矮出来的那截留白不再强行填——参考站也是自然收口。 */
-.cal-after { margin-top: 1rem; }
+.cal-after { margin-top: .55rem; }
 .cal-after-line {
-  margin: 0 0 .5rem;
+  margin: 0 0 .4rem;
   font-size: .78rem;
-  line-height: 1.8;
+  line-height: 1.65;
   color: var(--sec-text-color);
 }
 .cal-after-line:last-child { margin-bottom: 0; }

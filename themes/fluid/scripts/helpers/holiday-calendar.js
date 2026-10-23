@@ -316,6 +316,18 @@ function buildCalendar(raw, wantYear) {
     if (r.state === 'holiday') r.dot = false;
   });
 
+  // ---- 格子的原生 title ----
+  // 参考站：<i title="1月9日，周六">（普通格）/ <i title="1 月 1 日，星期五。预计放假：元旦">（假期格）。
+  // 浏览器自带的那个小框框就是「几月几日」的来源；自定义详情卡只服务有内容的日子。
+  function cellTip(rec, label) {
+    const base = mdCn(rec.key) + '，' + WEEK_FULL[rec.w];
+    if (rec.holiday) return base + '。' + label + '放假：' + rec.holiday.name;
+    if (rec.state === 'makeup') return base + '。调休上班';
+    if (rec.festival) return base + '。' + rec.festival.kind + '：' + rec.festival.name;
+    if (rec.term) return base + '。节气：' + rec.term.name;
+    return base;
+  }
+
   // ---- 12 行月历 ----
   const months = [];
   for (let m = 1; m <= 12; m += 1) {
@@ -333,6 +345,9 @@ function buildCalendar(raw, wantYear) {
         // 该格属于哪个法定节假日（调休日算它服务的那一个），聚焦高亮按这个分组
         hid: (rec.holiday && rec.holiday.id) || (rec.makeupOf && rec.makeupOf.id) || '',
         name: (rec.holiday && rec.holiday.name) || (rec.festival && rec.festival.name) || (rec.term && rec.term.name) || '',
+        // 原生 title：普通日期也要有个「几月几日 星期几」的小框框（参考站每个格子都有
+        // title，自定义详情卡只给有内容的那些）。这里一次算好，模板直接输出。
+        tip: cellTip(rec, label),
       });
     }
     months.push({ m: m, label: m + ' 月', cells: cells });

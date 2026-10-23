@@ -323,6 +323,29 @@ if (!fs.existsSync(PUBLIC)) {
     assert.strictEqual(rows, 12, '月份行数不是 12（实际 ' + rows + '）');
   });
 
+  // 每个格子都要有原生 title（参考站也是每个 <i> 都带 title）：普通日期给
+  // 「几月几日 星期几」的小框框，自定义详情卡只服务有内容的日子。
+  ok('每个格子都有原生 title：普通日期也能看出几月几日', () => {
+    const h = fs.readFileSync(PAGE27, 'utf8');
+    const cells = (h.match(/class="cal-cell /g) || []).length;
+    assert.strictEqual(cells, 365, '格子数不是 365（实际 ' + cells + '）');
+    const titled = (h.match(/title="[^"]*月[^"]*日，星期/g) || []).length;
+    assert.strictEqual(titled, 365, '带「几月几日，星期X」title 的格子不是 365 个（实际 ' + titled + '）');
+    assert.ok(h.indexOf('title="1 月 9 日，星期六"') !== -1, '普通周末格的 title 不对');
+    assert.ok(h.indexOf('title="2 月 6 日，星期六。预计放假：春节"') !== -1, '春节格的 title 没带上节假日');
+    assert.ok(h.indexOf('title="1 月 1 日，星期五。预计放假：元旦"') !== -1, '元旦格的 title 没带上节假日');
+  });
+
+  // 刻度尺必须横排：一格只有 1/31 宽（约 13px），不设 nowrap 的话「10」「15」
+  // 会被折成「1」在上「0」在下竖着排（主人 2026-10-23 指出）。
+  ok('刻度尺数字横排不折行', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'source/css/site.css'), 'utf8');
+    const at = css.indexOf('.cal-tick {');
+    const rule = css.slice(at, css.indexOf('}', at));
+    assert.ok(rule.indexOf('white-space: nowrap') !== -1, '.cal-tick 没有 nowrap，两位数会折行');
+    assert.ok(rule.indexOf('text-align: left') !== -1, '.cal-tick 没有左对齐，读数会偏');
+  });
+
   // 统计只在页头那一行：一览下面曾经也有一行，两个数字撞在一起（主人 2026-10-23 指出）
   ok('统计不重复：一览下面不再有第二份统计', () => {
     const h = fs.readFileSync(PAGE27, 'utf8');

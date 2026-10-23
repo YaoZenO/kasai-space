@@ -139,6 +139,7 @@ var tips = cal ? holidayTips(cal) : {}
                 <% for (var ci = 0; ci < mo.cells.length; ci += 1) { var c = mo.cells[ci] %>
                 <span class="cal-cell is-<%= c.state %><%= c.dot ? ' has-dot' : '' %>"
                       data-date="<%= c.key %>" data-w="<%= c.w %>" data-h="<%= c.hid %>"
+                      title="<%= c.tip %>"
                       aria-hidden="true"></span>
                 <% } %>
               </div>
