@@ -1,5 +1,5 @@
 /* ============================================================
-   site.css — 全站设计规范层（V3.4）
+   site.css — 全站设计规范层（V3.4.1）
    加载于全站（custom_css: /css/site.css）
    分区：1 设计 tokens / 2 基础 / 3 公共组件 / 4 逐页样式
    纪律：新布局一律自有语义 class；main.styl 不改，残留
@@ -9,6 +9,8 @@
    标题轨 --font-serif-title 扩展至文章页（此前只覆盖站名与 .cal-page）。
    V3.4：中文改走自托管子集 Web 字体——思源黑体（正文 400/500/700）+
    思源宋体（标题 600/700），不再依赖访客设备本地中文字体。
+   V3.4.1：首页精选内容项目标题（.pick-title）并入宋体标题轨，
+   字号字重与文章列表标题（.post-title）对齐（此前左黑右宋）。
    ============================================================ */
 
 /* ===== 1. 设计 tokens ===== */
@@ -156,6 +158,7 @@ body { font-family: var(--font-sans); }
    请求更粗字重只会触发浏览器合成加粗，故不用 800/900）。 */
 .post-head-title,
 .post-title,
+.pick-title,
 .page-head-plain .page-head-title,
 .post-content .markdown-body h1,
 .post-content .markdown-body h2,
@@ -881,8 +884,8 @@ a.cell-plain:hover {
 }
 
 .pick-title {
-  font-size: 1.05rem;
-  font-weight: 800;
+  font-size: clamp(1.05rem, 1.8vw, 1.3rem);
+  font-weight: 600;
   color: var(--text-color);
   line-height: 1.4;
 }
