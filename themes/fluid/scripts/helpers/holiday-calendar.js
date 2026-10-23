@@ -19,6 +19,7 @@
 // vm 加载上下文里会解析失败（AGENTS.md §5.2）。
 
 const WEEK_CN = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+const WEEK_FULL = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
 
 function pad2(n) {
   return n < 10 ? '0' + n : String(n);
@@ -196,6 +197,13 @@ function buildCalendar(raw, wantYear) {
   // 配图按节日类型共用（meta.images），十六个年份共用同一套图，不在每年重复写一遍。
   const images = (data.meta && data.meta.images) || null;
 
+  // 生肖年：春节落进公历哪一年，就算那一年的生肖（2026-02-17 起 = 丙午马年，
+  // 与参考站一致）。数据里没有就留空，引导段自动少一句。
+  const official = Boolean(src.official || (data.meta && data.meta.official));
+  const zodiac = (src.zodiac && src.zodiac.ganzhi)
+    ? { ganzhi: String(src.zodiac.ganzhi), animal: String(src.zodiac.animal || ''), element: String(src.zodiac.element || '') }
+    : null;
+
   const holidays = (Array.isArray(src.holidays) ? src.holidays : [])
     .map((h) => normalizeHoliday(h, label, images))
     .filter(Boolean)
@@ -285,7 +293,11 @@ function buildCalendar(raw, wantYear) {
     // （调休上班日按定义落在放假区间之外，这条顺序只是防数据写错时不出现
     //  「区间内某天被标成要上班」的矛盾状态）。
     h.makeup.forEach((mk) => {
-      if (days[mk]) days[mk].state = 'makeup';
+      if (days[mk]) {
+        days[mk].state = 'makeup';
+        // 记住这个调休日服务的是哪个假期，供一览格子打 data-h（聚焦高亮按它分组）
+        days[mk].makeupOf = h;
+      }
     });
     let k = h.start;
     for (let i = 0; i < h.days; i += 1) {
@@ -318,6 +330,8 @@ function buildCalendar(raw, wantYear) {
         wName: rec.wName,
         state: rec.state,
         dot: rec.dot,
+        // 该格属于哪个法定节假日（调休日算它服务的那一个），聚焦高亮按这个分组
+        hid: (rec.holiday && rec.holiday.id) || (rec.makeupOf && rec.makeupOf.id) || '',
         name: (rec.holiday && rec.holiday.name) || (rec.festival && rec.festival.name) || (rec.term && rec.term.name) || '',
       });
     }
@@ -336,14 +350,49 @@ function buildCalendar(raw, wantYear) {
     totalDays: Object.keys(days).length,
   };
 
+  // ---- 页头引导段（参考站 .hc-lede）----
+  // 节假日数 + 两个长假 + 春节当天与星期 + 生肖年 + 正式/预计说明。
+  // 全部由数据算出，不手写——否则十六个年份各有各的说法，必然有一年忘了改。
+  const byId = (id) => holidays.find((h) => h.id === id);
+  const cj = byId('chunjie');
+  const gq = byId('guoqing');
+  let lede = '';
+  if (cj && gq) {
+    // 两个长假固定说春节与国庆（按开始时间排先后），不按天数挑——
+    // 天数每年都变，按天数挑会让「两个长假」的所指年年不同。
+    const two = [cj, gq].sort((a, b) => (a.start < b.start ? -1 : 1));
+    const parts = [];
+    parts.push(year + ' 年，中国共有 ' + holidays.length + ' 个法定节假日。');
+    // 同一个月时省略第二个日期前的月份（「2 月 5 日至 12 日」），与参考站写法一致
+    const range = (a, b) => {
+      const pa = keyToParts(a); const pb = keyToParts(b);
+      return pa.m === pb.m
+        ? pa.m + ' 月 ' + pa.d + ' 日至 ' + pb.d + ' 日'
+        : mdCn(a) + '至' + mdCn(b);
+    };
+    parts.push('其中两个长假是 ' + range(two[0].start, two[0].end) + '的'
+      + (two[0].id === 'chunjie' ? '春节假期' : two[0].name)
+      + '，以及 ' + range(two[1].start, two[1].end) + '的'
+      + (two[1].id === 'guoqing' ? '国庆黄金周' : two[1].name) + '。');
+    parts.push('春节在 ' + mdCn(cj.date) + '（' + WEEK_FULL[weekdayOf(cj.date)] + '）。');
+    if (zodiac && zodiac.ganzhi) {
+      parts.push('这一天也是' + zodiac.element + zodiac.animal + '年 '
+        + zodiac.ganzhi + zodiac.animal + '年的开始。');
+    }
+    parts.push(official ? '以下为官方公布的日期。' : '以上均为预计日期。');
+    lede = parts.join('');
+  }
+
   return {
     year: year,
+    lede: lede,
+    zodiac: zodiac,
     years: years.map((y) => y.year),
     current: Number(src.year),
     prose: (data.meta && data.meta.prose) || '',
     faq: (data.meta && Array.isArray(data.meta.faq) ? data.meta.faq : []),
     label: label,
-    official: Boolean(src.official || (data.meta && data.meta.official)),
+    official: official,
     zodiac: src.zodiac || '',
     updated: (data.meta && toKey(data.meta.updated)) || '',
     notice: (data.meta && data.meta.notice) || '',
@@ -375,7 +424,9 @@ function tipPayload(cal) {
 
   Object.keys(cal.days).forEach((k) => {
     const r = cal.days[k];
-    const isPlain = r.state === 'work' && !r.festival && !r.term;
+    // 普通工作日与周末都不出卡（参考站也只有 data-k / data-w 的格子才弹卡）。
+    // 周末除了「周末」两个字没别的内容，弹个框只是噪音。
+    const isPlain = !r.holiday && !r.festival && !r.term;
     if (isPlain) return;
 
     const tip = { s: r.state, date: dateLabel(k) };

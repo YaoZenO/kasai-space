@@ -2005,6 +2005,28 @@ a.feed-title:hover {
 }
 
 /* 左表 + 右年历格 */
+/* 面包屑（参考站 .hc-crumbs：14px muted，分隔符更淡） */
+.cal-crumb {
+  margin: 0 0 .55rem;
+  font-size: .875rem;
+  color: var(--sec-text-color);
+}
+.cal-crumb a { color: var(--sec-text-color); }
+.cal-crumb a:hover { color: var(--accent); }
+.cal-crumb span { margin: 0 .38rem; color: rgba(26, 26, 26, 0.22); }
+.cal-crumb-now { color: var(--text-color); }
+
+/* 引导段（参考站 .hc-lede：17px / 行高 1.65 / 限宽 800px） */
+.cal-lede {
+  max-width: 50rem;
+  margin: 1.1rem 0 0;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--text-color);
+}
+.cal-lede a { color: var(--text-color); text-decoration: underline; text-underline-offset: 2px; }
+.cal-lede a:hover { color: var(--accent); }
+
 /* 页头两栏：标题占满剩余，年份块固定 300px 并靠右贴底（参考站 1fr / 300px、gap 56px）。
    年份是定宽的，所以不写 flex:none 也不会被撑开（E-049 的成因在这里被结构本身消掉了）。 */
 .cal-head-row {
@@ -2070,9 +2092,7 @@ a.feed-title:hover {
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
   gap: clamp(2rem, 3.6vw, 3.2rem);
-  /* 两栏底边齐平：右栏比左表矮，让「调休释义 + 来源」沉到栏底（.cal-after margin-top:auto），
-     剩下的留白就落在年一览与这两行小字之间，读起来是段落间距而不是「下面是空的」 */
-  align-items: stretch;
+  align-items: start;
 }
 
 /* 法定节假日表：组顶 2px 全墨线 + 行底 hairline（§4.3 两级线） */
@@ -2100,17 +2120,21 @@ a.feed-title:hover {
 
 .cal-table tbody th,
 .cal-table tbody td {
-  padding: .95rem .5rem;
+  padding: .68rem .5rem;
   border-bottom: 1px solid var(--line-color);
   vertical-align: baseline;
   font-weight: 400;
 }
 
-.cal-table tbody th { width: 6.4rem; }
+/* 名称列要容得下「名称 + 拼音」同一行（参考站的 th 也是横向排）。
+   6.4rem 放不下「中秋节 Zhōngqiūjié」，会折成两行把行高顶起来。 */
+.cal-table tbody th { width: 9.5rem; font-weight: 400; }
 
-/* 参考站把节日名做成砖红，这里沿用；中文不进 Fraunces（它只有拉丁字形） */
+/* 参考站把节日名做成砖红，这里沿用；中文不进 Fraunces（它只有拉丁字形）。
+   名称与拼音同一行（参考站的 th 也是 name/zh/py 横向排），行高从 74px 降到 46px——
+   首屏才装得下完整的 7 行表。 */
 .cal-name {
-  display: block;
+  display: inline;
   font-size: 1.02rem;
   font-weight: 700;
   color: var(--text-color);
@@ -2118,8 +2142,8 @@ a.feed-title:hover {
 }
 
 .cal-pinyin {
-  display: block;
-  margin-top: .18rem;
+  display: inline;
+  margin-left: .38rem;
   font-size: .75rem;
   color: var(--sec-text-color);
 }
@@ -2140,12 +2164,12 @@ a.feed-title:hover {
   color: var(--sec-text-color);
 }
 
-.cal-range { display: inline-flex; align-items: baseline; gap: .3rem; }
+.cal-range { display: inline; }
 .cal-arrow { color: var(--sec-text-color); font-size: .8rem; }
 
 /* 天数这类静态信息走中性色（§2.4：accent 只留给交互态） */
 .cal-days {
-  margin-left: .5rem;
+  margin-left: .38rem;
   font-family: var(--font-mono);
   font-size: .76rem;
   font-weight: 700;
@@ -2153,7 +2177,9 @@ a.feed-title:hover {
   white-space: nowrap;
 }
 
-.cal-hint { display: block; margin-top: .22rem; font-size: .78rem; line-height: 1.6; color: var(--sec-text-color); }
+/* 放假说明跟在区间与天数后面同行排（参考站同款），列宽不够时自然换行 */
+.cal-hint { font-size: .78rem; line-height: 1.6; color: var(--sec-text-color); }
+.cal-hint::before { content: "· "; color: rgba(26, 26, 26, 0.3); }
 
 /* 调休上班日列：一个日期一行，两三个也不会挤成一坨 */
 .cal-makeup { white-space: nowrap; }
@@ -2168,7 +2194,7 @@ a.feed-title:hover {
 
 /* 全年一览：12 行 × 31 列，格子约 12px，对齐参考站密度。
    flex 纵向布局只为把 .cal-after 推到栏底，让两栏底边齐平。 */
-.cal-year { margin-top: 0; display: flex; flex-direction: column; }
+.cal-year { margin-top: 0; }
 .cal-grid-wrap { overflow-x: auto; }
 .cal-grid { display: grid; gap: 2px; }
 
@@ -2198,11 +2224,24 @@ a.feed-title:hover {
   display: grid;
   place-items: center;
   aspect-ratio: 1 / 1;
+  /* 1.5px 圆角：参考站的格子就是微圆角，全方角在一屏小方块里显得更糙 */
+  border-radius: 1.5px;
   background: rgba(26, 26, 26, 0.06);
 }
 
 .cal-cell.is-weekend { background: rgba(26, 26, 26, 0.13); }
 .cal-cell.is-holiday { background: var(--accent); }
+
+/* 一览聚焦（参考站 .hc-gl.is-hl）：悬停某个假期时，只留下属它的格子，其余降到 .28。
+   配合 JS：悬停左表行或悬停假期格都会触发。 */
+.cal-grid.is-hl .cal-cell { opacity: .28; }
+.cal-grid.is-hl .cal-cell.is-hl { opacity: 1; }
+/* 卡片正描述的那个格子：外圈墨线，聚焦时不被压淡 */
+.cal-cell.is-tip { box-shadow: 0 0 0 2px #f7f6f4, 0 0 0 3.5px var(--text-color); }
+.cal-grid.is-hl .cal-cell.is-tip { opacity: 1; }
+
+/* 左表对应行高亮（参考站 tr.is-hl 用 #fbf3f1） */
+.cal-table tbody tr.is-hl { background: #fbf3f1; }
 
 /* 调休上班：周末底色 + 一圈砖红内描边。2027 年数据为空时不渲染，
    官方通知发布后填入 makeup 即自动出现 */
@@ -2254,17 +2293,7 @@ a.feed-title:hover {
 
 .cal-dot-mark { display: block; width: 3px; height: 3px; border-radius: 999px; background: var(--text-color); opacity: .5; }
 
-.cal-stats-line {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .3rem;
-  margin: .9rem 0 0;
-  font-family: var(--font-mono);
-  font-size: .75rem;
-  color: var(--sec-text-color);
-}
 
-.cal-stats-line i { font-style: normal; color: rgba(26, 26, 26, 0.3); margin: 0 .1rem; }
 .cal-note {
   margin: .9rem 0 0;
   font-size: .78rem;
@@ -2272,9 +2301,9 @@ a.feed-title:hover {
   color: var(--sec-text-color);
 }
 
-/* 年一览底部这一组小字（说明 / 调休释义 / 来源）：margin-top:auto 整体沉到栏底，
-   与左表底边齐平。参考站的说明与来源也在这个位置。 */
-.cal-after { margin-top: auto; padding-top: 1rem; }
+/* 年一览底部这一组小字（说明 / 调休释义 / 来源）：跟在图例后面自然排下来，
+   位置与参考站一致。右栏比左表矮出来的那截留白不再强行填——参考站也是自然收口。 */
+.cal-after { margin-top: 1rem; }
 .cal-after-line {
   margin: 0 0 .5rem;
   font-size: .78rem;
@@ -2523,7 +2552,21 @@ a.feed-title:hover {
 .cal-prose,
 .cal-faq { border-top: 2px solid var(--rule-strong); padding-top: 1.25rem; }
 .cal-prose .markdown-body > :first-child { margin-top: 0; }
-.cal-faq .col-title { margin: 0 0 1rem; font-size: 1.25rem; }
+
+/* 说明区标题：参考站 .hc-main h2 是 Fraunces 600 / 27px。此前落在
+   .markdown-body h2 的默认规则上，变成 Nunito Sans 700 / 32px，和参考站不像。 */
+.cal-prose .markdown-body h2,
+.cal-faq .col-title {
+  margin: 0 0 .9rem;
+  font-family: var(--font-serif-title);
+  font-weight: 600;
+  font-size: 1.6875rem;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  font-optical-sizing: auto;
+  color: var(--text-color);
+}
+.cal-prose .markdown-body h2 + p { margin-top: 0; }
 
 /* 5 条问答拉满整列高度：说明那栏有 800 多像素，问答只占 330，不拉就右下空一大块。
    每条按剩余高度均分（flex:1），标题在行内垂直居中——空出来的量被摊到每条之间的

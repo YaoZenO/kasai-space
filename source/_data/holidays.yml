@@ -120,6 +120,11 @@ meta:
 years:
   - year: 2021
     label: "官方"
+    # 生肖年：春节落进公历哪一年就算那一年的生肖。2026=丙午马、2027=丁未羊，与参考站一致。
+    zodiac:
+      ganzhi: "辛丑"
+      animal: "牛"
+      element: "金"
     official: true
     holidays:
       - id: yuandan
@@ -381,6 +386,11 @@ years:
       "2021-10-14": "九月初九"
   - year: 2022
     label: "官方"
+    # 生肖年：春节落进公历哪一年就算那一年的生肖。2026=丙午马、2027=丁未羊，与参考站一致。
+    zodiac:
+      ganzhi: "壬寅"
+      animal: "虎"
+      element: "水"
     official: true
     holidays:
       - id: yuandan
@@ -642,6 +652,11 @@ years:
       "2022-10-04": "九月初九"
   - year: 2023
     label: "官方"
+    # 生肖年：春节落进公历哪一年就算那一年的生肖。2026=丙午马、2027=丁未羊，与参考站一致。
+    zodiac:
+      ganzhi: "癸卯"
+      animal: "兔"
+      element: "水"
     official: true
     holidays:
       - id: yuandan
@@ -896,6 +911,11 @@ years:
       "2023-10-23": "九月初九"
   - year: 2024
     label: "官方"
+    # 生肖年：春节落进公历哪一年就算那一年的生肖。2026=丙午马、2027=丁未羊，与参考站一致。
+    zodiac:
+      ganzhi: "甲辰"
+      animal: "龙"
+      element: "木"
     official: true
     holidays:
       - id: yuandan
@@ -1158,6 +1178,11 @@ years:
       "2024-10-11": "九月初九"
   - year: 2025
     label: "官方"
+    # 生肖年：春节落进公历哪一年就算那一年的生肖。2026=丙午马、2027=丁未羊，与参考站一致。
+    zodiac:
+      ganzhi: "乙巳"
+      animal: "蛇"
+      element: "木"
     official: true
     holidays:
       - id: yuandan
@@ -1369,6 +1394,11 @@ years:
     lunar: {}
   - year: 2026
     label: "官方"
+    # 生肖年：春节落进公历哪一年就算那一年的生肖。2026=丙午马、2027=丁未羊，与参考站一致。
+    zodiac:
+      ganzhi: "丙午"
+      animal: "马"
+      element: "火"
     official: true
     holidays:
       - id: yuandan
@@ -1669,6 +1699,11 @@ years:
       "2026-12-22": "冬月十四"
   - year: 2027
     label: "预计"
+    # 生肖年：春节落进公历哪一年就算那一年的生肖。2026=丙午马、2027=丁未羊，与参考站一致。
+    zodiac:
+      ganzhi: "丁未"
+      animal: "羊"
+      element: "火"
     official: false
     holidays:
       - id: yuandan
@@ -1959,6 +1994,11 @@ years:
       "2027-12-22": "冬月廿五"
   - year: 2028
     label: "预计"
+    # 生肖年：春节落进公历哪一年就算那一年的生肖。2026=丙午马、2027=丁未羊，与参考站一致。
+    zodiac:
+      ganzhi: "戊申"
+      animal: "猴"
+      element: "土"
     official: false
     holidays:
       - id: yuandan
@@ -2251,6 +2291,11 @@ years:
       "2028-12-21": "冬月初六"
   - year: 2029
     label: "预计"
+    # 生肖年：春节落进公历哪一年就算那一年的生肖。2026=丙午马、2027=丁未羊，与参考站一致。
+    zodiac:
+      ganzhi: "己酉"
+      animal: "鸡"
+      element: "土"
     official: false
     holidays:
       - id: yuandan
@@ -2541,6 +2586,11 @@ years:
       "2029-12-21": "冬月十七"
   - year: 2030
     label: "预计"
+    # 生肖年：春节落进公历哪一年就算那一年的生肖。2026=丙午马、2027=丁未羊，与参考站一致。
+    zodiac:
+      ganzhi: "庚戌"
+      animal: "狗"
+      element: "金"
     official: false
     holidays:
       - id: yuandan
@@ -2829,6 +2879,11 @@ years:
       "2030-12-22": "冬月廿八"
   - year: 2031
     label: "预计"
+    # 生肖年：春节落进公历哪一年就算那一年的生肖。2026=丙午马、2027=丁未羊，与参考站一致。
+    zodiac:
+      ganzhi: "辛亥"
+      animal: "猪"
+      element: "金"
     official: false
     holidays:
       - id: yuandan
@@ -3118,6 +3173,11 @@ years:
       "2031-12-22": "冬月初九"
   - year: 2032
     label: "预计"
+    # 生肖年：春节落进公历哪一年就算那一年的生肖。2026=丙午马、2027=丁未羊，与参考站一致。
+    zodiac:
+      ganzhi: "壬子"
+      animal: "鼠"
+      element: "水"
     official: false
     holidays:
       - id: yuandan
@@ -3412,6 +3472,11 @@ years:
       "2032-12-21": "冬月十九"
   - year: 2033
     label: "预计"
+    # 生肖年：春节落进公历哪一年就算那一年的生肖。2026=丙午马、2027=丁未羊，与参考站一致。
+    zodiac:
+      ganzhi: "癸丑"
+      animal: "牛"
+      element: "水"
     official: false
     holidays:
       - id: yuandan
@@ -3699,6 +3764,11 @@ years:
       "2033-12-21": "冬月三十"
   - year: 2034
     label: "预计"
+    # 生肖年：春节落进公历哪一年就算那一年的生肖。2026=丙午马、2027=丁未羊，与参考站一致。
+    zodiac:
+      ganzhi: "甲寅"
+      animal: "虎"
+      element: "木"
     official: false
     holidays:
       - id: yuandan
@@ -3988,6 +4058,11 @@ years:
       "2034-12-22": "冬月十二"
   - year: 2035
     label: "预计"
+    # 生肖年：春节落进公历哪一年就算那一年的生肖。2026=丙午马、2027=丁未羊，与参考站一致。
+    zodiac:
+      ganzhi: "乙卯"
+      animal: "兔"
+      element: "木"
     official: false
     holidays:
       - id: yuandan
@@ -4280,6 +4355,11 @@ years:
       "2035-12-22": "冬月廿三"
   - year: 2036
     label: "预计"
+    # 生肖年：春节落进公历哪一年就算那一年的生肖。2026=丙午马、2027=丁未羊，与参考站一致。
+    zodiac:
+      ganzhi: "丙辰"
+      animal: "龙"
+      element: "木"
     official: false
     holidays:
       - id: yuandan

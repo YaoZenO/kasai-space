@@ -12,16 +12,21 @@ page.hide_banner = true
 var raw = (site.data && site.data.holidays) || {}
 var cal = holidayCalendar(raw, page.year)
 var tips = cal ? holidayTips(cal) : {}
-var isDefault = page.default ? true : false
 %>
 
 <div class="paper-page cal-page">
   <div class="home-wrap">
     <header class="page-head">
+      <%# 面包屑（参考站同款：中国节假日 / 2027），默认页的「中国节假日」可点回年份总览 %>
+      <% if (cal) { %>
+      <nav class="cal-crumb" aria-label="面包屑">
+        <a href="<%= url_for('/holidays/') %>">中国节假日</a><span aria-hidden="true">/</span><span class="cal-crumb-now"><%= cal.year %></span>
+      </nav>
+      <% } %>
       <div class="cal-head-row">
         <div>
           <p class="page-head-kicker">CALENDAR</p>
-          <h1 class="page-head-title"><%= page.title %></h1>
+          <h1 class="page-head-title"><%= cal ? cal.year + ' 年中国节假日' : page.title %></h1>
         </div>
         <% if (cal && cal.years.length > 1) { %>
         <nav class="cal-years" aria-label="按年份查看">
@@ -32,7 +37,7 @@ var isDefault = page.default ? true : false
               <% if (yv === cal.current) { %>
               <span class="cal-year-current" aria-current="page"><%= yv %></span>
               <% } else { %>
-              <a href="<%= url_for(isDefault && yi === 0 ? '/' : '/holidays/' + yv + '/') %>"><%= yv %></a>
+              <a href="<%= url_for('/holidays/' + yv + '/') %>"><%= yv %></a>
               <% } %>
             </li>
             <% } %>
@@ -41,9 +46,12 @@ var isDefault = page.default ? true : false
         <% } %>
       </div>
       <% if (cal) { %>
+      <%# 引导段：节假日数、两个长假、春节当天与星期、生肖年（参考站同款） %>
+      <p class="cal-lede"><%- cal.lede %></p>
       <p class="archive-total">
         <% if (cal.updated) { %>更新于 <%= fmtItemDate(cal.updated) %> · <% } %><%= cal.label %>安排 ·
-        <%= cal.stats.holidayCount %> 个法定节假日 · 合计 <%= cal.stats.holidayDays %> 天 · 法定假日 <%= cal.stats.statutoryDays %> 天
+        <%= cal.stats.holidayCount %> 个法定节假日 · 合计 <%= cal.stats.holidayDays %> 天 · 法定假日 <%= cal.stats.statutoryDays %> 天 ·
+        其他节日 <%= cal.stats.festivalCount %> 个 · 节气 <%= cal.stats.termCount %> 个
       </p>
       <% } %>
     </header>
@@ -72,7 +80,7 @@ var isDefault = page.default ? true : false
             </thead>
             <tbody>
               <% for (var i = 0; i < cal.holidays.length; i += 1) { var h = cal.holidays[i] %>
-              <tr id="<%= h.anchor %>">
+              <tr id="<%= h.anchor %>" data-h="<%= h.id %>">
                 <th scope="row">
                   <span class="cal-name"><%= h.name %></span>
                   <span class="cal-pinyin"><%= h.pinyin %></span>
@@ -130,7 +138,7 @@ var isDefault = page.default ? true : false
               <div class="cal-cells">
                 <% for (var ci = 0; ci < mo.cells.length; ci += 1) { var c = mo.cells[ci] %>
                 <span class="cal-cell is-<%= c.state %><%= c.dot ? ' has-dot' : '' %>"
-                      data-date="<%= c.key %>" data-w="<%= c.w %>"
+                      data-date="<%= c.key %>" data-w="<%= c.w %>" data-h="<%= c.hid %>"
                       aria-hidden="true"></span>
                 <% } %>
               </div>
@@ -147,14 +155,6 @@ var isDefault = page.default ? true : false
           <li><span class="cal-swatch is-makeup" aria-hidden="true"></span>调休上班</li>
           <% } %>
         </ul>
-
-        <p class="cal-stats-line">
-          <span><%= cal.stats.holidayCount %> 个节日</span><i>·</i>
-          <span>合计 <%= cal.stats.holidayDays %> 天</span><i>·</i>
-          <span>法定 <%= cal.stats.statutoryDays %> 天</span><i>·</i>
-          <span>其他节日 <%= cal.stats.festivalCount %> 个</span><i>·</i>
-          <span>节气 <%= cal.stats.termCount %> 个</span>
-        </p>
 
         <%# 页尾这一组小字（说明 / 调休释义 / 来源）整体贴在栏底，与左表底边齐平；
             来源与调休释义只在官方年份出现（预计年份既没有公布的调休日，也没有通知可引）。 %>

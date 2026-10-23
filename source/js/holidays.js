@@ -1,13 +1,16 @@
-/* 节假日页的年历常驻详情卡。
+/* 节假日页的年历常驻详情卡 + 一览聚焦高亮。
  *
- * 与参考站对齐的交互（主人 2026-10-22 明确要求）：
- *   1. 常驻 —— 鼠标移开格子不消失，用户可以慢慢读、去点卡片里的链接；
- *      只有点右上角的 ×、按 Esc、或点到页面别处才收起。
- *   2. 位置固定在格子左侧（格子在最右列时，卡片盖在表格上方），
- *      左侧放不下就翻到右侧，都放不下才回落到格子上方；
- *      纵向以格子为中心并钳在视口内。
- *   3. 内容居中排布，与参考站的 .hc-tip 一致。
- *   4. 纯增强：脚本不加载时，左表与下方节日列表仍完整可读。
+ * 交互照参考站（studycli.org 的 holiday-calendar.js）实现，两处按主人此前的明确要求保留：
+ *   1. 只有**有内容的格子**才弹卡——法定节假日、其他节日、节气。
+ *      普通工作日和周末不出卡（周末除了「周末」两个字没别的内容，弹框只是噪音）。
+ *   2. 常驻 —— 鼠标从假期格移到旁边的普通格时，卡片**保持原样**，不换成那一格的内容，
+ *      也不会消失；只有点 ×、按 Esc、点到页面别处才收起。
+ *      （这是 2026-10-22 主人「移开不消失，我可以慢慢读」的要求；参考站是 280ms 后收起，
+ *       那条路会让「想细看的内容」自己跑掉，所以没照搬。）
+ *
+ * 一览聚焦（照参考站 .hc-gl.is-hl + i.hl）：
+ *   悬停左表某一行，或悬停一览里某个假期格 → 一览中该假期的格子保持不透明，其余降到
+ *   0.28，同时左表对应行高亮。看一眼「国庆放的是哪几天」不用去数格子。
  *
  * 内容一律 textContent 写入，不拼 innerHTML——「数据 → HTML 字符串」这条路一旦打开，
  * 以后加字段就会变成注入口子。
@@ -163,36 +166,99 @@
     panel.style.top = Math.round(top) + 'px';
   }
 
+  // ---- 一览聚焦（参考站 light()）----
+  function markedCells() {
+    return Array.prototype.slice.call(grid.querySelectorAll('.cal-cell[data-h]'));
+  }
+  var cells = markedCells();
+
+  function light(key, row) {
+    var any = false;
+    cells.forEach(function (c) {
+      var on = Boolean(key) && c.getAttribute('data-h') === key;
+      c.classList.toggle('is-hl', on);
+      any = any || on;
+    });
+    grid.classList.toggle('is-hl', any);
+    Array.prototype.forEach.call(document.querySelectorAll('.cal-table tr.is-hl'), function (r) {
+      r.classList.remove('is-hl');
+    });
+    if (any && row) row.classList.add('is-hl');
+  }
+
+  function clearLight() {
+    cells.forEach(function (c) { c.classList.remove('is-hl'); });
+    grid.classList.remove('is-hl');
+    Array.prototype.forEach.call(document.querySelectorAll('.cal-table tr.is-hl'), function (r) {
+      r.classList.remove('is-hl');
+    });
+  }
+
+  // ---- 开卡 / 关卡 ----
+  var current = null;
+
+  function rowOf(key) {
+    return key ? document.querySelector('.cal-table tr[data-h="' + key + '"]') : null;
+  }
+
   function open(cell) {
     fill(cell);
     panel.hidden = false;
     panel.setAttribute('data-date', cell.getAttribute('data-date'));
+    if (current) current.classList.remove('is-tip');
+    current = cell;
+    cell.classList.add('is-tip');
+    var key = cell.getAttribute('data-h') || '';
+    if (key) light(key, rowOf(key));
     place(cell);
   }
 
   function closePanel() {
     panel.hidden = true;
+    if (current) current.classList.remove('is-tip');
+    current = null;
+    clearLight();
+  }
+
+  // 只有有内容的格子才弹卡；普通格一律不理（卡片保持原样，不换内容也不消失）
+  function openable(cell) {
+    return Boolean(cell && map[cell.getAttribute('data-date')]);
   }
 
   function cellOf(node) {
     return node && node.closest ? node.closest('.cal-cell') : null;
   }
 
-  // 悬停即开、移开不走（常驻）
-  grid.addEventListener('mouseover', function (e) {
+  grid.addEventListener('pointerover', function (e) {
+    if (e.pointerType && e.pointerType !== 'mouse') return;
     var cell = cellOf(e.target);
-    if (cell) open(cell);
+    if (openable(cell)) open(cell);
   });
 
-  // 触屏 / 鼠标点击：同一格再点一次收起
+  // 触屏：格子太小，点到空格时往左右找一格有内容的（参考站同款做法）
   grid.addEventListener('click', function (e) {
     var cell = cellOf(e.target);
-    if (!cell) return;
+    if (!openable(cell)) {
+      if (cell) {
+        var near = cell.previousElementSibling || cell.nextElementSibling;
+        cell = openable(near) ? near : null;
+      }
+      if (!cell) return;
+    }
     if (!panel.hidden && panel.getAttribute('data-date') === cell.getAttribute('data-date')) {
       closePanel();
       return;
     }
     open(cell);
+  });
+
+  // 左表行悬停 / 键盘聚焦：只点亮一览与行，不弹卡（参考站同款）
+  Array.prototype.forEach.call(document.querySelectorAll('.cal-table tbody tr[data-h]'), function (tr) {
+    var key = tr.getAttribute('data-h');
+    tr.addEventListener('mouseenter', function () { light(key, tr); });
+    tr.addEventListener('mouseleave', clearLight);
+    tr.addEventListener('focusin', function () { light(key, tr); });
+    tr.addEventListener('focusout', clearLight);
   });
 
   close.addEventListener('click', closePanel);
@@ -201,6 +267,7 @@
     if (panel.hidden) return;
     if (cellOf(e.target)) return;
     if (e.target.closest && e.target.closest('.cal-panel')) return;
+    if (e.target.closest && e.target.closest('.cal-table')) return;
     closePanel();
   });
 
