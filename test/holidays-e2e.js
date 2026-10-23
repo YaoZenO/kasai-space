@@ -24,6 +24,9 @@ const { buildCalendar, tipPayload, toKey, weekdayOf, spanDays } = require('../th
 const ROOT = path.join(__dirname, '..');
 const PUBLIC = path.join(ROOT, 'public');
 const PAGE = path.join(PUBLIC, 'holidays', 'index.html');
+// 默认页（/holidays/）现在固定显示「当前年」2026，所以凡是按 2027 写死的断言都改看
+// 2027 自己的年份页，不再依赖默认页翻到哪一年。
+const PAGE27 = path.join(PUBLIC, 'holidays', '2027', 'index.html');
 
 let pass = 0;
 function ok(label, fn) {
@@ -279,7 +282,27 @@ if (!fs.existsSync(PUBLIC)) {
     assert.ok(html.indexOf('这一页怎么维护') === -1, '维护说明漏到了发布页');
     assert.ok(html.indexOf('悬停查看') === -1, '「悬停查看当天」这类操作提示不该出现在页面里');
     assert.ok(html.indexOf('>备注<') !== -1, '节日列表缺「备注」列表头');
-    assert.ok(html.indexOf('以上均为预计日期') !== -1, '预计说明没放在日历栏下方');
+    // 默认页是 2026（官方年），预计那句说明得去 2027 页看
+    const html27 = fs.readFileSync(PAGE27, 'utf8');
+    assert.ok(html27.indexOf('以上均为预计日期') !== -1, '预计说明没放在年一览下方');
+  });
+
+  // 默认页固定显示当前年（2026）：标题带年份、面包屑带年份、年份导航里 2021 指向它自己的页
+  ok('默认页显示当前年 2026，而不是随手取的第一年', () => {
+    const html = fs.readFileSync(PAGE, 'utf8');
+    assert.ok(html.indexOf('2026 年中国节假日') !== -1, '默认页标题没带 2026');
+    assert.ok(html.indexOf('中国节假日</a><span aria-hidden="true">/</span><span class="cal-crumb-now">2026</span>') !== -1,
+      '默认页缺面包屑「中国节假日 / 2026」');
+    assert.ok(html.indexOf('href="/holidays/2021/"') !== -1,
+      '年份导航里 2021 没指向 /holidays/2021/——以前默认页会把第一年链回首页');
+    assert.ok(html.indexOf('class="cal-year-current" aria-current="page">2026</span>') !== -1,
+      '默认页没把 2026 标成当前年');
+    // 引导段：节假日数、两个长假、春节当天与星期、生肖年
+    assert.ok(html.indexOf('中国共有 7 个法定节假日') !== -1, '缺引导段');
+    assert.ok(html.indexOf('其中两个长假是 2 月 15 日至 23 日的春节假期') !== -1, '引导段没说春节长假');
+    assert.ok(html.indexOf('春节在 2 月 17 日（星期二）') !== -1, '引导段没说春节当天');
+    assert.ok(html.indexOf('火马年 丙午马年') !== -1, '引导段没说生肖年');
+    assert.ok(html.indexOf('以下为官方公布的日期') !== -1, '官方年份该说「以下为官方公布的日期」');
   });
 
   ok('页面存在且不是 0 字节（E-029 / E-038）', () => {
@@ -290,13 +313,32 @@ if (!fs.existsSync(PUBLIC)) {
 
   const html = fs.existsSync(PAGE) ? fs.readFileSync(PAGE, 'utf8') : '';
 
-  ok('365 个格子 / 28 个放假格 / 12 个月行', () => {
-    const cells = (html.match(/class="cal-cell /g) || []).length;
-    const holidayCells = (html.match(/cal-cell is-holiday/g) || []).length;
-    const rows = (html.match(/class="cal-row"/g) || []).length;
+  ok('365 个格子 / 28 个放假格 / 12 个月行（2027 页）', () => {
+    const h = fs.readFileSync(PAGE27, 'utf8');
+    const cells = (h.match(/class="cal-cell /g) || []).length;
+    const holidayCells = (h.match(/cal-cell is-holiday/g) || []).length;
+    const rows = (h.match(/class="cal-row"/g) || []).length;
     assert.strictEqual(cells, 365, '格子数不是 365（实际 ' + cells + '）');
     assert.strictEqual(holidayCells, 28, '放假格数不是 28（实际 ' + holidayCells + '）');
     assert.strictEqual(rows, 12, '月份行数不是 12（实际 ' + rows + '）');
+  });
+
+  // 统计只在页头那一行：一览下面曾经也有一行，两个数字撞在一起（主人 2026-10-23 指出）
+  ok('统计不重复：一览下面不再有第二份统计', () => {
+    const h = fs.readFileSync(PAGE27, 'utf8');
+    assert.ok(h.indexOf('cal-stats-line') === -1, '年一览下面又出现了一份统计');
+    assert.ok(h.indexOf('合计 28 天') !== -1, '页头缺合计说明');
+  });
+
+  // 聚焦效果的地基：格子与表格行都要带 data-h（哪个法定节假日）
+  ok('格子与表格行都带 data-h，聚焦高亮有东西可分组', () => {
+    const h = fs.readFileSync(PAGE27, 'utf8');
+    assert.ok(/class="cal-cell[^"]*"[^>]*data-h="chunjie"/.test(h), '春节的格子没带 data-h');
+    assert.ok(/<tr id="holiday-guoqing" data-h="guoqing">/.test(h), '表格行没带 data-h');
+    const css = fs.readFileSync(path.join(ROOT, 'source/css/site.css'), 'utf8');
+    assert.ok(css.indexOf('.cal-grid.is-hl .cal-cell { opacity: .28; }') !== -1, '缺「其余格子变淡」规则');
+    assert.ok(css.indexOf('.cal-table tbody tr.is-hl { background: #fbf3f1; }') !== -1, '缺「左表行高亮」规则');
+    assert.ok(css.indexOf('border-radius: 1.5px;') !== -1, '格子没有圆角（参考站是 1.5px）');
   });
 
   ok('日期渲染为纯日期，没有机器串（E-028）', () => {
@@ -315,16 +357,21 @@ if (!fs.existsSync(PUBLIC)) {
     assert.deepStrictEqual(bad, [], bad.join(' / '));
   });
 
-  ok('嵌在页面里的悬停数据是合法 JSON，且含春节', () => {
-    const m = html.match(/id="cal-day-data">([\s\S]*?)<\/script>/);
+  ok('嵌在页面里的悬停数据是合法 JSON，且只包含有内容的日子', () => {
+    const m = fs.readFileSync(PAGE27, 'utf8').match(/id="cal-day-data">([\s\S]*?)<\/script>/);
     assert.ok(m, '页面里没有 cal-day-data');
     const data = JSON.parse(m[1]);
-    assert.ok(Object.keys(data).length > 120, '悬停数据条目过少：' + Object.keys(data).length);
+    const keys = Object.keys(data);
+    // 周末不再单独出卡（除了「周末」两个字没别的内容），条目比含周末时少一大截
+    assert.ok(keys.length > 60, '悬停数据条目过少：' + keys.length);
     assert.strictEqual(data['2027-02-05'].name, '春节');
+    assert.ok(!data['2027-01-07'], '普通工作日不该进悬停数据');
+    assert.ok(!data['2027-01-09'], '普通周末不该单独进悬停数据（没有节日/节气的话）');
+    assert.ok(data['2027-02-20'], '元宵节该进悬停数据');
   });
 
   ok('详情卡的数据里带着图片署名与授权（产物层，授权条件）', () => {
-    const m = html.match(/id="cal-day-data">([\s\S]*?)<\/script>/);
+    const m = fs.readFileSync(PAGE27, 'utf8').match(/id="cal-day-data">([\s\S]*?)<\/script>/);
     assert.ok(m, '页面里没有 cal-day-data');
     const data = JSON.parse(m[1]);
     assert.strictEqual(data['2027-02-06'].img, '/img/holidays/chunjie.jpg', '春节卡片没带配图');
