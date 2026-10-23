@@ -613,3 +613,49 @@ P0-3 测试固化 ──┬─→ P0-1 身份域统一 ──→ P0-2 错误契�
 | 1 | 「来源」那行被视口截断 | 右栏比左表多一行图例说明，页头再松一档就超了。节假日页的 `.page-head` 间距单独收一档（不动其它纸面页）、`.cal-page .col-head` 同样单独收、引导段行高 1.65→1.6、图例/说明/来源三处间距各收一档。右栏底 896→857，1440×860 下左右两栏都完整 | CDP 实测 `右栏底 <= 视口高` |
 | 2 | 刻度尺 10/15/20/25/30 竖着排 | `.cal-tick` 加 `white-space: nowrap; text-align: left`。一格只有 1/31 宽（约 13px），不设 nowrap 两位数会被折成「1」在上「0」在下；允许溢出到右邻格、按左边缘读数，与参考站 `.hc-gl__scale span` 一致 | CSS 断言锁 nowrap + text-align |
 | 3 | 普通日期悬停没有小框框 | 参考站是**每个格子都有原生 `title`**（普通格 `title="1月9日，周六"`，假期格 `title="1 月 1 日，星期五。预计放假：元旦"`），自定义详情卡只给有内容的格子。照此给 365 个格子都加了 title，文案在 helper 里一次算好 | 断言：365 个格子全带「几月几日，星期X」title，春节/元旦格还带节假日名 |
+
+---
+
+## 附：2026-10-23 后台操作卡顿与状态逻辑批次（GitHub Issue #2 / #3）
+
+来源：主人 2026-10-22 在 GitHub 提的两个 Issue——#2「后台管理页运行缓慢」（发表/编辑/删除后
+卡几秒）、#3「后台管理页操作逻辑有问题，样式较丑」。本批次只做后台（`source/admin/` 前端 +
+`test/admin-smoke.js`），未动 API 服务端与任何数据文件。
+
+### 根因（三层，E-056）
+
+1. 每次 mutation 后都全量 `listAll`：重读每一篇草稿与私密文章（各一次 GitHub 往返）。
+   启动路径早有 `?summary=1` 轻量模式，mutation 后的刷新从未采用。
+2. 刷新在关键路径上：`await reloadList()` → `switchTab()`，toast 之后视图切换还要干等。
+3. 操作期间零反馈：`guard()` 只在连点第二下才弹提示，首次点击后的 1~3 秒界面无变化。
+
+### 本批已完成
+
+| # | 事项 | 做法 | 锁死方式 |
+|---|---|---|---|
+| 1 | 操作后卡顿（Issue #2） | `markListStale()` 列表脏标记：编辑器内操作只打标记，返回列表时按需刷新（文章 tab 全量顺带补草稿标题，其余 tab `summary` 轻量）；列表内操作立即轻量刷新 | 断言 E-056：五个 mutation 文件不得有无参 `reloadList()`，轻量调用必须显式 `summary: true` |
+| 2 | 操作期间无反馈（Issue #2） | `admin-core.js` 新增 `busyStart/busyEnd` 忙态条，`guard()` 自动套用；`index.html` 加 `#busy-bar`，CSS 滑动条 + `prefers-reduced-motion` 降级 | 断言：`#busy-bar` 存在、`guard` 驱动 busyStart/End、CSS 含 `@keyframes busy-slide` |
+| 3 | 视图切换等网络（E-058） | 发布/删除改为 `clearDirty → markListStale → if (编辑器仍可见) switchTab`；用户已离开编辑器时不拽回 | 断言 E-058：两函数内必须 `markListStale()` 且 `switchTab('posts')` 带可见性守卫 |
+| 4 | 草稿与正式文重复（E-057） | 新建文章「保存草稿」后补 `ed.mode = 'draft'` + 按钮文案同步（抽 `applyModeUI` 复用）；修复前再点发布走 `publish-new`，`_drafts/` 草稿仍在，列表出现两条 | 断言 E-057：`saveCurrentEditing` 必须含 `ed.mode = 'draft'` 与 `applyModeUI('draft')` |
+| 5 | 卡片操作可交错提交 | 删文章/删条目/转私密/发布私密/恢复统一套 `guard()`；修复前连删两张卡带同一个 `expectedHeadSha`，第二张必 409 | 断言：`admin-list.js` 受 guard 保护的卡片操作 ≥5 处 |
+| 6 | 部署 pill 状态伪装（Issue #3） | 无 `commitSha` 分支 `dataset.state` 从 `committed` 改 `saved`（CSS 的 saved 规则一直存在却无人使用）；E-036 修了文案，状态可视化仍在伪装 | 断言：无 sha 分支必须 `dataset.state = 'saved'` |
+| 7 | 样式细节（Issue #3） | 键盘焦点环（此前几乎所有交互元素无 focus 样式）、列表卡片 hover 反馈、toast 手机端抬升避让 FAB（原 5.2rem 与 FAB 顶 7.8rem 重叠） | 无机器断言（视觉层），改动均在 `admin.css` 可 diff |
+
+### 验证
+
+- `npm run test:admin`：100 项断言通过（原 94 + 本批 6）。
+- `npm test` 全量八套：本批交付时全绿。此后复跑时 `test:dates` 报过一次
+  「缺页面 index.html」——并行会话正在同一工作区重建 `public/`（`hexo clean` 后
+  生成未完成）的并发时序，与本次改动无关（本批只碰 `source/admin/` 与
+  `test/admin-smoke.js`，不参与构建产物）。
+- 六条新断言全部做过变异自检（构造失败样本确认会红，6/6，见 ERRORS.md E-056~E-058 各条）。
+- `?v=` 已按 E-018 bump 至 `20261023`（index.html + admin.js 全部 import，断言锁一致）。
+- 上线后主人侧需强制刷新（Ctrl+F5）一次方可看到后台改动（E-018 缓存破坏约定）。
+
+### 未做 / 后续
+
+- Issue #3 的「样式较丑」是主观项，本批只修了可客观判定的反馈与状态缺陷（忙态条、焦点环、
+  hover、toast 避让、pill 态）；整体视觉重构需主人给出具体不满点再排期。
+- 并行会话当时正在同一仓库作业（zodiac / 字体性能审计），本批只提交 `source/admin/` 与
+  `test/admin-smoke.js`，未并提交其在途改动；ERRORS.md 的记录与其在途条目同处一个文件，
+  提交范围经主人确认后处理。
