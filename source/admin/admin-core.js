@@ -19,6 +19,7 @@ export const S = {
   lastDeployUrl: '',
   busy: false,
   dirty: false, // 任一编辑器有未保存修改（切 tab / 关页面前拦截用）
+  listStale: false, // 有 mutation 尚未反映到列表：下次列表可见时再刷新（见 markListStale）
 };
 
 // 跨模块入口注册表：由各功能模块 init() 填充，core 与 list 通过它调用
@@ -109,6 +110,25 @@ export async function api(path, opts) {
   return payload;
 }
 
+// ---------- 全局忙态指示 ----------
+// 保存 / 发布 / 删除都要走一次服务端往返（GitHub 提交 + 列表刷新），
+// 期间界面必须给出可见反馈：此前只有连点第二下才弹「上一步操作还在进行中」，
+// 首次点击后的 1~3 秒毫无提示，与卡死无异（Issue #2「操作完卡几秒」的感知主因）。
+// guard() 自动套用；未走 guard 的长操作（如多图上传循环）手动调用成对使用。
+let busyDepth = 0;
+export function busyStart() {
+  busyDepth += 1;
+  const b = $('busy-bar');
+  if (b) b.hidden = false;
+}
+export function busyEnd() {
+  busyDepth = Math.max(0, busyDepth - 1);
+  if (busyDepth === 0) {
+    const b = $('busy-bar');
+    if (b) b.hidden = true;
+  }
+}
+
 // 并发保护：同一时间只允许一个保存类操作，避免连点产生重复提交
 export function guard(fn) {
   return async (...args) => {
@@ -117,12 +137,14 @@ export function guard(fn) {
       return;
     }
     S.busy = true;
+    busyStart();
     try {
       await fn(...args);
     } catch (e) {
       if (!(e instanceof ApiError && (e.status === 401 || e.status === 403))) handleOpError(e);
     } finally {
       S.busy = false;
+      busyEnd();
     }
   };
 }
@@ -160,6 +182,7 @@ export async function reloadList(opts) {
   const summary = !!(opts && opts.summary);
   S.data = await api('/api/content-list' + (summary ? '?summary=1' : ''));
   S.lastListSha = S.data.headSha;
+  S.listStale = false; // 刷新完成即不再过期；失败（抛错）时保留脏标记，下次切 tab 重试
   if (hooks.renderList) hooks.renderList();
 }
 
@@ -171,6 +194,12 @@ export async function ensureDraftTitles() {
   if (drafts.every((d) => d.title) && priv.every((p) => p.title)) return;
   await reloadList();
 }
+
+// 列表脏标记：mutation 成功后不再立即刷新列表。全量 listAll 会重读每一篇草稿与
+// 私密文章（N 次 GitHub 往返），此前每次发表/编辑/删除都全额刷新，正是 Issue #2
+// 「操作进行之后卡上几秒」的主因。改为打脏标记，下次列表可见时按需刷新：
+// 文章 tab 走全量（顺带补草稿标题），其余 tab 走轻量 summary 模式。
+export function markListStale() { S.listStale = true; }
 
 // ---------- 视图切换 ----------
 export function showLogin(errText) {
@@ -222,6 +251,13 @@ function doSwitchTab(tab) {
   $('view-post-editor').hidden = true;
   $('view-data-editor').hidden = true;
   $('view-site-editor').hidden = true;
+  if (S.listStale) {
+    // 有 mutation 待刷新：文章 tab 用全量（同时补齐草稿标题），其余 tab 轻量。
+    // 刷新完成由 reloadList 内部触发 renderList；期间旧列表保持可见，不闪空。
+    S.listStale = false;
+    reloadList(tab === 'posts' ? null : { summary: true }).catch(handleOpError);
+    return;
+  }
   if (hooks.renderList) hooks.renderList();
   // 启动若走了 summary 模式，这里按需补齐草稿标题
   if (tab === 'posts') ensureDraftTitles();

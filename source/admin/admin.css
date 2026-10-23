@@ -17,6 +17,26 @@
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 /* 保障 hidden 属性语义：防止类选择器 display 覆盖 UA 默认规则（弹窗/视图切换依赖 hidden） */
 [hidden] { display: none !important; }
+
+/* ---------- 全局忙态进度条 ----------
+   保存/发布/删除期间顶部可见的滑动条（admin-core.js guard 驱动）。
+   此前操作期间界面零反馈，1~3 秒的服务端往返与卡死无异（Issue #2）。 */
+.busy-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 70;
+  height: 3px; overflow: hidden; pointer-events: none;
+}
+.busy-bar::after {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 40%;
+  background: var(--accent); border-radius: 0 2px 2px 0;
+  animation: busy-slide 1.1s ease-in-out infinite;
+}
+@keyframes busy-slide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .busy-bar::after { animation: none; width: 100%; opacity: .55; }
+}
 html, body { margin: 0; padding: 0; }
 body {
   background: var(--bg);
@@ -99,7 +119,10 @@ button { font: inherit; }
 .card {
   background: var(--card); border: 1px solid var(--line); border-radius: 12px;
   padding: .8rem .9rem; display: flex; align-items: center; gap: .7rem;
+  transition: border-color .15s;
 }
+/* 列表卡片 hover 反馈：此前卡片完全无状态变化，可点区域看不出来 */
+.card:hover { border-color: color-mix(in srgb, var(--accent) 35%, var(--line)); }
 .card-body { flex: 1; min-width: 0; }
 .card-title { font-weight: 600; font-size: .95rem; overflow-wrap: anywhere; }
 .card-sub { color: var(--muted); font-size: .78rem; overflow-wrap: anywhere; }
@@ -285,6 +308,13 @@ button { font: inherit; }
 .btn-block { width: 100%; }
 .btn-link { border: 0; background: none; color: var(--accent); cursor: pointer; padding: .2rem; font-size: .82rem; }
 
+/* 键盘焦点环：此前后台只有极少数元素带 focus 样式，键盘操作看不出焦点位置 */
+.btn:focus-visible, .btn-back:focus-visible, .tab:focus-visible, .module-chip:focus-visible,
+.fab:focus-visible, .fab-item:focus-visible, .topbar-action:focus-visible, .btn-link:focus-visible,
+.modal-close:focus-visible, .image-grid img:focus-visible, .picker-grid img:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
+
 /* 次级/幽灵按钮。2026-10-18 可发现性改造（此前 color: var(--muted) 在卡片底上约 3.0:1，
    且无边框无底色，删除这类破坏性操作几乎看不见——主人实测「后台找不到删除按钮」）。
    现在的分工：btn-quiet 只承载真正的低权重次级操作（行内移除、返回），
@@ -334,9 +364,14 @@ button { font: inherit; }
 /* Toast */
 .toast {
   position: fixed; left: 50%; transform: translateX(-50%);
-  bottom: calc(5.2rem + env(safe-area-inset-bottom)); z-index: 60;
+  /* 手机端抬到 FAB 之上：FAB 贴在 tabbar 上方（底 4.9rem + 高 46px ≈ 顶 7.8rem），
+     toast 原在 5.2rem 会与它重叠；≥900px 时 FAB 回右下角，5.2rem 不再冲突 */
+  bottom: calc(8.6rem + env(safe-area-inset-bottom)); z-index: 60;
   background: var(--ink); color: var(--bg); padding: .5rem 1rem; border-radius: 999px;
   font-size: .82rem; max-width: 86vw; text-align: center;
+}
+@media (min-width: 900px) {
+  .toast { bottom: calc(5.2rem + env(safe-area-inset-bottom)); }
 }
 
 /* 预览简易排版 */

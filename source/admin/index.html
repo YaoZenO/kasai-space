@@ -9,9 +9,13 @@
 <!-- ASSET_V：后台静态资源缓存破坏版本号。改动 source/admin/ 下任何前端文件后，
      必须同步 bump 此处与 admin.js 动态 import 的 ?v=（由 test/admin-smoke.js 断言两处一致），
      否则浏览器会继续用本地缓存的旧副本，表现为「改了线上看不到」（2026-10-15 实际发生过）。 -->
-<link rel="stylesheet" href="/admin/admin.css?v=20261024">
+<link rel="stylesheet" href="/admin/admin.css?v=20261023">
 </head>
 <body>
+
+<!-- 全局忙态进度条：保存/发布/删除等操作期间可见（admin-core.js 的 guard 驱动）。
+     没有它，1~3 秒的服务端往返界面零反馈，主人反馈「操作完卡几秒像卡死」（Issue #2）。 -->
+<div id="busy-bar" class="busy-bar" hidden></div>
 
 <!-- 登录视图 -->
 <section id="view-login" class="view" hidden>
@@ -286,6 +290,6 @@
 <div id="toast" class="toast" hidden></div>
 <!-- ES module：admin-core / admin-list 静态加载；编辑器等重模块在登录成功后动态 import，
      登录页不会下载这部分代码（P2-2） -->
-<script type="module" src="/admin/admin.js?v=20261024"></script>
+<script type="module" src="/admin/admin.js?v=20261023"></script>
 </body>
 </html>

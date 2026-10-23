@@ -3,7 +3,7 @@
  */
 'use strict';
 
-import { S, $, api, toast, hooks } from './admin-core.js?v=20261024';
+import { S, $, api, toast, hooks } from './admin-core.js?v=20261023';
 
 // 轮询策略：指数退避 8s → 16s → 32s（封顶），总上限 3 分钟。
 // 固定 8s × 45 次既拖慢又浪费：Vercel 一次构建通常 1-2 分钟，
@@ -15,6 +15,9 @@ const POLL_TIMEOUT_MS = 180000;
 // commitSha 为空表示「本次保存没有可跟踪的 commit」（data/site 类保存不走 publish 链路，
 // 或后端未回传）。此时不能只点亮「已提交」就收工——pill 会永久停在这个状态，
 // 主人无法判断内容到底有没有上线。改为直接显示「已保存，待部署」，并给出自查入口。
+// 2026-10-23：状态值同步改回 saved——此前两个分支都写 dataset.state='committed'，
+// 无跟踪的分支也套用「已提交」的蓝色样式，状态可视化仍在伪装（E-036 精神）。
+// CSS 里 .pill[data-state="saved"] 一直存在，只是从未被使用。
 export function setDeployCommitted(commitSha) {
   stopPolling();
   const pill = $('deploy-pill');
@@ -25,7 +28,7 @@ export function setDeployCommitted(commitSha) {
     startPolling(commitSha);
     return;
   }
-  pill.dataset.state = 'committed';
+  pill.dataset.state = 'saved';
   pill.textContent = '已保存，待部署（无构建跟踪）';
 }
 

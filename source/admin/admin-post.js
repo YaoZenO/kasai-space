@@ -5,8 +5,8 @@
  */
 'use strict';
 
-import { S, $, api, toast, confirmDialog, handleOpError, hooks, guard, reloadList, switchTab, markDirty, clearDirty } from './admin-core.js?v=20261024';
-import { mountComposer, bindPaste } from './admin-composer.js?v=20261024';
+import { S, $, api, toast, confirmDialog, handleOpError, hooks, guard, switchTab, markDirty, clearDirty, markListStale } from './admin-core.js?v=20261023';
+import { mountComposer, bindPaste } from './admin-composer.js?v=20261023';
 
 let composer = null;
 
@@ -21,6 +21,35 @@ function setEditorBusy(busy) {
     if (n) n.disabled = busy;
   });
   $('post-permalink').textContent = busy ? '正在加载文章…' : '';
+}
+
+// 各模式的按钮文案与显隐。openPostEditor 填充表单后套用；保存草稿后编辑器
+// 从「新建」切到「草稿」态时也要重新套用（见 saveCurrentEditing）。
+function applyModeUI(mode) {
+  if (mode === 'new') {
+    $('btn-save-draft').textContent = '保存草稿';
+    $('btn-publish').textContent = '直接发布';
+    $('btn-save-draft').hidden = false;
+    $('btn-delete-post').hidden = true;
+  } else if (mode === 'draft') {
+    $('btn-save-draft').textContent = '保存草稿';
+    $('btn-publish').textContent = '发布草稿';
+    $('btn-save-draft').hidden = false;
+    $('btn-delete-post').hidden = false;
+    $('btn-delete-post').textContent = '删除草稿';
+  } else if (mode === 'private') {
+    // 私密文章：保存修改写回私密区（文件名与 date 锁定），发布走 publish-private
+    $('btn-save-draft').textContent = '保存修改';
+    $('btn-save-draft').hidden = false;
+    $('btn-publish').textContent = '发布到线上';
+    $('btn-delete-post').hidden = false;
+    $('btn-delete-post').textContent = '删除';
+  } else {
+    $('btn-save-draft').hidden = true;
+    $('btn-publish').textContent = '保存修改';
+    $('btn-delete-post').hidden = false;
+    $('btn-delete-post').textContent = '删除文章';
+  }
 }
 
 // 点击「编辑」到内容就绪之间有一段网络往返；先切视图并给出禁用态，
@@ -69,28 +98,13 @@ async function openPostEditor(path) {
       pl.textContent = '新文章';
     }
     if (mode === 'new') {
-      $('btn-save-draft').textContent = '保存草稿';
-      $('btn-publish').textContent = '直接发布';
-      $('btn-save-draft').hidden = false;
-      $('btn-delete-post').hidden = true;
+      applyModeUI('new');
     } else if (mode === 'draft') {
-      $('btn-save-draft').textContent = '保存草稿';
-      $('btn-publish').textContent = '发布草稿';
-      $('btn-save-draft').hidden = false;
-      $('btn-delete-post').hidden = false;
-      $('btn-delete-post').textContent = '删除草稿';
+      applyModeUI('draft');
     } else if (mode === 'private') {
-      // 私密文章：保存修改写回私密区（文件名与 date 锁定），发布走 publish-private
-      $('btn-save-draft').textContent = '保存修改';
-      $('btn-save-draft').hidden = false;
-      $('btn-publish').textContent = '发布到线上';
-      $('btn-delete-post').hidden = false;
-      $('btn-delete-post').textContent = '删除';
+      applyModeUI('private');
     } else {
-      $('btn-save-draft').hidden = true;
-      $('btn-publish').textContent = '保存修改';
-      $('btn-delete-post').hidden = false;
-      $('btn-delete-post').textContent = '删除文章';
+      applyModeUI('published');
     }
     // 表单全部填充完毕再清 dirty：程序化赋值不触发 input，不会被误标未保存
     clearDirty();
@@ -165,6 +179,14 @@ export async function saveCurrentEditing(opts) {
     ed.sha = r.sha;
     ed.slug = e.slug;
     ed.path = r.path;
+    // 新建态保存草稿后，编辑器必须切到草稿态：否则接着点「发布」仍按 mode==='new'
+    // 走 publish-new，在 _posts/ 建一份正式文，而 _drafts/ 里的草稿仍在——
+    // 同一篇文章两头存在，列表里出现两条（2026-10-23 修复，ERRORS.md E-057）。
+    // 按钮文案同步切换（「直接发布」→「发布草稿」）。
+    if (ed.mode === 'new') {
+      ed.mode = 'draft';
+      applyModeUI('draft');
+    }
     S.lastListSha = r.headSha;
     hooks.setDeployCommitted(r.commitSha);
     toast('草稿已保存');
@@ -190,9 +212,12 @@ export async function publishCurrentEditing() {
     S.lastListSha = r.headSha;
     hooks.setDeployCommitted(r.commitSha);
     toast(`已发布 ${r.permalink}`);
-    await reloadList();
     clearDirty();
-    switchTab('posts');
+    markListStale();
+    // 先回列表再刷新：视图切换是本地操作，不该等列表刷新的网络往返
+    // （Issue #2「操作完卡几秒」的感知主因）。刷新由 switchTab 内的脏标记触发；
+    // 用户若已在操作期间离开编辑器，不拽回。
+    if (!$('view-post-editor').hidden) switchTab('posts');
     return;
   }
   let slug = e.slug || slugifyClient(e.title) || 'post-' + Date.now();
@@ -215,9 +240,10 @@ export async function publishCurrentEditing() {
     hooks.setDeployCommitted(r.commitSha);
     toast(`已发布 ${r.permalink}`);
   }
-  await reloadList();
   clearDirty();
-  switchTab('posts');
+  markListStale();
+  // 先回列表再刷新（同上）：切换不等网络，用户已离开编辑器时不拽回。
+  if (!$('view-post-editor').hidden) switchTab('posts');
 }
 
 // 删除当前文章 / 草稿 → 移入回收站（可恢复）
@@ -245,8 +271,9 @@ async function deleteCurrentPost() {
     hooks.setDeployCommitted(r.commitSha);
     toast(`「${title}」已移入回收站，底部「回收站」标签页可恢复`);
     clearDirty();
-    await reloadList();
-    switchTab('posts');
+    markListStale();
+    // 先回列表再刷新（同发布）：视图切换不等网络往返，用户已离开则不拽回。
+    if (!$('view-post-editor').hidden) switchTab('posts');
   } catch (e) {
     btn.disabled = false;
     handleOpError(e);
@@ -291,7 +318,9 @@ export function init() {
 
   $('btn-save-draft').onclick = guard(async () => {
     await saveCurrentEditing();
-    await reloadList();
+    // 不在这里刷新列表：全量刷新要重读每一篇草稿与私密文章，是 Issue #2
+    // 「操作完卡几秒」的主因。打脏标记，返回列表时再按需刷新。
+    markListStale();
   });
   $('btn-publish').onclick = guard(publishCurrentEditing);
   $('btn-delete-post').onclick = guard(deleteCurrentPost);

@@ -3,7 +3,7 @@
  */
 'use strict';
 
-import { S, $, el, hooks, reloadList, pageHead, subHead, emptyState, api, toast, confirmDialog, handleOpError } from './admin-core.js?v=20261024';
+import { S, $, el, hooks, reloadList, pageHead, subHead, emptyState, api, toast, confirmDialog, handleOpError, guard, markListStale } from './admin-core.js?v=20261023';
 
 export function renderList() {
   const box = $('view-list');
@@ -108,7 +108,9 @@ function renderPostsList(box, d) {
 // 主人实测「后台找不到删除文章的地方」。破坏性操作必须与「编辑」视觉对等。
 function postDeleteButton(path, title, kind) {
   const del = el('button', 'btn btn-danger-quiet', '删除');
-  del.onclick = async () => {
+  // guard：串行化所有保存类操作。此前这些卡片按钮不受 S.busy 保护，
+  // 连续删两张卡会带着同一个 expectedHeadSha 发出，第二张必撞 409。
+  del.onclick = guard(async () => {
     const ok = await confirmDialog(`删除${kind}`, `确定删除「${title}」吗？文件会移入回收站，可恢复；正文引用的图片不会被删除。`, '删除');
     if (!ok) return;
     del.disabled = true;
@@ -116,12 +118,14 @@ function postDeleteButton(path, title, kind) {
       const r = await api('/api/content-delete', { method: 'POST', body: { path, title, expectedHeadSha: S.lastListSha } });
       S.lastListSha = r.headSha || S.lastListSha;
       toast('已移入回收站，可随时恢复');
-      await reloadList();
+      // 轻量刷新：列表只要清单与数据模块，草稿标题在文章 tab 按需补齐（Issue #2）
+      markListStale();
+      await reloadList({ summary: true });
     } catch (e) {
       del.disabled = false;
       handleOpError(e);
     }
-  };
+  });
   return del;
 }
 
@@ -129,7 +133,7 @@ function postDeleteButton(path, title, kind) {
 // 与删除同形制但用强调色：不删内容，只改变「谁能看到」。
 function postUnpublishButton(p) {
   const btn = el('button', 'btn btn-warn-quiet', '转私密');
-  btn.onclick = async () => {
+  btn.onclick = guard(async () => {
     const ok = await confirmDialog('转为私密', `「${p.name}」将从线上消失：访客打不开、搜索引擎与站内搜索都找不到、首页不再显示。正文原样移入私密区保留，随时可以点「发布」放回去，日期和网址不变。注意：正文里已上传的图片，其网址仍可匿名访问。`, '转私密');
     if (!ok) return;
     btn.disabled = true;
@@ -138,19 +142,20 @@ function postUnpublishButton(p) {
       S.lastListSha = r.headSha || S.lastListSha;
       hooks.setDeployCommitted(r.commitSha);
       toast('已转为私密，部署完成后线上不可见');
-      await reloadList();
+      markListStale();
+      await reloadList({ summary: true });
     } catch (e) {
       btn.disabled = false;
       handleOpError(e);
     }
-  };
+  });
   return btn;
 }
 
 // 私密文章发布回线上（卡片级按钮，unpublish 的逆操作）：date 原样保留，permalink 不变
 function privatePublishButton(p) {
   const btn = el('button', 'btn btn-warn-quiet', '发布');
-  btn.onclick = async () => {
+  btn.onclick = guard(async () => {
     const ok = await confirmDialog('发布到线上', `将「${p.name}」从私密区发布到线上，日期和网址按原文保留。发布后访客立即可见。`, '发布');
     if (!ok) return;
     btn.disabled = true;
@@ -160,12 +165,13 @@ function privatePublishButton(p) {
       S.lastListSha = r.headSha || S.lastListSha;
       hooks.setDeployCommitted(r.commitSha);
       toast(`已发布 ${r.permalink}`);
-      await reloadList();
+      markListStale();
+      await reloadList({ summary: true });
     } catch (e) {
       btn.disabled = false;
       handleOpError(e);
     }
-  };
+  });
   return btn;
 }
 
@@ -209,7 +215,7 @@ function renderDataList(box, module, items) {
     edit.onclick = () => hooks.openItemEditor(module, i);
     acts.appendChild(edit);
     const del = el('button', 'btn btn-danger-quiet', '删除');
-    del.onclick = async () => {
+    del.onclick = guard(async () => {
       const ok = await confirmDialog('删除条目', `确定删除「${it.title || '未命名'}」吗？内容会移入回收站，可恢复。`, '删除');
       if (!ok) return;
       del.disabled = true;
@@ -217,12 +223,13 @@ function renderDataList(box, module, items) {
         const r = await api('/api/content-delete', { method: 'POST', body: { module, index: i, title: it.title, expectedHeadSha: S.lastListSha } });
         S.lastListSha = r.headSha || S.lastListSha;
         toast('已移入回收站，可恢复');
-        await reloadList();
+        markListStale();
+        await reloadList({ summary: true });
       } catch (e) {
         del.disabled = false;
         handleOpError(e);
       }
-    };
+    });
     acts.appendChild(del);
     c.appendChild(acts);
     list.appendChild(c);
@@ -303,17 +310,18 @@ function renderTrash(box, items) {
     c.appendChild(body);
     const acts = el('div', 'card-actions');
     const res = el('button', 'btn btn-mini', '恢复');
-    res.onclick = async () => {
+    res.onclick = guard(async () => {
       const ok = await confirmDialog('恢复内容', `恢复「${t.title || t.originalPath}」到原位置？已存在同名文件时会并排追加。`, '恢复');
       if (!ok) return;
       try {
         await api('/api/content-restore', { method: 'POST', body: { trashId: t.id, expectedHeadSha: S.lastListSha } });
         toast('已恢复并提交');
-        await reloadList();
+        markListStale();
+        await reloadList({ summary: true });
       } catch (e) {
         handleOpError(e);
       }
-    };
+    });
     acts.appendChild(res);
     c.appendChild(acts);
     list.appendChild(c);

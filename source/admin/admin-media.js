@@ -3,7 +3,7 @@
  */
 'use strict';
 
-import { S, $, el, api, toast, confirmDialog, handleOpError, hooks, ApiError, reloadList } from './admin-core.js?v=20261024';
+import { S, $, el, api, toast, confirmDialog, handleOpError, hooks, ApiError, reloadList, busyStart, busyEnd, markListStale } from './admin-core.js?v=20261023';
 // 压缩上限：Vercel 函数请求体限 4.5MB，base64 会放大约 1.37 倍，
 // 因此压缩产物必须控制在 2.5MB 以内，超限则逐级降低尺寸与质量重试。
 const UPLOAD_BLOB_LIMIT = 2.5 * 1024 * 1024;
@@ -78,18 +78,28 @@ export async function uploadImages(files, module) {
     toast('一次最多上传 6 张');
     return;
   }
+  // 多图上传是数秒级长操作：忙态条覆盖整个循环（逐张 toast 之外的总进度反馈）
+  busyStart();
   let done = 0;
-  for (const file of files) {
-    try {
-      const r = await uploadOneImage(file, module);
-      done += 1;
-      // unchanged：仓库里已有同 sha 内容，服务端未产生 commit
-      toast(r && r.unchanged ? `${file.name} 内容未变化，未产生新提交` : `已上传 ${file.name} → /img/${module}/`);
-    } catch (e) {
-      handleOpError(e);
+  try {
+    for (const file of files) {
+      try {
+        const r = await uploadOneImage(file, module);
+        done += 1;
+        // unchanged：仓库里已有同 sha 内容，服务端未产生 commit
+        toast(r && r.unchanged ? `${file.name} 内容未变化，未产生新提交` : `已上传 ${file.name} → /img/${module}/`);
+      } catch (e) {
+        handleOpError(e);
+      }
     }
+    if (done) {
+      // 轻量刷新：图片清单来自 tree，summary 模式已含（Issue #2）
+      markListStale();
+      await reloadList({ summary: true });
+    }
+  } finally {
+    busyEnd();
   }
-  if (done) await reloadList();
 }
 
 export function imageActions(repoPath) {
@@ -104,12 +114,16 @@ export function imageActions(repoPath) {
       fn: async () => {
         const ok = await confirmDialog('删除图片', `删除 ${sp}？会移入回收站，可恢复。`, '删除');
         if (!ok) return;
+        busyStart();
         try {
           await api('/api/content-delete', { method: 'POST', body: { path: repoPath, title: repoPath.split('/').pop(), expectedHeadSha: S.lastListSha } });
           toast('已删除并提交');
-          await reloadList();
+          markListStale();
+          await reloadList({ summary: true });
         } catch (e) {
           handleOpError(e);
+        } finally {
+          busyEnd();
         }
       },
     },

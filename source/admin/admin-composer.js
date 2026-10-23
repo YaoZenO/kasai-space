@@ -9,9 +9,9 @@
  */
 'use strict';
 
-import { el, toast, handleOpError, S } from './admin-core.js?v=20261024';
-import { uploadOneImage, sitePath, openImagePicker } from './admin-media.js?v=20261024';
-import { parseBlocks, serializeBlocks } from './admin-md-blocks.js?v=20261024';
+import { el, toast, handleOpError, S } from './admin-core.js?v=20261023';
+import { uploadOneImage, sitePath, openImagePicker } from './admin-media.js?v=20261023';
+import { parseBlocks, serializeBlocks } from './admin-md-blocks.js?v=20261023';
 
 const MAX_UPLOAD = 6;
 

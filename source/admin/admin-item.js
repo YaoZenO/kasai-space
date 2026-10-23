@@ -3,8 +3,8 @@
  */
 'use strict';
 
-import { S, $, el, api, toast, hooks, handleOpError, guard, reloadList, markDirty, clearDirty } from './admin-core.js?v=20261024';
-import { uploadOneImage, sitePath, openImagePicker } from './admin-media.js?v=20261024';
+import { S, $, el, api, toast, hooks, handleOpError, guard, reloadList, markDirty, clearDirty, markListStale } from './admin-core.js?v=20261023';
+import { uploadOneImage, sitePath, openImagePicker } from './admin-media.js?v=20261023';
 
 const MODULE_META = {
   projects: { label: '项目', form: 'projects' },
@@ -89,7 +89,8 @@ function renderLinkRows() {
 }
 
 export function openItemEditor(module, index) {
-  const item = index === null ? {} : (S.data.data[module][index] || {});
+  // 模块数据兜底：S.data 可能来自 summary 刷新或尚未加载完，直接下标取值会抛错
+  const item = index === null ? {} : ((S.data.data[module] || [])[index] || {});
   S.itemEditor = { module, index };
   clearDirty();
   const meta = MODULE_META[module] || {};
@@ -206,7 +207,8 @@ function bindCoverUpload(btnId, inputId, module) {
       if (!file) return;
       try {
         await uploadOneImage(file, module);
-        await reloadList();
+        markListStale();
+        await reloadList({ summary: true });
         const mine = (S.data.images || []).filter((p) => p.startsWith(`source/img/${module}/`)).sort();
         const latest = mine[mine.length - 1];
         $(inputId).value = latest ? sitePath(latest) : '';
@@ -243,7 +245,9 @@ export function init() {
       hooks.setDeployCommitted(r.commitSha || null);
       toast('已保存并提交');
       clearDirty();
-      await reloadList();
+      // 轻量刷新：数据模块与图片清单都在 summary 里，草稿/私密文章不重读（Issue #2）
+      markListStale();
+      await reloadList({ summary: true });
       // 2026-10-21（REVIEW-2026-10-18-PM §2.4.1 摩擦②）：保存后不跳回列表，
       // 直接重开刚保存的条目——改完一处接着改，不必回列表里重新找。
       const items = S.data.data[ie.module] || [];
@@ -278,7 +282,8 @@ export function init() {
       for (const file of files) {
         try {
           await uploadOneImage(file, 'games');
-          await reloadList();
+          markListStale();
+          await reloadList({ summary: true });
           const mine = (S.data.images || []).filter((p) => p.startsWith('source/img/games/')).sort();
         const latest = mine[mine.length - 1];
         if (latest) { S_media.push(sitePath(latest)); markDirty(); }

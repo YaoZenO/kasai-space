@@ -3,8 +3,8 @@
  */
 'use strict';
 
-import { S, $, api, toast, guard, reloadList, hooks , handleOpError, markDirty, clearDirty } from './admin-core.js?v=20261024';
-import { uploadOneImage, sitePath } from './admin-media.js?v=20261024';
+import { S, $, api, toast, guard, reloadList, hooks , handleOpError, markDirty, clearDirty, markListStale } from './admin-core.js?v=20261023';
+import { uploadOneImage, sitePath } from './admin-media.js?v=20261023';
 
 // 设置 tab 直接展示编辑器视图（无列表态）；进入时填充表单
 export function renderSiteEditor(box, site) {
@@ -44,7 +44,9 @@ export function init() {
     hooks.setDeployCommitted(r.commitSha || null);
     clearDirty();
     toast('站点身份已保存并提交');
-    await reloadList();
+    // 轻量刷新：站点配置就在 summary 响应里，无需重读草稿（Issue #2）
+    markListStale();
+    await reloadList({ summary: true });
   });
 
   // 设置页头像直传（存入 /img/avatar/，成功后回填路径）
@@ -57,7 +59,8 @@ export function init() {
       if (!file) return;
       try {
         await uploadOneImage(file, 'avatar');
-        await reloadList();
+        markListStale();
+        await reloadList({ summary: true });
         const mine = (S.data.images || []).filter((p) => p.startsWith('source/img/avatar/')).sort();
         const latest = mine[mine.length - 1];
         $('site-avatar').value = latest ? sitePath(latest) : '';

@@ -1019,6 +1019,90 @@ const PNG_1X1 = Buffer.from(
     assert.ok(/private: privateFull/.test(contentSrc), 'listAll 未返回 private 分区');
   });
 
+  // ============ 2026-10-23：后台操作卡顿与状态逻辑（Issue #2 / #3） ============
+  // E-056：mutation 之后不得再走全量列表刷新。全量 listAll 会重读每一篇草稿与
+  // 私密文章（N 次 GitHub 往返），此前每次发表/编辑/删除都全额刷新，正是主人
+  // 反馈「操作进行之后卡上几秒才能缓过劲儿」的主因。刷新要么显式轻量
+  // （summary: true），要么打脏标记延后到列表可见时（markListStale）。
+  ok('E-056: mutation 后的列表刷新一律轻量或延后（不得无参全量）', () => {
+    const files = [
+      'source/admin/admin-post.js', 'source/admin/admin-item.js', 'source/admin/admin-site.js',
+      'source/admin/admin-media.js', 'source/admin/admin-list.js',
+    ];
+    for (const f of files) {
+      const src = fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
+      const bad = src.match(/await reloadList\(\)/g) || [];
+      assert.strictEqual(bad.length, 0,
+        `${f} 仍有 ${bad.length} 处无参 reloadList()——全量刷新重读全部草稿/私密文章，操作后必卡（E-056）`);
+      (src.match(/reloadList\([^)]*\)/g) || []).forEach((call) => {
+        assert.ok(/summary: true/.test(call),
+          `${f} 的 ${call} 未显式轻量——summary 是此路径的唯一合法刷新模式（E-056）`);
+      });
+      assert.ok(/markListStale\(\)/.test(src),
+        `${f} 未使用 markListStale——刷新没有延后到列表可见时（E-056）`);
+    }
+  });
+
+  // E-057：新建文章「保存草稿」后编辑器必须切到草稿态。此前只更新 sha/slug/path、
+  // mode 仍是 'new'，接着点「发布」会走 publish-new 在 _posts/ 建正式文，而
+  // _drafts/ 里的草稿仍在——同一篇文章两头存在，列表出现两条（2026-10-23 修复）。
+  ok('E-057: 保存草稿后编辑器切到草稿态并同步按钮文案', () => {
+    const src = fs.readFileSync(path.join(__dirname, '..', 'source/admin/admin-post.js'), 'utf8');
+    const save = src.slice(src.indexOf('export async function saveCurrentEditing'));
+    assert.ok(/ed\.mode = 'draft'/.test(save),
+      'saveCurrentEditing 未把 mode 切到 draft——新建态保存后再发布会走 publish-new，草稿与正式文重复');
+    assert.ok(/applyModeUI\('draft'\)/.test(save),
+      '切态后未同步按钮文案——发布按钮仍显示「直接发布」，用户无从得知状态已变');
+  });
+
+  // E-058：发布/删除成功后先切视图、再按需刷新；用户在操作期间离开编辑器时
+  // 不拽回。视图切换是本地操作，不应等列表刷新的网络往返（Issue #2 卡顿的
+  // 感知主因：此前的顺序是 await reloadList() → switchTab，toast 之后还要干等）。
+  ok('E-058: 发布/删除先切视图且不拽回已离开的编辑器', () => {
+    const src = fs.readFileSync(path.join(__dirname, '..', 'source/admin/admin-post.js'), 'utf8');
+    const pub = src.slice(src.indexOf('export async function publishCurrentEditing'), src.indexOf('// 删除当前文章'));
+    const del = src.slice(src.indexOf('async function deleteCurrentPost'), src.indexOf('// 简易 Markdown 预览'));
+    for (const [name, seg] of [['publishCurrentEditing', pub], ['deleteCurrentPost', del]]) {
+      assert.ok(/markListStale\(\)/.test(seg), `${name} 未标记列表脏——刷新没有延后`);
+      const guarded = seg.match(/if \(!\$\('view-post-editor'\)\.hidden\) switchTab\('posts'\)/g) || [];
+      assert.ok(guarded.length >= 1,
+        `${name} 的 switchTab 缺少「编辑器仍可见才切回」守卫——用户已离开时会被拽回列表`);
+    }
+  });
+
+  // Issue #2：全局忙态条。guard 套用的操作期间顶部显示滑动进度条；
+  // 此前只有连点第二下才弹 toast，首次点击后的 1~3 秒界面零反馈，与卡死无异。
+  ok('Issue #2: 全局忙态条存在且由 guard 驱动', () => {
+    const html = fs.readFileSync(path.join(__dirname, '..', 'source/admin/index.html'), 'utf8');
+    assert.ok(html.includes('id="busy-bar"'), 'index.html 缺 #busy-bar——操作期间没有可见反馈');
+    const core = fs.readFileSync(path.join(__dirname, '..', 'source/admin/admin-core.js'), 'utf8');
+    const guardFn = core.slice(core.indexOf('export function guard'), core.indexOf('// ---------- 冲突与操作错误'));
+    assert.ok(/busyStart\(\)/.test(guardFn) && /busyEnd\(\)/.test(guardFn), 'guard 未驱动忙态条');
+    assert.ok(/export function markListStale/.test(core), 'admin-core.js 缺 markListStale——延后刷新无处落地');
+    const css = fs.readFileSync(path.join(__dirname, '..', 'source/admin/admin.css'), 'utf8');
+    assert.ok(/\.busy-bar/.test(css) && /@keyframes busy-slide/.test(css), 'admin.css 缺忙态条样式');
+  });
+
+  // Issue #3：无构建跟踪时 pill 用 saved 态。此前两个分支都写
+  // dataset.state='committed'，无跟踪的分支也套「已提交」的蓝色样式——
+  // E-036 修了文案，状态可视化仍在伪装。CSS 的 saved 规则一直存在却无人使用。
+  ok('Issue #3: 无 commitSha 时 pill 用 saved 态而非 committed', () => {
+    const src = fs.readFileSync(path.join(__dirname, '..', 'source/admin/admin-deploy.js'), 'utf8');
+    const start = src.indexOf('export function setDeployCommitted');
+    const body = src.slice(start, src.indexOf('\n}', start));
+    assert.ok(/dataset\.state = 'saved'/.test(body),
+      '无 sha 分支未使用 saved 态——蓝色「已提交」样式会伪装成已跟踪（E-036 精神）');
+  });
+
+  // Issue #3：卡片级破坏性操作必须走 guard。此前这些按钮不受 S.busy 保护，
+  // 连续删两张卡会带着同一个 expectedHeadSha 发出，第二张必撞 409。
+  ok('Issue #3: 列表卡片破坏性操作均受 guard 串行化保护', () => {
+    const src = fs.readFileSync(path.join(__dirname, '..', 'source/admin/admin-list.js'), 'utf8');
+    const guarded = (src.match(/onclick = guard\(async \(\) =>/g) || []).length;
+    assert.ok(guarded >= 5,
+      `admin-list.js 受 guard 保护的卡片操作只有 ${guarded} 处（应为 删除文章/删除条目/转私密/发布私密/恢复 共 5 处）`);
+  });
+
   console.log(`\nRESULT: ${passed} 项断言通过${process.exitCode ? '，存在失败' : ''}`);
   process.exit(process.exitCode || 0);
 })().catch((e) => { console.error('FATAL', e); process.exit(1); });
