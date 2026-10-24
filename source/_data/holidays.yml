@@ -45,16 +45,16 @@ meta:
       page: "https://commons.wikimedia.org/wiki/File:Along_the_River_During_the_Qingming_Festival_(detail_of_original).jpg"
     laodong:
       file: "/img/holidays/laodong.jpg"
-      alt: "深圳一家电子厂的车间"
-      author: "Steve Jurvetson"
-      license: "CC BY 2.0"
-      page: "https://commons.wikimedia.org/wiki/File:Electronics_factory_in_Shenzhen.jpg"
+      alt: "清末民初农民在稻田插秧（手工上色老照片）"
+      author: "佚名（IMP-YDS 特藏）"
+      license: "Public domain"
+      page: "https://commons.wikimedia.org/wiki/File:People%20planting%20a%20rice%20paddy,%20China,%20ca.1917-1923%20(IMP-YDS-RG224-OV1-0000-0046).jpg"
     duanwu:
       file: "/img/holidays/duanwu.jpg"
-      alt: "龙舟的彩绘船头与远处的比赛"
-      author: "Peter Olshevsky"
+      alt: "赛龙舟（湘溪村代表队）"
+      author: "Uuongkinghe"
       license: "CC BY-SA 4.0"
-      page: "https://commons.wikimedia.org/wiki/File:Dragon_Boat_race,_China.jpg"
+      page: "https://commons.wikimedia.org/wiki/File:%E9%BE%99%E8%88%9F%E8%B5%9B%E7%AC%AC%E4%B8%80%E5%90%8D%2020240404.jpg"
     zhongqiu:
       file: "/img/holidays/zhongqiu.jpg"
       alt: "摆着月饼、茶具与莲花的节日餐桌"
@@ -63,10 +63,10 @@ meta:
       page: "https://commons.wikimedia.org/wiki/File:Mid_autumn_festival.jpg"
     guoqing:
       file: "/img/holidays/guoqing.jpg"
-      alt: "天安门广场上的国庆花篮"
-      author: "Gerd Eichmann"
-      license: "CC BY-SA 4.0"
-      page: "https://commons.wikimedia.org/wiki/File:Beijing-Tiananmen-24-Menschen-Blumenkorb-gje.jpg"
+      alt: "天安门夜景"
+      author: "Charlie fong（冯成）"
+      license: "Public domain"
+      page: "https://commons.wikimedia.org/wiki/File:%E5%A4%A9%E5%AE%89%E9%97%A8%E5%A4%9C%E6%99%AF.jpg"
   notice: "2027 年的放假安排还没有官方版本。国务院办公厅通常在前一年 11 月前后发布次年通知，所以 2027 年起的放假区间是按《全国年节及纪念日放假办法》与近年调休惯例推算出来的预期值。节日当天的公历日期本身是确定的，可能变动的只有放假区间的起止与调休上班日。"
   # 来源只给官方年份标一行（页面在「年一览」下方输出「来源：…」）。
   # 预计年份不标来源——那段「以上均为预计日期」的说明已经交代清楚了。
