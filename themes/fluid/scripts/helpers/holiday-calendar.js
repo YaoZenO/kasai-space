@@ -21,6 +21,14 @@
 const WEEK_CN = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 const WEEK_FULL = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
 
+// 生肖动物名 → 生肖页 slug（/zodiac/<slug>/）。与 zodiac-data.js 的 ANIMAL_SLUG 一致，
+// 两边各自维护（Hexo 的 vm 上下文里跨文件 require 会失败，AGENTS.md §5.2）——
+// test/zodiac-e2e.js 锁死两边相同。数据里没有对应动物时留空，引导段少一句链接。
+const ANIMAL_SLUG = {
+  鼠: 'rat', 牛: 'ox', 虎: 'tiger', 兔: 'rabbit', 龙: 'dragon', 蛇: 'snake',
+  马: 'horse', 羊: 'goat', 猴: 'monkey', 鸡: 'rooster', 狗: 'dog', 猪: 'pig'
+};
+
 function pad2(n) {
   return n < 10 ? '0' + n : String(n);
 }
@@ -391,8 +399,13 @@ function buildCalendar(raw, wantYear) {
       + (two[1].id === 'guoqing' ? '国庆黄金周' : two[1].name) + '。');
     parts.push('春节在 ' + mdCn(cj.date) + '（' + WEEK_FULL[weekdayOf(cj.date)] + '）。');
     if (zodiac && zodiac.ganzhi) {
-      parts.push('这一天也是' + zodiac.element + zodiac.animal + '年 '
-        + zodiac.ganzhi + zodiac.animal + '年的开始。');
+      // 生肖年术语链（火马年 / 丙午马年）蓝色标注并跳转到对应生肖页
+      // （主人 2026-10-23 要求，与参考站同款）。链接由数据算出，模板不含手写 URL。
+      const slug = ANIMAL_SLUG[zodiac.animal] || '';
+      const open = slug ? '<a class="z-link" href="/zodiac/' + slug + '/">' : '';
+      const shut = slug ? '</a>' : '';
+      parts.push('这一天也是' + open + zodiac.element + zodiac.animal + '年' + shut + ' '
+        + open + zodiac.ganzhi + zodiac.animal + '年' + shut + '的开始。');
     }
     parts.push(official ? '以下为官方公布的日期。' : '以上均为预计日期。');
     lede = parts.join('');

@@ -415,6 +415,7 @@ navbar:
         - { key: "now", link: "/now/", name: "现在" }
         - { key: "uses", link: "/uses/", name: "我在用什么" }
         - { key: "holidays", link: "/holidays/", name: "节假日" }
+        - { key: "zodiac", link: "/zodiac/", name: "生肖" }
         - { key: "links", link: "/links/", name: "友链" }
     #- { key: "links", link: "/links/", icon: "iconfont icon-link-fill" }
 

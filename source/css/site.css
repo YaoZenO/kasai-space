@@ -1952,13 +1952,17 @@ a.feed-title:hover {
 }
 
 /* 单页作用域内的参考站配色。CSS 自定义属性会继承，这里改一次，
-   页内所有消费 var(--accent) / var(--text-color) 的组件一起换色。 */
+   页内所有消费 var(--accent) / var(--text-color) 的组件一起换色。
+   --z-link：生肖年术语链的蓝色（主人 2026-10-23 明确要求「火马年」这类可跳转的
+   词语用蓝色标注，与参考站一致）。#1b5fc1 对参考站纸底 #f7f6f4 为 5.7:1，过 AA。
+   蓝色只在本作用域内生效，不进 :root（test/zodiac-e2e.js 锁死边界）。 */
 .cal-page {
   background: #f7f6f4;
   --accent: #c4463a;
   --text-color: #1a1a1a;
   --sec-text-color: #6b6b6b;
   --info-mark: #6b6b6b;
+  --z-link: #1b5fc1;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
@@ -2053,8 +2057,9 @@ a.feed-title:hover {
 .cal-years a { color: var(--sec-text-color); }
 .cal-years a:hover { color: var(--accent); }
 
-/* 当前年：墨色加粗 + 2px 下划线，不用砖红胶囊（参考站的做法，也更像正文而非按钮） */
-.cal-year-current {
+/* 当前年 / 当前生肖：墨色加粗 + 2px 下划线，不用砖红胶囊（参考站的做法，也更像正文而非按钮） */
+.cal-year-current,
+.z-animal-current {
   font-weight: 700;
   color: var(--text-color);
   box-shadow: inset 0 -2px 0 var(--text-color);
@@ -2619,6 +2624,114 @@ a.feed-title:hover {
   .cal-table .cal-pinyin { display: none; }
   /* 名称列在窄屏收窄到 3 个汉字宽；再窄会从词中间断行（E-043 同型） */
   .cal-table tbody th { width: 4.8rem; }
+}
+
+/* ===== 4.13 生肖页（/zodiac/，2026-10-23 新增，与节假日页同族） ===== */
+
+/* 视觉作用域直接复用 .cal-page（根元素同时挂 cal-page z-page 两个类，见 zodiac.ejs）：
+   参考站纸底 / 墨色 / 强调色 / Fraunces + Nunito 全族共用一处定义（§4.12），
+   这里只写 z-* 版式规则，不重复定义色值——避免两处漂移（E-052 同型风险）。 */
+
+/* 生肖导航：十二个生肖 4 列网格。年份是等宽数字，生肖是汉字——
+   覆盖 .cal-years li 的等宽轨，中文进等宽栈会掉到系统默认字体，各平台不一致。 */
+.z-nav li {
+  font-family: var(--font-sans);
+  font-variant-numeric: normal;
+  font-size: .85rem;
+}
+
+/* 基本信息 / 幸运物两列窄表：键列 7.5rem（容得下「生肖年起止」五个字不折行） */
+.z-facts tbody th,
+.z-luck tbody th { width: 7.5rem; }
+
+/* 一览表位次列：等宽小字（静态信息走中性色，§2.4） */
+.z-pos {
+  width: 3.2rem;
+  font-family: var(--font-mono);
+  font-size: .8rem;
+  color: var(--sec-text-color);
+}
+
+/* 表内生肖名链：默认墨色（.cal-name 已是墨色 700），hover 走 accent */
+.z-animal-link { color: var(--text-color); }
+.z-animal-link:hover { color: var(--accent); }
+
+/* 词汇表列宽：拼音 7rem、备注 11rem，含义列吃掉剩余宽度 */
+.z-vocab th:nth-child(2) { width: 7rem; }
+.z-vocab th:nth-child(4) { width: 11rem; }
+.z-vocab .cal-pinyin { display: block; margin-left: 0; }
+.z-vocab-note { font-size: .82rem; color: var(--sec-text-color); }
+
+/* 配对表：关系列（三合 / 六合 / 六冲 / 六害 / 相刑） */
+.z-relations tbody th { width: 5.5rem; }
+
+/* 五行表与三合相冲表：首列窄 */
+.z-elements tbody th,
+.z-sanhe tbody th { width: 5.5rem; }
+
+/* 性格两栏：组内行式列表（行底 hairline，§4.3 层级语言） */
+.z-trait-cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+}
+.z-trait-col h3 {
+  margin: 0 0 .5rem;
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+.z-trait-col ul { margin: 0; padding: 0; list-style: none; }
+.z-trait-col li {
+  padding: .4rem 0;
+  border-bottom: 1px solid var(--line-color);
+  font-size: .95rem;
+  line-height: 1.6;
+  color: var(--text-color);
+}
+.z-trait-col li:last-child { border-bottom: 0; }
+.z-theme { margin: 1rem 0 0; font-size: .85rem; color: var(--sec-text-color); }
+
+/* 表下说明段（口径 / 空态说明） */
+.z-note {
+  margin: .55rem 0 0;
+  font-size: .78rem;
+  line-height: 1.7;
+  color: var(--sec-text-color);
+}
+.z-note a { color: var(--text-color); text-decoration: underline; text-underline-offset: 2px; }
+.z-note a:hover { color: var(--accent); }
+
+/* 上一页 / 下一页：组顶 2px 全墨线 + 两端对齐 */
+.z-pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2.2rem;
+  padding-top: 1.1rem;
+  border-top: 2px solid var(--rule-strong);
+}
+.z-pager a {
+  font-family: var(--font-mono);
+  font-size: .85rem;
+  color: var(--sec-text-color);
+}
+.z-pager a:hover { color: var(--accent); }
+
+/* 生肖年术语链（火马年 / 丙午马年 / 正文里的蛇年、羊年……）：蓝色标注，可跳转。
+   只挂在 .cal-page 作用域内的 a.z-link 上——蓝色是参考站视觉的一部分，
+   与 §4.12 的参考站配色同一破例边界，不进 :root、不上别的页面。 */
+.cal-page a.z-link {
+  color: var(--z-link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.cal-page a.z-link:hover { color: var(--accent); }
+
+@media (max-width: 767.98px) {
+  /* 性格两栏在窄屏合一列；上下生肖改为纵向堆叠 */
+  .z-trait-cols { grid-template-columns: minmax(0, 1fr); gap: 1.4rem; }
+  .z-pager { flex-direction: column; gap: .6rem; }
 }
 
 /* ===== 5. 第三方组件纸面化（site.css 在 main.css 之后加载，覆盖即生效） ===== */

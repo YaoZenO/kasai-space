@@ -301,7 +301,14 @@ if (!fs.existsSync(PUBLIC)) {
     assert.ok(html.indexOf('中国共有 7 个法定节假日') !== -1, '缺引导段');
     assert.ok(html.indexOf('其中两个长假是 2 月 15 日至 23 日的春节假期') !== -1, '引导段没说春节长假');
     assert.ok(html.indexOf('春节在 2 月 17 日（星期二）') !== -1, '引导段没说春节当天');
-    assert.ok(html.indexOf('火马年 丙午马年') !== -1, '引导段没说生肖年');
+    // 引导段的生肖年术语链：火马年 / 丙午马年两个词都是蓝色链接（z-link），
+    // 跳转到对应生肖页（2026-10-23 主人要求；原来这里是纯文本）
+    assert.ok(html.indexOf('火马年</a>') !== -1 && html.indexOf('>丙午马年</a>') !== -1,
+      '引导段缺生肖年术语链（火马年 / 丙午马年）');
+    assert.ok(html.indexOf('href="/zodiac/horse/"') !== -1,
+      '引导段的生肖年术语没有链到 /zodiac/horse/');
+    assert.ok(html.indexOf('class="z-link"') !== -1,
+      '生肖年术语链没有挂 z-link 类（蓝色标注）');
     assert.ok(html.indexOf('以下为官方公布的日期') !== -1, '官方年份该说「以下为官方公布的日期」');
   });
 
