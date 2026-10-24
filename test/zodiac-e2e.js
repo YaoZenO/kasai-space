@@ -46,6 +46,8 @@ const raw = yaml.load(fs.readFileSync(path.join(ROOT, 'source', '_data', 'zodiac
 const holidaysRaw = yaml.load(fs.readFileSync(path.join(ROOT, 'source', '_data', 'holidays.yml'), 'utf8'));
 const ov = buildOverview(raw);
 
+const PAGES = ['rat', 'ox', 'tiger', 'rabbit', 'dragon', 'snake', 'horse', 'goat', 'monkey', 'rooster', 'dog', 'pig'];
+
 console.log('生肖页数据与计算');
 
 // ---------- ① 数据自洽 ----------
@@ -215,6 +217,39 @@ ok('词汇表每行四项齐全', () => {
   });
 });
 
+// ---------- ① 配图授权（复刻节假日页三层锁：数据三要素 → 文件是真的 → 产物带出） ----------
+
+const IMG_DIR = path.join(ROOT, 'source/img/zodiac');
+const META_IMAGES = (raw.meta && raw.meta.images) || {};
+
+ok('十二张配图授权三要素齐全（CC 授权的使用条件）', () => {
+  PAGES.forEach((k) => {
+    const m = META_IMAGES[k];
+    assert.ok(m, 'meta.images 缺少 ' + k);
+    assert.match(m.file, /^\/img\/zodiac\/[a-z]+\.jpg$/, k + ' 的 file 路径不对：' + m.file);
+    assert.ok((m.alt || '').length >= 4, k + ' 缺 alt 文字');
+    assert.ok((m.author || '').length >= 2, k + ' 缺作者署名');
+    assert.match(m.license || '', /^(CC0|CC BY|CC BY-SA|公有领域|Public domain)/, k + ' 的授权写错了：' + m.license);
+    assert.match(m.page || '', /^https:\/\/commons\.wikimedia\.org\/wiki\/File:/, k + ' 的原文件页不是 Commons 链接');
+  });
+  // 反查：数据里的每个键都必须是十二生肖之一，不能出现挂在没人用的键上的图
+  Object.keys(META_IMAGES).forEach((k) => {
+    assert.ok(PAGES.indexOf(k) !== -1, 'meta.images 里有不该有的键：' + k);
+  });
+});
+
+ok('配图文件存在、确实是 JPEG、体积足够', () => {
+  PAGES.forEach((k) => {
+    const f = path.join(IMG_DIR, k + '.jpg');
+    assert.ok(fs.existsSync(f), '缺少配图文件：source/img/zodiac/' + k + '.jpg');
+    const buf = fs.readFileSync(f);
+    // JPEG magic：FF D8
+    assert.strictEqual(buf[0], 0xFF, k + '.jpg 不是 JPEG（首字节不是 FF）');
+    assert.strictEqual(buf[1], 0xD8, k + '.jpg 不是 JPEG（第二字节不是 D8）');
+    assert.ok(buf.length > 50 * 1024, k + '.jpg 只有 ' + buf.length + ' 字节，像是下载被截断');
+  });
+});
+
 // E-042 同型：中文长文案里出现「汉字-空格-汉字」就是折行标量插进了空格。
 // 页面文案一律单行书写，这条把纪律变成断言。
 ok('页面文案没有折叠标量插进来的空格（E-042 防复发）', () => {
@@ -274,8 +309,6 @@ ok('无数据不渲染：幸运行为空的页面只留五行对应与说明', (
 });
 
 // ---------- ③ 产物落地 ----------
-
-const PAGES = ['rat', 'ox', 'tiger', 'rabbit', 'dragon', 'snake', 'horse', 'goat', 'monkey', 'rooster', 'dog', 'pig'];
 
 if (!fs.existsSync(PUBLIC)) {
   console.log('  - SKIP 产物断言（没有 public/，先跑 npm run build）');
@@ -340,12 +373,24 @@ if (!fs.existsSync(PUBLIC)) {
   });
 
   ok('蓝色术语链：鼠年页链到猪年，节假日页链到生肖页', () => {
-    // 鼠年正文提到莫扎特属猪——用 z-link 蓝色链到猪年页
     const rat = fs.readFileSync(path.join(PUBLIC, 'zodiac', 'rat', 'index.html'), 'utf8');
     assert.ok(rat.indexOf('class="z-link" href="/zodiac/pig/"') !== -1, '鼠年页缺到猪年的蓝色术语链');
     // 节假日页：2026 链到马年（十六个年份全量断言见下一节）
     const hol = fs.readFileSync(path.join(PUBLIC, 'holidays', '2026', 'index.html'), 'utf8');
     assert.ok(hol.indexOf('class="z-link" href="/zodiac/horse/"') !== -1, '节假日 2026 页缺到马年的蓝色术语链');
+  });
+
+  ok('配图落到页面上，署名与授权齐全（产物层，授权条件）', () => {
+    PAGES.forEach((k) => {
+      const h = fs.readFileSync(path.join(PUBLIC, 'zodiac', k, 'index.html'), 'utf8');
+      const img = META_IMAGES[k];
+      // 注意 src 会带内容 hash 查询串（asset-version 扩展到 img），只比前缀
+      assert.ok(h.indexOf('src="' + img.file) !== -1, k + ' 页没渲染配图');
+      assert.ok(h.indexOf(img.alt) !== -1, k + ' 页缺配图 alt');
+      assert.ok(h.indexOf(img.author) !== -1, k + ' 页缺配图署名');
+      assert.ok(h.indexOf(img.license) !== -1, k + ' 页缺授权声明');
+      assert.ok(h.indexOf(img.page) !== -1, k + ' 页缺原文件页链接');
+    });
   });
 
   ok('索引页：一览表 12 行 + 出生年份表 + 五行表 + 三合相冲表', () => {

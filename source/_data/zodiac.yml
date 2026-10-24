@@ -76,7 +76,82 @@ meta:
   # 配图：Wikimedia Commons 自由授权图，键为生肖 slug（模板按动物取用）。
   # 三要素（作者 / 授权 / 原文件页）任何一样缺失，测试直接判失败——
   # 那是 CC 授权的前提条件，少了图就成了无授权使用。
-  images: {}
+  # 11 张元代生肖陶俑为洛杉矶县立艺术博物馆（LACMA）藏品照片，公有领域；
+  # 虎为圆明园虎首复制品照片，CC BY 3.0，作者 Peter Potrowl
+  # （其授权条款要求在图旁标注「© Peter Potrowl」，author 字段照办）。
+  images:
+    rat:
+      file: "/img/zodiac/rat.jpg"
+      alt: "元代陶鼠俑（LACMA 藏）"
+      author: "LACMA"
+      license: "Public domain"
+      page: "https://commons.wikimedia.org/wiki/File:Funerary_Sculpture_of_the_Animals_of_the_Twelve-Year_Chinese_Zodiac_(Shengxiao)_LACMA_M.90.80a-l_(12_of_12).jpg"
+    ox:
+      file: "/img/zodiac/ox.jpg"
+      alt: "元代陶牛俑（LACMA 藏）"
+      author: "LACMA"
+      license: "Public domain"
+      page: "https://commons.wikimedia.org/wiki/File:Funerary_Sculpture_of_the_Animals_of_the_Twelve-Year_Chinese_Zodiac_(Shengxiao)_LACMA_M.90.80a-l_(8_of_12).jpg"
+    tiger:
+      file: "/img/zodiac/tiger.jpg"
+      alt: "圆明园虎首铜像"
+      author: "© Peter Potrowl"
+      license: "CC BY 3.0"
+      page: "https://commons.wikimedia.org/wiki/File:Beijing_-_Tiger_head_of_the_old_summer_palace_-_reproduction.jpg"
+    rabbit:
+      file: "/img/zodiac/rabbit.jpg"
+      alt: "元代陶兔俑（LACMA 藏）"
+      author: "LACMA"
+      license: "Public domain"
+      page: "https://commons.wikimedia.org/wiki/File:Funerary_Sculpture_of_the_Animals_of_the_Twelve-Year_Chinese_Zodiac_(Shengxiao)_LACMA_M.90.80a-l_(4_of_12).jpg"
+    dragon:
+      file: "/img/zodiac/dragon.jpg"
+      alt: "元代陶龙俑（LACMA 藏）"
+      author: "LACMA"
+      license: "Public domain"
+      page: "https://commons.wikimedia.org/wiki/File:Funerary_Sculpture_of_the_Animals_of_the_Twelve-Year_Chinese_Zodiac_(Shengxiao)_LACMA_M.90.80a-l_(11_of_12).jpg"
+    snake:
+      file: "/img/zodiac/snake.jpg"
+      alt: "元代陶蛇俑（LACMA 藏）"
+      author: "LACMA"
+      license: "Public domain"
+      page: "https://commons.wikimedia.org/wiki/File:Funerary_Sculpture_of_the_Animals_of_the_Twelve-Year_Chinese_Zodiac_(Shengxiao)_LACMA_M.90.80a-l_(7_of_12).jpg"
+    horse:
+      file: "/img/zodiac/horse.jpg"
+      alt: "元代陶马俑（LACMA 藏）"
+      author: "LACMA"
+      license: "Public domain"
+      page: "https://commons.wikimedia.org/wiki/File:Funerary_Sculpture_of_the_Animals_of_the_Twelve-Year_Chinese_Zodiac_(Shengxiao)_LACMA_M.90.80a-l_(6_of_12).jpg"
+    goat:
+      file: "/img/zodiac/goat.jpg"
+      alt: "元代陶羊俑（LACMA 藏）"
+      author: "LACMA"
+      license: "Public domain"
+      page: "https://commons.wikimedia.org/wiki/File:Funerary_Sculpture_of_the_Animals_of_the_Twelve-Year_Chinese_Zodiac_(Shengxiao)_LACMA_M.90.80a-l_(2_of_12).jpg"
+    monkey:
+      file: "/img/zodiac/monkey.jpg"
+      alt: "元代陶猴俑（LACMA 藏）"
+      author: "LACMA"
+      license: "Public domain"
+      page: "https://commons.wikimedia.org/wiki/File:Funerary_Sculpture_of_the_Animals_of_the_Twelve-Year_Chinese_Zodiac_(Shengxiao)_LACMA_M.90.80a-l_(1_of_12).jpg"
+    rooster:
+      file: "/img/zodiac/rooster.jpg"
+      alt: "元代陶鸡俑（LACMA 藏）"
+      author: "LACMA"
+      license: "Public domain"
+      page: "https://commons.wikimedia.org/wiki/File:Funerary_Sculpture_of_the_Animals_of_the_Twelve-Year_Chinese_Zodiac_(Shengxiao)_LACMA_M.90.80a-l_(3_of_12).jpg"
+    dog:
+      file: "/img/zodiac/dog.jpg"
+      alt: "元代陶狗俑（LACMA 藏）"
+      author: "LACMA"
+      license: "Public domain"
+      page: "https://commons.wikimedia.org/wiki/File:Funerary_Sculpture_of_the_Animals_of_the_Twelve-Year_Chinese_Zodiac_(Shengxiao)_LACMA_M.90.80a-l_(10_of_12).jpg"
+    pig:
+      file: "/img/zodiac/pig.jpg"
+      alt: "元代陶猪俑（LACMA 藏）"
+      author: "LACMA"
+      license: "Public domain"
+      page: "https://commons.wikimedia.org/wiki/File:Funerary_Sculpture_of_the_Animals_of_the_Twelve-Year_Chinese_Zodiac_(Shengxiao)_LACMA_M.90.80a-l_(5_of_12).jpg"
 
 animals:
   # ============ 1 鼠 ============
