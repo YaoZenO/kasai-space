@@ -42,7 +42,7 @@
   以后加专题只改 yml；排版借鉴参考站（左导读 + 右卡片），去掉课程部分。
 - **涉及文件：** 上述新增文件 + `layout.ejs` 注册 `library` 纸面布局。
 
-## 步骤 3：配图（Wikimedia Commons 自由授权生肖图）
+## 步骤 3（原 4）：生肖数据重写（zodiac.yml）✅ 已完成
 
 - **做什么：** Commons 检索 12 张生肖图（CC BY / CC BY-SA / 公有领域，宽度 ≥800px），
   下载到 `source/img/zodiac/`；授权信息（作者 / 授权 / 原文件页）写入 `zodiac.yml` 的
@@ -51,7 +51,7 @@
   Commons 自由授权图是本站既有约定（节假日页同款），署名 + 授权 + 链回原页即合规。
 - **涉及文件：** `source/img/zodiac/*.jpg`、`source/_data/zodiac.yml`、`test/zodiac-e2e.js`。
 
-## 步骤 4：生肖数据重写（zodiac.yml）
+## 步骤 4（原 3）：配图（Wikimedia Commons 自由授权生肖图）
 
 - **做什么：** 重构 `zodiac.yml`：每生肖 8-9 节（是什么 / 汉字 / 用词辨析 / 寓意 /
   传统与传说 / 名人 / 词汇表 / FAQ / 结语）；删性格优缺点；标题数据改为生肖名；
