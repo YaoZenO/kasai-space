@@ -414,10 +414,16 @@ navbar:
       submenu:
         - { key: "now", link: "/now/", name: "现在" }
         - { key: "uses", link: "/uses/", name: "我在用什么" }
-        - { key: "holidays", link: "/holidays/", name: "节假日" }
-        - { key: "zodiac", link: "/zodiac/", name: "生肖" }
         - { key: "links", link: "/links/", name: "友链" }
     #- { key: "links", link: "/links/", icon: "iconfont icon-link-fill" }
+
+  # 辅助导航（2026-10-25 主人要求）：与主胶囊错开、稍往右独立成组，导航右侧留空。
+  # 放「工具 / 资料」性质的入口——不属于个人主页的内容板块，不进主胶囊。
+  # 节假日原在「更多」下拉里，本次提出来；资料库为新增的聚合板块
+  # （以后可收录各种专题，首期：十二生肖），替代原先直接暴露的「生肖」入口。
+  aux_menu:
+    - { key: "holidays", link: "/holidays/", name: "节假日" }
+    - { key: "library", link: "/library/", name: "资料库" }
 
 # 搜索功能，基于 hexo-generator-search 插件，若已安装其他搜索插件请关闭此功能，以避免生成多余的索引文件
 # Search feature, based on hexo-generator-search. If you have installed other search plugins, please disable this feature to avoid generating redundant index files

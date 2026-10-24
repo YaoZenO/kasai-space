@@ -351,11 +351,14 @@ if (!fs.existsSync(PUBLIC)) {
     assert.deepStrictEqual(missing, [], 'site.css 丢了这些生肖样式：' + missing.join('、'));
   });
 
-  ok('导航与页面互链存在（/zodiac/ 进了「更多」下拉）', () => {
+  ok('导航与页面互链存在（辅助导航含节假日 / 资料库入口）', () => {
     const index = path.join(PUBLIC, 'index.html');
     assert.ok(fs.existsSync(index), 'public/index.html 不存在');
     const home = fs.readFileSync(index, 'utf8');
-    assert.ok(home.indexOf('href="/zodiac/"') !== -1, '首页导航里没有 /zodiac/ 入口');
+    // 2026-10-25 起生肖入口改走资料库（/library/），导航里不再直接暴露 /zodiac/
+    assert.ok(home.indexOf('href="/library/"') !== -1, '首页导航里没有 /library/ 入口');
+    assert.ok(home.indexOf('href="/holidays/"') !== -1, '首页导航里没有 /holidays/ 入口');
+    assert.ok(home.indexOf('site-nav-aux') !== -1, '首页缺辅助导航组');
   });
 
   ok('日期渲染为纯日期，没有机器串（E-028）', () => {

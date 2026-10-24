@@ -267,6 +267,45 @@ body { font-family: var(--font-sans); }
   background-color: #2a251d;
 }
 
+/* 中列：主胶囊 + 辅助导航组（2026-10-25 主人要求：节假日 / 资料库与主胶囊错开独立） */
+#navbar .site-nav-center {
+  display: flex;
+  align-items: center;
+  gap: 1.35rem;
+  justify-self: center;
+}
+
+/* 辅助导航：不用胶囊底，左侧细分隔线 + 留白与主胶囊分开；文字链接形态 */
+#navbar .site-nav-aux {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  padding-left: 1.35rem;
+  border-left: 1px solid var(--site-chip-border);
+}
+
+#navbar .site-nav-aux-link {
+  display: block;
+  color: var(--navbar-text-color);
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 0.42rem 0.8rem;
+  border-radius: 999px;
+}
+
+#navbar .site-nav-aux-link:hover,
+#navbar .site-nav-aux-link:focus-visible {
+  color: var(--accent);
+  background-color: rgba(42, 37, 29, 0.05);
+}
+
+/* 当前页：与主胶囊同一编码（深色实心），两处选中态一致 */
+#navbar .site-nav-aux-link.active,
+#navbar .site-nav-aux-link.active:hover {
+  color: #f5f1e9;
+  background-color: #2a251d;
+}
+
 /* 右侧操作区：搜索 + 移动端汉堡 */
 #navbar .site-nav-actions {
   justify-self: end;
