@@ -23,7 +23,7 @@
 
 ---
 
-## 步骤 1：导航调整（节假日独立右置 + 新增资料库入口）
+## 步骤 1：导航调整（节假日独立右置 + 新增资料库入口）✅ 已完成（b28d39d）
 
 - **做什么：** `_config.yml` 的「更多」下拉移除「节假日」；新增 `aux_menu` 配置项
   （节假日 / 资料库两项）；`_partials/site/nav.ejs` 渲染独立的辅助导航组（主胶囊右侧、
@@ -33,7 +33,7 @@
 - **涉及文件：** `themes/fluid/_config.yml`、`themes/fluid/layout/_partials/site/nav.ejs`、
   `source/css/site.css`、`test/holidays-e2e.js`、`test/zodiac-e2e.js`（断言入口位置变化）。
 
-## 步骤 2：资料库页面族 /library/
+## 步骤 2：资料库页面族 /library/ ✅ 已完成
 
 - **做什么：** 新增 `source/_data/library.yml`（专题数据，首期：中国节假日 + 十二生肖）、
   `themes/fluid/layout/library.ejs`（左侧导读栏 + 右侧专题卡片的纸面版式）、

@@ -1,0 +1,92 @@
+<%
+// 资料库页（/library/）：聚合本站专题资料的入口页。
+// 排版借鉴参考站的「左导读栏 + 右专题卡片」结构（2026-10-25 主人指定参考
+// studycli.org/zh-CN/library/），不做课程部分；视觉走本站纸面体系。
+// 数据：source/_data/library.yml（唯一数据源，新增专题只改数据）
+// 样式：site.css §4.14（.lb-* 规则）
+page.layout = 'library'
+page.hide_banner = true
+
+var lb = (site.data && site.data.library) || {}
+var topics = Array.isArray(lb.topics) ? lb.topics : []
+var meta = lb.meta || {}
+%>
+
+<% if (!topics.length) { %>
+<div class="paper-page cal-page lb-page">
+  <div class="home-wrap">
+    <header class="page-head">
+      <p class="page-head-kicker">LIBRARY</p>
+      <h1 class="page-head-title">资料库</h1>
+    </header>
+    <p class="post-desc">资料库还是空的。先在 <code>source/_data/library.yml</code> 里补上专题，页面会自动生成。</p>
+  </div>
+</div>
+<% } else { %>
+
+<div class="paper-page cal-page lb-page">
+  <div class="home-wrap">
+    <header class="page-head">
+      <p class="page-head-kicker">LIBRARY</p>
+      <h1 class="page-head-title">资料库</h1>
+      <p class="cal-lede"><%= meta.intro || '' %></p>
+      <p class="archive-total">更新于 <%= fmtItemDate(meta.updated) %> · <%= topics.length %> 个专题 · 资料持续增补</p>
+    </header>
+
+    <div class="lb-layout">
+      <%# 左导读栏：桌面 sticky，锚点跳各专题；移动端转为横向链接条 %>
+      <aside class="lb-guide" aria-label="专题导航">
+        <div class="lb-guide-label"><%= meta.guideLabel || '专题导航' %></div>
+        <ul class="lb-guide-list">
+          <% for (var gi = 0; gi < topics.length; gi += 1) { var gt = topics[gi] %>
+          <li>
+            <a href="#topic-<%= gt.key %>">
+              <span class="lb-guide-title"><%= gt.title %></span>
+              <span class="lb-guide-count"><%= (gt.entries || []).length %></span>
+            </a>
+          </li>
+          <% } %>
+        </ul>
+        <% if (meta.guideNote) { %>
+        <p class="lb-guide-note"><%= meta.guideNote %></p>
+        <% } %>
+      </aside>
+
+      <div class="lb-main">
+        <% for (var ti = 0; ti < topics.length; ti += 1) { var tp = topics[ti] %>
+        <section class="lb-topic" id="topic-<%= tp.key %>">
+          <div class="col-head">
+            <div>
+              <p class="page-head-kicker"><%= tp.kicker || '' %></p>
+              <h2 class="col-title"><%= tp.title %></h2>
+            </div>
+            <span class="col-count">/ <%= (tp.entries || []).length %></span>
+          </div>
+          <p class="lb-topic-desc"><%= tp.desc || '' %></p>
+
+          <ul class="lb-entries">
+            <% for (var ei = 0; ei < (tp.entries || []).length; ei += 1) { var en = tp.entries[ei] %>
+            <li class="lb-entry">
+              <a href="<%= url_for(en.link) %>">
+                <span class="lb-entry-name"><%= en.name %></span>
+                <span class="lb-entry-note"><%= en.note || '' %></span>
+              </a>
+            </li>
+            <% } %>
+          </ul>
+
+          <% if (tp.link) { %>
+          <a class="lb-topic-more" href="<%= url_for(tp.link) %>"><%= tp.linkText || '进入专题' %> →</a>
+          <% } %>
+        </section>
+        <% } %>
+
+        <div class="cal-after">
+          <p class="cal-note">资料库收录本站整理的专题系列；各专题页面内的日期与历法数据依据公开资料，民俗与说法部分已注明口径。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% } %>

@@ -250,10 +250,12 @@ if (!fs.existsSync(PUBLIC)) {
 } else {
   ok('布局模板能独立编译（E-045：编译失败时 Hexo 会静默产出残页）', () => {
     const ejs = require('ejs');
-    const src = fs.readFileSync(path.join(ROOT, 'themes/fluid/layout/zodiac.ejs'), 'utf8');
-    let err = null;
-    try { ejs.compile(src, { filename: 'zodiac.ejs' }); } catch (e) { err = e; }
-    assert.strictEqual(err, null, 'zodiac.ejs 编译失败：' + (err && err.message.split('\n')[0]));
+    ['zodiac.ejs', 'library.ejs'].forEach((f) => {
+      const src = fs.readFileSync(path.join(ROOT, 'themes/fluid/layout', f), 'utf8');
+      let err = null;
+      try { ejs.compile(src, { filename: f }); } catch (e) { err = e; }
+      assert.strictEqual(err, null, f + ' 编译失败：' + (err && err.message.split('\n')[0]));
+    });
   });
 
   ok('索引页与十二个生肖页全部生成且非 0 字节（E-029 / E-038）', () => {
@@ -346,9 +348,26 @@ if (!fs.existsSync(PUBLIC)) {
       '.z-nav', '.z-facts', '.z-luck', '.z-vocab', '.z-relations', '.z-trait-cols',
       '.z-trait-col', '.z-theme', '.z-note', '.z-pager', '.z-pos', '.z-animal-link',
       '.cal-page a.z-link {', '.z-animal-current',
+      '.lb-layout', '.lb-guide', '.lb-entries', '.lb-topic-more',
     ];
     const missing = must.filter((s) => css.indexOf(s) === -1);
-    assert.deepStrictEqual(missing, [], 'site.css 丢了这些生肖样式：' + missing.join('、'));
+    assert.deepStrictEqual(missing, [], 'site.css 丢了这些样式：' + missing.join('、'));
+  });
+
+  ok('资料库页生成：导读栏 + 两个专题 + 14 个条目链接齐全', () => {
+    const idx = path.join(PUBLIC, 'library', 'index.html');
+    assert.ok(fs.existsSync(idx), 'public/library/index.html 不存在 —— 构建漏了资料库页');
+    assert.ok(fs.statSync(idx).size > 10000, '资料库页内容过少');
+    const h = fs.readFileSync(idx, 'utf8');
+    assert.ok(h.indexOf('资料库') !== -1, '缺标题');
+    assert.ok(h.indexOf('topic-zodiac') !== -1 && h.indexOf('topic-holidays') !== -1, '缺专题锚点');
+    const entries = (h.match(/class="lb-entry"/g) || []).length;
+    assert.strictEqual(entries, 14, '条目数不对（实际 ' + entries + '，应为 12 生肖 + 2 节假日）');
+    PAGES.forEach((k) => {
+      assert.ok(h.indexOf('href="/zodiac/' + k + '/"') !== -1, '资料库缺 /zodiac/' + k + '/ 条目');
+    });
+    assert.ok(h.indexOf('href="/holidays/2026/"') !== -1, '资料库缺节假日条目');
+    assert.ok(h.indexOf('lb-guide-list') !== -1, '缺导读栏');
   });
 
   ok('导航与页面互链存在（辅助导航含节假日 / 资料库入口）', () => {

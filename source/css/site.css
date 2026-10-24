@@ -2773,6 +2773,133 @@ a.feed-title:hover {
   .z-pager { flex-direction: column; gap: .6rem; }
 }
 
+/* ===== 4.14 资料库页（/library/，2026-10-25 新增） ===== */
+
+/* 两栏：左导读栏（桌面 sticky）+ 右专题主区。排版借鉴参考站资料库，
+   视觉仍走本站纸面体系（根元素挂 cal-page，参考站破例作用域内）。 */
+.lb-layout {
+  display: grid;
+  grid-template-columns: 13rem minmax(0, 1fr);
+  gap: clamp(2rem, 4vw, 3.5rem);
+  align-items: start;
+  margin-top: 2rem;
+}
+
+/* 左导读栏：吸顶（悬浮导航约 66px 高 + 余量） */
+.lb-guide {
+  position: sticky;
+  top: 5.5rem;
+}
+
+.lb-guide-label {
+  margin-bottom: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--sec-text-color);
+}
+
+.lb-guide-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lb-guide-list li + li { margin-top: 0.1rem; }
+
+.lb-guide-list a {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.38rem 0.55rem;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.lb-guide-list a:hover {
+  color: var(--accent);
+  background-color: rgba(26, 26, 26, 0.05);
+}
+
+.lb-guide-count {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 400;
+  color: var(--sec-text-color);
+}
+
+.lb-guide-note {
+  margin: 0.8rem 0 0;
+  font-size: 0.76rem;
+  line-height: 1.6;
+  color: var(--sec-text-color);
+}
+
+/* 右主区：专题块 */
+.lb-topic + .lb-topic { margin-top: 2.6rem; }
+
+.lb-topic-desc {
+  margin: 0.8rem 0 0;
+  max-width: 46rem;
+  font-size: 0.98rem;
+  line-height: 1.75;
+  color: var(--text-color);
+}
+
+/* 条目列表：名称 + 备注 两列行式（组顶 2px 全墨线 + 行底 hairline，§4.3 层级语言） */
+.lb-entries {
+  margin: 1.1rem 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 2px solid var(--rule-strong);
+}
+
+.lb-entry a {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  gap: 1rem;
+  align-items: baseline;
+  padding: 0.62rem 0.4rem;
+  border-bottom: 1px solid var(--line-color);
+}
+
+.lb-entry a:hover { background-color: rgba(26, 26, 26, 0.04); }
+
+.lb-entry-name {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.lb-entry a:hover .lb-entry-name { color: var(--accent); }
+
+.lb-entry-note { font-size: 0.85rem; color: var(--sec-text-color); }
+
+/* 专题底部入口 */
+.lb-topic-more {
+  display: inline-block;
+  margin-top: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--sec-text-color);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.lb-topic-more:hover { color: var(--accent); }
+
+@media (max-width: 991.98px) {
+  /* 导读栏转横向链接条，主区占满 */
+  .lb-layout { grid-template-columns: minmax(0, 1fr); gap: 1.6rem; }
+  .lb-guide { position: static; }
+  .lb-guide-list { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+  .lb-guide-list li + li { margin-top: 0; }
+  .lb-guide-note { display: none; }
+}
+
 /* ===== 5. 第三方组件纸面化（site.css 在 main.css 之后加载，覆盖即生效） ===== */
 
 /* 5.1 nprogress 顶部进度条（VD-2）：主题 L124 的 color 配置是死配置，

@@ -1,0 +1,47 @@
+# 资料库数据 —— /library/ 页面的唯一数据源
+#
+# 结构：meta（说明 / 导读栏）+ topics[]（每个专题：标题、描述、条目列表）
+# 纪律（与 holidays.yml / zodiac.yml 相同）：
+#   1. 中文长文案一律写单行（E-042）；
+#   2. 条目链接写站内绝对路径（/zodiac/rat/），与页面实际路由一致，测试锁死；
+#   3. 新增专题只在这里追加一条 topic——模板、样式、测试都不用动（这是「资料库」的本意：
+#      一个可以不断塞专题进来的聚合板块，2026-10-25 首期：十二生肖、中国节假日）。
+
+meta:
+  updated: "2026-10-25"
+  intro: "本站整理的专题资料。每个专题是一个可以逐页深入的系列——目前收录十二生肖与中国节假日，以后会陆续增补。左栏可以快速跳到某个专题。"
+  guideLabel: "专题导航"
+  guideNote: "资料持续增补中。"
+
+topics:
+  # ============ 专题一：十二生肖 ============
+  - key: "zodiac"
+    title: "十二生肖"
+    kicker: "ZODIAC"
+    desc: "十二种动物与农历年份的对应体系：每个生肖的位次与地支、汉字与用词、寓意、各地传统与传说、相关词汇与常见问题。"
+    link: "/zodiac/"
+    linkText: "进入十二生肖总览"
+    entries:
+      - { name: "鼠年", note: "第一位 · 地支「子」· 为什么鼠排第一", link: "/zodiac/rat/" }
+      - { name: "牛年", note: "第二位 · 地支「丑」· 农耕与「你很牛」", link: "/zodiac/ox/" }
+      - { name: "虎年", note: "第三位 · 地支「寅」· 道教与龙虎山", link: "/zodiac/tiger/" }
+      - { name: "兔年", note: "第四位 · 地支「卯」· 玉兔与中秋节", link: "/zodiac/rabbit/" }
+      - { name: "龙年", note: "第五位 · 地支「辰」· 唯一的神话生肖", link: "/zodiac/dragon/" }
+      - { name: "蛇年", note: "第六位 · 地支「巳」· 女娲与白蛇传", link: "/zodiac/snake/" }
+      - { name: "马年", note: "第七位 · 地支「午」· 马到成功与龙马精神", link: "/zodiac/horse/" }
+      - { name: "羊年", note: "第八位 · 地支「未」· 五羊传说与广州羊城", link: "/zodiac/goat/" }
+      - { name: "猴年", note: "第九位 · 地支「申」· 孙悟空与西游记", link: "/zodiac/monkey/" }
+      - { name: "鸡年", note: "第十位 · 地支「酉」· 鸡鸣与「官」的谐音", link: "/zodiac/rooster/" }
+      - { name: "狗年", note: "第十一位 · 地支「戌」· 渡河迟到的传说", link: "/zodiac/dog/" }
+      - { name: "猪年", note: "第十二位 · 地支「亥」· 富足与「金猪」传闻", link: "/zodiac/pig/" }
+
+  # ============ 专题二：中国节假日 ============
+  - key: "holidays"
+    title: "中国节假日"
+    kicker: "CALENDAR"
+    desc: "2021–2036 年的放假安排：七个法定节假日的放假区间与调休上班日、其他节日与纪念日、二十四节气，以及农历标签。"
+    link: "/holidays/"
+    linkText: "进入节假日总览"
+    entries:
+      - { name: "2026 年节假日", note: "当前年份 · 官方安排 · 春节 2 月 17 日起", link: "/holidays/2026/" }
+      - { name: "2021–2036 年一览", note: "十六年放假安排、其他节日与节气", link: "/holidays/" }
