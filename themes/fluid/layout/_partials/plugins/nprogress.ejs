@@ -1,12 +1,25 @@
 <% if (theme.fun_features.progressbar && theme.fun_features.progressbar.enable){ %>
-  <%- js_ex(theme.static_prefix.nprogress, 'nprogress.min.js') %>
+  <%#
+    P0-4：nprogress 原来是「同步外部脚本 + 紧随其后的解析期内联块」。
+    内联块在解析期立即执行，外部脚本一旦改 defer 就会 NProgress undefined。
+
+    改法：外部脚本改 defer；内联块包进 DOMContentLoaded。
+    语义不变——本块本来就在 body 末尾（解析到此处才开始跑），
+    DOMContentLoaded 也在解析完成后立即触发，两者时刻基本一致。
+
+    ⚠️ 注意不能用 <script defer>：defer 属性只对外部脚本（有 src）生效，
+    内联脚本上的 defer 会被浏览器直接忽略，仍按解析期执行。
+  %>
+  <%- js_ex(theme.static_prefix.nprogress, 'nprogress.min.js', 'defer') %>
   <%- css_ex(theme.static_prefix.nprogress, 'nprogress.min.css') %>
 
   <script>
-    NProgress.configure(<%- JSON.stringify(theme.fun_features.progressbar.options || '{}') %>)
-    NProgress.start()
-    window.addEventListener('load', function() {
-      NProgress.done();
-    })
+    document.addEventListener('DOMContentLoaded', function () {
+      NProgress.configure(<%- JSON.stringify(theme.fun_features.progressbar.options || '{}') %>)
+      NProgress.start()
+      window.addEventListener('load', function() {
+        NProgress.done();
+      })
+    });
   </script>
 <% } %>

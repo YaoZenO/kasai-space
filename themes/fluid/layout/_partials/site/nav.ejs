@@ -66,7 +66,12 @@ var currentPath = ('/' + (page.path || '')).replace(/index\.html$/, '')
            data-toggle="modal" data-target="#modalSearch" aria-label="Search">
           <i class="iconfont icon-search"></i>
         </a>
-        <% import_js(theme.static_prefix.internal_js, 'local-search.js') %>
+        <%#
+          P0-4：local-search.js 是 IIFE，解析期立即执行并直接调用 jQuery，
+          而 jquery.min.js 已改 defer（晚于解析期）。必须也改 defer 才能保序：
+          defer 脚本按文档顺序执行，jquery 在前 → local-search 在其后，依赖成立。
+        %>
+        <% import_js(theme.static_prefix.internal_js, 'local-search.js', 'defer') %>
       <% } %>
       <button id="navbar-toggler-btn" class="navbar-toggler d-lg-none" type="button"
               aria-controls="mobile-grid-menu" aria-expanded="false" aria-label="Toggle navigation">

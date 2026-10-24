@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 1749284 */
-  src: url('/fonts/font_1749284_5i9bdhy70f8.woff2') format('woff2'),
-       url('/fonts/font_1749284_5i9bdhy70f8.woff') format('woff'),
-       url('/fonts/font_1749284_5i9bdhy70f8.ttf') format('truetype');
+  font-display: block; /* 同 iconfont.css：避免图标位先显示豆腐块 □ */
+  /* 只保留 woff2（同 iconfont.css，见 E-060）：woff/ttf 回退格式零请求，已删除。 */
+  src: url('/fonts/font_1749284_5i9bdhy70f8.woff2') format('woff2');
 }
 
 .iconfont {

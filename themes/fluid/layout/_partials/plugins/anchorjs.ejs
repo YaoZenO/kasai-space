@@ -1,6 +1,9 @@
 <%
+// P0-4：本内联块依赖 Fluid.utils.createScript 与 CONFIG（utils.js 已改 defer），
+// 必须等 DOMContentLoaded。语义不变：anchorjs 本身作用于已解析完的正文标题。
 import_script(`
 <script>
+document.addEventListener('DOMContentLoaded', function () {
   Fluid.utils.createScript('${ url_join(theme.static_prefix.anchor, 'anchor.min.js') }', function() {
     window.anchors.options = {
       placement: CONFIG.anchorjs.placement,
@@ -34,6 +37,7 @@ import_script(`
       }
     });
   });
+});
 </script>
 `)
 %>

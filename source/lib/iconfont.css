@@ -1,8 +1,11 @@
 @font-face {
   font-family: "iconfont"; /* Project id 1736178 */
-  src: url('/fonts/font_1736178_k526ubmyhba.woff2') format('woff2'),
-       url('/fonts/font_1736178_k526ubmyhba.woff') format('woff'),
-       url('/fonts/font_1736178_k526ubmyhba.ttf') format('truetype');
+  /* font-display: block —— 图标字体默认 auto ≈ 3s 阻塞期，期间显示豆腐块 □；
+     block 让图标位先占位不闪豆腐块（P2 收尾项）。
+     只保留 woff2：woff/ttf 回退格式全站零请求（现代浏览器一律取 woff2 首项），
+     属纯死重（E-060）。回退文件已删除，此处不得再写回，否则会 404。 */
+  font-display: block;
+  src: url('/fonts/font_1736178_k526ubmyhba.woff2') format('woff2');
 }
 
 .iconfont {

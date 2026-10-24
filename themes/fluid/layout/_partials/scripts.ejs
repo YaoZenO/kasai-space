@@ -1,18 +1,33 @@
+<%#
+  P0-4（PERF-AUDIT-2026-10-23）：全部外部脚本改 defer，移出首屏关键路径。
+  改法：统一走 js_ex 的第三参数 ex 传 'defer'，不手写标签（E-025 同源教训）。
+
+  ⚠️ 为什么内联块必须一起处理（报告没点出的坑，见 ERRORS.md E-060）：
+  内联 <script> 在**解析期立即执行**，而 defer 外部脚本要等整份文档解析完才执行。
+  所以「外部脚本加 defer」会让所有依赖 Fluid.utils / Fluid.plugins / jQuery 的内联块
+  在依赖尚未就绪时先跑，直接抛 ReferenceError / TypeError。
+  报告只识别了 nprogress 一处，实测有 5 类（codeWidget / imageCaption / anchorjs /
+  fancybox / tocbot）。因此本批次同时把那些内联块改成 DOMContentLoaded 后执行，
+  或（nprogress）整体外置成 defer 脚本。
+
+  顺序纪律：defer 脚本按文档顺序执行，现有顺序本身是合法拓扑序
+  （utils → events → plugins → boot），保持不变即可。
+%>
 <%- partial('_partials/plugins/nprogress.ejs') %>
-<%- js_ex(theme.static_prefix.jquery, 'jquery.min.js') %>
-<%- js_ex(theme.static_prefix.bootstrap, 'js/bootstrap.min.js') %>
-<%- js_ex(theme.static_prefix.internal_js, 'events.js') %>
-<%- js_ex(theme.static_prefix.internal_js, 'plugins.js') %>
+<%- js_ex(theme.static_prefix.jquery, 'jquery.min.js', 'defer') %>
+<%- js_ex(theme.static_prefix.bootstrap, 'js/bootstrap.min.js', 'defer') %>
+<%- js_ex(theme.static_prefix.internal_js, 'events.js', 'defer') %>
+<%- js_ex(theme.static_prefix.internal_js, 'plugins.js', 'defer') %>
 
 <%- partial('_partials/plugins/typed.ejs') %>
 
 <% if (theme.lazyload.enable){ %>
   <% if (theme.lazyload.onlypost) { %>
     <% if (is_post() || is_page()) { %>
-      <%- js_ex(theme.static_prefix.internal_js, 'img-lazyload.js') %>
+      <%- js_ex(theme.static_prefix.internal_js, 'img-lazyload.js', 'defer') %>
     <% } %>
   <% } else { %>
-    <%- js_ex(theme.static_prefix.internal_js, 'img-lazyload.js') %>
+    <%- js_ex(theme.static_prefix.internal_js, 'img-lazyload.js', 'defer') %>
   <% } %>
 <% } %>
 
@@ -24,9 +39,9 @@
 
 <% if (theme.custom_js) { %>
   <%# 同 css.ejs：不用 js() helper，它会给带 ?v= 的 URL 追加 .js 造成 404。 %>
-  <script src="<%- url_for(theme.custom_js) %>"></script>
+  <script defer src="<%- url_for(theme.custom_js) %>"></script>
 <% } %>
 
 <!-- 主题的启动项，将它保持在最底部 -->
 <!-- the boot of the theme, keep it at the bottom -->
-<%- js_ex(theme.static_prefix.internal_js, 'boot.js') %>
+<%- js_ex(theme.static_prefix.internal_js, 'boot.js', 'defer') %>

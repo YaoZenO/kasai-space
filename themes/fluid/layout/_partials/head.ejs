@@ -23,7 +23,12 @@ var ogConfig = Object.assign({
   <link rel="apple-touch-icon" sizes="180x180" href="<%= url_for(theme.apple_touch_icon) %>">
   <link rel="icon" type="image/png" sizes="32x32" href="<%= url_for(theme.favicon) %>">
   <link rel="icon" type="image/png" sizes="16x16" href="<%= url_for(theme.favicon_16 || theme.favicon) %>">
+  <%# 字体 preload：只 preload 仍然自托管的拉丁字体。
+      2026-10-23 主人改判中文走系统字体栈，中文字体已删除，故不再 preload 中文
+      （preload 一个不存在的文件会产生 404 且浪费一个请求）。 %>
   <link rel="preload" href="<%= url_for('/fonts/archivo-latin-var.woff2') %>" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="<%= url_for('/fonts/fraunces-600-latin.woff2') %>" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="<%= url_for('/fonts/nunito-sans-var-latin.woff2') %>" as="font" type="font/woff2" crossorigin>
   <% if (theme.canonical.enable) { %>
     <link rel="canonical" href="<%= url_join(config.url, page.canonical_path.replace('index.html', '')) %>"/>
   <% } %>
@@ -52,9 +57,55 @@ var ogConfig = Object.assign({
 
   <%- partial('_partials/css.ejs') %>
   <%- export_config() %>
-  <%- js_ex(theme.static_prefix.internal_js, 'utils.js') %>
-  <%- js_ex(theme.static_prefix.internal_js, 'color-schema.js') %>
+  <%#
+    P0-4：head 里的 utils.js / color-schema.js 原来同步阻塞解析。
+    两者都是「定义对象、无 DOM 依赖」的纯声明脚本（utils.js 顶部只有
+    window.requestAnimationFrame 兜底 + Fluid.utils = {...}；color-schema.js
+    是 IIFE 但内部读的是 document.documentElement 属性，解析期与 defer 期结果一致）。
+    加 defer 不改变任何语义，只是把 17,190 B 移出关键路径。
+
+    ⚠️ 但 defer 会让它们晚于所有内联脚本执行。因此凡是依赖 Fluid.utils 的内联块
+    （codeWidget / imageCaption / anchorjs / fancybox / tocbot）都已改成
+    DOMContentLoaded 后执行（见各 partial）。color-schema.js 不阻塞渲染也不被内联依赖。
+  %>
+  <%- js_ex(theme.static_prefix.internal_js, 'utils.js', 'defer') %>
+  <%- js_ex(theme.static_prefix.internal_js, 'color-schema.js', 'defer') %>
   <%- partial('_partials/plugins/analytics.ejs') %>
+
+  <%#
+    P0-3 导航预取（PERF-AUDIT-2026-10-23）：本站是纯静态 MPA，每次导航都整页重载，
+    重付 HTML 请求 + CSSOM 重建 + JS 执行 + 布局绘制。Speculation Rules API 让
+    浏览器在空闲时预取（prefetch）后续可能导航的页面，使二次导航 TTFB → 0。
+
+    为什么用 Speculation Rules 而不是 PJAX：
+      · 零 JS，浏览器原生调度，不参与本站脚本链，不会被 defer 改造影响
+      · Safari / Firefox 静默忽略，退化为现状，无兼容风险
+      · PJAX 需要把 jQuery 插件（modal / dropdown / fancybox / tocbot / anchor-js /
+        clipboard）全部改造成可重入 + destroy，泄漏与双绑风险高，本报告已明确不建议
+
+    eagerness: "moderate" —— 只预取「用户有一定意图」的链接（悬停/进入视口），
+    不是全站无脑预取。用 "immediate" 会在首页就把所有导航页全拉一遍，浪费带宽。
+
+    排除项：/archives/ 与分类/标签页内容长、命中率低，排除以省带宽；
+    /admin/ 是后台，绝不预取。
+  %>
+  <script type="speculationrules">
+  {
+    "prefetch": [{
+      "where": {
+        "and": [
+          { "href_matches": "/*" },
+          { "not": { "href_matches": "/admin/*" } },
+          { "not": { "href_matches": "/archives*" } },
+          { "not": { "href_matches": "/categories/*" } },
+          { "not": { "href_matches": "/tags/*" } },
+          { "not": { "href_matches": "/*.xml" } }
+        ]
+      },
+      "eagerness": "moderate"
+    }]
+  }
+  </script>
 
   <%- inject_point('head') %>
 </head>

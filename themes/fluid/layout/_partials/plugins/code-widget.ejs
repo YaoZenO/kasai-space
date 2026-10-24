@@ -1,7 +1,13 @@
 <%
 if (theme.code.copy_btn) {
-  import_script(`<script src=${url_join(theme.static_prefix.clipboard, 'clipboard.min.js')}></script>`)
+  import_script(`<script defer src=${url_join(theme.static_prefix.clipboard, 'clipboard.min.js')}></script>`)
 }
-import_script(`<script>Fluid.plugins.codeWidget();</script>
+// P0-4：本内联块依赖 Fluid.plugins（plugins.js 已改 defer），必须等 DOMContentLoaded。
+// 语义不变：codeWidget() 本身只操作 .markdown-body pre，此时 DOM 已完整。
+import_script(`<script>
+document.addEventListener('DOMContentLoaded', function () {
+  Fluid.plugins.codeWidget();
+});
+</script>
 `)
 %>

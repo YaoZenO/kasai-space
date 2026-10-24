@@ -14,7 +14,12 @@
   <%- partial('_partials/plugins/fancybox.ejs') %>
 <% } %>
 <% if (theme.post.image_caption.enable) { %>
-  <% import_script('<script>Fluid.plugins.imageCaption();</script>') %>
+  <%# P0-4：依赖 Fluid.plugins（plugins.js 已 defer），改到 DOMContentLoaded 后执行。 %>
+  <% import_script(`<script>
+document.addEventListener('DOMContentLoaded', function () {
+  Fluid.plugins.imageCaption();
+});
+</script>`) %>
 <% } %>
 <% if (theme.post.math.enable && (!theme.post.math.specific || (theme.post.math.specific && page.math))) { %>
   <%- partial('_partials/plugins/math.ejs') %>

@@ -1,11 +1,14 @@
 <%
 import_css_async(theme.static_prefix.fancybox, 'jquery.fancybox.min.css')
 
+// P0-4：本内联块依赖 Fluid.utils / Fluid.plugins（均已 defer），改到 DOMContentLoaded。
 import_script(`
 <script>
+document.addEventListener('DOMContentLoaded', function () {
   Fluid.utils.createScript('${url_join(theme.static_prefix.fancybox, 'jquery.fancybox.min.js')}', function() {
     Fluid.plugins.fancyBox();
   });
+});
 </script>
 `)
 %>

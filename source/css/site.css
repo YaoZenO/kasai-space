@@ -25,49 +25,19 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-/* 思源黑体 / 思源宋体子集（V3.4 自托管）：Noto Sans SC 400/500/700、Noto Serif SC 600/700。
-   子集字表 = GB2312 一级字 3755 + 全站现有语料 + 标点/全角区，共 4193 个码位；
-   子集外字符由字体栈后续本地字体兜底，不缺字。源字体为可变字体，定字重后切分；
-   SIL OFL 1.1 授权，授权文本见 /fonts/OFL-Noto.txt。 */
-@font-face {
-  font-family: "Noto Sans SC";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("/fonts/noto-sans-sc-400.woff2") format("woff2");
-}
+/* 中文改走**系统字体栈**（2026-10-23，主人重新拍板；PERF-AUDIT P0-1 修订）。
+   背景：V3.4 原本是自托管思源黑体/宋体子集（4193 码位）。实测子集化收益远低于
+   审计报告估算——源字体本身已是 4560 glyph 的子集，每字形约 273 B，
+   子集到 3500 字仍要 1.64 MB（只省 36%），而报告估的是 350–480 KB（差 3~4 倍）。
+   主人据此改判：放弃子集化，中文交回访客设备系统字体，中文字节归零。
 
-@font-face {
-  font-family: "Noto Sans SC";
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("/fonts/noto-sans-sc-500.woff2") format("woff2");
-}
+   代价与取舍（已确认接受）：跨设备中文观感不再由本站统一控制——各平台分别落到
+   PingFang SC（macOS/iOS）/ HarmonyOS Sans SC、MiSans（国产 Android）/
+   Microsoft YaHei（Windows）/ 思源系（Linux）。拉丁轨（Archivo / Fraunces /
+   Nunito Sans）仍自托管，不受影响，品牌字形保持一致。
 
-@font-face {
-  font-family: "Noto Sans SC";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("/fonts/noto-sans-sc-700.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Noto Serif SC";
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("/fonts/noto-serif-sc-600.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Noto Serif SC";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("/fonts/noto-serif-sc-700.woff2") format("woff2");
-}
+   ⚠️ 不要「顺手」把 Noto @font-face 加回来：那会让首屏重新多下载 1.6~2.5 MB。
+   字体文件已从 source/fonts/ 删除（E-060）。 */
 
 :root {
   /* 墨色 / 强调 —— 后台 source/admin/admin.css 的 --accent 与此等值，
@@ -78,18 +48,20 @@
      accent 只留给交互态。与次级色同色相、明度略深，纸底 5.32:1 达 AA */
   --info-mark: #6b6255;
 
-  /* 展示轨：拉丁品牌字与大数字；中文字符自动回退黑体（不进紧字距） */
-  --font-display: "Archivo", "Arial Black", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  /* 展示轨：拉丁品牌字与大数字；中文字符自动回退系统黑体（不进紧字距） */
+  --font-display: "Archivo", "Arial Black", "PingFang SC", "HarmonyOS Sans SC", "MiSans",
+    "Microsoft YaHei", sans-serif;
 
-  /* 正文轨（V3.3 收口）：原为 .cal-page 专属字体栈，主人定轻量改后升为全站正文栈。
-     中文按现代黑体优先序（苹方→鸿蒙→MiSans→冬青→思源），微软雅黑仅作兜底，
-     不再由 Windows 系统默认字体决定全站中文观感。改值只改这一处。 */
-  --font-sans: "Nunito Sans", "Noto Sans SC", "PingFang SC", "HarmonyOS Sans SC", "MiSans",
+  /* 正文轨（2026-10-23 改为系统中文栈）：中文按现代黑体优先序
+     （苹方→鸿蒙→MiSans→冬青→思源），微软雅黑兜底；不再自托管中文字体。
+     改值只改这一处。 */
+  --font-sans: "Nunito Sans", "PingFang SC", "HarmonyOS Sans SC", "MiSans",
     "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC",
     "Microsoft YaHei", sans-serif;
 
-  /* 标题轨（衬线）：拉丁 Fraunces 600 + 中文宋体系回退，与 .cal-page 标题同轨 */
-  --font-serif-title: "Fraunces", "Noto Serif SC", Georgia, "Times New Roman", serif;
+  /* 标题轨（衬线）：拉丁 Fraunces 600 + 系统中文宋体系回退，与 .cal-page 标题同轨 */
+  --font-serif-title: "Fraunces", "Songti SC", "STSong", "SimSun", "Source Han Serif SC",
+    "Noto Serif CJK SC", Georgia, "Times New Roman", serif;
 
   /* 块色（仅作内容入口卡底，整页 ≤2 处；落点由数据决定）
      用字锁定：黄块 #e6b23c 内只能用墨色（7.82:1）；
@@ -246,7 +218,11 @@ body { font-family: var(--font-sans); }
   display: block;
   color: var(--navbar-text-color);
   font-size: 0.9rem;
-  font-weight: 500;
+  /* 2026-10-23 主人拍板：500 → 700，与 .feed-title 同档。
+     原先取 700 是为了删掉自托管 sans-500 整包字体；现在中文已改系统字体栈
+     （无自托管中文字体），700 的价值变成「与 .feed-title 同档、粗体语义一致」，
+     且系统黑体的 700 由设备字体提供真字形，不依赖浏览器合成（E-055）。 */
+  font-weight: 700;
   padding: 0.42rem 0.95rem;
   border-radius: 999px;
 }

@@ -1,4 +1,6 @@
+<%# P0-4：本块依赖 Fluid.utils（utils.js 已 defer），改到 DOMContentLoaded 后执行。 %>
 <script>
+document.addEventListener('DOMContentLoaded', function () {
   Fluid.utils.createScript('<%= url_join(theme.static_prefix.mermaid, 'mermaid.min.js') %>', function() {
     mermaid.initialize(<%- JSON.stringify(theme.post.mermaid.options || {}) %>);
 
@@ -10,4 +12,5 @@
       });
     });
   });
+});
 </script>

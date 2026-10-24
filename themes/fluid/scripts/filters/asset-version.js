@@ -103,12 +103,134 @@ function stampMainCss(html, publicDir) {
   );
 }
 
+// ---- 静态资源内容 hash 扩展（2026-10-23，PERF-AUDIT P1-3）----
+//
+// 为什么必须做这一步（P0-2 缓存头的前置条件）：
+//   之前只有 main.css / site.css / holidays.js 带 hash。字体 4.18 MB、图片 5.09 MB、
+//   lib 下的 CSS/JS 全是裸路径。裸路径 + 长期缓存 = 改图后用户永远吃旧副本，
+//   所以那批资源只能设 max-age=0，每次导航都要 revalidate。
+//   给它们盖上内容 hash 后，URL 随内容变，才敢上 immutable。
+//
+// 只处理这几种前缀：/fonts/ /img/ /lib/ /js/ /css/。
+// 它们都是「内容变了 URL 就该变」的静态资产。
+//
+// ⚠️ 为什么 /js/ 与 /css/ 也必须在这里盖章（2026-10-23 踩到的坑）：
+//   vercel.json 给 /js/(.*) 与 /css/(.*) 设了 immutable（一年不重验）。
+//   而 /js/utils.js、/js/events.js、/js/plugins.js、/js/boot.js、/js/color-schema.js、
+//   /js/local-search.js、/js/img-lazyload.js 与 /css/highlight.css 原本都是**裸路径无 hash**。
+//   裸路径 + immutable = 改完代码用户永远吃旧副本（E-035 同型病，且更严重——
+//   E-035 只是 max-age=0 下命中旧副本，这里是缓存一年）。
+//   所以要么给它们盖章，要么不设 immutable。这里选盖章（更彻底）。
+//   /js/holidays.js 已有 versionedAsset helper 盖章，此处幂等跳过。
+const STAMP_PREFIXES = /^\/(fonts|img|lib|js|css)\//;
+
+function stampStaticAssets(html, publicDir) {
+  if (!html || !publicDir) return html;
+  const cache = new Map(); // urlPath -> hash8 | null
+
+  function hashOf(urlPath) {
+    if (cache.has(urlPath)) return cache.get(urlPath);
+    const rel = urlPath.replace(/^\/+/, '');
+    let h = null;
+    if (rel && rel.indexOf('..') === -1) {
+      h = absHash(path.join(publicDir, rel));
+    }
+    cache.set(urlPath, h);
+    return h;
+  }
+
+  return String(html).replace(
+    /\b(href|src)="(\/(?:fonts|img|lib|js|css)\/[^"?#]+)(\?[^"]*)?"/g,
+    function (m, attr, pathPart, query) {
+      const h = hashOf(pathPart);
+      if (!h) return m; // 文件不存在：原样返回
+      const existing = query && /[?&]v=([0-9a-f]{8})/.exec(query);
+      if (existing && existing[1] === h) return m; // 已经是最新 hash，不动
+      return attr + '="' + pathPart + '?v=' + h + '"';
+    }
+  );
+}
+
+// CSS 内的 url(/fonts/...) 也要盖章，否则与 HTML 里的 preload 变成两个不同 URL：
+//   preload 请求 /fonts/x.woff2?v=abc（HTML 已被 stampStaticAssets 盖章）
+//   @font-face 请求 /fonts/x.woff2（CSS 未盖章）
+// 浏览器视为两个资源 → **字体被下载两次**，preload 完全白费。
+// 这是 P1-3 与 preload 的耦合点，必须成对处理。
+function stampCssAssets(css, publicDir) {
+  if (!css || !publicDir) return css;
+  const cache = new Map();
+  function hashOf(urlPath) {
+    if (cache.has(urlPath)) return cache.get(urlPath);
+    const rel = urlPath.replace(/^\/+/, '');
+    let h = null;
+    if (rel && rel.indexOf('..') === -1) h = absHash(path.join(publicDir, rel));
+    cache.set(urlPath, h);
+    return h;
+  }
+  return String(css).replace(
+    /url\((["']?)(\/(?:fonts|img|lib)\/[^)"'?#]+)(\?[^)"']*)?\1\)/g,
+    function (m, q, pathPart, query) {
+      const h = hashOf(pathPart);
+      if (!h) return m;
+      const existing = query && /[?&]v=([0-9a-f]{8})/.exec(query);
+      if (existing && existing[1] === h) return m;
+      return 'url(' + q + pathPart + '?v=' + h + q + ')';
+    }
+  );
+}
+
+// 扫盘改写 public/ 下所有前台 CSS（排除 admin/ 与 lib/ 之外的第三方 vendor 不动？——
+// 这里只改 public/css/ 与 public/lib/ 下的 CSS，都是本站可改资源）。
+function stampAllCss(publicDir) {
+  if (!publicDir) return;
+  let files;
+  try {
+    files = fs.readdirSync(publicDir, { recursive: true });
+  } catch (e) {
+    return;
+  }
+  files.forEach(function (rel) {
+    const name = String(rel).replace(/\\/g, '/');
+    if (!/\.css$/i.test(name)) return;
+    if (name.indexOf('admin/') === 0) return;
+    const abs = path.join(publicDir, name);
+    let css;
+    try {
+      css = fs.readFileSync(abs, 'utf8');
+    } catch (e) {
+      return;
+    }
+    const out = stampCssAssets(css, publicDir);
+    if (out !== css) {
+      try {
+        fs.writeFileSync(abs, out);
+      } catch (e) {
+        /* 单个文件写失败不应中断整个构建 */
+      }
+    }
+  });
+}
+
 // 扫盘改写 public/ 下所有前台 HTML（排除 admin/ —— 后台有 E-018 独立的手填版本号机制）。
 // 幂等：已带正确 hash 的文件改写后内容不变，不会产生无谓写盘。
 function stampAll(publicDir) {
   if (!publicDir) return;
   const mainPath = path.join(publicDir, 'css', 'main.css');
   if (!absHash(mainPath)) return; // main.css 还没编译出来，本轮不处理
+
+  // ⚠️ 顺序铁律：先压缩 CSS，再算 hash、再盖章。
+  // 若顺序反了，hash 算的是压缩前内容，而线上传输的是压缩后字节——
+  // 「内容不变 hash 不变」的性质被破坏（每次构建都抖动），且 URL 与实际内容脱钩。
+  // 因此把压缩放在这里而不是独立 filter：同一个函数内保证时序。
+  try {
+    require('./minify-css').minifyAll(publicDir);
+  } catch (e) {
+    /* 压缩失败不阻塞构建：宁可发未压缩的 CSS，也不能发不出页面 */
+  }
+
+  // 先改 CSS（把 @font-face 的 src 盖上 hash），再改 HTML。
+  // 顺序无关正确性（两者各自幂等），但先 CSS 后 HTML 更符合直觉：HTML 引用的是最终 URL。
+  stampAllCss(publicDir);
 
   let files;
   try {
@@ -127,7 +249,7 @@ function stampAll(publicDir) {
     } catch (e) {
       return;
     }
-    const out = stampMainCss(html, publicDir);
+    const out = stampStaticAssets(stampMainCss(html, publicDir), publicDir);
     if (out !== html) {
       try {
         fs.writeFileSync(abs, out);
@@ -198,5 +320,5 @@ if (typeof hexo !== 'undefined' && hexo && hexo.extend && hexo.extend.filter) {
   });
 }
 
-module.exports = { versionedUrl, fileHash, absHash, stampMainCss, stampAll };
+module.exports = { versionedUrl, fileHash, absHash, stampMainCss, stampStaticAssets, stampCssAssets, stampAllCss, stampAll };
 

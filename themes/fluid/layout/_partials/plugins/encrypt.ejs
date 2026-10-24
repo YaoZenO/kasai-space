@@ -1,6 +1,9 @@
 <%
+// P0-4：原为 <script defer>，但 defer 对内联脚本无效（HTML 规范：defer 仅对外部脚本生效），
+// 且本块依赖 Fluid.utils（已 defer）。改为 DOMContentLoaded 守卫，语义等价。
 import_script(`
-  <script defer>
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
     if (document.getElementById('hbePass') || document.querySelector('hbe-prefix')) {
       Fluid.utils.waitElementLoaded('hbe-prefix', function() {
         var hbePrefix = document.querySelector('hbe-prefix');
@@ -13,6 +16,7 @@ import_script(`
         }, 100, 10);
       })
     }
+  });
   </script>
 `)
 %>
