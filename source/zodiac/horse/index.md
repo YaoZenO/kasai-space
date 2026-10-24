@@ -1,7 +1,7 @@
 ---
-title: 2026 马年 · 丙午火马
+title: 马年
 kicker: ZODIAC
-date: 2026-10-23 23:30:00
+date: 2026-10-25 04:00:00
 layout: zodiac
 animal: horse
 ---

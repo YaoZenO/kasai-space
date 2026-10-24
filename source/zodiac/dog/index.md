@@ -1,7 +1,7 @@
 ---
-title: 2030 狗年 · 庚戌金狗
+title: 狗年
 kicker: ZODIAC
-date: 2026-10-23 23:30:00
+date: 2026-10-25 04:00:00
 layout: zodiac
 animal: dog
 ---

@@ -208,6 +208,11 @@ function occurrencesOf(featured) {
 
 // ---------- 主入口：单个生肖页 ----------
 
+// 2026-10-25 重构：页面从「某一年专页」改为「生肖主题页」。
+// 数据里只写内容章节（sections）；「传统配对」「吉祥象征」两节由 helper 注入——
+// 它们是计算产物（地支关系）与固定结构，不进数据文件，避免 12 个生肖各抄一遍。
+// kind 决定模板的渲染方式：years=跟年份表 relations=配对表 luck=幸运表 vocab=词表 faq=折叠列表。
+
 function buildAnimal(raw, wantKey) {
   var data = raw || {};
   var list = Array.isArray(data.animals) ? data.animals : [];
@@ -274,8 +279,26 @@ function buildAnimal(raw, wantKey) {
     if (r[1]) luck.push({ k: r[0], v: String(r[1]) });
   });
 
+  // 章节列表：数据章节 + 注入的「传统配对」「吉祥象征」。
+  // 目录由模板按这个顺序渲染，JS 的 scrollspy 也按它——单一来源。
+  var ordered = [];
+  var luckInjected = false;
+  (Array.isArray(src.sections) ? src.sections : []).forEach(function (s) {
+    if (!s || !s.title) return;
+    ordered.push(s);
+    if (s.id === 'meaning') {
+      ordered.push({ id: 'relations', title: '传统配对', body: '', kind: 'relations' });
+    }
+    // 「吉祥象征」插在传说（或名人）之后；两个 id 都可能触发，只注入一次
+    if (!luckInjected && (s.id === 'tales' || s.id === 'famous')) {
+      ordered.push({ id: 'luck', title: '吉祥象征', body: '', kind: 'luck' });
+      luckInjected = true;
+    }
+  });
+
   var prevKey = ANIMAL_SLUG[ANIMALS[mod(idx - 1, 12)]];
   var nextKey = ANIMAL_SLUG[ANIMALS[mod(idx + 1, 12)]];
+  var images = (data.meta && data.meta.images) || {};
 
   return {
     key: src.key,
@@ -283,13 +306,14 @@ function buildAnimal(raw, wantKey) {
     pinyin: src.pinyin || '',
     english: src.english || '',
     featured: featured,
-    title: featured + ' ' + animal + '年 · ' + g.ganzhi + g.title,
+    title: animal + '年',
+    intro: src.intro || '',
     ganzhi: g.ganzhi,
     element: g.element,
     yinyang: g.yinyang,
     branch: g.branch,
     position: idx + 1,
-    theme: src.theme || '',
+    positionCn: ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'][idx],
     lede: lede,
     span: span,
     spanDays: span ? spanDays(span.start, span.end) : 0,
@@ -297,13 +321,12 @@ function buildAnimal(raw, wantKey) {
     facts: facts,
     occurrences: occurrencesOf(featured),
     relations: relationsOf(g.branchIndex),
-    pros: Array.isArray(src.pros) ? src.pros : [],
-    cons: Array.isArray(src.cons) ? src.cons : [],
     luck: luck,
     luckNote: luckRaw.note || '',
+    sections: ordered,
     vocab: Array.isArray(src.vocab) ? src.vocab : [],
     faq: Array.isArray(src.faq) ? src.faq : [],
-    culture: src.culture || '',
+    image: images[src.key] || null,
     prev: { key: prevKey, animal: ANIMALS[mod(idx - 1, 12)] },
     next: { key: nextKey, animal: ANIMALS[mod(idx + 1, 12)] },
     updated: toKey(data.meta && data.meta.updated) || ''

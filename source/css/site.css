@@ -2665,80 +2665,255 @@ a.feed-title:hover {
   .cal-table tbody th { width: 4.8rem; }
 }
 
-/* ===== 4.13 生肖页（/zodiac/，2026-10-23 新增，与节假日页同族） ===== */
+/* ===== 4.13 生肖页（/zodiac/，2026-10-25 重构为生肖主题页） ===== */
 
-/* 视觉作用域直接复用 .cal-page（根元素同时挂 cal-page z-page 两个类，见 zodiac.ejs）：
-   参考站纸底 / 墨色 / 强调色 / Fraunces + Nunito 全族共用一处定义（§4.12），
-   这里只写 z-* 版式规则，不重复定义色值——避免两处漂移（E-052 同型风险）。 */
+/* 视觉作用域：根元素同时挂 cal-page z-page 两个类（见 zodiac.ejs），参考站视觉全族共用
+   §4.12 一处定义；这里只写 z-* 版式规则，不重复定义色值（两处各写一份必然漂移，E-052 同型）。 */
 
-/* 生肖导航：十二个生肖 4 列网格。年份是等宽数字，生肖是汉字——
-   覆盖 .cal-years li 的等宽轨，中文进等宽栈会掉到系统默认字体，各平台不一致。 */
-.z-nav li {
-  font-family: var(--font-sans);
-  font-variant-numeric: normal;
-  font-size: .85rem;
+/* ---- 生肖导航条：全宽横排（2026-10-25 主人指出旧版右栏导航与标题视觉不对齐，横排从结构上消除） ---- */
+.z-nav-strip {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.55rem 1.1rem;
+  margin: 1.6rem 0 0;
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
 }
 
-/* 基本信息 / 幸运物两列窄表：键列 7.5rem（容得下「生肖年起止」五个字不折行） */
-.z-facts tbody th,
-.z-luck tbody th { width: 7.5rem; }
-
-/* 一览表位次列：等宽小字（静态信息走中性色，§2.4） */
-.z-pos {
-  width: 3.2rem;
+.z-nav-strip-label {
   font-family: var(--font-mono);
-  font-size: .8rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
   color: var(--sec-text-color);
 }
 
-/* 表内生肖名链：默认墨色（.cal-name 已是墨色 700），hover 走 accent */
-.z-animal-link { color: var(--text-color); }
-.z-animal-link:hover { color: var(--accent); }
-
-/* 词汇表列宽：拼音 7rem、备注 11rem，含义列吃掉剩余宽度 */
-.z-vocab th:nth-child(2) { width: 7rem; }
-.z-vocab th:nth-child(4) { width: 11rem; }
-.z-vocab .cal-pinyin { display: block; margin-left: 0; }
-.z-vocab-note { font-size: .82rem; color: var(--sec-text-color); }
-
-/* 配对表：关系列（三合 / 六合 / 六冲 / 六害 / 相刑） */
-.z-relations tbody th { width: 5.5rem; }
-
-/* 五行表与三合相冲表：首列窄 */
-.z-elements tbody th,
-.z-sanhe tbody th { width: 5.5rem; }
-
-/* 性格两栏：组内行式列表（行底 hairline，§4.3 层级语言） */
-.z-trait-cols {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(1.5rem, 3vw, 2.5rem);
+.z-nav-strip ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 1.05rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
-.z-trait-col h3 {
-  margin: 0 0 .5rem;
-  font-size: .95rem;
+
+.z-nav-strip li { font-size: 0.95rem; line-height: 1.7; }
+.z-nav-strip a { color: var(--sec-text-color); }
+.z-nav-strip a:hover { color: var(--accent); }
+
+/* 当前生肖：墨色加粗 + 2px 下划线（与节假日页年份块同一手法） */
+.z-nav-current {
+  font-weight: 700;
+  color: var(--text-color);
+  box-shadow: inset 0 -2px 0 var(--text-color);
+}
+
+/* ---- 配图：全宽，署名行在图下（署名是 CC 授权的使用条件，不得删） ---- */
+.z-figure { margin: 1.6rem 0 0; }
+
+.z-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  background: rgba(26, 26, 26, 0.05);
+}
+
+.z-figure figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--sec-text-color);
+}
+
+.z-figure figcaption a {
+  color: var(--text-color);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.z-figure figcaption a:hover { color: var(--accent); }
+
+/* ---- 两栏：左正文 + 右 sticky 目录（复刻参考站文章页布局） ---- */
+.z-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 15rem;
+  gap: clamp(2rem, 4vw, 3.5rem);
+  align-items: start;
+  margin-top: 2rem;
+}
+
+.z-section { margin-top: 2.4rem; }
+.z-section:first-child { margin-top: 0; }
+
+.z-section-title {
+  margin: 0 0 0.9rem;
+  font-family: var(--font-serif-title);
+  font-size: clamp(1.3rem, 2.4vw, 1.65rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-color);
+}
+
+.z-sub-title {
+  margin: 1.6rem 0 0.7rem;
+  font-size: 1.02rem;
   font-weight: 700;
   color: var(--text-color);
 }
-.z-trait-col ul { margin: 0; padding: 0; list-style: none; }
-.z-trait-col li {
-  padding: .4rem 0;
-  border-bottom: 1px solid var(--line-color);
-  font-size: .95rem;
-  line-height: 1.6;
-  color: var(--text-color);
-}
-.z-trait-col li:last-child { border-bottom: 0; }
-.z-theme { margin: 1rem 0 0; font-size: .85rem; color: var(--sec-text-color); }
 
-/* 表下说明段（口径 / 空态说明） */
+/* 正文：链接默认墨色 + 细下划线；生肖术语链（z-link）另着蓝色 */
+.z-main .markdown-body p { font-size: 0.98rem; line-height: 1.85; }
+.z-main .markdown-body h3 { font-size: 1.05rem; }
+.z-main .markdown-body a {
+  color: var(--text-color);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.z-main .markdown-body a:hover { color: var(--accent); }
+
+/* ---- 右栏目录 ---- */
+.z-toc {
+  position: sticky;
+  top: 5.5rem;
+  padding-left: 1.2rem;
+  border-left: 1px solid var(--rule);
+}
+
+.z-toc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.z-toc-label {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--sec-text-color);
+}
+
+.z-toc-toggle {
+  display: flex;
+  align-items: center;
+  padding: 0.2rem;
+  border: 0;
+  background: transparent;
+  color: var(--sec-text-color);
+  cursor: pointer;
+}
+
+.z-toc-toggle:hover { color: var(--accent); }
+
+.z-toc-chevron {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.18s ease;
+}
+
+.z-toc.is-collapsed .z-toc-chevron { transform: rotate(-90deg); }
+.z-toc.is-collapsed .z-toc-list { display: none; }
+
+.z-toc-list { margin: 0.7rem 0 0; padding: 0; list-style: none; }
+.z-toc-list li { margin: 0 0 0.1rem; }
+
+.z-toc-list a {
+  display: block;
+  padding: 0.28rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--sec-text-color);
+}
+
+.z-toc-list a:hover { color: var(--accent); }
+
+.z-toc-list a.is-active {
+  color: var(--text-color);
+  font-weight: 700;
+  background: rgba(26, 26, 26, 0.05);
+}
+
+/* 进度环 + 已读百分比（SVG 圆环，stroke-dashoffset 由 JS 驱动） */
+.z-toc-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 0.9rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--rule);
+}
+
+.z-ring { flex: none; }
+
+.z-ring-bg { fill: none; stroke: var(--line-color); stroke-width: 2.5; }
+
+.z-ring-fill {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  transition: stroke-dashoffset 0.1s linear;
+}
+
+.z-toc-progress-text {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--sec-text-color);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- 表格：基本信息 / 年份 / 配对 / 幸运 / 词汇 ---- */
+.z-facts tbody th,
+.z-luck tbody th { width: 7.5rem; }
+
+.z-years tbody th { width: 5rem; }
+.z-relations tbody th { width: 5.5rem; }
+
+.z-vocab th:nth-child(2) { width: 7rem; }
+.z-vocab th:nth-child(4) { width: 11rem; }
+.z-vocab .cal-pinyin { display: block; margin-left: 0; }
+.z-vocab-note { font-size: 0.82rem; color: var(--sec-text-color); }
+
+.z-pos {
+  width: 3.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--sec-text-color);
+}
+
+.z-animal-link { color: var(--text-color); }
+.z-animal-link:hover { color: var(--accent); }
+
+.z-elements tbody th,
+.z-sanhe tbody th { width: 5.5rem; }
+
+/* FAQ：复用 cal-faq-item 折叠样式 */
+.z-faq { margin-top: 0.4rem; }
+
+/* 表下说明段 */
 .z-note {
-  margin: .55rem 0 0;
-  font-size: .78rem;
+  margin: 0.55rem 0 0;
+  font-size: 0.78rem;
   line-height: 1.7;
   color: var(--sec-text-color);
 }
-.z-note a { color: var(--text-color); text-decoration: underline; text-underline-offset: 2px; }
+
+.z-note a {
+  color: var(--text-color);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .z-note a:hover { color: var(--accent); }
 
 /* 上一页 / 下一页：组顶 2px 全墨线 + 两端对齐 */
@@ -2746,15 +2921,17 @@ a.feed-title:hover {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  margin-top: 2.2rem;
+  margin-top: 2.6rem;
   padding-top: 1.1rem;
   border-top: 2px solid var(--rule-strong);
 }
+
 .z-pager a {
   font-family: var(--font-mono);
-  font-size: .85rem;
+  font-size: 0.85rem;
   color: var(--sec-text-color);
 }
+
 .z-pager a:hover { color: var(--accent); }
 
 /* 生肖年术语链（火马年 / 丙午马年 / 正文里的蛇年、羊年……）：蓝色标注，可跳转。
@@ -2765,12 +2942,111 @@ a.feed-title:hover {
   text-decoration: underline;
   text-underline-offset: 2px;
 }
+
 .cal-page a.z-link:hover { color: var(--accent); }
 
-@media (max-width: 767.98px) {
-  /* 性格两栏在窄屏合一列；上下生肖改为纵向堆叠 */
-  .z-trait-cols { grid-template-columns: minmax(0, 1fr); gap: 1.4rem; }
-  .z-pager { flex-direction: column; gap: .6rem; }
+/* ---- 移动端：目录收起为悬浮按钮 + 底部抽屉（复刻参考站交互） ---- */
+.z-toc-fab,
+.z-toc-overlay,
+.z-toc-sheet { display: none; }
+
+@media (max-width: 991.98px) {
+  .z-layout { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .z-toc { display: none; }
+
+  .z-toc-fab {
+    display: flex;
+    position: fixed;
+    right: 1rem;
+    bottom: 1.2rem;
+    z-index: 1050;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.55rem 0.9rem;
+    border: 1px solid var(--site-chip-border);
+    border-radius: 999px;
+    background: #fdfbf6;
+    box-shadow: var(--site-float-shadow);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-color);
+    cursor: pointer;
+  }
+
+  .z-toc-fab svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .z-toc-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 1060;
+    background: rgba(42, 37, 29, 0.32);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+  }
+
+  .z-toc-overlay.is-open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .z-toc-sheet {
+    display: block;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1070;
+    max-height: 72vh;
+    overflow-y: auto;
+    padding: 0.9rem 1.1rem 1.4rem;
+    border-radius: 16px 16px 0 0;
+    background: #f7f6f4;
+    box-shadow: 0 -12px 32px -14px rgba(42, 37, 29, 0.28);
+    transform: translateY(102%);
+    transition: transform 0.22s ease;
+  }
+
+  .z-toc-sheet.is-open { transform: translateY(0); }
+
+  .z-toc-sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+
+  .z-toc-sheet-close {
+    display: flex;
+    padding: 0.3rem;
+    border: 0;
+    background: transparent;
+    color: var(--sec-text-color);
+    cursor: pointer;
+  }
+
+  .z-toc-sheet-close svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .z-toc-sheet .z-toc-list a { font-size: 0.95rem; padding: 0.45rem 0.5rem; }
+  .z-nav-strip ul { gap: 0.3rem 0.85rem; }
+  .z-pager { flex-direction: column; gap: 0.6rem; }
 }
 
 /* ===== 4.14 资料库页（/library/，2026-10-25 新增） ===== */
