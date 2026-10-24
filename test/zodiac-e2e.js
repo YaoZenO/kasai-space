@@ -1,13 +1,16 @@
 'use strict';
 // 生肖页（/zodiac/、/zodiac/<动物>/）端到端验证。
+// 2026-10-25 重构为「生肖主题页」后同步更新：
+//   —— 标题只写生肖名、删性格板块、章节化内容、右栏目录 + 进度环 + 移动抽屉。
 //
 // 为什么要有这一套（与 holidays-e2e.js 同一理由）：
-//   这一族页面同样由一个数据文件（zodiac.yml）+ 一个 helper 算出来，模板里没有一句
+//   这一族页面由一个数据文件（zodiac.yml）+ 一个 helper 算出来，模板里没有一句
 //   手写日期。「数据写错 / 算错」不会有任何报错——页面照常生成、样式照常漂亮，
 //   只是某个年份算错了。所以这里锁三层：
 //     ① 数据自洽：干支、起止、与节假日页春节日期一致、配对关系锚点；
 //     ② 计算正确：引导段、日期解析的跨时区不变式；
-//     ③ 产物落地：13 个页面真的存在且非 0 字节、蓝色术语链落到节假日页、CSS 段完整。
+//     ③ 产物落地：13 个页面真的存在且非 0 字节、目录/进度环/抽屉落地、
+//        蓝色术语链落到节假日页、CSS 段完整。
 //
 // 运行：node test/zodiac-e2e.js
 // 前置：npm run build（产物断言依赖 public/）。public/ 不存在时产物段 SKIP，
@@ -65,7 +68,7 @@ ok('featured 年份正好覆盖 2021-2032，一个不重不漏', () => {
     'featured 年份不是 2021-2032 连续十二年');
 });
 
-// 干支是整个页面族的地基：写错一个，标题、起止、称号、FAQ 全跟着错。
+// 干支是整个页面族的地基：写错一个，引导段、年份表、称号全跟着错。
 // 这里按传统规则逐条钉死（参考站公布值与本站一致）。
 ok('十二个 featured 年份的干支 / 五行 / 阴阳全部正确', () => {
   const expect = {
@@ -84,9 +87,8 @@ ok('十二个 featured 年份的干支 / 五行 / 阴阳全部正确', () => {
     assert.strictEqual(a.ganzhi, gz, k + ' 的干支不是 ' + gz + '（实际 ' + a.ganzhi + '）');
     assert.strictEqual(a.element, el, k + ' 的五行不是 ' + el);
     assert.strictEqual(a.yinyang, yy, k + ' 的阴阳不是 ' + yy);
-    // 称号 = 五行 + 生肖（如「火马」）
-    assert.strictEqual(a.title, y + ' ' + a.animal + '年 · ' + gz + el + a.animal,
-      k + ' 的页标题不对：' + a.title);
+    // 2026-10-25 起标题只写生肖名，不绑定具体年份（主人明确要求）
+    assert.strictEqual(a.title, a.animal + '年', k + ' 的页标题不是纯生肖名：' + a.title);
   });
 });
 
@@ -111,7 +113,7 @@ ok('生肖年起止与 holidays.yml 的春节日期一致（跨模块一致性�
   });
 });
 
-ok('六个代表年生肖年起止与官方春节一致', () => {
+ok('八个代表年生肖年起止与官方春节一致', () => {
   const expect = {
     ox: ['2021-02-12', '2022-01-31'], tiger: ['2022-02-01', '2023-01-21'],
     rabbit: ['2023-01-22', '2024-02-09'], horse: ['2026-02-17', '2027-02-05'],
@@ -165,14 +167,45 @@ ok('配对关系锚点：鼠（猴龙三合 / 牛六合 / 冲马 / 害羊 / 刑�
   const pig = rel('pig');
   assert.strictEqual(pig['三合'], '兔羊', '猪的三合不是兔、羊');
   assert.strictEqual(pig['六冲'], '蛇', '猪的六冲不是蛇');
-  // 六合十二对全表（子丑寅亥卯戌辰酉巳申午未）——曾经索引写错让马年六合算出「鸡」
+  // 六合十二对全表（子丑、寅亥、卯戌、辰酉、巳申、午未）——曾经索引写错让马年六合算出「鸡」
   const liuhe = { rat: '牛', ox: '鼠', tiger: '猪', rabbit: '狗', dragon: '鸡', snake: '猴', horse: '羊', goat: '马', monkey: '蛇', rooster: '龙', dog: '兔', pig: '虎' };
   Object.keys(liuhe).forEach((k) => {
     assert.strictEqual(rel(k)['六合'], liuhe[k], k + ' 的六合不是 ' + liuhe[k]);
   });
 });
 
-ok('词汇表每行四项齐全，成语有标注', () => {
+// 2026-10-25 重构后的章节结构：每个生肖 8-9 节，
+// 「传统配对」「吉祥象征」由 helper 注入（计算产物不进数据文件）。
+// 2026-10-25 重构后的章节结构：数据 8-9 节 + helper 注入 2 节
+// （「传统配对」插在寓意后、「吉祥象征」插在传说/名人后）= 10-11 节。
+ok('章节结构完整：10-11 节，配对与吉祥节由 helper 注入', () => {
+  ov.rows.forEach((r) => {
+    const a = buildAnimal(raw, r.key);
+    const ids = a.sections.map((s) => s.id);
+    assert.ok(ids.length >= 10 && ids.length <= 11, r.key + ' 的章节数是 ' + ids.length);
+    ['what', 'word', 'language', 'meaning', 'relations', 'luck', 'vocab', 'faq', 'end'].forEach((id) => {
+      assert.ok(ids.indexOf(id) !== -1, r.key + ' 缺章节 ' + id);
+    });
+    // 目录顺序 = 章节顺序（模板与 JS 都按它渲染）
+    a.sections.forEach((s) => { assert.ok(s.title, r.key + ' 有章节缺标题'); });
+    // 名人节只出现在有数据的五个生肖
+    const hasFamous = ids.indexOf('famous') !== -1;
+    const sourced = ['tiger', 'rabbit', 'dragon', 'snake', 'goat'].indexOf(r.key) !== -1;
+    assert.strictEqual(hasFamous, sourced, r.key + ' 的名人节与数据不符');
+  });
+});
+
+// 主人 2026-10-25 明确删除的板块：性格优缺点。防复发——数据里不得再出现。
+ok('性格板块已删除（主人明确要求，防复发）', () => {
+  ov.rows.forEach((r) => {
+    const src = raw.animals.find((a) => a.key === r.key);
+    assert.ok(!src.pros && !src.cons && !src.theme, r.key + ' 又出现了性格数据');
+    const a = buildAnimal(raw, r.key);
+    assert.ok(a.pros === undefined && a.cons === undefined, r.key + ' 的 helper 输出又带了性格字段');
+  });
+});
+
+ok('词汇表每行四项齐全', () => {
   ov.rows.forEach((r) => {
     const a = buildAnimal(raw, r.key);
     assert.ok(a.vocab.length >= 10, r.key + ' 的词汇少于 10 行');
@@ -188,18 +221,17 @@ ok('页面文案没有折叠标量插进来的空格（E-042 防复发）', () =
   const cjkSpaceCjk = /[\u4e00-\u9fff] [\u4e00-\u9fff]/;
   ov.rows.forEach((r) => {
     const a = buildAnimal(raw, r.key);
-    assert.ok(!cjkSpaceCjk.test(a.culture), r.key + ' 的正文里出现「汉字 空格 汉字」');
+    a.sections.forEach((s) => {
+      assert.ok(!cjkSpaceCjk.test(s.body), r.key + '/' + s.id + ' 的正文里出现「汉字 空格 汉字」');
+    });
     a.faq.forEach((f) => {
       assert.ok(!cjkSpaceCjk.test(f.q), r.key + ' 的问题里有可疑空格');
       assert.ok(!cjkSpaceCjk.test(f.a), r.key + ' 的回答里有可疑空格');
     });
+    assert.ok(!cjkSpaceCjk.test(a.lede), r.key + ' 的引导段里有可疑空格');
   });
   assert.ok(!cjkSpaceCjk.test(ov.prose), '索引页正文里有可疑空格');
   assert.ok(!cjkSpaceCjk.test(ov.lede), '索引页引导段里有可疑空格');
-  ov.rows.forEach((r) => {
-    const a = buildAnimal(raw, r.key);
-    assert.ok(!cjkSpaceCjk.test(a.lede), r.key + ' 的引导段里有可疑空格');
-  });
 });
 
 // ---------- ② 计算正确 ----------
@@ -270,17 +302,30 @@ if (!fs.existsSync(PUBLIC)) {
     });
   });
 
-  ok('生肖页关键内容齐全：标题、干支、起止、导航、上下页、词汇表', () => {
+  ok('生肖页关键内容齐全：生肖名标题、章节、目录、进度环、抽屉、上下页', () => {
     PAGES.forEach((k) => {
       const h = fs.readFileSync(path.join(PUBLIC, 'zodiac', k, 'index.html'), 'utf8');
       const a = buildAnimal(raw, k);
-      assert.ok(h.indexOf(a.title) !== -1, k + ' 页缺标题 ' + a.title);
+      // 标题只写生肖名（不绑定年份）
+      assert.ok(h.indexOf('>' + a.title + '</h1>') !== -1, k + ' 页标题不是「' + a.title + '」');
       assert.ok(h.indexOf(a.ganzhi) !== -1, k + ' 页缺干支');
       assert.ok(h.indexOf(a.span.start) !== -1 && h.indexOf(a.span.end) !== -1, k + ' 页缺起止日期');
-      // 生肖导航 12 项 + 当前项标注
-      const navLinks = (h.match(/href="\/zodiac\/[a-z]+\/"/g) || []);
-      assert.ok(navLinks.length >= 13, k + ' 页的内链过少（导航 + 上下页 + 正文互链）');
-      assert.ok(h.indexOf('z-animal-current') !== -1, k + ' 页没标当前生肖');
+      // 章节：数量与数据一致，锚点齐全
+      const secCount = (h.match(/<section class="z-section" id="sec-/g) || []).length;
+      assert.strictEqual(secCount, a.sections.length, k + ' 页章节数（' + secCount + '）与数据（' + a.sections.length + '）不符');
+      a.sections.forEach((s) => {
+        assert.ok(h.indexOf('id="sec-' + s.id + '"') !== -1, k + ' 页缺章节锚点 sec-' + s.id);
+        assert.ok(h.indexOf('href="#sec-' + s.id + '"') !== -1, k + ' 页目录缺 ' + s.title);
+      });
+      // 目录 / 进度环 / 收起按钮 / 移动抽屉 / FAB
+      assert.ok(h.indexOf('z-toc-list') !== -1, k + ' 页缺目录列表');
+      assert.ok(h.indexOf('zProgressRing') !== -1, k + ' 页缺进度环');
+      assert.ok(h.indexOf('z-toc-toggle') !== -1, k + ' 页缺目录收起按钮');
+      assert.ok(h.indexOf('z-toc-fab') !== -1 && h.indexOf('z-toc-sheet') !== -1, k + ' 页缺移动端目录抽屉');
+      assert.ok(h.indexOf('已读 0%') !== -1, k + ' 页缺进度初始文案');
+      // 生肖导航条（全宽横排）+ 当前项 + 上下页
+      assert.ok(h.indexOf('z-nav-strip') !== -1, k + ' 页缺生肖导航条');
+      assert.ok(h.indexOf('z-nav-current') !== -1, k + ' 页没标当前生肖');
       assert.ok(h.indexOf('href="/zodiac/' + a.prev.key + '/"') !== -1, k + ' 页缺上一生肖链接');
       assert.ok(h.indexOf('href="/zodiac/' + a.next.key + '/"') !== -1, k + ' 页缺下一生肖链接');
       // 词汇表：每个词都在页面上
@@ -289,14 +334,18 @@ if (!fs.existsSync(PUBLIC)) {
       });
       // 引导段由 helper 算出，整句落在页面上
       assert.ok(h.indexOf(a.lede.slice(0, 30)) !== -1, k + ' 页缺引导段');
+      // 交互脚本
+      assert.ok(/zodiac\.js\?v=/.test(h), k + ' 页没引 zodiac.js（或没带版本号）');
     });
   });
 
-  ok('马年页（当前一轮）带蓝色生肖术语链', () => {
-    const h = fs.readFileSync(path.join(PUBLIC, 'zodiac', 'horse', 'index.html'), 'utf8');
-    assert.ok(h.indexOf('class="z-link"') !== -1, '马年页没有蓝色术语链');
-    assert.ok(/z-link" href="\/zodiac\/snake\/"/.test(h), '马年页没链到蛇年');
-    assert.ok(/z-link" href="\/zodiac\/goat\/"/.test(h), '马年页没链到羊年');
+  ok('蓝色术语链：鼠年页链到猪年，节假日页链到生肖页', () => {
+    // 鼠年正文提到莫扎特属猪——用 z-link 蓝色链到猪年页
+    const rat = fs.readFileSync(path.join(PUBLIC, 'zodiac', 'rat', 'index.html'), 'utf8');
+    assert.ok(rat.indexOf('class="z-link" href="/zodiac/pig/"') !== -1, '鼠年页缺到猪年的蓝色术语链');
+    // 节假日页：2026 链到马年（十六个年份全量断言见下一节）
+    const hol = fs.readFileSync(path.join(PUBLIC, 'holidays', '2026', 'index.html'), 'utf8');
+    assert.ok(hol.indexOf('class="z-link" href="/zodiac/horse/"') !== -1, '节假日 2026 页缺到马年的蓝色术语链');
   });
 
   ok('索引页：一览表 12 行 + 出生年份表 + 五行表 + 三合相冲表', () => {
@@ -345,9 +394,10 @@ if (!fs.existsSync(PUBLIC)) {
   ok('§4.13 生肖样式段完整（E-052 同型：整份覆盖写最容易丢的就是新段）', () => {
     const css = fs.readFileSync(path.join(ROOT, 'source/css/site.css'), 'utf8');
     const must = [
-      '.z-nav', '.z-facts', '.z-luck', '.z-vocab', '.z-relations', '.z-trait-cols',
-      '.z-trait-col', '.z-theme', '.z-note', '.z-pager', '.z-pos', '.z-animal-link',
-      '.cal-page a.z-link {', '.z-animal-current',
+      '.z-nav-strip', '.z-nav-current', '.z-figure', '.z-layout', '.z-section-title',
+      '.z-toc {', '.z-toc-list', '.z-toc-toggle', '.z-ring-fill', '.z-toc-progress-text',
+      '.z-toc-fab', '.z-toc-sheet', '.z-toc-overlay', '.z-facts', '.z-luck', '.z-vocab',
+      '.z-relations', '.z-pager', '.z-pos', '.z-animal-link', '.cal-page a.z-link {',
       '.lb-layout', '.lb-guide', '.lb-entries', '.lb-topic-more',
     ];
     const missing = must.filter((s) => css.indexOf(s) === -1);
