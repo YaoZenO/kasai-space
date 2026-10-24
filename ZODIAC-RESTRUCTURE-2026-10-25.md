@@ -86,7 +86,10 @@
 - **为什么：** 新版面需要全套样式；对齐问题在新布局用明确网格起点解决。
 - **涉及文件：** 上述文件。
 
-## 步骤 7：构建验证与渲染实测
+## 步骤 7：构建验证与渲染实测 ✅ 已完成
+- 干净全量构建 308 文件；npm test 九套全绿（zodiac 34 / holidays 52 / admin 100 / pages 21 / tokens 2 / claims 12 / blocks 26 / dates 27 / assets 24）
+- CDP 实测：桌面 1440 目录/进度环（滚到 60% 显示「已读 60%」/ dashoffset 38.96）/scrollspy/收起；移动 390 FAB + 抽屉滑入 + 遮罩；两视口横向溢出 0
+- 提交链：b28d39d(导航) → bb9d29f(资料库) → 3934f71(数据) → 7332aaf(模板脚本) → dae591b(测试) → 2c6ca29(配图)，已推送 origin/main
 
 - **做什么：** `hexo clean && hexo generate` + `npm test` 九套全绿 + Edge CDP 两视口
   实测（目录/进度环/抽屉/配图/对齐）；有问题就地修（小修跟随当步提交）。
