@@ -96,6 +96,7 @@
 | E-060 | P1 | 子集化收益按码位数线性外推，实测只有报告的 1/3（3500 字仍要 1.64 MB 而非 350–480 KB） | 已修复（方案改判） |
 | E-061 | P1 | 图片重编码只按「容器渲染尺寸」算，忽略测试锁定的「详情卡可放大」宽度 ≥800px 约束 | 已修复（放弃重编码） |
 | E-062 | P1 | 把「先压缩 CSS 再算 hash」拆成两个 filter，靠文件名顺序保证时序，hash 会与内容脱钩 | 已修复 |
+| E-063 | P2 | 拼音列是 `<td>` 却复用 `.cal-pinyin`，被 display:inline/block 摘出表格布局，底边线比同行高一截 | 已修复 |
 
 ---
 
@@ -1010,6 +1011,32 @@
   生命周期里会不会被合成触发」。挂载 / setValue / rerender 类内部 emit 与真实
   用户输入往往走同一条回调通道，此时判据必须是业务状态（编辑器是否打开），
   而不是结构状态（事件目标在哪个 DOM 容器里）。
+
+### E-063 拼音列是 `<td>` 却复用了 `.cal-pinyin`，被 `display:inline/block` 摘出表格布局，底边线比同行高一截
+
+- **发生时间：** 2026-10-26 ｜ **发现方式：** 主人反馈（马年页词汇表「拼音那一栏没跟旁边接到一起」）
+- **现象：** 生肖页词汇表（`.z-vocab`）与索引页一览表（`.z-animals`）里，拼音那一格的
+  行底边线比同一行其它格**高约 2px**，横线在列与列之间断开、接不上。
+  实测：同行其它单元格高 47.22px，拼音格只有 40.75px。
+- **根因：** 拼音列写成了 `<td class="cal-pinyin">`，而 `.cal-pinyin` 的基线规则是
+  `display: inline`（生肖页里又被 `.z-vocab .cal-pinyin` 覆盖成 `block`）。
+  **把非 `table-cell` 的 display 用在 `<td>` 上，单元格就不再是表格单元格**——
+  它被浏览器包进一个匿名单元格，高度只剩文字行高，不再被行高拉平，于是底边线与同行错位。
+  同一条窄屏规则 `.cal-table .cal-pinyin { display: none }` 还会把整列藏掉，
+  让数据行比表头少一格。
+- **修法：** `source/css/site.css` —— `.z-vocab td.cal-pinyin, .z-animals td.cal-pinyin`
+  显式写 `display: table-cell`（`block` 同样会脱离表格布局，不能用）；
+  窄屏隐藏规则收窄为 `.cal-table span.cal-pinyin`（只藏节假日左表那种行内拼音，
+  不动整列）。
+- **防复发（机制）：** `test/zodiac-e2e.js` 两层锁 ——
+  ① CSS 断言：`td.cal-pinyin` 规则块必须是 `display: table-cell`，且窄屏隐藏规则
+  必须限定 `span`、不得再出现 `.cal-table .cal-pinyin { display: none }`；
+  ② 产物断言：两张表逐行比对「数据行格数 == 表头列数」。
+  变异自检已验：把 `table-cell` 改成 `block`、或给一段 `display:inline` 的拼音规则，
+  断言立即 FAIL。
+- **教训（同类通用）：** 类名里带「显示样式语义」的工具类（`.cal-pinyin` 这类
+  `display/display-font-size` 组合）**不能挂到 `<td>` 上**；表格单元格需要
+  `display: table-cell`，要复用字号/字体就只复用这些属性，或在 `td.xxx` 上显式还原。
 
 ---
 
