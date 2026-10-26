@@ -48,6 +48,17 @@ const ov = buildOverview(raw);
 
 const PAGES = ['rat', 'ox', 'tiger', 'rabbit', 'dragon', 'snake', 'horse', 'goat', 'monkey', 'rooster', 'dog', 'pig'];
 
+/* 拼音列是否保住了 table-cell。拼音列是 <td class="cal-pinyin">，而 .cal-pinyin 基线
+   是 display:inline —— 一旦被 inline / block 覆盖，单元格就脱离表格布局（被包进匿名
+   单元格），高度只剩文字行高，底边线比同行高约 2px、与左右接不上。返回 null 表示正常，
+   否则返回出错的那段规则文本。真实 CSS 与变异样本共用这一个判据。 */
+function pinyinCellRule(css) {
+  const at = css.indexOf('td.cal-pinyin');
+  if (at === -1) return 'site.css 里没有 td.cal-pinyin 规则';
+  const block = css.slice(at, css.indexOf('}', at));
+  return /display:\s*table-cell/.test(block) ? null : block.slice(0, 90);
+}
+
 console.log('生肖页数据与计算');
 
 // ---------- ① 数据自洽 ----------
@@ -449,6 +460,36 @@ if (!fs.existsSync(PUBLIC)) {
     assert.deepStrictEqual(missing, [], 'site.css 丢了这些样式：' + missing.join('、'));
   });
 
+  ok('拼音列保持 table-cell（整行底边线才接得上，主人 2026-10-26 指出）', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'source/css/site.css'), 'utf8');
+    const err = pinyinCellRule(css);
+    assert.strictEqual(err, null, '拼音列掉出表格布局：' + err);
+    // ② 窄屏隐藏拼音只能限定 span；整列 display:none 会让数据行比表头少一格
+    assert.ok(css.indexOf('.cal-table span.cal-pinyin { display: none; }') !== -1, '窄屏隐藏规则没限定 span');
+    assert.ok(css.indexOf('.cal-table .cal-pinyin { display: none; }') === -1, '窄屏还在整列隐藏拼音（数据行会少一格）');
+  });
+
+  ok('两张表的列数：表头与每个数据行格数一致（拼音列不能被藏掉）', () => {
+    const tables = [['horse', 'z-vocab'], ['index', 'z-animals']];
+    tables.forEach(([page, cls]) => {
+      const file = page === 'index'
+        ? path.join(PUBLIC, 'zodiac', 'index.html')
+        : path.join(PUBLIC, 'zodiac', page, 'index.html');
+      const h = fs.readFileSync(file, 'utf8');
+      const start = h.indexOf(cls);
+      assert.ok(start !== -1, page + ' 页没有 ' + cls + ' 表');
+      const t = h.slice(start, h.indexOf('</table>', start));
+      const headN = (t.match(/<th scope="col">/g) || []).length;
+      assert.ok(headN >= 4, cls + ' 表头列数异常：' + headN);
+      const rows = t.split('<tr>').slice(1);
+      assert.ok(rows.length >= 12, cls + ' 数据行过少：' + rows.length);
+      rows.forEach((r, i) => {
+        const n = (r.match(/<t[hd][ >]/g) || []).length;
+        assert.strictEqual(n, headN, cls + ' 第 ' + (i + 1) + ' 行格数 ' + n + ' ≠ 表头 ' + headN);
+      });
+    });
+  });
+
   ok('资料库页生成：导读栏 + 两个专题 + 14 个条目链接齐全', () => {
     const idx = path.join(PUBLIC, 'library', 'index.html');
     assert.ok(fs.existsSync(idx), 'public/library/index.html 不存在 —— 构建漏了资料库页');
@@ -527,6 +568,14 @@ ok('自检：模板编译断言对语法错误确实会失败（E-045 防复发�
 ok('自检：蓝色写进 :root 必须被抓到（破例外溢防复发）', () => {
   const broken = ':root { --z-link: #1b5fc1; }';
   assert.ok(/#1b5fc1/.test(broken), '自检样本应当命中规则，否则断言空转');
+});
+
+ok('自检：拼音列写成 block / inline 必须被抓到（底边线错位防复发）', () => {
+  const css = fs.readFileSync(path.join(ROOT, 'source/css/site.css'), 'utf8');
+  const mutated = css.replace(/(td\.cal-pinyin[\s\S]*?display: )table-cell/, '$1block');
+  assert.notStrictEqual(mutated, css, '变异没生效——自检空转');
+  assert.ok(pinyinCellRule(mutated), '拼音列写成 block 没被抓到');
+  assert.ok(pinyinCellRule('.cal-pinyin { display: inline; }'), '拼音列写成 inline 没被抓到');
 });
 
 console.log('\nRESULT: ' + pass + ' 项断言通过' + (process.exitCode ? '，存在失败' : ''));

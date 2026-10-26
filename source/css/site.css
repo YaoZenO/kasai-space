@@ -2660,7 +2660,10 @@ a.feed-title:hover {
      页面本身不产生横向溢出（滚动发生在这条容器里） */
   .cal-grid { min-width: 560px; }
   .cal-row { grid-template-columns: 2.6rem minmax(0, 1fr); gap: .45rem; }
-  .cal-table .cal-pinyin { display: none; }
+  /* 只藏行内拼音（节假日左表「名称 + 拼音」同一行的写法）。
+     生肖页的拼音是一整列 <td>，整列 display:none 会让数据行少一格、
+     与表头列数不一致（2026-10-26 同批修）。 */
+  .cal-table span.cal-pinyin { display: none; }
   /* 名称列在窄屏收窄到 3 个汉字宽；再窄会从词中间断行（E-043 同型） */
   .cal-table tbody th { width: 4.8rem; }
 }
@@ -2881,7 +2884,15 @@ a.feed-title:hover {
 
 .z-vocab th:nth-child(2) { width: 7rem; }
 .z-vocab th:nth-child(4) { width: 11rem; }
-.z-vocab .cal-pinyin { display: block; margin-left: 0; }
+/* 拼音列是 <td class="cal-pinyin">，而 .cal-pinyin 基线的 display:inline 会把单元格
+   从表格布局里摘出去（不再是 table-cell，被包进匿名单元格），高度只剩文字行高——
+   底边线比同行高约 2px、与左右单元格的线接不上（主人 2026-10-26 指出）。
+   这里显式还原为 table-cell；同理也不能用 block，block 一样会脱离表格布局。 */
+.z-vocab td.cal-pinyin,
+.z-animals td.cal-pinyin {
+  display: table-cell;
+  margin-left: 0;
+}
 .z-vocab-note { font-size: 0.82rem; color: var(--sec-text-color); }
 
 .z-pos {
