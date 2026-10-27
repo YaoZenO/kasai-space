@@ -8,7 +8,7 @@
 //
 // 名次一律由 helper 现算（PRD §5.1 P0 铁律），这里只负责把结果挂到路由上。
 
-const { buildCityRanks } = require('../helpers/cityrank-data.js');
+const { buildCityRanks, cityMentions, cityMentionCount } = require('../helpers/cityrank-data.js');
 
 hexo.extend.generator.register('cityrank-pages', function (locals) {
   const data =
@@ -46,12 +46,23 @@ hexo.extend.generator.register('cityrank-pages', function (locals) {
     }
   }
 
-  // 城市页：为数据集中每一座城市生成（只要它有任一已核验字段就有内容）。
-  // 早期版本只为上榜城市生成，导致 31 座城市里 18 座查无此页——档案页的价值在于
-  // 「城市本身的数据」，与它进没进前十无关；无内容的城市由模板按 [待补] 渲染。
+  // 城市大类索引页（/city/）：与榜单并列的一大类，按上榜次数排序列出全部建档城市。
+  routes.push({
+    path: 'city/index.html',
+    layout: 'cityindex',
+    data: {
+      title: '城市档案',
+      __cityIndex: true
+    }
+  });
+
+  // 城市页：城市档案是与榜单并列的一大类，凡建档的城市都要有页——
+  // 有已核验数据的展示档案表，暂时没有数据的只展示上榜记录并标注待补。
+  // （早期版本要求「有 metrics 才生成」，会让榜单里的城市链接变成死链。）
   for (const c of R.cities) {
+    const mentions = cityMentions(R, c.slug);
     const hasData = c.metrics && Object.keys(c.metrics).length > 0;
-    if (!hasData) continue;
+    if (!hasData && !mentions.length) continue;
     routes.push({
       path: 'city/' + c.slug + '/index.html',
       layout: 'city',

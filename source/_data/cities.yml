@@ -1,17 +1,18 @@
 # 城市基础数据集 —— 城市排行榜板块的唯一数据源
 #
 # 纪律（与 holidays.yml / zodiac.yml / library.yml 相同，另见 CITY-RANK-CONTENT §8）：
-#   1. 中文长文案一律写单行（E-042：折叠标量折行会给中文段落插进空格）；
+#   1. 中文长文案一律写单行（E-042）；
 #   2. 每个数值字段必须写成 { v, unit, asOf, source } 四元组，缺 unit / asOf / source 任一即不合格；
 #   3. 查不到权威来源的字段**不写该键**（页面渲染为 [待补]），严禁填估算值、邻城值、"约"值；
 #   4. source 写 sources[] 里的 key，不在这里写长来源名；
 #   5. 台湾 / 香港 / 澳门表述统一为「中国台湾地区 / 中国香港 / 中国澳门」，作为省级行政区列出。
 #
-# 数据状态（2026-10-27 首批）：GDP 2025 已交叉核验（人民网 / 各地统计公报与公开排行站一致）；
-# 常住人口仅录入已见统计公报的十强城；其余字段待采集后补。
+# 数据状态（2026-10-28）：城市档案以「上榜城市」为收录范围，共 436 座；
+# GDP 2025 已交叉核验（人民网 / 各地统计公报与公开排行站一致）的城市填了 gdp；
+# 常住人口仅录入已见统计公报的城市；其余字段待采集后补，一律不填估算值。
 
 meta:
-  updated: "2026-10-27"
+  updated: "2026-10-28"
   dataYear: "2025"
   note: "本站城市数据以政府统计口径为准，批量数据站只作交叉核对，不作唯一来源。"
 
@@ -24,229 +25,1414 @@ sources:
     asOf: "2025"
 
 cities:
-  - name: "上海"
-    slug: "shanghai"
-    province: "上海市"
-    level: "直辖市"
-    metrics:
-      gdp: { v: 56708.71, unit: "亿元", asOf: "2025", source: "gdp2025" }
-      pop: { v: 2485.41, unit: "万人", asOf: "2025", source: "pop2025" }
-
-  - name: "北京"
-    slug: "beijing"
-    province: "北京市"
-    level: "直辖市"
+  - name: 北京
+    slug: beijing
+    province: 北京市
+    level: 直辖市
     metrics:
       gdp: { v: 52073.4, unit: "亿元", asOf: "2025", source: "gdp2025" }
       pop: { v: 2180, unit: "万人", asOf: "2025", source: "pop2025" }
-
-  - name: "深圳"
-    slug: "shenzhen"
-    province: "广东省"
-    level: "计划单列市"
+  - name: 杭州
+    slug: hangzhou
+    province: 浙江省
+    level: 省会
     metrics:
-      gdp: { v: 38731.8, unit: "亿元", asOf: "2025", source: "gdp2025" }
-      pop: { v: 1824.85, unit: "万人", asOf: "2025", source: "pop2025" }
-
-  - name: "重庆"
-    slug: "chongqing"
-    province: "重庆市"
-    level: "直辖市"
+      gdp: { v: 23010.9, unit: "亿元", asOf: "2025", source: "gdp2025" }
+  - name: 上海
+    slug: shanghai
+    province: 上海市
+    level: 直辖市
     metrics:
-      gdp: { v: 33757.93, unit: "亿元", asOf: "2025", source: "gdp2025" }
-      pop: { v: 3187.26, unit: "万人", asOf: "2025", source: "pop2025" }
-
-  - name: "广州"
-    slug: "guangzhou"
-    province: "广东省"
-    level: "省会"
-    metrics:
-      gdp: { v: 32039.46, unit: "亿元", asOf: "2025", source: "gdp2025" }
-      pop: { v: 1910.1, unit: "万人", asOf: "2025", source: "pop2025" }
-
-  - name: "苏州"
-    slug: "suzhou"
-    province: "江苏省"
-    level: "地级市"
-    metrics:
-      gdp: { v: 27695.09, unit: "亿元", asOf: "2025", source: "gdp2025" }
-
-  - name: "成都"
-    slug: "chengdu"
-    province: "四川省"
-    level: "省会"
+      gdp: { v: 56708.71, unit: "亿元", asOf: "2025", source: "gdp2025" }
+      pop: { v: 2485.41, unit: "万人", asOf: "2025", source: "pop2025" }
+  - name: 成都
+    slug: chengdu
+    province: 四川省
+    level: 省会
     metrics:
       gdp: { v: 24763.61, unit: "亿元", asOf: "2025", source: "gdp2025" }
       pop: { v: 2153.5, unit: "万人", asOf: "2025", source: "pop2025" }
-
-  - name: "杭州"
-    slug: "hangzhou"
-    province: "浙江省"
-    level: "省会"
+  - name: 广州
+    slug: guangzhou
+    province: 广东省
+    level: 省会
     metrics:
-      gdp: { v: 23010.9, unit: "亿元", asOf: "2025", source: "gdp2025" }
-
-  - name: "武汉"
-    slug: "wuhan"
-    province: "湖北省"
-    level: "省会"
+      gdp: { v: 32039.46, unit: "亿元", asOf: "2025", source: "gdp2025" }
+      pop: { v: 1910.1, unit: "万人", asOf: "2025", source: "pop2025" }
+  - name: 南京
+    slug: nanjing
+    province: 江苏省
+    level: 省会
+    metrics:
+      gdp: { v: 19428.78, unit: "亿元", asOf: "2025", source: "gdp2025" }
+  - name: 深圳
+    slug: shenzhen
+    province: 广东省
+    level: 计划单列市
+    metrics:
+      gdp: { v: 38731.8, unit: "亿元", asOf: "2025", source: "gdp2025" }
+      pop: { v: 1824.85, unit: "万人", asOf: "2025", source: "pop2025" }
+  - name: 武汉
+    slug: wuhan
+    province: 湖北省
+    level: 省会
     metrics:
       gdp: { v: 22147.35, unit: "亿元", asOf: "2025", source: "gdp2025" }
       pop: { v: 1386.19, unit: "万人", asOf: "2025", source: "pop2025" }
-
-  - name: "南京"
-    slug: "nanjing"
-    province: "江苏省"
-    level: "省会"
+  - name: 重庆
+    slug: chongqing
+    province: 重庆市
+    level: 直辖市
     metrics:
-      gdp: { v: 19428.78, unit: "亿元", asOf: "2025", source: "gdp2025" }
-
-  - name: "宁波"
-    slug: "ningbo"
-    province: "浙江省"
-    level: "计划单列市"
-    metrics:
-      gdp: { v: 18715.68, unit: "亿元", asOf: "2025", source: "gdp2025" }
-
-  - name: "天津"
-    slug: "tianjin"
-    province: "天津市"
-    level: "直辖市"
-    metrics:
-      gdp: { v: 18539.82, unit: "亿元", asOf: "2025", source: "gdp2025" }
-      pop: { v: 1363, unit: "万人", asOf: "2025", source: "pop2025" }
-
-  - name: "青岛"
-    slug: "qingdao"
-    province: "山东省"
-    level: "计划单列市"
-    metrics:
-      gdp: { v: 17560.67, unit: "亿元", asOf: "2025", source: "gdp2025" }
-
-  - name: "无锡"
-    slug: "wuxi"
-    province: "江苏省"
-    level: "地级市"
-    metrics:
-      gdp: { v: 16773.94, unit: "亿元", asOf: "2025", source: "gdp2025" }
-
-  - name: "长沙"
-    slug: "changsha"
-    province: "湖南省"
-    level: "省会"
-    metrics:
-      gdp: { v: 15737.82, unit: "亿元", asOf: "2025", source: "gdp2025" }
-
-  - name: "郑州"
-    slug: "zhengzhou"
-    province: "河南省"
-    level: "省会"
-    metrics:
-      gdp: { v: 15244.6, unit: "亿元", asOf: "2025", source: "gdp2025" }
-      pop: { v: 1313.8, unit: "万人", asOf: "2025", source: "pop2025" }
-
-  - name: "福州"
-    slug: "fuzhou"
-    province: "福建省"
-    level: "省会"
-    metrics:
-      gdp: { v: 15112.32, unit: "亿元", asOf: "2025", source: "gdp2025" }
-
-  - name: "济南"
-    slug: "jinan"
-    province: "山东省"
-    level: "省会"
-    metrics:
-      gdp: { v: 14210.09, unit: "亿元", asOf: "2025", source: "gdp2025" }
-
-  - name: "合肥"
-    slug: "hefei"
-    province: "安徽省"
-    level: "省会"
-    metrics:
-      gdp: { v: 14210, unit: "亿元", asOf: "2025", source: "gdp2025" }
-
-  - name: "西安"
-    slug: "xian"
-    province: "陕西省"
-    level: "省会"
+      gdp: { v: 33757.93, unit: "亿元", asOf: "2025", source: "gdp2025" }
+      pop: { v: 3187.26, unit: "万人", asOf: "2025", source: "pop2025" }
+  - name: 西安
+    slug: xian
+    province: 陕西省
+    level: 省会
     metrics:
       gdp: { v: 13902.67, unit: "亿元", asOf: "2025", source: "gdp2025" }
       pop: { v: 1323.63, unit: "万人", asOf: "2025", source: "pop2025" }
-
-  - name: "泉州"
-    slug: "quanzhou"
-    province: "福建省"
-    level: "地级市"
+  - name: 厦门
+    slug: xiamen
+    metrics: {}
+  - name: 苏州
+    slug: suzhou
+    province: 江苏省
+    level: 地级市
     metrics:
-      gdp: { v: 13778.34, unit: "亿元", asOf: "2025", source: "gdp2025" }
-
-  - name: "佛山"
-    slug: "foshan"
-    province: "广东省"
-    level: "地级市"
+      gdp: { v: 27695.09, unit: "亿元", asOf: "2025", source: "gdp2025" }
+  - name: 长沙
+    slug: changsha
+    province: 湖南省
+    level: 省会
     metrics:
-      gdp: { v: 13157.35, unit: "亿元", asOf: "2025", source: "gdp2025" }
-
-  - name: "南通"
-    slug: "nantong"
-    province: "江苏省"
-    level: "地级市"
+      gdp: { v: 15737.82, unit: "亿元", asOf: "2025", source: "gdp2025" }
+  - name: 昆明
+    slug: kunming
+    metrics: {}
+  - name: 青岛
+    slug: qingdao
+    province: 山东省
+    level: 计划单列市
     metrics:
-      gdp: { v: 12801.5, unit: "亿元", asOf: "2025", source: "gdp2025" }
-
-  - name: "东莞"
-    slug: "dongguan"
-    province: "广东省"
-    level: "地级市"
+      gdp: { v: 17560.67, unit: "亿元", asOf: "2025", source: "gdp2025" }
+  - name: 哈尔滨
+    slug: haerbin
+    metrics: {}
+  - name: 桂林
+    slug: guilin
+    metrics: {}
+  - name: 贵阳
+    slug: guiyang
+    metrics: {}
+  - name: 三亚
+    slug: sanya
+    metrics: {}
+  - name: 天津
+    slug: tianjin
+    province: 天津市
+    level: 直辖市
     metrics:
-      gdp: { v: 12760.2, unit: "亿元", asOf: "2025", source: "gdp2025" }
-
-  - name: "烟台"
-    slug: "yantai"
-    province: "山东省"
-    level: "地级市"
-    metrics:
-      gdp: { v: 11350.98, unit: "亿元", asOf: "2025", source: "gdp2025" }
-
-  - name: "常州"
-    slug: "changzhou"
-    province: "江苏省"
-    level: "地级市"
-    metrics:
-      gdp: { v: 11158.71, unit: "亿元", asOf: "2025", source: "gdp2025" }
-
-  - name: "唐山"
-    slug: "tangshan"
-    province: "河北省"
-    level: "地级市"
-    metrics:
-      gdp: { v: 10450.2, unit: "亿元", asOf: "2025", source: "gdp2025" }
-
-  - name: "温州"
-    slug: "wenzhou"
-    province: "浙江省"
-    level: "地级市"
-    metrics:
-      gdp: { v: 10213.92, unit: "亿元", asOf: "2025", source: "gdp2025" }
-
-  - name: "大连"
-    slug: "dalian"
-    province: "辽宁省"
-    level: "计划单列市"
+      gdp: { v: 18539.82, unit: "亿元", asOf: "2025", source: "gdp2025" }
+      pop: { v: 1363, unit: "万人", asOf: "2025", source: "pop2025" }
+  - name: 大连
+    slug: dalian
+    province: 辽宁省
+    level: 计划单列市
     metrics:
       gdp: { v: 10002.1, unit: "亿元", asOf: "2025", source: "gdp2025" }
-
-  - name: "徐州"
-    slug: "xuzhou"
-    province: "江苏省"
-    level: "地级市"
+  - name: 郑州
+    slug: zhengzhou
+    province: 河南省
+    level: 省会
     metrics:
-      gdp: { v: 9957.22, unit: "亿元", asOf: "2025", source: "gdp2025" }
-
-  - name: "沈阳"
-    slug: "shenyang"
-    province: "辽宁省"
-    level: "省会"
+      gdp: { v: 15244.6, unit: "亿元", asOf: "2025", source: "gdp2025" }
+      pop: { v: 1313.8, unit: "万人", asOf: "2025", source: "pop2025" }
+  - name: 长春
+    slug: changchun
+    metrics: {}
+  - name: 沈阳
+    slug: shenyang
+    province: 辽宁省
+    level: 省会
     metrics:
       gdp: { v: 9100.33, unit: "亿元", asOf: "2025", source: "gdp2025" }
+  - name: 珠海
+    slug: zhuhai
+    metrics: {}
+  - name: 福州
+    slug: fuzhou
+    province: 福建省
+    level: 省会
+    metrics:
+      gdp: { v: 15112.32, unit: "亿元", asOf: "2025", source: "gdp2025" }
+  - name: 海口
+    slug: haikou
+    metrics: {}
+  - name: 拉萨
+    slug: lasa
+    metrics: {}
+  - name: 洛阳
+    slug: luoyang
+    metrics: {}
+  - name: 银川
+    slug: yinchuan
+    metrics: {}
+  - name: 南昌
+    slug: nanchang
+    metrics: {}
+  - name: 南宁
+    slug: nanning
+    metrics: {}
+  - name: 宁波
+    slug: ningbo
+    province: 浙江省
+    level: 计划单列市
+    metrics:
+      gdp: { v: 18715.68, unit: "亿元", asOf: "2025", source: "gdp2025" }
+  - name: 香港
+    slug: xianggang
+    metrics: {}
+  - name: 张家界
+    slug: zhangjiajie
+    metrics: {}
+  - name: 惠州
+    slug: huizhou
+    metrics: {}
+  - name: 丽江
+    slug: lijiang
+    metrics: {}
+  - name: 林芝
+    slug: linzhi
+    metrics: {}
+  - name: 西宁
+    slug: xining
+    metrics: {}
+  - name: 西双版纳
+    slug: xishuangbanna
+    metrics: {}
+  - name: 扬州
+    slug: yangzhou
+    metrics: {}
+  - name: 呼和浩特
+    slug: huhehaote
+    metrics: {}
+  - name: 呼伦贝尔
+    slug: hulunbeier
+    metrics: {}
+  - name: 吉林
+    slug: jilin
+    metrics: {}
+  - name: 石家庄
+    slug: shijiazhuang
+    metrics: {}
+  - name: 太原
+    slug: taiyuan
+    metrics: {}
+  - name: 乌鲁木齐
+    slug: wulumuqi
+    metrics: {}
+  - name: 宜春
+    slug: yichun
+    metrics: {}
+  - name: 北海
+    slug: beihai
+    metrics: {}
+  - name: 大理州
+    slug: dalizhou
+    metrics: {}
+  - name: 东莞
+    slug: dongguan
+    province: 广东省
+    level: 地级市
+    metrics:
+      gdp: { v: 12760.2, unit: "亿元", asOf: "2025", source: "gdp2025" }
+  - name: 合肥
+    slug: hefei
+    province: 安徽省
+    level: 省会
+    metrics:
+      gdp: { v: 14210, unit: "亿元", asOf: "2025", source: "gdp2025" }
+  - name: 黄山
+    slug: huangshan
+    metrics: {}
+  - name: 嘉兴
+    slug: jiaxing
+    metrics: {}
+  - name: 金华
+    slug: jinhua
+    metrics: {}
+  - name: 兰州
+    slug: lanzhou
+    metrics: {}
+  - name: 六盘水
+    slug: liupanshui
+    metrics: {}
+  - name: 曲靖
+    slug: qujing
+    metrics: {}
+  - name: 上饶
+    slug: shangrao
+    metrics: {}
+  - name: 无锡
+    slug: wuxi
+    province: 江苏省
+    level: 地级市
+    metrics:
+      gdp: { v: 16773.94, unit: "亿元", asOf: "2025", source: "gdp2025" }
+  - name: 烟台
+    slug: yantai
+    province: 山东省
+    level: 地级市
+    metrics:
+      gdp: { v: 11350.98, unit: "亿元", asOf: "2025", source: "gdp2025" }
+  - name: 伊犁
+    slug: yili
+    metrics: {}
+  - name: 济南
+    slug: jinan
+    province: 山东省
+    level: 省会
+    metrics:
+      gdp: { v: 14210.09, unit: "亿元", asOf: "2025", source: "gdp2025" }
+  - name: 秦皇岛
+    slug: qinhuangdao
+    metrics: {}
+  - name: 台州
+    slug: taizhou
+    metrics: {}
+  - name: 威海
+    slug: weihai
+    metrics: {}
+  - name: 舟山
+    slug: zhoushan
+    metrics: {}
+  - name: 毕节
+    slug: bijie
+    metrics: {}
+  - name: 丹东
+    slug: dandong
+    metrics: {}
+  - name: 开封
+    slug: kaifeng
+    metrics: {}
+  - name: 丽水
+    slug: lishui
+    metrics: {}
+  - name: 漠河
+    slug: mohe
+    metrics: {}
+  - name: 南通
+    slug: nantong
+    province: 江苏省
+    level: 地级市
+    metrics:
+      gdp: { v: 12801.5, unit: "亿元", asOf: "2025", source: "gdp2025" }
+  - name: 三沙
+    slug: sansha
+    metrics: {}
+  - name: 绍兴
+    slug: shaoxing
+    metrics: {}
+  - name: 台北
+    slug: taibei
+    metrics: {}
+  - name: 潍坊
+    slug: weifang
+    metrics: {}
+  - name: 温州
+    slug: wenzhou
+    province: 浙江省
+    level: 地级市
+    metrics:
+      gdp: { v: 10213.92, unit: "亿元", asOf: "2025", source: "gdp2025" }
+  - name: 湛江
+    slug: zhanjiang
+    metrics: {}
+  - name: 中山
+    slug: zhongshan
+    metrics: {}
+  - name: 阿勒泰
+    slug: aleitai
+    metrics: {}
+  - name: 白山
+    slug: baishan
+    metrics: {}
+  - name: 大理
+    slug: dali
+    metrics: {}
+  - name: 大同
+    slug: datong
+    metrics: {}
+  - name: 德州
+    slug: dezhou
+    metrics: {}
+  - name: 佛山
+    slug: foshan
+    province: 广东省
+    level: 地级市
+    metrics:
+      gdp: { v: 13157.35, unit: "亿元", asOf: "2025", source: "gdp2025" }
+  - name: 菏泽
+    slug: heze
+    metrics: {}
+  - name: 九江
+    slug: jiujiang
+    metrics: {}
+  - name: 酒泉
+    slug: jiuquan
+    metrics: {}
+  - name: 临沂
+    slug: linyi
+    metrics: {}
+  - name: 茂名
+    slug: maoming
+    metrics: {}
+  - name: 牡丹江
+    slug: mudanjiang
+    metrics: {}
+  - name: 南平
+    slug: nanping
+    metrics: {}
+  - name: 宁德
+    slug: ningde
+    metrics: {}
+  - name: 衢州
+    slug: quzhou
+    metrics: {}
+  - name: 唐山
+    slug: tangshan
+    province: 河北省
+    level: 地级市
+    metrics:
+      gdp: { v: 10450.2, unit: "亿元", asOf: "2025", source: "gdp2025" }
+  - name: 吴忠
+    slug: wuzhong
+    metrics: {}
+  - name: 阿坝州
+    slug: abazhou
+    metrics: {}
+  - name: 鞍山
+    slug: anshan
+    metrics: {}
+  - name: 安阳
+    slug: anyang
+    metrics: {}
+  - name: 白银
+    slug: baiyin
+    metrics: {}
+  - name: 保山
+    slug: baoshan
+    metrics: {}
+  - name: 本溪
+    slug: benxi
+    metrics: {}
+  - name: 滨州
+    slug: binzhou
+    metrics: {}
+  - name: 常德
+    slug: changde
+    metrics: {}
+  - name: 昌都
+    slug: changdou
+    metrics: {}
+  - name: 常州
+    slug: changzhou
+    province: 江苏省
+    level: 地级市
+    metrics:
+      gdp: { v: 11158.71, unit: "亿元", asOf: "2025", source: "gdp2025" }
+  - name: 承德
+    slug: chengde
+    metrics: {}
+  - name: 郴州
+    slug: chenzhou
+    metrics: {}
+  - name: 赤峰
+    slug: chifeng
+    metrics: {}
+  - name: 大兴安岭地区
+    slug: daxinganling
+    metrics: {}
+  - name: 迪庆香格里拉
+    slug: diqingxianggelila
+    metrics: {}
+  - name: 东营
+    slug: dongying
+    metrics: {}
+  - name: 鄂尔多斯
+    slug: eerduosi
+    metrics: {}
+  - name: 恩施
+    slug: enshi
+    metrics: {}
+  - name: 恩施州
+    slug: enshizhou
+    metrics: {}
+  - name: 福建福州
+    slug: fujianfuzhou
+    metrics: {}
+  - name: 哈密
+    slug: hami
+    metrics: {}
+  - name: 邯郸
+    slug: handan
+    metrics: {}
+  - name: 汉中
+    slug: hanzhong
+    metrics: {}
+  - name: 鹤壁
+    slug: hebi
+    metrics: {}
+  - name: 黑河
+    slug: heihe
+    metrics: {}
+  - name: 衡阳
+    slug: hengyang
+    metrics: {}
+  - name: 黄冈
+    slug: huanggang
+    metrics: {}
+  - name: 湖州
+    slug: huzhou
+    metrics: {}
+  - name: 江门
+    slug: jiangmen
+    metrics: {}
+  - name: 焦作
+    slug: jiaozuo
+    metrics: {}
+  - name: 济宁
+    slug: jining
+    metrics: {}
+  - name: 晋中
+    slug: jinzhong
+    metrics: {}
+  - name: 锦州
+    slug: jinzhou
+    metrics: {}
+  - name: 酒泉市·敦煌
+    slug: jiuquanshidunhuang
+    metrics: {}
+  - name: 喀什
+    slug: kashi
+    metrics: {}
+  - name: 克拉玛依
+    slug: kelamayi
+    metrics: {}
+  - name: 乐山
+    slug: leshan
+    metrics: {}
+  - name: 临沧
+    slug: lincang
+    metrics: {}
+  - name: 龙岩
+    slug: longyan
+    metrics: {}
+  - name: 绵阳
+    slug: mianyang
+    metrics: {}
+  - name: 那曲
+    slug: naqu
+    metrics: {}
+  - name: 萍乡
+    slug: pingxiang
+    metrics: {}
+  - name: 莆田
+    slug: putian
+    metrics: {}
+  - name: 日喀则
+    slug: rikaze
+    metrics: {}
+  - name: 三明
+    slug: sanming
+    metrics: {}
+  - name: 山东青岛
+    slug: shandongqingdao
+    metrics: {}
+  - name: 陕西西安
+    slug: shanxixian
+    metrics: {}
+  - name: 邵阳
+    slug: shaoyang
+    metrics: {}
+  - name: 塔城地区
+    slug: tacheng
+    metrics: {}
+  - name: 湘西州
+    slug: xiangxizhou
+    metrics: {}
+  - name: 襄阳
+    slug: xiangyang
+    metrics: {}
+  - name: 咸阳
+    slug: xianyang
+    metrics: {}
+  - name: 西昌
+    slug: xichang
+    metrics: {}
+  - name: 信阳
+    slug: xinyang
+    metrics: {}
+  - name: 徐州
+    slug: xuzhou
+    province: 江苏省
+    level: 地级市
+    metrics:
+      gdp: { v: 9957.22, unit: "亿元", asOf: "2025", source: "gdp2025" }
+  - name: 延安
+    slug: yanan
+    metrics: {}
+  - name: 延边
+    slug: yanbian
+    metrics: {}
+  - name: 盐城
+    slug: yancheng
+    metrics: {}
+  - name: 宜昌
+    slug: yichang
+    metrics: {}
+  - name: 营口
+    slug: yingkou
+    metrics: {}
+  - name: 益阳
+    slug: yiyang
+    metrics: {}
+  - name: 永州
+    slug: yongzhou
+    metrics: {}
+  - name: 岳阳
+    slug: yueyang
+    metrics: {}
+  - name: 玉林
+    slug: yulin
+    metrics: {}
+  - name: 玉溪
+    slug: yuxi
+    metrics: {}
+  - name: 张掖
+    slug: zhangye
+    metrics: {}
+  - name: 漳州
+    slug: zhangzhou
+    metrics: {}
+  - name: 镇江
+    slug: zhenjiang
+    metrics: {}
+  - name: 阿坝
+    slug: aba
+    metrics: {}
+  - name: 阿尔山
+    slug: aershan
+    metrics: {}
+  - name: 阿克苏
+    slug: akesu
+    metrics: {}
+  - name: 阿拉善
+    slug: alashan
+    metrics: {}
+  - name: 阿勒泰/布尔津·北疆水塔
+    slug: aleitaibuerjinbeijiangshuita
+    metrics: {}
+  - name: 阿里地区
+    slug: ali
+    metrics: {}
+  - name: 安海镇
+    slug: anhaizhen
+    metrics: {}
+  - name: 安徽·黄山
+    slug: anhuihuangshan
+    metrics: {}
+  - name: 安康
+    slug: ankang
+    metrics: {}
+  - name: 安庆
+    slug: anqing
+    metrics: {}
+  - name: 安顺
+    slug: anshun
+    metrics: {}
+  - name: 百色
+    slug: baise
+    metrics: {}
+  - name: 百色·广西
+    slug: baiseguangxi
+    metrics: {}
+  - name: 保定
+    slug: baoding
+    metrics: {}
+  - name: 宝鸡
+    slug: baoji
+    metrics: {}
+  - name: 包头
+    slug: baotou
+    metrics: {}
+  - name: 巴彦淖尔
+    slug: bayannaoer
+    metrics: {}
+  - name: 巴音郭楞
+    slug: bayinguoleng
+    metrics: {}
+  - name: 北京·六朝古都
+    slug: beijingliuchaogudu
+    metrics: {}
+  - name: 蚌埠
+    slug: bengbu
+    metrics: {}
+  - name: 亳州
+    slug: bozhou
+    metrics: {}
+  - name: 沧州
+    slug: cangzhou
+    metrics: {}
+  - name: 昌吉
+    slug: changji
+    metrics: {}
+  - name: 长沙·楚汉名城
+    slug: changshachuhanmingcheng
+    metrics: {}
+  - name: 常熟
+    slug: changshu
+    metrics: {}
+  - name: 潮州
+    slug: chaozhou
+    metrics: {}
+  - name: 陈埭镇
+    slug: chendaizhen
+    metrics: {}
+  - name: 成都·天府之国
+    slug: chengdutianfuzhiguo
+    metrics: {}
+  - name: 池店镇
+    slug: chidianzhen
+    metrics: {}
+  - name: 楚雄
+    slug: chuxiong
+    metrics: {}
+  - name: 楚雄州
+    slug: chuxiongzhou
+    metrics: {}
+  - name: 滁州
+    slug: chuzhou
+    metrics: {}
+  - name: 磁灶镇
+    slug: cizaozhen
+    metrics: {}
+  - name: 大连市·长海
+    slug: dalianshizhanghai
+    metrics: {}
+  - name: 儋州
+    slug: danzhou
+    metrics: {}
+  - name: 大庆
+    slug: daqing
+    metrics: {}
+  - name: 大兴安岭地区·漠河
+    slug: daxinganlingdiqumohe
+    metrics: {}
+  - name: 达州
+    slug: dazhou
+    metrics: {}
+  - name: 德宏
+    slug: dehong
+    metrics: {}
+  - name: 德阳
+    slug: deyang
+    metrics: {}
+  - name: 定西
+    slug: dingxi
+    metrics: {}
+  - name: 东石镇
+    slug: dongshizhen
+    metrics: {}
+  - name: 东兴市·北部湾畔边陲明珠
+    slug: dongxingshibeibuwanpanbianchuimingzhu
+    metrics: {}
+  - name: 鄂州
+    slug: ezhou
+    metrics: {}
+  - name: 防城港
+    slug: fangchenggang
+    metrics: {}
+  - name: 佛山南海
+    slug: foshannanhai
+    metrics: {}
+  - name: 福建莆田
+    slug: fujianputian
+    metrics: {}
+  - name: 福建厦门
+    slug: fujianxiamen
+    metrics: {}
+  - name: 抚顺
+    slug: fushun
+    metrics: {}
+  - name: 富硒茶
+    slug: fuxicha
+    metrics: {}
+  - name: 富硒蛋
+    slug: fuxidan
+    metrics: {}
+  - name: 阜新
+    slug: fuxin
+    metrics: {}
+  - name: 富硒蔬菜
+    slug: fuxishucai
+    metrics: {}
+  - name: 富硒水果
+    slug: fuxishuiguo
+    metrics: {}
+  - name: 阜阳
+    slug: fuyang
+    metrics: {}
+  - name: 抚远·华夏东极
+    slug: fuyuanhuaxiadongji
+    metrics: {}
+  - name: 福州·平潭
+    slug: fuzhoupingtan
+    metrics: {}
+  - name: 甘肃·甘南
+    slug: gansugannan
+    metrics: {}
+  - name: 甘肃夏河县
+    slug: gansuxiahe
+    metrics: {}
+  - name: 赣州
+    slug: ganzhou
+    metrics: {}
+  - name: 甘孜州
+    slug: ganzizhou
+    metrics: {}
+  - name: 高雄
+    slug: gaoxiong
+    metrics: {}
+  - name: 广东广州
+    slug: guangdongguangzhou
+    metrics: {}
+  - name: 广东河源
+    slug: guangdongheyuan
+    metrics: {}
+  - name: 广东清远
+    slug: guangdongqingyuan
+    metrics: {}
+  - name: 广东韶关
+    slug: guangdongshaoguan
+    metrics: {}
+  - name: 广东珠海
+    slug: guangdongzhuhai
+    metrics: {}
+  - name: 广西柳州
+    slug: guangxiliuzhou
+    metrics: {}
+  - name: 广西阳朔县
+    slug: guangxiyangshuo
+    metrics: {}
+  - name: 广州·千年商都
+    slug: guangzhouqiannianshangdou
+    metrics: {}
+  - name: 贵港
+    slug: guigang
+    metrics: {}
+  - name: 贵阳·森林之城
+    slug: guiyangsenlinzhicheng
+    metrics: {}
+  - name: 贵州荔波县
+    slug: guizhoulibo
+    metrics: {}
+  - name: 果洛州
+    slug: guoluozhou
+    metrics: {}
+  - name: 固原
+    slug: guyuan
+    metrics: {}
+  - name: 哈尔滨·黑龙江
+    slug: haerbinheilongjiang
+    metrics: {}
+  - name: 海北州
+    slug: haibeizhou
+    metrics: {}
+  - name: 海东
+    slug: haidong
+    metrics: {}
+  - name: 海南海口
+    slug: hainanhaikou
+    metrics: {}
+  - name: 海南州
+    slug: hainanzhou
+    metrics: {}
+  - name: 海西州
+    slug: haixizhou
+    metrics: {}
+  - name: 杭州·六大古都
+    slug: hangzhouliudagudu
+    metrics: {}
+  - name: 河北沧州
+    slug: hebeicangzhou
+    metrics: {}
+  - name: 河池
+    slug: hechi
+    metrics: {}
+  - name: 鹤岗
+    slug: hegang
+    metrics: {}
+  - name: 河南汝州
+    slug: henanruzhou
+    metrics: {}
+  - name: 河南修武县
+    slug: henanxiuwu
+    metrics: {}
+  - name: 河南禹州
+    slug: henanyuzhou
+    metrics: {}
+  - name: 衡水
+    slug: hengshui
+    metrics: {}
+  - name: 红河州
+    slug: honghezhou
+    metrics: {}
+  - name: 怀化
+    slug: huaihua
+    metrics: {}
+  - name: 黄南州
+    slug: huangnanzhou
+    metrics: {}
+  - name: 黄石
+    slug: huangshi
+    metrics: {}
+  - name: 湖北咸宁
+    slug: hubeixianning
+    metrics: {}
+  - name: 湖南郴州
+    slug: hunanchenzhou
+    metrics: {}
+  - name: 湖南凤凰县
+    slug: hunanfenghuang
+    metrics: {}
+  - name: 湖南醴陵
+    slug: hunanliling
+    metrics: {}
+  - name: 佳木斯
+    slug: jiamusi
+    metrics: {}
+  - name: 吉安
+    slug: jian
+    metrics: {}
+  - name: 江苏·南京
+    slug: jiangsunanjing
+    metrics: {}
+  - name: 江苏南通
+    slug: jiangsunantong
+    metrics: {}
+  - name: 江苏苏州
+    slug: jiangsusuzhou
+    metrics: {}
+  - name: 江西景德镇
+    slug: jiangxijingdezhen
+    metrics: {}
+  - name: 江西上饶
+    slug: jiangxishangrao
+    metrics: {}
+  - name: 江西鹰潭
+    slug: jiangxiyingtan
+    metrics: {}
+  - name: 江阴
+    slug: jiangyin
+    metrics: {}
+  - name: 揭阳
+    slug: jieyang
+    metrics: {}
+  - name: 晋城
+    slug: jincheng
+    metrics: {}
+  - name: 荆门
+    slug: jingmen
+    metrics: {}
+  - name: 靖西·小昆明
+    slug: jingxixiaokunming
+    metrics: {}
+  - name: 靖宇县
+    slug: jingyu
+    metrics: {}
+  - name: 荆州
+    slug: jingzhou
+    metrics: {}
+  - name: 金井镇
+    slug: jinjingzhen
+    metrics: {}
+  - name: 锦州·辽宁
+    slug: jinzhouliaoning
+    metrics: {}
+  - name: 鸡西
+    slug: jixi
+    metrics: {}
+  - name: 举重之乡：广东省石龙镇
+    slug: juzhongzhixiangguangdongshengshilongzhen
+    metrics: {}
+  - name: 凯里
+    slug: kaili
+    metrics: {}
+  - name: 喀什·丝路明珠
+    slug: kashisilumingzhu
+    metrics: {}
+  - name: 喀什·新疆
+    slug: kashixinjiang
+    metrics: {}
+  - name: 库尔勒
+    slug: kuerlei
+    metrics: {}
+  - name: 聊城
+    slug: liaocheng
+    metrics: {}
+  - name: 辽宁·本溪
+    slug: liaoningbenxi
+    metrics: {}
+  - name: 辽宁大连
+    slug: liaoningdalian
+    metrics: {}
+  - name: 临汾
+    slug: linfen
+    metrics: {}
+  - name: 柳州
+    slug: liuzhou
+    metrics: {}
+  - name: 里约热内卢
+    slug: liyuereneilu
+    metrics: {}
+  - name: 龙湖镇
+    slug: longhuzhen
+    metrics: {}
+  - name: 陇南
+    slug: longnan
+    metrics: {}
+  - name: 六安
+    slug: luan
+    metrics: {}
+  - name: 洛杉矶
+    slug: luoshanji
+    metrics: {}
+  - name: 泸州
+    slug: luzhou
+    metrics: {}
+  - name: 吕梁
+    slug: lvliang
+    metrics: {}
+  - name: 马鞍山
+    slug: maanshan
+    metrics: {}
+  - name: 芒市
+    slug: mang
+    metrics: {}
+  - name: 满洲里·东亚之窗
+    slug: manzhoulidongyazhichuang
+    metrics: {}
+  - name: 蒙自
+    slug: mengzi
+    metrics: {}
+  - name: 漠河县·中国地图最北端
+    slug: mohexianzhongguodituzuibeiduan
+    metrics: {}
+  - name: 南充
+    slug: nanchong
+    metrics: {}
+  - name: 南京·中国四大古都
+    slug: nanjingzhongguosidagudu
+    metrics: {}
+  - name: 南阳
+    slug: nanyang
+    metrics: {}
+  - name: 内江
+    slug: neijiang
+    metrics: {}
+  - name: 内坑镇
+    slug: neikengzhen
+    metrics: {}
+  - name: 内蒙古·呼伦贝尔
+    slug: neimengguhulunbeier
+    metrics: {}
+  - name: 排球之乡：广东省台山
+    slug: paiqiuzhixiangguangdongshengtaishan
+    metrics: {}
+  - name: 盘锦
+    slug: panjin
+    metrics: {}
+  - name: 平凉
+    slug: pingliang
+    metrics: {}
+  - name: 普洱
+    slug: puer
+    metrics: {}
+  - name: 黔东南州
+    slug: qiandongnanzhou
+    metrics: {}
+  - name: 黔南州
+    slug: qiannanzhou
+    metrics: {}
+  - name: 黔西南州
+    slug: qianxinanzhou
+    metrics: {}
+  - name: 青岛·山东
+    slug: qingdaoshandong
+    metrics: {}
+  - name: 庆阳
+    slug: qingyang
+    metrics: {}
+  - name: 钦州
+    slug: qinzhou
+    metrics: {}
+  - name: 齐齐哈尔
+    slug: qiqihaer
+    metrics: {}
+  - name: 泉州
+    slug: quanzhou
+    province: 福建省
+    level: 地级市
+    metrics:
+      gdp: { v: 13778.34, unit: "亿元", asOf: "2025", source: "gdp2025" }
+  - name: 泉州十大博物馆纪念馆
+    slug: quanzhoushidabowuguanjinianguan
+    metrics: {}
+  - name: 泉州十大公园·园林
+    slug: quanzhoushidagongyuanyuanlin
+    metrics: {}
+  - name: 泉州十大海滩沙滩
+    slug: quanzhoushidahaitanshatan
+    metrics: {}
+  - name: 泉州十大街巷广场古镇
+    slug: quanzhoushidajiexiangguangchangguzhen
+    metrics: {}
+  - name: 泉州十大乐园亲子景点
+    slug: quanzhoushidaleyuanqinzijingdian
+    metrics: {}
+  - name: 泉州十大历史古迹·古桥
+    slug: quanzhoushidalishigujiguqiao
+    metrics: {}
+  - name: 泉州十大庙宇
+    slug: quanzhoushidamiaoyu
+    metrics: {}
+  - name: 泉州十大名山·峡谷
+    slug: quanzhoushidamingshanxiagu
+    metrics: {}
+  - name: 泉州十大寺院
+    slug: quanzhoushidasiyuan
+    metrics: {}
+  - name: 泉州五大岛屿
+    slug: quanzhouwudadaoyu
+    metrics: {}
+  - name: 曲阜
+    slug: qufu
+    metrics: {}
+  - name: 山东菏泽
+    slug: shandongheze
+    metrics: {}
+  - name: 山东蓬莱
+    slug: shandongpenglai
+    metrics: {}
+  - name: 山东威海
+    slug: shandongweihai
+    metrics: {}
+  - name: 上海·魔都
+    slug: shanghaimodou
+    metrics: {}
+  - name: 商洛
+    slug: shangluo
+    metrics: {}
+  - name: 商丘
+    slug: shangqiu
+    metrics: {}
+  - name: 尚志
+    slug: shangzhi
+    metrics: {}
+  - name: 山南
+    slug: shannan
+    metrics: {}
+  - name: 汕头
+    slug: shantou
+    metrics: {}
+  - name: 汕头南澳
+    slug: shantounanao
+    metrics: {}
+  - name: 汕尾
+    slug: shanwei
+    metrics: {}
+  - name: 山西晋城
+    slug: shanxijincheng
+    metrics: {}
+  - name: 韶关
+    slug: shaoguan
+    metrics: {}
+  - name: 深沪镇
+    slug: shenhuzhen
+    metrics: {}
+  - name: 十堰
+    slug: shiyan
+    metrics: {}
+  - name: 石嘴山
+    slug: shizuishan
+    metrics: {}
+  - name: 首尔
+    slug: shouer
+    metrics: {}
+  - name: 摔跤之乡：山西省忻州
+    slug: shuaijiaozhixiangshanxishengxinzhou
+    metrics: {}
+  - name: 双鸭山
+    slug: shuangyashan
+    metrics: {}
+  - name: 朔州
+    slug: shuozhou
+    metrics: {}
+  - name: 四川稻城县
+    slug: sichuandaocheng
+    metrics: {}
+  - name: 四川黑水县
+    slug: sichuanheishui
+    metrics: {}
+  - name: 绥化
+    slug: suihua
+    metrics: {}
+  - name: 苏州·人间天堂
+    slug: suzhourenjiantiantang
+    metrics: {}
+  - name: 台南
+    slug: tainan
+    metrics: {}
+  - name: 台中
+    slug: taizhong
+    metrics: {}
+  - name: 桃园
+    slug: taoyuan
+    metrics: {}
+  - name: 腾冲
+    slug: tengchong
+    metrics: {}
+  - name: 腾冲·极边第一城
+    slug: tengchongjibiandiyicheng
+    metrics: {}
+  - name: 田径之乡：广西玉林
+    slug: tianjingzhixiangguangxiyulin
+    metrics: {}
+  - name: 天水
+    slug: tianshui
+    metrics: {}
+  - name: 跳水之乡：广东省湛江
+    slug: tiaoshuizhixiangguangdongshengzhanjiang
+    metrics: {}
+  - name: 体操之乡：湖北省仙桃
+    slug: ticaozhixianghubeishengxiantao
+    metrics: {}
+  - name: 铜川
+    slug: tongchuan
+    metrics: {}
+  - name: 通辽
+    slug: tongliao
+    metrics: {}
+  - name: 铜仁
+    slug: tongren
+    metrics: {}
+  - name: 吐鲁番
+    slug: tulufan
+    metrics: {}
+  - name: 网球之乡：湖北省京山
+    slug: wangqiuzhixianghubeishengjingshan
+    metrics: {}
+  - name: 渭南
+    slug: weinan
+    metrics: {}
+  - name: 文山
+    slug: wenshan
+    metrics: {}
+  - name: 文山州
+    slug: wenshanzhou
+    metrics: {}
+  - name: 乌海
+    slug: wuhai
+    metrics: {}
+  - name: 芜湖
+    slug: wuhu
+    metrics: {}
+  - name: 乌兰察布
+    slug: wulanchabu
+    metrics: {}
+  - name: 吴起县
+    slug: wuqi
+    metrics: {}
+  - name: 武威
+    slug: wuwei
+    metrics: {}
+  - name: 无锡宜兴
+    slug: wuxiyixing
+    metrics: {}
+  - name: 梧州
+    slug: wuzhou
+    metrics: {}
+  - name: 厦门·湖里·思明
+    slug: xiamenhulisiming
+    metrics: {}
+  - name: 湘潭
+    slug: xiangtan
+    metrics: {}
+  - name: 西安·六朝古都/梦回大唐
+    slug: xianliuchaogudumenghuidatang
+    metrics: {}
+  - name: 咸宁
+    slug: xianning
+    metrics: {}
+  - name: 孝感
+    slug: xiaogan
+    metrics: {}
+  - name: 锡林郭勒盟
+    slug: xilinguolei
+    metrics: {}
+  - name: 新北
+    slug: xinbei
+    metrics: {}
+  - name: 兴安盟
+    slug: xingan
+    metrics: {}
+  - name: 兴安盟·阿尔山
+    slug: xinganmengaershan
+    metrics: {}
+  - name: 邢台
+    slug: xingtai
+    metrics: {}
+  - name: 兴义
+    slug: xingyi
+    metrics: {}
+  - name: 新疆·阿勒泰
+    slug: xinjiangaleitai
+    metrics: {}
+  - name: 新疆布尔津
+    slug: xinjiangbuerjin
+    metrics: {}
+  - name: 新加坡
+    slug: xinjiapo
+    metrics: {}
+  - name: 新乡
+    slug: xinxiang
+    metrics: {}
+  - name: 新余
+    slug: xinyu
+    metrics: {}
+  - name: 忻州
+    slug: xinzhou
+    metrics: {}
+  - name: 新竹
+    slug: xinzhu
+    metrics: {}
+  - name: 西双版纳·动植物王国
+    slug: xishuangbannadongzhiwuwangguo
+    metrics: {}
+  - name: 西雅图
+    slug: xiyatu
+    metrics: {}
+  - name: 西藏江孜县
+    slug: xizangjiangzi
+    metrics: {}
+  - name: 西藏拉萨
+    slug: xizanglasa
+    metrics: {}
+  - name: 西藏·林芝
+    slug: xizanglinzhi
+    metrics: {}
+  - name: 徐州·江苏
+    slug: xuzhoujiangsu
+    metrics: {}
+  - name: 延边州
+    slug: yanbianzhou
+    metrics: {}
+  - name: 炎陵县
+    slug: yanling
+    metrics: {}
+  - name: 宜宾
+    slug: yibin
+    metrics: {}
+  - name: 宜宾·四川
+    slug: yibinsichuan
+    metrics: {}
+  - name: 伊犁/昭苏·塞外江南
+    slug: yilizhaosusaiwaijiangnan
+    metrics: {}
+  - name: 英林镇
+    slug: yinglinzhen
+    metrics: {}
+  - name: 鹰潭
+    slug: yingtan
+    metrics: {}
+  - name: 游泳之乡：广东省东莞
+    slug: youyongzhixiangguangdongshengdongguan
+    metrics: {}
+  - name: 羽毛球之乡：湖南省益阳
+    slug: yumaoqiuzhixianghunanshengyiyang
+    metrics: {}
+  - name: 运城
+    slug: yuncheng
+    metrics: {}
+  - name: 云南保山
+    slug: yunnanbaoshan
+    metrics: {}
+  - name: 云南大理
+    slug: yunnandali
+    metrics: {}
+  - name: 玉树州
+    slug: yushuzhou
+    metrics: {}
+  - name: 禹州
+    slug: yuzhou
+    metrics: {}
+  - name: 长岛
+    slug: zhangdao
+    metrics: {}
+  - name: 长治
+    slug: zhangzhi
+    metrics: {}
+  - name: 湛江·广东
+    slug: zhanjiangguangdong
+    metrics: {}
+  - name: 昭通
+    slug: zhaotong
+    metrics: {}
+  - name: 昭通·云南
+    slug: zhaotongyunnan
+    metrics: {}
+  - name: 朝阳
+    slug: zhaoyang
+    metrics: {}
+  - name: 浙江·杭州
+    slug: zhejianghangzhou
+    metrics: {}
+  - name: 浙江温州
+    slug: zhejiangwenzhou
+    metrics: {}
+  - name: 中国香港
+    slug: zhongguoxianggang
+    metrics: {}
+  - name: 中卫
+    slug: zhongwei
+    metrics: {}
+  - name: 舟山市·岱山
+    slug: zhoushanshidaishan
+    metrics: {}
+  - name: 舟山市·普陀
+    slug: zhoushanshiputuo
+    metrics: {}
+  - name: 舟山市·嵊泗
+    slug: zhoushanshishengsi
+    metrics: {}
+  - name: 株洲
+    slug: zhuzhou
+    metrics: {}
+  - name: 淄博
+    slug: zibo
+    metrics: {}
+  - name: 淄博·山东
+    slug: ziboshandong
+    metrics: {}
+  - name: 自贡
+    slug: zigong
+    metrics: {}
+  - name: 遵义
+    slug: zunyi
+    metrics: {}
+  - name: 左权县
+    slug: zuoquan
+    metrics: {}

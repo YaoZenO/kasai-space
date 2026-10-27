@@ -1,0 +1,62 @@
+<%
+// 城市大类索引页（/city/）：城市档案是与城市榜单并列的一大类。
+// 列出全部建档城市，按「上榜次数」降序——上过榜的城市信息密度更高，排在前面；
+// 每座城市显示所属省级行政区（有数据的）与上榜次数。
+// 数据：source/_data/cities.yml + cityrank.yml；计算：helpers/cityrank-data.js
+// 样式：site.css §4.16（.cr-* 规则）
+page.layout = 'cityindex'
+page.hide_banner = true
+
+var CR = buildCityRanks(site.data)
+
+// 按上榜次数降序，同次数按拼音 slug 升序（稳定次序）
+var list = []
+if (!CR.error) {
+  for (var i = 0; i < CR.cities.length; i += 1) {
+    var c = CR.cities[i]
+    list.push({ c: c, n: cityMentionCount(CR, c.slug) })
+  }
+  list.sort(function (a, b) {
+    if (b.n !== a.n) return b.n - a.n
+    return String(a.c.slug).localeCompare(String(b.c.slug))
+  })
+}
+var withMentions = 0
+for (var j = 0; j < list.length; j += 1) { if (list[j].n > 0) withMentions += 1 }
+%>
+
+<div class="paper-page cal-page cr-page">
+  <div class="home-wrap">
+    <header class="page-head">
+      <nav class="cal-crumb" aria-label="面包屑">
+        <a href="<%= url_for('/library/') %>">资料库</a><span aria-hidden="true">/</span><a href="<%= url_for('/cityrank/') %>">城市排行榜</a><span aria-hidden="true">/</span><span class="cal-crumb-now">城市档案</span>
+      </nav>
+      <p class="page-head-kicker">CITY</p>
+      <h1 class="page-head-title">城市档案</h1>
+      <p class="cal-lede">收录在本站榜单中出现过的城市。有权威来源的字段直接列出并标注来源与年份，尚未采集到权威来源的字段一律标 [待补]，不做估算填充。</p>
+      <p class="archive-total">更新于 <%= fmtItemDate(CR.meta.updated) %> · <%= list.length %> 座城市 · <%= withMentions %> 座有上榜记录 · 数据年份 <%= CR.cityMeta.dataYear || '2025' %></p>
+    </header>
+
+    <% if (CR.error) { %>
+    <p class="post-desc">城市数据没有就位：<%= CR.error %>。</p>
+    <% } else { %>
+
+    <ul class="cr-citylist">
+      <% for (var k = 0; k < list.length; k += 1) { var row = list[k]; var cc = row.c %>
+      <li class="cr-citylist-item">
+        <a href="<%= url_for('/city/' + cc.slug + '/') %>">
+          <span class="cr-citylist-name"><%= cc.name %></span>
+          <% if (cc.province) { %><span class="cr-citylist-meta"><%= cc.province %><% if (cc.level) { %> · <%= cc.level %><% } %></span><% } %>
+          <span class="cr-citylist-count"><%= row.n > 0 ? ('上榜 ' + row.n + ' 次') : '待补' %></span>
+        </a>
+      </li>
+      <% } %>
+    </ul>
+
+    <div class="cal-after">
+      <p class="cal-note">城市档案持续扩充中：先收录榜单里出现过的城市，再逐步补齐面积、气候、环境、公共服务等字段，每一项都要有权威来源才写入。</p>
+    </div>
+
+    <% } %>
+  </div>
+</div>

@@ -145,7 +145,10 @@ function buildCityRanks(data) {
           skipped: c.skipped
         });
       } else {
-        // fact / pending：名次不在本站计算，页面必须按 kind 标注口径
+        // fact / pending：名次不在本站计算，页面必须按 kind 标注口径。
+        // 名次按 yml 中的数组顺序生成（1 起）——这两类榜的名次来自权威结果或公开榜单，
+        // 不是算出来的，但页面仍需要 rank 字段做编号，这里统一补齐。
+        const rawItems = Array.isArray(r.items) ? r.items : [];
         ranks.push({
           slug: r.slug,
           title: r.title,
@@ -154,8 +157,15 @@ function buildCityRanks(data) {
           lede: r.lede || '',
           metrics: [],
           note: r.note || '',
-          items: Array.isArray(r.items) ? r.items : [],
-          candidateCount: Array.isArray(r.items) ? r.items.length : 0,
+          items: rawItems.map((it, i) => ({
+            rank: i + 1,
+            slug: it.slug,
+            name: it.name,
+            reason: it.note || '',
+            score: null,
+            gdp: null
+          })),
+          candidateCount: rawItems.length,
           skipped: null
         });
       }
@@ -199,6 +209,18 @@ function cityMentions(R, citySlug) {
   return out;
 }
 
+// 某城市上榜次数（城市索引页用来排序：上榜越多越靠前）
+function cityMentionCount(R, citySlug) {
+  if (!R || R.error || !Array.isArray(R.groups)) return 0;
+  let n = 0;
+  for (const g of R.groups) {
+    for (const r of g.ranks) {
+      if ((r.items || []).some((x) => x.slug === citySlug)) n += 1;
+    }
+  }
+  return n;
+}
+
 // 取单个城市
 function findCity(R, citySlug) {
   if (!R || R.error || !Array.isArray(R.cities)) return null;
@@ -218,6 +240,7 @@ function findRank(R, rankSlug) {
 if (typeof hexo !== 'undefined' && hexo.extend && hexo.extend.helper) {
   hexo.extend.helper.register('buildCityRanks', buildCityRanks);
   hexo.extend.helper.register('cityMentions', cityMentions);
+  hexo.extend.helper.register('cityMentionCount', cityMentionCount);
   hexo.extend.helper.register('findCity', findCity);
   hexo.extend.helper.register('findRank', findRank);
 }
@@ -225,6 +248,7 @@ if (typeof hexo !== 'undefined' && hexo.extend && hexo.extend.helper) {
 module.exports = {
   buildCityRanks: buildCityRanks,
   cityMentions: cityMentions,
+  cityMentionCount: cityMentionCount,
   findCity: findCity,
   findRank: findRank,
   metricValue: metricValue,

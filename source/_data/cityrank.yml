@@ -2,28 +2,27 @@
 #
 # 纪律：
 #   1. 中文长文案一律写单行（E-042）；
-#   2. kind: computed 的榜单**禁止手写名次**——名次由 helper 从 cities.yml 现算
+#   2. kind: computed 的榜单禁止手写名次——名次由 helper 从 cities.yml 现算
 #      （PRD §5.1 P0 铁律：名次必须是计算结果，不得先定名次再配分数）；
-#   3. kind 三值：computed（可量化，给 metrics）/ fact（事实清单，给 items）
-#      / pending（无权威标准且无法量化，沿用公开榜单且页面必须标注「观点性排名」）；
-#   4. metrics.weight 之和无需等于 1——helper 会按权重和归一；dir 取 up（越大越好）
-#      或 down（越小越好，如 PM2.5、房价）；
-#   5. 缺任一 metrics 字段的城市不进候选池，不按 0 分处理（PRD §5.2）。
+#   3. kind 三值：computed（可量化）/ fact（权威标准或事实清单）/
+#      pending（无权威标准，沿用公开榜单，页面必须标注「观点性排名」）；
+#   4. pending 榜的名次与文案均来自公开榜单整理，非本站量化结果，上线后逐条审定。
 
 meta:
-  updated: "2026-10-27"
+  updated: "2026-10-28"
   title: "城市排行榜"
   kicker: "CITY RANK"
-  intro: "本站整理的城市榜单。每个榜的名次由公开的统计数据算出——指标与权重写在榜页上，可以自己复算；暂无权威标准、也无可靠量化数据的榜单独列在「待审」一组并注明。"
+  intro: "本站整理的城市榜单。有权威标准的按权威标准来，没有权威标准但有可查证数据的由本站按公开指标计算，两者都没有的沿用公开榜单名次并在页面上标为观点性排名。"
   guideLabel: "主题导航"
-  guideNote: "数据持续采集中，首批以已核验的经济与人口数据为主。"
+  guideNote: "榜单持续增补中；标为观点性排名的榜单未经量化核验。"
 
 groups:
+
   # ============ 综合与经济 ============
-  - key: "economy"
-    title: "综合与经济"
-    kicker: "ECONOMY"
-    desc: "以经济总量、人均产出与人口规模等可查证的统计指标计算。"
+  - key: economy
+    title: 综合与经济
+    kicker: ECONOMY
+    desc: 以经济总量、人口规模、发展潜力等可查证的统计指标为主。
     ranks:
       - slug: "jingji-qiangshi"
         title: "中国十大经济强市"
@@ -33,7 +32,6 @@ groups:
         metrics:
           - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
         note: "候选范围为数据集中 2025 年 GDP 已核验的城市。人均 GDP 与财政收入待数据补齐后纳入加权。"
-
       - slug: "renkou-dashi"
         title: "中国人口大市"
         kind: "computed"
@@ -42,10 +40,2675 @@ groups:
         metrics:
           - { field: "pop", weight: 1.0, dir: "up", label: "常住人口", unit: "万人" }
         note: "仅统计已见统计公报的常住人口数据，其余城市待补后再纳入。"
+      - slug: "zuijuxingfugan-chengshi"
+        title: "中国最具幸福感城市"
+        kind: "fact"
+        size: 11
+        lede: "名次引自新华社《瞭望东方周刊》「2025 最具幸福感城市」调查推选结果（2025-12-09 发布），非本站计算。"
+        note: "权威评选结果，直接引用并注明年度与发布方；本榜不计算综合指数。"
+        items:
+          - { name: "成都", slug: "chengdu", note: "2025 最具幸福感城市（省会及计划单列市）" }
+          - { name: "杭州", slug: "hangzhou", note: "2025 最具幸福感城市（省会及计划单列市）" }
+          - { name: "宁波", slug: "ningbo", note: "2025 最具幸福感城市（省会及计划单列市）" }
+          - { name: "南京", slug: "nanjing", note: "2025 最具幸福感城市（省会及计划单列市）" }
+          - { name: "长沙", slug: "changsha", note: "2025 最具幸福感城市（省会及计划单列市）" }
+          - { name: "青岛", slug: "qingdao", note: "2025 最具幸福感城市（省会及计划单列市）" }
+          - { name: "沈阳", slug: "shenyang", note: "2025 最具幸福感城市（省会及计划单列市）" }
+          - { name: "广州", slug: "guangzhou", note: "2025 最具幸福感城市（省会及计划单列市）" }
+          - { name: "石家庄", slug: "shijiazhuang", note: "2025 最具幸福感城市（省会及计划单列市）" }
+          - { name: "西宁", slug: "xining", note: "2025 最具幸福感城市（省会及计划单列市）" }
+          - { name: "福州", slug: "fuzhou", note: "2025 最具幸福感城市（省会及计划单列市）" }
+      - slug: shidachuangyecheng
+        title: 中国十大创业城市盘点
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 深圳, slug: shenzhen, note: 中国经济特区 政府全力支持创业 }
+          - { name: 上海, slug: shanghai, note: 中国经济中心 国际化大都市 }
+          - { name: 北京, slug: beijing, note: 中国政治中心 提供多项政策扶持优惠 }
+          - { name: 广州, slug: guangzhou, note: 中国老牌一线城市 国际商贸枢纽 }
+          - { name: 成都, slug: chengdu, note: 西部重要消费城市 创业成本相比一线城市更低 }
+          - { name: 杭州, slug: hangzhou, note: 政府提供系统性扶持 产业链完善 }
+          - { name: 南京, slug: nanjing, note: 东部地区重要中心城市 拥有成熟的孵化服务体系 }
+          - { name: 苏州, slug: suzhou, note: 长三角核心城市 交通便利 }
+          - { name: 武汉, slug: wuhan, note: 国际性综合交通枢纽城市 聚集大量头部制造企业 }
+          - { name: 重庆, slug: chongqing, note: 中国直辖市 拥有庞大消费市场和人口基数 }
+      - slug: shidajingjiqiangsh
+        title: 中国十大经济强市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 深圳, slug: shenzhen, note: "" }
+          - { name: 重庆, slug: chongqing, note: "" }
+          - { name: 广州, slug: guangzhou, note: "" }
+          - { name: 苏州, slug: suzhou, note: "" }
+          - { name: 成都, slug: chengdu, note: "" }
+          - { name: 杭州, slug: hangzhou, note: "" }
+          - { name: 武汉, slug: wuhan, note: "" }
+          - { name: 南京, slug: nanjing, note: "" }
+      - slug: shidameihaoshenghu
+        title: 中国十大美好生活城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 长沙, slug: changsha, note: "" }
+          - { name: 长春, slug: changchun, note: "" }
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 青岛, slug: qingdao, note: "" }
+          - { name: 昆明, slug: kunming, note: "" }
+          - { name: 济南, slug: jinan, note: "" }
+          - { name: 海口, slug: haikou, note: "" }
+          - { name: 深圳, slug: shenzhen, note: "" }
+          - { name: 厦门, slug: xiamen, note: "" }
+      - slug: shangbiaoshenqingl
+        title: 中国商标申请量最多的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 深圳, slug: shenzhen, note: "" }
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 广州, slug: guangzhou, note: "" }
+          - { name: 杭州, slug: hangzhou, note: "" }
+          - { name: 东莞, slug: dongguan, note: "" }
+          - { name: 成都, slug: chengdu, note: "" }
+          - { name: 重庆, slug: chongqing, note: "" }
+          - { name: 苏州, slug: suzhou, note: "" }
+          - { name: 宁波, slug: ningbo, note: "" }
+      - slug: waimaiqishouzuiduo
+        title: 中国外卖骑手最多的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 北京, slug: beijing, note: 北京市 }
+          - { name: 深圳, slug: shenzhen, note: "" }
+          - { name: 广州, slug: guangzhou, note: 美团 }
+          - { name: 杭州, slug: hangzhou, note: "" }
+          - { name: 南京, slug: nanjing, note: "" }
+          - { name: 成都, slug: chengdu, note: "" }
+          - { name: 武汉, slug: wuhan, note: 外卖 }
+          - { name: 长沙, slug: changsha, note: "" }
+          - { name: 重庆, slug: chongqing, note: 重庆市 }
+      - slug: kuaidiliangshidach
+        title: 中国快递量十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 金华, slug: jinhua, note: 快递 }
+          - { name: 广州, slug: guangzhou, note: "" }
+          - { name: 深圳, slug: shenzhen, note: 跨境电商 }
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 揭阳, slug: jieyang, note: 服装 }
+          - { name: 东莞, slug: dongguan, note: "" }
+          - { name: 杭州, slug: hangzhou, note: "" }
+          - { name: 汕头, slug: shantou, note: "" }
+          - { name: 苏州, slug: suzhou, note: "" }
+          - { name: 成都, slug: chengdu, note: 港澳台 }
+      - slug: zuirongyizhuanqian
+        title: 中国最容易赚钱十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 深圳, slug: shenzhen, note: "" }
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 广州, slug: guangzhou, note: "" }
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 青岛, slug: qingdao, note: "" }
+          - { name: 杭州, slug: hangzhou, note: "" }
+          - { name: 成都, slug: chengdu, note: "" }
+          - { name: 南京, slug: nanjing, note: "" }
+          - { name: 西安, slug: xian, note: "" }
+          - { name: 苏州, slug: suzhou, note: "" }
+      - slug: zuimangludeshidach
+        title: 中国最忙碌的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 石家庄, slug: shijiazhuang, note: "" }
+          - { name: 郑州, slug: zhengzhou, note: "" }
+          - { name: 西安, slug: xian, note: "" }
+          - { name: 呼和浩特, slug: huhehaote, note: "" }
+          - { name: 西宁, slug: xining, note: "" }
+          - { name: 广州, slug: guangzhou, note: "" }
+          - { name: 哈尔滨, slug: haerbin, note: "" }
+          - { name: 乌鲁木齐, slug: wulumuqi, note: "" }
+          - { name: 南京, slug: nanjing, note: "" }
+          - { name: 银川, slug: yinchuan, note: "" }
+      - slug: weilaifazhanqianli
+        title: 中国未来发展潜力最大的10个城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 上海, slug: shanghai, note: 中国经济中心 世界一线城市 }
+          - { name: 深圳, slug: shenzhen, note: 中国经济特区 国家创新型城市 }
+          - { name: 北京, slug: beijing, note: 国家中心城市 世界一线城市 }
+          - { name: 广州, slug: guangzhou, note: 世界一线城市 被誉为“千年商都” }
+          - { name: 重庆, slug: chongqing, note: 国家中心城市 西部对外开放门户 }
+          - { name: 成都, slug: chengdu, note: 西部经济中心 西部科技创新中心 }
+          - { name: 杭州, slug: hangzhou, note: 东部地区重要中心城市 国际性综合交通枢纽城市 }
+          - { name: 武汉, slug: wuhan, note: 中部地区重要中心城市 商贸物流中心 }
+          - { name: 苏州, slug: suzhou, note: 东部地区重要中心城市 长江三角洲中心区城市 }
+          - { name: 南京, slug: nanjing, note: 东部地区重要中心城市 长江三角洲中心区城市 }
+      - slug: zhianhaodeshidache
+        title: 中国治安好的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 北京, slug: beijing, note: 国家级应急指挥中心所在地 首都特殊安保机制 }
+          - { name: 上海, slug: shanghai, note: 监控密度全国领先 智慧城市管理系统高效 }
+          - { name: 重庆, slug: chongqing, note: 山城地形利于防控 监控覆盖主城九区 }
+          - { name: 深圳, slug: shenzhen, note: 科技治警全国标杆 刑事案件降幅显著 }
+          - { name: 杭州, slug: hangzhou, note: “天眼”系统全覆盖 数字化治理典范 }
+          - { name: 青岛, slug: qingdao, note: 暴力犯罪率低 无恐袭记录 }
+          - { name: 苏州, slug: suzhou, note: 工业园区治安管理全国标杆 外来人口服务到位 }
+          - { name: 厦门, slug: xiamen, note: 海岛城市人口流动可控 社区网格化管理精细 }
+          - { name: 西安, slug: xian, note: 治安防控与应急响应能力突出 医疗响应效率高 }
+          - { name: 南京, slug: nanjing, note: 社会治安长期稳定 通信枢纽地位保障信息畅通 }
+      - slug: xiaofeizuigaodeshi
+        title: 中国消费最高的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 杭州, slug: hangzhou, note: 人均消费支出超5.29万元 人均可支配收入超7.67万元 }
+          - { name: 上海, slug: shanghai, note: 人均消费支出超5.27万元 人均可支配收入超8.83万元 }
+          - { name: 深圳, slug: shenzhen, note: 人均消费支出超5.14万元 人均可支配收入超8.11万元 }
+          - { name: 温州, slug: wenzhou, note: 人均消费支出超5.02万元 人均可支配收入超7.08万元 }
+          - { name: 北京, slug: beijing, note: 人均消费支出超4.97万元 人均可支配收入超8.54万元 }
+          - { name: 厦门, slug: xiamen, note: 人均消费支出超4.9万元 人均可支配收入超7.42万元 }
+          - { name: 宁波, slug: ningbo, note: 人均消费支出超4.83万元 人均可支配收入超7.48万元 }
+          - { name: 苏州, slug: suzhou, note: 人均消费支出超4.81万元 人均可支配收入超7.75万元 }
+          - { name: 广州, slug: guangzhou, note: 人均消费支出超4.78万元 人均可支配收入超8.34万元 }
+          - { name: 绍兴, slug: shaoxing, note: 人均消费支出超4.68万元 人均可支配收入超7.28万元 }
+      - slug: guihuazuihaodeshid
+        title: 中国规划最好的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 苏州, slug: suzhou, note: "" }
+          - { name: 香港, slug: xianggang, note: "" }
+          - { name: 深圳, slug: shenzhen, note: "" }
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 南京, slug: nanjing, note: "" }
+          - { name: 广州, slug: guangzhou, note: "" }
+          - { name: 西安, slug: xian, note: "" }
+          - { name: 成都, slug: chengdu, note: "" }
+          - { name: 杭州, slug: hangzhou, note: "" }
+          - { name: 厦门, slug: xiamen, note: "" }
+      - slug: yunnanshidachengsh
+        title: 云南十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 昆明, slug: kunming, note: 省会与滇中核心 GDP总量超8637亿元 }
+          - { name: 曲靖, slug: qujing, note: 省域副中心 GDP总量超3777亿元 }
+          - { name: 红河州, slug: honghezhou, note: 滇南中心城市 GDP总量超3154亿元 }
+          - { name: 玉溪, slug: yuxi, note: 烟草名城 GDP总量超2688亿元 }
+          - { name: 昭通, slug: zhaotong, note: 滇东北门户 GDP总量超2103亿元 }
+          - { name: 大理州, slug: dalizhou, note: 滇西中心城市 GDP总量超2087亿元 }
+          - { name: 楚雄州, slug: chuxiongzhou, note: 滇中城市群重要成员 GDP总量超2040亿元 }
+          - { name: 文山州, slug: wenshanzhou, note: 滇东南中心 GDP总量超1632亿元 }
+          - { name: 保山, slug: baoshan, note: 滇西边境城市 GDP总量超1347亿元 }
+          - { name: 普洱, slug: puer, note: 特色资源型城市 GDP总量超1252亿元 }
+      - slug: neimenggushidachen
+        title: 内蒙古十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 鄂尔多斯, slug: eerduosi, note: 内蒙古经济第一城 GDP总量超6122亿元 }
+          - { name: 包头, slug: baotou, note: 内蒙古工业重镇 GDP总量超4711亿元 }
+          - { name: 呼和浩特, slug: huhehaote, note: 自治区政治/经济/科教/文化中心 GDP总量超4278亿元 }
+          - { name: 赤峰, slug: chifeng, note: 内蒙古东部区域性中心城市 GDP总量超2407亿元 }
+          - { name: 呼伦贝尔, slug: hulunbeier, note: 国际生态旅游名城 GDP总量超1749亿元 }
+          - { name: 通辽, slug: tongliao, note: 内蒙古东部重要农业基地 GDP总量超1737亿元 }
+          - { name: 锡林郭勒盟, slug: xilinguolei, note: 国家重要绿色畜产品基地 GDP总量超1289亿元 }
+          - { name: 巴彦淖尔, slug: bayannaoer, note: 农业大市 GDP总量超1277亿元 }
+          - { name: 乌兰察布, slug: wulanchabu, note: GDP总量超1260亿元 风电/光伏新能源基地 }
+          - { name: 兴安盟, slug: xingan, note: 东北经济圈重要节点 GDP总量超850亿元 }
+      - slug: taiwanliudachengsh
+        title: 台湾六大城市
+        kind: "pending"
+        size: 6
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 6 条。
+        items:
+          - { name: 台北, slug: taibei, note: "" }
+          - { name: 新北, slug: xinbei, note: "" }
+          - { name: 桃园, slug: taoyuan, note: "" }
+          - { name: 台中, slug: taizhong, note: "" }
+          - { name: 高雄, slug: gaoxiong, note: "" }
+          - { name: 台南, slug: tainan, note: "" }
+      - slug: sichuanshidachengs
+        title: 四川十大城市
+        kind: "pending"
+        size: 9
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 9 条。
+        items:
+          - { name: 成都, slug: chengdu, note: 国家中心城市 GDP总量超2.4万亿元 }
+          - { name: 绵阳, slug: mianyang, note: 三线城市 中国科技城 }
+          - { name: 宜宾, slug: yibin, note: 四线城市 长江起点城市 }
+          - { name: 德阳, slug: deyang, note: 四线城市 工业强市 }
+          - { name: 泸州, slug: luzhou, note: 四线城市 川南经济中心 }
+          - { name: 达州, slug: dazhou, note: 四线城市 川东北省域经济副中心 }
+          - { name: 南充, slug: nanchong, note: 三线城市 川东北区域中心城市 }
+          - { name: 乐山, slug: leshan, note: 四线城市 文旅强市 }
+          - { name: 内江, slug: neijiang, note: 四线城市 川南工业城 }
+      - slug: nagechengshidewaim
+        title: 国内哪个城市的外卖量最大 全国外卖最多的10个城市盘点
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 北京, slug: beijing, note: 外卖 }
+          - { name: 上海, slug: shanghai, note: 火锅 }
+          - { name: 深圳, slug: shenzhen, note: "" }
+          - { name: 广州, slug: guangzhou, note: 烧烤 }
+          - { name: 成都, slug: chengdu, note: "" }
+          - { name: 杭州, slug: hangzhou, note: "" }
+          - { name: 重庆, slug: chongqing, note: 奶茶 }
+          - { name: 苏州, slug: suzhou, note: "" }
+          - { name: 武汉, slug: wuhan, note: 鲜花 }
+          - { name: 南京, slug: nanjing, note: "" }
+      - slug: yangqizongbuzuiduo
+        title: 央企总部最多的十大城市
+        kind: "pending"
+        size: 9
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 9 条。
+        items:
+          - { name: 北京, slug: beijing, note: 中石油/国家电网/中国航天科技集团/中国核工业集团/中国移动等 }
+          - { name: 上海, slug: shanghai, note: 东方航空集团/宝武钢铁集团/中国商用飞机/中国远洋海运集团等 }
+          - { name: 香港, slug: xianggang, note: 招商局集团/华润集团/中国旅游集团 }
+          - { name: 武汉, slug: wuhan, note: 东风汽车集团/中国信息通信科技集团/长江三峡集团 }
+          - { name: 深圳, slug: shenzhen, note: 华侨城集团/中国广核集团/中国电子信息产业集团 }
+          - { name: 广州, slug: guangzhou, note: 南方航空集团/中国南方电网 }
+          - { name: 天津, slug: tianjin, note: 中国资源循环集团 }
+          - { name: 重庆, slug: chongqing, note: 中国长安汽车集团 }
+          - { name: 成都, slug: chengdu, note: 中国东方电气集团 }
+      - slug: ningxiawudachengsh
+        title: 宁夏五大城市
+        kind: "pending"
+        size: 5
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 5 条。
+        items:
+          - { name: 银川, slug: yinchuan, note: 首府 GDP总量超3033亿元 }
+          - { name: 吴忠, slug: wuzhong, note: 宁夏中部重要城市 GDP总量超961亿元 }
+          - { name: 中卫, slug: zhongwei, note: 西部“沙漠硅谷” GDP总量超633亿元 }
+          - { name: 石嘴山, slug: shizuishan, note: 国家智慧城市试点 GDP总量超579亿元 }
+          - { name: 固原, slug: guyuan, note: 中国马铃薯之乡 GDP总量超488亿元 }
+      - slug: anhuishidachengshi
+        title: 安徽十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 合肥, slug: hefei, note: 省会城市 长三角副中心城市 }
+          - { name: 芜湖, slug: wuhu, note: 省域副中心城市 GDP总量超5402亿元 }
+          - { name: 滁州, slug: chuzhou, note: 南京都市圈核心成员 光伏产业重镇 }
+          - { name: 阜阳, slug: fuyang, note: 皖北人口第一大市 中原经济区重要节点 }
+          - { name: 安庆, slug: anqing, note: 皖西南区域中心 GDP总量超3306亿元 }
+          - { name: 马鞍山, slug: maanshan, note: 钢铁与智造强市 GDP总量超2920亿元 }
+          - { name: 亳州, slug: bozhou, note: 中华药都 养生文化名城 }
+          - { name: 宿州, slug: suzhou, note: 传统农业大市 GDP总量超2538亿元 }
+          - { name: 蚌埠, slug: bengbu, note: 皖北科教商贸中心 GDP总量超2421亿元 }
+          - { name: 六安, slug: luan, note: 大别山区域中心城市 GDP总量超2407亿元 }
+      - slug: fuxishipin
+        title: 富硒食品
+        kind: "pending"
+        size: 4
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 4 条。
+        items:
+          - { name: 富硒茶, slug: fuxicha, note: 安康富硒茶 紫阳富硒茶 }
+          - { name: 富硒蛋, slug: fuxidan, note: 鸭蛋30.7μg/100g 鸡蛋20μg/100g }
+          - { name: 富硒蔬菜, slug: fuxishucai, note: 干口蘑(松蘑)98ug/100g 云耳 }
+          - { name: 富硒水果, slug: fuxishuiguo, note: 皋兰软儿梨8.43μg/100g 桑葚5.65μg/100g }
+      - slug: shandongshidacheng
+        title: 山东十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 青岛, slug: qingdao, note: 副省级/计划单列市 山东对外开放的龙头城市 }
+          - { name: 济南, slug: jinan, note: 省会/黄河流域中心城市 GDP总量超1.42万亿元 }
+          - { name: 烟台, slug: yantai, note: 沿海开放城市 航海名城/制造业强市 }
+          - { name: 潍坊, slug: weifang, note: 农业与制造业双强 GDP总量超8587亿元 }
+          - { name: 临沂, slug: linyi, note: 全国重要商贸物流中心 GDP总量超6862亿元 }
+          - { name: 济宁, slug: jining, note: 鲁南文化名城 资源型城市转型典范 }
+          - { name: 淄博, slug: zibo, note: 陶琉名城 老工业基地转型 }
+          - { name: 菏泽, slug: heze, note: 农业大市 GDP总量超4937亿元 }
+          - { name: 东营, slug: dongying, note: 黄河三角洲中心城市 GDP总量超4502亿元 }
+          - { name: 德州, slug: dezhou, note: 京津冀协同发展重要节点 GDP总量超4214亿元 }
+      - slug: shanxishidachengsh
+        title: 山西十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 太原, slug: taiyuan, note: 省会城市 全省政治/经济与科教中心 }
+          - { name: 吕梁, slug: lvliang, note: 山西西部经济重镇 能源化工基地 }
+          - { name: 长治, slug: zhangzhi, note: 省域副中心城市 晋东南中心城市 }
+          - { name: 晋中, slug: jinzhong, note: 太原都市区核心组成部分 GDP总量超2462亿元 }
+          - { name: 临汾, slug: linfen, note: 晋南中心城市 新型能源和工业基地 }
+          - { name: 晋城, slug: jincheng, note: 太行山南麓资源型城市 GDP总量超2429亿元 }
+          - { name: 运城, slug: yuncheng, note: 晋南区域中心城市 人口与农业大市 }
+          - { name: 大同, slug: datong, note: 晋冀蒙交界区域中心城市 GDP总量超1815亿元 }
+          - { name: 忻州, slug: xinzhou, note: 最佳生态休闲旅游示范城市 GDP总量超1330亿元 }
+          - { name: 朔州, slug: shuozhou, note: 经济转型示范城市 GDP总量超1303亿元 }
+      - slug: guangdongshidachen
+        title: 广东十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 深圳, slug: shenzhen, note: 一线城市 中国特色社会主义先行示范区 }
+          - { name: 广州, slug: guangzhou, note: 一线城市​ 省会与国家中心城市 }
+          - { name: 佛山, slug: foshan, note: 制造业强市 GDP总量超1.31万亿元 }
+          - { name: 东莞, slug: dongguan, note: “世界工厂”转型“智造名城” GDP总量超1.2万亿元 }
+          - { name: 惠州, slug: huizhou, note: 二线城市 电子信息产业强劲 }
+          - { name: 珠海, slug: zhuhai, note: 二线城市 经济特区/科创高地 }
+          - { name: 中山, slug: zhongshan, note: 二线城市 制造业强市 }
+          - { name: 江门, slug: jiangmen, note: 三线城市 侨乡+湾区节点 }
+          - { name: 茂名, slug: maoming, note: 三线城市 GDP常年位居粤西地区首位 }
+          - { name: 湛江, slug: zhanjiang, note: 三线城市 省域副中心城市 }
+      - slug: guangxishidachengs
+        title: 广西十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 南宁, slug: nanning, note: 自治区首府 北部湾城市群核心 }
+          - { name: 柳州, slug: liuzhou, note: 广西工业中心 GDP总量超3096亿元 }
+          - { name: 桂林, slug: guilin, note: 国际旅游名城 GDP总量超2579亿元 }
+          - { name: 玉林, slug: yulin, note: 北部湾经济区节点城市 GDP总量超2437亿元 }
+          - { name: 百色, slug: baise, note: 珠江—西江经济带节点 GDP总量超2101亿元 }
+          - { name: 北海, slug: beihai, note: 滨海旅游名城 GDP总量超1974亿元 }
+          - { name: 钦州, slug: qinzhou, note: 北部湾沿海港口城市 GDP总量超1907亿元 }
+          - { name: 梧州, slug: wuzhou, note: 西江经济带重要节点 GDP总量超1719亿元 }
+          - { name: 贵港, slug: guigang, note: 广西重要内河港口城市 GDP总量超1628亿元 }
+          - { name: 河池, slug: hechi, note: 有色金属之乡 GDP总量超1453亿元 }
+      - slug: xinjiangshidacheng
+        title: 新疆十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 乌鲁木齐, slug: wulumuqi, note: 首府 西北中心城市 }
+          - { name: 伊犁, slug: yili, note: 北疆区域中心 丝绸之路经济带重要节点 }
+          - { name: 昌吉, slug: changji, note: 乌昌一体化核心区 GDP超2637亿元 }
+          - { name: 阿克苏, slug: akesu, note: 南疆产业高地 GDP超2042亿元 }
+          - { name: 喀什, slug: kashi, note: 南疆商贸物流中心 经济特区与自贸试验区 }
+          - { name: 巴音郭楞, slug: bayinguoleng, note: 南疆第一大经济体 GDP超1723亿元 }
+          - { name: 哈密, slug: hami, note: 新疆“东大门” GDP超1162亿元 }
+          - { name: 塔城, slug: tacheng, note: GDP超	1050亿元 农业和畜牧业发达 }
+          - { name: 克拉玛依, slug: kelamayi, note: 国家重要石油石化基地 GDP超863亿元 }
+          - { name: 吐鲁番, slug: tulufan, note: 特色文旅城市 GDP超668亿元 }
+      - slug: jinjiangshidaqiang
+        title: 晋江十大强镇 晋江市镇区排名 晋江最发达的镇〔2026〕
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 陈埭镇, slug: chendaizhen, note: "" }
+          - { name: 深沪镇, slug: shenhuzhen, note: "" }
+          - { name: 磁灶镇, slug: cizaozhen, note: "" }
+          - { name: 安海镇, slug: anhaizhen, note: "" }
+          - { name: 龙湖镇, slug: longhuzhen, note: "" }
+          - { name: 池店镇, slug: chidianzhen, note: "" }
+          - { name: 东石镇, slug: dongshizhen, note: "" }
+          - { name: 英林镇, slug: yinglinzhen, note: "" }
+          - { name: 金井镇, slug: jinjingzhen, note: "" }
+          - { name: 内坑镇, slug: neikengzhen, note: "" }
+      - slug: jiangsushidachengs
+        title: 江苏十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 苏州, slug: suzhou, note: 长三角重要中心城市 制造业强市 }
+          - { name: 南京, slug: nanjing, note: 省会与国家中心城市 科教资源密集 }
+          - { name: 无锡, slug: wuxi, note: 物联网之都 GDP总量超1.6万亿元 }
+          - { name: 南通, slug: nantong, note: 二线城市 制造业基础雄厚 }
+          - { name: 常州, slug: changzhou, note: 二线城市 新能源之都 }
+          - { name: 徐州, slug: xuzhou, note: 二线城市 工程机械基地 }
+          - { name: 扬州, slug: yangzhou, note: 二线城市 宜居与文旅发展突出 }
+          - { name: 盐城, slug: yancheng, note: 三线城市 中国绿色能源标杆城市 }
+          - { name: 泰州, slug: taizhou, note: 三线城市 中国医药城 }
+          - { name: 镇江, slug: zhenjiang, note: 三线城市 山水花园名城 }
+      - slug: jiangxishidachengs
+        title: 江西十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 南昌, slug: nanchang, note: 省会城市 长江中游城市群核心 }
+          - { name: 赣州, slug: ganzhou, note: 省域副中心 GDP总量超5221亿元 }
+          - { name: 九江, slug: jiujiang, note: 长江中游区域中心港口城市 GDP总量超4246亿元 }
+          - { name: 上饶, slug: shangrao, note: 赣东北门户 GDP总量超3935亿元 }
+          - { name: 宜春, slug: yichun, note: 赣湘鄂区域中心城市 GDP总量超3930亿元 }
+          - { name: 吉安, slug: jian, note: 赣中腹地城市 GDP总量超3105亿元 }
+          - { name: 抚州, slug: fuzhou, note: 生态文化名城 GDP总量超2298亿元 }
+          - { name: 鹰潭, slug: yingtan, note: 铜都 GDP总量超1459亿元 }
+          - { name: 萍乡, slug: pingxiang, note: 湘赣边区域合作枢纽 GDP总量超1276亿元 }
+          - { name: 新余, slug: xinyu, note: 国家新能源科技城 GDP总量超1215亿元 }
+      - slug: zhejiangshidacheng
+        title: 浙江十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 杭州, slug: hangzhou, note: 省会城市 GDP总量超2.3万亿元 }
+          - { name: 宁波, slug: ningbo, note: 副省级城市 计划单列市 }
+          - { name: 温州, slug: wenzhou, note: 浙南中心城市 GDP总量超1万亿元 }
+          - { name: 绍兴, slug: shaoxing, note: 杭州湾南翼智造高地 GDP总量超8932亿元 }
+          - { name: 嘉兴, slug: jiaxing, note: 长三角重要中心城市 GDP总量超7851亿元 }
+          - { name: 金华, slug: jinhua, note: 浙江中部商贸物流枢纽 GDP总量超7313亿元 }
+          - { name: 台州, slug: taizhou, note: 老牌工业强市 GDP总量超7005亿元 }
+          - { name: 湖州, slug: huzhou, note: 长三角绿色智造名城 GDP总量超4452亿元 }
+          - { name: 衢州, slug: quzhou, note: 四省边际中心城市 GDP总量超2401亿元 }
+          - { name: 舟山, slug: zhoushan, note: 海洋经济核心 GDP总量超2346亿元 }
+      - slug: hubeishidachengshi
+        title: 湖北十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 武汉, slug: wuhan, note: 省会 国家中心城市 }
+          - { name: 宜昌, slug: yichang, note: 省域副中心城市 GDP总量超6464亿元 }
+          - { name: 襄阳, slug: xiangyang, note: 汉江流域中心城市 GDP总量超6113亿元 }
+          - { name: 荆州, slug: jingzhou, note: 鄂中南中心城市 GDP总量超3712亿元 }
+          - { name: 孝感, slug: xiaogan, note: 区域性中心城市 GDP总量超3398亿元 }
+          - { name: 黄冈, slug: huanggang, note: 人口大市 GDP总量超3303亿元 }
+          - { name: 十堰, slug: shiyan, note: 中国卡车之都 GDP总量超2704亿元 }
+          - { name: 荆门, slug: jingmen, note: 鄂中区域性中心城市 GDP总量超2602亿元 }
+          - { name: 黄石, slug: huangshi, note: 长江中游重要工业基地 GDP总量超2430亿元 }
+          - { name: 咸宁, slug: xianning, note: 中国温泉之城 GDP总量超2033亿元 }
+      - slug: hunanshidachengshi
+        title: 湖南十大城市排行榜
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 长沙, slug: changsha, note: 湖南省会 长江中游重要中心城市 }
+          - { name: 岳阳, slug: yueyang, note: 省域副中心城市 长江中游区域中心 }
+          - { name: 常德, slug: changde, note: 湘西北经济文化中心 GDP总量超4770亿元 }
+          - { name: 衡阳, slug: hengyang, note: 湘南中心城市 省域副中心 }
+          - { name: 株洲, slug: zhuzhou, note: 长株潭城市群核心城市 GDP总量超4063亿元 }
+          - { name: 郴州, slug: chenzhou, note: 有色金属之乡 GDP总量超3502亿元 }
+          - { name: 湘潭, slug: xiangtan, note: 长株潭都市圈核心 GDP总量超3077亿元 }
+          - { name: 邵阳, slug: shaoyang, note: 湘西南区域中心城市 GDP总量超2883亿元 }
+          - { name: 永州, slug: yongzhou, note: 湖南生态门户/湘江源头 GDP总量超2829亿元 }
+          - { name: 益阳, slug: yiyang, note: 洞庭湖生态经济区核心城市 GDP总量超2381亿元 }
+      - slug: huanbohaidiqucheng
+        title: 环渤海地区城市排名 环渤海有哪些城市 环渤海十三市盘点〔2026〕
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 天津, slug: tianjin, note: "" }
+          - { name: 烟台, slug: yantai, note: "" }
+          - { name: 唐山, slug: tangshan, note: "" }
+          - { name: 大连, slug: dalian, note: "" }
+          - { name: 潍坊, slug: weifang, note: "" }
+          - { name: 沧州, slug: cangzhou, note: "" }
+          - { name: 东营, slug: dongying, note: "" }
+          - { name: 滨州, slug: binzhou, note: "" }
+          - { name: 秦皇岛, slug: qinhuangdao, note: "" }
+          - { name: 营口, slug: yingkou, note: "" }
+      - slug: gansushidachengshi
+        title: 甘肃十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 兰州, slug: lanzhou, note: 甘肃省会 Ⅰ型大城市 }
+          - { name: 庆阳, slug: qingyang, note: 石油煤炭资源型城市 GDP总量超1235亿元 }
+          - { name: 酒泉, slug: jiuquan, note: 省域副中心城市 GDP总量超1103亿元 }
+          - { name: 天水, slug: tianshui, note: 陇东南中心城市 GDP总量超980亿元 }
+          - { name: 武威, slug: wuwei, note: 河西走廊中心城市 GDP总量超802亿元 }
+          - { name: 定西, slug: dingxi, note: 陇中地区中心城市 GDP总量超793亿元 }
+          - { name: 白银, slug: baiyin, note: 兰白经济圈核心 GDP总量超789亿元 }
+          - { name: 平凉, slug: pingliang, note: 陇东重要节点 GDP总量超754亿元 }
+          - { name: 张掖, slug: zhangye, note: 河西走廊绿洲中心 GDP总量超734亿元 }
+          - { name: 陇南, slug: longnan, note: 甘肃南部枢纽 GDP总量超716亿元 }
+      - slug: fujianjiudachengsh
+        title: 福建九大城市
+        kind: "pending"
+        size: 9
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 9 条。
+        items:
+          - { name: 福州, slug: fuzhou, note: 省会城市 GDP总量超1.5万亿元 }
+          - { name: 泉州, slug: quanzhou, note: 制造业强市 GDP总量超1.3万亿元 }
+          - { name: 厦门, slug: xiamen, note: 副省级城市 GDP总量超8980亿元 }
+          - { name: 漳州, slug: zhangzhou, note: 福建农业大市 GDP总量超6154亿元 }
+          - { name: 宁德, slug: ningde, note: 中国锂电之都 GDP总量超4251亿元 }
+          - { name: 莆田, slug: putian, note: 中国木雕之城 GDP总量超3579亿元 }
+          - { name: 龙岩, slug: longyan, note: GDP总量超3578亿元 绿色经济为主 }
+          - { name: 三明, slug: sanming, note: 中国绿都 GDP总量超2511亿元 }
+          - { name: 南平, slug: nanping, note: 中国茶都 GDP总量超2189亿元 }
+      - slug: xizangqidachengshi
+        title: 西藏七大城市
+        kind: "pending"
+        size: 7
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 7 条。
+        items:
+          - { name: 拉萨, slug: lasa, note: "" }
+          - { name: 日喀则, slug: rikaze, note: "" }
+          - { name: 山南, slug: shannan, note: "" }
+          - { name: 林芝, slug: linzhi, note: "" }
+          - { name: 昌都, slug: changdou, note: "" }
+          - { name: 阿里地区, slug: ali, note: "" }
+          - { name: 那曲, slug: naqu, note: "" }
+      - slug: guizhoujiudachengs
+        title: 贵州九大城市
+        kind: "pending"
+        size: 9
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 9 条。
+        items:
+          - { name: 贵阳, slug: guiyang, note: 省会城市 西南重要中心城市 }
+          - { name: 遵义, slug: zunyi, note: 省域副中心 世界酱香酒都 }
+          - { name: 毕节, slug: bijie, note: 黔西北区域中心 GDP总量超2541亿元 }
+          - { name: 黔南州, slug: qiannanzhou, note: 黔中经济带重要节点 GDP总量超2008亿元 }
+          - { name: 六盘水, slug: liupanshui, note: 西南能源工业城市 GDP总量超1777亿元 }
+          - { name: 铜仁, slug: tongren, note: 生态资源型城市 GDP总量超1722亿元 }
+          - { name: 黔西南州, slug: qianxinanzhou, note: 西南能源基地 GDP总量超1535亿元 }
+          - { name: 黔东南州, slug: qiandongnanzhou, note: 贵州东南部中心城市 GDP总量超1500亿元 }
+          - { name: 安顺, slug: anshun, note: GDP总量超1232亿元 西部康养名城 }
+      - slug: liaoningshidacheng
+        title: 辽宁十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 大连, slug: dalian, note: 副省级市 东北地区首个万亿GDP城市 }
+          - { name: 沈阳, slug: shenyang, note: 省会 副省级城市 }
+          - { name: 鞍山, slug: anshan, note: 辽中南地区中心城市 GDP超2180亿元 }
+          - { name: 营口, slug: yingkou, note: 沿海经济带重要节点 GDP超1570亿元 }
+          - { name: 盘锦, slug: panjin, note: 石油资源型城市 GDP超1417亿元 }
+          - { name: 锦州, slug: jinzhou, note: 辽西中心城市 GDP超1365亿元 }
+          - { name: 朝阳, slug: zhaoyang, note: 辽西北门户 GDP超1156亿元 }
+          - { name: 本溪, slug: benxi, note: 钢铁之都 GDP超1006亿元 }
+          - { name: 抚顺, slug: fushun, note: 沈阳经济区副中心 GDP超1003亿元 }
+          - { name: 丹东, slug: dandong, note: 边境口岸城市 GDP超1019亿元 }
+      - slug: "shanxishidachengsh-2"
+        title: 陕西十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 西安, slug: xian, note: 国家中心城市 世界文旅名城 }
+          - { name: 榆林, slug: yulin, note: 能源之都 西部工业重镇 }
+          - { name: 咸阳, slug: xianyang, note: 西安都市圈核心城市 GDP总量超3104亿元 }
+          - { name: 宝鸡, slug: baoji, note: 关中平原城市群副中心 GDP总量超2648亿元 }
+          - { name: 延安, slug: yanan, note: 红色文化中心 GDP总量超2372亿元 }
+          - { name: 渭南, slug: weinan, note: 关中平原东部门户 人口大市/农业强市 }
+          - { name: 汉中, slug: hanzhong, note: 陕南中心城市 GDP总量超2003亿元 }
+          - { name: 安康, slug: ankang, note: 陕南生态宜居城市 GDP总量超1190亿元 }
+          - { name: 商洛, slug: shangluo, note: 秦岭生态核心区域 GDP总量超823亿元 }
+          - { name: 铜川, slug: tongchuan, note: 老工业基地转型代表城市 GDP总量超607亿元 }
+      - slug: qinghaibadachengsh
+        title: 青海八大城市
+        kind: "pending"
+        size: 8
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 8 条。
+        items:
+          - { name: 西宁, slug: xining, note: "" }
+          - { name: 海西州, slug: haixizhou, note: "" }
+          - { name: 海东, slug: haidong, note: "" }
+          - { name: 海南州, slug: hainanzhou, note: "" }
+          - { name: 玉树州, slug: yushuzhou, note: "" }
+          - { name: 黄南州, slug: huangnanzhou, note: "" }
+          - { name: 海北州, slug: haibeizhou, note: "" }
+          - { name: 果洛州, slug: guoluozhou, note: "" }
+      - slug: heilongjiangshidac
+        title: 黑龙江十大城市排行榜
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 哈尔滨, slug: haerbin, note: 省会 哈长城市群核心城市 }
+          - { name: 大庆, slug: daqing, note: 资源型经济支柱城市 GDP总量超2693亿元 }
+          - { name: 齐齐哈尔, slug: qiqihaer, note: 黑龙江西部中心城市 GDP总量超1402亿元 }
+          - { name: 绥化, slug: suihua, note: 农业大市 龙江粮仓 }
+          - { name: 牡丹江, slug: mudanjiang, note: 对俄贸易重要节点城市 GDP总量超1094亿元 }
+          - { name: 佳木斯, slug: jiamusi, note: 三江平原核心城市 GDP总量超1052亿元 }
+          - { name: 黑河, slug: heihe, note: 对俄边境城市 GDP总量超742亿元 }
+          - { name: 鸡西, slug: jixi, note: 煤炭资源型城市 GDP总量超648亿元 }
+          - { name: 双鸭山, slug: shuangyashan, note: 煤炭资源型城市 GDP总量超571亿元 }
+          - { name: 鹤岗, slug: hegang, note: 低成本定居之城 GDP总量超392亿元 }
 
-  # ============ 待审（无权威标准，沿用公开榜单） ============
-  - key: "pending"
-    title: "待审"
-    kicker: "PENDING"
-    desc: "这一组的榜单没有权威标准，也没有可靠的量化数据，名次参考公开榜单整理，属观点性排名，未经量化核验，逐条审定后决定去留。"
-    ranks: []
+  # ============ 宜居与养老 ============
+  - key: livable
+    title: 宜居与养老
+    kicker: LIVABLE
+    desc: 居住适宜度与养老相关的榜单。
+    ranks:
+      - slug: shijiayijuchengshi
+        title: 中国十佳宜居城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 珠海, slug: zhuhai, note: 滨海花园城市典范 空气质量常年优良 }
+          - { name: 威海, slug: weihai, note: 城市干净整洁 海滨生态优越 }
+          - { name: 金华, slug: jinhua, note: 江南宜居性价比之城 城市绿化好 }
+          - { name: 曲靖, slug: qujing, note: 云南副中心城市 西南生态康养胜地 }
+          - { name: 信阳, slug: xinyang, note: 豫南山水宜居之城 南北过渡气候 }
+          - { name: 扬州, slug: yangzhou, note: 人文底蕴深厚的宜居古城 联合国人居奖城市 }
+          - { name: 绍兴, slug: shaoxing, note: "江南水乡与文化名城 空气质量优良率超90%" }
+          - { name: 宜春, slug: yichun, note: 赣西生态康养休闲之城 森林覆盖率高 }
+          - { name: 惠州, slug: huizhou, note: 粤港澳大湾区滨海后花园 生态优良 }
+          - { name: 成都, slug: chengdu, note: 公园城市首提地 公共资源丰富 }
+      - slug: shidayanglaoyijuch
+        title: 中国十大养老宜居城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 海口, slug: haikou, note: 四季常青 气候温暖舒适宜人 }
+          - { name: 三亚, slug: sanya, note: 热带海洋性气候 素有“天然温室”之称 }
+          - { name: 昆明, slug: kunming, note: “春城”之名享誉全国 夏无酷暑 }
+          - { name: 成都, slug: chengdu, note: 气候湿润温和 四季分明 }
+          - { name: 贵阳, slug: guiyang, note: 中国避暑之都 避暑型养老度假村配套成熟 }
+          - { name: 大连, slug: dalian, note: 北方海滨城市的代表 老年医疗与康养服务能力较强 }
+          - { name: 厦门, slug: xiamen, note: 海上花园 适合兼顾康养与休闲文旅的老人 }
+          - { name: 珠海, slug: zhuhai, note: "气候温暖湿润 社区养老服务中心覆盖率超95%" }
+          - { name: 青岛, slug: qingdao, note: 温带季风气候冬暖夏凉 养老成本低于一线城市 }
+          - { name: 苏州, slug: suzhou, note: 江南水乡气候/年均温16℃ 江南园林式养老典范 }
+      - slug: shidayijuchengshih
+        title: 中国十大宜居城市汇总
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 珠海, slug: zhuhai, note: 滨海花园城市典范 空气质量常年优良 }
+          - { name: 威海, slug: weihai, note: 城市干净整洁 海滨生态优越 }
+          - { name: 金华, slug: jinhua, note: 江南宜居性价比之城 城市绿化好 }
+          - { name: 曲靖, slug: qujing, note: 云南副中心城市 西南生态康养胜地 }
+          - { name: 信阳, slug: xinyang, note: 豫南山水宜居之城 南北过渡气候 }
+          - { name: 扬州, slug: yangzhou, note: 人文底蕴深厚的宜居古城 联合国人居奖城市 }
+          - { name: 绍兴, slug: shaoxing, note: "江南水乡与文化名城 空气质量优良率超90%" }
+          - { name: 宜春, slug: yichun, note: 赣西生态康养休闲之城 森林覆盖率高 }
+          - { name: 惠州, slug: huizhou, note: 粤港澳大湾区滨海后花园 生态优良 }
+          - { name: 成都, slug: chengdu, note: 公园城市首提地 公共资源丰富 }
+      - slug: shidashiheyanglaoy
+        title: 中国十大适合养老宜居的二线城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 无锡, slug: wuxi, note: 四季分明温和 绿化覆盖率高 }
+          - { name: 大连, slug: dalian, note: 夏季凉爽/冬季有暖 东北医疗副中心 }
+          - { name: 厦门, slug: xiamen, note: 冬暖夏凉 空气质量常年全国前列 }
+          - { name: 南昌, slug: nanchang, note: 四季分明 城市绿化较好 }
+          - { name: 金华, slug: jinhua, note: 四季温和 空气质量好 }
+          - { name: 常州, slug: changzhou, note: 四季宜人 公园城市 }
+          - { name: 南通, slug: nantong, note: 世界长寿之都 水土富含硒元素 }
+          - { name: 珠海, slug: zhuhai, note: 全年温暖 跨境医疗便利 }
+          - { name: 扬州, slug: yangzhou, note: 四季分明 冬不严寒夏不酷暑 }
+          - { name: 贵阳, slug: guiyang, note: 中国避暑之都 森林覆盖率极高 }
+      - slug: xibuzuiyijudegeche
+        title: 中国西部最宜居的10个城市 西部宜居养老城市大盘点〔2026〕
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 昆明, slug: kunming, note: 中国十大宜居城市，联合国宜居生态城市 }
+          - { name: 成都, slug: chengdu, note: 中国十大宜居城市 }
+          - { name: 西安, slug: xian, note: 联合国人居署公布的中国十大宜居城市 }
+          - { name: 重庆, slug: chongqing, note: 中国十大宜居城市 }
+          - { name: 贵阳, slug: guiyang, note: 中国宜居城市TOP30，避暑之都 }
+          - { name: 曲靖, slug: qujing, note: 中国十大宜居城市 }
+          - { name: 六盘水, slug: liupanshui, note: 中国十大宜居城市，中国康养城市50强 }
+          - { name: 绵阳, slug: mianyang, note: 中国十大宜居城市 }
+          - { name: 银川, slug: yinchuan, note: 中国人居奖，中国百强宜居城市 }
+          - { name: 兰州, slug: lanzhou, note: 中国百强宜居城市 }
+
+  # ============ 旅游 ============
+  - key: tourism
+    title: 旅游
+    kicker: TOURISM
+    desc: 旅游目的地、景区资源与出行热度相关的榜单。
+    ranks:
+      - slug: zhongguozuimeixian
+        title: 10个中国最美县城 国内最好看的10座小县城和县级市〔2026〕
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 四川稻城县, slug: sichuandaocheng, note: 三宝圣地美 }
+          - { name: 西藏江孜县, slug: xizangjiangzi, note: 雪域古堡美 英雄城 }
+          - { name: 河南修武县, slug: henanxiuwu, note: 河流泉瀑众多 太行山岳精华云台山 }
+          - { name: 广西阳朔县, slug: guangxiyangshuo, note: 秀领天下美 阳朔山水甲桂林 }
+          - { name: 贵州荔波县, slug: guizhoulibo, note: 地球绿宝石 全球最美喀斯特 }
+          - { name: 甘肃夏河县, slug: gansuxiahe, note: 中国拉卜楞·世界藏学府 }
+          - { name: 湖南凤凰县, slug: hunanfenghuang, note: 边城水色之美 }
+          - { name: 四川黑水县, slug: sichuanheishui, note: 自然风光俊秀 人文风光独具特色 }
+          - { name: 新疆布尔津, slug: xinjiangbuerjin, note: 童话边城 }
+          - { name: 山东蓬莱, slug: shandongpenglai, note: 仙气盎然之美 }
+      - slug: shidawuyilvyouchen
+        title: 中国十大五一旅游城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 北京, slug: beijing, note: 沉浸中轴文化 赏春日花海 }
+          - { name: 重庆, slug: chongqing, note: 夜游两江赏魔幻夜景 探秘武隆天生三桥 }
+          - { name: 上海, slug: shanghai, note: 赏万国建筑与璀璨夜景 逛国际园艺展 }
+          - { name: 成都, slug: chengdu, note: 看熊猫 穿越三国奇幻乐园 }
+          - { name: 长沙, slug: changsha, note: 逛橘子洲等经典地标 体验麻辣湘味美食 }
+          - { name: 西安, slug: xian, note: 沉浸式体验梦回大唐 夜游不夜城 }
+          - { name: 广州, slug: guangzhou, note: 玩乐园/看动物/逛科技馆 体验岭南文化 }
+          - { name: 武汉, slug: wuhan, note: 登黄鹤楼遥望长江大桥 漫步东湖绿道赏春樱 }
+          - { name: 南京, slug: nanjing, note: 秦淮夜游 钟山踏青识花 }
+          - { name: 杭州, slug: hangzhou, note: 泛舟西湖赏三潭印月 参观千年古刹 }
+      - slug: shidayuandanlvyouc
+        title: 中国十大元旦旅游城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 哈尔滨, slug: haerbin, note: 冰雪王国跨年 赏冰雕冰灯 }
+          - { name: 三亚, slug: sanya, note: 暖冬避寒首选 海岛度假 }
+          - { name: 北京, slug: beijing, note: 古都新年仪式感强 逛故宫/雍和宫祈福 }
+          - { name: 广州, slug: guangzhou, note: 现代都市跨年氛围浓厚 早茶与年味的双重盛宴 }
+          - { name: 昆明, slug: kunming, note: 春城暖冬之旅 可避寒/游滇池/逛翠湖喂红嘴鸥 }
+          - { name: 上海, slug: shanghai, note: 时尚都市跨年 外滩/陆家嘴有绚丽的灯光秀和倒计时活动 }
+          - { name: 西安, slug: xian, note: 千年古都 穿越古今祈福 }
+          - { name: 厦门, slug: xiamen, note: 文艺滨海跨年 在鼓浪屿听新年钟声 }
+          - { name: 成都, slug: chengdu, note: 安逸美食跨年 火锅/茶馆/大熊猫构成“暖冬三件套” }
+          - { name: 南京, slug: nanjing, note: 历史文化浓厚 赏金陵雪景 }
+      - slug: shidadongjibingxue
+        title: 中国十大冬季冰雪城市
+        kind: "pending"
+        size: 9
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 9 条。
+        items:
+          - { name: 哈尔滨, slug: haerbin, note: 中国冰雪旅游第一城 雪期长达5个多月 }
+          - { name: 拉萨, slug: lasa, note: "高原冰雪与藏文化融合 高原雪期长（10月下旬-次年4月）" }
+          - { name: 牡丹江, slug: mudanjiang, note: 素有雪城之称 雪期长达6个多月 }
+          - { name: 漠河, slug: mohe, note: 中国唯一的圣诞老人村和中国极寒之地 极寒冰雪与极光文化并存 }
+          - { name: 银川, slug: yinchuan, note: "“塞上江南”的冰雪湿地 冬季冰雪期约2-3个月" }
+          - { name: 吉林, slug: jilin, note: 被誉为雾凇之都 滑雪胜地 }
+          - { name: 伊春, slug: yichun, note: 有中国面积最大的冰雪红松林 被称为“中国林都” }
+          - { name: 沈阳, slug: shenyang, note: "盛京雪韵/“皇家雪景”的代表之一 雪期3-4个月/降雪稳定" }
+          - { name: 呼伦贝尔, slug: hulunbeier, note: 草原冰雪/雪原广阔无垠 有“林海雪原”视觉奇观 }
+      - slug: shidadongyoumingch
+        title: 中国十大冬游名城
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 哈尔滨, slug: haerbin, note: 中国冰雪旅游第一城 雪期长达5个多月 }
+          - { name: 三亚, slug: sanya, note: 冬季避寒天堂 被誉为东方夏威夷 }
+          - { name: 牡丹江, slug: mudanjiang, note: 素有雪城之称 雪期长达6个多月 }
+          - { name: 白山, slug: baishan, note: 有“雪域王国”之称 专业滑雪爱好者的天堂 }
+          - { name: 吉林, slug: jilin, note: 被誉为雾凇之都 滑雪胜地 }
+          - { name: 南京, slug: nanjing, note: 人文古都的冬日雅韵 冬季以“观灯/祈福/赏梅/泡温泉”为核心 }
+          - { name: 自贡, slug: zigong, note: 南国灯城与恐龙之乡的冬日奇幻夜 无严寒/适合夜游与户外互动 }
+          - { name: 西双版纳, slug: xishuangbanna, note: 冬季避寒名城之一 被誉为“热带植物王国” }
+          - { name: 北海, slug: beihai, note: 银滩“暖冬” 慢享滨海“小垦丁”与亲子赶海 }
+          - { name: 银川, slug: yinchuan, note: "“塞上江南”的冰雪湿地 冬季冰雪期约2-3个月" }
+      - slug: shidayejingzuimeid
+        title: 中国十大夜景最美的城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 香港, slug: xianggang, note: 旧/新世界三大夜景之一 “东方之珠” }
+          - { name: 上海, slug: shanghai, note: 国内滨江夜景天花板 世界级滨江天际线 }
+          - { name: 重庆, slug: chongqing, note: 独一无二8D魔幻山城夜景 赛博朋克夜色代名词 }
+          - { name: 南京, slug: nanjing, note: 六朝古韵夜景代表 金陵夜色温婉雅致 }
+          - { name: 西安, slug: xian, note: 盛唐古风夜景天花板 沉浸式长安夜色代名词 }
+          - { name: 广州, slug: guangzhou, note: 珠江水岸都市夜景典范 千年商都新旧光影交融 }
+          - { name: 杭州, slug: hangzhou, note: 诗画江南雅致夜景代表 水墨淡彩光影格调独特 }
+          - { name: 深圳, slug: shenzhen, note: 科技感未来风夜景代表 市民中心CBD常态化灯光秀 }
+          - { name: 武汉, slug: wuhan, note: 江城滨江夜景代表 两江四岸流光溢彩 }
+          - { name: 天津, slug: tianjin, note: 海河欧式风情夜景名城 万国建筑夜色独具韵味 }
+      - slug: shidahanjiaremenlv
+        title: 中国十大寒假热门旅游城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 哈尔滨, slug: haerbin, note: "梦幻的冰雪王国 打卡地:哈尔滨冰雪大世界/太阳岛雪博会等" }
+          - { name: 三亚, slug: sanya, note: 冬季避寒天堂 适合亲子与家庭出行 }
+          - { name: 漠河, slug: mohe, note: 追寻极光的好地方 宜观赏冰泡湖/寻找雾凇/看“冰河” }
+          - { name: 丽江, slug: lijiang, note: 寒冬无严寒的风水宝地 看玉龙雪山最美积雪的最佳时期 }
+          - { name: 昆明, slug: kunming, note: "“春城”暖冬候鸟之旅 红嘴鸥观赏季(11月-次年3月)" }
+          - { name: 北京, slug: beijing, note: 故宫里的冬日雪景 适合博物馆与文化主题游 }
+          - { name: 长春, slug: changchun, note: 静谧的冰雪运动胜地 体验一座“冰与火之歌”的北国春城 }
+          - { name: 济南, slug: jinan, note: "从容地品味“一城山色半城湖”的诗意 打卡地:趵突泉/黑虎泉/大明湖等" }
+          - { name: 杭州, slug: hangzhou, note: "可追寻“断桥残雪”的意境 打卡地:西湖/灵隐飞来峰/河坊街等" }
+          - { name: 北海, slug: beihai, note: 银滩“暖冬” 慢享滨海“小垦丁”与亲子赶海 }
+      - slug: shidalvyouchengshi
+        title: 中国十大旅游城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 北京, slug: beijing, note: 千年古都 中国首都 }
+          - { name: 西安, slug: xian, note: 世界四大文明古都之一 汉唐文化代表 }
+          - { name: 南京, slug: nanjing, note: 六朝古都 中国唯一“世界文学之都” }
+          - { name: 洛阳, slug: luoyang, note: 十三朝古都 华夏文明的重要发祥地 }
+          - { name: 成都, slug: chengdu, note: 天府之国 古蜀文明的重要发源地 }
+          - { name: 张家界, slug: zhangjiajie, note: 因旅游建市 美丽中国的靓丽名片 }
+          - { name: 上海, slug: shanghai, note: “东方明珠” 世界四大“魔都”之一 }
+          - { name: 苏州, slug: suzhou, note: “人间天堂” 著名江南水乡 }
+          - { name: 上饶, slug: shangrao, note: 中国旅游美食名城 国家森林城市 }
+          - { name: 杭州, slug: hangzhou, note: “人间天堂” 国际花园城市 }
+      - slug: shidachunjilvyouch
+        title: 中国十大春季旅游城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 上饶, slug: shangrao, note: 赏花踏青(油菜花/杜鹃花/桃花) 登云雾仙山 }
+          - { name: 昆明, slug: kunming, note: 满城赏花 滇池喂鸥 }
+          - { name: 扬州, slug: yangzhou, note: 赏湖山花海 逛古典园林 }
+          - { name: 毕节, slug: bijie, note: 赏世界最大杜鹃花海 探地下溶洞奇观 }
+          - { name: 西双版纳, slug: xishuangbanna, note: 4月参与泼水狂欢 探秘热带植物王国 }
+          - { name: 杭州, slug: hangzhou, note: 赏湖光山色 太子湾赏花 }
+          - { name: 大理州, slug: dalizhou, note: 环洱海逐风 访古村赏花 }
+          - { name: 嘉兴, slug: jiaxing, note: 赏水乡春景 访红色圣地 }
+          - { name: 武汉, slug: wuhan, note: 赏樱花盛宴 东湖骑行漫游 }
+          - { name: 林芝, slug: linzhi, note: 沉浸桃花盛宴 探秘千年古柏 }
+      - slug: shidazuimeidijishi
+        title: 中国十大最美地级市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 苏州, slug: suzhou, note: "" }
+          - { name: 桂林, slug: guilin, note: "" }
+          - { name: 三亚, slug: sanya, note: "" }
+          - { name: 舟山, slug: zhoushan, note: "" }
+          - { name: 无锡, slug: wuxi, note: "" }
+          - { name: 洛阳, slug: luoyang, note: "" }
+          - { name: 厦门, slug: xiamen, note: "" }
+          - { name: 嘉兴, slug: jiaxing, note: "" }
+          - { name: 丽江, slug: lijiang, note: "" }
+          - { name: 张家界, slug: zhangjiajie, note: "" }
+      - slug: shidazuimeichengsh
+        title: 中国十大最美城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 杭州, slug: hangzhou, note: 八大古都 中国四大园林城市 国家生态园林城 中国首批美丽山水 }
+          - { name: 南京, slug: nanjing, note: 六朝古都 十朝都会 中国四大园林城市 }
+          - { name: 北京, slug: beijing, note: 中国四大古都之一 世界文化遗产最多的城市 中国历史文化名城 }
+          - { name: 西安, slug: xian, note: 世界四大古都之一 十三朝古都 国家园林城市 中国形象最佳城市 }
+          - { name: 成都, slug: chengdu, note: 国家历史文化名城 国家森林城市 美食 }
+          - { name: 拉萨, slug: lasa, note: 雪域高原“净城” 国家历史文化名城 中国优秀旅游城市 }
+          - { name: 香港, slug: xianggang, note: 东方之珠 亚洲最美夜景 中西方文化交融之地 }
+          - { name: 哈尔滨, slug: haerbin, note: 冰城 东方莫斯科 万国建筑博物城 东方小巴黎 }
+          - { name: 武汉, slug: wuhan, note: 国家历史文化名城 一城秀水半城山 }
+          - { name: 济南, slug: jinan, note: 国家历史文化名城 天然岩溶泉水博物馆 }
+      - slug: shidazuimeihaidaoc
+        title: 中国十大最美海岛城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 长岛, slug: zhangdao, note: "" }
+          - { name: 三沙, slug: sansha, note: "" }
+          - { name: 舟山市·普陀, slug: zhoushanshiputuo, note: "" }
+          - { name: 香港, slug: xianggang, note: "" }
+          - { name: 厦门·湖里·思明, slug: xiamenhulisiming, note: "" }
+          - { name: 汕头南澳, slug: shantounanao, note: "" }
+          - { name: 大连市·长海, slug: dalianshizhanghai, note: "" }
+          - { name: 舟山市·嵊泗, slug: zhoushanshishengsi, note: "" }
+          - { name: 舟山市·岱山, slug: zhoushanshidaishan, note: "" }
+          - { name: 福州·平潭, slug: fuzhoupingtan, note: "" }
+      - slug: shidazuimeibianjin
+        title: 中国十大最美边境城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 伊犁/昭苏·塞外江南, slug: yilizhaosusaiwaijiangnan, note: "" }
+          - { name: 东兴市·北部湾畔边陲明珠, slug: dongxingshibeibuwanpanbianchuimingzhu, note: "" }
+          - { name: 漠河县·中国地图最北端, slug: mohexianzhongguodituzuibeiduan, note: "" }
+          - { name: 腾冲·极边第一城, slug: tengchongjibiandiyicheng, note: "" }
+          - { name: 喀什·丝路明珠, slug: kashisilumingzhu, note: "" }
+          - { name: 满洲里·东亚之窗, slug: manzhoulidongyazhichuang, note: "" }
+          - { name: 西双版纳·动植物王国, slug: xishuangbannadongzhiwuwangguo, note: "" }
+          - { name: 阿勒泰/布尔津·北疆水塔, slug: aleitaibuerjinbeijiangshuita, note: "" }
+          - { name: 靖西·小昆明, slug: jingxixiaokunming, note: "" }
+          - { name: 抚远·华夏东极, slug: fuyuanhuaxiadongji, note: "" }
+      - slug: shidawenquanchengs
+        title: 中国十大温泉城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 重庆, slug: chongqing, note: 首个世界温泉之都 中国温泉之都 }
+          - { name: 福建福州, slug: fujianfuzhou, note: 中国温泉之都 泡在温泉里的城市 }
+          - { name: 广东清远, slug: guangdongqingyuan, note: 中国温泉之城 中国温泉之乡 }
+          - { name: 广东韶关, slug: guangdongshaoguan, note: 中国温泉之乡 广东地热水出露最多的地级市之一 }
+          - { name: 湖北咸宁, slug: hubeixianning, note: 中国温泉之城 1400多年历史 }
+          - { name: 湖南郴州, slug: hunanchenzhou, note: 中国温泉之城 天然温泉点40多处 }
+          - { name: 云南保山, slug: yunnanbaoshan, note: 世界温泉博物馆 世界温泉地质公园 }
+          - { name: 广东河源, slug: guangdongheyuan, note: 温泉之都 和平·中国温泉之乡 }
+          - { name: 广东广州, slug: guangdongguangzhou, note: 世界温泉之乡从化·世界珍稀小苏打温泉/岭南第一泉 增城派潭镇·水温27—73℃/ }
+          - { name: 云南大理, slug: yunnandali, note: 洱源·中国温泉之城/温泉80余处 大理地热国/下山口温泉等 }
+      - slug: shidaremenitywalkc
+        title: 中国十大热门Citywalk城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 上海·魔都, slug: shanghaimodou, note: "" }
+          - { name: 成都·天府之国, slug: chengdutianfuzhiguo, note: "" }
+          - { name: 北京·六朝古都, slug: beijingliuchaogudu, note: "" }
+          - { name: 西安·六朝古都/梦回大唐, slug: xianliuchaogudumenghuidatang, note: "" }
+          - { name: 广州·千年商都, slug: guangzhouqiannianshangdou, note: "" }
+          - { name: 长沙·楚汉名城, slug: changshachuhanmingcheng, note: "" }
+          - { name: 杭州·六大古都, slug: hangzhouliudagudu, note: "" }
+          - { name: 苏州·人间天堂, slug: suzhourenjiantiantang, note: "" }
+          - { name: 南京·中国四大古都, slug: nanjingzhongguosidagudu, note: "" }
+          - { name: 贵阳·森林之城, slug: guiyangsenlinzhicheng, note: "" }
+      - slug: shidaqiujilvyouche
+        title: 中国十大秋季旅游城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 阿勒泰, slug: aleitai, note: "" }
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 阿尔山, slug: aershan, note: "" }
+          - { name: 南京, slug: nanjing, note: "" }
+          - { name: 阿坝州, slug: abazhou, note: "" }
+          - { name: 桂林, slug: guilin, note: "" }
+          - { name: 甘孜州, slug: ganzizhou, note: "" }
+          - { name: 黄山, slug: huangshan, note: "" }
+          - { name: 本溪, slug: benxi, note: "" }
+          - { name: 林芝, slug: linzhi, note: "" }
+      - slug: daluhaianxianzuizh
+        title: 中国大陆海岸线最长的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 大连, slug: dalian, note: "" }
+          - { name: 湛江, slug: zhanjiang, note: "" }
+          - { name: 宁德, slug: ningde, note: "" }
+          - { name: 威海, slug: weihai, note: "" }
+          - { name: 福州, slug: fuzhou, note: "" }
+          - { name: 宁波, slug: ningbo, note: "" }
+          - { name: 台州, slug: taizhou, note: "" }
+          - { name: 漳州, slug: zhangzhou, note: "" }
+          - { name: 青岛, slug: qingdao, note: "" }
+          - { name: 烟台, slug: yantai, note: "" }
+      - slug: haidaozuiduodeshid
+        title: 中国海岛最多的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 舟山, slug: zhoushan, note: "" }
+          - { name: 台州, slug: taizhou, note: "" }
+          - { name: 汕尾, slug: shanwei, note: "" }
+          - { name: 温州, slug: wenzhou, note: "" }
+          - { name: 宁德, slug: ningde, note: "" }
+          - { name: 宁波, slug: ningbo, note: "" }
+          - { name: 大连, slug: dalian, note: "" }
+          - { name: 福州, slug: fuzhou, note: "" }
+          - { name: 三沙, slug: sansha, note: "" }
+          - { name: 香港, slug: xianggang, note: "" }
+      - slug: lvhuazuimeidecheng
+        title: 中国绿化最美的城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 珠海, slug: zhuhai, note: "" }
+          - { name: 厦门, slug: xiamen, note: "" }
+          - { name: 库尔勒, slug: kuerlei, note: "" }
+          - { name: 大连, slug: dalian, note: "" }
+          - { name: 深圳, slug: shenzhen, note: "" }
+          - { name: 乐山, slug: leshan, note: "" }
+          - { name: 惠州, slug: huizhou, note: "" }
+          - { name: 沈阳, slug: shenyang, note: "" }
+          - { name: 苏州, slug: suzhou, note: "" }
+          - { name: 杭州, slug: hangzhou, note: "" }
+      - slug: shiheyuelvyoudeshi
+        title: 中国适合10月旅游的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 阿坝, slug: aba, note: "" }
+          - { name: 阿拉善, slug: alashan, note: "" }
+          - { name: 阿勒泰, slug: aleitai, note: "" }
+          - { name: 长沙, slug: changsha, note: "" }
+          - { name: 西安, slug: xian, note: "" }
+          - { name: 大兴安岭, slug: daxinganling, note: "" }
+          - { name: 酒泉, slug: jiuquan, note: "" }
+          - { name: 丽水, slug: lishui, note: "" }
+          - { name: 林芝, slug: linzhi, note: "" }
+      - slug: "shiheyuelvyoudeshi-2"
+        title: 中国适合11月旅游的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 南京, slug: nanjing, note: "" }
+          - { name: 杭州, slug: hangzhou, note: "" }
+          - { name: 武汉, slug: wuhan, note: "" }
+          - { name: 西安, slug: xian, note: "" }
+          - { name: 贵阳, slug: guiyang, note: "" }
+          - { name: 长沙, slug: changsha, note: "" }
+          - { name: 黄山, slug: huangshan, note: "" }
+          - { name: 石家庄, slug: shijiazhuang, note: "" }
+          - { name: 桂林, slug: guilin, note: "" }
+      - slug: "shiheyuelvyoudeshi-3"
+        title: 中国适合12月旅游的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 哈尔滨, slug: haerbin, note: "" }
+          - { name: 三亚, slug: sanya, note: "" }
+          - { name: 吉林, slug: jilin, note: "" }
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 昆明, slug: kunming, note: "" }
+          - { name: 厦门, slug: xiamen, note: "" }
+          - { name: 杭州, slug: hangzhou, note: "" }
+          - { name: 长沙, slug: changsha, note: "" }
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 石家庄, slug: shijiazhuang, note: "" }
+      - slug: "shiheyuelvyoudeshi-4"
+        title: 中国适合1月旅游的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 哈尔滨, slug: haerbin, note: "看冰雕/滑雪/泡温泉/赏林海雪原/不冻河景观 游玩景点:哈尔滨冰雪大世界/太阳岛" }
+          - { name: 吉林, slug: jilin, note: "观赏雾凇/滑雪/赏冰爆/看陨石/冬捕冬钓/看雪雕冰灯等 游玩景点:雾凇岛/北大壶" }
+          - { name: 三亚, slug: sanya, note: "登高望海/逛免税城/尝海鲜/冬泳潜水/跨年祈福和撞钟迎新等 游玩景点:亚龙湾·天" }
+          - { name: 昆明, slug: kunming, note: "观红嘴鸥/赏水杉林/赏雾凇/滑雪/赏梅花/跨年祈福等 游玩景点:云南石林/九乡风" }
+          - { name: 北京, slug: beijing, note: "看红墙白雪/滑冰/泡温泉/看冰挂/赏冰灯展/寻觅年味等 游玩景点:北京故宫/八达" }
+          - { name: 漠河, slug: mohe, note: "看极光/观赏冰泡湖/寻找雾凇/看“冰河”等 游玩景点:北极村冰雪童话/龙江第一湾" }
+          - { name: 西双版纳, slug: xishuangbanna, note: "看热带雨林/看大象/尝傣味美食等 避寒胜地:中科院西双版纳热带植物园/热带雨林国" }
+          - { name: 厦门, slug: xiamen, note: "冬泳/赏落羽杉/新年祈福/赏三角梅/泡温泉等 避寒胜地:鼓浪屿/南普陀寺/中山路" }
+          - { name: 丽江, slug: lijiang, note: "看雪山雪景/观鸟/赏芦苇/赏梅花/滑雪等 游玩景点:玉龙雪山/老君山/丽江古城/" }
+          - { name: 腾冲, slug: tengchong, note: 泡温泉/赏银杏/观鸟/赏花等 避寒胜地：马站和睦村/来凤山茶基地/热海温泉等 }
+      - slug: "shiheyuelvyoudeshi-5"
+        title: 中国适合2月旅游的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 丽江, slug: lijiang, note: "观赏雪峰/冰川地貌/高原冬季景观/泡温泉/观鸟等 游玩景点:丽江古城/玉龙雪山/" }
+          - { name: 三亚, slug: sanya, note: "体验浮潜等水上活动/逛免税城购物/尝海鲜/新春祈福等 游玩景点:蜈支洲岛/亚龙湾" }
+          - { name: 曲靖, slug: qujing, note: "赏瀑布群/看彩色沙林/游船/爬山徒步/看日照金山等 游玩景点:九龙瀑布群/陆良彩" }
+          - { name: 哈尔滨, slug: haerbin, note: "看冰雕/滑雪/泡温泉/赏林海雪原/看不冻河景观 游玩景点:哈尔滨冰雪大世界/太阳" }
+          - { name: 昆明, slug: kunming, note: "骑行/赏早春樱花/滇池观鸥/逛花市/徒步吸氧等 游玩景点:滇池/海埂大坝/圆通山" }
+          - { name: 厦门, slug: xiamen, note: "日光岩观日落/环岛路骑行/拍文艺写着/八市吃古早味/新春祈福等 游玩景点:鼓浪屿" }
+          - { name: 吉林, slug: jilin, note: "观赏雾凇/滑雪/赏冰爆/看陨石/冬捕冬钓/看雪雕冰灯等 游玩景点:雾凇岛/北大壶" }
+          - { name: 嘉兴, slug: jiaxing, note: "乘摇橹船/夜赏水灯与评弹/逛早市/早春探梅等 游玩景点:西塘古镇/乌镇西栅/南湖" }
+          - { name: 桂林, slug: guilin, note: "竹筏漂流追晨雾/遇龙河边骑行/赏龙脊梯田半雪半绿等 游玩景点:漓江/遇龙河/龙脊" }
+          - { name: 北海, slug: beihai, note: "踏浪赶海/探火山/逛骑楼/夜宵嗦螺等 游玩景点:银滩/涠洲岛/北海老街/北海金海" }
+      - slug: "shiheyuelvyoudeshi-6"
+        title: 中国适合3月旅游的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 无锡, slug: wuxi, note: "3月下旬太湖赏樱/惠山泉煮茶/蠡园赏桃花/夜间游船赏灯等 游玩景点:鼋头渚长春桥" }
+          - { name: 昆明, slug: kunming, note: "赏樱花/观红嘴鸥/斗南花市花艺DIY/西山徒步/村寨漫游等 游玩景点:圆通山/翠" }
+          - { name: 上饶, slug: shangrao, note: "看梯田油菜花海/三清山踏春赏花/采春茶/观候鸟等 游玩景点:三清山/江岭梯田/篁" }
+          - { name: 林芝, slug: linzhi, note: "赏野桃花/看粉云霞/观蓝冰湖/桃花沟徒步/看日照金山等 游玩景点:波密桃花沟/嘎" }
+          - { name: 曲靖, slug: qujing, note: "赏金鸡峰丛油菜花海/看九龙十瀑/轻徒步大海草山/珠江源赏梅等 游玩景点:罗平金鸡" }
+          - { name: 桂林, slug: guilin, note: "竹筏漂流追晨雾/赏油菜花/遇龙河边骑行/夜赏“千年古街”等 游玩景点:漓江/遇龙" }
+          - { name: 南京, slug: nanjing, note: "梅花山赏梅/鸡鸣寺赏樱/内秦淮河游船等 游玩景点:梅花山/鸡鸣寺/玄武湖/夫子庙" }
+          - { name: 扬州, slug: yangzhou, note: "瘦西湖赏桃花/乘画舫游湖/逛古街品早茶/大明寺赏樱/等 游玩景点:瘦西湖/大明寺" }
+          - { name: 大理州, slug: dalizhou, note: "徒步骑行洱海/大理古城赏樱/慢逛古镇/体验白族民俗等 游玩景点:洱海生态廊道/大" }
+          - { name: 毕节, slug: bijie, note: "赏百里杜鹃花/韭菜坪徒步/观黑颈鹤候鸟等 游玩景点:百里杜鹃金景区/韭菜坪徒步/" }
+      - slug: "shiheyuelvyoudeshi-7"
+        title: 中国适合4月旅游的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 昆明, slug: kunming, note: "沉浸式赏花/滇池环湖骑行观鸥/体验傣族泼水节/逛吃老街巷 游玩景点:教场中路/圆" }
+          - { name: 武汉, slug: wuhan, note: 赏樱追花/东湖绿道骑行/体验过早文文化/开启“吃虾季” 游玩景点：东湖樱花园/武 }
+          - { name: 上饶, slug: shangrao, note: 观金黄花海/赏云海杜鹃/观鸟/探访古镇逛古街/品味时令春鲜 游玩景点：婺源篁岭/ }
+          - { name: 无锡, slug: wuxi, note: 赏樱花海/观桃花盛景/泛舟古运河/太湖大堤骑行/汉服提灯夜游拈花湾 游玩景点：鼋 }
+          - { name: 洛阳, slug: luoyang, note: 赏国色牡丹/夜游天街/看灯笼长廊与汉服巡游/访千年古刹祈福抄经 游玩景点：中国国 }
+          - { name: 西双版纳, slug: xishuangbanna, note: 体验傣族泼水节/夜游星光夜市/尝热带水果/旅拍写真 赏热带雨林奇花异木/夜游看萤 }
+          - { name: 毕节, slug: bijie, note: 赏百里杜鹃花海/看地质奇观/船游九洞天/体验彝族风情 游玩景点：百里杜鹃景区/织 }
+          - { name: 大理州, slug: dalizhou, note: 环洱海骑行赏蓝花楹/苍山徒步赏杜鹃/赶三月街民族节 游玩景点：洱海生态廊道/苍山 }
+          - { name: 桂林, slug: guilin, note: "乘船邂逅烟雨漓江/遇龙河竹筏/看镜面梯田/逛民族村寨 游玩景点：漓江杨堤-兴坪段" }
+          - { name: 林芝, slug: linzhi, note: 赏桃花盛宴/观日照金山//环游巴松措/看海洋性冰川 游玩景点：嘎拉桃花村/索松村 }
+      - slug: "shiheyuelvyoudeshi-8"
+        title: 中国适合6月旅游的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 青岛, slug: qingdao, note: 初夏海风清爽/气温舒适 栈桥喂海鸥/赶海 }
+          - { name: 伊犁, slug: yili, note: 适合自驾/摄影/露营与深度自然旅行 自驾穿越独库公路北段 }
+          - { name: 昆明, slug: kunming, note: 错峰游的黄金窗口期 赏教场中路蓝花楹大道 }
+          - { name: 呼伦贝尔, slug: hulunbeier, note: 骑马追日落 滑草与射箭 }
+          - { name: 恩施州, slug: enshizhou, note: 峡谷避暑 漂流/玩水 }
+          - { name: 厦门, slug: xiamen, note: 鼓浪屿登岛漫游 环岛路骑行看日出日落 }
+          - { name: 六盘水, slug: liupanshui, note: 高山草原露营 邂逅星空云海 }
+          - { name: 丽江, slug: lijiang, note: 漫步古城感受纳西风情 挑战玉龙雪山/邂逅高山草甸 }
+          - { name: 张家界, slug: zhangjiajie, note: 漫步峰林云海 溪谷轻徒步 }
+          - { name: 桂林, slug: guilin, note: 泛舟漓江赏喀斯特峰林 遇龙河竹筏漂流 }
+      - slug: "shiheyuelvyoudeshi-9"
+        title: 中国适合7月旅游的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 桂林, slug: guilin, note: "" }
+          - { name: 张家界, slug: zhangjiajie, note: "" }
+          - { name: 青岛, slug: qingdao, note: "" }
+          - { name: 湖州, slug: huzhou, note: "" }
+          - { name: 伊犁, slug: yili, note: "" }
+          - { name: 呼伦贝尔, slug: hulunbeier, note: "" }
+          - { name: 六盘水, slug: liupanshui, note: "" }
+          - { name: 林芝, slug: linzhi, note: "" }
+          - { name: 恩施, slug: enshi, note: "" }
+          - { name: 杭州, slug: hangzhou, note: "" }
+      - slug: "shiheyuelvyoudeshi-10"
+        title: 中国适合8月旅游的十个城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 青岛, slug: qingdao, note: "" }
+          - { name: 秦皇岛, slug: qinhuangdao, note: "" }
+          - { name: 呼伦贝尔, slug: hulunbeier, note: "" }
+          - { name: 六盘水, slug: liupanshui, note: "" }
+          - { name: 承德, slug: chengde, note: "" }
+          - { name: 桂林, slug: guilin, note: "" }
+          - { name: 厦门, slug: xiamen, note: "" }
+          - { name: 丽江, slug: lijiang, note: "" }
+          - { name: 伊春, slug: yichun, note: "" }
+          - { name: 张家界, slug: zhangjiajie, note: "" }
+      - slug: "shiheyuelvyoudeshi-11"
+        title: 中国适合9月旅游的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 陕西·西安, slug: shanxixian, note: "" }
+          - { name: 新疆·阿勒泰, slug: xinjiangaleitai, note: "" }
+          - { name: 内蒙古·呼伦贝尔, slug: neimengguhulunbeier, note: "" }
+          - { name: 安徽·黄山, slug: anhuihuangshan, note: "" }
+          - { name: 辽宁·本溪, slug: liaoningbenxi, note: "" }
+          - { name: 浙江·杭州, slug: zhejianghangzhou, note: "" }
+          - { name: 西藏·林芝, slug: xizanglinzhi, note: "" }
+          - { name: 江苏·南京, slug: jiangsunanjing, note: "" }
+          - { name: 山东·青岛, slug: shandongqingdao, note: "" }
+          - { name: 甘肃·甘南, slug: gansugannan, note: "" }
+      - slug: "shiheyuelvyoudeshi-12"
+        title: 国内适合5月旅游的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 杭州, slug: hangzhou, note: 苏堤/白堤骑行 雷峰塔赏夕照 }
+          - { name: 青岛, slug: qingdao, note: 漫步八大关赏花海 登信号山看红瓦绿树 }
+          - { name: 洛阳, slug: luoyang, note: 打卡晚花牡丹与芍药盛宴 体验汉服文化 }
+          - { name: 苏州, slug: suzhou, note: 游世界文化遗产园林 洞庭碧螺春采摘 }
+          - { name: 厦门, slug: xiamen, note: 观赏三角梅/凤凰花 五缘湾帆船出海 }
+          - { name: 伊犁, slug: yili, note: 看草原花海 体验游牧文化 }
+          - { name: 嘉兴, slug: jiaxing, note: 体验江南水乡古镇 观赏园林花海 }
+          - { name: 西安, slug: xian, note: 游览历史文化景点 体验古街小吃 }
+          - { name: 张家界, slug: zhangjiajie, note: 欣赏奇峰怪石和云海 体验索道观景 }
+          - { name: 大理州, slug: dalizhou, note: 环洱海骑行 漫步古城赏民俗表演 }
+      - slug: lvyouchengshipandi
+        title: 旅游城市盘点【汇总】
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 北京, slug: beijing, note: 千年古都 中国首都 }
+          - { name: 西安, slug: xian, note: 世界四大文明古都之一 汉唐文化代表 }
+          - { name: 南京, slug: nanjing, note: 六朝古都 中国唯一“世界文学之都” }
+          - { name: 洛阳, slug: luoyang, note: 十三朝古都 华夏文明的重要发祥地 }
+          - { name: 成都, slug: chengdu, note: 天府之国 古蜀文明的重要发源地 }
+          - { name: 张家界, slug: zhangjiajie, note: 因旅游建市 美丽中国的靓丽名片 }
+          - { name: 上海, slug: shanghai, note: “东方明珠” 世界四大“魔都”之一 }
+          - { name: 苏州, slug: suzhou, note: “人间天堂” 著名江南水乡 }
+          - { name: 上饶, slug: shangrao, note: 中国旅游美食名城 国家森林城市 }
+          - { name: 杭州, slug: hangzhou, note: “人间天堂” 国际花园城市 }
+      - slug: quanzhoulvyoujingd
+        title: 泉州旅游景点大全【泉州景点】
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 泉州十大名山·峡谷, slug: quanzhoushidamingshanxiagu, note: 清源山/德化九仙山/德化石牛山/牛姆林/仙公山等 }
+          - { name: 泉州十大海滩沙滩, slug: quanzhoushidahaitanshatan, note: 晋江触角沙滩/龟山湾海滩/崇武古城沙滩等 }
+          - { name: 泉州五大岛屿, slug: quanzhouwudadaoyu, note: 惠屿岛/小岞风车岛/獭窟岛/净峰八女岛/大坠岛等 }
+          - { name: 泉州十大寺院, slug: quanzhoushidasiyuan, note: 开元寺/南少林寺/承天禅寺/石狮洛伽寺/科山寺等 }
+          - { name: 泉州十大庙宇, slug: quanzhoushidamiaoyu, note: 元妙观/通淮关岳庙/天后宫/泉州府文庙等 }
+          - { name: 泉州十大历史古迹·古桥, slug: quanzhoushidalishigujiguqiao, note: 泉州佛寺/洛阳桥/安平桥·五里桥等 }
+          - { name: 泉州十大乐园亲子景点, slug: quanzhoushidaleyuanqinzijingdian, note: 八仙过海欧乐堡/海丝野生动物世界等 }
+          - { name: 泉州十大街巷广场古镇, slug: quanzhoushidajiexiangguangchangguzhen, note: 泉州古城/晋江五店市/永宁古城等 }
+          - { name: 泉州十大博物馆纪念馆, slug: quanzhoushidabowuguanjinianguan, note: 泉州市博物馆/海外交通史博物馆等 }
+          - { name: 泉州十大公园·园林, slug: quanzhoushidagongyuanyuanlin, note: 泉州西湖公园/海丝艺术公园等 }
+
+  # ============ 美食 ============
+  - key: food
+    title: 美食
+    kicker: FOOD
+    desc: 饮食相关的榜单。
+    ranks:
+      - slug: shidashaokaochengs
+        title: 中国十大烧烤城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 淄博·山东, slug: ziboshandong, note: "" }
+          - { name: 锦州·辽宁, slug: jinzhouliaoning, note: "" }
+          - { name: 徐州·江苏, slug: xuzhoujiangsu, note: "" }
+          - { name: 喀什·新疆, slug: kashixinjiang, note: "" }
+          - { name: 哈尔滨·黑龙江, slug: haerbinheilongjiang, note: "" }
+          - { name: 青岛·山东, slug: qingdaoshandong, note: "" }
+          - { name: 湛江·广东, slug: zhanjiangguangdong, note: "" }
+          - { name: 宜宾·四川, slug: yibinsichuan, note: "" }
+          - { name: 昭通·云南, slug: zhaotongyunnan, note: "" }
+          - { name: 百色·广西, slug: baiseguangxi, note: "" }
+      - slug: shidameishihuangmo
+        title: 中国十大美食荒漠城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 杭州, slug: hangzhou, note: 杭州 }
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 深圳, slug: shenzhen, note: 湘菜 }
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 武汉, slug: wuhan, note: 热干面 }
+          - { name: 南京, slug: nanjing, note: "" }
+          - { name: 苏州, slug: suzhou, note: 饮食 }
+          - { name: 天津, slug: tianjin, note: "" }
+          - { name: 厦门, slug: xiamen, note: 美食小吃 }
+          - { name: 合肥, slug: hefei, note: "" }
+      - slug: zuiaihekafeideshiz
+        title: 中国最爱喝咖啡的十座城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 杭州, slug: hangzhou, note: "" }
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 厦门, slug: xiamen, note: "" }
+          - { name: 南京, slug: nanjing, note: "" }
+          - { name: 广州, slug: guangzhou, note: "" }
+          - { name: 深圳, slug: shenzhen, note: "" }
+          - { name: 武汉, slug: wuhan, note: "" }
+          - { name: 苏州, slug: suzhou, note: "" }
+          - { name: 福州, slug: fuzhou, note: "" }
+      - slug: zuinengchiladegech
+        title: 中国最能吃辣的10个城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 成都, slug: chengdu, note: 香辣典范 辣中带麻/讲究麻辣平衡 }
+          - { name: 长沙, slug: changsha, note: 纯辣凶猛 剁椒/小米辣直辣不拐弯 }
+          - { name: 贵阳, slug: guiyang, note: 酸辣独特 以糟辣椒/糊辣椒/木姜子油为主 }
+          - { name: 重庆, slug: chongqing, note: 麻辣之王 火锅底料牛油厚重 }
+          - { name: 武汉, slug: wuhan, note: 卤辣江湖 麻辣直爽 }
+          - { name: 萍乡, slug: pingxiang, note: 鲜辣生猛 辣椒当菜 }
+          - { name: 大理州, slug: dalizhou, note: 酸辣交织 讲究酸/辣/鲜/香 }
+          - { name: 南昌, slug: nanchang, note: 隐藏辣都 鲜辣低调但杀伤力极强 }
+          - { name: 桂林, slug: guilin, note: 酸辣开胃 酸笋+辣油 }
+          - { name: 西安, slug: xian, note: 油泼辣子香 秦椒不燥但红亮诱人 }
+      - slug: meishizuiduodeshid
+        title: 中国美食最多的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 成都, slug: chengdu, note: 联合国教科文组织“世界美食之都” 川菜的灵魂地 }
+          - { name: 广州, slug: guangzhou, note: 素有“食在广州”的美誉 粤菜的大本营 }
+          - { name: 北京, slug: beijing, note: 汇聚了中国菜的精髓 宫廷菜与市井小吃的融合地 }
+          - { name: 重庆, slug: chongqing, note: 江湖菜发源地 火锅的“鼻祖” }
+          - { name: 西安, slug: xian, note: 西北美食集大成者 面食与肉夹馍的王国 }
+          - { name: 南京, slug: nanjing, note: 淮扬菜分支 口味鲜甜适中 }
+          - { name: 武汉, slug: wuhan, note: 鄂菜的发源地 早餐之都 }
+          - { name: 扬州, slug: yangzhou, note: 淮扬菜的发源地 联合国教科文组织“世界美食之都” }
+          - { name: 上海, slug: shanghai, note: 环球美食之都 本帮菜“浓油赤酱”与海派融合菜的典范 }
+          - { name: 厦门, slug: xiamen, note: 闽南美食核心 古早味的活化石 }
+
+  # ============ 气候与地理 ============
+  - key: climate
+    title: 气候与地理
+    kicker: CLIMATE
+    desc: 气温、降水、日照、面积等自然地理相关的榜单。
+    ranks:
+      - slug: xiabingbaozuiduode
+        title: 中国下冰雹最多的十大省会城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 拉萨, slug: lasa, note: "高发季节5-10月 世界冰雹之都" }
+          - { name: 呼和浩特, slug: huhehaote, note: "高发季节5-9月 地处蒙古高原" }
+          - { name: 贵阳, slug: guiyang, note: "高发季节2-4月 南方冰雹之都" }
+          - { name: 西宁, slug: xining, note: "高发季节5-10月 青藏高原东北部" }
+          - { name: 哈尔滨, slug: haerbin, note: "高发季节5-9月 东北高纬度地区" }
+          - { name: 北京, slug: beijing, note: "高发季节5-9月 华北北部" }
+          - { name: 沈阳, slug: shenyang, note: "高发季节5-9月 受北方冷空气南下影响明显" }
+          - { name: 长春, slug: changchun, note: "高发季节5-6月 地处松辽平原" }
+          - { name: 长沙, slug: changsha, note: 长江中下游地区 冬季也可出现冰雹 }
+          - { name: 昆明, slug: kunming, note: "云贵高原“春城” 1-5月为冰雹高发期" }
+      - slug: dongjizuizhangdesh
+        title: 中国冬季最长的十个省会城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 哈尔滨, slug: haerbin, note: "冬季时长:约6个月 通常10月中下旬至次年4月中旬" }
+          - { name: 长春, slug: changchun, note: "冬季时长:约5.5个月 通常10月下旬至次年4月中旬" }
+          - { name: 沈阳, slug: shenyang, note: "冬季时长:约5个月 通常11月上旬至次年4月上旬" }
+          - { name: 呼和浩特, slug: huhehaote, note: "冬季时长:约5个月 通常11月上旬至次年4月上旬" }
+          - { name: 乌鲁木齐, slug: wulumuqi, note: "冬季时长:约4.5个月 通常11月中旬至次年3月下旬" }
+          - { name: 银川, slug: yinchuan, note: "冬季时长:约4.5个月 通常11月上旬至次年3月中旬" }
+          - { name: 西宁, slug: xining, note: "冬季时长:约4个月 通常11月上旬至次年3月上旬" }
+          - { name: 兰州, slug: lanzhou, note: "冬季时长:约3.5个月 通常11月中旬至次年3月上旬" }
+          - { name: 太原, slug: taiyuan, note: "冬季时长:约3.5个月 通常11月中旬至次年3月上旬" }
+          - { name: 北京, slug: beijing, note: "冬季时长:约3个月 通常11月下旬至次年3月上旬" }
+      - slug: shidaneilaochengsh
+        title: 中国十大内涝城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 武汉, slug: wuhan, note: "" }
+          - { name: 广州, slug: guangzhou, note: "" }
+          - { name: 深圳, slug: shenzhen, note: "" }
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 郑州, slug: zhengzhou, note: "" }
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 长沙, slug: changsha, note: "" }
+          - { name: 合肥, slug: hefei, note: "" }
+          - { name: 海口, slug: haikou, note: "" }
+          - { name: 南宁, slug: nanning, note: "" }
+      - slug: shidadongnuanxiali
+        title: 中国十大冬暖夏凉的城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 临沧, slug: lincang, note: "被誉为“恒春之都” 著名旅游景点:翁丁原始部落/沧源崖画谷/千米国画长廊等" }
+          - { name: 大理, slug: dali, note: "四季舒适无极端温差 著名旅游景点:大理古城/崇圣寺三塔/苍山洱海/周城村等" }
+          - { name: 保山, slug: baoshan, note: 冬无严寒/夏无酷暑 被誉为“世界温泉博物馆” }
+          - { name: 昆明, slug: kunming, note: “春城”标杆 全年鲜花盛开 }
+          - { name: 芒市, slug: mang, note: "被誉为“动植物基因库”和“天然氧吧” 著名旅游景点:勐焕大金塔/树包塔/勐巴娜西" }
+          - { name: 文山, slug: wenshan, note: "四季温和/干湿分明 著名旅游景点:普者黑/仙人洞/天鹅湖/坝美村/老山/西畴国家" }
+          - { name: 楚雄, slug: chuxiong, note: "四季温差小 著名旅游景点:禄丰世界恐龙谷温泉/物茂土林风景区/彝人古镇/楚雄太空" }
+          - { name: 西昌, slug: xichang, note: "被称为“一座春天栖息的城市” 著名旅游景点:邛海泸山/建昌古城/安哈彝寨仙人洞/" }
+          - { name: 玉溪, slug: yuxi, note: "山区平坝四季宜居 著名旅游景点:抚仙湖/澄江化石地/月亮湾湿地公园/聂耳文化广场" }
+          - { name: 贵阳, slug: guiyang, note: "中国避暑之都 著名旅游景点:青岩古镇/黔灵山公园/花溪十里河滩/天河潭/贵州省博" }
+      - slug: shidazuiaixiayudec
+        title: 中国十大最爱下雨的城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 桂林, slug: guilin, note: 全年累计降水168天 全年累计降雨量约2000毫米 }
+          - { name: 贵阳, slug: guiyang, note: 全年累计降水164天 全年累计降雨量约1200毫米 }
+          - { name: 金华, slug: jinhua, note: 全年累计降水160天 全年累计降雨量约1700毫米 }
+          - { name: 南宁, slug: nanning, note: 全年累计降水158天 全年累计降雨量约1700毫米 }
+          - { name: 温州, slug: wenzhou, note: 全年累计降水158天 全年累计降雨量约1800毫米 }
+          - { name: 惠州, slug: huizhou, note: 全年累计降水158天 全年累计降雨量约2200毫米 }
+          - { name: 韶关, slug: shaoguan, note: 全年累计降水156天 全年累计降雨量约2500毫米 }
+          - { name: 广州, slug: guangzhou, note: 全年累计降水155天 全年累计降雨量约2400毫米 }
+          - { name: 宁波, slug: ningbo, note: 全年累计降水154天 全年累计降雨量约1700毫米 }
+          - { name: 深圳, slug: shenzhen, note: 全年累计降水154天 全年累计降雨量约2100毫米 }
+      - slug: shidazuijingchangd
+        title: 中国十大最经常打雷的省会城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 海口, slug: haikou, note: "" }
+          - { name: 广州, slug: guangzhou, note: "" }
+          - { name: 拉萨, slug: lasa, note: "" }
+          - { name: 南宁, slug: nanning, note: "" }
+          - { name: 昆明, slug: kunming, note: "" }
+          - { name: 南昌, slug: nanchang, note: "" }
+          - { name: 福州, slug: fuzhou, note: "" }
+          - { name: 贵阳, slug: guiyang, note: "" }
+          - { name: 长沙, slug: changsha, note: "" }
+          - { name: 杭州, slug: hangzhou, note: "" }
+      - slug: shidazuiqueshuidec
+        title: 中国十大最缺水的城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 郑州, slug: zhengzhou, note: "" }
+          - { name: 银川, slug: yinchuan, note: "" }
+          - { name: 天津, slug: tianjin, note: "" }
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 衡水, slug: hengshui, note: "" }
+          - { name: 邯郸, slug: handan, note: "" }
+          - { name: 石家庄, slug: shijiazhuang, note: "" }
+          - { name: 吴忠, slug: wuzhong, note: "" }
+          - { name: 白银, slug: baiyin, note: "" }
+          - { name: 深圳, slug: shenzhen, note: "" }
+      - slug: shidalichidaozuiji
+        title: 中国十大离赤道最近的城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 三沙, slug: sansha, note: "" }
+          - { name: 三亚, slug: sanya, note: "" }
+          - { name: 儋州, slug: danzhou, note: "" }
+          - { name: 海口, slug: haikou, note: "" }
+          - { name: 湛江, slug: zhanjiang, note: "" }
+          - { name: 北海, slug: beihai, note: "" }
+          - { name: 防城港, slug: fangchenggang, note: "" }
+          - { name: 西双版纳, slug: xishuangbanna, note: "" }
+          - { name: 茂名, slug: maoming, note: "" }
+          - { name: 江门, slug: jiangmen, note: "" }
+      - slug: shidagaowendedache
+        title: 中国十大高温的大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 重庆, slug: chongqing, note: 夏季最高气温42℃以上 传统四大火炉之一 }
+          - { name: 杭州, slug: hangzhou, note: 夏季最高气温41℃以上 新四大火炉之一 }
+          - { name: 长沙, slug: changsha, note: 夏季最高气温41℃以上 传统四大火炉之一 }
+          - { name: 武汉, slug: wuhan, note: 夏季最高气温41℃以上 传统四大火炉之一 }
+          - { name: 南京, slug: nanjing, note: 夏季最高气温40℃以上 三大火炉之一 }
+          - { name: 南昌, slug: nanchang, note: 夏季最高气温40℃以上 传统四大火炉之一 }
+          - { name: 合肥, slug: hefei, note: 夏季最高气温40℃以上 长江流域九大火炉之一 }
+          - { name: 西安, slug: xian, note: 夏季最高气温40℃以上 北方四大火炉之一 }
+          - { name: 郑州, slug: zhengzhou, note: 夏季最高气温40℃以上 北方四大火炉之一 }
+          - { name: 福州, slug: fuzhou, note: 夏季最高气温40℃以上 新四大火炉之一 }
+      - slug: rizhaozuizhangdesh
+        title: 中国日照最长的十大省会城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 拉萨, slug: lasa, note: "" }
+          - { name: 银川, slug: yinchuan, note: "" }
+          - { name: 呼和浩特, slug: huhehaote, note: "" }
+          - { name: 乌鲁木齐, slug: wulumuqi, note: "" }
+          - { name: 长春, slug: changchun, note: "" }
+          - { name: 西宁, slug: xining, note: "" }
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 太原, slug: taiyuan, note: "" }
+          - { name: 沈阳, slug: shenyang, note: "" }
+          - { name: 兰州, slug: lanzhou, note: "" }
+      - slug: zuihanlengdeshigec
+        title: 中国最寒冷的十个城市
+        kind: "pending"
+        size: 8
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 8 条。
+        items:
+          - { name: 漠河, slug: mohe, note: "" }
+          - { name: 伊犁, slug: yili, note: "" }
+          - { name: 黑河, slug: heihe, note: "" }
+          - { name: 白山, slug: baishan, note: "" }
+          - { name: 克拉玛依, slug: kelamayi, note: "" }
+          - { name: 塔城地区, slug: tacheng, note: "" }
+          - { name: 哈尔滨, slug: haerbin, note: "" }
+          - { name: 长春, slug: changchun, note: "" }
+      - slug: jixuezuihoudeshida
+        title: 中国积雪最厚的十大城市
+        kind: "pending"
+        size: 8
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 8 条。
+        items:
+          - { name: 徐州, slug: xuzhou, note: "" }
+          - { name: 合肥, slug: hefei, note: "" }
+          - { name: 丹东, slug: dandong, note: "" }
+          - { name: 吉林, slug: jilin, note: "" }
+          - { name: 郑州, slug: zhengzhou, note: "" }
+          - { name: 锦州, slug: jinzhou, note: "" }
+          - { name: 九江, slug: jiujiang, note: "" }
+          - { name: 贵阳, slug: guiyang, note: "" }
+      - slug: mianjizuidadeshida
+        title: 中国面积最大的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 那曲, slug: naqu, note: 总面积超35.3万平方公里 平均海拔4500米以上 }
+          - { name: 呼伦贝尔, slug: hulunbeier, note: 总面积超25.3万平方公里 草原面积1.01亿亩 }
+          - { name: 酒泉, slug: jiuquan, note: 总面积超19.2万平方公里 拥有超48万公顷湿地 }
+          - { name: 日喀则, slug: rikaze, note: 总面积超17.9万平方公里 平均海拔4000米以上 }
+          - { name: 哈密, slug: hami, note: 总面积超14.2万平方公里 素有“新疆门户”之称 }
+          - { name: 林芝, slug: linzhi, note: 总面积超11.4万平方公里 平均海拔3100米以上 }
+          - { name: 昌都, slug: changdou, note: 总面积超10.9万平方公里 素有“藏东明珠”的美称 }
+          - { name: 赤峰, slug: chifeng, note: 总面积超9万平方公里 林地面积达4555万亩 }
+          - { name: 鄂尔多斯, slug: eerduosi, note: 总面积超8.7万平方公里 国家重要的能源基地 }
+          - { name: 重庆, slug: chongqing, note: 总面积超8.2万平方公里 耕地面积超1.8万平方公里 }
+      - slug: "mianjizuidadeshida-2"
+        title: 中国面积最大的十大省会城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 哈尔滨, slug: haerbin, note: 总面积超5.31万平方公里 黑龙江省省会城市 }
+          - { name: 拉萨, slug: lasa, note: 总面积超2.96万平方公里 西藏首府城市 }
+          - { name: 长春, slug: changchun, note: 总面积超2.47万平方公里 吉林省省会城市 }
+          - { name: 南宁, slug: nanning, note: 总面积超2.21万平方公里 广西首府城市 }
+          - { name: 昆明, slug: kunming, note: 总面积超2.1万平方公里 云南省省会城市 }
+          - { name: 呼和浩特, slug: huhehaote, note: 总面积超1.72万平方公里 内蒙古首府城市 }
+          - { name: 杭州, slug: hangzhou, note: 总面积超1.68万平方公里 浙江省省会城市 }
+          - { name: 石家庄, slug: shijiazhuang, note: 总面积超1.58万平方公里 河北省省会城市 }
+          - { name: 成都, slug: chengdu, note: 总面积超1.43万平方公里 四川省省会城市 }
+          - { name: 乌鲁木齐, slug: wulumuqi, note: 总面积超1.38万平方公里 新疆首府城市 }
+      - slug: mianjizuixiaodeshi
+        title: 中国面积最小的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 三沙, slug: sansha, note: 陆域面积约20平方公里 中国陆地面积最小城市 }
+          - { name: 舟山, slug: zhoushan, note: 陆域面积约1440平方公里 中国第一大群岛 }
+          - { name: 鄂州, slug: ezhou, note: 行政面积约1596平方公里 境内拥有130多个湖泊 }
+          - { name: 厦门, slug: xiamen, note: 陆域面积约1699平方公里 海域面积约333平方公里 }
+          - { name: 珠海, slug: zhuhai, note: 陆地面积约1725平方公里 海域面积超9000平方公里 }
+          - { name: 乌海, slug: wuhai, note: 总面积约1754平方公里 被誉为“黄河明珠” }
+          - { name: 中山, slug: zhongshan, note: 总面积约1783平方公里 河网密布 }
+          - { name: 三亚, slug: sanya, note: 陆地面积约1921平方公里 海域面积超3220平方公里 }
+          - { name: 深圳, slug: shenzhen, note: 陆地面积约1997平方公里 海域面积超1140平方公里 }
+          - { name: 鹤壁, slug: hebi, note: 总面积约2182平方公里 自然生态山清水秀 }
+      - slug: "mianjizuixiaodeshi-2"
+        title: 中国面积最小的十大省会城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 海口, slug: haikou, note: "" }
+          - { name: 南京, slug: nanjing, note: "" }
+          - { name: 太原, slug: taiyuan, note: "" }
+          - { name: 南昌, slug: nanchang, note: "" }
+          - { name: 广州, slug: guangzhou, note: "" }
+          - { name: 西宁, slug: xining, note: "" }
+          - { name: 郑州, slug: zhengzhou, note: "" }
+          - { name: 贵阳, slug: guiyang, note: "" }
+          - { name: 武汉, slug: wuhan, note: "" }
+          - { name: 银川, slug: yinchuan, note: "" }
+      - slug: shandongmianjizuid
+        title: 山东面积最大的十大地级市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 临沂, slug: linyi, note: "" }
+          - { name: 潍坊, slug: weifang, note: "" }
+          - { name: 烟台, slug: yantai, note: "" }
+          - { name: 菏泽, slug: heze, note: "" }
+          - { name: 青岛, slug: qingdao, note: "" }
+          - { name: 济宁, slug: jining, note: "" }
+          - { name: 德州, slug: dezhou, note: "" }
+          - { name: 济南, slug: jinan, note: "" }
+          - { name: 滨州, slug: binzhou, note: "" }
+          - { name: 聊城, slug: liaocheng, note: "" }
+      - slug: hunanmianjizuidade
+        title: 湖南面积最大的十个地级市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 怀化, slug: huaihua, note: "" }
+          - { name: 永州, slug: yongzhou, note: "" }
+          - { name: 邵阳, slug: shaoyang, note: "" }
+          - { name: 郴州, slug: chenzhou, note: "" }
+          - { name: 常德, slug: changde, note: "" }
+          - { name: 湘西州, slug: xiangxizhou, note: "" }
+          - { name: 衡阳, slug: hengyang, note: "" }
+          - { name: 岳阳, slug: yueyang, note: "" }
+          - { name: 益阳, slug: yiyang, note: "" }
+          - { name: 长沙, slug: changsha, note: "" }
+
+  # ============ 环境与生态 ============
+  - key: environment
+    title: 环境与生态
+    kicker: ENVIRONMENT
+    desc: 空气质量、绿化、生态相关的榜单。
+    ranks:
+      - slug: shidabuyidizhenche
+        title: 中国十大不易地震城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 衢州, slug: quzhou, note: 位于扬子地块东南缘 浙中稳定区核心 }
+          - { name: 深圳, slug: shenzhen, note: 位于华南地块东南缘 珠江口稳定地块 }
+          - { name: 长沙, slug: changsha, note: 位于华南地块的腹地 近百年无5级以上地震 }
+          - { name: 南宁, slug: nanning, note: 位于华南—印支地块稳定缝合带 无5级以上地震记录 }
+          - { name: 南昌, slug: nanchang, note: 位于郯庐带与长江带之间“安全走廊” 近200年无5级以上地震 }
+          - { name: 宜春, slug: yichun, note: "位于萍乡-广丰断裂带 历史上的地震震级极小" }
+          - { name: 贵阳, slug: guiyang, note: 位于扬子准地台黔中隆起区 喀斯特地貌耗能减震 }
+          - { name: 六盘水, slug: liupanshui, note: 位于扬子准地台核心区 刚性基底深达25km }
+          - { name: 杭州, slug: hangzhou, note: 地处扬子地块核心 中国最古老稳定陆核之一 }
+          - { name: 嘉兴, slug: jiaxing, note: 地处扬子地块核心 长期被视为地震风险很低的区域之一 }
+      - slug: shidazuiganjingdec
+        title: 中国十大最干净的城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 西藏拉萨, slug: xizanglasa, note: "" }
+          - { name: 福建厦门, slug: fujianxiamen, note: "" }
+          - { name: 山东威海, slug: shandongweihai, note: "" }
+          - { name: 广东珠海, slug: guangdongzhuhai, note: "" }
+          - { name: 海南海口, slug: hainanhaikou, note: "" }
+          - { name: 山西晋城, slug: shanxijincheng, note: "" }
+          - { name: 辽宁大连, slug: liaoningdalian, note: "" }
+          - { name: 江苏苏州, slug: jiangsusuzhou, note: "" }
+          - { name: 广西柳州, slug: guangxiliuzhou, note: "" }
+          - { name: 陕西西安, slug: shanxixian, note: "" }
+      - slug: senlinfugailvzuiga
+        title: 中国森林覆盖率最高的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 大兴安岭地区, slug: daxinganling, note: "森林覆盖率约85.70% 中国最大/最完整的寒温带针叶林区" }
+          - { name: 白山, slug: baishan, note: "森林覆盖率约84.60% 被誉为“绿色林海”/“雪域王国”" }
+          - { name: 伊春, slug: yichun, note: "森林覆盖率约83.80% 国家森林城市" }
+          - { name: 黄山, slug: huangshan, note: "森林覆盖率约82.90% 被誉为“华东动植物宝库”" }
+          - { name: 西双版纳, slug: xishuangbanna, note: "森林覆盖率约81.34% 有“森林博物馆”之称" }
+          - { name: 延边, slug: yanbian, note: "森林覆盖率约80.80% 素有“长白林海”之称" }
+          - { name: 丽水, slug: lishui, note: "森林覆盖率约80.30% 有“中国生态第一市”之称" }
+          - { name: 龙岩, slug: longyan, note: "森林覆盖率约79.21% 有“森林之都”之称" }
+          - { name: 南平, slug: nanping, note: "森林覆盖率约78.89% 素有“南方林海”之誉" }
+          - { name: 三明, slug: sanming, note: "森林覆盖率约77.12% 有“绿色之城”之称" }
+      - slug: huanjingzuihaodesh
+        title: 中国环境最好的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 海口, slug: haikou, note: "常年位居全国空气质量榜首 城市绿化覆盖率超43%" }
+          - { name: 威海, slug: weihai, note: "中国首个“国家卫生城市” 空气质量优良率常年超95%" }
+          - { name: 丽水, slug: lishui, note: "被誉为“浙江绿谷” 空气质量优良率常年超95%" }
+          - { name: 桂林, slug: guilin, note: "地表水环境质量全国领先 森林覆盖率超70%" }
+          - { name: 珠海, slug: zhuhai, note: "PM2.5年均浓度常年低于10μg/m³ 空气质量优良率超90%" }
+          - { name: 湛江, slug: zhanjiang, note: "滨海绿城 建成区绿化覆盖率超40%" }
+          - { name: 三亚, slug: sanya, note: 空气质量常年领跑 PM2.5年均浓度仅11微克/立方米 }
+          - { name: 贵阳, slug: guiyang, note: "中国首个国家森林城市 森林覆盖率55%以上" }
+          - { name: 南平, slug: nanping, note: 闽江源头 PM2.5常年低于20微克/立方米 }
+          - { name: 衢州, slug: quzhou, note: "森林覆盖率接近70% 地表水水质常年保持Ⅱ类以上" }
+      - slug: kongqizuihaodeshid
+        title: 中国空气最好的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 海口, slug: haikou, note: "" }
+          - { name: 拉萨, slug: lasa, note: "" }
+          - { name: 舟山, slug: zhoushan, note: "" }
+          - { name: 黄山, slug: huangshan, note: "" }
+          - { name: 厦门, slug: xiamen, note: "" }
+          - { name: 深圳, slug: shenzhen, note: "" }
+          - { name: 丽水, slug: lishui, note: "" }
+          - { name: 福州, slug: fuzhou, note: "" }
+          - { name: 惠州, slug: huizhou, note: "" }
+          - { name: 贵阳, slug: guiyang, note: "" }
+      - slug: kongqiwuranzuiyanz
+        title: 中国空气污染最严重的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 咸阳, slug: xianyang, note: 环境空气质量综合指数大于4.3 PM2.5浓度大于42微克/立方米 }
+          - { name: 新乡, slug: xinxiang, note: 环境空气质量综合指数大于4.26 PM2.5浓度大于41微克/立方米 }
+          - { name: 开封, slug: kaifeng, note: 环境空气质量综合指数大于4.24 PM2.5浓度大于42微克/立方米 }
+          - { name: 菏泽, slug: heze, note: 环境空气质量综合指数大于4.22 PM2.5浓度大于42微克/立方米 }
+          - { name: 安阳, slug: anyang, note: 环境空气质量综合指数大于4.21 PM2.5浓度大于43微克/立方米 }
+          - { name: 临沂, slug: linyi, note: 环境空气质量综合指数大于4.21 PM2.5浓度大于38微克/立方米 }
+          - { name: 德州, slug: dezhou, note: 环境空气质量综合指数大于4.21 PM2.5浓度大于36微克/立方米 }
+          - { name: 兰州, slug: lanzhou, note: 环境空气质量综合指数大于4.21 PM2.5浓度大于34微克/立方米 }
+          - { name: 鹤壁, slug: hebi, note: 环境空气质量综合指数大于4.20 PM2.5浓度大于42微克/立方米 }
+          - { name: 西安, slug: xian, note: 环境空气质量综合指数大于4.19 PM2.5浓度大于39微克/立方米 }
+
+  # ============ 教科文卫 ============
+  - key: eduhealth
+    title: 教科文卫
+    kicker: EDU
+    desc: 高校、医疗、科研、体育相关的榜单。
+    ranks:
+      - slug: yiliaoshuipingjiao
+        title: 中国医疗水平较高的10座城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 北京, slug: beijing, note: 全国医疗资源最集中地区 拥有全国约1/4的百强医院 }
+          - { name: 上海, slug: shanghai, note: 医疗体系国际化程度高 专科实力强 }
+          - { name: 广州, slug: guangzhou, note: 华南医疗中心 临床与科研并重 }
+          - { name: 武汉, slug: wuhan, note: 中部医疗中心 国家设置的十大国家医学中心之一 }
+          - { name: 南京, slug: nanjing, note: 医疗教育资源雄厚 重症医学/肾脏病/心血管病等领域实力雄厚 }
+          - { name: 成都, slug: chengdu, note: 西部医疗高地 高原病/创伤急救/妇幼健康等领域特色鲜明 }
+          - { name: 重庆, slug: chongqing, note: 西南重要医疗中心 三甲医院数量多 }
+          - { name: 杭州, slug: hangzhou, note: 数字医疗与综合医疗实力兼具 智慧医疗/肿瘤精准治疗/眼科等领域领先 }
+          - { name: 长沙, slug: changsha, note: 专科实力突出 人均医疗资源丰富 }
+          - { name: 西安, slug: xian, note: 西北医疗核心城市 医疗资源集中 }
+      - slug: shidatiyuzhixiang
+        title: 中国十大体育之乡
+        kind: "pending"
+        size: 9
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 9 条。
+        items:
+          - { name: 体操之乡：湖北省仙桃, slug: ticaozhixianghubeishengxiantao, note: "" }
+          - { name: 摔跤之乡：山西省忻州, slug: shuaijiaozhixiangshanxishengxinzhou, note: "" }
+          - { name: 网球之乡：湖北省京山, slug: wangqiuzhixianghubeishengjingshan, note: "" }
+          - { name: 排球之乡：广东省台山, slug: paiqiuzhixiangguangdongshengtaishan, note: "" }
+          - { name: 游泳之乡：广东省东莞, slug: youyongzhixiangguangdongshengdongguan, note: "" }
+          - { name: 跳水之乡：广东省湛江, slug: tiaoshuizhixiangguangdongshengzhanjiang, note: "" }
+          - { name: 举重之乡：广东省石龙镇, slug: juzhongzhixiangguangdongshengshilongzhen, note: "" }
+          - { name: 田径之乡：广西玉林, slug: tianjingzhixiangguangxiyulin, note: "" }
+          - { name: 羽毛球之乡：湖南省益阳, slug: yumaoqiuzhixianghunanshengyiyang, note: "" }
+      - slug: shidatiyuguanjunzh
+        title: 中国十大体育冠军之城
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 天津, slug: tianjin, note: "" }
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 武汉, slug: wuhan, note: "" }
+          - { name: 鞍山, slug: anshan, note: "" }
+          - { name: 沈阳, slug: shenyang, note: "" }
+          - { name: 南通, slug: nantong, note: "" }
+          - { name: 烟台, slug: yantai, note: "" }
+          - { name: 杭州, slug: hangzhou, note: "" }
+          - { name: 南京, slug: nanjing, note: "" }
+      - slug: shidatiyuchengshi
+        title: 中国十大体育城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 广州, slug: guangzhou, note: "" }
+          - { name: 杭州, slug: hangzhou, note: "" }
+          - { name: 成都, slug: chengdu, note: "" }
+          - { name: 深圳, slug: shenzhen, note: "" }
+          - { name: 南京, slug: nanjing, note: "" }
+          - { name: 武汉, slug: wuhan, note: "" }
+          - { name: 重庆, slug: chongqing, note: "" }
+          - { name: 南宁, slug: nanning, note: "" }
+      - slug: shidafamingzhuanli
+        title: 中国十大发明专利最多的城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 深圳, slug: shenzhen, note: "" }
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 杭州, slug: hangzhou, note: "" }
+          - { name: 广州, slug: guangzhou, note: "" }
+          - { name: 南京, slug: nanjing, note: "" }
+          - { name: 苏州, slug: suzhou, note: "" }
+          - { name: 武汉, slug: wuhan, note: "" }
+          - { name: 成都, slug: chengdu, note: "" }
+          - { name: 西安, slug: xian, note: "" }
+      - slug: shidazuishiheliuxu
+        title: 中国十大最适合留学城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 香港, slug: xianggang, note: "" }
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 台北, slug: taibei, note: "" }
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 新竹, slug: xinzhu, note: "" }
+          - { name: 南京, slug: nanjing, note: "" }
+          - { name: 武汉, slug: wuhan, note: "" }
+          - { name: 成都, slug: chengdu, note: "" }
+          - { name: 广州, slug: guangzhou, note: "" }
+          - { name: 西安, slug: xian, note: "" }
+      - slug: shidadianjingcheng
+        title: 中国十大电竞城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 深圳, slug: shenzhen, note: "" }
+          - { name: 武汉, slug: wuhan, note: "" }
+          - { name: 杭州, slug: hangzhou, note: "" }
+          - { name: 成都, slug: chengdu, note: "" }
+          - { name: 西安, slug: xian, note: "" }
+          - { name: 广州, slug: guangzhou, note: "" }
+          - { name: 重庆, slug: chongqing, note: "" }
+          - { name: 长沙, slug: changsha, note: "" }
+      - slug: shidalanqiuchengsh
+        title: 中国十大篮球城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 东莞, slug: dongguan, note: "" }
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 丹东, slug: dandong, note: "" }
+          - { name: 焦作, slug: jiaozuo, note: "" }
+          - { name: 常熟, slug: changshu, note: "" }
+          - { name: 莆田, slug: putian, note: "" }
+          - { name: 广州, slug: guangzhou, note: "" }
+          - { name: 太原, slug: taiyuan, note: "" }
+          - { name: 阜新, slug: fuxin, note: "" }
+      - slug: shidazuqiuchengshi
+        title: 中国十大足球城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 大连, slug: dalian, note: "" }
+          - { name: 青岛, slug: qingdao, note: "" }
+          - { name: 广州, slug: guangzhou, note: "" }
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 成都, slug: chengdu, note: "" }
+          - { name: 深圳, slug: shenzhen, note: "" }
+          - { name: 武汉, slug: wuhan, note: "" }
+          - { name: 长春, slug: changchun, note: "" }
+          - { name: 重庆, slug: chongqing, note: "" }
+      - slug: shuangyiliudaxuezu
+        title: 中国双一流大学最多十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 南京, slug: nanjing, note: "" }
+          - { name: 广州, slug: guangzhou, note: "" }
+          - { name: 武汉, slug: wuhan, note: "" }
+          - { name: 成都, slug: chengdu, note: "" }
+          - { name: 西安, slug: xian, note: "" }
+          - { name: 天津, slug: tianjin, note: "" }
+          - { name: 长沙, slug: changsha, note: "" }
+          - { name: 哈尔滨, slug: haerbin, note: "" }
+      - slug: benkedaxuebijiaodu
+        title: 中国本科大学比较多的10个城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 北京, slug: beijing, note: 高等教育资源最集中的城市 双一流高校最多的城市 }
+          - { name: 武汉, slug: wuhan, note: 中国重要的科教基地之一 本科院校超47所 }
+          - { name: 西安, slug: xian, note: 中国重要的科教基地之一 本科院校超45所 }
+          - { name: 广州, slug: guangzhou, note: 中国高等教育最发达的城市之一 华南地区的教育中心 }
+          - { name: 上海, slug: shanghai, note: 科教城市之一 中国高等教育的重要中心之一 }
+          - { name: 南京, slug: nanjing, note: 国家四大科研教育中心之一 本科院校超35所 }
+          - { name: 天津, slug: tianjin, note: 北方教育重镇之一 中国近代教育的发祥地之一 }
+          - { name: 成都, slug: chengdu, note: 中国西南地区的教育中心 本科院校超31所 }
+          - { name: 重庆, slug: chongqing, note: 西南地区教育强市 本科院校超30所 }
+          - { name: 杭州, slug: hangzhou, note: 全国首批学习型城市网络城市 本科院校超29所 }
+      - slug: quanqiudianjingzhi
+        title: 十大全球电竞之都
+        kind: "pending"
+        size: 8
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 8 条。
+        items:
+          - { name: 上海, slug: shanghai, note: 产业链生态成熟 电竞消费全球领先 }
+          - { name: 洛杉矶, slug: luoshanji, note: 早期电子竞技发源地 数字娱乐业发达 }
+          - { name: 首尔, slug: shouer, note: 电竞职业化 成立全球首个电子竞技协会 }
+          - { name: 北京, slug: beijing, note: 中国电竞发源地 拥有多个专业电竞场馆 }
+          - { name: 里约热内卢, slug: liyuereneilu, note: 南美电竞产业的核心区域 有庞大本地观众群体 }
+          - { name: 新加坡, slug: xinjiapo, note: 东南亚游戏与电竞中心 多次举办大型电竞赛事 }
+          - { name: 深圳, slug: shenzhen, note: 拥有完整的电竞产业链 电竞从业者数量全国领先 }
+          - { name: 西雅图, slug: xiyatu, note: 热门电竞项目的开发中心 承办多个国际性赛事 }
+
+  # ============ 交通基建 ============
+  - key: transport
+    title: 交通基建
+    kicker: TRANSPORT
+    desc: 地铁、高铁、港口等交通相关的榜单。
+    ranks:
+      - slug: shidaditiechengshi
+        title: 中国十大地铁城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 广州, slug: guangzhou, note: "" }
+          - { name: 成都, slug: chengdu, note: "" }
+          - { name: 深圳, slug: shenzhen, note: "" }
+          - { name: 重庆, slug: chongqing, note: "" }
+          - { name: 南京, slug: nanjing, note: "" }
+          - { name: 武汉, slug: wuhan, note: "" }
+          - { name: 杭州, slug: hangzhou, note: "" }
+          - { name: 西安, slug: xian, note: "" }
+      - slug: zuizaokaitongditie
+        title: 中国最早开通地铁的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 北京, slug: beijing, note: 北京 }
+          - { name: 香港, slug: xianggang, note: "" }
+          - { name: 天津, slug: tianjin, note: 城市 }
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 台北, slug: taibei, note: 台湾省 }
+          - { name: 广州, slug: guangzhou, note: "" }
+          - { name: 长春, slug: changchun, note: 地铁 }
+          - { name: 大连, slug: dalian, note: "" }
+          - { name: 武汉, slug: wuhan, note: "" }
+          - { name: 深圳, slug: shenzhen, note: 深圳市 }
+      - slug: gaotiezhanzuiduode
+        title: 全国高铁站最多的10个城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 重庆, slug: chongqing, note: "" }
+          - { name: 哈尔滨, slug: haerbin, note: "" }
+          - { name: 盐城, slug: yancheng, note: "" }
+          - { name: 合肥, slug: hefei, note: "" }
+          - { name: 苏州, slug: suzhou, note: "" }
+          - { name: 潍坊, slug: weifang, note: "" }
+          - { name: 青岛, slug: qingdao, note: "" }
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 成都, slug: chengdu, note: "" }
+          - { name: 杭州, slug: hangzhou, note: "" }
+      - slug: changjiangliuyushi
+        title: 长江流域十大港口城市排行
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 上海, slug: shanghai, note: 货物吞吐量超8亿吨 世界级枢纽海港 }
+          - { name: 苏州, slug: suzhou, note: 货物吞吐量超6亿吨 全球最大内河港 }
+          - { name: 泰州, slug: taizhou, note: 货物吞吐量超4亿吨 长江下游重要的综合性港口 }
+          - { name: 江阴, slug: jiangyin, note: 货物吞吐量超3亿吨 长江下游制造业物流枢纽 }
+          - { name: 镇江, slug: zhenjiang, note: 货物吞吐量超2.9亿吨 长江与京杭大运河交汇处 }
+          - { name: 南京, slug: nanjing, note: 货物吞吐量超2.6亿吨 长江下游江海联运枢纽 }
+          - { name: 重庆, slug: chongqing, note: 货物吞吐量超2.4亿吨 长江上游最大综合性港口 }
+          - { name: 九江, slug: jiujiang, note: 货物吞吐量超2.4亿吨 江西唯一长江口岸 }
+          - { name: 南通, slug: nantong, note: 货物吞吐量超2.3亿吨 长江集装箱重要支线港 }
+          - { name: 黄冈, slug: huanggang, note: 货物吞吐量超2.1亿吨 长江中游首个破2亿吨港口 }
+
+  # ============ 历史与人文 ============
+  - key: culture
+    title: 历史与人文
+    kicker: CULTURE
+    desc: 历史、市花、地方文化相关的榜单。
+    ranks:
+      - slug: shidayirenmingming
+        title: 中国十大以人名命名的城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 秦皇岛, slug: qinhuangdao, note: 以秦始皇命名 }
+          - { name: 中山, slug: zhongshan, note: 以孙中山先生命名 }
+          - { name: 茂名, slug: maoming, note: 以潘茂名命名 }
+          - { name: 吴忠, slug: wuzhong, note: 以吴忠命名 }
+          - { name: 禹州, slug: yuzhou, note: 以大禹命名 }
+          - { name: 左权县, slug: zuoquan, note: 以左权命名 }
+          - { name: 靖宇县, slug: jingyu, note: 以抗日英雄杨靖宇命名 }
+          - { name: 尚志, slug: shangzhi, note: 以抗日英雄赵尚志命名 }
+          - { name: 吴起县, slug: wuqi, note: 以战国名将吴起命名 }
+          - { name: 炎陵县, slug: yanling, note: 以华夏始祖炎帝而命名 }
+      - slug: shidashaoshuminzuc
+        title: 中国十大少数民族城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 凯里, slug: kaili, note: "" }
+          - { name: 临沧, slug: lincang, note: "" }
+          - { name: 德宏, slug: dehong, note: "" }
+          - { name: 喀什, slug: kashi, note: "" }
+          - { name: 延边, slug: yanbian, note: "" }
+          - { name: 西双版纳, slug: xishuangbanna, note: "" }
+          - { name: 蒙自, slug: mengzi, note: "" }
+          - { name: 恩施, slug: enshi, note: "" }
+          - { name: 西昌, slug: xichang, note: "" }
+          - { name: 兴义, slug: xingyi, note: "" }
+      - slug: shidacidou
+        title: 中国十大瓷都
+        kind: "pending"
+        size: 8
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 8 条。
+        items:
+          - { name: 江西景德镇, slug: jiangxijingdezhen, note: 世界瓷都之源 被誉为“千年瓷都” }
+          - { name: 湖南醴陵, slug: hunanliling, note: 五彩瓷都 釉下五彩瓷代表城市 }
+          - { name: 潮州, slug: chaozhou, note: 中国瓷都 中国重要日用陶瓷出口基地 }
+          - { name: 唐山, slug: tangshan, note: 北方瓷都 中国骨质瓷发源地 }
+          - { name: 无锡宜兴, slug: wuxiyixing, note: 中国陶都 以紫砂壶闻名 }
+          - { name: 河南禹州, slug: henanyuzhou, note: 中国钧瓷之都 以自然窑变著称 }
+          - { name: 佛山南海, slug: foshannanhai, note: 南国瓷都 中国建陶第一镇 }
+          - { name: 河南汝州, slug: henanruzhou, note: 汝瓷之都 宋代五大名窑之首“汝窑”的产地 }
+      - slug: lishizuigulaodeshi
+        title: 中国历史最古老的十座城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 商丘, slug: shangqiu, note: "" }
+          - { name: 开封, slug: kaifeng, note: "" }
+          - { name: 洛阳, slug: luoyang, note: "" }
+          - { name: 邢台, slug: xingtai, note: "" }
+          - { name: 曲阜, slug: qufu, note: "" }
+          - { name: 安阳, slug: anyang, note: "" }
+          - { name: 成都, slug: chengdu, note: "" }
+          - { name: 西安, slug: xian, note: "" }
+          - { name: 邯郸, slug: handan, note: "" }
+          - { name: 北京, slug: beijing, note: "" }
+
+  # ============ 省份与区域 ============
+  - key: province
+    title: 省份与区域
+    kicker: REGION
+    desc: 按省份或区域划分的城市榜单。
+    ranks:
+      - slug: dongbeishidalvyouc
+        title: 东北十大旅游城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 哈尔滨, slug: haerbin, note: 中国十佳冰雪旅游城市，“冰城” }
+          - { name: 沈阳, slug: shenyang, note: 冰雪旅游十佳城市，国家历史文化名城 }
+          - { name: 大连, slug: dalian, note: 全国滨海海岛旅游热门城市 }
+          - { name: 长春, slug: changchun, note: 冰雪旅游十佳城市 }
+          - { name: 呼伦贝尔, slug: hulunbeier, note: 冰雪旅游十佳城市，最美草原城市 }
+          - { name: 吉林, slug: jilin, note: 冰雪旅游十佳城市 }
+          - { name: 大兴安岭地区·漠河, slug: daxinganlingdiqumohe, note: “神州北极” }
+          - { name: 兴安盟·阿尔山, slug: xinganmengaershan, note: 中国优秀旅游城市 }
+          - { name: 延边州, slug: yanbianzhou, note: 中国十佳冰雪旅游城市 }
+          - { name: 丹东, slug: dandong, note: 中国最大最美的边境城市 }
+      - slug: dongbushidalvyouch
+        title: 中国东部十大旅游城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 北京, slug: beijing, note: 世界古都，国内十大最热门旅游城市 }
+          - { name: 上海, slug: shanghai, note: 国家历史文化名城，中国优秀旅游城市 }
+          - { name: 杭州, slug: hangzhou, note: 中国最佳旅游城市，“人间天堂” }
+          - { name: 广州, slug: guangzhou, note: 国家历史文化名城，中国优秀旅游城市 }
+          - { name: 南京, slug: nanjing, note: 国家历史文化名城，中国四大古都，全球最佳旅游目的地 }
+          - { name: 三亚, slug: sanya, note: 国际旅游城市，中国十大旅游目的地必去城市 }
+          - { name: 苏州, slug: suzhou, note: 国家历史文化名城，江南水乡 }
+          - { name: 深圳, slug: shenzhen, note: 中国优秀旅游城市 }
+          - { name: 厦门, slug: xiamen, note: 中国优秀旅游城市，海滨旅游城市 }
+          - { name: 青岛, slug: qingdao, note: 海滨旅游城市，国家历史文化名城，中国优秀旅游城市 }
+      - slug: zhongbushidalvyouc
+        title: 中国中部十大旅游城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 武汉, slug: wuhan, note: 中国十大热门旅游城市，国家历史文化名城 }
+          - { name: 郑州, slug: zhengzhou, note: 中国优秀旅游城市，国家历史文化名城 }
+          - { name: 长沙, slug: changsha, note: 国内著名网红城市，年轻人最钟爱的城市之一 }
+          - { name: 洛阳, slug: luoyang, note: 千年古都，国家历史文化名城 }
+          - { name: 张家界, slug: zhangjiajie, note: “美丽中国的靓丽名片” }
+          - { name: 开封, slug: kaifeng, note: "" }
+          - { name: 南昌, slug: nanchang, note: 国家历史文化名城，中国优秀旅游城市 }
+          - { name: 太原, slug: taiyuan, note: 中国优秀旅游城市，国家历史文化名城 }
+          - { name: 大同, slug: datong, note: 国内文化旅游十大热门城市，国家历史文化名城 }
+          - { name: 黄山, slug: huangshan, note: 中国优秀旅游城市 }
+      - slug: beifangshidalvyouc
+        title: 北方十大旅游城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 北京, slug: beijing, note: 世界古都，国内十大最热门旅游城市 }
+          - { name: 西安, slug: xian, note: 中国十大旅游目的地必去城市 }
+          - { name: 青岛, slug: qingdao, note: 海滨旅游城市，国家历史文化名城，中国优秀旅游城市 }
+          - { name: 天津, slug: tianjin, note: “近代百年看天津”，国家历史文化名城 }
+          - { name: 郑州, slug: zhengzhou, note: 中国优秀旅游城市，国家历史文化名城 }
+          - { name: 洛阳, slug: luoyang, note: 千年古都，国家历史文化名城 }
+          - { name: 哈尔滨, slug: haerbin, note: 中国十佳冰雪旅游城市，“冰城” }
+          - { name: 沈阳, slug: shenyang, note: 冰雪旅游十佳城市，国家历史文化名城 }
+          - { name: 大连, slug: dalian, note: 全国滨海海岛旅游热门城市 }
+          - { name: 长春, slug: changchun, note: 冰雪旅游十佳城市 }
+      - slug: beifangzuiyijudesh
+        title: 北方最宜居的十大城市 北方宜居城市排名 北方最舒服的城市〔2026〕
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 青岛, slug: qingdao, note: 中国十大宜居城市 }
+          - { name: 大连, slug: dalian, note: 中国十大宜居城市，联合国人居奖 }
+          - { name: 烟台, slug: yantai, note: 联合国人居奖，中国十大宜居城市 }
+          - { name: 西安, slug: xian, note: 联合国人居署公布的中国十大宜居城市 }
+          - { name: 北京, slug: beijing, note: 中国十大宜居城市 }
+          - { name: 威海, slug: weihai, note: 联合国人居奖，中国十佳宜居城市 }
+          - { name: 天津, slug: tianjin, note: 全球宜居城市百强 }
+          - { name: 秦皇岛, slug: qinhuangdao, note: 中国人居环境奖，北方著名的滨海宜居城市 }
+          - { name: 沈阳, slug: shenyang, note: 联合国全球宜居城区示范奖，中国宜居城市50强 }
+          - { name: 唐山, slug: tangshan, note: 联合国人居奖，中国宜居城市50强 }
+      - slug: huadongshidalvyouc
+        title: 华东十大旅游城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 上海, slug: shanghai, note: 国家历史文化名城，中国优秀旅游城市 }
+          - { name: 杭州, slug: hangzhou, note: 中国最佳旅游城市，“人间天堂” }
+          - { name: 南京, slug: nanjing, note: 国家历史文化名城，中国四大古都，全球最佳旅游目的地 }
+          - { name: 厦门, slug: xiamen, note: 中国优秀旅游城市，海滨旅游城市 }
+          - { name: 苏州, slug: suzhou, note: 国家历史文化名城，江南水乡 }
+          - { name: 青岛, slug: qingdao, note: 海滨旅游城市，国家历史文化名城，中国优秀旅游城市 }
+          - { name: 南昌, slug: nanchang, note: 国家历史文化名城，中国优秀旅游城市 }
+          - { name: 黄山, slug: huangshan, note: 中国优秀旅游城市 }
+          - { name: 无锡, slug: wuxi, note: 国家历史文化名城，中国优秀旅游城市 }
+          - { name: 福州, slug: fuzhou, note: 国家历史文化名城，中国优秀旅游城市 }
+      - slug: huazhongshidalvyou
+        title: 华中十大旅游城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 武汉, slug: wuhan, note: 中国十大热门旅游城市，国家历史文化名城 }
+          - { name: 郑州, slug: zhengzhou, note: 中国优秀旅游城市，国家历史文化名城 }
+          - { name: 长沙, slug: changsha, note: 国内著名网红城市，年轻人最钟爱的城市之一 }
+          - { name: 洛阳, slug: luoyang, note: 千年古都，国家历史文化名城 }
+          - { name: 张家界, slug: zhangjiajie, note: “美丽中国的靓丽名片” }
+          - { name: 开封, slug: kaifeng, note: "" }
+          - { name: 宜昌, slug: yichang, note: "" }
+          - { name: 湘西州, slug: xiangxizhou, note: 中国优秀旅游城市 }
+          - { name: 恩施州, slug: enshizhou, note: “中国最美仙境”“湖北香格里拉” }
+          - { name: 焦作, slug: jiaozuo, note: 中国优秀旅游城市 }
+      - slug: huabeishidalvyouch
+        title: 华北十大旅游城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 北京, slug: beijing, note: 世界古都，国内十大最热门旅游城市 }
+          - { name: 天津, slug: tianjin, note: “近代百年看天津”，国家历史文化名城 }
+          - { name: 秦皇岛, slug: qinhuangdao, note: 国内滨海旅游热门城市，国家历史文化名城 }
+          - { name: 太原, slug: taiyuan, note: 中国优秀旅游城市，国家历史文化名城 }
+          - { name: 大同, slug: datong, note: 国内文化旅游十大热门城市，国家历史文化名城 }
+          - { name: 承德, slug: chengde, note: 中国避暑名城，中国优秀旅游城市 }
+          - { name: 呼和浩特, slug: huhehaote, note: 中国优秀旅游城市，国家历史文化名城 }
+          - { name: 石家庄, slug: shijiazhuang, note: 中国优秀旅游城市，国家历史文化名城 }
+          - { name: 晋中, slug: jinzhong, note: 中国最具影响力文化旅游城市 }
+          - { name: 保定, slug: baoding, note: 中国优秀旅游城市，国家历史文化名城 }
+      - slug: huananshidalvyouch
+        title: 华南十大旅游城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 广州, slug: guangzhou, note: 国家历史文化名城， }
+          - { name: 三亚, slug: sanya, note: 国际旅游城市，中国十大旅游目的地必去城市 }
+          - { name: 桂林, slug: guilin, note: 国家历史文化名城，世界著名风景游览城市 }
+          - { name: 深圳, slug: shenzhen, note: 中国优秀旅游 }
+          - { name: 南宁, slug: nanning, note: 中国优秀旅游城市，中国绿城 }
+          - { name: 海口, slug: haikou, note: 国家历史文化名城，中国优秀旅游城市，滨海海岛旅游热门城市 }
+          - { name: 北海, slug: beihai, note: 国家历史文化名城，中国优秀旅游城市，滨海海岛旅游热门城市 }
+          - { name: 佛山, slug: foshan, note: 国家历史文化名城，中国优秀旅游城市,岭南水乡 }
+          - { name: 珠海, slug: zhuhai, note: 中国优秀旅游城市，滨海海岛旅游热门城市 }
+          - { name: 惠州, slug: huizhou, note: 国家历史文化名城，中国优秀旅游城市 }
+      - slug: huanandiqushidazui
+        title: 华南地区十大最宜居的城市 华南最适合居住10个城市〔2026〕
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 珠海, slug: zhuhai, note: 中国十大宜居城市 }
+          - { name: 深圳, slug: shenzhen, note: 联合国人居环境奖，中国十大宜居城市，中国人居环境奖 }
+          - { name: 三亚, slug: sanya, note: 中国十大宜居城市，中国十大康养城市，中国人居环境奖 }
+          - { name: 台北, slug: taibei, note: 中国十大宜居城市 }
+          - { name: 南宁, slug: nanning, note: 联合国人居环境，“中国绿城” }
+          - { name: 惠州, slug: huizhou, note: "" }
+          - { name: 广州, slug: guangzhou, note: 中国十大康养城市，中国最具幸福感城市 }
+          - { name: 中山, slug: zhongshan, note: 联合国人居环境奖 }
+          - { name: 海口, slug: haikou, note: 中国人居环境奖，中国十大康养城市 }
+          - { name: 桂林, slug: guilin, note: 中国人居环境奖，中国康养旅游城市百强榜，中国长寿之乡 }
+      - slug: nanfangshidalvyouc
+        title: 南方十大旅游城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 上海, slug: shanghai, note: 国家历史文化名城，中国优秀旅游城市 }
+          - { name: 成都, slug: chengdu, note: 中国最佳旅游城市，国家历史文化名城 }
+          - { name: 昆明, slug: kunming, note: “春城”，国内避暑旅游热门目的地，国内避寒旅游热门城市 }
+          - { name: 杭州, slug: hangzhou, note: 中国最佳旅游城市，“人间天堂” }
+          - { name: 重庆, slug: chongqing, note: 8D魔幻之都，网红城市，中国优秀旅游城市 }
+          - { name: 广州, slug: guangzhou, note: 国家历史文化名城，中国优秀旅游城市 }
+          - { name: 南京, slug: nanjing, note: 国家历史文化名城，中国四大古都，全球最佳旅游目的地 }
+          - { name: 武汉, slug: wuhan, note: 中国十大热门旅游城市，国家历史文化名城 }
+          - { name: 三亚, slug: sanya, note: 国际旅游城市，中国十大旅游目的地必去城市 }
+          - { name: 桂林, slug: guilin, note: "" }
+      - slug: nanfangzuiyijudeda
+        title: 南方最宜居的10大城市 南方宜居城市排名 南方宜居养老城市〔2026〕
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 珠海, slug: zhuhai, note: 中国十大宜居城市 }
+          - { name: 昆明, slug: kunming, note: 中国十大宜居城市，联合国宜居生态城市 }
+          - { name: 杭州, slug: hangzhou, note: 中国十大宜居城市，联合国人居奖 }
+          - { name: 三亚, slug: sanya, note: 中国十大宜居城市，中国十大康养城市，中国人居环境奖 }
+          - { name: 扬州, slug: yangzhou, note: 联合国人居奖，中国十大宜居城市 }
+          - { name: 厦门, slug: xiamen, note: 联合国人居奖，中国十大宜居城市 }
+          - { name: 长沙, slug: changsha, note: 中国十大宜居城市，年轻人最宜居的城市 }
+          - { name: 宁波, slug: ningbo, note: 中国十大宜居城市 }
+          - { name: 深圳, slug: shenzhen, note: 联合国人居环境奖，中国十大宜居城市，中国人居环境奖 }
+          - { name: 成都, slug: chengdu, note: 中国十大宜居城市 }
+      - slug: xibeishidalvyouche
+        title: 西北十大旅游城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 西安, slug: xian, note: 中国十大旅游目的地必去城市 }
+          - { name: 酒泉市·敦煌, slug: jiuquanshidunhuang, note: 中国最具国际影响力旅游目的地 }
+          - { name: 乌鲁木齐, slug: wulumuqi, note: 中国十佳冰雪旅游城市 }
+          - { name: 西宁, slug: xining, note: “中国夏都”，中国十大避暑城市 }
+          - { name: 兰州, slug: lanzhou, note: “黄河之都”，避暑之都，中国优秀旅游城市 }
+          - { name: 伊犁, slug: yili, note: 塞外江南 }
+          - { name: 阿勒泰, slug: aleitai, note: 中国雪都，中国冰雪旅游十佳城市 }
+          - { name: 延安, slug: yanan, note: 中国革命圣地，国内最热门的红色旅游城市 }
+          - { name: 张掖, slug: zhangye, note: “彩虹张掖·七彩丹霞”，中国优秀旅游城市 }
+          - { name: 银川, slug: yinchuan, note: 塞上江南，国家历史文化名城，中国优秀旅游城市 }
+      - slug: xinanshidalvyouche
+        title: 西南十大旅游城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 成都, slug: chengdu, note: 中国最佳旅游城市，国家历史文化名城 }
+          - { name: 昆明, slug: kunming, note: “春城”，国内避暑旅游热门目的地，国内避寒旅游热门城市 }
+          - { name: 重庆, slug: chongqing, note: 8D魔幻之都，网红城市，中国优秀旅游城市 }
+          - { name: 丽江, slug: lijiang, note: 世界上最令人向往的旅游目的地 }
+          - { name: 拉萨, slug: lasa, note: 中国十大旅游目的地必去城市 }
+          - { name: 迪庆香格里拉, slug: diqingxianggelila, note: 中国十大旅游目的地必去城市 }
+          - { name: 贵阳, slug: guiyang, note: 中国优秀旅游城市，中国避暑之都 }
+          - { name: 大理, slug: dali, note: 中国优秀旅游城市，令人陶醉的“风花雪月”地 }
+          - { name: 西双版纳, slug: xishuangbanna, note: 全球12个最热的旅游目的地，中国避寒旅游城市 }
+          - { name: 阿坝州, slug: abazhou, note: 世界最佳生态旅游目的地 }
+      - slug: xibushidalvyouchen
+        title: 西部十大旅游城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 成都, slug: chengdu, note: 中国最佳旅游城市，国家历史文化名城 }
+          - { name: 昆明, slug: kunming, note: “春城”，国内避暑旅游热门目的地，国内避寒旅游热门城市 }
+          - { name: 重庆, slug: chongqing, note: 8D魔幻之都，网红城市，中国优秀旅游城市 }
+          - { name: 西安, slug: xian, note: 中国十大旅游目的地必去城市 }
+          - { name: 丽江, slug: lijiang, note: 世界上最令人向往的旅游目的地 }
+          - { name: 酒泉市·敦煌, slug: jiuquanshidunhuang, note: 中国最具国际影响力旅游目的地 }
+          - { name: 桂林, slug: guilin, note: 国家历史文化名城，世界著名风景游览城市 }
+          - { name: 拉萨, slug: lasa, note: 中国十大旅游目的地必去城市 }
+          - { name: 迪庆香格里拉, slug: diqingxianggelila, note: 中国十大旅游目的地必去城市 }
+          - { name: 贵阳, slug: guiyang, note: 中国优秀旅游城市，中国避暑之都 }
+
+  # ============ 待审 ============
+  - key: pending
+    title: 待审
+    kicker: PENDING
+    desc: 这一组没有权威标准、也没有可靠量化数据，名次参考公开榜单整理，属观点性排名，未经量化核验。
+    ranks:
+      - slug: qianduhushengzuiga
+        title: 中国“迁都”呼声最高的10个城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 上海, slug: shanghai, note: 国际经济/金融中心 基础设施极其完善 }
+          - { name: 成都, slug: chengdu, note: 天府粮仓 西南地区中心城市 }
+          - { name: 重庆, slug: chongqing, note: 曾为战时陪都 长江上游经济中心 }
+          - { name: 西安, slug: xian, note: 十三朝古都 位于中国版图几何中心 }
+          - { name: 武汉, slug: wuhan, note: 华中天元/九省通衢 长江中游核心 }
+          - { name: 汉中, slug: hanzhong, note: 秦巴粮仓 汉文化起源 }
+          - { name: 洛阳, slug: luoyang, note: 中国建都时间最长的城市之一 十三朝古都 }
+          - { name: 南京, slug: nanjing, note: 六朝古都 十朝都会 }
+          - { name: 襄阳, slug: xiangyang, note: 南北咽喉要塞 汉江流域中心 }
+          - { name: 南阳, slug: nanyang, note: 中原豫西南腹地 国土几何中心 }
+      - slug: shidayimeichengshi
+        title: 中国十大医美城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 北京, slug: beijing, note: 全国医美人才高地 公立整形顶尖科室集中 }
+          - { name: 成都, slug: chengdu, note: 西部医美之都 医美消费渗透率高 }
+          - { name: 深圳, slug: shenzhen, note: 大湾区医美消费高地 年轻客群基数庞大 }
+          - { name: 广州, slug: guangzhou, note: 华南医美中心 三甲整形科室底蕴深厚 }
+          - { name: 上海, slug: shanghai, note: 全国高端医美标杆 九院等公立整形顶尖 }
+          - { name: 长沙, slug: changsha, note: 华中医美重镇 湘雅系公立整形支撑 }
+          - { name: 杭州, slug: hangzhou, note: 长三角医美特色城市 三甲医美科室配套完善 }
+          - { name: 青岛, slug: qingdao, note: 北方医美滨海标杆 中韩医美交流窗口 }
+          - { name: 郑州, slug: zhengzhou, note: 中原医美中心 郑大一附院等公立整形实力强劲 }
+          - { name: 重庆, slug: chongqing, note: 西南医美重镇 本土大型医美集团较多 }
+      - slug: shidayalizuidadech
+        title: 中国十大压力最大的城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 深圳, slug: shenzhen, note: "" }
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 中国香港, slug: zhongguoxianggang, note: "" }
+          - { name: 广州, slug: guangzhou, note: "" }
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 杭州, slug: hangzhou, note: "" }
+          - { name: 厦门, slug: xiamen, note: "" }
+          - { name: 重庆, slug: chongqing, note: "" }
+          - { name: 天津, slug: tianjin, note: "" }
+          - { name: 南京, slug: nanjing, note: "" }
+      - slug: shidazuishishangch
+        title: 中国十大最时尚城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 深圳, slug: shenzhen, note: "" }
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 香港, slug: xianggang, note: "" }
+          - { name: 成都, slug: chengdu, note: "" }
+          - { name: 广州, slug: guangzhou, note: "" }
+          - { name: 厦门, slug: xiamen, note: "" }
+          - { name: 西安, slug: xian, note: "" }
+          - { name: 青岛, slug: qingdao, note: "" }
+          - { name: 杭州, slug: hangzhou, note: "" }
+      - slug: shidalangmanchengs
+        title: 中国十大浪漫城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 三亚, slug: sanya, note: 中国唯一热带海滨城市 被誉为“东方夏威夷” }
+          - { name: 大理, slug: dali, note: 典型的“诗与远方”式浪漫 “风花雪月”的浪漫代名词 }
+          - { name: 大连, slug: dalian, note: 有“北方明珠/浪漫之都”称号 东北浪漫标杆 }
+          - { name: 重庆, slug: chongqing, note: 魔幻山城夜景迷人 璀璨梦幻的浪漫地 }
+          - { name: 成都, slug: chengdu, note: 治愈系浪漫的代表 “安逸”生活哲学中的烟火温情城市 }
+          - { name: 杭州, slug: hangzhou, note: 古典诗意的江南城市 素有“人间天堂”的美誉 }
+          - { name: 厦门, slug: xiamen, note: 文艺清新的海上花园 情侣打卡首选文艺浪漫城 }
+          - { name: 昆明, slug: kunming, note: 享“春城”之美誉 四季如春 }
+          - { name: 长沙, slug: changsha, note: 青春活力的烟火浪漫 最易产生浪漫邂逅的城市 }
+          - { name: 哈尔滨, slug: haerbin, note: 素有“东方小巴黎”的美誉 冬日浪漫天花板 }
+      - slug: danshennvxingzuidu
+        title: 中国单身女性最多的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 重庆, slug: chongqing, note: "" }
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 广州, slug: guangzhou, note: "" }
+          - { name: 成都, slug: chengdu, note: "" }
+          - { name: 深圳, slug: shenzhen, note: "" }
+          - { name: 天津, slug: tianjin, note: "" }
+          - { name: 东莞, slug: dongguan, note: "" }
+          - { name: 郑州, slug: zhengzhou, note: "" }
+          - { name: 武汉, slug: wuhan, note: "" }
+      - slug: danshennanxingzuid
+        title: 中国单身男性最多的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 重庆, slug: chongqing, note: "" }
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 广州, slug: guangzhou, note: "" }
+          - { name: 深圳, slug: shenzhen, note: "" }
+          - { name: 成都, slug: chengdu, note: "" }
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 东莞, slug: dongguan, note: "" }
+          - { name: 武汉, slug: wuhan, note: "" }
+          - { name: 佛山, slug: foshan, note: "" }
+          - { name: 杭州, slug: hangzhou, note: "" }
+      - slug: ditiekuisunzuiyanz
+        title: 中国地铁亏损最严重的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 深圳, slug: shenzhen, note: "" }
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 杭州, slug: hangzhou, note: "" }
+          - { name: 重庆, slug: chongqing, note: "" }
+          - { name: 郑州, slug: zhengzhou, note: "" }
+          - { name: 青岛, slug: qingdao, note: "" }
+          - { name: 宁波, slug: ningbo, note: "" }
+          - { name: 成都, slug: chengdu, note: "" }
+          - { name: 南京, slug: nanjing, note: "" }
+          - { name: 西安, slug: xian, note: "" }
+      - slug: cailizuigaodeshida
+        title: 中国彩礼最高的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 福建莆田, slug: fujianputian, note: "" }
+          - { name: 江西鹰潭, slug: jiangxiyingtan, note: "" }
+          - { name: 江西上饶, slug: jiangxishangrao, note: "" }
+          - { name: 福建福州, slug: fujianfuzhou, note: "" }
+          - { name: 浙江温州, slug: zhejiangwenzhou, note: "" }
+          - { name: 江苏南通, slug: jiangsunantong, note: "" }
+          - { name: 天津, slug: tianjin, note: "" }
+          - { name: 河北沧州, slug: hebeicangzhou, note: "" }
+          - { name: 山东青岛, slug: shandongqingdao, note: "" }
+          - { name: 山东菏泽, slug: shandongheze, note: "" }
+      - slug: meinvzuiduodeshida
+        title: 中国美女最多的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 成都, slug: chengdu, note: 时尚精致 皮肤细腻 }
+          - { name: 重庆, slug: chongqing, note: 热情火辣 皮肤白皙 }
+          - { name: 乌鲁木齐, slug: wulumuqi, note: 异域风情 五官深邃 }
+          - { name: 哈尔滨, slug: haerbin, note: 高挑明艳 五官立体 }
+          - { name: 长沙, slug: changsha, note: 明艳果敢 肤色红润 }
+          - { name: 杭州, slug: hangzhou, note: 温婉灵秀 气质古典 }
+          - { name: 苏州, slug: suzhou, note: 古典柔美 吴侬软语 }
+          - { name: 南京, slug: nanjing, note: 知性优雅 肤白清秀 }
+          - { name: 上海, slug: shanghai, note: 精致摩登 优雅时尚 }
+          - { name: 大连, slug: dalian, note: 高挑时尚 自信阳光 }
+      - slug: saoraodianhuazuidu
+        title: 中国骚扰电话最多的十大城市
+        kind: "pending"
+        size: 10
+        lede: 名次参考公开榜单整理，属观点性排名，本站未做量化核验。
+        note: 原榜共 10 条。
+        items:
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 广州, slug: guangzhou, note: "" }
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 深圳, slug: shenzhen, note: "" }
+          - { name: 成都, slug: chengdu, note: "" }
+          - { name: 重庆, slug: chongqing, note: "" }
+          - { name: 杭州, slug: hangzhou, note: "" }
+          - { name: 西安, slug: xian, note: "" }
+          - { name: 郑州, slug: zhengzhou, note: "" }
+          - { name: 武汉, slug: wuhan, note: "" }

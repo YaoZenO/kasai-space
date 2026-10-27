@@ -52,9 +52,14 @@ const R = buildCityRanks({ cities: cities, cityrank: cityrank });
 
 // 收集所有 computed 榜，供多处复用
 const computedRanks = [];
+const pendingRanks = [];
+const allRanks = [];
 for (const g of cityrank.groups || []) {
   for (const r of g.ranks || []) {
-    if (r && r.kind === 'computed') computedRanks.push(r);
+    if (!r || !r.slug) continue;
+    allRanks.push(r);
+    if (r.kind === 'computed') computedRanks.push(r);
+    if (!r.kind || r.kind === 'pending') pendingRanks.push(r);
   }
 }
 
@@ -189,28 +194,45 @@ if (!hasPublic) {
     }
   });
 
-  ok('S5 每个有数据的城市都有档案页（不只生成上榜城市）', () => {
-    const withData = (cities.cities || []).filter((c) => c.metrics && Object.keys(c.metrics).length);
-    for (const c of withData) {
+  ok('S5 城市大类：/city/ 索引页存在，且每座建档城市都有档案页', () => {
+    const idx = path.join(PUBLIC, 'city', 'index.html');
+    assert.ok(fs.existsSync(idx), '/city/ 索引页缺失（城市大类的入口）');
+    assert.ok(fs.statSync(idx).size > 5000, '/city/ 索引页字节数异常');
+    const idxHtml = fs.readFileSync(idx, 'utf8');
+    assert.ok(idxHtml.indexOf('城市档案') !== -1, '/city/ 索引页缺少标题');
+    for (const c of cities.cities || []) {
       const p = path.join(PUBLIC, 'city', c.slug, 'index.html');
       assert.ok(fs.existsSync(p), '城市页缺失：' + c.slug);
       assert.ok(fs.statSync(p).size > 2000, '城市页字节数异常：' + c.slug);
     }
   });
 
-  ok('S6 榜单页里的城市链接全部指向真实存在的城市页（无死链）', () => {
+  ok('S6 全部榜单页里的城市链接都指向真实存在的城市页（无死链）', () => {
     const re = /href="(\/city\/[a-z0-9-]+\/)"/g;
     let checked = 0;
-    for (const def of computedRanks) {
-      const html = fs.readFileSync(path.join(PUBLIC, 'cityrank', def.slug, 'index.html'), 'utf8');
+    for (const def of allRanks) {
+      const p = path.join(PUBLIC, 'cityrank', def.slug, 'index.html');
+      if (!fs.existsSync(p)) continue;
+      const html = fs.readFileSync(p, 'utf8');
       let m;
       while ((m = re.exec(html)) !== null) {
         const target = path.join(PUBLIC, m[1], 'index.html');
-        assert.ok(fs.existsSync(target), '死链：' + m[1]);
+        assert.ok(fs.existsSync(target), '死链：' + m[1] + '（来自榜 ' + def.slug + '）');
         checked += 1;
       }
     }
-    assert.ok(checked > 0, '没解析到任何城市链接——断言空转');
+    assert.ok(checked > 100, '解析到的城市链接过少（' + checked + '）——断言空转');
+  });
+
+  ok('S7 pending 榜必须显眼标注「观点性排名 · 未量化核验」（C-8 红线）', () => {
+    assert.ok(pendingRanks.length > 0, '没有 pending 榜，本断言会空转');
+    for (const def of pendingRanks) {
+      const p = path.join(PUBLIC, 'cityrank', def.slug, 'index.html');
+      if (!fs.existsSync(p)) continue;
+      const html = fs.readFileSync(p, 'utf8');
+      assert.ok(html.indexOf('观点性排名') !== -1, 'pending 榜未标注观点性排名：' + def.slug);
+      assert.ok(html.indexOf('未做量化核验') !== -1, 'pending 榜未说明未量化核验：' + def.slug);
+    }
   });
 
   ok('S7 computed 榜必须在页面公开评分口径（指标 + 权重 + 公式说明）', () => {

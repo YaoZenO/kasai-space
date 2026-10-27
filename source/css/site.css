@@ -4380,6 +4380,51 @@ html:not(.js) .fs-years-toggle { display: none; }
   color: var(--text-color);
 }
 
+/* 城市大类索引页：城市名单（行式，组顶 2px 全墨线 + 行底 hairline，§4.3） */
+.cr-citylist {
+  margin: 1.4rem 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 2px solid var(--line-strong);
+}
+
+.cr-citylist-item a {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--line-color);
+}
+
+.cr-citylist-item a:hover { color: var(--accent); }
+
+.cr-citylist-name {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.cr-citylist-item a:hover .cr-citylist-name { color: var(--accent); }
+
+.cr-citylist-meta {
+  flex: 1 1 auto;
+  font-size: 0.85rem;
+  color: var(--sec-text-color);
+}
+
+.cr-citylist-count {
+  flex: 0 0 auto;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--sec-text-color);
+}
+
+@media (max-width: 767px) {
+  .cr-citylist-item a { flex-wrap: wrap; gap: 0.2rem 0.6rem; }
+  .cr-citylist-meta { flex: 1 0 100%; order: 3; }
+}
+
 .cr-empty {
   margin: 1.2rem 0 0;
   font-size: 0.95rem;

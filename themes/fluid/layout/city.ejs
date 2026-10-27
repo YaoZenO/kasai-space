@@ -50,13 +50,16 @@ for (var si = 0; si < CR.citySources.length; si += 1) { srcMap[CR.citySources[si
       </nav>
       <p class="page-head-kicker">CITY</p>
       <h1 class="page-head-title"><%= c.name %></h1>
-      <p class="archive-total"><%= c.province || '' %> · <%= c.level || '' %> · 数据年份 <%= CR.cityMeta.dataYear || '2025' %></p>
+      <p class="archive-total"><% if (c.province) { %><%= c.province %><% } %><% if (c.province && c.level) { %> · <% } %><% if (c.level) { %><%= c.level %><% } %><% if (!c.province && !c.level) { %>行政归属待补<% } %> · 数据年份 <%= CR.cityMeta.dataYear || '2025' %></p>
     </header>
 
     <section class="cr-profile">
       <h2 class="cr-sec-title">城市档案</h2>
+      <% var keys = Object.keys(c.metrics || {}); %>
+      <% if (!keys.length) { %>
+      <p class="cr-empty">这座城市的统计字段还没有采集到权威来源，暂不列出——不填估算值。</p>
+      <% } else { %>
       <dl class="cr-profile-list">
-        <% var keys = Object.keys(c.metrics || {}); %>
         <% for (var ki = 0; ki < keys.length; ki += 1) { var fk = keys[ki]; var mv = c.metrics[fk]; %>
         <div class="cr-profile-item">
           <dt><%= FIELD_LABEL[fk] || fk %></dt>
@@ -71,6 +74,7 @@ for (var si = 0; si < CR.citySources.length; si += 1) { srcMap[CR.citySources[si
         </div>
         <% } %>
       </dl>
+      <% } %>
       <p class="cr-profile-note">以上只列已核验过的字段，未列出的指标表示尚未采集到权威来源，不做估算填充。</p>
     </section>
 
