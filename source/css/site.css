@@ -4237,6 +4237,307 @@ html:not(.js) .fs-years-toggle { display: none; }
   .fs-related-list { grid-template-columns: minmax(0, 1fr); }
 }
 
+/* ===== 4.16 城市排行榜页（/cityrank/、/cityrank/<slug>/、/city/<slug>/，2026-10-27 新增） =====
+   作用域变量取自 §4.12 单源，本段不重定义任何色值（E-052 同型）；
+   层级语言沿用 §4.3（组顶 2px 全墨线 + 行底 hairline），不靠底色分层；
+   版式基准对齐 §4.14 .lb-*（13rem 左栏 / sticky 5.5rem）与 §4.15 .fs-nav-strip。
+   禁用加法 calc（E-064：构建 minifier 压掉加号空格会静默丢声明）。 */
+
+/* 排名表：组顶 2px 全墨线，行底 hairline；名次与数字走等宽轨 */
+.cr-table {
+  width: 100%;
+  margin: 1.4rem 0 0;
+  border-collapse: collapse;
+  border-top: 2px solid var(--line-strong);
+}
+
+.cr-caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.cr-table th,
+.cr-table td {
+  padding: 0.7rem 0.5rem;
+  text-align: left;
+  vertical-align: baseline;
+  border-bottom: 1px solid var(--line-color);
+}
+
+.cr-th-rank,
+.cr-th-city,
+.cr-th-score,
+.cr-th-val {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--sec-text-color);
+}
+
+.cr-th-score,
+.cr-table .cr-score { text-align: right; }
+
+.cr-row-top .cr-rank { color: var(--text-color); font-weight: 700; }
+
+.cr-rank {
+  width: 3.2rem;
+  font-family: var(--font-mono);
+  font-size: 1.7rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--sec-text-color);
+}
+
+.cr-city a {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.cr-city a:hover { color: var(--accent); }
+
+.cr-score {
+  width: 5.5rem;
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.cr-val,
+.cr-reason {
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--sec-text-color);
+}
+
+/* 说明列只在窄屏出现（宽屏放在城市名下方同一格） */
+.cr-city .cr-reason { display: block; margin-top: 0.15rem; }
+
+/* 评分口径：本板块的辨识度区块，computed 榜必有 */
+.cr-method {
+  margin-top: 2.6rem;
+  border-top: 2px solid var(--line-strong);
+  padding-top: 1.1rem;
+}
+
+.cr-method-title {
+  margin: 0 0 0.8rem;
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--text-color);
+}
+
+.cr-method-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.cr-method-table th,
+.cr-method-table td {
+  padding: 0.45rem 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid var(--line-color);
+}
+
+.cr-method-table th {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--sec-text-color);
+}
+
+.cr-method-table td:nth-child(2),
+.cr-method-table td:nth-child(3) { font-family: var(--font-mono); }
+
+.cr-method-note {
+  margin: 0.9rem 0 0;
+  max-width: 46rem;
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: var(--sec-text-color);
+}
+
+/* 观点性排名警示（pending 榜） */
+.cr-warn {
+  margin: 1rem 0 0;
+  padding: 0.8rem 1rem;
+  border-left: 2px solid var(--accent);
+  background-color: var(--cream);
+}
+
+.cr-warn p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--text-color);
+}
+
+.cr-empty {
+  margin: 1.2rem 0 0;
+  font-size: 0.95rem;
+  color: var(--sec-text-color);
+}
+
+/* 城市档案页 */
+.cr-sec-title {
+  margin: 2.2rem 0 0.9rem;
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--text-color);
+}
+
+.cr-profile-list {
+  margin: 0;
+  padding: 0;
+  border-top: 2px solid var(--line-strong);
+}
+
+.cr-profile-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--line-color);
+}
+
+.cr-profile-item dt {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.cr-profile-item dd {
+  margin: 0;
+  text-align: right;
+}
+
+.cr-pval {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.cr-punit {
+  margin-left: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--sec-text-color);
+}
+
+.cr-pmeta {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.76rem;
+  line-height: 1.6;
+  color: var(--sec-text-color);
+}
+
+.cr-pending {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  color: var(--sec-text-color);
+}
+
+.cr-profile-note {
+  margin: 0.9rem 0 0;
+  max-width: 46rem;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: var(--sec-text-color);
+}
+
+/* 上榜记录 */
+.cr-mention-group { margin-top: 1.1rem; }
+
+.cr-mention-group-title {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--sec-text-color);
+}
+
+.cr-mention-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 2px solid var(--line-strong);
+}
+
+.cr-mention-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--line-color);
+}
+
+.cr-mention-list a {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.cr-mention-list a:hover { color: var(--accent); }
+
+.cr-mention-rank {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--sec-text-color);
+}
+
+/* ===== 4.16 断点：移动端真正的重排，不是等比缩小 ===== */
+
+/* 平板：说明列收窄 */
+@media (max-width: 1023px) {
+  .cr-val,
+  .cr-reason { font-size: 0.88rem; }
+  .cr-rank { font-size: 1.45rem; }
+}
+
+/* 手机：排名表由表格改为「名次 + 城市 + 指数」一行 + 说明折到第二行。
+   不加 overflow-x（禁止横向滚动），中文用 break-word 不用 anywhere（E-043）。 */
+@media (max-width: 767px) {
+  .cr-table,
+  .cr-table tbody,
+  .cr-table tr,
+  .cr-table td,
+  .cr-table th { display: block; }
+
+  .cr-table thead { display: none; }
+
+  .cr-row {
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--line-color);
+  }
+
+  .cr-rank { width: auto; font-size: 1.35rem; }
+
+  .cr-score { width: auto; text-align: right; font-size: 1.1rem; }
+
+  .cr-val { grid-column: 2 / -1; }
+
+  .cr-city .cr-reason { display: none; }
+
+  .cr-profile-item { flex-direction: column; align-items: flex-start; gap: 0.2rem; }
+  .cr-profile-item dd { text-align: left; }
+}
+
 /* ===== 5. 第三方组件纸面化（site.css 在 main.css 之后加载，覆盖即生效） ===== */
 
 /* 5.1 nprogress 顶部进度条（VD-2）：主题 L124 的 color 配置是死配置，

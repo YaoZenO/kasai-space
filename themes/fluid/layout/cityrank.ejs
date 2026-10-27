@@ -1,0 +1,94 @@
+<%
+// 城市排行榜索引页（/cityrank/）：聚合本站城市榜单的入口页。
+// 排版沿用资料库页（/library/）的「左导读栏 + 右专题卡」结构，视觉走本站纸面体系。
+// 数据：source/_data/cityrank.yml（榜单定义）+ source/_data/cities.yml（城市数据）
+// 计算：themes/fluid/scripts/helpers/cityrank-data.js（名次现算，不存名次）
+// 样式：site.css §4.16（.cr-* 规则）
+page.layout = 'cityrank'
+page.hide_banner = true
+
+var CR = buildCityRanks(site.data)
+%>
+
+<div class="paper-page cal-page cr-page">
+  <div class="home-wrap">
+    <% if (CR.error) { %>
+    <header class="page-head">
+      <p class="page-head-kicker">CITY RANK</p>
+      <h1 class="page-head-title">城市排行榜</h1>
+    </header>
+    <p class="post-desc">城市榜的数据没有就位：<%= CR.error %>。请在 <code>source/_data/cityrank.yml</code> 与 <code>source/_data/cities.yml</code> 里补齐后重新构建。</p>
+    <% } else { %>
+
+    <header class="page-head">
+      <nav class="cal-crumb" aria-label="面包屑">
+        <a href="<%= url_for('/library/') %>">资料库</a><span aria-hidden="true">/</span><span class="cal-crumb-now">城市排行榜</span>
+      </nav>
+      <p class="page-head-kicker">CITY RANK</p>
+      <h1 class="page-head-title">城市排行榜</h1>
+      <p class="cal-lede"><%= CR.meta.intro || '' %></p>
+      <p class="archive-total">更新于 <%= fmtItemDate(CR.meta.updated) %> · <%= CR.rankCount %> 个榜单 · <%= CR.cityCount %> 座城市 · 数据年份 <%= CR.cityMeta.dataYear || '2025' %></p>
+    </header>
+
+    <div class="lb-layout">
+      <aside class="lb-guide" aria-label="主题导航">
+        <div class="lb-guide-label"><%= CR.meta.guideLabel || '主题导航' %></div>
+        <ul class="lb-guide-list">
+          <% for (var gi = 0; gi < CR.groups.length; gi += 1) { var gt = CR.groups[gi] %>
+          <li>
+            <a href="#group-<%= gt.key %>">
+              <span class="lb-guide-title"><%= gt.title %></span>
+              <span class="lb-guide-count"><%= gt.ranks.length %></span>
+            </a>
+          </li>
+          <% } %>
+        </ul>
+        <% if (CR.meta.guideNote) { %>
+        <p class="lb-guide-note"><%= CR.meta.guideNote %></p>
+        <% } %>
+      </aside>
+
+      <div class="lb-main">
+        <% for (var ti = 0; ti < CR.groups.length; ti += 1) { var tp = CR.groups[ti] %>
+        <section class="lb-topic" id="group-<%= tp.key %>">
+          <div class="col-head">
+            <div>
+              <p class="page-head-kicker"><%= tp.kicker || '' %></p>
+              <h2 class="col-title"><%= tp.title %></h2>
+            </div>
+            <span class="col-count">/ <%= tp.ranks.length %></span>
+          </div>
+          <p class="lb-topic-desc"><%= tp.desc || '' %></p>
+
+          <% if (!tp.ranks.length) { %>
+          <p class="cr-empty">这一组还没有榜单。</p>
+          <% } else { %>
+          <ul class="lb-entries">
+            <% for (var ri = 0; ri < tp.ranks.length; ri += 1) { var rk = tp.ranks[ri] %>
+            <li class="lb-entry">
+              <a href="<%= url_for('/cityrank/' + rk.slug + '/') %>">
+                <span class="lb-entry-name"><%= rk.title %></span>
+                <span class="lb-entry-note">
+                  <% if (rk.kind === 'computed' && rk.items.length) { %>
+                    <% for (var pi = 0; pi < Math.min(3, rk.items.length); pi += 1) { var pit = rk.items[pi] %><%= pi > 0 ? ' · ' : '' %><%= pit.rank %> <%= pit.name %><% } %>
+                  <% } else { %>
+                    <%= rk.lede || '' %>
+                  <% } %>
+                </span>
+              </a>
+            </li>
+            <% } %>
+          </ul>
+          <% } %>
+        </section>
+        <% } %>
+
+        <div class="cal-after">
+          <p class="cal-note">每个榜单的指标与权重写在榜页上，名次由数据算出，可以自己复算；暂无权威标准的榜单单独列在「待审」一组并注明为观点性排名。</p>
+        </div>
+      </div>
+    </div>
+
+    <% } %>
+  </div>
+</div>

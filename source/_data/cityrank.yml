@@ -1,0 +1,51 @@
+# 城市排行榜定义 —— /cityrank/ 的唯一数据源
+#
+# 纪律：
+#   1. 中文长文案一律写单行（E-042）；
+#   2. kind: computed 的榜单**禁止手写名次**——名次由 helper 从 cities.yml 现算
+#      （PRD §5.1 P0 铁律：名次必须是计算结果，不得先定名次再配分数）；
+#   3. kind 三值：computed（可量化，给 metrics）/ fact（事实清单，给 items）
+#      / pending（无权威标准且无法量化，沿用公开榜单且页面必须标注「观点性排名」）；
+#   4. metrics.weight 之和无需等于 1——helper 会按权重和归一；dir 取 up（越大越好）
+#      或 down（越小越好，如 PM2.5、房价）；
+#   5. 缺任一 metrics 字段的城市不进候选池，不按 0 分处理（PRD §5.2）。
+
+meta:
+  updated: "2026-10-27"
+  title: "城市排行榜"
+  kicker: "CITY RANK"
+  intro: "本站整理的城市榜单。每个榜的名次由公开的统计数据算出——指标与权重写在榜页上，可以自己复算；暂无权威标准、也无可靠量化数据的榜单独列在「待审」一组并注明。"
+  guideLabel: "主题导航"
+  guideNote: "数据持续采集中，首批以已核验的经济与人口数据为主。"
+
+groups:
+  # ============ 综合与经济 ============
+  - key: "economy"
+    title: "综合与经济"
+    kicker: "ECONOMY"
+    desc: "以经济总量、人均产出与人口规模等可查证的统计指标计算。"
+    ranks:
+      - slug: "jingji-qiangshi"
+        title: "中国十大经济强市"
+        kind: "computed"
+        size: 10
+        lede: "以 2025 年地区生产总值排序，反映城市经济总量。"
+        metrics:
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+        note: "候选范围为数据集中 2025 年 GDP 已核验的城市。人均 GDP 与财政收入待数据补齐后纳入加权。"
+
+      - slug: "renkou-dashi"
+        title: "中国人口大市"
+        kind: "computed"
+        size: 10
+        lede: "以 2025 年末常住人口排序，反映城市人口规模。"
+        metrics:
+          - { field: "pop", weight: 1.0, dir: "up", label: "常住人口", unit: "万人" }
+        note: "仅统计已见统计公报的常住人口数据，其余城市待补后再纳入。"
+
+  # ============ 待审（无权威标准，沿用公开榜单） ============
+  - key: "pending"
+    title: "待审"
+    kicker: "PENDING"
+    desc: "这一组的榜单没有权威标准，也没有可靠的量化数据，名次参考公开榜单整理，属观点性排名，未经量化核验，逐条审定后决定去留。"
+    ranks: []

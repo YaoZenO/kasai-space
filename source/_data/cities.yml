@@ -1,0 +1,252 @@
+# 城市基础数据集 —— 城市排行榜板块的唯一数据源
+#
+# 纪律（与 holidays.yml / zodiac.yml / library.yml 相同，另见 CITY-RANK-CONTENT §8）：
+#   1. 中文长文案一律写单行（E-042：折叠标量折行会给中文段落插进空格）；
+#   2. 每个数值字段必须写成 { v, unit, asOf, source } 四元组，缺 unit / asOf / source 任一即不合格；
+#   3. 查不到权威来源的字段**不写该键**（页面渲染为 [待补]），严禁填估算值、邻城值、"约"值；
+#   4. source 写 sources[] 里的 key，不在这里写长来源名；
+#   5. 台湾 / 香港 / 澳门表述统一为「中国台湾地区 / 中国香港 / 中国澳门」，作为省级行政区列出。
+#
+# 数据状态（2026-10-27 首批）：GDP 2025 已交叉核验（人民网 / 各地统计公报与公开排行站一致）；
+# 常住人口仅录入已见统计公报的十强城；其余字段待采集后补。
+
+meta:
+  updated: "2026-10-27"
+  dataYear: "2025"
+  note: "本站城市数据以政府统计口径为准，批量数据站只作交叉核对，不作唯一来源。"
+
+sources:
+  - key: "gdp2025"
+    name: "各地 2025 年国民经济和社会发展统计公报（经公开 GDP 排行数据交叉核对）"
+    asOf: "2025"
+  - key: "pop2025"
+    name: "各地 2025 年国民经济和社会发展统计公报 / 2025 年全国人口十强城市统计"
+    asOf: "2025"
+
+cities:
+  - name: "上海"
+    slug: "shanghai"
+    province: "上海市"
+    level: "直辖市"
+    metrics:
+      gdp: { v: 56708.71, unit: "亿元", asOf: "2025", source: "gdp2025" }
+      pop: { v: 2485.41, unit: "万人", asOf: "2025", source: "pop2025" }
+
+  - name: "北京"
+    slug: "beijing"
+    province: "北京市"
+    level: "直辖市"
+    metrics:
+      gdp: { v: 52073.4, unit: "亿元", asOf: "2025", source: "gdp2025" }
+      pop: { v: 2180, unit: "万人", asOf: "2025", source: "pop2025" }
+
+  - name: "深圳"
+    slug: "shenzhen"
+    province: "广东省"
+    level: "计划单列市"
+    metrics:
+      gdp: { v: 38731.8, unit: "亿元", asOf: "2025", source: "gdp2025" }
+      pop: { v: 1824.85, unit: "万人", asOf: "2025", source: "pop2025" }
+
+  - name: "重庆"
+    slug: "chongqing"
+    province: "重庆市"
+    level: "直辖市"
+    metrics:
+      gdp: { v: 33757.93, unit: "亿元", asOf: "2025", source: "gdp2025" }
+      pop: { v: 3187.26, unit: "万人", asOf: "2025", source: "pop2025" }
+
+  - name: "广州"
+    slug: "guangzhou"
+    province: "广东省"
+    level: "省会"
+    metrics:
+      gdp: { v: 32039.46, unit: "亿元", asOf: "2025", source: "gdp2025" }
+      pop: { v: 1910.1, unit: "万人", asOf: "2025", source: "pop2025" }
+
+  - name: "苏州"
+    slug: "suzhou"
+    province: "江苏省"
+    level: "地级市"
+    metrics:
+      gdp: { v: 27695.09, unit: "亿元", asOf: "2025", source: "gdp2025" }
+
+  - name: "成都"
+    slug: "chengdu"
+    province: "四川省"
+    level: "省会"
+    metrics:
+      gdp: { v: 24763.61, unit: "亿元", asOf: "2025", source: "gdp2025" }
+      pop: { v: 2153.5, unit: "万人", asOf: "2025", source: "pop2025" }
+
+  - name: "杭州"
+    slug: "hangzhou"
+    province: "浙江省"
+    level: "省会"
+    metrics:
+      gdp: { v: 23010.9, unit: "亿元", asOf: "2025", source: "gdp2025" }
+
+  - name: "武汉"
+    slug: "wuhan"
+    province: "湖北省"
+    level: "省会"
+    metrics:
+      gdp: { v: 22147.35, unit: "亿元", asOf: "2025", source: "gdp2025" }
+      pop: { v: 1386.19, unit: "万人", asOf: "2025", source: "pop2025" }
+
+  - name: "南京"
+    slug: "nanjing"
+    province: "江苏省"
+    level: "省会"
+    metrics:
+      gdp: { v: 19428.78, unit: "亿元", asOf: "2025", source: "gdp2025" }
+
+  - name: "宁波"
+    slug: "ningbo"
+    province: "浙江省"
+    level: "计划单列市"
+    metrics:
+      gdp: { v: 18715.68, unit: "亿元", asOf: "2025", source: "gdp2025" }
+
+  - name: "天津"
+    slug: "tianjin"
+    province: "天津市"
+    level: "直辖市"
+    metrics:
+      gdp: { v: 18539.82, unit: "亿元", asOf: "2025", source: "gdp2025" }
+      pop: { v: 1363, unit: "万人", asOf: "2025", source: "pop2025" }
+
+  - name: "青岛"
+    slug: "qingdao"
+    province: "山东省"
+    level: "计划单列市"
+    metrics:
+      gdp: { v: 17560.67, unit: "亿元", asOf: "2025", source: "gdp2025" }
+
+  - name: "无锡"
+    slug: "wuxi"
+    province: "江苏省"
+    level: "地级市"
+    metrics:
+      gdp: { v: 16773.94, unit: "亿元", asOf: "2025", source: "gdp2025" }
+
+  - name: "长沙"
+    slug: "changsha"
+    province: "湖南省"
+    level: "省会"
+    metrics:
+      gdp: { v: 15737.82, unit: "亿元", asOf: "2025", source: "gdp2025" }
+
+  - name: "郑州"
+    slug: "zhengzhou"
+    province: "河南省"
+    level: "省会"
+    metrics:
+      gdp: { v: 15244.6, unit: "亿元", asOf: "2025", source: "gdp2025" }
+      pop: { v: 1313.8, unit: "万人", asOf: "2025", source: "pop2025" }
+
+  - name: "福州"
+    slug: "fuzhou"
+    province: "福建省"
+    level: "省会"
+    metrics:
+      gdp: { v: 15112.32, unit: "亿元", asOf: "2025", source: "gdp2025" }
+
+  - name: "济南"
+    slug: "jinan"
+    province: "山东省"
+    level: "省会"
+    metrics:
+      gdp: { v: 14210.09, unit: "亿元", asOf: "2025", source: "gdp2025" }
+
+  - name: "合肥"
+    slug: "hefei"
+    province: "安徽省"
+    level: "省会"
+    metrics:
+      gdp: { v: 14210, unit: "亿元", asOf: "2025", source: "gdp2025" }
+
+  - name: "西安"
+    slug: "xian"
+    province: "陕西省"
+    level: "省会"
+    metrics:
+      gdp: { v: 13902.67, unit: "亿元", asOf: "2025", source: "gdp2025" }
+      pop: { v: 1323.63, unit: "万人", asOf: "2025", source: "pop2025" }
+
+  - name: "泉州"
+    slug: "quanzhou"
+    province: "福建省"
+    level: "地级市"
+    metrics:
+      gdp: { v: 13778.34, unit: "亿元", asOf: "2025", source: "gdp2025" }
+
+  - name: "佛山"
+    slug: "foshan"
+    province: "广东省"
+    level: "地级市"
+    metrics:
+      gdp: { v: 13157.35, unit: "亿元", asOf: "2025", source: "gdp2025" }
+
+  - name: "南通"
+    slug: "nantong"
+    province: "江苏省"
+    level: "地级市"
+    metrics:
+      gdp: { v: 12801.5, unit: "亿元", asOf: "2025", source: "gdp2025" }
+
+  - name: "东莞"
+    slug: "dongguan"
+    province: "广东省"
+    level: "地级市"
+    metrics:
+      gdp: { v: 12760.2, unit: "亿元", asOf: "2025", source: "gdp2025" }
+
+  - name: "烟台"
+    slug: "yantai"
+    province: "山东省"
+    level: "地级市"
+    metrics:
+      gdp: { v: 11350.98, unit: "亿元", asOf: "2025", source: "gdp2025" }
+
+  - name: "常州"
+    slug: "changzhou"
+    province: "江苏省"
+    level: "地级市"
+    metrics:
+      gdp: { v: 11158.71, unit: "亿元", asOf: "2025", source: "gdp2025" }
+
+  - name: "唐山"
+    slug: "tangshan"
+    province: "河北省"
+    level: "地级市"
+    metrics:
+      gdp: { v: 10450.2, unit: "亿元", asOf: "2025", source: "gdp2025" }
+
+  - name: "温州"
+    slug: "wenzhou"
+    province: "浙江省"
+    level: "地级市"
+    metrics:
+      gdp: { v: 10213.92, unit: "亿元", asOf: "2025", source: "gdp2025" }
+
+  - name: "大连"
+    slug: "dalian"
+    province: "辽宁省"
+    level: "计划单列市"
+    metrics:
+      gdp: { v: 10002.1, unit: "亿元", asOf: "2025", source: "gdp2025" }
+
+  - name: "徐州"
+    slug: "xuzhou"
+    province: "江苏省"
+    level: "地级市"
+    metrics:
+      gdp: { v: 9957.22, unit: "亿元", asOf: "2025", source: "gdp2025" }
+
+  - name: "沈阳"
+    slug: "shenyang"
+    province: "辽宁省"
+    level: "省会"
+    metrics:
+      gdp: { v: 9100.33, unit: "亿元", asOf: "2025", source: "gdp2025" }

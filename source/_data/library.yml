@@ -68,3 +68,16 @@ topics:
       - { name: "重阳节", note: "九月初九 · 登高敬老 · 不放假", link: "/library/chongyang/" }
       - { name: "冬至", note: "12月下旬 · 饺子与汤圆 · 不放假", link: "/library/dongzhi/" }
       - { name: "腊八节", note: "腊月初八 · 腊八粥 · 不放假", link: "/library/laba/" }
+
+  # ============ 专题四：城市排行榜 ============
+  # 页面在 /cityrank/（数据驱动生成，不在 /library/ 下）；
+  # 名次由 cities.yml 的数据现算，yml 里不存名次（CITY-RANK-PRD §5.1 P0 铁律）。
+  - key: "cityrank"
+    title: "城市排行榜"
+    kicker: "CITY RANK"
+    desc: "城市榜单：每个榜的指标与权重写在榜页上，名次由公开统计数据算出，可以自己复算；暂无权威标准的榜单单独列在「待审」一组。"
+    link: "/cityrank/"
+    linkText: "进入城市排行榜"
+    entries:
+      - { name: "中国十大经济强市", note: "按 2025 年地区生产总值计算", link: "/cityrank/jingji-qiangshi/" }
+      - { name: "中国人口大市", note: "按 2025 年末常住人口计算", link: "/cityrank/renkou-dashi/" }

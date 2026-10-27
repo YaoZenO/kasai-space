@@ -119,11 +119,27 @@ function cleanGenerated() {
 // 少了这一步，跑完测试的 public/ 里会留着 /games/、/projects/e2e-rich/ 死链
 // （测试数据的 hexo.generate 是全量生成过的，只还原 yml 不够）。
 async function rebuildClean() {
+  let removed = false;
   try {
     fs.rmSync(PUBLIC, { recursive: true, force: true });
+    removed = true;
   } catch (e) {
-    // Windows 下若有进程的工作目录在 public/（如本地静态服务），整目录删除会被锁住
-    console.log('      （提示：public/ 目录被占用，未能整体删除——' + (e && e.message) + '；请停掉本地服务后重跑）');
+    // Windows 下若有进程的工作目录在 public/（如本地静态服务），整目录删除会被锁住；
+    // 某些环境还会对「单轮批量删除超过阈值」做拦截（E-066）——两者表现相同：删除失败。
+    console.log('      （提示：public/ 未能整体删除——' + (e && e.message) + '；已启用强制全量兜底）');
+  }
+  //
+  // 兜底（E-066）：public/ 删不掉时，Hexo 会拿 db.json 做增量判断。
+  // 而本测试刚把 yml 还原成原始内容，源 hash 回到「未修改」状态，
+  // Hexo 于是跳过生成——含测试条目的旧 index.html 原地不动，E-019 断言必定红。
+  // 删掉 db.json 就断掉了这条增量捷径：无论 public/ 在不在，都会全量重生成并覆盖旧产物。
+  // db.json 是构建数据库且已在 .gitignore 第 3 行，删除安全（下次构建会自行重建）。
+  if (!removed || fs.existsSync(PUBLIC)) {
+    try {
+      fs.rmSync(path.join(ROOT, 'db.json'), { force: true });
+    } catch (e2) {
+      console.log('      （提示：db.json 未能删除，重建可能仍是增量——' + (e2 && e2.message) + '）');
+    }
   }
   try {
     const fresh = new Hexo(ROOT, { silent: true });

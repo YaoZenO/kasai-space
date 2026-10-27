@@ -1,0 +1,102 @@
+<%
+// 城市档案页（/city/<slug>/）：数值档案 + 上榜记录 + 来源清单。
+// 数据：source/_data/cities.yml；计算：helpers/cityrank-data.js
+// 样式：site.css §4.16（.cr-* 规则）；视觉作用域复用 .cal-page
+// 约定：字段缺值显示 [待补]，严禁填估算值（CITY-RANK-CONTENT §4 / §7 C-1）。
+page.layout = 'city'
+page.hide_banner = true
+
+var CR = buildCityRanks(site.data)
+var c = CR.error ? null : findCity(CR, page.citySlug)
+var mentions = c ? cityMentions(CR, c.slug) : []
+
+var FIELD_LABEL = {
+  gdp: '地区生产总值', gdp_growth: 'GDP 增速', gdp_per_capita: '人均 GDP',
+  fiscal_rev: '一般公共预算收入', wage_avg: '在岗职工平均工资',
+  income_disp: '人均可支配收入', consume_exp: '人均消费支出', trade_total: '进出口总额',
+  pop: '常住人口', pop_urban_rate: '城镇化率', pop_net_inflow: '人口净流入',
+  area_km2: '行政面积', pop_density: '人口密度', builtup_km2: '建成区面积',
+  temp_jan: '1 月均温', temp_jul: '7 月均温', temp_year: '年均温',
+  precip: '年降水量', rain_days: '年降水日数', sun_hours: '年日照时数',
+  thunder_days: '雷暴日数', latitude: '纬度',
+  pm25: 'PM2.5 年均', air_good_ratio: '空气优良率',
+  green_rate: '建成区绿化覆盖率', forest_rate: '森林覆盖率', water_per_capita: '人均水资源',
+  hosp_3a: '三甲医院', beds_per_k: '千人床位', doctors_per_k: '千人医师',
+  universities: '本科高校', double_first_class: '双一流高校', patents: '专利授权',
+  scenic_5a: '5A 景区', scenic_4a: '4A 景区', heritage: '世界遗产',
+  visitors: '年接待游客', museums: '博物馆',
+  metro_km: '地铁运营里程', metro_lines: '地铁线路', metro_open_year: '地铁开通年份',
+  airport_pax: '机场旅客吞吐', rail_hubs: '高铁枢纽', port_cargo: '港口吞吐',
+  house_price: '二手住宅均价', rent: '住宅租金'
+}
+
+var srcMap = {}
+for (var si = 0; si < CR.citySources.length; si += 1) { srcMap[CR.citySources[si].key] = CR.citySources[si] }
+%>
+
+<div class="paper-page cal-page cr-page">
+  <div class="home-wrap">
+    <% if (!c) { %>
+    <header class="page-head">
+      <p class="page-head-kicker">CITY</p>
+      <h1 class="page-head-title">城市档案</h1>
+    </header>
+    <p class="post-desc">这座城市的数据没有就位（<code><%= page.citySlug || '未知城市' %></code>）：<%= CR.error || '数据里找不到该城市' %>。</p>
+    <% } else { %>
+
+    <header class="page-head">
+      <nav class="cal-crumb" aria-label="面包屑">
+        <a href="<%= url_for('/library/') %>">资料库</a><span aria-hidden="true">/</span><a href="<%= url_for('/cityrank/') %>">城市排行榜</a><span aria-hidden="true">/</span><span class="cal-crumb-now"><%= c.name %></span>
+      </nav>
+      <p class="page-head-kicker">CITY</p>
+      <h1 class="page-head-title"><%= c.name %></h1>
+      <p class="archive-total"><%= c.province || '' %> · <%= c.level || '' %> · 数据年份 <%= CR.cityMeta.dataYear || '2025' %></p>
+    </header>
+
+    <section class="cr-profile">
+      <h2 class="cr-sec-title">城市档案</h2>
+      <dl class="cr-profile-list">
+        <% var keys = Object.keys(c.metrics || {}); %>
+        <% for (var ki = 0; ki < keys.length; ki += 1) { var fk = keys[ki]; var mv = c.metrics[fk]; %>
+        <div class="cr-profile-item">
+          <dt><%= FIELD_LABEL[fk] || fk %></dt>
+          <dd>
+            <% if (mv && typeof mv.v === 'number') { %>
+            <span class="cr-pval"><%= mv.v %></span><% if (mv.unit) { %><span class="cr-punit"><%= mv.unit %></span><% } %>
+            <span class="cr-pmeta"><%= mv.asOf || '' %><% if (srcMap[mv.source]) { %> · <%= srcMap[mv.source].name %><% } %></span>
+            <% } else { %>
+            <span class="cr-pending">[待补]</span>
+            <% } %>
+          </dd>
+        </div>
+        <% } %>
+      </dl>
+      <p class="cr-profile-note">以上只列已核验过的字段，未列出的指标表示尚未采集到权威来源，不做估算填充。</p>
+    </section>
+
+    <% if (mentions.length) { %>
+    <section class="cr-mentions">
+      <h2 class="cr-sec-title">上榜记录</h2>
+      <% for (var mi = 0; mi < mentions.length; mi += 1) { var mg = mentions[mi] %>
+      <div class="cr-mention-group">
+        <p class="cr-mention-group-title"><%= mg.group %></p>
+        <ul class="cr-mention-list">
+          <% for (var hi = 0; hi < mg.hits.length; hi += 1) { var ht = mg.hits[hi] %>
+          <li>
+            <a href="<%= url_for('/cityrank/' + ht.slug + '/') %>"><%= ht.title %></a>
+            <span class="cr-mention-rank">第 <%= ht.rank %> 名<% if (ht.kind === 'computed' && typeof ht.score === 'number') { %> · 指数 <%= ht.score %><% } %></span>
+          </li>
+          <% } %>
+        </ul>
+      </div>
+      <% } %>
+    </section>
+    <% } %>
+
+    <div class="cal-after">
+      <p class="cal-note">数据来自各地统计公报与行业主管部门公开名录；批量数据站只作交叉核对，不作唯一来源。缺值一律标 [待补]，不填估算值。</p>
+    </div>
+
+    <% } %>
+  </div>
+</div>

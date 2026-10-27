@@ -1,0 +1,134 @@
+<%
+// 城市榜详情页（/cityrank/<slug>/）：排名表 + 评分口径。
+// 计算：themes/fluid/scripts/helpers/cityrank-data.js（名次现算；yml 里不存名次）
+// 样式：site.css §4.16（.cr-* 规则）；视觉作用域复用 .cal-page
+// 约定（PRD §5.1 P0 铁律）：computed 榜的名次是计算结果，页面必须公开指标与权重；
+//   pending 榜必须显眼标注「观点性排名 · 未量化核验」（CITY-RANK-CONTENT §7 C-8）。
+page.layout = 'rank'
+page.hide_banner = true
+
+var CR = buildCityRanks(site.data)
+var found = CR.error ? null : findRank(CR, page.rankSlug)
+var g = found ? found.group : null
+var r = found ? found.rank : null
+
+var KIND_LABEL = { computed: '本站按公开数据计算', fact: '事实清单', pending: '观点性排名 · 未量化核验' }
+%>
+
+<div class="paper-page cal-page cr-page">
+  <div class="home-wrap">
+    <% if (!r) { %>
+    <header class="page-head">
+      <p class="page-head-kicker">CITY RANK</p>
+      <h1 class="page-head-title">城市排行榜</h1>
+    </header>
+    <p class="post-desc">这个榜单没有就位（<code><%= page.rankSlug || '未知榜单' %></code>）：<%= CR.error || '数据里找不到该榜单' %>。</p>
+    <% } else { %>
+
+    <header class="page-head">
+      <nav class="cal-crumb" aria-label="面包屑">
+        <a href="<%= url_for('/library/') %>">资料库</a><span aria-hidden="true">/</span><a href="<%= url_for('/cityrank/') %>">城市排行榜</a><span aria-hidden="true">/</span><span class="cal-crumb-now"><%= r.title %></span>
+      </nav>
+      <p class="page-head-kicker"><%= g.kicker || 'CITY RANK' %></p>
+      <h1 class="page-head-title"><%= r.title %></h1>
+      <% if (r.lede) { %><p class="cal-lede"><%= r.lede %></p><% } %>
+      <p class="archive-total">
+        更新于 <%= fmtItemDate(CR.meta.updated) %> · 数据年份 <%= CR.cityMeta.dataYear || '2025' %> · 候选城市 <%= r.candidateCount %> 座 · <%= KIND_LABEL[r.kind] || r.kind %>
+      </p>
+    </header>
+
+    <% if (r.kind === 'pending') { %>
+    <div class="cr-warn">
+      <p>本榜没有权威标准，也没有可靠的量化数据，名次参考公开榜单整理，<strong>属观点性排名，本站未做量化核验</strong>。</p>
+    </div>
+    <% } %>
+
+    <% if (r.items.length) { %>
+    <table class="cr-table">
+      <caption class="cr-caption"><%= r.title %>（按<%= r.kind === 'computed' ? '综合指数' : '名次' %>排列）</caption>
+      <thead>
+        <tr>
+          <th scope="col" class="cr-th-rank">名次</th>
+          <th scope="col" class="cr-th-city">城市</th>
+          <% if (r.kind === 'computed') { %><th scope="col" class="cr-th-score">综合指数</th><% } %>
+          <th scope="col" class="cr-th-val">关键指标</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% for (var i = 0; i < r.items.length; i += 1) { var it = r.items[i] %>
+        <tr class="cr-row<%= it.rank <= 3 ? ' cr-row-top' : '' %>">
+          <th scope="row" class="cr-rank"><%= it.rank < 10 ? '0' + it.rank : String(it.rank) %></th>
+          <td class="cr-city">
+            <a href="<%= url_for('/city/' + it.slug + '/') %>"><%= it.name %></a>
+            <% if (it.reason) { %><span class="cr-reason"><%= it.reason %></span><% } %>
+          </td>
+          <% if (r.kind === 'computed') { %><td class="cr-score"><%= it.score %></td><% } %>
+          <td class="cr-val"><%= it.reason || '—' %></td>
+        </tr>
+        <% } %>
+      </tbody>
+    </table>
+    <% } else { %>
+    <p class="cr-empty">这个榜还没有可发布的数据（候选城市不足）。</p>
+    <% } %>
+
+    <% if (r.kind === 'computed' && r.metrics.length) { %>
+    <section class="cr-method">
+      <h2 class="cr-method-title">评分口径</h2>
+      <table class="cr-method-table">
+        <thead>
+          <tr>
+            <th scope="col">指标</th>
+            <th scope="col">权重</th>
+            <th scope="col">方向</th>
+            <th scope="col">单位</th>
+            <th scope="col">数据年份</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (var mi = 0; mi < r.metrics.length; mi += 1) { var mt = r.metrics[mi] %>
+          <tr>
+            <td><%= mt.label || mt.field %></td>
+            <td><%= mt.weight %></td>
+            <td><%= mt.dir === 'down' ? '越小越好' : '越大越好' %></td>
+            <td><%= mt.unit || '—' %></td>
+            <td><%= CR.cityMeta.dataYear || '2025' %></td>
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
+      <p class="cr-method-note">名次由数据算出，不是先定名次再配分数。每项指标在候选城市内做 min-max 归一化到 0–100，按上表权重加权求和得综合指数（0–100，保留 1 位小数）。缺任一指标的城市不参与本榜，不按 0 分处理。</p>
+      <% if (r.note) { %><p class="cr-method-note"><%= r.note %></p><% } %>
+    </section>
+    <% } %>
+
+    <% if (g.ranks.length > 1) { %>
+    <nav class="fs-nav-strip" aria-label="同组榜单">
+      <span class="fs-nav-strip-label">同组榜单</span>
+      <ul>
+        <% for (var ni = 0; ni < g.ranks.length; ni += 1) { var nf = g.ranks[ni] %>
+        <li>
+          <% if (nf.slug === r.slug) { %>
+          <span class="fs-nav-current" aria-current="page"><%= nf.title %></span>
+          <% } else { %>
+          <a href="<%= url_for('/cityrank/' + nf.slug + '/') %>"><%= nf.title %></a>
+          <% } %>
+        </li>
+        <% } %>
+      </ul>
+    </nav>
+    <% } %>
+
+    <div class="cal-after">
+      <p class="cal-note">
+        <% if (r.kind === 'computed') { %>
+        数据来自各地统计公报与行业主管部门公开名录；批量数据站只作交叉核对，不作唯一来源。数据年份 <%= CR.cityMeta.dataYear || '2025' %>。
+        <% } else { %>
+        本榜为观点性排名，未做量化核验，仅供参考。
+        <% } %>
+      </p>
+    </div>
+
+    <% } %>
+  </div>
+</div>

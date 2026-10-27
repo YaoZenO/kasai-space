@@ -490,7 +490,7 @@ if (!fs.existsSync(PUBLIC)) {
     });
   });
 
-  ok('资料库页生成：导读栏 + 两个专题 + 14 个条目链接齐全', () => {
+  ok('资料库页生成：导读栏 + 专题锚点 + 条目链接齐全（条目数按数据现算）', () => {
     const idx = path.join(PUBLIC, 'library', 'index.html');
     assert.ok(fs.existsSync(idx), 'public/library/index.html 不存在 —— 构建漏了资料库页');
     assert.ok(fs.statSync(idx).size > 10000, '资料库页内容过少');
@@ -498,13 +498,27 @@ if (!fs.existsSync(PUBLIC)) {
     assert.ok(h.indexOf('资料库') !== -1, '缺标题');
     assert.ok(h.indexOf('topic-zodiac') !== -1 && h.indexOf('topic-holidays') !== -1, '缺专题锚点');
     const entries = (h.match(/class="lb-entry"/g) || []).length;
-    // 2026-10-27 起资料库新增「节日文化」专题 12 条（节日4/7），条目数 14 → 26
-    assert.strictEqual(entries, 26, '条目数不对（实际 ' + entries + '，应为 12 生肖 + 2 节假日 + 12 节日）');
+    //
+    // 条目数从 library.yml 现算，不写死数字——写死过两次：
+    // 2026-10-27 加「节日文化」专题时 14 → 26，同日加「城市排行榜」专题时 26 → 28。
+    // 断言假设数据停在某个状态，每次加专题都会假红（E-020 / E-021 教训）。
+    const libData = yaml.load(fs.readFileSync(path.join(ROOT, 'source/_data/library.yml'), 'utf8'));
+    const topics = (libData && libData.topics) || [];
+    const expectEntries = topics.reduce((s, t) => s + ((t.entries || []).length), 0);
+    assert.ok(expectEntries > 0, 'library.yml 里没有条目——断言会空转');
+    assert.strictEqual(entries, expectEntries,
+      '条目数不对（页面 ' + entries + '，library.yml ' + expectEntries + '）');
+    // 每个专题的锚点都必须存在，新增专题时自动纳入校验
+    for (const t of topics) {
+      assert.ok(h.indexOf('topic-' + t.key) !== -1, '缺专题锚点：topic-' + t.key);
+    }
     assert.ok(h.indexOf('topic-festivals') !== -1, '缺节日文化专题锚点');
+    assert.ok(h.indexOf('topic-cityrank') !== -1, '缺城市排行榜专题锚点');
     PAGES.forEach((k) => {
       assert.ok(h.indexOf('href="/zodiac/' + k + '/"') !== -1, '资料库缺 /zodiac/' + k + '/ 条目');
     });
     assert.ok(h.indexOf('href="/holidays/2026/"') !== -1, '资料库缺节假日条目');
+    assert.ok(h.indexOf('href="/cityrank/"') !== -1, '资料库缺城市排行榜入口');
     assert.ok(h.indexOf('lb-guide-list') !== -1, '缺导读栏');
   });
 
