@@ -8,8 +8,8 @@
 #      一个可以不断塞专题进来的聚合板块，2026-10-25 首期：十二生肖、中国节假日）。
 
 meta:
-  updated: "2026-10-25"
-  intro: "本站整理的专题资料。每个专题是一个可以逐页深入的系列——目前收录十二生肖与中国节假日，以后会陆续增补。左栏可以快速跳到某个专题。"
+  updated: "2026-10-27"
+  intro: "本站整理的专题资料。每个专题是一个可以逐页深入的系列——目前收录十二生肖、中国节假日与节日文化，以后会陆续增补。左栏可以快速跳到某个专题。"
   guideLabel: "专题导航"
   guideNote: "资料持续增补中。"
 
@@ -39,9 +39,32 @@ topics:
   - key: "holidays"
     title: "中国节假日"
     kicker: "CALENDAR"
-    desc: "2021–2036 年的放假安排：七个法定节假日的放假区间与调休上班日、其他节日与纪念日、二十四节气，以及农历标签。"
+    desc: "2021–2036 年的放假安排：七个法定节假日的放假区间与调休上班日、其他节日与纪念日、二十四节气，以及农历标签。想深入了解某个节日怎么来的、有什么习俗，看「节日文化」专题。"
     link: "/holidays/"
     linkText: "进入节假日总览"
     entries:
       - { name: "2026 年节假日", note: "当前年份 · 官方安排 · 春节 2 月 17 日起", link: "/holidays/2026/" }
       - { name: "2021–2036 年一览", note: "十六年放假安排、其他节日与节气", link: "/holidays/" }
+
+  # ============ 专题三：节日文化 ============
+  # 条目命名「时间锚点 · 看点 · 放假状态」三段式（FESTIVAL-CONTENT §14）；
+  # 排序法定在前、传统在后，与 /library/<slug>/ 的 slug 清单一致。
+  - key: "festivals"
+    title: "节日文化"
+    kicker: "FESTIVAL"
+    desc: "十二个节日的逐页长文：来历与传说、习俗与食物、词汇与常见问题，以及从本站节假日数据现算的逐年日期。"
+    link: "/library/yuandan/"
+    linkText: "从元旦开始读"
+    entries:
+      - { name: "元旦", note: "公历1月1日 · 跨年 · 法定1天", link: "/library/yuandan/" }
+      - { name: "春节", note: "正月初一 · 守岁与红包 · 法定4天", link: "/library/chunjie/" }
+      - { name: "清明节", note: "4月上旬 · 扫墓踏青 · 法定1天", link: "/library/qingming/" }
+      - { name: "端午节", note: "五月初五 · 粽子与龙舟 · 法定1天", link: "/library/duanwu/" }
+      - { name: "中秋节", note: "八月十五 · 赏月与月饼 · 法定1天", link: "/library/zhongqiu/" }
+      - { name: "国庆节", note: "10月1日 · 黄金周 · 法定3天", link: "/library/guoqing/" }
+      - { name: "元宵节", note: "正月十五 · 灯会与汤圆 · 不放假", link: "/library/yuanxiao/" }
+      - { name: "七夕节", note: "七月初七 · 牛郎织女 · 不放假", link: "/library/qixi/" }
+      - { name: "中元节", note: "七月十五 · 祭祖放河灯 · 不放假", link: "/library/zhongyuan/" }
+      - { name: "重阳节", note: "九月初九 · 登高敬老 · 不放假", link: "/library/chongyang/" }
+      - { name: "冬至", note: "12月下旬 · 饺子与汤圆 · 不放假", link: "/library/dongzhi/" }
+      - { name: "腊八节", note: "腊月初八 · 腊八粥 · 不放假", link: "/library/laba/" }

@@ -1,0 +1,290 @@
+<%
+// 节日文化详情页族（/library/<slug>/，12 页）。
+//   —— 页头（标题只写节日名）+ 全宽节日导航条 + 配图（实图 / CSS 纹样两分支）+
+//      两栏（左正文 / 右 sticky 目录），交互复刻 zodiac 页族。
+// 数据：source/_data/festivals.yml（文案与静态素材）+ source/_data/holidays.yml（逐年日期，方案 C）
+// 计算：themes/fluid/scripts/helpers/festival-data.js（跨源取数、日期表、facts 后三行、章节注入）
+// 样式：site.css §4.15（.fs-* 规则）；视觉作用域复用 .cal-page
+// 脚本：source/js/festival.js（进度环 / scrollspy / 收起展开 / 移动抽屉 / 年份表展开；无脚本时全部内容仍可见）
+// 约定：模板不含手写日期——页面上的每个日期都由 helper 从数据算出；
+//       vocab / faq 两节的标题由 helper 注入（kind: vocab / faq），正文为空时渲染对应表。
+page.layout = 'festival'
+page.hide_banner = true
+
+var f = page.festival ? buildFestival(site.data.festivals, site.data.holidays, page.festival) : null
+
+// 12 个节日的固定导航序（法定在前、传统在后，PRD §4.1 排序）；
+// 导航条 DOM 结构与 zodiac 页的 .z-nav-strip 逐字同构。
+var FS_NAV = [
+  { s: 'yuandan', n: '元旦' },
+  { s: 'chunjie', n: '春节' },
+  { s: 'qingming', n: '清明' },
+  { s: 'duanwu', n: '端午' },
+  { s: 'zhongqiu', n: '中秋' },
+  { s: 'guoqing', n: '国庆' },
+  { s: 'yuanxiao', n: '元宵' },
+  { s: 'qixi', n: '七夕' },
+  { s: 'zhongyuan', n: '中元' },
+  { s: 'chongyang', n: '重阳' },
+  { s: 'dongzhi', n: '冬至' },
+  { s: 'laba', n: '腊八' }
+]
+var fsIdx = -1
+for (var fni = 0; fni < FS_NAV.length; fni += 1) { if (FS_NAV[fni].s === page.festival) fsIdx = fni }
+var fsPrev = fsIdx > -1 ? FS_NAV[(fsIdx + FS_NAV.length - 1) % FS_NAV.length] : null
+var fsNext = fsIdx > -1 ? FS_NAV[(fsIdx + 1) % FS_NAV.length] : null
+%>
+
+<% if (!f || f.error) { %>
+<div class="paper-page cal-page fs-page">
+  <div class="home-wrap">
+    <header class="page-head">
+      <p class="page-head-kicker">FESTIVAL</p>
+      <h1 class="page-head-title">节日文化</h1>
+    </header>
+    <p class="post-desc">这一页的数据没有就位（<code><%= page.festival || '未知页面' %></code>）：<%= f && f.error ? f.error : 'front-matter 缺少 festival 字段' %>。请在 <code>source/_data/festivals.yml</code> 与 <code>source/_data/holidays.yml</code> 里补齐后重新构建。</p>
+  </div>
+</div>
+<% } else { %>
+
+<div class="paper-page cal-page fs-page">
+  <div class="home-wrap">
+    <header class="page-head">
+      <nav class="cal-crumb" aria-label="面包屑">
+        <a href="<%= url_for('/library/') %>">资料库</a><span aria-hidden="true">/</span><span class="cal-crumb-now"><%= f.name %></span>
+      </nav>
+      <p class="page-head-kicker">FESTIVAL</p>
+      <h1 class="page-head-title"><%= f.name %></h1>
+      <p class="cal-lede"><%- f.lede %></p>
+      <p class="archive-total">
+        更新于 <%= fmtItemDate(f.updated) %> · <%= f.legal ? ('法定假日 ' + f.statutory + ' 天') : '不放假' %> · <%= f.currentYear %> 年当天 <%= f.currentRow.date %><%= f.currentRow.date ? '（' + f.currentRow.weekday + '）' : '' %>
+      </p>
+    </header>
+
+    <%# 节日导航条：DOM 结构与 zodiac 页的 .z-nav-strip 逐字同构；当前节日墨色加粗 + 2px 下划线 %>
+    <nav class="fs-nav-strip" aria-label="按节日查看">
+      <span class="fs-nav-strip-label">按节日查看</span>
+      <ul>
+        <% for (var ni = 0; ni < FS_NAV.length; ni += 1) { var nf = FS_NAV[ni] %>
+        <li>
+          <% if (nf.s === f.slug) { %>
+          <span class="fs-nav-current" aria-current="page"><%= nf.n %></span>
+          <% } else { %>
+          <a href="<%= url_for('/library/' + nf.s + '/') %>"><%= nf.n %></a>
+          <% } %>
+        </li>
+        <% } %>
+      </ul>
+    </nav>
+
+    <%# 配图两分支：实图（Commons 授权图，署名是使用条件）/ CSS 纹样降级（data-slug 寻址，
+        12 套纹样主色 token 由 site.css §4.15 定义，不进 :root） %>
+    <% if (f.image && f.image.css === true) { %>
+    <div class="fs-figure fs-figure--css" data-slug="<%= f.slug %>" role="img" aria-label="<%= f.name %>主题纹样"></div>
+    <% } else if (f.image) { %>
+    <figure class="fs-figure">
+      <img src="<%= f.image.file %>" alt="<%= f.image.alt %>" loading="lazy" decoding="async">
+      <figcaption>
+        图：<a href="<%= f.image.page %>" target="_blank" rel="noopener"><%= f.image.author %></a> / <%= f.image.license %>
+      </figcaption>
+    </figure>
+    <% } %>
+
+    <div class="fs-layout">
+      <div class="fs-main">
+        <% for (var si = 0; si < f.sections.length; si += 1) { var sec = f.sections[si] %>
+        <section class="fs-section" id="sec-<%= sec.id %>">
+          <h2 class="fs-section-title"><%= sec.title %></h2>
+
+          <% if (sec.id === 'what') { %>
+          <div class="markdown-body"><%- sec.body %></div>
+          <% if (f.facts.length) { %>
+          <div class="cal-table-wrap">
+            <table class="cal-table fs-facts">
+              <tbody>
+                <% for (var fi = 0; fi < f.facts.length; fi += 1) { var fa = f.facts[fi] %>
+                <tr>
+                  <th scope="row"><%= fa.k %></th>
+                  <td><%- fa.v %></td>
+                </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+          <% } %>
+
+          <% } else if (sec.id === 'when') { %>
+          <div class="markdown-body"><%- sec.body %></div>
+          <% if (f.tableRows.length) { %>
+          <h3 class="fs-sub-title"><%= f.tableYears[0] %>–<%= f.tableYears[1] %> 年<%= f.name %>日期</h3>
+          <div class="cal-table-wrap">
+            <table class="cal-table fs-years" data-collapsed="true">
+              <thead>
+                <% if (f.tableMode === 'calendar') { %>
+                <tr>
+                  <th scope="col">年份</th>
+                  <th scope="col">口径</th>
+                  <th scope="col">放假区间（当年内）</th>
+                  <th scope="col">天数</th>
+                  <th scope="col">调休上班日</th>
+                </tr>
+                <% } else { %>
+                <tr>
+                  <th scope="col">年份</th>
+                  <th scope="col">口径</th>
+                  <th scope="col">当天日期</th>
+                  <th scope="col">星期</th>
+                  <th scope="col">农历</th>
+                </tr>
+                <% } %>
+              </thead>
+              <tbody>
+                <% for (var ti = 0; ti < f.tableRows.length; ti += 1) { var tr = f.tableRows[ti] %>
+                <tr<% if (ti === 0) { %> class="is-hl"<% } %><% if (ti >= 5) { %> data-extra<% } %>>
+                  <th scope="row"><span class="cal-name"><%= tr.year %></span></th>
+                  <td><%= tr.label %></td>
+                  <% if (f.tableMode === 'calendar') { %>
+                  <td>
+                    <time datetime="<%= tr.start %>"><%= tr.start === tr.end ? tr.start : tr.start + ' – ' + tr.end %></time>
+                    <% if (tr.arrange) { %><span class="fs-arrange"><%= tr.arrange %></span><% } %>
+                  </td>
+                  <td><%= tr.days %> 天</td>
+                  <td><%= (tr.makeup && tr.makeup.length) ? tr.makeup.join('、') : '—' %></td>
+                  <% } else { %>
+                  <td><time datetime="<%= tr.date %>"><%= tr.date %></time></td>
+                  <td><%= tr.weekday %></td>
+                  <td><%= tr.lunar || '—' %></td>
+                  <% } %>
+                </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+          <%# 渐进增强：11 行全部直出（无 JS 全可见）；html.js 下第 6–11 行收起，按钮由 festival.js 启用 %>
+          <button class="fs-table-toggle" type="button" aria-expanded="false" hidden>
+            展开其余 <%= f.tableRows.length - 5 %> 年
+          </button>
+          <p class="fs-note">日期与本站 <a href="<%= url_for('/holidays/' + f.currentYear + '/') %>"><%= f.currentYear %> 年节假日页</a> 一致；<%= f.tableYears[0] + 1 %> 年起为按历法推算的预计值，可能与日后的官方通知不同。</p>
+          <% } %>
+
+          <% } else if (sec.kind === 'vocab') { %>
+          <% if (f.vocab.length) { %>
+          <div class="cal-table-wrap">
+            <table class="cal-table fs-vocab">
+              <thead>
+                <tr>
+                  <th scope="col">中文</th>
+                  <th scope="col">拼音</th>
+                  <th scope="col">含义</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% for (var vi = 0; vi < f.vocab.length; vi += 1) { var vb = f.vocab[vi] %>
+                <tr>
+                  <th scope="row"><span class="cal-name"><%= vb.t %></span></th>
+                  <td class="cal-pinyin"><%= vb.p %></td>
+                  <td><%= vb.m %></td>
+                </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+          <% } %>
+          <% if (f.greetings.length) { %>
+          <h3 class="fs-sub-title"><%= f.greetingsLabel %></h3>
+          <div class="cal-table-wrap">
+            <table class="cal-table fs-greetings">
+              <tbody>
+                <% for (var gi = 0; gi < f.greetings.length; gi += 1) { var gr = f.greetings[gi] %>
+                <tr>
+                  <th scope="row"><span class="cal-name"><%= gr.t %></span></th>
+                  <td class="cal-pinyin"><%= gr.p %></td>
+                  <td><%= gr.m %></td>
+                </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+          <% } %>
+
+          <% } else if (sec.kind === 'faq') { %>
+          <% if (f.faq.length) { %>
+          <div class="fs-faq">
+            <% for (var qi = 0; qi < f.faq.length; qi += 1) { var item = f.faq[qi] %>
+            <details class="cal-faq-item">
+              <summary><%= item.q %></summary>
+              <p><%= item.a %></p>
+            </details>
+            <% } %>
+          </div>
+          <% } %>
+
+          <% } else if (sec.body) { %>
+          <div class="markdown-body"><%- sec.body %></div>
+          <% } %>
+        </section>
+        <% } %>
+
+        <nav class="fs-pager" aria-label="上下节日">
+          <a class="fs-pager-prev" href="<%= url_for('/library/' + fsPrev.s + '/') %>">← <%= fsPrev.n %></a>
+          <a class="fs-pager-next" href="<%= url_for('/library/' + fsNext.s + '/') %>"><%= fsNext.n %> →</a>
+        </nav>
+
+        <div class="cal-after">
+          <p class="cal-note"><%= f.notice %></p>
+        </div>
+      </div>
+
+      <%# 右侧目录：桌面 sticky；列表由模板按 sections 渲染（无 JS 时锚点仍可用），
+          JS 只增强：进度环、当前章高亮、收起展开。DOM 与 zodiac 页同构（.fs- 前缀）。 %>
+      <aside class="fs-toc" aria-label="目录">
+        <div class="fs-toc-head">
+          <span class="fs-toc-label">目录</span>
+          <button class="fs-toc-toggle" type="button" aria-expanded="true" aria-label="收起目录">
+            <svg class="fs-toc-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+          </button>
+        </div>
+        <ol class="fs-toc-list">
+          <% for (var ti2 = 0; ti2 < f.sections.length; ti2 += 1) { var tsec = f.sections[ti2] %>
+          <li>
+            <a href="#sec-<%= tsec.id %>"><%= tsec.title %></a>
+          </li>
+          <% } %>
+        </ol>
+        <div class="fs-toc-progress">
+          <svg class="fs-ring" width="36" height="36" viewBox="0 0 36 36" aria-hidden="true">
+            <circle class="fs-ring-bg" cx="18" cy="18" r="15.5" />
+            <circle class="fs-ring-fill" id="fsProgressRing" cx="18" cy="18" r="15.5" stroke-dasharray="97.4" stroke-dashoffset="97.4" />
+          </svg>
+          <span class="fs-toc-progress-text">已读 0%</span>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<%# 移动端目录：悬浮按钮 + 底部抽屉（与 zodiac 页同款交互） %>
+<button class="fs-toc-fab" type="button" aria-label="打开目录">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18M3 6h18M3 18h18" /></svg>
+  <span>目录</span>
+</button>
+<div class="fs-toc-overlay"></div>
+<div class="fs-toc-sheet" role="dialog" aria-label="目录" aria-hidden="true">
+  <div class="fs-toc-sheet-head">
+    <span class="fs-toc-label">目录</span>
+    <button class="fs-toc-sheet-close" type="button" aria-label="关闭目录">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+    </button>
+  </div>
+  <ol class="fs-toc-list">
+    <% for (var mi = 0; mi < f.sections.length; mi += 1) { var msec = f.sections[mi] %>
+    <li>
+      <a href="#sec-<%= msec.id %>"><%= msec.title %></a>
+    </li>
+    <% } %>
+  </ol>
+</div>
+
+<script src="<%= versionedAsset('/js/festival.js') %>" defer></script>
+
+<% } %>
