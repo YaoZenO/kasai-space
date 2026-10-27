@@ -131,14 +131,27 @@ ok('头像是圆形、无阴影、描边走 hairline 墨量（A10）', () => {
     + '沿用 chip border 的墨 .10 会让边界发虚，须取 hairline 的墨 .24');
 });
 
-ok('圆角标尺：50% 只允许出现在头像一处（唯一例外）', () => {
-  const hits = siteCss.split('\n')
+ok('圆角标尺：50% 只允许出现在头像一处 + §4.15 纹样块的几何作图（DESIGN §6.4）', () => {
+  // 2026-10-27 节日纹样（§4.15 .fs-figure--css / .fs-fig-*）在 aria-hidden 装饰块内
+  // 用 50% 画圆 / 拱弧——这是绘图手段不是容器圆角，DESIGN §6.4 明确不归头像例外管辖、
+  // 验收以 .fs-fig-* 子元素规则为界。这里把 §4.15 段整体豁免，但两条底线不豁免：
+  //   ① §4.15 之外 50% 仍然只允许头像一处；
+  //   ② 纹样容器 .fs-figure-media 自身的圆角必须走 --r-tile（12px），不得 50%。
+  const s15 = siteCss.indexOf('===== 4.15 节日文化页');
+  const s5 = siteCss.indexOf('===== 5. 第三方组件纸面化');
+  assert.ok(s15 > -1 && s5 > s15, 'site.css 找不到 §4.15 段——豁免范围判定失效');
+  const outside = siteCss.slice(0, s15) + siteCss.slice(s5);
+  const hits = outside.split('\n')
     .map((l, i) => ({ l: l.trim(), n: i + 1 }))
     .filter((x) => /border-radius:\s*50%/.test(x.l))
     .filter((x) => !x.l.startsWith('/*') && !x.l.startsWith('*'));
   assert.strictEqual(hits.length, 1,
-    `50% 圆角出现在 ${hits.length} 处（L${hits.map((h) => h.n).join(', L')}）`
+    `§4.15 之外 50% 圆角出现在 ${hits.length} 处（L${hits.map((h) => h.n).join(', L')}）`
     + ' —— 圆角标尺的唯一例外是头像，不得扩散到其他容器');
+  const media = siteCss.match(/\.fs-figure-media\s*\{[^}]*\}/);
+  assert.ok(media, 'site.css 缺 .fs-figure-media 规则');
+  assert.ok(!/50%/.test(media[0]), '纹样容器 .fs-figure-media 的圆角不得用 50%（须走 --r-tile）');
+  assert.match(media[0], /border-radius:\s*var\(--r-tile\)/, '纹样容器圆角不是 var(--r-tile)');
 });
 
 ok('头像 96px 是 84px 的面积补偿（圆形 π/4≈0.785），不得无依据改尺寸', () => {

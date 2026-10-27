@@ -422,10 +422,10 @@ if (!fs.existsSync(PUBLIC)) {
         '条目 link 指向的产物不存在：library/' + s + '/');
     });
     const libYml = yaml.load(fs.readFileSync(path.join(ROOT, 'source', '_data', 'library.yml'), 'utf8'));
-    const ft = (libYml.topics || []).find((t) => t.id === 'festivals');
+    const ft = (libYml.topics || []).find((t) => t.key === 'festivals');
     assert.ok(ft, 'library.yml 缺 festivals 专题');
     assert.strictEqual(ft.entries.length, 12, 'festivals 专题条目不是 12 条');
-    const ht = (libYml.topics || []).find((t) => t.id === 'holidays');
+    const ht = (libYml.topics || []).find((t) => t.key === 'holidays');
     assert.ok(ht && ht.entries.length === 2, 'holidays 专题条目数被动过（应仍为 2）');
   });
 
