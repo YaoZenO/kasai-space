@@ -498,7 +498,9 @@ if (!fs.existsSync(PUBLIC)) {
     assert.ok(h.indexOf('资料库') !== -1, '缺标题');
     assert.ok(h.indexOf('topic-zodiac') !== -1 && h.indexOf('topic-holidays') !== -1, '缺专题锚点');
     const entries = (h.match(/class="lb-entry"/g) || []).length;
-    assert.strictEqual(entries, 14, '条目数不对（实际 ' + entries + '，应为 12 生肖 + 2 节假日）');
+    // 2026-10-27 起资料库新增「节日文化」专题 12 条（节日4/7），条目数 14 → 26
+    assert.strictEqual(entries, 26, '条目数不对（实际 ' + entries + '，应为 12 生肖 + 2 节假日 + 12 节日）');
+    assert.ok(h.indexOf('topic-festivals') !== -1, '缺节日文化专题锚点');
     PAGES.forEach((k) => {
       assert.ok(h.indexOf('href="/zodiac/' + k + '/"') !== -1, '资料库缺 /zodiac/' + k + '/ 条目');
     });

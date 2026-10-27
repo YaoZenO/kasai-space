@@ -16,8 +16,9 @@
     "test:dates": "node test/module-dates.js",
     "test:holidays": "node test/holidays-e2e.js",
     "test:zodiac": "node test/zodiac-e2e.js",
+    "test:festival": "node test/festival-e2e.js",
     "test:a10-render": "node test/a10-avatar-render.js",
-    "test": "npm run test:admin && npm run test:pages && npm run test:tokens && npm run test:claims && npm run test:blocks && npm run test:assets && npm run test:dates && npm run test:holidays && npm run test:zodiac"
+    "test": "npm run test:admin && npm run test:pages && npm run test:tokens && npm run test:claims && npm run test:blocks && npm run test:assets && npm run test:dates && npm run test:holidays && npm run test:zodiac && npm run test:festival"
   },
   "hexo": {
     "version": "8.1.1"
