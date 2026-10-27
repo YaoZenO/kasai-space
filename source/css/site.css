@@ -3295,10 +3295,13 @@ a.feed-title:hover {
   inset: -30% -10%;
   transform: rotate(-24deg);
   background-image:
-    linear-gradient(115deg, #f7f6f4 12%, transparent 45%, transparent 60%, #f7f6f4 92%),
     radial-gradient(circle, rgba(26, 26, 26, 0.15) 1.2px, transparent 1.4px),
     radial-gradient(circle, rgba(26, 26, 26, 0.35) 1.2px, transparent 1.4px);
-  background-size: 100% 100%, 23px 23px, 11px 11px;
+  background-size: 23px 23px, 11px 11px;
+  /* 点阵铺满后用 mask 收束成中央斜带（严过关修正①：纸底色带改为 alpha mask，
+     不与旋转后的坐标打架），两侧渐隐出纸底 */
+  -webkit-mask-image: linear-gradient(115deg, transparent 14%, #000 42%, #000 58%, transparent 86%);
+  mask-image: linear-gradient(115deg, transparent 14%, #000 42%, #000 58%, transparent 86%);
 }
 
 /* 拱桥：上拱弧线 + 弧下三根桥柱（::after 竖线阵限高） */
@@ -3320,9 +3323,14 @@ a.feed-title:hover {
   top: 42%;
   bottom: 0;
   background: repeating-linear-gradient(90deg, var(--fs-fig-qixi) 0 2px, transparent 2px 22%);
+  /* 严过关修正③：柱阵用椭圆 mask 限在弧线以下——椭圆圆心/半径与拱桥
+     border-radius 50% 50% / 100% 100% 的几何换算到本伪元素盒子（宽 88%、高 58%） */
+  -webkit-mask-image: radial-gradient(ellipse 56.8% 172.4% at 50% 100%, #000 99.6%, transparent 100%);
+  mask-image: radial-gradient(ellipse 56.8% 172.4% at 50% 100%, #000 99.6%, transparent 100%);
 }
 
-/* 双星（织女大、牛郎小）：钉在弧线两端点上方 */
+/* 双星（织女大、牛郎小）：严过关修正②——钉在弧线两端点上方（弧端在盒子
+   底部两角，即容器 bottom 22% 处），不再悬在弧顶上方 */
 .fs-figure--css[data-slug="qixi"] .fs-fig-b,
 .fs-figure--css[data-slug="qixi"] .fs-fig-c {
   position: absolute;
@@ -3330,11 +3338,11 @@ a.feed-title:hover {
   height: 10px;
   border-radius: 50%;
   background: var(--fs-fig-qixi);
-  top: 40%;
+  bottom: 24%;
 }
 
 .fs-figure--css[data-slug="qixi"] .fs-fig-b { left: 15.5%; }
-.fs-figure--css[data-slug="qixi"] .fs-fig-c { right: 15.5%; width: 7px; height: 7px; top: 42%; }
+.fs-figure--css[data-slug="qixi"] .fs-fig-c { right: 15.5%; width: 7px; height: 7px; }
 
 /* ② 元旦「初光」（亮场）：地平线 + 半轮日 + 地平线下刻度横线渐隐 */
 .fs-figure--css[data-slug="yuandan"] {
@@ -3355,7 +3363,7 @@ a.feed-title:hover {
 .fs-figure--css[data-slug="yuandan"] .fs-fig-a {
   position: absolute;
   left: 37%;
-  bottom: calc(30% + 1px);
+  bottom: 30.5%;
   width: 26%;
   height: 13%;
   background: var(--fs-fig-yuandan);
@@ -3529,7 +3537,7 @@ a.feed-title:hover {
 .fs-figure--css[data-slug="duanwu"] .fs-fig-b {
   position: absolute;
   left: 25%;
-  bottom: calc(44% + 7%);
+  bottom: 51%;
   width: 50%;
   height: 16%;
   background: repeating-linear-gradient(90deg, rgba(26, 26, 26, 0.24) 0 2px, transparent 2px 14%);
@@ -3585,7 +3593,7 @@ a.feed-title:hover {
 
 .fs-figure--css[data-slug="guoqing"] .fs-fig-a {
   position: absolute;
-  left: calc(18% + 2px);
+  left: 18.5%;
   top: 18%;
   width: 40%;
   aspect-ratio: 3 / 2;
@@ -3596,8 +3604,8 @@ a.feed-title:hover {
 /* 主星（五角 clip-path）+ 四小星沿弧（::after 点阵，降级 = 圆点 / 方块） */
 .fs-figure--css[data-slug="guoqing"] .fs-fig-b {
   position: absolute;
-  left: calc(18% + 5%);
-  top: calc(18% + 8%);
+  left: 23%;
+  top: 26%;
   width: 12px;
   height: 12px;
   background: #f7f6f4;
@@ -3679,12 +3687,12 @@ a.feed-title:hover {
   content: "";
   position: absolute;
   left: 50%;
-  top: calc(100% + 10px);
+  top: 100%;
   width: 4px;
   height: 4px;
   border-radius: 50%;
   background: rgba(247, 246, 244, 0.4);
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(10px);
 }
 
 /* ⑨ 中元「河灯」（深场）：夜水青留白 + 下 1/3 一排 accent 灯点与倒影线
@@ -3852,7 +3860,7 @@ a.feed-title:hover {
   position: absolute;
   left: 22%;
   right: 22%;
-  bottom: calc(26% + 12%);
+  bottom: 38%;
   height: 10%;
   background: repeating-linear-gradient(90deg, rgba(26, 26, 26, 0.13) 0 1.5px, transparent 1.5px 10%);
   -webkit-mask-image: linear-gradient(180deg, transparent, #000 55%);
@@ -4124,7 +4132,9 @@ html:not(.js) .fs-years-toggle { display: none; }
   .fs-layout { grid-template-columns: minmax(0, 1fr); gap: 0; }
   .fs-toc { display: none; }
 
-  .fs-toc-fab {
+  /* 严过关修正：FAB 锚在 html.js 上——无 JS 时 FAB/遮罩/抽屉三者均不可见
+     （渐进增强，PRD §7 / DESIGN §3.4；festival.js 就绪后才挂 js 类） */
+  html.js .fs-toc-fab {
     display: flex;
     position: fixed;
     right: 1rem;
@@ -4218,10 +4228,11 @@ html:not(.js) .fs-years-toggle { display: none; }
   .fs-nav-strip ul { gap: 0.3rem 0.85rem; }
 }
 
-/* ≤575.98（含 390）：facts 左列收 6.5rem；年份表装 .cal-table-wrap 内滚
-   （页面级横向溢出必须为 0，S11）；相关阅读塌单列（DESIGN §3.2） */
+/* ≤575.98（含 390）：facts 左列提到 9rem（严过关实测 8rem 仍容不下「是否法定节假日」
+   7×16=112px 内容盒，表头折两行；9rem=144px 单行，Range 实测 lines=1），年份表装
+   .cal-table-wrap 内滚（页面级横向溢出必须为 0，S11）；相关阅读塌单列（DESIGN §3.2） */
 @media (max-width: 575.98px) {
-  .fs-facts tbody th { width: 6.5rem; }
+  .fs-facts tbody th { width: 9rem; }
   .fs-years { min-width: 34rem; }
   .fs-related-list { grid-template-columns: minmax(0, 1fr); }
 }
