@@ -3187,6 +3187,1045 @@ a.feed-title:hover {
   .lb-guide-note { display: none; }
 }
 
+/* ===== 4.15 节日文化页（/library/<slug>/，2026-10-27 新增）=====
+   本段由 FESTIVAL-DESIGN-2026-10-27.md 规定；只追加、不整写（E-052 红线）。
+   数据 source/_data/festivals.yml · 模板 themes/fluid/layout/festival.ejs ·
+   脚本 source/js/festival.js · 测试 test/festival-e2e.js
+   视觉作用域：根元素挂 paper-page cal-page fs-page；色值一律消费 .cal-page
+   作用域变量（§4.12 单源），本段不重定义任何色值（E-052 同型）；
+   布局量值逐字对齐 §4.13 .z-*（15rem 右栏 / sticky 5.5rem / FAB / 抽屉）。
+   --fs-fig-* 十二个纹样主色只允许出现在 .fs-figure--css 规则内，
+   不进 :root、不上文字 / 边框 / 交互元素（§5.17.1 破例机制的族级延伸）。 */
+
+/* ---- 12 slug 导航条：版式逐字复制 .z-nav-strip（E-049 防复发：
+   ① 不得 flex: none；② 外层 min-width: 0；③ 不放进任何定宽列。
+   窄屏方案 = 换行，禁止横向滚动 / 缩字距 / 压缩间距（DESIGN §3.3）。 ---- */
+.fs-nav-strip {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  min-width: 0;
+  gap: 0.55rem 1.1rem;
+  margin: 1.6rem 0 0;
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.fs-nav-strip-label {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--sec-text-color);
+}
+
+.fs-nav-strip ul {
+  display: flex;
+  flex-wrap: wrap;
+  min-width: 0;
+  gap: 0.3rem 1.05rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* E-043：2–3 字节日名任何情况下不得词中断行，换行只发生在 li 之间 */
+.fs-nav-strip li { font-size: 0.95rem; line-height: 1.7; }
+.fs-nav-strip li a,
+.fs-nav-strip .fs-nav-current { white-space: nowrap; }
+.fs-nav-strip a { color: var(--sec-text-color); }
+.fs-nav-strip a:hover { color: var(--accent); }
+
+/* 当前节日：墨色加粗 + 2px 下划线（= .z-nav-current 同款） */
+.fs-nav-current {
+  font-weight: 700;
+  color: var(--text-color);
+  box-shadow: inset 0 -2px 0 var(--text-color);
+}
+
+/* ---- 配图两分支共用外壳盒：16:9、12px 圆角（--r-tile）、1px hairline。
+   实图与 CSS 纹样的唯一差异是填充物，宽高比 / 圆角 / 边框 / 留白完全一致。 ---- */
+.fs-figure { margin: 1.6rem 0 0; }
+
+.fs-figure-media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  min-height: 13rem; /* 极老内核 aspect-ratio 失效时的降级兜底（DESIGN §6.3） */
+  overflow: hidden;
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-tile);
+  background: rgba(26, 26, 26, 0.03);
+}
+
+.fs-figure-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fs-figure figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--sec-text-color);
+}
+
+.fs-figure figcaption a {
+  color: var(--text-color);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.fs-figure figcaption a:hover { color: var(--accent); }
+
+/* ---- CSS 抽象纹样（DESIGN §6）：data-slug 唯一寻址，12 套互不引用；
+   --fs-fig-* token 只在本段 .fs-figure--css 规则及其子元素规则内出现；
+   全部静止（无 animation）；aria-hidden 装饰块，无文字压底（§6.6）。 ---- */
+
+/* ① 七夕「纸上鹊桥」（亮场 · 样板）：银河点阵斜带 + 拱桥 + 双星 */
+.fs-figure--css[data-slug="qixi"] {
+  --fs-fig-qixi: #46586e;
+  background: transparent;
+}
+
+.fs-figure--css[data-slug="qixi"]::before {
+  content: "";
+  position: absolute;
+  inset: -30% -10%;
+  transform: rotate(-24deg);
+  background-image:
+    linear-gradient(115deg, #f7f6f4 12%, transparent 45%, transparent 60%, #f7f6f4 92%),
+    radial-gradient(circle, rgba(26, 26, 26, 0.15) 1.2px, transparent 1.4px),
+    radial-gradient(circle, rgba(26, 26, 26, 0.35) 1.2px, transparent 1.4px);
+  background-size: 100% 100%, 23px 23px, 11px 11px;
+}
+
+/* 拱桥：上拱弧线 + 弧下三根桥柱（::after 竖线阵限高） */
+.fs-figure--css[data-slug="qixi"] .fs-fig-a {
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  bottom: 22%;
+  height: 34%;
+  border-top: 2px solid var(--fs-fig-qixi);
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+}
+
+.fs-figure--css[data-slug="qixi"] .fs-fig-a::after {
+  content: "";
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  top: 42%;
+  bottom: 0;
+  background: repeating-linear-gradient(90deg, var(--fs-fig-qixi) 0 2px, transparent 2px 22%);
+}
+
+/* 双星（织女大、牛郎小）：钉在弧线两端点上方 */
+.fs-figure--css[data-slug="qixi"] .fs-fig-b,
+.fs-figure--css[data-slug="qixi"] .fs-fig-c {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--fs-fig-qixi);
+  top: 40%;
+}
+
+.fs-figure--css[data-slug="qixi"] .fs-fig-b { left: 15.5%; }
+.fs-figure--css[data-slug="qixi"] .fs-fig-c { right: 15.5%; width: 7px; height: 7px; top: 42%; }
+
+/* ② 元旦「初光」（亮场）：地平线 + 半轮日 + 地平线下刻度横线渐隐 */
+.fs-figure--css[data-slug="yuandan"] {
+  --fs-fig-yuandan: #b5793a;
+  background: transparent;
+}
+
+.fs-figure--css[data-slug="yuandan"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 30%;
+  height: 1px;
+  background: rgba(26, 26, 26, 0.24);
+}
+
+.fs-figure--css[data-slug="yuandan"] .fs-fig-a {
+  position: absolute;
+  left: 37%;
+  bottom: calc(30% + 1px);
+  width: 26%;
+  height: 13%;
+  background: var(--fs-fig-yuandan);
+  border-radius: 999px 999px 0 0;
+}
+
+.fs-figure--css[data-slug="yuandan"] .fs-fig-b {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 8%;
+  height: 16%;
+  background: repeating-linear-gradient(180deg, rgba(26, 26, 26, 0.13) 0 1px, transparent 1px 10px);
+  -webkit-mask-image: linear-gradient(180deg, #000, transparent);
+  mask-image: linear-gradient(180deg, #000, transparent);
+}
+
+/* ③ 春节「爆竹光点」（深场 · 唯一双色纹样）：朱砂铺底 + 纸 alpha 灯笼轮廓 + 光点阵 */
+.fs-figure--css[data-slug="chunjie"] {
+  --fs-fig-chunjie: var(--accent);
+  background: var(--fs-fig-chunjie);
+}
+
+.fs-figure--css[data-slug="chunjie"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(245, 241, 233, 0.18) 1.2px, transparent 1.4px);
+  background-size: 34px 34px;
+}
+
+/* 光点向边缘渐隐（朱砂底色罩回边缘） */
+.fs-figure--css[data-slug="chunjie"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 46%, transparent 52%, var(--fs-fig-chunjie) 128%);
+}
+
+.fs-figure--css[data-slug="chunjie"] .fs-fig-a,
+.fs-figure--css[data-slug="chunjie"] .fs-fig-b {
+  position: absolute;
+  border: 1.5px solid rgba(245, 241, 233, 0.55);
+  border-radius: 50%;
+}
+
+/* 两枚灯笼竖排错位：提绳在上、流苏在下（::before / ::after 短竖线） */
+.fs-figure--css[data-slug="chunjie"] .fs-fig-a {
+  left: 24%;
+  top: 16%;
+  width: 17%;
+  height: 30%;
+}
+
+.fs-figure--css[data-slug="chunjie"] .fs-fig-b {
+  right: 24%;
+  bottom: 14%;
+  width: 20%;
+  height: 34%;
+}
+
+.fs-figure--css[data-slug="chunjie"] .fs-fig-a::before,
+.fs-figure--css[data-slug="chunjie"] .fs-fig-b::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -26%;
+  width: 1.5px;
+  height: 26%;
+  background: rgba(245, 241, 233, 0.55);
+}
+
+.fs-figure--css[data-slug="chunjie"] .fs-fig-a::after,
+.fs-figure--css[data-slug="chunjie"] .fs-fig-b::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -26%;
+  width: 1.5px;
+  height: 26%;
+  background: rgba(245, 241, 233, 0.55);
+}
+
+/* ④ 清明「雨与山影」（亮场）：斜雨线阵（上半）+ 双层山影 + 两枚柳叶点 */
+.fs-figure--css[data-slug="qingming"] {
+  --fs-fig-qingming: #7e8e6a;
+  background: transparent;
+}
+
+.fs-figure--css[data-slug="qingming"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 70%;
+  background: repeating-linear-gradient(105deg, rgba(26, 26, 26, 0.1) 0 1px, transparent 1px 9px);
+}
+
+/* 山影：后层（::before，alpha .10）+ 前层（本体，alpha .24）两段重叠三角 */
+.fs-figure--css[data-slug="qingming"] .fs-fig-a {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 46%;
+  background: rgba(26, 26, 26, 0.24);
+  clip-path: polygon(0 100%, 20% 42%, 40% 76%, 58% 28%, 76% 68%, 100% 100%);
+}
+
+.fs-figure--css[data-slug="qingming"] .fs-fig-a::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(26, 26, 26, 0.1);
+  clip-path: polygon(0 100%, 30% 22%, 62% 88%, 84% 48%, 100% 100%);
+}
+
+/* 柳叶：两枚转角小实心点，挂上半右侧 */
+.fs-figure--css[data-slug="qingming"] .fs-fig-b,
+.fs-figure--css[data-slug="qingming"] .fs-fig-c {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--fs-fig-qingming);
+  border-radius: 0 50% 50% 50%;
+}
+
+.fs-figure--css[data-slug="qingming"] .fs-fig-b { right: 16%; top: 16%; }
+.fs-figure--css[data-slug="qingming"] .fs-fig-c { right: 24%; top: 26%; transform: rotate(40deg); }
+
+/* ⑤ 端午「一舟」（亮场）：三条水线 + 下弧舟底 + 舟上竖桨阵 */
+.fs-figure--css[data-slug="duanwu"] {
+  --fs-fig-duanwu: #5e7a55;
+  background: transparent;
+}
+
+.fs-figure--css[data-slug="duanwu"]::before {
+  content: "";
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  top: 40%;
+  height: 26%;
+  background: repeating-linear-gradient(180deg, rgba(26, 26, 26, 0.13) 0 1px, transparent 1px 18px);
+}
+
+/* 舟：下弧舟底；左端翘头由 ::before 小三角补一笔 */
+.fs-figure--css[data-slug="duanwu"] .fs-fig-a {
+  position: absolute;
+  left: 21%;
+  bottom: 44%;
+  width: 58%;
+  height: 7%;
+  background: var(--fs-fig-duanwu);
+  border-radius: 0 0 999px 999px;
+}
+
+.fs-figure--css[data-slug="duanwu"] .fs-fig-a::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 88%;
+  width: 7%;
+  height: 90%;
+  background: var(--fs-fig-duanwu);
+  clip-path: polygon(0 100%, 100% 30%, 100% 100%);
+}
+
+/* 桨：竖线阵立在舟线上方 */
+.fs-figure--css[data-slug="duanwu"] .fs-fig-b {
+  position: absolute;
+  left: 25%;
+  bottom: calc(44% + 7%);
+  width: 50%;
+  height: 16%;
+  background: repeating-linear-gradient(90deg, rgba(26, 26, 26, 0.24) 0 2px, transparent 2px 14%);
+}
+
+/* ⑥ 中秋「满月」（深场）：靛夜铺底 + 纸色满月带月坑 + 底部云带 */
+.fs-figure--css[data-slug="zhongqiu"] {
+  --fs-fig-zhongqiu: #33465c;
+  background: var(--fs-fig-zhongqiu);
+}
+
+.fs-figure--css[data-slug="zhongqiu"] .fs-fig-a {
+  position: absolute;
+  right: 12%;
+  top: 14%;
+  width: 30%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 40%, rgba(51, 70, 92, 0.12) 22%, transparent 23%),
+    radial-gradient(circle at 64% 64%, rgba(51, 70, 92, 0.08) 14%, transparent 15%),
+    rgba(245, 241, 233, 0.92);
+}
+
+/* 云带：两条不等长纸色横线，左出血 */
+.fs-figure--css[data-slug="zhongqiu"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(245, 241, 233, 0.25), rgba(245, 241, 233, 0.25)),
+    linear-gradient(rgba(245, 241, 233, 0.25), rgba(245, 241, 233, 0.25));
+  background-repeat: no-repeat;
+  background-size: 46% 1.5px, 30% 1.5px;
+  background-position: -6% 70%, 22% 82%;
+}
+
+/* ⑦ 国庆「旗与星」（亮场）：旗杆 + 阶梯缺口旗面 + 一大四小纸白星 */
+.fs-figure--css[data-slug="guoqing"] {
+  --fs-fig-guoqing: #a03226;
+  background: transparent;
+}
+
+.fs-figure--css[data-slug="guoqing"]::before {
+  content: "";
+  position: absolute;
+  left: 18%;
+  top: 18%;
+  width: 2px;
+  height: 64%;
+  background: rgba(26, 26, 26, 0.24);
+}
+
+.fs-figure--css[data-slug="guoqing"] .fs-fig-a {
+  position: absolute;
+  left: calc(18% + 2px);
+  top: 18%;
+  width: 40%;
+  aspect-ratio: 3 / 2;
+  background: var(--fs-fig-guoqing);
+  clip-path: polygon(0 0, 100% 0, 92% 25%, 100% 50%, 92% 75%, 100% 100%, 0 100%);
+}
+
+/* 主星（五角 clip-path）+ 四小星沿弧（::after 点阵，降级 = 圆点 / 方块） */
+.fs-figure--css[data-slug="guoqing"] .fs-fig-b {
+  position: absolute;
+  left: calc(18% + 5%);
+  top: calc(18% + 8%);
+  width: 12px;
+  height: 12px;
+  background: #f7f6f4;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+.fs-figure--css[data-slug="guoqing"] .fs-fig-b::after {
+  content: "";
+  position: absolute;
+  inset: -140% -420% -60% -60%;
+  background-image:
+    radial-gradient(circle, rgba(247, 246, 244, 0.8) 2px, transparent 2.4px),
+    radial-gradient(circle, rgba(247, 246, 244, 0.8) 2px, transparent 2.4px),
+    radial-gradient(circle, rgba(247, 246, 244, 0.8) 2px, transparent 2.4px),
+    radial-gradient(circle, rgba(247, 246, 244, 0.8) 2px, transparent 2.4px);
+  background-repeat: no-repeat;
+  background-size: 5px 5px;
+  background-position: 4% 30%, 22% 58%, 44% 80%, 68% 92%;
+}
+
+/* ⑧ 元宵「灯市」（深场）：灯橙铺底 + 三盏异形灯（大小不等）+ 悬线与倒影点 */
+.fs-figure--css[data-slug="yuanxiao"] {
+  --fs-fig-yuanxiao: #bf6b2f;
+  background: var(--fs-fig-yuanxiao);
+}
+
+.fs-figure--css[data-slug="yuanxiao"] .fs-fig-a,
+.fs-figure--css[data-slug="yuanxiao"] .fs-fig-b,
+.fs-figure--css[data-slug="yuanxiao"] .fs-fig-c {
+  position: absolute;
+  background: rgba(247, 246, 244, 0.9);
+}
+
+.fs-figure--css[data-slug="yuanxiao"] .fs-fig-a {
+  left: 18%;
+  top: 34%;
+  width: 13%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
+.fs-figure--css[data-slug="yuanxiao"] .fs-fig-b {
+  left: 44%;
+  top: 30%;
+  width: 11%;
+  height: 38%;
+  border-radius: 50%;
+}
+
+.fs-figure--css[data-slug="yuanxiao"] .fs-fig-c {
+  left: 68%;
+  top: 38%;
+  width: 12%;
+  height: 26%;
+  border-radius: 6px;
+  background: rgba(247, 246, 244, 0.75);
+}
+
+/* 各灯顶部悬线不等长 */
+.fs-figure--css[data-slug="yuanxiao"] .fs-fig-a::before,
+.fs-figure--css[data-slug="yuanxiao"] .fs-fig-b::before,
+.fs-figure--css[data-slug="yuanxiao"] .fs-fig-c::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  width: 1.5px;
+  background: rgba(247, 246, 244, 0.5);
+}
+
+.fs-figure--css[data-slug="yuanxiao"] .fs-fig-a::before { height: 34%; }
+.fs-figure--css[data-slug="yuanxiao"] .fs-fig-b::before { height: 56%; }
+.fs-figure--css[data-slug="yuanxiao"] .fs-fig-c::before { height: 44%; }
+
+/* 灯下倒影点 */
+.fs-figure--css[data-slug="yuanxiao"] .fs-fig-a::after,
+.fs-figure--css[data-slug="yuanxiao"] .fs-fig-b::after,
+.fs-figure--css[data-slug="yuanxiao"] .fs-fig-c::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 10px);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(247, 246, 244, 0.4);
+  transform: translateX(-50%);
+}
+
+/* ⑨ 中元「河灯」（深场）：夜水青留白 + 下 1/3 一排 accent 灯点与倒影线
+   （accent 是全纹样体系唯一落点，DESIGN §1.2 允许） */
+.fs-figure--css[data-slug="zhongyuan"] {
+  --fs-fig-zhongyuan: #3f4a52;
+  background: var(--fs-fig-zhongyuan);
+}
+
+.fs-figure--css[data-slug="zhongyuan"] .fs-fig-a {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: 30%;
+  height: 5px;
+  background-image:
+    radial-gradient(circle 2.5px, var(--accent) 99%, transparent),
+    radial-gradient(circle 2.5px, var(--accent) 99%, transparent),
+    radial-gradient(circle 2.5px, var(--accent) 99%, transparent),
+    radial-gradient(circle 2.5px, var(--accent) 99%, transparent),
+    radial-gradient(circle 2.5px, var(--accent) 99%, transparent),
+    radial-gradient(circle 2.5px, var(--accent) 99%, transparent);
+  background-repeat: no-repeat;
+  background-size: 5px 5px;
+  background-position: 0 0, 21% 0, 39% 0, 61% 0, 79% 0, 100% 0;
+}
+
+/* 每枚灯下一条短竖倒影线 */
+.fs-figure--css[data-slug="zhongyuan"] .fs-fig-a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 10px;
+  height: 9px;
+  background: repeating-linear-gradient(90deg, rgba(245, 241, 233, 0.3) 0 1px, transparent 1px 17.5%);
+}
+
+/* ⑩ 重阳「登高」（亮场）：两重山 + 山顶菊黄一点 + 右上细描边残月环 */
+.fs-figure--css[data-slug="chongyang"] {
+  --fs-fig-chongyang: #c09a3e;
+  background: transparent;
+}
+
+.fs-figure--css[data-slug="chongyang"] .fs-fig-a {
+  position: absolute;
+  left: 6%;
+  bottom: 0;
+  width: 60%;
+  height: 55%;
+  background: rgba(26, 26, 26, 0.1);
+  clip-path: polygon(0 100%, 45% 12%, 92% 100%);
+}
+
+.fs-figure--css[data-slug="chongyang"] .fs-fig-b {
+  position: absolute;
+  right: 4%;
+  bottom: 0;
+  width: 55%;
+  height: 42%;
+  background: rgba(26, 26, 26, 0.24);
+  clip-path: polygon(0 100%, 55% 0, 100% 100%);
+}
+
+/* 前山顶端一枚菊黄实心圆：登顶的人 / 一朵菊，全图唯一饱和色落点 */
+.fs-figure--css[data-slug="chongyang"] .fs-fig-b::before {
+  content: "";
+  position: absolute;
+  left: calc(55% - 4px);
+  top: -6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--fs-fig-chongyang);
+}
+
+/* 右上角细描边圆（残月位） */
+.fs-figure--css[data-slug="chongyang"]::before {
+  content: "";
+  position: absolute;
+  right: 14%;
+  top: 12%;
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid rgba(26, 26, 26, 0.24);
+  border-radius: 50%;
+}
+
+/* ⑪ 冬至「九九消寒」（亮场）：一枝斜梅 + 九枚瓣（8 描边 + 第 9 实心） */
+.fs-figure--css[data-slug="dongzhi"] {
+  --fs-fig-dongzhi: #a5544a;
+  background: transparent;
+}
+
+/* 枝：一条 75° 斜线（自下而上）+ 顶端转折短段 */
+.fs-figure--css[data-slug="dongzhi"] .fs-fig-a {
+  position: absolute;
+  left: 46%;
+  bottom: 16%;
+  width: 2px;
+  height: 56%;
+  background: rgba(26, 26, 26, 0.24);
+  transform: rotate(15deg);
+  transform-origin: bottom center;
+}
+
+.fs-figure--css[data-slug="dongzhi"] .fs-fig-a::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -8%;
+  width: 2px;
+  height: 16%;
+  background: rgba(26, 26, 26, 0.24);
+  transform: rotate(-30deg);
+  transform-origin: bottom center;
+}
+
+/* 九枚瓣沿枝不等距：8 枚 1.5px 描边圆 + 第 9 枚素梅实心（消寒图本义） */
+.fs-figure--css[data-slug="dongzhi"] .fs-fig-b {
+  position: absolute;
+  left: 34%;
+  right: 34%;
+  top: 18%;
+  bottom: 22%;
+  background-image:
+    radial-gradient(circle, var(--fs-fig-dongzhi) 99%, transparent),
+    radial-gradient(circle, transparent 3.5px, rgba(26, 26, 26, 0.24) 3.5px, rgba(26, 26, 26, 0.24) 5px, transparent 5.2px),
+    radial-gradient(circle, transparent 3.5px, rgba(26, 26, 26, 0.24) 3.5px, rgba(26, 26, 26, 0.24) 5px, transparent 5.2px),
+    radial-gradient(circle, transparent 3.5px, rgba(26, 26, 26, 0.24) 3.5px, rgba(26, 26, 26, 0.24) 5px, transparent 5.2px),
+    radial-gradient(circle, transparent 3.5px, rgba(26, 26, 26, 0.24) 3.5px, rgba(26, 26, 26, 0.24) 5px, transparent 5.2px),
+    radial-gradient(circle, transparent 3.5px, rgba(26, 26, 26, 0.24) 3.5px, rgba(26, 26, 26, 0.24) 5px, transparent 5.2px),
+    radial-gradient(circle, transparent 3.5px, rgba(26, 26, 26, 0.24) 3.5px, rgba(26, 26, 26, 0.24) 5px, transparent 5.2px),
+    radial-gradient(circle, transparent 3.5px, rgba(26, 26, 26, 0.24) 3.5px, rgba(26, 26, 26, 0.24) 5px, transparent 5.2px),
+    radial-gradient(circle, transparent 3.5px, rgba(26, 26, 26, 0.24) 3.5px, rgba(26, 26, 26, 0.24) 5px, transparent 5.2px);
+  background-repeat: no-repeat;
+  background-size: 10px 10px;
+  background-position: 82% 2%, 30% 14%, 66% 26%, 24% 40%, 58% 52%, 16% 64%, 50% 76%, 8% 88%, 42% 96%;
+}
+
+/* ⑫ 腊八「三碗」（亮场）：三只碗形基线对齐、大小递减 + 上方热气短线 */
+.fs-figure--css[data-slug="laba"] {
+  --fs-fig-laba: #7a5c42;
+  background: transparent;
+}
+
+.fs-figure--css[data-slug="laba"] .fs-fig-a,
+.fs-figure--css[data-slug="laba"] .fs-fig-b,
+.fs-figure--css[data-slug="laba"] .fs-fig-c {
+  position: absolute;
+  bottom: 26%;
+  height: 12%;
+  border: 2px solid var(--fs-fig-laba);
+  border-top: 0;
+  border-radius: 0 0 999px 999px;
+}
+
+.fs-figure--css[data-slug="laba"] .fs-fig-a { left: 20%; width: 22%; }
+.fs-figure--css[data-slug="laba"] .fs-fig-b { left: 48%; width: 18%; }
+.fs-figure--css[data-slug="laba"] .fs-fig-c { left: 72%; width: 14%; }
+
+/* 热气：碗上方的竖向短线阵，限高错位 */
+.fs-figure--css[data-slug="laba"]::after {
+  content: "";
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  bottom: calc(26% + 12%);
+  height: 10%;
+  background: repeating-linear-gradient(90deg, rgba(26, 26, 26, 0.13) 0 1.5px, transparent 1.5px 10%);
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 55%);
+  mask-image: linear-gradient(180deg, transparent, #000 55%);
+}
+
+/* ---- 两栏主体：左正文 + 右 sticky 目录（= .z-layout 逐值） ---- */
+.fs-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 15rem;
+  gap: clamp(2rem, 4vw, 3.5rem);
+  align-items: start;
+  margin-top: 2rem;
+}
+
+.fs-section {
+  margin-top: 2.4rem;
+  scroll-margin-top: 5.5rem; /* 悬浮导航避让：.fs-section 不在 markdown-body 内，主题 hack 不命中 */
+}
+
+.fs-section:first-child { margin-top: 0; }
+
+.fs-section-title {
+  margin: 0 0 0.9rem;
+  font-family: var(--font-serif-title);
+  font-size: clamp(1.3rem, 2.4vw, 1.65rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-color);
+}
+
+.fs-sub-title {
+  margin: 1.6rem 0 0.7rem;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+/* 正文排版与链接：= .z-main 同款 */
+.fs-main .markdown-body p { font-size: 0.98rem; line-height: 1.85; }
+.fs-main .markdown-body a {
+  color: var(--text-color);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.fs-main .markdown-body a:hover { color: var(--accent); }
+
+/* facts 表：§4.15 内唯一一条 facts 规则（基座全在 .cal-table，与 .z-facts 解耦，E-052） */
+.fs-facts tbody th { width: 8rem; }
+
+/* 年份表：默认 11 行直出；JS 挂上 html.js 且收起态才藏第 6–11 行（S12 渐进增强） */
+.fs-years tbody th { width: 4.5rem; }
+
+html.js .fs-years[data-collapsed="true"] [data-fs-extra] { display: none; }
+html:not(.js) .fs-years-toggle { display: none; }
+
+.fs-years-toggle {
+  padding: 0.2rem 0;
+  border: 0;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--sec-text-color);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.fs-years-toggle:hover { color: var(--accent); }
+
+/* 年份表脚注 / 装排说明：= .z-note 同款 */
+.fs-note {
+  margin: 0.55rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: var(--sec-text-color);
+}
+
+.fs-note a {
+  color: var(--text-color);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.fs-note a:hover { color: var(--accent); }
+
+/* 放假日历表变体：arrange 备注挂在区间下（mono 次级，静态信息不沾 accent） */
+.fs-arrange {
+  display: block;
+  margin-top: 0.15rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--sec-text-color);
+}
+
+/* 传统节日表：农历小字（块级，次级色） */
+.fs-lunar {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.78rem;
+  color: var(--sec-text-color);
+}
+
+/* 词汇表 / 祝福语表：拼音列宽 7rem（复制 .z-vocab 口径）；
+   cal-pinyin 显式还原 table-cell（E-063 同款修复， inline 会脱离表格布局） */
+.fs-vocab th:nth-child(2),
+.fs-greetings th:nth-child(2) { width: 7rem; }
+
+.fs-vocab td.cal-pinyin,
+.fs-greetings td.cal-pinyin {
+  display: table-cell;
+  margin-left: 0;
+}
+
+/* FAQ：复用 cal-faq-item 折叠样式，仅留组距 */
+.fs-faq { margin-top: 0.4rem; }
+
+/* ---- 相关阅读：组顶 2px 全墨线 + 行式双列列表（不是卡片，R-3） ---- */
+.fs-related {
+  margin-top: 2.6rem;
+  padding-top: 1.1rem;
+  border-top: 2px solid var(--rule-strong);
+}
+
+.fs-related-title {
+  margin: 0 0 0.4rem;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.fs-related-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 clamp(2rem, 4vw, 3.2rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fs-related-item {
+  padding: 0.62rem 0;
+  border-bottom: 1px solid var(--line-color);
+}
+
+.fs-related-link {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.fs-related-link:hover { color: var(--accent); }
+
+/* 末行：当年节假日页（mono 次级色，站内链不加外链标注） */
+.fs-related-holiday {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--sec-text-color);
+}
+
+.fs-related-holiday:hover { color: var(--accent); }
+
+/* ---- 右栏目录：= .z-toc 逐值（sticky / 收起 / 进度环） ---- */
+.fs-toc {
+  position: sticky;
+  top: 5.5rem;
+  padding-left: 1.2rem;
+  border-left: 1px solid var(--rule);
+}
+
+.fs-toc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.fs-toc-label {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--sec-text-color);
+}
+
+.fs-toc-toggle {
+  display: flex;
+  align-items: center;
+  padding: 0.2rem;
+  border: 0;
+  background: transparent;
+  color: var(--sec-text-color);
+  cursor: pointer;
+}
+
+.fs-toc-toggle:hover { color: var(--accent); }
+
+.fs-toc-chevron {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.18s ease;
+}
+
+.fs-toc.is-collapsed .fs-toc-chevron { transform: rotate(-90deg); }
+.fs-toc.is-collapsed .fs-toc-list { display: none; }
+
+.fs-toc-list { margin: 0.7rem 0 0; padding: 0; list-style: none; }
+.fs-toc-list li { margin: 0 0 0.1rem; }
+
+.fs-toc-list a {
+  display: block;
+  padding: 0.28rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--sec-text-color);
+}
+
+.fs-toc-list a:hover { color: var(--accent); }
+
+.fs-toc-list a.is-active {
+  color: var(--text-color);
+  font-weight: 700;
+  background: rgba(26, 26, 26, 0.05);
+}
+
+/* 进度环：= .z-ring 逐值（r=15.5、CIRC 97.4、rotate -90deg、0.1s linear） */
+.fs-toc-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 0.9rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--rule);
+}
+
+.fs-ring { flex: none; }
+
+.fs-ring-bg { fill: none; stroke: var(--line-color); stroke-width: 2.5; }
+
+.fs-ring-fill {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  transition: stroke-dashoffset 0.1s linear;
+}
+
+.fs-toc-progress-text {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--sec-text-color);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- 移动端：目录收起为 FAB + 底部抽屉（逐值复制 .z-toc 三件套） ---- */
+.fs-toc-fab,
+.fs-toc-overlay,
+.fs-toc-sheet { display: none; }
+
+@media (max-width: 991.98px) {
+  .fs-layout { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .fs-toc { display: none; }
+
+  .fs-toc-fab {
+    display: flex;
+    position: fixed;
+    right: 1rem;
+    bottom: 1.2rem;
+    z-index: 1050;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.55rem 0.9rem;
+    border: 1px solid var(--site-chip-border);
+    border-radius: 999px;
+    background: #fdfbf6;
+    box-shadow: var(--site-float-shadow);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-color);
+    cursor: pointer;
+  }
+
+  .fs-toc-fab svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .fs-toc-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 1060;
+    background: rgba(42, 37, 29, 0.32);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+  }
+
+  .fs-toc-overlay.is-open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .fs-toc-sheet {
+    display: block;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1070;
+    max-height: 72vh;
+    overflow-y: auto;
+    padding: 0.9rem 1.1rem 1.4rem;
+    border-radius: 16px 16px 0 0;
+    background: #f7f6f4;
+    box-shadow: 0 -12px 32px -14px rgba(42, 37, 29, 0.28);
+    transform: translateY(102%);
+    transition: transform 0.22s ease;
+  }
+
+  .fs-toc-sheet.is-open { transform: translateY(0); }
+
+  .fs-toc-sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+
+  .fs-toc-sheet-close {
+    display: flex;
+    padding: 0.3rem;
+    border: 0;
+    background: transparent;
+    color: var(--sec-text-color);
+    cursor: pointer;
+  }
+
+  .fs-toc-sheet-close svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .fs-toc-sheet .fs-toc-list a { font-size: 0.95rem; padding: 0.45rem 0.5rem; }
+  .fs-nav-strip ul { gap: 0.3rem 0.85rem; }
+}
+
+/* ≤575.98（含 390）：facts 左列收 6.5rem；年份表装 .cal-table-wrap 内滚
+   （页面级横向溢出必须为 0，S11）；相关阅读塌单列（DESIGN §3.2） */
+@media (max-width: 575.98px) {
+  .fs-facts tbody th { width: 6.5rem; }
+  .fs-years { min-width: 34rem; }
+  .fs-related-list { grid-template-columns: minmax(0, 1fr); }
+}
+
 /* ===== 5. 第三方组件纸面化（site.css 在 main.css 之后加载，覆盖即生效） ===== */
 
 /* 5.1 nprogress 顶部进度条（VD-2）：主题 L124 的 color 配置是死配置，

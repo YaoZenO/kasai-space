@@ -51,13 +51,13 @@ var fsNext = fsIdx > -1 ? FS_NAV[(fsIdx + 1) % FS_NAV.length] : null
   <div class="home-wrap">
     <header class="page-head">
       <nav class="cal-crumb" aria-label="面包屑">
-        <a href="<%= url_for('/library/') %>">资料库</a><span aria-hidden="true">/</span><span class="cal-crumb-now"><%= f.name %></span>
+        <a href="<%= url_for('/library/') %>">资料库</a><span aria-hidden="true">/</span><a href="<%= url_for('/library/') %>#topic-festivals">节日文化</a><span aria-hidden="true">/</span><span class="cal-crumb-now"><%= f.name %></span>
       </nav>
       <p class="page-head-kicker">FESTIVAL</p>
       <h1 class="page-head-title"><%= f.name %></h1>
       <p class="cal-lede"><%- f.lede %></p>
       <p class="archive-total">
-        更新于 <%= fmtItemDate(f.updated) %> · <%= f.legal ? ('法定假日 ' + f.statutory + ' 天') : '不放假' %> · <%= f.currentYear %> 年当天 <%= f.currentRow.date %><%= f.currentRow.date ? '（' + f.currentRow.weekday + '）' : '' %>
+        更新于 <%= fmtItemDate(f.updated) %> · <%= f.pinyin %> · <%= f.legal ? ('法定假日 ' + f.statutory + ' 天') : '非法定，不放假' %>
       </p>
     </header>
 
@@ -78,12 +78,19 @@ var fsNext = fsIdx > -1 ? FS_NAV[(fsIdx + 1) % FS_NAV.length] : null
     </nav>
 
     <%# 配图两分支：实图（Commons 授权图，署名是使用条件）/ CSS 纹样降级（data-slug 寻址，
-        12 套纹样主色 token 由 site.css §4.15 定义，不进 :root） %>
+        12 套纹样主色 token 由 site.css §4.15 定义，不进 :root）。两分支共用同一个
+        .fs-figure 外壳盒（16:9、12px 圆角、hairline 边框），唯一差异是填充物。 %>
     <% if (f.image && f.image.css === true) { %>
-    <div class="fs-figure fs-figure--css" data-slug="<%= f.slug %>" role="img" aria-label="<%= f.name %>主题纹样"></div>
+    <figure class="fs-figure">
+      <div class="fs-figure-media fs-figure--css" data-slug="<%= f.slug %>" aria-hidden="true">
+        <i class="fs-fig-a"></i><i class="fs-fig-b"></i><i class="fs-fig-c"></i>
+      </div>
+    </figure>
     <% } else if (f.image) { %>
     <figure class="fs-figure">
-      <img src="<%= f.image.file %>" alt="<%= f.image.alt %>" loading="lazy" decoding="async">
+      <div class="fs-figure-media">
+        <img src="<%= f.image.file %>" alt="<%= f.image.alt %>" loading="lazy" decoding="async">
+      </div>
       <figcaption>
         图：<a href="<%= f.image.page %>" target="_blank" rel="noopener"><%= f.image.author %></a> / <%= f.image.license %>
       </figcaption>
@@ -117,53 +124,71 @@ var fsNext = fsIdx > -1 ? FS_NAV[(fsIdx + 1) % FS_NAV.length] : null
           <div class="markdown-body"><%- sec.body %></div>
           <% if (f.tableRows.length) { %>
           <h3 class="fs-sub-title"><%= f.tableYears[0] %>–<%= f.tableYears[1] %> 年<%= f.name %>日期</h3>
+          <%# 表形态由 helper 决定：calendar=元旦/国庆放假日历表（4 列）；legal date=法定节日
+              日期表（5 列，含放假区间）；traditional date=传统节日日期表（3 列，不放假）。
+              11 行全部直出（无 JS 全可见）；html.js 且 data-collapsed 时第 6–11 行收起，
+              展开按钮在 tfoot，由 festival.js 切换（S12）。 %>
           <div class="cal-table-wrap">
             <table class="cal-table fs-years" data-collapsed="true">
               <thead>
                 <% if (f.tableMode === 'calendar') { %>
                 <tr>
                   <th scope="col">年份</th>
-                  <th scope="col">口径</th>
                   <th scope="col">放假区间（当年内）</th>
                   <th scope="col">天数</th>
                   <th scope="col">调休上班日</th>
                 </tr>
+                <% } else if (f.legal) { %>
+                <tr>
+                  <th scope="col">年份</th>
+                  <th scope="col">当天</th>
+                  <th scope="col">放假区间</th>
+                  <th scope="col">天数</th>
+                  <th scope="col">标签</th>
+                </tr>
                 <% } else { %>
                 <tr>
                   <th scope="col">年份</th>
-                  <th scope="col">口径</th>
-                  <th scope="col">当天日期</th>
-                  <th scope="col">星期</th>
-                  <th scope="col">农历</th>
+                  <th scope="col">当天</th>
+                  <th scope="col">标签</th>
                 </tr>
                 <% } %>
               </thead>
               <tbody>
                 <% for (var ti = 0; ti < f.tableRows.length; ti += 1) { var tr = f.tableRows[ti] %>
-                <tr<% if (ti === 0) { %> class="is-hl"<% } %><% if (ti >= 5) { %> data-extra<% } %>>
+                <tr<% if (ti === 0) { %> class="is-hl"<% } %><% if (ti >= 5) { %> data-fs-extra<% } %>>
                   <th scope="row"><span class="cal-name"><%= tr.year %></span></th>
-                  <td><%= tr.label %></td>
                   <% if (f.tableMode === 'calendar') { %>
                   <td>
-                    <time datetime="<%= tr.start %>"><%= tr.start === tr.end ? tr.start : tr.start + ' – ' + tr.end %></time>
+                    <span class="cal-range"><time datetime="<%= tr.start %>"><%= tr.start %></time><span class="cal-arrow"> → </span><time datetime="<%= tr.end %>"><%= tr.end %></time></span>
                     <% if (tr.arrange) { %><span class="fs-arrange"><%= tr.arrange %></span><% } %>
                   </td>
-                  <td><%= tr.days %> 天</td>
-                  <td><%= (tr.makeup && tr.makeup.length) ? tr.makeup.join('、') : '—' %></td>
+                  <td><span class="cal-days"><%= tr.days %> 天</span></td>
+                  <td class="cal-makeup">
+                    <% if (tr.makeup && tr.makeup.length) { for (var mi2 = 0; mi2 < tr.makeup.length; mi2 += 1) { %><span class="cal-makeup-day"><%= tr.makeup[mi2] %></span><% } } else { %><span class="cal-makeup-none">—</span><% } %>
+                  </td>
+                  <% } else if (f.legal) { %>
+                  <td class="cal-when"><time datetime="<%= tr.date %>"><%= Number(tr.date.slice(5, 7)) %> 月 <%= Number(tr.date.slice(8, 10)) %> 日</time><span class="cal-weekday"><%= tr.weekday %></span></td>
+                  <td>
+                    <span class="cal-range"><time datetime="<%= tr.start %>"><%= tr.start %></time><span class="cal-arrow"> → </span><time datetime="<%= tr.end %>"><%= tr.end %></time></span><span class="cal-days"><%= tr.days %> 天</span>
+                  </td>
+                  <td><span class="cal-tag"><%= tr.label %></span></td>
                   <% } else { %>
-                  <td><time datetime="<%= tr.date %>"><%= tr.date %></time></td>
-                  <td><%= tr.weekday %></td>
-                  <td><%= tr.lunar || '—' %></td>
+                  <td class="cal-when"><time datetime="<%= tr.date %>"><%= Number(tr.date.slice(5, 7)) %> 月 <%= Number(tr.date.slice(8, 10)) %> 日</time><span class="cal-weekday"><%= tr.weekday %></span><% if (tr.lunar) { %><span class="fs-lunar"><%= tr.lunar %></span><% } %></td>
+                  <td><span class="cal-tag"><%= tr.label %></span></td>
                   <% } %>
                 </tr>
                 <% } %>
               </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="<%= f.tableMode === 'calendar' ? 4 : (f.legal ? 5 : 3) %>">
+                    <button class="fs-years-toggle" type="button" aria-expanded="false">展开全部 <%= f.tableRows.length %> 年 ↓</button>
+                  </td>
+                </tr>
+              </tfoot>
             </table>
           </div>
-          <%# 渐进增强：11 行全部直出（无 JS 全可见）；html.js 下第 6–11 行收起，按钮由 festival.js 启用 %>
-          <button class="fs-table-toggle" type="button" aria-expanded="false" hidden>
-            展开其余 <%= f.tableRows.length - 5 %> 年
-          </button>
           <p class="fs-note">日期与本站 <a href="<%= url_for('/holidays/' + f.currentYear + '/') %>"><%= f.currentYear %> 年节假日页</a> 一致；<%= f.tableYears[0] + 1 %> 年起为按历法推算的预计值，可能与日后的官方通知不同。</p>
           <% } %>
 
@@ -225,10 +250,22 @@ var fsNext = fsIdx > -1 ? FS_NAV[(fsIdx + 1) % FS_NAV.length] : null
         </section>
         <% } %>
 
-        <nav class="fs-pager" aria-label="上下节日">
-          <a class="fs-pager-prev" href="<%= url_for('/library/' + fsPrev.s + '/') %>">← <%= fsPrev.n %></a>
-          <a class="fs-pager-next" href="<%= url_for('/library/' + fsNext.s + '/') %>"><%= fsNext.n %> →</a>
-        </nav>
+        <%# 相关阅读：另 11 个节日 + 当年节假日页（PRD §5.6 / DESIGN §7）。
+            行式列表不是卡片；末行固定为当年节假日页，mono 次级色。 %>
+        <section class="fs-related">
+          <h2 class="fs-related-title">相关阅读</h2>
+          <ul class="fs-related-list">
+            <% for (var ri3 = 0; ri3 < FS_NAV.length; ri3 += 1) { var rf = FS_NAV[ri3] %>
+            <% if (rf.s === f.slug) { continue; } %>
+            <li class="fs-related-item">
+              <a class="fs-related-link" href="<%= url_for('/library/' + rf.s + '/') %>"><%= rf.n %></a>
+            </li>
+            <% } %>
+            <li class="fs-related-item">
+              <a class="fs-related-link fs-related-holiday" href="<%= url_for('/holidays/' + f.currentYear + '/') %>"><%= f.currentYear %> 年节假日页</a>
+            </li>
+          </ul>
+        </section>
 
         <div class="cal-after">
           <p class="cal-note"><%= f.notice %></p>
