@@ -495,6 +495,19 @@ if (!fs.existsSync(PUBLIC)) {
     assert.ok(!/word-break:\s*break-all/.test(sec15), '§4.15 出现 word-break:break-all');
   });
 
+  // ---------- ⑤b E-064：构建 minifier 会把 calc(a + b) 压成 calc(a+b) 使声明整体失效 ----------
+  // 根因：cssnano/压缩器在压缩时去掉 calc 内加号两侧空格，而 CSS 规范里加法运算符两侧
+  // 必须有空格，浏览器把 `calc(22%+3px)` 整条丢弃 → 元素落回静态位置（E-064，2026-10-27）。
+  // 防复发：源码与产物两侧都禁加法 calc；纹样定位一律用常量/百分比等效写法。
+  const prodCss = fs.readFileSync(path.join(PUBLIC, 'css', 'site.css'), 'utf8');
+  // 从严：本站样式没有合法的加法 calc 用例，凡 calc 内出现加号一律 FAIL
+  // （宽松正则曾漏掉 `calc(18% + 0.5%)`——`%` 不在 [\d.)] 里，变异自检抓出后收紧）
+  const ADD_CALC = /calc\([^()]*\+[^()]*\)/;
+  ok('E-064 负向：site.css 源码与产物 public/css/site.css 均无加法 calc', () => {
+    assert.ok(!ADD_CALC.test(css), 'site.css 源码出现加法 calc——minifier 压缩后该声明会整体失效，改用常量/百分比等效写法');
+    assert.ok(!ADD_CALC.test(prodCss), '产物 public/css/site.css 出现加法 calc（无论源码是否干净，产物失效即页面错位）');
+  });
+
   ok('§4.15 内无 animation（纹样绝对静止，DESIGN §6.6）', () => {
     assert.ok(sec15, '§4.15 段缺失，本断言空转');
     assert.ok(!/animation/.test(cssNoComment.slice(cssNoComment.indexOf('===== 4.15'), cssNoComment.indexOf('===== 5.'))),
