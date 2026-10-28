@@ -113,9 +113,17 @@ ok('S2 名次由数据算出：独立复算结果与 helper 输出逐项一致',
       for (const m of def.metrics) {
         acc += normalize(c.metrics[m.field].v, stats[m.field].min, stats[m.field].max, m.dir === 'down' ? 'down' : 'up') * (m.weight || 0);
       }
-      return { slug: c.slug, raw: acc / wsum };
+      const g = c.metrics && c.metrics.gdp && typeof c.metrics.gdp.v === 'number' ? c.metrics.gdp.v : -1;
+      return { slug: c.slug, raw: acc / wsum, gdp: g };
     });
-    scored.sort((a, b) => (b.raw - a.raw) || String(a.slug).localeCompare(String(b.slug)));
+    // 同分规则必须与 helper 完全一致：分数降序 → GDP 降序 → slug 升序。
+    // 曾经这里只按分数排，结果双一流榜广州/成都同为 7 所时复算顺序与 helper 相反，
+    // 断言假红（E-069 同批）——复算口径一旦和实现对不上，这条断言就失去意义。
+    scored.sort((a, b) => {
+      if (b.raw !== a.raw) return b.raw - a.raw;
+      if (b.gdp !== a.gdp) return b.gdp - a.gdp;
+      return String(a.slug).localeCompare(String(b.slug));
+    });
 
     const expectSize = Math.min(def.size || 10, scored.length);
     assert.strictEqual(rank.items.length, expectSize,

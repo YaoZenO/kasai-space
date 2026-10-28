@@ -2033,38 +2033,20 @@ groups:
           - { name: 重庆, slug: chongqing, note: "" }
       - slug: shuangyiliudaxuezu
         title: 中国双一流大学最多十大城市
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 北京, slug: beijing, note: "" }
-          - { name: 上海, slug: shanghai, note: "" }
-          - { name: 南京, slug: nanjing, note: "" }
-          - { name: 广州, slug: guangzhou, note: "" }
-          - { name: 武汉, slug: wuhan, note: "" }
-          - { name: 成都, slug: chengdu, note: "" }
-          - { name: 西安, slug: xian, note: "" }
-          - { name: 天津, slug: tianjin, note: "" }
-          - { name: 长沙, slug: changsha, note: "" }
-          - { name: 哈尔滨, slug: haerbin, note: "" }
+        lede: 按「双一流」建设高校数量从多到少排序，数据为第二轮双一流名单（147 所）。
+        metrics:
+          - { field: "double_first_class", weight: 1.0, dir: "up", label: "双一流高校", unit: "所" }
+        note: 候选范围为本数据集中已采集到该字段的城市。
       - slug: benkedaxuebijiaodu
         title: 中国本科大学比较多的10个城市
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 北京, slug: beijing, note: 高等教育资源最集中的城市 双一流高校最多的城市 }
-          - { name: 武汉, slug: wuhan, note: 中国重要的科教基地之一 本科院校超47所 }
-          - { name: 西安, slug: xian, note: 中国重要的科教基地之一 本科院校超45所 }
-          - { name: 广州, slug: guangzhou, note: 中国高等教育最发达的城市之一 华南地区的教育中心 }
-          - { name: 上海, slug: shanghai, note: 科教城市之一 中国高等教育的重要中心之一 }
-          - { name: 南京, slug: nanjing, note: 国家四大科研教育中心之一 本科院校超35所 }
-          - { name: 天津, slug: tianjin, note: 北方教育重镇之一 中国近代教育的发祥地之一 }
-          - { name: 成都, slug: chengdu, note: 中国西南地区的教育中心 本科院校超31所 }
-          - { name: 重庆, slug: chongqing, note: 西南地区教育强市 本科院校超30所 }
-          - { name: 杭州, slug: hangzhou, note: 全国首批学习型城市网络城市 本科院校超29所 }
+        lede: 按本科高校数量从多到少排序，数据为教育部全国高等学校名单。
+        metrics:
+          - { field: "universities", weight: 1.0, dir: "up", label: "本科高校", unit: "所" }
+        note: 候选范围为本数据集中已采集到该字段的城市。
       - slug: quanqiudianjingzhi
         title: 十大全球电竞之都
         kind: "pending"

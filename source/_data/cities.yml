@@ -29,6 +29,12 @@ sources:
   - key: "metro2025"
     name: "交通运输部《2025 年城市轨道交通运营数据速报》（截至 2025-12-31，含地铁、轻轨、单轨、有轨电车）"
     asOf: "2025"
+  - key: "dfc2022"
+    name: "教育部等公布的第二轮「双一流」建设高校名单（147 所，2022 年公布）"
+    asOf: "2022"
+  - key: "uni2022"
+    name: "教育部全国高等学校名单（本科高校数，2021-09-30 版）"
+    asOf: "2022"
   - key: "areaPub"
     name: "公开行政区划面积资料（核对自公开城市面积排行，标注为约数的按约数收录）"
     asOf: "2025"
@@ -39,6 +45,8 @@ cities:
     province: 北京市
     level: 直辖市
     metrics:
+      universities: { v: 67, unit: "所", asOf: "2022", source: "uni2022" }
+      double_first_class: { v: 34, unit: "所", asOf: "2022", source: "dfc2022" }
       metro_km: { v: 909.0, unit: "公里", asOf: "2025", source: "metro2025" }
       area_km2: { v: 16410, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 52073.4, unit: "亿元", asOf: "2025", source: "gdp2025" }
@@ -48,6 +56,7 @@ cities:
     province: 浙江省
     level: 省会
     metrics:
+      universities: { v: 28, unit: "所", asOf: "2022", source: "uni2022" }
       metro_km: { v: 516.0, unit: "公里", asOf: "2025", source: "metro2025" }
       area_km2: { v: 16850, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 23010.9, unit: "亿元", asOf: "2025", source: "gdp2025" }
@@ -56,6 +65,8 @@ cities:
     province: 上海市
     level: 直辖市
     metrics:
+      universities: { v: 40, unit: "所", asOf: "2022", source: "uni2022" }
+      double_first_class: { v: 15, unit: "所", asOf: "2022", source: "dfc2022" }
       metro_km: { v: 881.5, unit: "公里", asOf: "2025", source: "metro2025" }
       area_km2: { v: 6340, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 56708.71, unit: "亿元", asOf: "2025", source: "gdp2025" }
@@ -65,6 +76,8 @@ cities:
     province: 四川省
     level: 省会
     metrics:
+      universities: { v: 29, unit: "所", asOf: "2022", source: "uni2022" }
+      double_first_class: { v: 7, unit: "所", asOf: "2022", source: "dfc2022" }
       metro_km: { v: 719.5, unit: "公里", asOf: "2025", source: "metro2025" }
       area_km2: { v: 14300, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 24763.61, unit: "亿元", asOf: "2025", source: "gdp2025" }
@@ -74,6 +87,8 @@ cities:
     province: 广东省
     level: 省会
     metrics:
+      universities: { v: 37, unit: "所", asOf: "2022", source: "uni2022" }
+      double_first_class: { v: 7, unit: "所", asOf: "2022", source: "dfc2022" }
       metro_km: { v: 772.6, unit: "公里", asOf: "2025", source: "metro2025" }
       area_km2: { v: 7434, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 32039.46, unit: "亿元", asOf: "2025", source: "gdp2025" }
@@ -83,6 +98,8 @@ cities:
     province: 江苏省
     level: 省会
     metrics:
+      universities: { v: 34, unit: "所", asOf: "2022", source: "uni2022" }
+      double_first_class: { v: 13, unit: "所", asOf: "2022", source: "dfc2022" }
       metro_km: { v: 524.4, unit: "公里", asOf: "2025", source: "metro2025" }
       gdp: { v: 19428.78, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 深圳
@@ -90,6 +107,8 @@ cities:
     province: 广东省
     level: 计划单列市
     metrics:
+      universities: { v: 5, unit: "所", asOf: "2022", source: "uni2022" }
+      double_first_class: { v: 1, unit: "所", asOf: "2022", source: "dfc2022" }
       metro_km: { v: 634.5, unit: "公里", asOf: "2025", source: "metro2025" }
       area_km2: { v: 1997, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 38731.8, unit: "亿元", asOf: "2025", source: "gdp2025" }
@@ -99,6 +118,8 @@ cities:
     province: 湖北省
     level: 省会
     metrics:
+      universities: { v: 46, unit: "所", asOf: "2022", source: "uni2022" }
+      double_first_class: { v: 7, unit: "所", asOf: "2022", source: "dfc2022" }
       metro_km: { v: 561.2, unit: "公里", asOf: "2025", source: "metro2025" }
       area_km2: { v: 8569, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 22147.35, unit: "亿元", asOf: "2025", source: "gdp2025" }
@@ -117,6 +138,8 @@ cities:
     province: 陕西省
     level: 省会
     metrics:
+      universities: { v: 44, unit: "所", asOf: "2022", source: "uni2022" }
+      double_first_class: { v: 7, unit: "所", asOf: "2022", source: "dfc2022" }
       metro_km: { v: 404.1, unit: "公里", asOf: "2025", source: "metro2025" }
       gdp: { v: 13902.67, unit: "亿元", asOf: "2025", source: "gdp2025" }
       pop: { v: 1323.63, unit: "万人", asOf: "2025", source: "pop2025" }
@@ -125,6 +148,7 @@ cities:
     province: 福建省
     level: 计划单列市
     metrics:
+      double_first_class: { v: 1, unit: "所", asOf: "2022", source: "dfc2022" }
       metro_km: { v: 98.4, unit: "公里", asOf: "2025", source: "metro2025" }
       area_km2: { v: 1699, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 苏州
@@ -132,6 +156,8 @@ cities:
     province: 江苏省
     level: 地级市
     metrics:
+      universities: { v: 8, unit: "所", asOf: "2022", source: "uni2022" }
+      double_first_class: { v: 1, unit: "所", asOf: "2022", source: "dfc2022" }
       metro_km: { v: 355.4, unit: "公里", asOf: "2025", source: "metro2025" }
       area_km2: { v: 8657, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 27695.09, unit: "亿元", asOf: "2025", source: "gdp2025" }
@@ -140,6 +166,7 @@ cities:
     province: 湖南省
     level: 省会
     metrics:
+      double_first_class: { v: 4, unit: "所", asOf: "2022", source: "dfc2022" }
       metro_km: { v: 219.0, unit: "公里", asOf: "2025", source: "metro2025" }
       gdp: { v: 15737.82, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 昆明
@@ -161,6 +188,8 @@ cities:
     province: 黑龙江省
     level: 省会
     metrics:
+      universities: { v: 27, unit: "所", asOf: "2022", source: "uni2022" }
+      double_first_class: { v: 4, unit: "所", asOf: "2022", source: "dfc2022" }
       metro_km: { v: 91.6, unit: "公里", asOf: "2025", source: "metro2025" }
       area_km2: { v: 53100, unit: "平方公里", asOf: "2025", source: "areaGov" }
   - name: 桂林
@@ -182,6 +211,8 @@ cities:
     province: 天津市
     level: 直辖市
     metrics:
+      universities: { v: 31, unit: "所", asOf: "2022", source: "uni2022" }
+      double_first_class: { v: 5, unit: "所", asOf: "2022", source: "dfc2022" }
       metro_km: { v: 349.2, unit: "公里", asOf: "2025", source: "metro2025" }
       gdp: { v: 18539.82, unit: "亿元", asOf: "2025", source: "gdp2025" }
       pop: { v: 1363, unit: "万人", asOf: "2025", source: "pop2025" }
@@ -197,6 +228,7 @@ cities:
     province: 河南省
     level: 省会
     metrics:
+      double_first_class: { v: 1, unit: "所", asOf: "2022", source: "dfc2022" }
       metro_km: { v: 382.7, unit: "公里", asOf: "2025", source: "metro2025" }
       gdp: { v: 15244.6, unit: "亿元", asOf: "2025", source: "gdp2025" }
       pop: { v: 1313.8, unit: "万人", asOf: "2025", source: "pop2025" }
@@ -205,6 +237,7 @@ cities:
     province: 吉林省
     level: 省会
     metrics:
+      universities: { v: 27, unit: "所", asOf: "2022", source: "uni2022" }
       metro_km: { v: 151.4, unit: "公里", asOf: "2025", source: "metro2025" }
       area_km2: { v: 24700, unit: "平方公里", asOf: "2025", source: "areaGov" }
   - name: 沈阳
@@ -250,6 +283,7 @@ cities:
     province: 江西省
     level: 省会
     metrics:
+      universities: { v: 27, unit: "所", asOf: "2022", source: "uni2022" }
       metro_km: { v: 160.2, unit: "公里", asOf: "2025", source: "metro2025" }
   - name: 南宁
     slug: nanning
@@ -263,6 +297,7 @@ cities:
     province: 浙江省
     level: 计划单列市
     metrics:
+      double_first_class: { v: 1, unit: "所", asOf: "2022", source: "dfc2022" }
       metro_km: { v: 261.4, unit: "公里", asOf: "2025", source: "metro2025" }
       gdp: { v: 18715.68, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 中国香港
@@ -341,6 +376,8 @@ cities:
     province: 广东省
     level: 地级市
     metrics:
+      universities: { v: 3, unit: "所", asOf: "2022", source: "uni2022" }
+      double_first_class: { v: 0, unit: "所", asOf: "2022", source: "dfc2022" }
       metro_km: { v: 95.3, unit: "公里", asOf: "2025", source: "metro2025" }
       area_km2: { v: 2543, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 12760.2, unit: "亿元", asOf: "2025", source: "gdp2025" }
@@ -380,6 +417,7 @@ cities:
     province: 江苏省
     level: 地级市
     metrics:
+      universities: { v: 3, unit: "所", asOf: "2022", source: "uni2022" }
       metro_km: { v: 110.8, unit: "公里", asOf: "2025", source: "metro2025" }
       gdp: { v: 16773.94, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 烟台
@@ -396,6 +434,7 @@ cities:
     province: 山东省
     level: 省会
     metrics:
+      double_first_class: { v: 1, unit: "所", asOf: "2022", source: "dfc2022" }
       metro_km: { v: 217.9, unit: "公里", asOf: "2025", source: "metro2025" }
       gdp: { v: 14210.09, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 秦皇岛
@@ -431,6 +470,8 @@ cities:
     province: 江苏省
     level: 地级市
     metrics:
+      universities: { v: 3, unit: "所", asOf: "2022", source: "uni2022" }
+      double_first_class: { v: 0, unit: "所", asOf: "2022", source: "dfc2022" }
       metro_km: { v: 58.8, unit: "公里", asOf: "2025", source: "metro2025" }
       gdp: { v: 12801.5, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 三沙
@@ -482,6 +523,8 @@ cities:
     province: 广东省
     level: 地级市
     metrics:
+      universities: { v: 2, unit: "所", asOf: "2022", source: "uni2022" }
+      double_first_class: { v: 0, unit: "所", asOf: "2022", source: "dfc2022" }
       metro_km: { v: 150.2, unit: "公里", asOf: "2025", source: "metro2025" }
       gdp: { v: 13157.35, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 菏泽
@@ -1210,6 +1253,7 @@ cities:
     province: 福建省
     level: 地级市
     metrics:
+      double_first_class: { v: 0, unit: "所", asOf: "2022", source: "dfc2022" }
       gdp: { v: 13778.34, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 泉州十大博物馆纪念馆
     slug: quanzhoushidabowuguanjinianguan
