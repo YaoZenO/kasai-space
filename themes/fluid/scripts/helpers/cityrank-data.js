@@ -55,12 +55,21 @@ function fmtNum(v) {
 }
 
 // 计算一个 computed 榜。返回 { items, candidateCount, skipped }
+// filter（可选）：先按城市自身属性缩小候选池，例如 { level: '省会' } 只算省会城市。
+// 没有它，「面积最大的十大省会城市」会把那曲这类地级市也算进来——榜名限定了范围，
+// 计算就必须跟着限定（否则算出来的名次与榜名不符，是隐性错误）。
 function computeRank(rank, cities) {
   const metrics = Array.isArray(rank.metrics) ? rank.metrics.filter((m) => m && m.field) : [];
   if (!metrics.length) return { items: [], candidateCount: 0, skipped: 'no-metrics' };
 
+  let pool = cities;
+  if (rank.filter && typeof rank.filter === 'object') {
+    const keys = Object.keys(rank.filter);
+    pool = cities.filter((c) => keys.every((k) => String(c[k] === undefined ? '' : c[k]) === String(rank.filter[k])));
+  }
+
   // 候选池：所有指标都有值的城市（缺失即出局，不按 0 分处理）
-  const candidates = cities.filter((c) => metrics.every((m) => metricValue(c, m.field) !== null));
+  const candidates = pool.filter((c) => metrics.every((m) => metricValue(c, m.field) !== null));
 
   const stats = {};
   for (const m of metrics) {
@@ -143,6 +152,7 @@ function buildCityRanks(data) {
           size: r.size || 10,
           lede: r.lede || '',
           metrics: r.metrics || [],
+          filter: r.filter || null,
           note: r.note || '',
           items: c.items,
           candidateCount: c.candidateCount,

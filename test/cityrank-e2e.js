@@ -93,9 +93,14 @@ ok('S2 名次由数据算出：独立复算结果与 helper 输出逐项一致',
     assert.ok(got, '找不到榜 ' + def.slug);
     const rank = got.rank;
 
-    // 手算：只取该榜全部指标都有值的城市
-    const cands = (cities.cities || []).filter((c) =>
+    // 手算：先应用榜名限定的范围（filter），再取该榜全部指标都有值的城市
+    let cands = (cities.cities || []).filter((c) =>
       def.metrics.every((m) => c.metrics && c.metrics[m.field] && typeof c.metrics[m.field].v === 'number'));
+    if (def.filter && typeof def.filter === 'object') {
+      for (const k of Object.keys(def.filter)) {
+        cands = cands.filter((c) => String(c[k] === undefined ? '' : c[k]) === String(def.filter[k]));
+      }
+    }
 
     const stats = {};
     for (const m of def.metrics) {
@@ -125,6 +130,25 @@ ok('S2 名次由数据算出：独立复算结果与 helper 输出逐项一致',
       const expectScore = Math.round(scored[i].raw * 10) / 10;
       assert.strictEqual(rank.items[i].score, expectScore,
         '榜 ' + def.slug + ' 第 ' + (i + 1) + ' 名指数应为 ' + expectScore + '，实为 ' + rank.items[i].score);
+    }
+  }
+});
+
+ok('S2 榜名限定范围（filter）必须落进计算：省会榜不能算出地级市', () => {
+  const withFilter = computedRanks.filter((r) => r.filter && Object.keys(r.filter).length);
+  assert.ok(withFilter.length > 0, '没有带 filter 的榜，本断言会空转');
+  for (const def of withFilter) {
+    const got = findRank(R, def.slug);
+    assert.ok(got, '找不到榜 ' + def.slug);
+    assert.ok(got.rank.items.length > 0, '榜 ' + def.slug + ' 过滤后为空——filter 条件或数据有问题');
+    for (const k of Object.keys(def.filter)) {
+      for (const it of got.rank.items) {
+        // 反查该城市实际属性，确认它确实满足 filter（防止 filter 写了但没生效）
+        const city = (cities.cities || []).find((c) => c.slug === it.slug);
+        assert.ok(city, '榜内城市不在数据集中：' + it.slug);
+        assert.strictEqual(String(city[k] === undefined ? '' : city[k]), String(def.filter[k]),
+          '榜 ' + def.slug + ' 混入了不满足 ' + k + '=' + def.filter[k] + ' 的城市：' + it.name);
+      }
     }
   }
 });

@@ -23,6 +23,12 @@ sources:
   - key: "pop2025"
     name: "各地 2025 年国民经济和社会发展统计公报 / 2025 年全国人口十强城市统计"
     asOf: "2025"
+  - key: "areaGov"
+    name: "各市人民政府网站公开的行政区域面积（如杭州市人民政府 16850 平方公里）"
+    asOf: "2025"
+  - key: "areaPub"
+    name: "公开行政区划面积资料（核对自公开城市面积排行，标注为约数的按约数收录）"
+    asOf: "2025"
 
 cities:
   - name: 北京
@@ -30,6 +36,7 @@ cities:
     province: 北京市
     level: 直辖市
     metrics:
+      area_km2: { v: 16410, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 52073.4, unit: "亿元", asOf: "2025", source: "gdp2025" }
       pop: { v: 2180, unit: "万人", asOf: "2025", source: "pop2025" }
   - name: 杭州
@@ -37,12 +44,14 @@ cities:
     province: 浙江省
     level: 省会
     metrics:
+      area_km2: { v: 16850, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 23010.9, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 上海
     slug: shanghai
     province: 上海市
     level: 直辖市
     metrics:
+      area_km2: { v: 6340, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 56708.71, unit: "亿元", asOf: "2025", source: "gdp2025" }
       pop: { v: 2485.41, unit: "万人", asOf: "2025", source: "pop2025" }
   - name: 成都
@@ -50,6 +59,7 @@ cities:
     province: 四川省
     level: 省会
     metrics:
+      area_km2: { v: 14300, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 24763.61, unit: "亿元", asOf: "2025", source: "gdp2025" }
       pop: { v: 2153.5, unit: "万人", asOf: "2025", source: "pop2025" }
   - name: 广州
@@ -57,6 +67,7 @@ cities:
     province: 广东省
     level: 省会
     metrics:
+      area_km2: { v: 7434, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 32039.46, unit: "亿元", asOf: "2025", source: "gdp2025" }
       pop: { v: 1910.1, unit: "万人", asOf: "2025", source: "pop2025" }
   - name: 南京
@@ -70,6 +81,7 @@ cities:
     province: 广东省
     level: 计划单列市
     metrics:
+      area_km2: { v: 1997, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 38731.8, unit: "亿元", asOf: "2025", source: "gdp2025" }
       pop: { v: 1824.85, unit: "万人", asOf: "2025", source: "pop2025" }
   - name: 武汉
@@ -77,6 +89,7 @@ cities:
     province: 湖北省
     level: 省会
     metrics:
+      area_km2: { v: 8569, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 22147.35, unit: "亿元", asOf: "2025", source: "gdp2025" }
       pop: { v: 1386.19, unit: "万人", asOf: "2025", source: "pop2025" }
   - name: 重庆
@@ -84,6 +97,7 @@ cities:
     province: 重庆市
     level: 直辖市
     metrics:
+      area_km2: { v: 82400, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 33757.93, unit: "亿元", asOf: "2025", source: "gdp2025" }
       pop: { v: 3187.26, unit: "万人", asOf: "2025", source: "pop2025" }
   - name: 西安
@@ -95,12 +109,16 @@ cities:
       pop: { v: 1323.63, unit: "万人", asOf: "2025", source: "pop2025" }
   - name: 厦门
     slug: xiamen
-    metrics: {}
+    province: 福建省
+    level: 计划单列市
+    metrics:
+      area_km2: { v: 1699, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 苏州
     slug: suzhou
     province: 江苏省
     level: 地级市
     metrics:
+      area_km2: { v: 8657, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 27695.09, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 长沙
     slug: changsha
@@ -110,7 +128,10 @@ cities:
       gdp: { v: 15737.82, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 昆明
     slug: kunming
-    metrics: {}
+    province: 云南省
+    level: 省会
+    metrics:
+      area_km2: { v: 21000, unit: "平方公里", asOf: "2025", source: "areaGov" }
   - name: 青岛
     slug: qingdao
     province: 山东省
@@ -119,16 +140,22 @@ cities:
       gdp: { v: 17560.67, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 哈尔滨
     slug: haerbin
-    metrics: {}
+    province: 黑龙江省
+    level: 省会
+    metrics:
+      area_km2: { v: 53100, unit: "平方公里", asOf: "2025", source: "areaGov" }
   - name: 桂林
     slug: guilin
     metrics: {}
   - name: 贵阳
     slug: guiyang
+    province: 贵州省
+    level: 省会
     metrics: {}
   - name: 三亚
     slug: sanya
-    metrics: {}
+    metrics:
+      area_km2: { v: 1921, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 天津
     slug: tianjin
     province: 天津市
@@ -151,7 +178,10 @@ cities:
       pop: { v: 1313.8, unit: "万人", asOf: "2025", source: "pop2025" }
   - name: 长春
     slug: changchun
-    metrics: {}
+    province: 吉林省
+    level: 省会
+    metrics:
+      area_km2: { v: 24700, unit: "平方公里", asOf: "2025", source: "areaGov" }
   - name: 沈阳
     slug: shenyang
     province: 辽宁省
@@ -160,7 +190,8 @@ cities:
       gdp: { v: 9100.33, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 珠海
     slug: zhuhai
-    metrics: {}
+    metrics:
+      area_km2: { v: 1725, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 福州
     slug: fuzhou
     province: 福建省
@@ -169,22 +200,34 @@ cities:
       gdp: { v: 15112.32, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 海口
     slug: haikou
+    province: 海南省
+    level: 省会
     metrics: {}
   - name: 拉萨
     slug: lasa
-    metrics: {}
+    province: 西藏自治区
+    level: 省会
+    metrics:
+      area_km2: { v: 29600, unit: "平方公里", asOf: "2025", source: "areaGov" }
   - name: 洛阳
     slug: luoyang
     metrics: {}
   - name: 银川
     slug: yinchuan
+    province: 宁夏回族自治区
+    level: 省会
     metrics: {}
   - name: 南昌
     slug: nanchang
+    province: 江西省
+    level: 省会
     metrics: {}
   - name: 南宁
     slug: nanning
-    metrics: {}
+    province: 广西壮族自治区
+    level: 省会
+    metrics:
+      area_km2: { v: 22100, unit: "平方公里", asOf: "2025", source: "areaGov" }
   - name: 宁波
     slug: ningbo
     province: 浙江省
@@ -206,9 +249,12 @@ cities:
     metrics: {}
   - name: 林芝
     slug: linzhi
-    metrics: {}
+    metrics:
+      area_km2: { v: 114000, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 西宁
     slug: xining
+    province: 青海省
+    level: 省会
     metrics: {}
   - name: 西双版纳
     slug: xishuangbanna
@@ -218,22 +264,34 @@ cities:
     metrics: {}
   - name: 呼和浩特
     slug: huhehaote
-    metrics: {}
+    province: 内蒙古自治区
+    level: 省会
+    metrics:
+      area_km2: { v: 17200, unit: "平方公里", asOf: "2025", source: "areaGov" }
   - name: 呼伦贝尔
     slug: hulunbeier
-    metrics: {}
+    metrics:
+      area_km2: { v: 253000, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 吉林
     slug: jilin
     metrics: {}
   - name: 石家庄
     slug: shijiazhuang
-    metrics: {}
+    province: 河北省
+    level: 省会
+    metrics:
+      area_km2: { v: 15800, unit: "平方公里", asOf: "2025", source: "areaGov" }
   - name: 太原
     slug: taiyuan
+    province: 山西省
+    level: 省会
     metrics: {}
   - name: 乌鲁木齐
     slug: wulumuqi
-    metrics: {}
+    province: 新疆维吾尔自治区
+    level: 省会
+    metrics:
+      area_km2: { v: 13800, unit: "平方公里", asOf: "2025", source: "areaGov" }
   - name: 宜春
     slug: yichun
     metrics: {}
@@ -248,6 +306,7 @@ cities:
     province: 广东省
     level: 地级市
     metrics:
+      area_km2: { v: 2543, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 12760.2, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 合肥
     slug: hefei
@@ -266,6 +325,8 @@ cities:
     metrics: {}
   - name: 兰州
     slug: lanzhou
+    province: 甘肃省
+    level: 省会
     metrics: {}
   - name: 六盘水
     slug: liupanshui
@@ -308,7 +369,8 @@ cities:
     metrics: {}
   - name: 舟山
     slug: zhoushan
-    metrics: {}
+    metrics:
+      area_km2: { v: 1440, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 毕节
     slug: bijie
     metrics: {}
@@ -332,7 +394,8 @@ cities:
       gdp: { v: 12801.5, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 三沙
     slug: sansha
-    metrics: {}
+    metrics:
+      area_km2: { v: 20, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 绍兴
     slug: shaoxing
     metrics: {}
@@ -354,7 +417,8 @@ cities:
     metrics: {}
   - name: 中山
     slug: zhongshan
-    metrics: {}
+    metrics:
+      area_km2: { v: 1783, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 阿勒泰
     slug: aleitai
     metrics: {}
@@ -384,7 +448,8 @@ cities:
     metrics: {}
   - name: 酒泉
     slug: jiuquan
-    metrics: {}
+    metrics:
+      area_km2: { v: 192000, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 临沂
     slug: linyi
     metrics: {}
@@ -438,7 +503,8 @@ cities:
     metrics: {}
   - name: 昌都
     slug: changdou
-    metrics: {}
+    metrics:
+      area_km2: { v: 109000, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 常州
     slug: changzhou
     province: 江苏省
@@ -453,7 +519,8 @@ cities:
     metrics: {}
   - name: 赤峰
     slug: chifeng
-    metrics: {}
+    metrics:
+      area_km2: { v: 90000, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 大兴安岭地区
     slug: daxinganling
     metrics: {}
@@ -465,7 +532,8 @@ cities:
     metrics: {}
   - name: 鄂尔多斯
     slug: eerduosi
-    metrics: {}
+    metrics:
+      area_km2: { v: 87000, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 恩施
     slug: enshi
     metrics: {}
@@ -477,7 +545,8 @@ cities:
     metrics: {}
   - name: 哈密
     slug: hami
-    metrics: {}
+    metrics:
+      area_km2: { v: 142000, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 邯郸
     slug: handan
     metrics: {}
@@ -486,7 +555,8 @@ cities:
     metrics: {}
   - name: 鹤壁
     slug: hebi
-    metrics: {}
+    metrics:
+      area_km2: { v: 2182, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 黑河
     slug: heihe
     metrics: {}
@@ -537,7 +607,8 @@ cities:
     metrics: {}
   - name: 那曲
     slug: naqu
-    metrics: {}
+    metrics:
+      area_km2: { v: 353000, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 萍乡
     slug: pingxiang
     metrics: {}
@@ -546,7 +617,8 @@ cities:
     metrics: {}
   - name: 日喀则
     slug: rikaze
-    metrics: {}
+    metrics:
+      area_km2: { v: 179000, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 三明
     slug: sanming
     metrics: {}
@@ -753,7 +825,8 @@ cities:
     metrics: {}
   - name: 鄂州
     slug: ezhou
-    metrics: {}
+    metrics:
+      area_km2: { v: 1596, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 防城港
     slug: fangchenggang
     metrics: {}
@@ -1249,7 +1322,8 @@ cities:
     metrics: {}
   - name: 乌海
     slug: wuhai
-    metrics: {}
+    metrics:
+      area_km2: { v: 1754, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 芜湖
     slug: wuhu
     metrics: {}

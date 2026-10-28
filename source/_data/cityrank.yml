@@ -1689,57 +1689,31 @@ groups:
           - { name: 锦州, slug: jinzhou, note: "" }
           - { name: 九江, slug: jiujiang, note: "" }
           - { name: 贵阳, slug: guiyang, note: "" }
-      - slug: mianjizuidadeshida
+      - slug: "mianjizuidadeshida"
         title: 中国面积最大的十大城市
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 那曲, slug: naqu, note: 总面积超35.3万平方公里 平均海拔4500米以上 }
-          - { name: 呼伦贝尔, slug: hulunbeier, note: 总面积超25.3万平方公里 草原面积1.01亿亩 }
-          - { name: 酒泉, slug: jiuquan, note: 总面积超19.2万平方公里 拥有超48万公顷湿地 }
-          - { name: 日喀则, slug: rikaze, note: 总面积超17.9万平方公里 平均海拔4000米以上 }
-          - { name: 哈密, slug: hami, note: 总面积超14.2万平方公里 素有“新疆门户”之称 }
-          - { name: 林芝, slug: linzhi, note: 总面积超11.4万平方公里 平均海拔3100米以上 }
-          - { name: 昌都, slug: changdou, note: 总面积超10.9万平方公里 素有“藏东明珠”的美称 }
-          - { name: 赤峰, slug: chifeng, note: 总面积超9万平方公里 林地面积达4555万亩 }
-          - { name: 鄂尔多斯, slug: eerduosi, note: 总面积超8.7万平方公里 国家重要的能源基地 }
-          - { name: 重庆, slug: chongqing, note: 总面积超8.2万平方公里 耕地面积超1.8万平方公里 }
+        lede: 按行政区域面积从大到小排序，面积越大名次越前。
+        metrics:
+          - { field: "area_km2", weight: 1.0, dir: "up", label: "行政区域面积", unit: "平方公里" }
+        note: 候选范围为本数据集中已采集到行政区域面积的城市。
       - slug: "mianjizuidadeshida-2"
         title: 中国面积最大的十大省会城市
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 哈尔滨, slug: haerbin, note: 总面积超5.31万平方公里 黑龙江省省会城市 }
-          - { name: 拉萨, slug: lasa, note: 总面积超2.96万平方公里 西藏首府城市 }
-          - { name: 长春, slug: changchun, note: 总面积超2.47万平方公里 吉林省省会城市 }
-          - { name: 南宁, slug: nanning, note: 总面积超2.21万平方公里 广西首府城市 }
-          - { name: 昆明, slug: kunming, note: 总面积超2.1万平方公里 云南省省会城市 }
-          - { name: 呼和浩特, slug: huhehaote, note: 总面积超1.72万平方公里 内蒙古首府城市 }
-          - { name: 杭州, slug: hangzhou, note: 总面积超1.68万平方公里 浙江省省会城市 }
-          - { name: 石家庄, slug: shijiazhuang, note: 总面积超1.58万平方公里 河北省省会城市 }
-          - { name: 成都, slug: chengdu, note: 总面积超1.43万平方公里 四川省省会城市 }
-          - { name: 乌鲁木齐, slug: wulumuqi, note: 总面积超1.38万平方公里 新疆首府城市 }
-      - slug: mianjizuixiaodeshi
+        lede: 按行政区域面积从大到小排序，范围限省会城市。
+        filter: { level: "省会" }
+        metrics:
+          - { field: "area_km2", weight: 1.0, dir: "up", label: "行政区域面积", unit: "平方公里" }
+        note: 候选范围为本数据集中已采集到行政区域面积的城市。
+      - slug: "mianjizuixiaodeshi"
         title: 中国面积最小的十大城市
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 三沙, slug: sansha, note: 陆域面积约20平方公里 中国陆地面积最小城市 }
-          - { name: 舟山, slug: zhoushan, note: 陆域面积约1440平方公里 中国第一大群岛 }
-          - { name: 鄂州, slug: ezhou, note: 行政面积约1596平方公里 境内拥有130多个湖泊 }
-          - { name: 厦门, slug: xiamen, note: 陆域面积约1699平方公里 海域面积约333平方公里 }
-          - { name: 珠海, slug: zhuhai, note: 陆地面积约1725平方公里 海域面积超9000平方公里 }
-          - { name: 乌海, slug: wuhai, note: 总面积约1754平方公里 被誉为“黄河明珠” }
-          - { name: 中山, slug: zhongshan, note: 总面积约1783平方公里 河网密布 }
-          - { name: 三亚, slug: sanya, note: 陆地面积约1921平方公里 海域面积超3220平方公里 }
-          - { name: 深圳, slug: shenzhen, note: 陆地面积约1997平方公里 海域面积超1140平方公里 }
-          - { name: 鹤壁, slug: hebi, note: 总面积约2182平方公里 自然生态山清水秀 }
+        lede: 按行政区域面积从小到大排序，面积越小名次越前。
+        metrics:
+          - { field: "area_km2", weight: 1.0, dir: "down", label: "行政区域面积", unit: "平方公里" }
+        note: 候选范围为本数据集中已采集到行政区域面积的城市。
       - slug: "mianjizuixiaodeshi-2"
         title: 中国面积最小的十大省会城市
         kind: "pending"
