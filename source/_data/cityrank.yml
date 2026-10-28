@@ -1608,23 +1608,14 @@ groups:
           - { name: 吴忠, slug: wuzhong, note: "" }
           - { name: 白银, slug: baiyin, note: "" }
           - { name: 深圳, slug: shenzhen, note: "" }
-      - slug: shidalichidaozuiji
+      - slug: "shidalichidaozuiji"
         title: 中国十大离赤道最近的城市
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 三沙, slug: sansha, note: "" }
-          - { name: 三亚, slug: sanya, note: "" }
-          - { name: 儋州, slug: danzhou, note: "" }
-          - { name: 海口, slug: haikou, note: "" }
-          - { name: 湛江, slug: zhanjiang, note: "" }
-          - { name: 北海, slug: beihai, note: "" }
-          - { name: 防城港, slug: fangchenggang, note: "" }
-          - { name: 西双版纳, slug: xishuangbanna, note: "" }
-          - { name: 茂名, slug: maoming, note: "" }
-          - { name: 江门, slug: jiangmen, note: "" }
+        lede: 按纬度从低到高排序，纬度越低越靠近赤道。数据为国家基本气象站纬度。
+        metrics:
+          - { field: "latitude", weight: 1.0, dir: "down", label: "纬度", unit: "°N" }
+        note: 候选范围为本数据集中已采集到纬度的城市（国家基本气象站，36 站）。
       - slug: shidagaowendedache
         title: 中国十大高温的大城市
         kind: "pending"
