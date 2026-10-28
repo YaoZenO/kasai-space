@@ -125,6 +125,10 @@ function buildCityRanks(data) {
   const groupsIn = Array.isArray(cr.groups) ? cr.groups : [];
   const groups = [];
 
+  // slug → 省份反查表（供名单类榜单补省份列）
+  const provOf = {};
+  for (const c of cities) { if (c && c.slug) provOf[c.slug] = c.province || ''; }
+
   for (const g of groupsIn) {
     const ranksIn = Array.isArray(g.ranks) ? g.ranks : [];
     const ranks = [];
@@ -148,7 +152,19 @@ function buildCityRanks(data) {
         // fact / pending：名次不在本站计算，页面必须按 kind 标注口径。
         // 名次按 yml 中的数组顺序生成（1 起）——这两类榜的名次来自权威结果或公开榜单，
         // 不是算出来的，但页面仍需要 rank 字段做编号，这里统一补齐。
+        // 省份从 cities.yml 反查：名单类榜单（fact / pending）本身不携带行政归属，
+        // 但表格里给出「哪个省」能显著提升可读性，且这一列是结构性事实、不涉统计口径。
         const rawItems = Array.isArray(r.items) ? r.items : [];
+        const items = rawItems.map((it, i) => ({
+          rank: i + 1,
+          slug: it.slug,
+          name: it.name,
+          province: provOf[it.slug] || '',
+          reason: it.note || '',
+          score: null,
+          gdp: null
+        }));
+        const hasProv = items.some((x) => x.province);
         ranks.push({
           slug: r.slug,
           title: r.title,
@@ -157,14 +173,8 @@ function buildCityRanks(data) {
           lede: r.lede || '',
           metrics: [],
           note: r.note || '',
-          items: rawItems.map((it, i) => ({
-            rank: i + 1,
-            slug: it.slug,
-            name: it.name,
-            reason: it.note || '',
-            score: null,
-            gdp: null
-          })),
+          items: items,
+          hasProvince: hasProv,
           candidateCount: rawItems.length,
           skipped: null
         });

@@ -191,8 +191,9 @@ cities:
     level: 计划单列市
     metrics:
       gdp: { v: 18715.68, unit: "亿元", asOf: "2025", source: "gdp2025" }
-  - name: 香港
+  - name: 中国香港
     slug: xianggang
+    province: 中国香港
     metrics: {}
   - name: 张家界
     slug: zhangjiajie
@@ -337,6 +338,7 @@ cities:
     metrics: {}
   - name: 台北
     slug: taibei
+    province: 中国台湾地区
     metrics: {}
   - name: 潍坊
     slug: weifang
@@ -805,6 +807,7 @@ cities:
     metrics: {}
   - name: 高雄
     slug: gaoxiong
+    province: 中国台湾地区
     metrics: {}
   - name: 广东广州
     slug: guangdongguangzhou
@@ -1403,9 +1406,6 @@ cities:
   - name: 浙江温州
     slug: zhejiangwenzhou
     metrics: {}
-  - name: 中国香港
-    slug: zhongguoxianggang
-    metrics: {}
   - name: 中卫
     slug: zhongwei
     metrics: {}
@@ -1435,4 +1435,9 @@ cities:
     metrics: {}
   - name: 左权县
     slug: zuoquan
+    metrics: {}
+  - name: 张家口
+    slug: zhangjiakou
+    province: 河北省
+    level: 地级市
     metrics: {}

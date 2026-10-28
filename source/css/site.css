@@ -4243,6 +4243,83 @@ html:not(.js) .fs-years-toggle { display: none; }
    版式基准对齐 §4.14 .lb-*（13rem 左栏 / sticky 5.5rem）与 §4.15 .fs-nav-strip。
    禁用加法 calc（E-064：构建 minifier 压掉加号空格会静默丢声明）。 */
 
+/* 榜单详情页两栏：主内容 + 右常驻侧栏（同组榜单不再沉到页面底部）。
+   栅格与 §4.14 .lb-layout 同一套量值（13rem 右栏 / sticky 5.5rem），只换了左右次序。 */
+.cr-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 15rem;
+  gap: clamp(2rem, 4vw, 3.5rem);
+  align-items: start;
+  margin-top: 1.8rem;
+}
+
+/* sticky 侧栏内容可能比视口长（同组最多 40+ 条），不限高会被视口裁掉且无法滚动到底；
+   不用 calc（E-064：构建压缩会吃掉运算符空格），直接用 vh 限高 + 纵向滚动。 */
+.cr-side {
+  position: sticky;
+  top: 5.5rem;
+  max-height: 78vh;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.cr-side-block + .cr-side-block { margin-top: 1.6rem; }
+
+.cr-side-label {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+
+.cr-side-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 2px solid var(--line-strong);
+}
+
+.cr-side-list li { border-bottom: 1px solid var(--line-color); }
+
+.cr-side-list a,
+.cr-side-current,
+.cr-side-muted {
+  display: block;
+  padding: 0.42rem 0.5rem;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--text-color);
+}
+
+.cr-side-list a:hover { color: var(--accent); }
+
+/* 当前榜：墨色加粗 + 左侧 2px 竖标（不靠底色，§4.3 层级语言） */
+.cr-side-current {
+  position: relative;
+  padding-left: 0.8rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.cr-side-current::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55rem;
+  bottom: 0.55rem;
+  width: 2px;
+  background-color: var(--text-color);
+}
+
+.cr-side-muted { color: var(--sec-text-color); }
+
+.cr-side-note {
+  margin: 1.2rem 0 0;
+  font-size: 0.85rem;
+}
+
 /* 排名表：组顶 2px 全墨线，行底 hairline；名次与数字走等宽轨 */
 .cr-table {
   width: 100%;
@@ -4262,14 +4339,22 @@ html:not(.js) .fs-years-toggle { display: none; }
 
 .cr-table th,
 .cr-table td {
-  padding: 0.7rem 0.5rem;
+  padding: 0.7rem 0.6rem;
   text-align: left;
-  vertical-align: baseline;
+  vertical-align: top;
   border-bottom: 1px solid var(--line-color);
+}
+
+/* 省级行政区：次级信息，等宽轨小字，不抢城市名的视觉焦点 */
+.cr-prov {
+  width: 8rem;
+  font-size: 0.85rem;
+  color: var(--sec-text-color);
 }
 
 .cr-th-rank,
 .cr-th-city,
+.cr-th-prov,
 .cr-th-score,
 .cr-th-val {
   font-family: var(--font-mono);
@@ -4282,15 +4367,27 @@ html:not(.js) .fs-years-toggle { display: none; }
 .cr-th-score,
 .cr-table .cr-score { text-align: right; }
 
-.cr-row-top .cr-rank { color: var(--text-color); font-weight: 700; }
+/* 前三名：名次数字转墨色加粗，第 1 名城市名带 2px 下划线（克制，不用奖牌色/图标） */
+.cr-row-top .cr-rank { color: var(--text-color); }
+.cr-row-top .cr-rank-num { font-weight: 700; color: var(--text-color); }
 
-.cr-rank {
-  width: 3.2rem;
+.cr-rank-num {
+  display: inline-block;
+  min-width: 2.4rem;
   font-family: var(--font-mono);
   font-size: 1.7rem;
   font-weight: 700;
   line-height: 1.1;
+  letter-spacing: -0.02em;
   color: var(--sec-text-color);
+}
+
+/* 第 1 名只在名次数字上做强调（墨色加粗）；城市名一律保持全站链接样式——
+   给首行单独加下划线会让第一行看起来像另一种元素，视觉不一致。 */
+
+.cr-rank {
+  width: 3.6rem;
+  padding-top: 0.6rem;
 }
 
 .cr-city a {
@@ -4544,16 +4641,24 @@ html:not(.js) .fs-years-toggle { display: none; }
 
 /* ===== 4.16 断点：移动端真正的重排，不是等比缩小 ===== */
 
-/* 平板：说明列收窄 */
+/* 平板：右栏收窄 */
 @media (max-width: 1023px) {
+  .cr-layout { grid-template-columns: minmax(0, 1fr) 12rem; }
   .cr-val,
   .cr-reason { font-size: 0.88rem; }
-  .cr-rank { font-size: 1.45rem; }
+  .cr-rank-num { font-size: 1.45rem; min-width: 2rem; }
 }
 
-/* 手机：排名表由表格改为「名次 + 城市 + 指数」一行 + 说明折到第二行。
+/* 手机：右栏落到内容下方（真正的重排），排名表改为「名次 + 城市 + 指数」一行 + 说明折到第二行。
    不加 overflow-x（禁止横向滚动），中文用 break-word 不用 anywhere（E-043）。 */
 @media (max-width: 767px) {
+  .cr-layout { grid-template-columns: minmax(0, 1fr); }
+  .cr-side {
+    position: static;
+    max-height: none;
+    overflow-y: visible;
+    margin-top: 2.4rem;
+  }
   .cr-table,
   .cr-table tbody,
   .cr-table tr,
@@ -4571,7 +4676,8 @@ html:not(.js) .fs-years-toggle { display: none; }
     border-bottom: 1px solid var(--line-color);
   }
 
-  .cr-rank { width: auto; font-size: 1.35rem; }
+  .cr-rank { width: auto; padding-top: 0; font-size: 1.35rem; }
+  .cr-rank-num { font-size: 1.35rem; min-width: 1.8rem; }
 
   .cr-score { width: auto; text-align: right; font-size: 1.1rem; }
 
