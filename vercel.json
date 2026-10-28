@@ -1,5 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    {
+      "source": "/uses",
+      "destination": "/now/",
+      "permanent": true
+    },
+    {
+      "source": "/uses/",
+      "destination": "/now/",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/fonts/(.*)",

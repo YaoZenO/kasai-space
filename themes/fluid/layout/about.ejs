@@ -10,6 +10,10 @@ page.hide_banner = true
 var siteCfg = (site.data && site.data.site) || {}
 var aboutIntro = siteCfg.intro || theme.about.introduce || theme.about.intro || ''
 var aboutAvatar = siteCfg.avatar || theme.about.avatar || ''
+var aboutIcons = (theme.about && theme.about.icons) || []
+// copy 形态：图标不是链接，点击复制一段文本（邮箱/微信号）。
+// 不用 mailto——它依赖访客本机注册了默认邮件客户端，没装的机器上点了没反应或弹「找不到应用」。
+var hasCopyIcon = aboutIcons.some(function (e) { return e && e.class && !e.link && e.copy })
 %>
 
 <div class="paper-page">
@@ -22,19 +26,29 @@ var aboutAvatar = siteCfg.avatar || theme.about.avatar || ''
         <% if (aboutIntro) { %>
         <p class="about-head-intro"><%- aboutIntro %></p>
         <% } %>
-        <% if (theme.about.icons && theme.about.icons.length) { %>
+        <% if (aboutIcons.length) { %>
         <ul class="about-icons">
-          <% for (const each of theme.about.icons) { %>
+          <% for (const each of aboutIcons) { %>
             <% if (!each.class) continue; %>
-            <% var isQr = each.qrcode %>
-            <a <%= isQr ? '' : ('href=' + url_for(each.link)) %> class="<%= isQr ? 'qr-trigger' : '' %>
-               <%= !isQr && each.tip ? 'hint--bottom hint--rounded' : '' %>"
-               <% if (!isQr && each.tip) { %>aria-label="<%= each.tip %>"<% } %>
-               target="<%= isQr ? '_self' : '_blank' %>"
-            >
+            <% var isQr = !!each.qrcode %>
+            <% var isCopy = !isQr && !each.link && !!each.copy %>
+            <%
+            // 属性走数组拼接后用「原样输出」标签输出：E-006 记过属性值被转义成 &#34; 导致链接点不动的坑。
+            // 注意：注释里不能再写 EJS 标签的字面量——脚本块内出现闭合标记会让 EJS 提前结束脚本块，
+            // 后面的标签全部错配，报 “Could not find matching close tag”。
+            var iAttrs = []
+            if (!isQr) iAttrs.push('href="' + (isCopy ? 'javascript:;' : url_for(each.link)) + '"')
+            iAttrs.push('target="' + (isQr || isCopy ? '_self' : '_blank') + '"')
+            var iCls = [isQr ? 'qr-trigger' : '', isCopy ? 'about-icon-copy' : '', (!isQr && each.tip) ? 'hint--bottom hint--rounded' : ''].filter(Boolean).join(' ')
+            if (iCls) iAttrs.push('class="' + iCls + '"')
+            if (isCopy) iAttrs.push('data-copy="' + each.copy + '"')
+            if (!isQr && each.tip) iAttrs.push('aria-label="' + each.tip + '"')
+            %>
+            <a <%- iAttrs.join(' ') %>>
               <i class="<%= each.class %>" aria-hidden="true"></i>
               <% if (isQr) { %>
-                <img class="qr-img" src="<%= url_for(each.qrcode) %>" alt="qrcode" />
+                <%# 二维码原图较大（名片码 856x1142），横向宽度保持不变，只在首屏外加载 %>
+                <img class="qr-img" src="<%= url_for(each.qrcode) %>" alt="qrcode" loading="lazy" />
               <% } %>
             </a>
           <% } %>
@@ -71,3 +85,7 @@ var aboutAvatar = siteCfg.avatar || theme.about.avatar || ''
 </div>
 
 <%- partial('_partials/markdown-plugins') %>
+
+<% if (hasCopyIcon) { %>
+<script src="<%= versionedAsset('/js/about.js') %>" defer></script>
+<% } %>

@@ -1597,6 +1597,38 @@ a.feed-title:hover {
   color: var(--accent);
 }
 
+/* 联系方式复制反馈（2026-10-28）
+   邮箱不再走 mailto（依赖访客本机装了邮件客户端），改成点按 icon 复制 + 提示条 */
+.about-icons .about-icon-copy {
+  cursor: pointer;
+}
+
+.about-copy-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 2.4rem;
+  transform: translate(-50%, 0.6rem);
+  max-width: min(92vw, 24rem);
+  padding: 0.62rem 1rem;
+  border-radius: 10px;
+  background-color: rgba(42, 37, 29, 0.94);
+  color: #fdfbf6;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  text-align: center;
+  word-break: break-all;
+  box-shadow: var(--site-float-shadow);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 1080;
+}
+
+.about-copy-toast.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
 .about-avatar-box {
   flex: 0 0 auto;
   width: 148px;

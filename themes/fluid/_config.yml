@@ -402,6 +402,8 @@ navbar:
   # 2026-10-15：从「博客分类体系」重组为「个人主页内容板块」——分类/标签是文章编目用的博客概念，
   # 已从导航撤下（页面保留，仍可从首页入口格到达）；换成有真实内容页的项目/游戏/收藏。
   # 2026-10-15 追加：新增的「现在 / 我在用什么 / 友链」收进「更多」下拉，避免胶囊过长。
+  # 2026-10-28：「我在用什么」已并入「现在」成一页（两页原本说的就是同一件事），
+  # 旧地址 /uses/ 由 vercel.json 重定向到 /now/。
   menu:
     - { key: "home", link: "/", icon: "iconfont icon-home-fill" }
     - { key: "archive", link: "/archives/", name: "文字", icon: "iconfont icon-archive-fill" }
@@ -413,7 +415,6 @@ navbar:
       name: "更多"
       submenu:
         - { key: "now", link: "/now/", name: "现在" }
-        - { key: "uses", link: "/uses/", name: "我在用什么" }
         - { key: "links", link: "/links/", name: "友链" }
     #- { key: "links", link: "/links/", icon: "iconfont icon-link-fill" }
 
@@ -1068,12 +1069,15 @@ about:
   motto: ""
   # 更多图标可从 https://hexo.fluid-dev.com/docs/icon/ 查找，`class` 代表图标的 css class，添加 `qrcode` 后，图标不再是链接而是悬浮二维码
   # 2026-10-17：微信一项原先指向主题自带的示例二维码 themes/fluid/source/img/wx_2wm.jpg，
-  # 那是主题作者的码（扫出来是陌生人），已下架。主人提供自己的二维码后，把图片放进
-  # source/img/（自己的目录，勿覆盖主题文件）再启用下面这行并改路径。
+  # 那是主题作者的码（扫出来是陌生人），已下架。
+  # 2026-10-28 主人提供了自己的微信名片二维码 → source/img/wechat-qr.jpg（856x1142，270KB），
+  # 悬浮出图的行为由 about.ejs + site.css 现成支持。换图直接覆盖同名文件即可，不用改代码。
   icons:
     - { class: "iconfont icon-github-fill", link: "https://github.com/YaoZenO", tip: "GitHub" }
-    - { class: "iconfont icon-mail", link: "mailto:YaoZenx@iCloud.com", tip: "Email" }
-    # - { class: "iconfont icon-wechat-fill", qrcode: "/img/wx_2wm.jpg" }
+    # 邮箱：2026-10-28 起不用 mailto（依赖访客本机注册了邮件客户端，装了的人会直接跳写信窗口，
+    # 没装的点了没反应）。改成点击复制地址，脚本见 source/js/about.js。
+    - { class: "iconfont icon-mail", copy: "YaoZenx@iCloud.com", tip: "点击复制邮箱" }
+    - { class: "iconfont icon-wechat-fill", qrcode: "/img/wechat-qr.jpg" }
     - { class: "iconfont icon-instagram-fill", link: "https://www.instagram.com/yaozenx", tip: "Instagram" }
 
 

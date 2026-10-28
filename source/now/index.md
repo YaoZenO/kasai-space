@@ -4,7 +4,7 @@ kicker: NOW
 # 日期走结构化字段，由 paper.ejs 统一渲染「更新于 YYYY-MM-DD」。
 # 不用文件 mtime：Vercel 每次都是全新 git checkout，mtime 等于部署时刻，
 # 渲染出来永远是「今天」，比手填更假。改内容时同步改这一行。
-show_updated: 2026-10-15
+show_updated: 2026-10-28
 layout: paper
 ---
 
@@ -24,3 +24,21 @@ layout: paper
 ## 工位之外
 
 健身房，和咖啡。
+
+## 我在用什么
+
+### 写代码
+
+- **语言**：C++（在学）、JavaScript / Node.js；
+- **前端**：Vue 3 · Vite（项目里用）；
+- **数据库**：SQLite；
+- **项目**：[Ties](/projects/Ties/)，一个本地跑的关系管理系统。
+
+### 这个站
+
+- **框架**：Hexo，搭配自己改过的主题；
+- **后台**：一套自写的管理面板，通过 GitHub API 直接写仓库；
+- **部署**：Vercel；
+- **静态资源**：字体、样式库、图标全部自托管，不依赖外部 CDN。
+
+> 编辑器和设备清单还没写，想补的时候随时加。
