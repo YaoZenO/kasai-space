@@ -2089,21 +2089,12 @@ groups:
     ranks:
       - slug: shidaditiechengshi
         title: 中国十大地铁城市
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 北京, slug: beijing, note: "" }
-          - { name: 上海, slug: shanghai, note: "" }
-          - { name: 广州, slug: guangzhou, note: "" }
-          - { name: 成都, slug: chengdu, note: "" }
-          - { name: 深圳, slug: shenzhen, note: "" }
-          - { name: 重庆, slug: chongqing, note: "" }
-          - { name: 南京, slug: nanjing, note: "" }
-          - { name: 武汉, slug: wuhan, note: "" }
-          - { name: 杭州, slug: hangzhou, note: "" }
-          - { name: 西安, slug: xian, note: "" }
+        lede: 按城市轨道交通运营里程从长到短排序，数据为交通运输部 2025 年末运营里程。
+        metrics:
+          - { field: "metro_km", weight: 1.0, dir: "up", label: "城市轨道交通运营里程", unit: "公里" }
+        note: 数据来源：交通运输部《2025 年城市轨道交通运营数据速报》（截至 2025 年 12 月 31 日）。
       - slug: zuizaokaitongditie
         title: 中国最早开通地铁的十大城市
         kind: "pending"
