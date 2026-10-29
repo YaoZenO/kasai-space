@@ -10,8 +10,9 @@ var currentPath = ('/' + (page.path || '')).replace(/index\.html$/, '')
       <strong><%= theme.navbar.blog_title || config.title %></strong>
     </a>
 
-    <%# 中列：主胶囊 + 辅助导航组（节假日 / 资料库，2026-10-25 主人要求独立右置） %>
-    <div class="site-nav-center d-none d-lg-flex">
+    <%# 中列：主胶囊 + 辅助导航组（节假日 / 资料库，2026-10-25 主人要求独立右置）
+       V4：断点由 Bootstrap lg(992) 改为 840，由 site.css 的 .site-nav-center / .site-nav-toggle 互斥控制 %>
+    <div class="site-nav-center">
       <div class="site-nav-capsule">
         <ul class="site-nav-list">
           <% for (const each of theme.navbar.menu || []) { %>
@@ -90,7 +91,7 @@ var currentPath = ('/' + (page.path || '')).replace(/index\.html$/, '')
         %>
         <% import_js(theme.static_prefix.internal_js, 'local-search.js', 'defer') %>
       <% } %>
-      <button id="navbar-toggler-btn" class="navbar-toggler d-lg-none" type="button"
+      <button id="navbar-toggler-btn" class="navbar-toggler site-nav-toggle" type="button"
               aria-controls="mobile-grid-menu" aria-expanded="false" aria-label="Toggle navigation">
         <div class="animated-icon"><span></span><span></span><span></span></div>
       </button>
@@ -104,7 +105,7 @@ var currentPath = ('/' + (page.path || '')).replace(/index\.html$/, '')
 </nav>
 
 <!-- Mobile grid menu overlay -->
-<div id="mobile-grid-menu" class="d-lg-none">
+<div id="mobile-grid-menu" class="site-mobile-menu">
   <div class="mobile-grid-menu-inner">
     <div class="container">
       <div class="row">

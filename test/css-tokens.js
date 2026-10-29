@@ -92,8 +92,8 @@ if (fs.existsSync(mainCssPath)) {
 
 // 方向 A：墨底整屏区块（2026-10-19 落地，R-1 豁免的唯一一处反相）
 ok('墨底 token 已定义（--surface-ink / --on-ink）', () => {
-  assert.match(siteCss, /--surface-ink:\s*#2a251d/, '缺少 --surface-ink');
-  assert.match(siteCss, /--on-ink:\s*#f5f1e9/, '缺少 --on-ink（墨底上的纸色）');
+  assert.match(siteCss, /--surface-ink:\s*#141413/, '缺少 --surface-ink');
+  assert.match(siteCss, /--on-ink:\s*#faf9f5/, '缺少 --on-ink（墨底上的纸色）');
 });
 
 ok('墨底区块样式存在，且区块内不引入交互色', () => {
@@ -203,6 +203,78 @@ ok('--fs-hero 与 DESIGN-LANGUAGE 字阶表一致（E-041）', () => {
   assert.strictEqual(m[1], cssVal,
     `--fs-hero 代码与文档不一致：site.css=${cssVal} / DESIGN-LANGUAGE=${m[1]}。`
     + '调档必须两处同步改（E-041：方向 B 的 5.5rem 档已因刺眼回落，断崖主张暂停）');
+});
+
+// --- E-071：首页 <body class="is-home"> 必须原样输出 ---
+// layout.ejs 用 `<%- %>` 拼 class；一旦写回 `<%= %>`，引号被转义成 &#34;，
+// 浏览器解析出的 class 名不是 is-home，`body.is-home footer` 永不命中，
+// 首页会同时出现 .home-end 与全局页脚——构建不报错、退出码 0，只有看产物能发现。
+const indexPath = path.join(ROOT, 'public/index.html');
+if (fs.existsSync(indexPath)) {
+  const homeHtml = fs.readFileSync(indexPath, 'utf8');
+  ok('首页产物 <body class="is-home"> 未被 HTML 转义（E-071）', () => {
+    assert.match(homeHtml, /<body class="is-home"/,
+      'public/index.html 缺 <body class="is-home"> —— layout.ejs 可能又用回 <%= %>，'
+      + '引号转义后 body.is-home 永不命中，首页双页脚会回归');
+    assert.ok(!/class=&#34;/.test(homeHtml),
+      '产物出现 class=&#34; —— EJS 转义输出吃掉了属性引号（E-071）');
+  });
+  ok('非首页产物不得带 is-home 类', () => {
+    const aboutPath = path.join(ROOT, 'public/about/index.html');
+    if (!fs.existsSync(aboutPath)) return;
+    const html = fs.readFileSync(aboutPath, 'utf8');
+    assert.ok(!/class="is-home"/.test(html),
+      '非首页产物带了 is-home —— 全局页脚会被误藏（is_home() 判定或模板拼接出错）');
+  });
+} else {
+  console.log('  SKIP 首页 is-home 产物断言（无 public/index.html，先跑 hexo generate）');
+}
+
+ok('首页页脚收口规则存在：body.is-home footer 隐藏（E-071 另一半）', () => {
+  const rule = siteCss.match(/body\.is-home footer\s*\{[^}]*\}/);
+  assert.ok(rule, 'site.css 缺少 body.is-home footer 规则 —— 首页会同时出现 .home-end 与全局页脚');
+  assert.match(rule[0], /display:\s*none/, 'body.is-home footer 没有 display:none');
+});
+
+// --- E-072：内容墙固定行高与主卡跨行必须成对出现 ---
+// 行高改成固定像素后，min-height 大于行高的主卡必须显式跨行；
+// 两条规则分居「基础」与「≤991 媒体块」，只改一条而漏另一条不会有任何报错。
+function extractBraced(css, openBraceIdx) {
+  let depth = 0;
+  for (let i = openBraceIdx; i < css.length; i++) {
+    if (css[i] === '{') depth += 1;
+    else if (css[i] === '}') {
+      depth -= 1;
+      if (depth === 0) return css.slice(openBraceIdx + 1, i);
+    }
+  }
+  return '';
+}
+
+ok('内容墙固定行高与主卡跨行成对（E-072）', () => {
+  const base = siteCss.match(/\.wall\s*\{[^}]*\}/);
+  assert.ok(base, 'site.css 缺少 .wall 规则');
+  assert.match(base[0], /grid-auto-rows:\s*\d+px/,
+    '.wall 行高不是固定像素值 —— 退回 auto/minmax 后每行被内容撑高，行基线不齐（D-4 回归）');
+
+  const q = '@media (max-width: 991.98px) {';
+  let block = null;
+  let from = 0;
+  for (;;) {
+    const at = siteCss.indexOf(q, from);
+    if (at === -1) break;
+    const body = extractBraced(siteCss, siteCss.indexOf('{', at));
+    if (body.includes('.wall {')) { block = body; break; }
+    from = at + q.length;
+  }
+  assert.ok(block, 'site.css 找不到 ≤991 且含 .wall 的媒体块');
+  assert.match(block, /\.wall\s*\{[^}]*grid-auto-rows:\s*\d+px/,
+    '≤991 的 .wall 行高不是固定像素值（与基础档不一致）');
+  const feat = block.match(/\.wall-feature\s*\{[^}]*\}/);
+  assert.ok(feat, '≤991 媒体块缺少 .wall-feature 规则');
+  assert.match(feat[0], /grid-row:\s*span 2/,
+    '≤991 的 .wall-feature 没有 grid-row: span 2 —— 行高固定后 300px 主卡会溢出到'
+    + '下一行、被自动排布的小格盖住（E-072）');
 });
 
 console.log(`\nRESULT: ${passed} 项断言通过${process.exitCode ? '，存在失败' : ''}`);
