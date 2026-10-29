@@ -264,21 +264,13 @@ groups:
           - { name: 厦门, slug: xiamen, note: "" }
       - slug: yunnanshidachengsh
         title: 云南十大城市
-        kind: "pending"
+        kind: computed
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 昆明, slug: kunming, note: 省会与滇中核心 GDP总量超8637亿元 }
-          - { name: 曲靖, slug: qujing, note: 省域副中心 GDP总量超3777亿元 }
-          - { name: 红河州, slug: honghezhou, note: 滇南中心城市 GDP总量超3154亿元 }
-          - { name: 玉溪, slug: yuxi, note: 烟草名城 GDP总量超2688亿元 }
-          - { name: 昭通, slug: zhaotong, note: 滇东北门户 GDP总量超2103亿元 }
-          - { name: 大理州, slug: dalizhou, note: 滇西中心城市 GDP总量超2087亿元 }
-          - { name: 楚雄州, slug: chuxiongzhou, note: 滇中城市群重要成员 GDP总量超2040亿元 }
-          - { name: 文山州, slug: wenshanzhou, note: 滇东南中心 GDP总量超1632亿元 }
-          - { name: 保山, slug: baoshan, note: 滇西边境城市 GDP总量超1347亿元 }
-          - { name: 普洱, slug: puer, note: 特色资源型城市 GDP总量超1252亿元 }
+        lede: 按 2025 年地区生产总值从大到小排序，覆盖云南省全部 16 个市州（含 8 个自治州），此处取前 10 名。
+        filter: { province: 云南省 }
+        metrics:
+          - { field: gdp, weight: 1, dir: up, label: 地区生产总值, unit: 亿元 }
+        note: 候选范围为本站已采集到 2025 年地区生产总值的云南省市州（共 16 个，云南省统计局《云南统计月报》分州市地区生产总值表）。
       - slug: neimenggushidachen
         title: 内蒙古十大城市
         kind: "pending"
@@ -420,21 +412,13 @@ groups:
         note: 候选范围为本站已采集到 2025 年地区生产总值的广东省城市（共 21 个，广东省统计局《2025 年各市地区生产总值初步核算结果》）。
       - slug: guangxishidachengs
         title: 广西十大城市
-        kind: "pending"
+        kind: computed
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 南宁, slug: nanning, note: 自治区首府 北部湾城市群核心 }
-          - { name: 柳州, slug: liuzhou, note: 广西工业中心 GDP总量超3096亿元 }
-          - { name: 桂林, slug: guilin, note: 国际旅游名城 GDP总量超2579亿元 }
-          - { name: 玉林, slug: yulin, note: 北部湾经济区节点城市 GDP总量超2437亿元 }
-          - { name: 百色, slug: baise, note: 珠江—西江经济带节点 GDP总量超2101亿元 }
-          - { name: 北海, slug: beihai, note: 滨海旅游名城 GDP总量超1974亿元 }
-          - { name: 钦州, slug: qinzhou, note: 北部湾沿海港口城市 GDP总量超1907亿元 }
-          - { name: 梧州, slug: wuzhou, note: 西江经济带重要节点 GDP总量超1719亿元 }
-          - { name: 贵港, slug: guigang, note: 广西重要内河港口城市 GDP总量超1628亿元 }
-          - { name: 河池, slug: hechi, note: 有色金属之乡 GDP总量超1453亿元 }
+        lede: 按 2025 年地区生产总值从大到小排序，覆盖广西全部 14 个地级市，此处取前 10 名。
+        filter: { province: 广西壮族自治区 }
+        metrics:
+          - { field: gdp, weight: 1, dir: up, label: 地区生产总值, unit: 亿元 }
+        note: 候选范围为本站已采集到 2025 年地区生产总值的广西城市（共 14 个，自治区统计局及各市统计口径）。
       - slug: xinjiangshidacheng
         title: 新疆十大城市
         kind: "pending"
@@ -480,21 +464,13 @@ groups:
         note: 候选范围为本数据集中已采集到 2025 年地区生产总值的江苏省城市（共 13 个）。
       - slug: jiangxishidachengs
         title: 江西十大城市
-        kind: "pending"
+        kind: computed
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 南昌, slug: nanchang, note: 省会城市 长江中游城市群核心 }
-          - { name: 赣州, slug: ganzhou, note: 省域副中心 GDP总量超5221亿元 }
-          - { name: 九江, slug: jiujiang, note: 长江中游区域中心港口城市 GDP总量超4246亿元 }
-          - { name: 上饶, slug: shangrao, note: 赣东北门户 GDP总量超3935亿元 }
-          - { name: 宜春, slug: yichun, note: 赣湘鄂区域中心城市 GDP总量超3930亿元 }
-          - { name: 吉安, slug: jian, note: 赣中腹地城市 GDP总量超3105亿元 }
-          - { name: 抚州, slug: fuzhou, note: 生态文化名城 GDP总量超2298亿元 }
-          - { name: 鹰潭, slug: yingtan, note: 铜都 GDP总量超1459亿元 }
-          - { name: 萍乡, slug: pingxiang, note: 湘赣边区域合作枢纽 GDP总量超1276亿元 }
-          - { name: 新余, slug: xinyu, note: 国家新能源科技城 GDP总量超1215亿元 }
+        lede: 按 2025 年地区生产总值从大到小排序，覆盖江西省全部 11 个设区市，此处取前 10 名。
+        filter: { province: 江西省 }
+        metrics:
+          - { field: gdp, weight: 1, dir: up, label: 地区生产总值, unit: 亿元 }
+        note: 候选范围为本站已采集到 2025 年地区生产总值的江西省城市（共 11 个，江西省统计局《2025年1-12月份各设区市主要经济指标》）。
       - slug: "zhejiangshidacheng"
         title: 浙江十大城市
         kind: "computed"
@@ -620,7 +596,7 @@ groups:
         note: 原榜共 10 条。
         items:
           - { name: 西安, slug: xian, note: 国家中心城市 世界文旅名城 }
-          - { name: 榆林, slug: yulin, note: 能源之都 西部工业重镇 }
+          - { name: 榆林, slug: yulin-sx, note: 能源之都 西部工业重镇 }
           - { name: 咸阳, slug: xianyang, note: 西安都市圈核心城市 GDP总量超3104亿元 }
           - { name: 宝鸡, slug: baoji, note: 关中平原城市群副中心 GDP总量超2648亿元 }
           - { name: 延安, slug: yanan, note: 红色文化中心 GDP总量超2372亿元 }
@@ -824,7 +800,7 @@ groups:
           - { name: 漠河, slug: mohe, note: 中国唯一的圣诞老人村和中国极寒之地 极寒冰雪与极光文化并存 }
           - { name: 银川, slug: yinchuan, note: "“塞上江南”的冰雪湿地 冬季冰雪期约2-3个月" }
           - { name: 吉林, slug: jilin, note: 被誉为雾凇之都 滑雪胜地 }
-          - { name: 伊春, slug: yichun, note: 有中国面积最大的冰雪红松林 被称为“中国林都” }
+          - { name: 伊春, slug: yichun-hlj, note: 有中国面积最大的冰雪红松林 被称为“中国林都” }
           - { name: 沈阳, slug: shenyang, note: "盛京雪韵/“皇家雪景”的代表之一 雪期3-4个月/降雪稳定" }
           - { name: 呼伦贝尔, slug: hulunbeier, note: 草原冰雪/雪原广阔无垠 有“林海雪原”视觉奇观 }
       - slug: shidadongyoumingch
@@ -908,7 +884,7 @@ groups:
           - { name: 毕节, slug: bijie, note: 赏世界最大杜鹃花海 探地下溶洞奇观 }
           - { name: 西双版纳, slug: xishuangbanna, note: 4月参与泼水狂欢 探秘热带植物王国 }
           - { name: 杭州, slug: hangzhou, note: 赏湖光山色 太子湾赏花 }
-          - { name: 大理州, slug: dalizhou, note: 环洱海逐风 访古村赏花 }
+          - { name: 大理, slug: dali, note: 环洱海逐风 访古村赏花 }
           - { name: 嘉兴, slug: jiaxing, note: 赏水乡春景 访红色圣地 }
           - { name: 武汉, slug: wuhan, note: 赏樱花盛宴 东湖骑行漫游 }
           - { name: 林芝, slug: linzhi, note: 沉浸桃花盛宴 探秘千年古柏 }
@@ -1182,7 +1158,7 @@ groups:
           - { name: 桂林, slug: guilin, note: "竹筏漂流追晨雾/赏油菜花/遇龙河边骑行/夜赏“千年古街”等 游玩景点:漓江/遇龙" }
           - { name: 南京, slug: nanjing, note: "梅花山赏梅/鸡鸣寺赏樱/内秦淮河游船等 游玩景点:梅花山/鸡鸣寺/玄武湖/夫子庙" }
           - { name: 扬州, slug: yangzhou, note: "瘦西湖赏桃花/乘画舫游湖/逛古街品早茶/大明寺赏樱/等 游玩景点:瘦西湖/大明寺" }
-          - { name: 大理州, slug: dalizhou, note: "徒步骑行洱海/大理古城赏樱/慢逛古镇/体验白族民俗等 游玩景点:洱海生态廊道/大" }
+          - { name: 大理, slug: dali, note: "徒步骑行洱海/大理古城赏樱/慢逛古镇/体验白族民俗等 游玩景点:洱海生态廊道/大" }
           - { name: 毕节, slug: bijie, note: "赏百里杜鹃花/韭菜坪徒步/观黑颈鹤候鸟等 游玩景点:百里杜鹃金景区/韭菜坪徒步/" }
       - slug: "shiheyuelvyoudeshi-7"
         title: 中国适合4月旅游的十大城市
@@ -1198,7 +1174,7 @@ groups:
           - { name: 洛阳, slug: luoyang, note: 赏国色牡丹/夜游天街/看灯笼长廊与汉服巡游/访千年古刹祈福抄经 游玩景点：中国国 }
           - { name: 西双版纳, slug: xishuangbanna, note: 体验傣族泼水节/夜游星光夜市/尝热带水果/旅拍写真 赏热带雨林奇花异木/夜游看萤 }
           - { name: 毕节, slug: bijie, note: 赏百里杜鹃花海/看地质奇观/船游九洞天/体验彝族风情 游玩景点：百里杜鹃景区/织 }
-          - { name: 大理州, slug: dalizhou, note: 环洱海骑行赏蓝花楹/苍山徒步赏杜鹃/赶三月街民族节 游玩景点：洱海生态廊道/苍山 }
+          - { name: 大理, slug: dali, note: 环洱海骑行赏蓝花楹/苍山徒步赏杜鹃/赶三月街民族节 游玩景点：洱海生态廊道/苍山 }
           - { name: 桂林, slug: guilin, note: "乘船邂逅烟雨漓江/遇龙河竹筏/看镜面梯田/逛民族村寨 游玩景点：漓江杨堤-兴坪段" }
           - { name: 林芝, slug: linzhi, note: 赏桃花盛宴/观日照金山//环游巴松措/看海洋性冰川 游玩景点：嘎拉桃花村/索松村 }
       - slug: "shiheyuelvyoudeshi-8"
@@ -1250,7 +1226,7 @@ groups:
           - { name: 桂林, slug: guilin, note: "" }
           - { name: 厦门, slug: xiamen, note: "" }
           - { name: 丽江, slug: lijiang, note: "" }
-          - { name: 伊春, slug: yichun, note: "" }
+          - { name: 伊春, slug: yichun-hlj, note: "" }
           - { name: 张家界, slug: zhangjiajie, note: "" }
       - slug: "shiheyuelvyoudeshi-11"
         title: 中国适合9月旅游的十大城市
@@ -1285,7 +1261,7 @@ groups:
           - { name: 嘉兴, slug: jiaxing, note: 体验江南水乡古镇 观赏园林花海 }
           - { name: 西安, slug: xian, note: 游览历史文化景点 体验古街小吃 }
           - { name: 张家界, slug: zhangjiajie, note: 欣赏奇峰怪石和云海 体验索道观景 }
-          - { name: 大理州, slug: dalizhou, note: 环洱海骑行 漫步古城赏民俗表演 }
+          - { name: 大理, slug: dali, note: 环洱海骑行 漫步古城赏民俗表演 }
       - slug: lvyouchengshipandi
         title: 旅游城市盘点【汇总】
         kind: "pending"
@@ -1391,7 +1367,7 @@ groups:
           - { name: 重庆, slug: chongqing, note: 麻辣之王 火锅底料牛油厚重 }
           - { name: 武汉, slug: wuhan, note: 卤辣江湖 麻辣直爽 }
           - { name: 萍乡, slug: pingxiang, note: 鲜辣生猛 辣椒当菜 }
-          - { name: 大理州, slug: dalizhou, note: 酸辣交织 讲究酸/辣/鲜/香 }
+          - { name: 大理, slug: dali, note: 酸辣交织 讲究酸/辣/鲜/香 }
           - { name: 南昌, slug: nanchang, note: 隐藏辣都 鲜辣低调但杀伤力极强 }
           - { name: 桂林, slug: guilin, note: 酸辣开胃 酸笋+辣油 }
           - { name: 西安, slug: xian, note: 油泼辣子香 秦椒不燥但红亮诱人 }
@@ -1736,7 +1712,7 @@ groups:
         items:
           - { name: 大兴安岭地区, slug: daxinganling, note: "森林覆盖率约85.70% 中国最大/最完整的寒温带针叶林区" }
           - { name: 白山, slug: baishan, note: "森林覆盖率约84.60% 被誉为“绿色林海”/“雪域王国”" }
-          - { name: 伊春, slug: yichun, note: "森林覆盖率约83.80% 国家森林城市" }
+          - { name: 伊春, slug: yichun-hlj, note: "森林覆盖率约83.80% 国家森林城市" }
           - { name: 黄山, slug: huangshan, note: "森林覆盖率约82.90% 被誉为“华东动植物宝库”" }
           - { name: 西双版纳, slug: xishuangbanna, note: "森林覆盖率约81.34% 有“森林博物馆”之称" }
           - { name: 延边, slug: yanbian, note: "森林覆盖率约80.80% 素有“长白林海”之称" }
@@ -2088,7 +2064,7 @@ groups:
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 8 条。
         items:
-          - { name: 江西景德镇, slug: jiangxijingdezhen, note: 世界瓷都之源 被誉为“千年瓷都” }
+          - { name: 景德镇, slug: jingdezhen, note: 世界瓷都之源 被誉为“千年瓷都” }
           - { name: 湖南醴陵, slug: hunanliling, note: 五彩瓷都 釉下五彩瓷代表城市 }
           - { name: 潮州, slug: chaozhou, note: 中国瓷都 中国重要日用陶瓷出口基地 }
           - { name: 唐山, slug: tangshan, note: 北方瓷都 中国骨质瓷发源地 }

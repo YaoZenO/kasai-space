@@ -384,6 +384,41 @@ ok('S10 PRD 进度表里的 computed 数量必须由实际数据统计得出（�
   assert.strictEqual(Number(m[1]), actual, 'PRD 写 ' + m[1] + ' 个 computed，实际统计 ' + actual + ' 个');
 });
 
+// 榜单条目的 slug 必须指向同一座城市的档案页。
+// 起因（E-077）：抚州的 slug 写成 fuzhou（福州的拼音），江西榜里点「抚州」会跳到福州档案；
+// 同类还有榆林→玉林、伊春→宜春。slug 唯一不等于实体唯一，撞车后链接静默指错，页面上看不出来。
+ok('S11 榜单条目的 slug 必须指向同名城市档案（防 slug 撞车错链）', () => {
+  const bySlug = new Map();
+  for (const c of cities.cities || []) bySlug.set(c.slug, c);
+  const norm = (s) =>
+    String(s || '')
+      .replace(/[（(].*$/, '')
+      .replace(/[·\s]/g, '')
+      .trim();
+  const bad = [];
+  let scanned = 0;
+  for (const g of cityrank.groups || []) {
+    for (const r of g.ranks || []) {
+      for (const it of r.items || []) {
+        scanned++;
+        const c = bySlug.get(it.slug);
+        if (!c) {
+          bad.push(r.slug + ' → ' + it.name + '：slug ' + it.slug + ' 没有对应城市条目');
+          continue;
+        }
+        const a = norm(it.name);
+        const b = norm(c.name);
+        if (a === b || a.replace(/州$/, '') === b.replace(/州$/, '') || a.indexOf(b) !== -1 || b.indexOf(a) !== -1) {
+          continue;
+        }
+        bad.push(r.slug + ' → 条目「' + it.name + '」(' + it.slug + ') 指向档案「' + c.name + '」');
+      }
+    }
+  }
+  assert.ok(scanned > 800, '只扫到 ' + scanned + ' 条，断言可能空转');
+  assert.strictEqual(bad.length, 0, 'slug 与档案名不符（共 ' + bad.length + ' 条）：\n' + bad.slice(0, 10).join('\n'));
+});
+
 ok('自检：往 yml 里塞手写 rank 必须被 S1 抓到', () => {
   const mutated = JSON.parse(JSON.stringify(computedRanks[0]));
   mutated.rank = 1;

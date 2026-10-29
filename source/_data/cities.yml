@@ -198,6 +198,7 @@ cities:
     province: 云南省
     level: 省会
     metrics:
+      gdp: { v: 8637.45, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       latitude: { v: 25.0, unit: "°N", asOf: "2024", source: "lat2024" }
       metro_km: { v: 165.9, unit: "公里", asOf: "2025", source: "metro2025" }
       area_km2: { v: 21000, unit: "平方公里", asOf: "2025", source: "areaGov" }
@@ -221,7 +222,10 @@ cities:
       area_km2: { v: 53100, unit: "平方公里", asOf: "2025", source: "areaGov" }
   - name: 桂林
     slug: guilin
-    metrics: {}
+    province: 广西壮族自治区
+    level: 地级市
+    metrics:
+      gdp: { v: 2579.53, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 贵阳
     slug: guiyang
     province: 贵州省
@@ -326,6 +330,7 @@ cities:
     province: 江西省
     level: 省会
     metrics:
+      gdp: { v: 8141.7, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       latitude: { v: 28.6, unit: "°N", asOf: "2024", source: "lat2024" }
       universities: { v: 27, unit: "所", asOf: "2022", source: "uni2022" }
       metro_km: { v: 160.2, unit: "公里", asOf: "2025", source: "metro2025" }
@@ -334,6 +339,7 @@ cities:
     province: 广西壮族自治区
     level: 省会
     metrics:
+      gdp: { v: 6212.46, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       latitude: { v: 22.6, unit: "°N", asOf: "2024", source: "lat2024" }
       metro_km: { v: 132.5, unit: "公里", asOf: "2025", source: "metro2025" }
       area_km2: { v: 22100, unit: "平方公里", asOf: "2025", source: "areaGov" }
@@ -364,7 +370,10 @@ cities:
       gdp: { v: 6363.66, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 丽江
     slug: lijiang
-    metrics: {}
+    province: 云南省
+    level: 地级市
+    metrics:
+      gdp: { v: 744.27, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 林芝
     slug: linzhi
     metrics:
@@ -377,7 +386,10 @@ cities:
       latitude: { v: 36.7, unit: "°N", asOf: "2024", source: "lat2024" }
   - name: 西双版纳
     slug: xishuangbanna
-    metrics: {}
+    province: 云南省
+    level: 自治州
+    metrics:
+      gdp: { v: 940.83, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 扬州
     slug: yangzhou
     province: 江苏省
@@ -425,13 +437,16 @@ cities:
       area_km2: { v: 13800, unit: "平方公里", asOf: "2025", source: "areaGov" }
   - name: 宜春
     slug: yichun
-    metrics: {}
+    province: 江西省
+    level: 地级市
+    metrics:
+      gdp: { v: 3930.2, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 北海
     slug: beihai
-    metrics: {}
-  - name: 大理州
-    slug: dalizhou
-    metrics: {}
+    province: 广西壮族自治区
+    level: 地级市
+    metrics:
+      gdp: { v: 1974.04, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 东莞
     slug: dongguan
     province: 广东省
@@ -481,10 +496,16 @@ cities:
     metrics: {}
   - name: 曲靖
     slug: qujing
-    metrics: {}
+    province: 云南省
+    level: 地级市
+    metrics:
+      gdp: { v: 3777.6, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 上饶
     slug: shangrao
-    metrics: {}
+    province: 江西省
+    level: 地级市
+    metrics:
+      gdp: { v: 3935.9, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 无锡
     slug: wuxi
     province: 江苏省
@@ -616,7 +637,10 @@ cities:
     metrics: {}
   - name: 大理
     slug: dali
-    metrics: {}
+    province: 云南省
+    level: 自治州
+    metrics:
+      gdp: { v: 2087.51, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 大同
     slug: datong
     metrics: {}
@@ -643,7 +667,10 @@ cities:
       gdp: { v: 4937.4, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 九江
     slug: jiujiang
+    province: 江西省
+    level: 地级市
     metrics:
+      gdp: { v: 4246.5, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       port_cargo: { v: 1.97, unit: "亿吨", asOf: "2025", source: "port2025" }
   - name: 酒泉
     slug: jiuquan
@@ -708,7 +735,10 @@ cities:
     metrics: {}
   - name: 保山
     slug: baoshan
-    metrics: {}
+    province: 云南省
+    level: 地级市
+    metrics:
+      gdp: { v: 1347.01, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 本溪
     slug: benxi
     metrics: {}
@@ -756,7 +786,10 @@ cities:
     metrics: {}
   - name: 迪庆香格里拉
     slug: diqingxianggelila
-    metrics: {}
+    province: 云南省
+    level: 自治州
+    metrics:
+      gdp: { v: 316.65, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 东营
     slug: dongying
     province: 山东省
@@ -862,7 +895,10 @@ cities:
       gdp: { v: 2501.54, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 临沧
     slug: lincang
-    metrics: {}
+    province: 云南省
+    level: 地级市
+    metrics:
+      gdp: { v: 1127.75, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 龙岩
     slug: longyan
     province: 福建省
@@ -881,7 +917,10 @@ cities:
       area_km2: { v: 353000, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 萍乡
     slug: pingxiang
-    metrics: {}
+    province: 江西省
+    level: 地级市
+    metrics:
+      gdp: { v: 1276, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 莆田
     slug: putian
     province: 福建省
@@ -985,10 +1024,16 @@ cities:
       port_cargo: { v: 1.21, unit: "亿吨", asOf: "2025", source: "port2025" }
   - name: 玉林
     slug: yulin
-    metrics: {}
+    province: 广西壮族自治区
+    level: 地级市
+    metrics:
+      gdp: { v: 2437.44, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 玉溪
     slug: yuxi
-    metrics: {}
+    province: 云南省
+    level: 地级市
+    metrics:
+      gdp: { v: 2688.33, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 张掖
     slug: zhangye
     metrics: {}
@@ -1046,7 +1091,10 @@ cities:
     metrics: {}
   - name: 百色
     slug: baise
-    metrics: {}
+    province: 广西壮族自治区
+    level: 地级市
+    metrics:
+      gdp: { v: 2101.34, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 百色·广西
     slug: baiseguangxi
     metrics: {}
@@ -1115,10 +1163,10 @@ cities:
     metrics: {}
   - name: 楚雄
     slug: chuxiong
-    metrics: {}
-  - name: 楚雄州
-    slug: chuxiongzhou
-    metrics: {}
+    province: 云南省
+    level: 自治州
+    metrics:
+      gdp: { v: 2040.17, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 滁州
     slug: chuzhou
     province: 安徽省
@@ -1148,7 +1196,10 @@ cities:
       gdp: { v: 2990.86, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 德宏
     slug: dehong
-    metrics: {}
+    province: 云南省
+    level: 自治州
+    metrics:
+      gdp: { v: 648.07, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 德阳
     slug: deyang
     province: 四川省
@@ -1173,7 +1224,10 @@ cities:
       area_km2: { v: 1596, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 防城港
     slug: fangchenggang
-    metrics: {}
+    province: 广西壮族自治区
+    level: 地级市
+    metrics:
+      gdp: { v: 1201.26, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 佛山南海
     slug: foshannanhai
     metrics: {}
@@ -1221,7 +1275,10 @@ cities:
     metrics: {}
   - name: 赣州
     slug: ganzhou
-    metrics: {}
+    province: 江西省
+    level: 地级市
+    metrics:
+      gdp: { v: 5221.3, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 甘孜州
     slug: ganzizhou
     metrics: {}
@@ -1261,7 +1318,10 @@ cities:
     metrics: {}
   - name: 贵港
     slug: guigang
-    metrics: {}
+    province: 广西壮族自治区
+    level: 地级市
+    metrics:
+      gdp: { v: 1628.44, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 贵阳·森林之城
     slug: guiyangsenlinzhicheng
     metrics: {}
@@ -1300,7 +1360,10 @@ cities:
     metrics: {}
   - name: 河池
     slug: hechi
-    metrics: {}
+    province: 广西壮族自治区
+    level: 地级市
+    metrics:
+      gdp: { v: 1453.62, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 鹤岗
     slug: hegang
     metrics: {}
@@ -1321,7 +1384,10 @@ cities:
       gdp: { v: 2011.8, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 红河州
     slug: honghezhou
-    metrics: {}
+    province: 云南省
+    level: 自治州
+    metrics:
+      gdp: { v: 3154.52, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 怀化
     slug: huaihua
     province: 湖南省
@@ -1354,7 +1420,10 @@ cities:
     metrics: {}
   - name: 吉安
     slug: jian
-    metrics: {}
+    province: 江西省
+    level: 地级市
+    metrics:
+      gdp: { v: 3105.7, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 江苏·南京
     slug: jiangsunanjing
     metrics: {}
@@ -1364,9 +1433,12 @@ cities:
   - name: 江苏苏州
     slug: jiangsusuzhou
     metrics: {}
-  - name: 江西景德镇
-    slug: jiangxijingdezhen
-    metrics: {}
+  - name: 景德镇
+    slug: jingdezhen
+    province: 江西省
+    level: 地级市
+    metrics:
+      gdp: { v: 1189.6, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 江西上饶
     slug: jiangxishangrao
     metrics: {}
@@ -1444,7 +1516,10 @@ cities:
     metrics: {}
   - name: 柳州
     slug: liuzhou
-    metrics: {}
+    province: 广西壮族自治区
+    level: 地级市
+    metrics:
+      gdp: { v: 3096.91, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 里约热内卢
     slug: liyuereneilu
     metrics: {}
@@ -1528,7 +1603,10 @@ cities:
     metrics: {}
   - name: 普洱
     slug: puer
-    metrics: {}
+    province: 云南省
+    level: 地级市
+    metrics:
+      gdp: { v: 1252.4, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 黔东南州
     slug: qiandongnanzhou
     metrics: {}
@@ -1546,7 +1624,10 @@ cities:
     metrics: {}
   - name: 钦州
     slug: qinzhou
-    metrics: {}
+    province: 广西壮族自治区
+    level: 地级市
+    metrics:
+      gdp: { v: 1907.61, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 齐齐哈尔
     slug: qiqihaer
     metrics: {}
@@ -1724,10 +1805,10 @@ cities:
     metrics: {}
   - name: 文山
     slug: wenshan
-    metrics: {}
-  - name: 文山州
-    slug: wenshanzhou
-    metrics: {}
+    province: 云南省
+    level: 自治州
+    metrics:
+      gdp: { v: 1632.64, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 乌海
     slug: wuhai
     metrics:
@@ -1754,7 +1835,10 @@ cities:
     metrics: {}
   - name: 梧州
     slug: wuzhou
-    metrics: {}
+    province: 广西壮族自治区
+    level: 地级市
+    metrics:
+      gdp: { v: 1719.79, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 厦门·湖里·思明
     slug: xiamenhulisiming
     metrics: {}
@@ -1817,7 +1901,10 @@ cities:
       gdp: { v: 3687.07, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 新余
     slug: xinyu
-    metrics: {}
+    province: 江西省
+    level: 地级市
+    metrics:
+      gdp: { v: 1215.6, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 忻州
     slug: xinzhou
     metrics: {}
@@ -1865,7 +1952,10 @@ cities:
     metrics: {}
   - name: 鹰潭
     slug: yingtan
-    metrics: {}
+    province: 江西省
+    level: 地级市
+    metrics:
+      gdp: { v: 1459.4, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 游泳之乡：广东省东莞
     slug: youyongzhixiangguangdongshengdongguan
     metrics: {}
@@ -1898,7 +1988,10 @@ cities:
     metrics: {}
   - name: 昭通
     slug: zhaotong
-    metrics: {}
+    province: 云南省
+    level: 地级市
+    metrics:
+      gdp: { v: 2103.4, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 昭通·云南
     slug: zhaotongyunnan
     metrics: {}
@@ -2214,3 +2307,43 @@ cities:
     level: 地级市
     metrics:
       gdp: { v: 4040.5, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
+  - name: 抚州
+    slug: fuzhou-jx
+    province: 江西省
+    level: 地级市
+    metrics:
+      gdp: { v: 2298.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
+  - name: 崇左
+    slug: chongzuo
+    province: 广西壮族自治区
+    level: 地级市
+    metrics:
+      gdp: { v: 1358.64, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
+  - name: 来宾
+    slug: laibin
+    province: 广西壮族自治区
+    level: 地级市
+    metrics:
+      gdp: { v: 1049.66, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
+  - name: 贺州
+    slug: hezhou
+    province: 广西壮族自治区
+    level: 地级市
+    metrics:
+      gdp: { v: 1006.74, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
+  - name: 怒江
+    slug: nujiang
+    province: 云南省
+    level: 自治州
+    metrics:
+      gdp: { v: 288.98, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
+  - name: 榆林
+    slug: yulin-sx
+    province: 陕西省
+    level: 地级市
+    metrics: {}
+  - name: 伊春
+    slug: yichun-hlj
+    province: 黑龙江省
+    level: 地级市
+    metrics: {}
