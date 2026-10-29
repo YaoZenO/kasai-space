@@ -502,11 +502,21 @@ ok('S11 榜单条目的 slug 必须指向同名城市档案（防 slug 撞车错
 // （陆地 / 行政区划、含不含海域）时被转成 computed，结果广州（7434）排第一，
 // 而真正最小的海口（2304.8）、南京（6587）因缺值根本没进候选——名次对外失真。
 // 这里锁死：数据补齐前该榜只能保持 pending，谁转谁 FAIL。
-ok('S12 面积最小十大省会榜在面积数据齐备前必须保持 pending（E-079 防复发）', () => {
+// E-079 原锁是「面积数据齐备前必须保持 pending」。2026-10-30 27 座省会面积已全部补齐
+// （E-082），该榜转回 computed，锁随之升级为「省会面积必须 100% 覆盖」——
+// 覆盖一旦回退，S15 的 90% 线与这条 100% 线会同时拦下。断言必须跟着特性一起改，
+// 否则会出现「特性已恢复、旧断言还在拦」的假失败。
+ok('S12 省会面积类榜：27 座省会面积必须全覆盖，缺一座即退回 pending（E-079 / E-082）', () => {
   const def = allRanks.find((r) => r.slug === 'mianjizuixiaodeshi-2');
   assert.ok(def, '找不到 mianjizuixiaodeshi-2——锚点失效');
-  assert.ok(!def.kind || def.kind === 'pending',
-    '该榜被转成了 ' + def.kind + '：27 座省会仅 12 座有面积值且口径不一，转 computed 会输出失真名次');
+  const caps = (cities.cities || []).filter((c) => c.level === '省会');
+  assert.ok(caps.length >= 20, '省会只有 ' + caps.length + ' 座，level 标注可能出问题');
+  const withArea = caps.filter((c) => c.metrics && typeof c.metrics.area_km2 === 'object');
+  const complete = withArea.length === caps.length;
+  assert.strictEqual(def.kind, complete ? 'computed' : 'pending',
+    '省会面积覆盖 ' + withArea.length + '/' + caps.length + '，该榜 kind 应为 ' +
+    (complete ? 'computed' : 'pending') + '，实际是 ' + def.kind +
+    '——覆盖不齐时算出的最小 / 最大榜必然失真（E-079）');
 });
 
 // 气候四字段必须同源同年份。年鉴表是 2024 年实况值（非多年平均），一旦混入
@@ -600,6 +610,41 @@ ok('自检：注入一条消歧名空壳必须被 S13 抓到', () => {
     if (hit) break;
   }
   assert.strictEqual(hit, '广东深圳', '注入的空壳没被判重逻辑抓到——断言空转');
+});
+
+ok('S15 带 filter 的榜：filter 范围内指标覆盖率须 ≥90%（E-079 同类失真防线）', () => {
+  let checked = 0;
+  for (const def of computedRanks) {
+    if (!def.filter) continue;
+    let pool = cities.cities || [];
+    for (const k of Object.keys(def.filter)) {
+      pool = pool.filter((c) => String(c[k] === undefined ? '' : c[k]) === String(def.filter[k]));
+    }
+    assert.ok(pool.length > 0, '榜 ' + def.slug + ' 的 filter 筛出 0 座城市');
+    const ok = pool.filter((c) => (def.metrics || []).every((m) => c.metrics && c.metrics[m.field] && typeof c.metrics[m.field].v === 'number'));
+    const pct = ok.length / pool.length;
+    assert.ok(pct >= 0.9,
+      '榜 ' + def.slug + ' 在 filter ' + JSON.stringify(def.filter) + ' 范围内的指标覆盖只有 ' +
+      ok.length + '/' + pool.length + '（' + Math.round(pct * 100) + '%）——' +
+      '缺的若恰好落在榜首/榜尾方向，名次必然失真，先补数据再转 computed');
+    checked += 1;
+  }
+  assert.ok(checked >= 10, '只校验了 ' + checked + ' 个带 filter 的榜，断言可能空转');
+});
+
+ok('S15 空气最好 / 污染最重两榜须保持 fact：年鉴 31 城覆盖不了生态环境部 168 城口径', () => {
+  for (const slug of ['kongqizuihaodeshid', 'kongqiwuranzuiyanz']) {
+    const def = allRanks.find((r) => r.slug === slug);
+    assert.ok(def, '榜 ' + slug + ' 不存在——站点结构变了，本断言需要一起改');
+    assert.strictEqual(def.kind, 'fact',
+      '榜 ' + slug + ' 现在是 ' + def.kind + '。本站 pm25 / air_good_days 只有《中国统计年鉴 2025》表 8-16 的 31 座城市，' +
+      '而该榜原名次引自生态环境部 168 个重点城市口径（含黄山、张家口、珠海、咸阳、焦作等），' +
+      '改用年鉴数据会让这些主体城市全部出榜。要转 computed 必须先拿到 168 城量级的数据源，并同时改本断言');
+  }
+  // 反向自检：数据确实存在，说明这条锁不是因为「没数据所以没转」
+  const withPm25 = (cities.cities || []).filter((c) => c.metrics && typeof c.metrics.pm25 === 'object');
+  assert.ok(withPm25.length >= 25,
+    'pm25 只有 ' + withPm25.length + ' 座城市，上一轮若没落库这条断言就失去意义');
 });
 
 ok('自检：往 yml 里塞手写 rank 必须被 S1 抓到', () => {

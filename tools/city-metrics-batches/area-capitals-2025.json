@@ -1,0 +1,27 @@
+{
+  "_comment": "P3 第十二批：27 座省会/首府中缺面积的 15 座，全部取自各市人民政府网站公开口径（行政区域面积，陆域）。海口取陆地面积 2297.04（另有海洋面积 785.06 不计入）；合肥 11445 含巢湖湖面 780 平方公里；兰州市政府表述为「1.31 万平方公里」，按 13100 收录并在台账标注为约数。逐城来源见 tools/city-metrics-batches/area-capitals-2025-sources.md",
+  "source": {
+    "key": "areaGov",
+    "name": "各市人民政府网站公开的行政区域面积（补齐 15 座省会/首府）",
+    "asOf": "2025"
+  },
+  "field": "area_km2",
+  "unit": "平方公里",
+  "rows": [
+    { "name": "南京", "slug": "nanjing", "v": 6587.04 },
+    { "name": "西安", "slug": "xian", "v": 10097.01 },
+    { "name": "长沙", "slug": "changsha", "v": 11816.0 },
+    { "name": "贵阳", "slug": "guiyang", "v": 8043.45 },
+    { "name": "郑州", "slug": "zhengzhou", "v": 7567 },
+    { "name": "沈阳", "slug": "shenyang", "v": 12860 },
+    { "name": "福州", "slug": "fuzhou", "v": 11968.53 },
+    { "name": "海口", "slug": "haikou", "v": 2297.04 },
+    { "name": "银川", "slug": "yinchuan", "v": 9025.38 },
+    { "name": "南昌", "slug": "nanchang", "v": 7194.98 },
+    { "name": "西宁", "slug": "xining", "v": 7606.89 },
+    { "name": "太原", "slug": "taiyuan", "v": 6909 },
+    { "name": "合肥", "slug": "hefei", "v": 11445 },
+    { "name": "兰州", "slug": "lanzhou", "v": 13100 },
+    { "name": "济南", "slug": "jinan", "v": 10244.45 }
+  ]
+}

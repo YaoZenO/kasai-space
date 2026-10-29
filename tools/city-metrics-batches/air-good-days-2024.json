@@ -1,0 +1,43 @@
+{
+  "_comment": "同 air-pm25-2024.json，取表 8-16 末列「空气质量达到或好于二级的天数」。单位天，2024 年为闰年（366 天），优良率可由该值除以 366 得到——本站保留原始天数，不做换算，便于回查原表。",
+  "source": {
+    "key": "airNBS2024",
+    "name": "国家统计局《中国统计年鉴2025》表 8-16 主要城市空气质量情况(2024年)：细颗粒物(PM2.5)年平均浓度、空气质量达到或好于二级的天数",
+    "asOf": "2024"
+  },
+  "field": "air_good_days",
+  "unit": "天",
+  "rows": [
+    { "name": "北京", "slug": "beijing", "v": 290 },
+    { "name": "天津", "slug": "tianjin", "v": 268 },
+    { "name": "石家庄", "slug": "shijiazhuang", "v": 236 },
+    { "name": "太原", "slug": "taiyuan", "v": 248 },
+    { "name": "呼和浩特", "slug": "huhehaote", "v": 312 },
+    { "name": "沈阳", "slug": "shenyang", "v": 318 },
+    { "name": "长春", "slug": "changchun", "v": 328 },
+    { "name": "哈尔滨", "slug": "haerbin", "v": 312 },
+    { "name": "上海", "slug": "shanghai", "v": 323 },
+    { "name": "南京", "slug": "nanjing", "v": 314 },
+    { "name": "杭州", "slug": "hangzhou", "v": 299 },
+    { "name": "合肥", "slug": "hefei", "v": 315 },
+    { "name": "福州", "slug": "fuzhou", "v": 359 },
+    { "name": "南昌", "slug": "nanchang", "v": 337 },
+    { "name": "济南", "slug": "jinan", "v": 244 },
+    { "name": "郑州", "slug": "zhengzhou", "v": 231 },
+    { "name": "武汉", "slug": "wuhan", "v": 285 },
+    { "name": "长沙", "slug": "changsha", "v": 304 },
+    { "name": "广州", "slug": "guangzhou", "v": 344 },
+    { "name": "南宁", "slug": "nanning", "v": 354 },
+    { "name": "海口", "slug": "haikou", "v": 353 },
+    { "name": "重庆", "slug": "chongqing", "v": 329 },
+    { "name": "成都", "slug": "chengdu", "v": 296 },
+    { "name": "贵阳", "slug": "guiyang", "v": 364 },
+    { "name": "昆明", "slug": "kunming", "v": 365 },
+    { "name": "拉萨", "slug": "lasa", "v": 356 },
+    { "name": "西安", "slug": "xian", "v": 241 },
+    { "name": "兰州", "slug": "lanzhou", "v": 301 },
+    { "name": "西宁", "slug": "xining", "v": 335 },
+    { "name": "银川", "slug": "yinchuan", "v": 294 },
+    { "name": "乌鲁木齐", "slug": "wulumuqi", "v": 312 }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "_comment": "P3 第十二批（附）31 个主要城市 PM2.5 年均浓度，取自国家统计局《中国统计年鉴2025》表 8-16 主要城市空气质量情况(2024年)（原表标注为初步数据）。本字段只落城市档案，不用于任何榜单——「中国空气最好的十大城市」「空气污染最严重的十大城市」两榜现有名次引自生态环境部 168 个重点城市口径，年鉴仅覆盖 31 座，若改用年鉴数据会让黄山、张家口、珠海、咸阳、焦作等主体城市全部出榜，名次失真（E-079 同类问题）。",
+  "source": {
+    "key": "airNBS2024",
+    "name": "国家统计局《中国统计年鉴2025》表 8-16 主要城市空气质量情况(2024年)：细颗粒物(PM2.5)年平均浓度、空气质量达到或好于二级的天数",
+    "asOf": "2024"
+  },
+  "field": "pm25",
+  "unit": "微克/立方米",
+  "rows": [
+    { "name": "北京", "slug": "beijing", "v": 31 },
+    { "name": "天津", "slug": "tianjin", "v": 38 },
+    { "name": "石家庄", "slug": "shijiazhuang", "v": 46 },
+    { "name": "太原", "slug": "taiyuan", "v": 40 },
+    { "name": "呼和浩特", "slug": "huhehaote", "v": 28 },
+    { "name": "沈阳", "slug": "shenyang", "v": 34 },
+    { "name": "长春", "slug": "changchun", "v": 33 },
+    { "name": "哈尔滨", "slug": "haerbin", "v": 40 },
+    { "name": "上海", "slug": "shanghai", "v": 28 },
+    { "name": "南京", "slug": "nanjing", "v": 28 },
+    { "name": "杭州", "slug": "hangzhou", "v": 30 },
+    { "name": "合肥", "slug": "hefei", "v": 34 },
+    { "name": "福州", "slug": "fuzhou", "v": 19 },
+    { "name": "南昌", "slug": "nanchang", "v": 32 },
+    { "name": "济南", "slug": "jinan", "v": 36 },
+    { "name": "郑州", "slug": "zhengzhou", "v": 45 },
+    { "name": "武汉", "slug": "wuhan", "v": 36 },
+    { "name": "长沙", "slug": "changsha", "v": 40 },
+    { "name": "广州", "slug": "guangzhou", "v": 22 },
+    { "name": "南宁", "slug": "nanning", "v": 25 },
+    { "name": "海口", "slug": "haikou", "v": 16 },
+    { "name": "重庆", "slug": "chongqing", "v": 34 },
+    { "name": "成都", "slug": "chengdu", "v": 32 },
+    { "name": "贵阳", "slug": "guiyang", "v": 20 },
+    { "name": "昆明", "slug": "kunming", "v": 20 },
+    { "name": "拉萨", "slug": "lasa", "v": 11 },
+    { "name": "西安", "slug": "xian", "v": 43 },
+    { "name": "兰州", "slug": "lanzhou", "v": 37 },
+    { "name": "西宁", "slug": "xining", "v": 33 },
+    { "name": "银川", "slug": "yinchuan", "v": 36 },
+    { "name": "乌鲁木齐", "slug": "wulumuqi", "v": 34 }
+  ]
+}

@@ -1477,7 +1477,7 @@ groups:
         lede: 按行政区域面积从大到小排序，面积越大名次越前。
         metrics:
           - { field: "area_km2", weight: 1.0, dir: "up", label: "行政区域面积", unit: "平方公里", scale: "log" }
-        note: 候选范围为本数据集中已采集到行政区域面积的城市。
+        note: 候选范围为本数据集中已采集到行政区域面积的城市（本数据集共 431 座城市，其中已采集到面积的见页首「候选城市」数；未采集到的城市不参与本榜，不按 0 处理）。面积为行政区域陆域口径，海域面积不计入。
       - slug: "mianjizuidadeshida-2"
         title: 中国面积最大的十大省会城市
         kind: "computed"
@@ -1486,7 +1486,7 @@ groups:
         filter: { level: "省会" }
         metrics:
           - { field: "area_km2", weight: 1.0, dir: "up", label: "行政区域面积", unit: "平方公里", scale: "log" }
-        note: 候选范围为本数据集中已采集到行政区域面积的城市。
+        note: 候选为全部 27 座省会 / 首府城市，面积数据已采集齐全（各市人民政府网站口径），本榜为完整口径排名。面积为行政区域陆域口径，海域面积不计入；海口按陆地面积收录，不含海洋面积。
       - slug: "mianjizuixiaodeshi"
         title: 中国面积最小的十大城市
         kind: "computed"
@@ -1494,24 +1494,16 @@ groups:
         lede: 按行政区域面积从小到大排序，面积越小名次越前。
         metrics:
           - { field: "area_km2", weight: 1.0, dir: "down", label: "行政区域面积", unit: "平方公里", scale: "log" }
-        note: 候选范围为本数据集中已采集到行政区域面积的城市。
+        note: 候选范围为本数据集中已采集到行政区域面积的城市（未采集到的城市不参与本榜，不按 0 处理）。面积为行政区域陆域口径，海域面积不计入；三沙、舟山、三亚等沿海城市按陆地面积收录，其海域面积远大于陆地面积，本榜不反映管辖海域大小。
       - slug: "mianjizuixiaodeshi-2"
         title: 中国面积最小的十大省会城市
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条；各来源省会面积口径不一（陆地面积 / 行政区划面积、含不含海域），且本站数据集仅 12 座省会有面积值，暂沿用原榜名次，待 27 座省会统一口径补齐后再转本站计算。
-        items:
-          - { name: 海口, slug: haikou, note: "" }
-          - { name: 南京, slug: nanjing, note: "" }
-          - { name: 太原, slug: taiyuan, note: "" }
-          - { name: 南昌, slug: nanchang, note: "" }
-          - { name: 广州, slug: guangzhou, note: "" }
-          - { name: 西宁, slug: xining, note: "" }
-          - { name: 郑州, slug: zhengzhou, note: "" }
-          - { name: 贵阳, slug: guiyang, note: "" }
-          - { name: 武汉, slug: wuhan, note: "" }
-          - { name: 银川, slug: yinchuan, note: "" }
+        lede: 按行政区域面积从小到大排序，范围限省会城市。
+        filter: { level: "省会" }
+        metrics:
+          - { field: "area_km2", weight: 1.0, dir: "down", label: "行政区域面积", unit: "平方公里", scale: "log" }
+        note: 候选为全部 27 座省会 / 首府城市，面积数据已采集齐全（各市人民政府网站口径），本榜为完整口径排名。面积为行政区域陆域口径，海域面积不计入；海口按陆地面积收录，不含海洋面积。
       - slug: shandongmianjizuid
         title: 山东面积最大的十大地级市
         kind: "pending"
@@ -1857,7 +1849,7 @@ groups:
         lede: 按城市轨道交通运营里程从长到短排序，数据为交通运输部 2025 年末运营里程。
         metrics:
           - { field: "metro_km", weight: 1.0, dir: "up", label: "城市轨道交通运营里程", unit: "公里", scale: "log" }
-        note: 数据来源：交通运输部《2025 年城市轨道交通运营数据速报》（截至 2025 年 12 月 31 日）。
+        note: 数据来源：交通运输部《2025 年城市轨道交通运营数据速报》（截至 2025 年 12 月 31 日，含地铁、轻轨、单轨、有轨电车）。候选范围为本数据集中已采集到运营里程的城市，未采集到的城市不参与本榜，不按 0 处理；里程为线网运营总里程，不等于地铁线路条数或客流规模。
       - slug: zuizaokaitongditie
         title: 中国最早开通地铁的十大城市
         kind: "pending"
