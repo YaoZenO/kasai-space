@@ -226,17 +226,29 @@ if (!hasPublic) {
     }
   });
 
-  ok('S5 城市大类：/city/ 索引页存在，且每座建档城市都有档案页', () => {
+  ok('S5 城市大类：/city/ 索引页存在，应建页的城市一个不缺', () => {
     const idx = path.join(PUBLIC, 'city', 'index.html');
     assert.ok(fs.existsSync(idx), '/city/ 索引页缺失（城市大类的入口）');
     assert.ok(fs.statSync(idx).size > 5000, '/city/ 索引页字节数异常');
     const idxHtml = fs.readFileSync(idx, 'utf8');
     assert.ok(idxHtml.indexOf('城市档案') !== -1, '/city/ 索引页缺少标题');
+    // 建页口径必须与生成器一致（cityrank-pages.js）：有已核验指标、或至少上过一次榜才建页。
+    // 两者皆无的城市不建页——DESIGN-LANGUAGE §1「无数据不生成页面」，不产生空壳页。
+    // 反向必须锁死：该建页的城市一个都不能缺，缺一个就是全域死链（E-071）。
+    const mentioned = new Set();
+    for (const g of R.groups) {
+      for (const r of g.ranks) for (const it of r.items || []) mentioned.add(it.slug);
+    }
+    let expected = 0;
     for (const c of cities.cities || []) {
+      const hasData = c.metrics && Object.keys(c.metrics).length > 0;
+      if (!hasData && !mentioned.has(c.slug)) continue;
+      expected += 1;
       const p = path.join(PUBLIC, 'city', c.slug, 'index.html');
       assert.ok(fs.existsSync(p), '城市页缺失：' + c.slug);
       assert.ok(fs.statSync(p).size > 2000, '城市页字节数异常：' + c.slug);
     }
+    assert.ok(expected > 300, '应建页城市数异常（' + expected + '）——断言可能空转');
   });
 
   ok('S6 全部榜单页里的城市链接都指向真实存在的城市页（无死链）', () => {

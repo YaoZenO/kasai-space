@@ -38,10 +38,16 @@ sources:
   - key: "lat2024"
     name: "中国主要城市国家基本气象站经纬度（Atmosphere 期刊论文 Table 1，36 站）"
     asOf: "2024"
+  - key: "port2025"
+    name: "交通运输部 2025 年 1—10 月主要内河港口货物吞吐量（沿海大港不计入内河口径）"
+    asOf: "2025"
   - key: "areaPub"
     name: "公开行政区划面积资料（核对自公开城市面积排行，标注为约数的按约数收录）"
     asOf: "2025"
 
+  - key: "gdp2025prov"
+    name: "各省统计局发布的 2025 年 1—12 月省内各市地区生产总值（浙江见湖州市统计局转载的《省内城市主要经济指标》；江苏、山东见各市统计公报与省内汇总，经两份以上来源交叉核对）"
+    asOf: "2025"
 cities:
   - name: 北京
     slug: beijing
@@ -106,6 +112,7 @@ cities:
     province: 江苏省
     level: 省会
     metrics:
+      port_cargo: { v: 2.22, unit: "亿吨", asOf: "2025", source: "port2025" }
       latitude: { v: 31.9, unit: "°N", asOf: "2024", source: "lat2024" }
       universities: { v: 34, unit: "所", asOf: "2022", source: "uni2022" }
       double_first_class: { v: 13, unit: "所", asOf: "2022", source: "dfc2022" }
@@ -170,6 +177,7 @@ cities:
     province: 江苏省
     level: 地级市
     metrics:
+      port_cargo: { v: 5.09, unit: "亿吨", asOf: "2025", source: "port2025" }
       universities: { v: 8, unit: "所", asOf: "2022", source: "uni2022" }
       double_first_class: { v: 1, unit: "所", asOf: "2022", source: "dfc2022" }
       metro_km: { v: 355.4, unit: "公里", asOf: "2025", source: "metro2025" }
@@ -359,7 +367,10 @@ cities:
     metrics: {}
   - name: 扬州
     slug: yangzhou
-    metrics: {}
+    province: 江苏省
+    level: 地级市
+    metrics:
+      gdp: { v: 8056.75, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 呼和浩特
     slug: huhehaote
     province: 内蒙古自治区
@@ -430,10 +441,17 @@ cities:
     metrics: {}
   - name: 嘉兴
     slug: jiaxing
-    metrics: {}
+    province: 浙江省
+    level: 地级市
+    metrics:
+      gdp: { v: 7851.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
+      port_cargo: { v: 1.26, unit: "亿吨", asOf: "2025", source: "port2025" }
   - name: 金华
     slug: jinhua
-    metrics: {}
+    province: 浙江省
+    level: 地级市
+    metrics:
+      gdp: { v: 7313.5, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 兰州
     slug: lanzhou
     province: 甘肃省
@@ -481,13 +499,22 @@ cities:
     metrics: {}
   - name: 台州
     slug: taizhou
-    metrics: {}
+    province: 浙江省
+    level: 地级市
+    metrics:
+      gdp: { v: 7005.9, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 威海
     slug: weihai
-    metrics: {}
+    province: 山东省
+    level: 地级市
+    metrics:
+      gdp: { v: 3896.09, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 舟山
     slug: zhoushan
+    province: 浙江省
+    level: 地级市
     metrics:
+      gdp: { v: 2346.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       area_km2: { v: 1440, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 毕节
     slug: bijie
@@ -500,7 +527,10 @@ cities:
     metrics: {}
   - name: 丽水
     slug: lishui
-    metrics: {}
+    province: 浙江省
+    level: 地级市
+    metrics:
+      gdp: { v: 2301.4, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 漠河
     slug: mohe
     metrics: {}
@@ -509,6 +539,7 @@ cities:
     province: 江苏省
     level: 地级市
     metrics:
+      port_cargo: { v: 1.9, unit: "亿吨", asOf: "2025", source: "port2025" }
       universities: { v: 3, unit: "所", asOf: "2022", source: "uni2022" }
       double_first_class: { v: 0, unit: "所", asOf: "2022", source: "dfc2022" }
       metro_km: { v: 58.8, unit: "公里", asOf: "2025", source: "metro2025" }
@@ -519,7 +550,10 @@ cities:
       area_km2: { v: 20, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 绍兴
     slug: shaoxing
+    province: 浙江省
+    level: 地级市
     metrics:
+      gdp: { v: 8932.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       metro_km: { v: 64.5, unit: "公里", asOf: "2025", source: "metro2025" }
   - name: 台北
     slug: taibei
@@ -527,7 +561,10 @@ cities:
     metrics: {}
   - name: 潍坊
     slug: weifang
-    metrics: {}
+    province: 山东省
+    level: 地级市
+    metrics:
+      gdp: { v: 8587.36, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 温州
     slug: wenzhou
     province: 浙江省
@@ -556,7 +593,10 @@ cities:
     metrics: {}
   - name: 德州
     slug: dezhou
-    metrics: {}
+    province: 山东省
+    level: 地级市
+    metrics:
+      gdp: { v: 4214.61, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 佛山
     slug: foshan
     province: 广东省
@@ -568,17 +608,24 @@ cities:
       gdp: { v: 13157.35, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 菏泽
     slug: heze
-    metrics: {}
+    province: 山东省
+    level: 地级市
+    metrics:
+      gdp: { v: 4937.4, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 九江
     slug: jiujiang
-    metrics: {}
+    metrics:
+      port_cargo: { v: 1.97, unit: "亿吨", asOf: "2025", source: "port2025" }
   - name: 酒泉
     slug: jiuquan
     metrics:
       area_km2: { v: 192000, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 临沂
     slug: linyi
-    metrics: {}
+    province: 山东省
+    level: 地级市
+    metrics:
+      gdp: { v: 6862.2, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 茂名
     slug: maoming
     metrics: {}
@@ -593,7 +640,10 @@ cities:
     metrics: {}
   - name: 衢州
     slug: quzhou
-    metrics: {}
+    province: 浙江省
+    level: 地级市
+    metrics:
+      gdp: { v: 2401.6, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 唐山
     slug: tangshan
     province: 河北省
@@ -623,7 +673,10 @@ cities:
     metrics: {}
   - name: 滨州
     slug: binzhou
-    metrics: {}
+    province: 山东省
+    level: 地级市
+    metrics:
+      gdp: { v: 3558.17, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 常德
     slug: changde
     metrics: {}
@@ -656,7 +709,10 @@ cities:
     metrics: {}
   - name: 东营
     slug: dongying
-    metrics: {}
+    province: 山东省
+    level: 地级市
+    metrics:
+      gdp: { v: 4502.73, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 鄂尔多斯
     slug: eerduosi
     metrics:
@@ -695,7 +751,11 @@ cities:
     metrics: {}
   - name: 湖州
     slug: huzhou
-    metrics: {}
+    province: 浙江省
+    level: 地级市
+    metrics:
+      gdp: { v: 4452.8, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
+      port_cargo: { v: 1.22, unit: "亿吨", asOf: "2025", source: "port2025" }
   - name: 江门
     slug: jiangmen
     metrics: {}
@@ -704,7 +764,10 @@ cities:
     metrics: {}
   - name: 济宁
     slug: jining
-    metrics: {}
+    province: 山东省
+    level: 地级市
+    metrics:
+      gdp: { v: 6128.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 晋中
     slug: jinzhong
     metrics: {}
@@ -792,10 +855,14 @@ cities:
     metrics: {}
   - name: 盐城
     slug: yancheng
-    metrics: {}
+    province: 江苏省
+    level: 地级市
+    metrics:
+      gdp: { v: 8045.3, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 宜昌
     slug: yichang
-    metrics: {}
+    metrics:
+      port_cargo: { v: 1.34, unit: "亿吨", asOf: "2025", source: "port2025" }
   - name: 营口
     slug: yingkou
     metrics: {}
@@ -807,7 +874,8 @@ cities:
     metrics: {}
   - name: 岳阳
     slug: yueyang
-    metrics: {}
+    metrics:
+      port_cargo: { v: 1.21, unit: "亿吨", asOf: "2025", source: "port2025" }
   - name: 玉林
     slug: yulin
     metrics: {}
@@ -822,7 +890,11 @@ cities:
     metrics: {}
   - name: 镇江
     slug: zhenjiang
-    metrics: {}
+    province: 江苏省
+    level: 地级市
+    metrics:
+      gdp: { v: 5736.78, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
+      port_cargo: { v: 2.4, unit: "亿吨", asOf: "2025", source: "port2025" }
   - name: 阿坝
     slug: aba
     metrics: {}
@@ -1187,7 +1259,10 @@ cities:
     metrics: {}
   - name: 聊城
     slug: liaocheng
-    metrics: {}
+    province: 山东省
+    level: 地级市
+    metrics:
+      gdp: { v: 3304.15, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 辽宁·本溪
     slug: liaoningbenxi
     metrics: {}
@@ -1457,6 +1532,7 @@ cities:
   - name: 芜湖
     slug: wuhu
     metrics:
+      port_cargo: { v: 1.36, unit: "亿吨", asOf: "2025", source: "port2025" }
       metro_km: { v: 46.2, unit: "公里", asOf: "2025", source: "metro2025" }
   - name: 乌兰察布
     slug: wulanchabu
@@ -1628,7 +1704,10 @@ cities:
     metrics: {}
   - name: 淄博
     slug: zibo
-    metrics: {}
+    province: 山东省
+    level: 地级市
+    metrics:
+      gdp: { v: 5088.89, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 淄博·山东
     slug: ziboshandong
     metrics: {}
@@ -1646,3 +1725,45 @@ cities:
     province: 河北省
     level: 地级市
     metrics: {}
+  - name: 泰安
+    slug: taian
+    province: 山东省
+    level: 地级市
+    metrics:
+      gdp: { v: 3803.5, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
+  - name: 日照
+    slug: rizhao
+    province: 山东省
+    level: 地级市
+    metrics:
+      gdp: { v: 2689.96, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
+  - name: 枣庄
+    slug: zaozhuang
+    province: 山东省
+    level: 地级市
+    metrics:
+      gdp: { v: 2502.52, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
+  - name: 泰州
+    slug: taizhou-js
+    province: 江苏省
+    level: 地级市
+    metrics:
+      gdp: { v: 7255.27, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
+  - name: 淮安
+    slug: huaian
+    province: 江苏省
+    level: 地级市
+    metrics:
+      gdp: { v: 5630.11, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
+  - name: 连云港
+    slug: lianyungang
+    province: 江苏省
+    level: 地级市
+    metrics:
+      gdp: { v: 4830.94, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
+  - name: 宿迁
+    slug: suqian
+    province: 江苏省
+    level: 地级市
+    metrics:
+      gdp: { v: 5026.6, unit: "亿元", asOf: "2025", source: "gdp2025prov" }

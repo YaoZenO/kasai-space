@@ -1,0 +1,42 @@
+{
+  "source": {
+    "key": "gdp2025prov",
+    "name": "各省统计局发布的 2025 年 1—12 月省内各市地区生产总值（浙江见湖州市统计局转载的《省内城市主要经济指标》；江苏、山东见各市统计公报与省内汇总，经两份以上来源交叉核对）",
+    "asOf": "2025"
+  },
+  "field": "gdp",
+  "unit": "亿元",
+  "rows": [
+    { "name": "嘉兴", "slug": "jiaxing", "province": "浙江省", "level": "地级市", "v": 7851.1 },
+    { "name": "湖州", "slug": "huzhou", "province": "浙江省", "level": "地级市", "v": 4452.8 },
+    { "name": "绍兴", "slug": "shaoxing", "province": "浙江省", "level": "地级市", "v": 8932.1 },
+    { "name": "金华", "slug": "jinhua", "province": "浙江省", "level": "地级市", "v": 7313.5 },
+    { "name": "衢州", "slug": "quzhou", "province": "浙江省", "level": "地级市", "v": 2401.6 },
+    { "name": "舟山", "slug": "zhoushan", "province": "浙江省", "level": "地级市", "v": 2346.1 },
+    { "name": "台州", "slug": "taizhou", "province": "浙江省", "level": "地级市", "v": 7005.9 },
+    { "name": "丽水", "slug": "lishui", "province": "浙江省", "level": "地级市", "v": 2301.4 },
+
+    { "name": "扬州", "slug": "yangzhou", "province": "江苏省", "level": "地级市", "v": 8056.75 },
+    { "name": "盐城", "slug": "yancheng", "province": "江苏省", "level": "地级市", "v": 8045.3 },
+    { "name": "镇江", "slug": "zhenjiang", "province": "江苏省", "level": "地级市", "v": 5736.78 },
+
+    { "name": "潍坊", "slug": "weifang", "province": "山东省", "level": "地级市", "v": 8587.36 },
+    { "name": "临沂", "slug": "linyi", "province": "山东省", "level": "地级市", "v": 6862.2 },
+    { "name": "济宁", "slug": "jining", "province": "山东省", "level": "地级市", "v": 6128.1 },
+    { "name": "淄博", "slug": "zibo", "province": "山东省", "level": "地级市", "v": 5088.89 },
+    { "name": "菏泽", "slug": "heze", "province": "山东省", "level": "地级市", "v": 4937.4 },
+    { "name": "东营", "slug": "dongying", "province": "山东省", "level": "地级市", "v": 4502.73 },
+    { "name": "德州", "slug": "dezhou", "province": "山东省", "level": "地级市", "v": 4214.61 },
+    { "name": "威海", "slug": "weihai", "province": "山东省", "level": "地级市", "v": 3896.09 },
+    { "name": "滨州", "slug": "binzhou", "province": "山东省", "level": "地级市", "v": 3558.17 },
+    { "name": "聊城", "slug": "liaocheng", "province": "山东省", "level": "地级市", "v": 3304.15 },
+    { "name": "泰安", "slug": "taian", "province": "山东省", "level": "地级市", "v": 3803.5 },
+    { "name": "日照", "slug": "rizhao", "province": "山东省", "level": "地级市", "v": 2689.96 },
+    { "name": "枣庄", "slug": "zaozhuang", "province": "山东省", "level": "地级市", "v": 2502.52 },
+
+    { "name": "泰州", "slug": "taizhou-js", "province": "江苏省", "level": "地级市", "v": 7255.27 },
+    { "name": "淮安", "slug": "huaian", "province": "江苏省", "level": "地级市", "v": 5630.11 },
+    { "name": "连云港", "slug": "lianyungang", "province": "江苏省", "level": "地级市", "v": 4830.94 },
+    { "name": "宿迁", "slug": "suqian", "province": "江苏省", "level": "地级市", "v": 5026.6 }
+  ]
+}

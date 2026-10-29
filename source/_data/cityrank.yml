@@ -398,23 +398,15 @@ groups:
           - { name: 富硒蛋, slug: fuxidan, note: 鸭蛋30.7μg/100g 鸡蛋20μg/100g }
           - { name: 富硒蔬菜, slug: fuxishucai, note: 干口蘑(松蘑)98ug/100g 云耳 }
           - { name: 富硒水果, slug: fuxishuiguo, note: 皋兰软儿梨8.43μg/100g 桑葚5.65μg/100g }
-      - slug: shandongshidacheng
+      - slug: "shandongshidacheng"
         title: 山东十大城市
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 青岛, slug: qingdao, note: 副省级/计划单列市 山东对外开放的龙头城市 }
-          - { name: 济南, slug: jinan, note: 省会/黄河流域中心城市 GDP总量超1.42万亿元 }
-          - { name: 烟台, slug: yantai, note: 沿海开放城市 航海名城/制造业强市 }
-          - { name: 潍坊, slug: weifang, note: 农业与制造业双强 GDP总量超8587亿元 }
-          - { name: 临沂, slug: linyi, note: 全国重要商贸物流中心 GDP总量超6862亿元 }
-          - { name: 济宁, slug: jining, note: 鲁南文化名城 资源型城市转型典范 }
-          - { name: 淄博, slug: zibo, note: 陶琉名城 老工业基地转型 }
-          - { name: 菏泽, slug: heze, note: 农业大市 GDP总量超4937亿元 }
-          - { name: 东营, slug: dongying, note: 黄河三角洲中心城市 GDP总量超4502亿元 }
-          - { name: 德州, slug: dezhou, note: 京津冀协同发展重要节点 GDP总量超4214亿元 }
+        lede: 按 2025 年地区生产总值从大到小排序，山东 16 个设区市中取前 10。
+        filter: { province: "山东省" }
+        metrics:
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+        note: 候选范围为本数据集中已采集到 2025 年地区生产总值的山东省城市（共 16 个）。
       - slug: shanxishidachengsh
         title: 山西十大城市
         kind: "pending"
@@ -500,23 +492,15 @@ groups:
           - { name: 英林镇, slug: yinglinzhen, note: "" }
           - { name: 金井镇, slug: jinjingzhen, note: "" }
           - { name: 内坑镇, slug: neikengzhen, note: "" }
-      - slug: jiangsushidachengs
+      - slug: "jiangsushidachengs"
         title: 江苏十大城市
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 苏州, slug: suzhou, note: 长三角重要中心城市 制造业强市 }
-          - { name: 南京, slug: nanjing, note: 省会与国家中心城市 科教资源密集 }
-          - { name: 无锡, slug: wuxi, note: 物联网之都 GDP总量超1.6万亿元 }
-          - { name: 南通, slug: nantong, note: 二线城市 制造业基础雄厚 }
-          - { name: 常州, slug: changzhou, note: 二线城市 新能源之都 }
-          - { name: 徐州, slug: xuzhou, note: 二线城市 工程机械基地 }
-          - { name: 扬州, slug: yangzhou, note: 二线城市 宜居与文旅发展突出 }
-          - { name: 盐城, slug: yancheng, note: 三线城市 中国绿色能源标杆城市 }
-          - { name: 泰州, slug: taizhou, note: 三线城市 中国医药城 }
-          - { name: 镇江, slug: zhenjiang, note: 三线城市 山水花园名城 }
+        lede: 按 2025 年地区生产总值从大到小排序，江苏 13 个设区市中取前 10。
+        filter: { province: "江苏省" }
+        metrics:
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+        note: 候选范围为本数据集中已采集到 2025 年地区生产总值的江苏省城市（共 13 个）。
       - slug: jiangxishidachengs
         title: 江西十大城市
         kind: "pending"
@@ -534,23 +518,15 @@ groups:
           - { name: 鹰潭, slug: yingtan, note: 铜都 GDP总量超1459亿元 }
           - { name: 萍乡, slug: pingxiang, note: 湘赣边区域合作枢纽 GDP总量超1276亿元 }
           - { name: 新余, slug: xinyu, note: 国家新能源科技城 GDP总量超1215亿元 }
-      - slug: zhejiangshidacheng
+      - slug: "zhejiangshidacheng"
         title: 浙江十大城市
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 杭州, slug: hangzhou, note: 省会城市 GDP总量超2.3万亿元 }
-          - { name: 宁波, slug: ningbo, note: 副省级城市 计划单列市 }
-          - { name: 温州, slug: wenzhou, note: 浙南中心城市 GDP总量超1万亿元 }
-          - { name: 绍兴, slug: shaoxing, note: 杭州湾南翼智造高地 GDP总量超8932亿元 }
-          - { name: 嘉兴, slug: jiaxing, note: 长三角重要中心城市 GDP总量超7851亿元 }
-          - { name: 金华, slug: jinhua, note: 浙江中部商贸物流枢纽 GDP总量超7313亿元 }
-          - { name: 台州, slug: taizhou, note: 老牌工业强市 GDP总量超7005亿元 }
-          - { name: 湖州, slug: huzhou, note: 长三角绿色智造名城 GDP总量超4452亿元 }
-          - { name: 衢州, slug: quzhou, note: 四省边际中心城市 GDP总量超2401亿元 }
-          - { name: 舟山, slug: zhoushan, note: 海洋经济核心 GDP总量超2346亿元 }
+        lede: 按 2025 年地区生产总值从大到小排序，覆盖浙江省全部 11 个地级及以上城市。
+        filter: { province: "浙江省" }
+        metrics:
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+        note: 候选范围为本数据集中已采集到 2025 年地区生产总值的浙江省城市（共 11 个）。
       - slug: hubeishidachengshi
         title: 湖北十大城市
         kind: "pending"
@@ -2102,23 +2078,14 @@ groups:
           - { name: 上海, slug: shanghai, note: "" }
           - { name: 成都, slug: chengdu, note: "" }
           - { name: 杭州, slug: hangzhou, note: "" }
-      - slug: changjiangliuyushi
+      - slug: "changjiangliuyushi"
         title: 长江流域十大港口城市排行
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 上海, slug: shanghai, note: 货物吞吐量超8亿吨 世界级枢纽海港 }
-          - { name: 苏州, slug: suzhou, note: 货物吞吐量超6亿吨 全球最大内河港 }
-          - { name: 泰州, slug: taizhou, note: 货物吞吐量超4亿吨 长江下游重要的综合性港口 }
-          - { name: 江阴, slug: jiangyin, note: 货物吞吐量超3亿吨 长江下游制造业物流枢纽 }
-          - { name: 镇江, slug: zhenjiang, note: 货物吞吐量超2.9亿吨 长江与京杭大运河交汇处 }
-          - { name: 南京, slug: nanjing, note: 货物吞吐量超2.6亿吨 长江下游江海联运枢纽 }
-          - { name: 重庆, slug: chongqing, note: 货物吞吐量超2.4亿吨 长江上游最大综合性港口 }
-          - { name: 九江, slug: jiujiang, note: 货物吞吐量超2.4亿吨 江西唯一长江口岸 }
-          - { name: 南通, slug: nantong, note: 货物吞吐量超2.3亿吨 长江集装箱重要支线港 }
-          - { name: 黄冈, slug: huanggang, note: 货物吞吐量超2.1亿吨 长江中游首个破2亿吨港口 }
+        lede: 按港口货物吞吐量从大到小排序，数据为交通运输部 2025 年 1—10 月内河港口吞吐量。
+        metrics:
+          - { field: "port_cargo", weight: 1.0, dir: "up", label: "港口货物吞吐量", unit: "亿吨" }
+        note: 口径为内河港口，沿海大港（宁波舟山、上海等）不计入；候选范围为本数据集中已采集到该字段的港口城市。
 
   # ============ 历史与人文 ============
   - key: culture
