@@ -25,11 +25,32 @@ function metricValue(city, field) {
   return v;
 }
 
-// min-max 归一化到 0–100。dir='up' 越大越好，'down' 越小越好。
+// 归一化到 0–100。dir='up' 越大越好，'down' 越小越好。
+// scale='log'（默认 'linear'，不写即线性）：规模型指标取自然对数后再归一化。
+//
+// 为什么规模量要用对数（E-081，主人 2026-10-30 拍板）：
+//   GDP 这类量在候选池里是极端右偏分布——经济强市榜 329 座里最高是最低的 1085 倍。
+//   线性 min-max 把这个倍数原样映射到 0–100，结果唯一的极端最大值把整个刻度拽走：
+//   上海 100、第 10 名南京只剩 34.2、中位数城市只有 4.0，90% 的城市在 16 以下。
+//   指数读起来像「不及格」，实际只是分布形态的副产品。
+//   对数按「倍数关系」定距（南京是上海的 1/2.9、是池底的 372 倍，两个事实在 log 空间
+//   都是等距的），与联合国 HDI 对收入维度取 ln 的处理一致。
+//   适用判定（写在 yml 的 scale 字段，页面公开，见 test/cityrank-e2e.js S14）：
+//   池内 max/min ≥ 10 倍且最小值 > 0 的规模量（gdp / pop / area_km2 / metro_km /
+//   universities）。气温、纬度这类区间量（差值有意义、倍数无意义，且可能为负）
+//   一律线性。
+//
 // max===min（全部同值）时统一给 100，避免除零产生 NaN 静默污染排序。
-function normalize(x, min, max, dir) {
+// 兜底：标了 log 但池内出现非正值时回退线性——宁可刻度不完美，也不能产出 NaN。
+// （这条回退是防御性的，正常不该触发；S14 断言锁死「标 log 的指标池内 min 必须 > 0」。）
+function normalize(x, min, max, dir, scale) {
   if (max === min) return 100;
-  const r = (x - min) / (max - min);
+  let r;
+  if (scale === 'log' && min > 0 && max > 0) {
+    r = Math.log(x / min) / Math.log(max / min);
+  } else {
+    r = (x - min) / (max - min);
+  }
   return (dir === 'down' ? 1 - r : r) * 100;
 }
 
@@ -91,7 +112,7 @@ function computeRank(rank, cities) {
     for (const m of metrics) {
       const v = metricValue(c, m.field);
       values[m.field] = v;
-      const s = normalize(v, stats[m.field].min, stats[m.field].max, m.dir === 'down' ? 'down' : 'up');
+      const s = normalize(v, stats[m.field].min, stats[m.field].max, m.dir === 'down' ? 'down' : 'up', m.scale);
       acc += s * (typeof m.weight === 'number' ? m.weight : 0);
     }
     return {

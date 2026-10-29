@@ -30,7 +30,7 @@ groups:
         size: 10
         lede: "以 2025 年地区生产总值排序，反映城市经济总量。"
         metrics:
-          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元", scale: "log" }
         note: "候选范围为数据集中 2025 年 GDP 已核验的城市。人均 GDP 与财政收入待数据补齐后纳入加权。"
       - slug: "renkou-dashi"
         title: "中国人口大市"
@@ -38,7 +38,7 @@ groups:
         size: 10
         lede: "以 2025 年末全市常住人口总量排序，反映城市人口规模；常住人口含户籍人口与外来常住人口。"
         metrics:
-          - { field: "pop", weight: 1.0, dir: "up", label: "常住人口", unit: "万人" }
+          - { field: "pop", weight: 1.0, dir: "up", label: "常住人口", unit: "万人", scale: "log" }
         note: "口径：常住人口指在本市居住半年以上的人口，含户籍人口与外来常住人口，不等于户籍人口、城区人口或人口增量。数据年份 2025 年末，单位万人，来源为各市统计局《2025 年国民经济和社会发展统计公报》（部分城市依据 2025 年全国 1% 人口抽样调查推算），逐城来源见 tools/city-metrics-batches/pop-2025-sources.md。候选范围为数据集中已核验 2025 年末常住人口的城市，缺该指标的城市不参与本榜，不按 0 处理。本榜只反映全市常住人口总量，不含城镇化率与人口增量。"
       - slug: "zuijuxingfugan-chengshi"
         title: "中国最具幸福感城市"
@@ -269,7 +269,7 @@ groups:
         lede: 按 2025 年地区生产总值从大到小排序，覆盖云南省全部 16 个市州（含 8 个自治州），此处取前 10 名。
         filter: { province: 云南省 }
         metrics:
-          - { field: gdp, weight: 1, dir: up, label: 地区生产总值, unit: 亿元 }
+          - { field: gdp, weight: 1, dir: up, label: 地区生产总值, unit: 亿元, scale: log }
         note: 候选范围为本站已采集到 2025 年地区生产总值的云南省市州（共 16 个，云南省统计局《云南统计月报》分州市地区生产总值表）。
       - slug: "neimenggushidachen"
         title: 内蒙古十大城市
@@ -278,7 +278,7 @@ groups:
         lede: 按 2025 年地区生产总值从大到小排序，内蒙古 12 个盟市，此处取前 10 名。
         filter: { province: "内蒙古自治区" }
         metrics:
-          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元", scale: "log" }
         note: 候选范围为本站已采集到 2025 年地区生产总值的内蒙古城市（共 12 个，包头市统计局《统计月报》「内蒙及各盟市主要经济指标」，赤峰市统计局《赤峰统计月报》同值）。
       - slug: taiwanliudachengsh
         title: 中国台湾地区六大城市
@@ -300,7 +300,7 @@ groups:
         lede: 按 2025 年地区生产总值从大到小排序，覆盖四川省全部 21 个市州（含 3 个自治州），此处取前 10 名。
         filter: { province: 四川省 }
         metrics:
-          - { field: gdp, weight: 1, dir: up, label: 地区生产总值, unit: 亿元 }
+          - { field: gdp, weight: 1, dir: up, label: 地区生产总值, unit: 亿元, scale: log }
         note: 候选范围为本站已采集到 2025 年地区生产总值的四川省市州（共 21 个，四川省统计局市州经济指标表）。
       - slug: nagechengshidewaim
         title: 国内哪个城市的外卖量最大 全国外卖最多的10个城市盘点
@@ -342,7 +342,7 @@ groups:
         lede: 按 2025 年地区生产总值从大到小排序，覆盖宁夏全部 5 个地级市。
         filter: { province: "宁夏回族自治区" }
         metrics:
-          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元", scale: "log" }
         note: 候选范围为本站已采集到 2025 年地区生产总值的宁夏回族城市（共 5 个，各市 2025 年国民经济和社会发展统计公报）。
       - slug: anhuishidachengshi
         title: 安徽十大城市
@@ -351,7 +351,7 @@ groups:
         lede: 按 2025 年地区生产总值从大到小排序，覆盖安徽省全部 16 个地级市，此处取前 10 名。
         filter: { province: 安徽省 }
         metrics:
-          - { field: gdp, weight: 1, dir: up, label: 地区生产总值, unit: 亿元 }
+          - { field: gdp, weight: 1, dir: up, label: 地区生产总值, unit: 亿元, scale: log }
         note: 候选范围为本站已采集到 2025 年地区生产总值的安徽省城市（共 16 个，安徽省统计局《全省各市地区生产总值》表）。
       - slug: fuxishipin
         title: 富硒食品
@@ -371,7 +371,7 @@ groups:
         lede: 按 2025 年地区生产总值从大到小排序，山东 16 个设区市中取前 10。
         filter: { province: "山东省" }
         metrics:
-          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元", scale: "log" }
         note: 候选范围为本数据集中已采集到 2025 年地区生产总值的山东省城市（共 16 个）。
       - slug: "shanxishidachengsh"
         title: 山西十大城市
@@ -380,7 +380,7 @@ groups:
         lede: 按 2025 年地区生产总值从大到小排序，山西 11 个地级市，此处取前 10 名。
         filter: { province: "山西省" }
         metrics:
-          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元", scale: "log" }
         note: 候选范围为本站已采集到 2025 年地区生产总值的山西城市（共 11 个，山西省统计局各市经济运行情况（统一核算结果））。
       - slug: guangdongshidachen
         title: 广东十大城市
@@ -389,7 +389,7 @@ groups:
         lede: 按 2025 年地区生产总值从大到小排序，覆盖广东省全部 21 个地级及以上城市，此处取前 10 名。
         filter: { province: 广东省 }
         metrics:
-          - { field: gdp, weight: 1, dir: up, label: 地区生产总值, unit: 亿元 }
+          - { field: gdp, weight: 1, dir: up, label: 地区生产总值, unit: 亿元, scale: log }
         note: 候选范围为本站已采集到 2025 年地区生产总值的广东省城市（共 21 个，广东省统计局《2025 年各市地区生产总值初步核算结果》）。
       - slug: guangxishidachengs
         title: 广西十大城市
@@ -398,7 +398,7 @@ groups:
         lede: 按 2025 年地区生产总值从大到小排序，覆盖广西全部 14 个地级市，此处取前 10 名。
         filter: { province: 广西壮族自治区 }
         metrics:
-          - { field: gdp, weight: 1, dir: up, label: 地区生产总值, unit: 亿元 }
+          - { field: gdp, weight: 1, dir: up, label: 地区生产总值, unit: 亿元, scale: log }
         note: 候选范围为本站已采集到 2025 年地区生产总值的广西城市（共 14 个，自治区统计局及各市统计口径）。
       - slug: "xinjiangshidacheng"
         title: 新疆十大城市
@@ -407,7 +407,7 @@ groups:
         lede: 按 2025 年地区生产总值从大到小排序，新疆 14 个地州市，此处取前 10 名。
         filter: { province: "新疆维吾尔自治区" }
         metrics:
-          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元", scale: "log" }
         note: 候选范围为本站已采集到 2025 年地区生产总值的新疆维吾尔城市（共 14 个，各地州统计公报；昌吉州政府 1—12 月经济运行情况、博州统计公报）。伊犁为伊犁哈萨克自治州全州口径（含塔城地区、阿勒泰地区），与同榜的塔城、阿勒泰存在口径重叠；喀什为喀什地区口径，不是喀什市。
       - slug: jinjiangshidaqiang
         title: 晋江十大强镇 晋江市镇区排名 晋江最发达的镇〔2026〕
@@ -433,7 +433,7 @@ groups:
         lede: 按 2025 年地区生产总值从大到小排序，江苏 13 个设区市中取前 10。
         filter: { province: "江苏省" }
         metrics:
-          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元", scale: "log" }
         note: 候选范围为本数据集中已采集到 2025 年地区生产总值的江苏省城市（共 13 个）。
       - slug: jiangxishidachengs
         title: 江西十大城市
@@ -442,7 +442,7 @@ groups:
         lede: 按 2025 年地区生产总值从大到小排序，覆盖江西省全部 11 个设区市，此处取前 10 名。
         filter: { province: 江西省 }
         metrics:
-          - { field: gdp, weight: 1, dir: up, label: 地区生产总值, unit: 亿元 }
+          - { field: gdp, weight: 1, dir: up, label: 地区生产总值, unit: 亿元, scale: log }
         note: 候选范围为本站已采集到 2025 年地区生产总值的江西省城市（共 11 个，江西省统计局《2025年1-12月份各设区市主要经济指标》）。
       - slug: "zhejiangshidacheng"
         title: 浙江十大城市
@@ -451,7 +451,7 @@ groups:
         lede: 按 2025 年地区生产总值从大到小排序，覆盖浙江省全部 11 个地级及以上城市。
         filter: { province: "浙江省" }
         metrics:
-          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元", scale: "log" }
         note: 候选范围为本数据集中已采集到 2025 年地区生产总值的浙江省城市（共 11 个）。
       - slug: "hubeishidachengshi"
         title: 湖北十大城市
@@ -460,7 +460,7 @@ groups:
         lede: 按 2025 年地区生产总值从大到小排序，湖北 17 个市州与省直辖单位中取前 10。
         filter: { province: "湖北省" }
         metrics:
-          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元", scale: "log" }
         note: 候选范围为本数据集中已采集到 2025 年地区生产总值的湖北省市州（共 17 个，含省直辖县级单位）。
       - slug: "hunanshidachengshi"
         title: 湖南十大城市
@@ -469,7 +469,7 @@ groups:
         lede: 按 2025 年地区生产总值从大到小排序，湖南 14 个市州中取前 10。
         filter: { province: "湖南省" }
         metrics:
-          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元", scale: "log" }
         note: 候选范围为本数据集中已采集到 2025 年地区生产总值的湖南省市州（共 14 个，含省直辖县级单位）。
       - slug: huanbohaidiqucheng
         title: 环渤海地区城市排名 环渤海有哪些城市 环渤海十三市盘点〔2026〕
@@ -495,7 +495,7 @@ groups:
         lede: 按 2025 年地区生产总值从大到小排序，甘肃 14 个市州，此处取前 10 名。
         filter: { province: "甘肃省" }
         metrics:
-          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元", scale: "log" }
         note: 候选范围为本站已采集到 2025 年地区生产总值的甘肃城市（共 14 个，甘肃省统计局各市经济运行情况（酒泉 1103.6、武威 802.3 等））。
       - slug: fujianjiudachengsh
         title: 福建九大城市
@@ -504,7 +504,7 @@ groups:
         lede: 按 2025 年地区生产总值从大到小排序，覆盖福建省全部 9 个设区市。
         filter: { province: 福建省 }
         metrics:
-          - { field: gdp, weight: 1, dir: up, label: 地区生产总值, unit: 亿元 }
+          - { field: gdp, weight: 1, dir: up, label: 地区生产总值, unit: 亿元, scale: log }
         note: 候选范围为本站已采集到 2025 年地区生产总值的福建省城市（共 9 个，福建省统计局统一核算口径）。
       - slug: "xizangqidachengshi"
         title: 西藏七大城市
@@ -513,7 +513,7 @@ groups:
         lede: 按 2025 年地区生产总值从大到小排序，覆盖西藏全部 7 个地市。
         filter: { province: "西藏自治区" }
         metrics:
-          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元", scale: "log" }
         note: 候选范围为本站已采集到 2025 年地区生产总值的西藏城市（共 7 个，西藏自治区统计局地区生产总值统一核算结果）。
       - slug: "guizhoujiudachengs"
         title: 贵州九大城市
@@ -522,7 +522,7 @@ groups:
         lede: 按 2025 年地区生产总值从大到小排序，覆盖贵州全部 9 个市州。
         filter: { province: "贵州省" }
         metrics:
-          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元", scale: "log" }
         note: 候选范围为本站已采集到 2025 年地区生产总值的贵州城市（共 9 个，各市州统计公报与省统一核算结果）。
       - slug: "liaoningshidacheng"
         title: 辽宁十大城市
@@ -531,7 +531,7 @@ groups:
         lede: 按 2025 年地区生产总值从大到小排序，辽宁 14 个地级市，此处取前 10 名。
         filter: { province: "辽宁省" }
         metrics:
-          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元", scale: "log" }
         note: 候选范围为本站已采集到 2025 年地区生产总值的辽宁城市（共 14 个，各市统计公报与省统一核算结果）。
       - slug: "shanxishidachengsh-2"
         title: 陕西十大城市
@@ -540,7 +540,7 @@ groups:
         lede: 按 2025 年地区生产总值从大到小排序，覆盖陕西全部 10 个地级市。
         filter: { province: "陕西省" }
         metrics:
-          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元", scale: "log" }
         note: 候选范围为本站已采集到 2025 年地区生产总值的陕西城市（共 10 个，各市统计公报与省统一核算结果）。
       - slug: "qinghaibadachengsh"
         title: 青海八大城市
@@ -549,7 +549,7 @@ groups:
         lede: 按 2025 年地区生产总值从大到小排序，覆盖青海全部 8 个市州。
         filter: { province: "青海省" }
         metrics:
-          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元", scale: "log" }
         note: 候选范围为本站已采集到 2025 年地区生产总值的青海城市（共 8 个，青海省统计局地区生产总值统一核算结果）。
       - slug: "heilongjiangshidac"
         title: 黑龙江十大城市排行榜
@@ -558,7 +558,7 @@ groups:
         lede: 按 2025 年地区生产总值从大到小排序，黑龙江 12 个地级市 + 大兴安岭地区，此处取前 10 名。
         filter: { province: "黑龙江省" }
         metrics:
-          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元", scale: "log" }
         note: 候选范围为本站已采集到 2025 年地区生产总值的黑龙江城市（共 13 个，各地市统计公报与省统一核算结果）。
       - slug: shijiayijuchengshi
         title: 中国十佳宜居城市
@@ -1476,7 +1476,7 @@ groups:
         size: 10
         lede: 按行政区域面积从大到小排序，面积越大名次越前。
         metrics:
-          - { field: "area_km2", weight: 1.0, dir: "up", label: "行政区域面积", unit: "平方公里" }
+          - { field: "area_km2", weight: 1.0, dir: "up", label: "行政区域面积", unit: "平方公里", scale: "log" }
         note: 候选范围为本数据集中已采集到行政区域面积的城市。
       - slug: "mianjizuidadeshida-2"
         title: 中国面积最大的十大省会城市
@@ -1485,7 +1485,7 @@ groups:
         lede: 按行政区域面积从大到小排序，范围限省会城市。
         filter: { level: "省会" }
         metrics:
-          - { field: "area_km2", weight: 1.0, dir: "up", label: "行政区域面积", unit: "平方公里" }
+          - { field: "area_km2", weight: 1.0, dir: "up", label: "行政区域面积", unit: "平方公里", scale: "log" }
         note: 候选范围为本数据集中已采集到行政区域面积的城市。
       - slug: "mianjizuixiaodeshi"
         title: 中国面积最小的十大城市
@@ -1493,7 +1493,7 @@ groups:
         size: 10
         lede: 按行政区域面积从小到大排序，面积越小名次越前。
         metrics:
-          - { field: "area_km2", weight: 1.0, dir: "down", label: "行政区域面积", unit: "平方公里" }
+          - { field: "area_km2", weight: 1.0, dir: "down", label: "行政区域面积", unit: "平方公里", scale: "log" }
         note: 候选范围为本数据集中已采集到行政区域面积的城市。
       - slug: "mianjizuixiaodeshi-2"
         title: 中国面积最小的十大省会城市
@@ -1826,7 +1826,7 @@ groups:
         size: 10
         lede: 按本科高校数量从多到少排序，数据为教育部全国高等学校名单。
         metrics:
-          - { field: "universities", weight: 1.0, dir: "up", label: "本科高校", unit: "所" }
+          - { field: "universities", weight: 1.0, dir: "up", label: "本科高校", unit: "所", scale: "log" }
         note: 候选范围为本数据集中已采集到该字段的城市。
       - slug: quanqiudianjingzhi
         title: 十大全球电竞之都
@@ -1856,7 +1856,7 @@ groups:
         size: 10
         lede: 按城市轨道交通运营里程从长到短排序，数据为交通运输部 2025 年末运营里程。
         metrics:
-          - { field: "metro_km", weight: 1.0, dir: "up", label: "城市轨道交通运营里程", unit: "公里" }
+          - { field: "metro_km", weight: 1.0, dir: "up", label: "城市轨道交通运营里程", unit: "公里", scale: "log" }
         note: 数据来源：交通运输部《2025 年城市轨道交通运营数据速报》（截至 2025 年 12 月 31 日）。
       - slug: zuizaokaitongditie
         title: 中国最早开通地铁的十大城市

@@ -111,7 +111,7 @@ ok('S2 名次由数据算出：独立复算结果与 helper 输出逐项一致',
     const scored = cands.map((c) => {
       let acc = 0;
       for (const m of def.metrics) {
-        acc += normalize(c.metrics[m.field].v, stats[m.field].min, stats[m.field].max, m.dir === 'down' ? 'down' : 'up') * (m.weight || 0);
+        acc += normalize(c.metrics[m.field].v, stats[m.field].min, stats[m.field].max, m.dir === 'down' ? 'down' : 'up', m.scale) * (m.weight || 0);
       }
       const g = c.metrics && c.metrics.gdp && typeof c.metrics.gdp.v === 'number' ? c.metrics.gdp.v : -1;
       return { slug: c.slug, raw: acc / wsum, gdp: g };
@@ -167,6 +167,84 @@ ok('S2 归一化边界：最大值 100、最小值 0、全同值不产生 NaN', 
   assert.strictEqual(normalize(5, 5, 5, 'up'), 100, '全同值应给 100 而不是 NaN');
   assert.strictEqual(normalize(0, 0, 10, 'down'), 100, '逆向指标最小值应得 100');
   assert.ok(!Number.isNaN(normalize(3, 3, 3, 'down')), '逆向全同值不得产生 NaN');
+});
+
+// ---------- ②b 对数刻度（E-081，主人 2026-10-30 拍板）----------
+
+ok('S14 对数刻度：公式、边界与非正值兜底', () => {
+  // 对数刻度按倍数定距：min=100 / max=10000 时，几何中点 1000 应落在 50
+  assert.strictEqual(normalize(10000, 100, 10000, 'up', 'log'), 100, '对数刻度最大值应为 100');
+  assert.strictEqual(normalize(100, 100, 10000, 'up', 'log'), 0, '对数刻度最小值应为 0');
+  assert.strictEqual(normalize(1000, 100, 10000, 'up', 'log'), 50, '几何中点应落在 50');
+  // 线性刻度下同一个几何中点只有 9.1 —— 这正是「被极端最大值拽走」的量化证明
+  assert.strictEqual(Math.round(normalize(1000, 100, 10000, 'up') * 10) / 10, 9.1, '线性刻度下几何中点应为 9.1');
+  // 逆向（越小越好）同样支持对数
+  assert.strictEqual(normalize(100, 100, 10000, 'down', 'log'), 100, '逆向对数最小值应为 100');
+  // 兜底：标了 log 但池内出现非正值，必须回退线性而不是产出 NaN
+  assert.ok(!Number.isNaN(normalize(5, -10, 10, 'up', 'log')), '非正值池不得产出 NaN');
+  assert.strictEqual(normalize(5, -10, 10, 'up', 'log'), normalize(5, -10, 10, 'up'), '非正值池应回退线性');
+});
+
+ok('S14 标了 log 的指标其候选池必须恒为正（否则会静默回退线性）', () => {
+  let checked = 0;
+  for (const def of computedRanks) {
+    const logFields = (def.metrics || []).filter((m) => m.scale === 'log').map((m) => m.field);
+    if (!logFields.length) continue;
+    let cands = (cities.cities || []).filter((c) =>
+      def.metrics.every((m) => c.metrics && c.metrics[m.field] && typeof c.metrics[m.field].v === 'number'));
+    if (def.filter && typeof def.filter === 'object') {
+      for (const k of Object.keys(def.filter)) {
+        cands = cands.filter((c) => String(c[k] === undefined ? '' : c[k]) === String(def.filter[k]));
+      }
+    }
+    for (const f of logFields) {
+      const vs = cands.map((c) => c.metrics[f].v);
+      const min = Math.min.apply(null, vs);
+      assert.ok(min > 0, '榜 ' + def.slug + ' 的 ' + f + ' 标了 log，但候选池最小值是 ' + min +
+        '（对数不可用，会静默回退线性）');
+      checked += 1;
+    }
+  }
+  assert.ok(checked >= 20, '只校验了 ' + checked + ' 条，断言可能空转');
+});
+
+ok('S14 规模量必须走对数刻度：跨数量级且恒为正的指标不得漏标 scale: log', () => {
+  // 判定规则（写进 helper 注释与 PRD §5.2）：池内 max/min ≥ 10 倍且最小值 > 0 → log。
+  // 漏标会让该榜的指数退回被极端值拽走的线性刻度，且不会报错，属于静默退化。
+  let checked = 0;
+  for (const def of computedRanks) {
+    let cands = (cities.cities || []).filter((c) =>
+      def.metrics.every((m) => c.metrics && c.metrics[m.field] && typeof c.metrics[m.field].v === 'number'));
+    if (def.filter && typeof def.filter === 'object') {
+      for (const k of Object.keys(def.filter)) {
+        cands = cands.filter((c) => String(c[k] === undefined ? '' : c[k]) === String(def.filter[k]));
+      }
+    }
+    for (const m of def.metrics || []) {
+      const vs = cands.map((c) => c.metrics[m.field].v);
+      const min = Math.min.apply(null, vs);
+      const max = Math.max.apply(null, vs);
+      if (!(min > 0) || !(max / min >= 10)) continue;
+      checked += 1;
+      assert.strictEqual(m.scale, 'log',
+        '榜 ' + def.slug + ' 的 ' + m.field + ' 跨 ' + (Math.round(max / min * 10) / 10) +
+        ' 倍且恒为正，应标 scale: log（现为 ' + (m.scale || '未标') + '）');
+    }
+  }
+  // 阈值取 15：省级榜池子小（如宁夏 5 市 GDP 倍差不足 10 倍）不进强制校验，
+  // 但 GDP 仍是规模量，yml 里照样标了 log——本断言只锁「漏标」这一侧。
+  assert.ok(checked >= 15, '只校验了 ' + checked + ' 条，断言可能空转');
+});
+
+ok('S14 页面必须公开每个指标的刻度（否则读者无法复算）', () => {
+  for (const def of computedRanks) {
+    const hasLog = (def.metrics || []).some((m) => m.scale === 'log');
+    const html = fs.readFileSync(path.join(PUBLIC, 'cityrank', def.slug, 'index.html'), 'utf8');
+    assert.ok(html.indexOf('刻度') !== -1, '榜 ' + def.slug + ' 的评分口径表缺「刻度」列');
+    if (hasLog) {
+      assert.ok(html.indexOf('对数') !== -1, '榜 ' + def.slug + ' 用了对数刻度但页面未标明');
+    }
+  }
 });
 
 // ---------- ③ 数据纪律 ----------

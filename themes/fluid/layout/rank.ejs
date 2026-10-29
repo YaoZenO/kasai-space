@@ -89,6 +89,7 @@ var KIND_LABEL = { computed: '本站按公开数据计算', fact: '权威结果�
                 <th scope="col">指标</th>
                 <th scope="col">权重</th>
                 <th scope="col">方向</th>
+                <th scope="col">刻度</th>
                 <th scope="col">单位</th>
                 <th scope="col">数据年份</th>
               </tr>
@@ -99,13 +100,16 @@ var KIND_LABEL = { computed: '本站按公开数据计算', fact: '权威结果�
                 <td><%= mt.label || mt.field %></td>
                 <td><%= mt.weight %></td>
                 <td><%= mt.dir === 'down' ? '越小越好' : '越大越好' %></td>
+                <td><%= mt.scale === 'log' ? '对数' : '线性' %></td>
                 <td><%= mt.unit || '—' %></td>
                 <td><%= CR.cityMeta.dataYear || '2025' %></td>
               </tr>
               <% } %>
             </tbody>
           </table>
-          <p class="cr-method-note">名次由数据算出，不是先定名次再配分数。每项指标在候选城市内做 min-max 归一化到 0–100，按上表权重加权求和得综合指数（0–100，保留 1 位小数）。缺任一指标的城市不参与本榜，不按 0 分处理。</p>
+          <p class="cr-method-note">名次由数据算出，不是先定名次再配分数。每项指标在本榜 <strong><%= r.candidateCount %> 座候选城市</strong>内归一化到 0–100，再按上表权重加权求和得综合指数（保留 1 位小数）；100 分 = 候选池最高值，0 分 = 候选池最低值。缺任一指标的城市不参与本榜，不按 0 分处理。</p>
+          <% var hasLog = false; for (var si = 0; si < r.metrics.length; si += 1) { if (r.metrics[si].scale === 'log') { hasLog = true; break; } } %>
+          <% if (hasLog) { %><p class="cr-method-note">刻度为「线性」的指标按 <code>(x − 最小) / (最大 − 最小)</code> 计算；刻度为「对数」的指标（地区生产总值、常住人口、行政区域面积这类跨数量级的规模量）先取自然对数再按同一公式。后者按倍数关系定距，与联合国人类发展指数对收入维度的处理一致——这类量在候选池里是极端右偏分布，若用线性刻度，唯一的极端最大值会把整个刻度拽走，第 10 名与中位数城市都会被压到很低。</p><% } %>
           <% if (r.note) { %><p class="cr-method-note"><%= r.note %></p><% } %>
         </section>
         <% } %>
