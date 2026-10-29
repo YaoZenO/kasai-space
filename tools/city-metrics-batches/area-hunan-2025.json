@@ -1,0 +1,26 @@
+{
+  "_comment": "P3 第十三批：湖南 14 市州行政区域面积，逐市取自各市州人民政府网站或市自然资源和规划局 / 统计局 / 林业局 / 水利局公开发布的现行口径（陆域，海域与管辖水面不计入）。长沙 11816 为库内既有值，本批次一并列入用于交叉核对。逐城来源与排除的冲突值见 tools/city-metrics-batches/area-shandong-hunan-2026-sources.md",
+  "source": {
+    "key": "areaGov",
+    "name": "各市人民政府网站公开的行政区域面积（如杭州市人民政府 16850 平方公里）",
+    "asOf": "2025"
+  },
+  "field": "area_km2",
+  "unit": "平方公里",
+  "rows": [
+    { "name": "怀化", "slug": "huaihua", "v": 27564 },
+    { "name": "永州", "slug": "yongzhou", "v": 22259.65 },
+    { "name": "邵阳", "slug": "shaoyang", "v": 20824.37 },
+    { "name": "郴州", "slug": "chenzhou", "v": 19342.03 },
+    { "name": "常德", "slug": "changde", "v": 18187 },
+    { "name": "湘西", "slug": "xiangxi", "v": 15470.54 },
+    { "name": "衡阳", "slug": "hengyang", "v": 15299.18 },
+    { "name": "岳阳", "slug": "yueyang", "v": 14858 },
+    { "name": "益阳", "slug": "yiyang", "v": 12320.36 },
+    { "name": "长沙", "slug": "changsha", "v": 11816 },
+    { "name": "株洲", "slug": "zhuzhou", "v": 11247.6 },
+    { "name": "张家界", "slug": "zhangjiajie", "v": 9533.77 },
+    { "name": "娄底", "slug": "loudi", "v": 8109.58 },
+    { "name": "湘潭", "slug": "xiangtan", "v": 5005.81 }
+  ]
+}

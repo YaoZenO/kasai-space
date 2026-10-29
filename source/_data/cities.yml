@@ -13,7 +13,7 @@
 # 年份以字段级 asOf 为准，其余字段待采集后补，一律不填估算值（CITY-RANK-CONTENT §7 C-1）。
 
 meta:
-  updated: "2026-10-29"
+  updated: "2026-10-30"
   dataYear: "2025"
   note: "本站城市数据以政府统计口径为准，批量数据站只作交叉核对，不作唯一来源；气候类为国家统计局《中国统计年鉴 2025》中国气象局提供的 2024 年实况值，年份以字段 asOf 为准。"
 
@@ -55,6 +55,9 @@ sources:
   - key: "airNBS2024"
     name: "国家统计局《中国统计年鉴2025》表 8-16 主要城市空气质量情况(2024年)：细颗粒物(PM2.5)年平均浓度、空气质量达到或好于二级的天数。原表标注为初步数据，覆盖 31 个主要城市"
     asOf: "2024"
+  - key: "areaSD2018"
+    name: "山东省统计局《山东统计年鉴2021》表 12-7 各市土地利用情况（2018 年）土地调查面积（公顷换算为平方公里；济南市含 2019 年并入的原莱芜市）"
+    asOf: "2018"
 cities:
   - name: 北京
     slug: beijing
@@ -289,6 +292,7 @@ cities:
     province: 山东省
     level: 计划单列市
     metrics:
+      area_km2: { v: 11293.36, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       pop: { v: 1051.55, unit: "万人", asOf: "2025", source: "pop2025" }
       sun_hours: { v: 2465.8, unit: "小时", asOf: "2024", source: "climateNBS2024" }
       temp_jul: { v: 25.2, unit: "℃", asOf: "2024", source: "climateNBS2024" }
@@ -546,6 +550,7 @@ cities:
     province: 湖南省
     level: 地级市
     metrics:
+      area_km2: { v: 9533.77, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 667.83, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 惠州
     slug: huizhou
@@ -771,6 +776,7 @@ cities:
     province: 山东省
     level: 地级市
     metrics:
+      area_km2: { v: 13864.54, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       gdp: { v: 11350.98, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 伊犁
     slug: yili
@@ -813,6 +819,7 @@ cities:
     province: 山东省
     level: 地级市
     metrics:
+      area_km2: { v: 5799.84, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       gdp: { v: 3896.09, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 舟山
     slug: zhoushan
@@ -879,6 +886,7 @@ cities:
     province: 山东省
     level: 地级市
     metrics:
+      area_km2: { v: 16167.24, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       gdp: { v: 8587.36, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 温州
     slug: wenzhou
@@ -928,6 +936,7 @@ cities:
     province: 山东省
     level: 地级市
     metrics:
+      area_km2: { v: 10357.67, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       gdp: { v: 4214.61, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 佛山
     slug: foshan
@@ -944,6 +953,7 @@ cities:
     province: 山东省
     level: 地级市
     metrics:
+      area_km2: { v: 12155.23, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       gdp: { v: 4937.4, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 九江
     slug: jiujiang
@@ -964,6 +974,7 @@ cities:
     province: 山东省
     level: 地级市
     metrics:
+      area_km2: { v: 17191.21, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       gdp: { v: 6862.2, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 茂名
     slug: maoming
@@ -1043,12 +1054,14 @@ cities:
     province: 山东省
     level: 地级市
     metrics:
+      area_km2: { v: 9172.19, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       gdp: { v: 3558.17, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 常德
     slug: changde
     province: 湖南省
     level: 地级市
     metrics:
+      area_km2: { v: 18187, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 4770.93, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 昌都
     slug: changdou
@@ -1076,6 +1089,7 @@ cities:
     province: 湖南省
     level: 地级市
     metrics:
+      area_km2: { v: 19342.03, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 3502.08, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 赤峰
     slug: chifeng
@@ -1101,6 +1115,7 @@ cities:
     province: 山东省
     level: 地级市
     metrics:
+      area_km2: { v: 8243.27, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       gdp: { v: 4502.73, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 鄂尔多斯
     slug: eerduosi
@@ -1152,6 +1167,7 @@ cities:
     province: 湖南省
     level: 地级市
     metrics:
+      area_km2: { v: 15299.18, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 4689.55, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 黄冈
     slug: huanggang
@@ -1184,6 +1200,7 @@ cities:
     province: 山东省
     level: 地级市
     metrics:
+      area_km2: { v: 11186.98, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       gdp: { v: 6128.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 晋中
     slug: jinzhong
@@ -1273,6 +1290,7 @@ cities:
     province: 湖南省
     level: 地级市
     metrics:
+      area_km2: { v: 20824.37, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 2883.49, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 塔城地区
     slug: tacheng
@@ -1342,18 +1360,21 @@ cities:
     province: 湖南省
     level: 地级市
     metrics:
+      area_km2: { v: 12320.36, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 2381.46, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 永州
     slug: yongzhou
     province: 湖南省
     level: 地级市
     metrics:
+      area_km2: { v: 22259.65, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 2829.58, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 岳阳
     slug: yueyang
     province: 湖南省
     level: 地级市
     metrics:
+      area_km2: { v: 14858, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 5386.88, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       port_cargo: { v: 1.21, unit: "亿吨", asOf: "2025", source: "port2025" }
   - name: 玉林
@@ -1736,6 +1757,7 @@ cities:
     province: 湖南省
     level: 地级市
     metrics:
+      area_km2: { v: 27564, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 2191.55, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 黄南州
     slug: huangnanzhou
@@ -1829,6 +1851,7 @@ cities:
     province: 山东省
     level: 地级市
     metrics:
+      area_km2: { v: 8628.01, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       gdp: { v: 3304.15, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 临汾
     slug: linfen
@@ -2214,6 +2237,7 @@ cities:
     province: 湖南省
     level: 地级市
     metrics:
+      area_km2: { v: 5005.81, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 3077.23, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 咸宁
     slug: xianning
@@ -2367,12 +2391,14 @@ cities:
     province: 湖南省
     level: 地级市
     metrics:
+      area_km2: { v: 11247.6, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 4063.46, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 淄博
     slug: zibo
     province: 山东省
     level: 地级市
     metrics:
+      area_km2: { v: 5964.92, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       gdp: { v: 5088.89, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 自贡
     slug: zigong
@@ -2400,18 +2426,21 @@ cities:
     province: 山东省
     level: 地级市
     metrics:
+      area_km2: { v: 7761.41, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       gdp: { v: 3803.5, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 日照
     slug: rizhao
     province: 山东省
     level: 地级市
     metrics:
+      area_km2: { v: 5371.27, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       gdp: { v: 2689.96, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 枣庄
     slug: zaozhuang
     province: 山东省
     level: 地级市
     metrics:
+      area_km2: { v: 4563.53, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       gdp: { v: 2502.52, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 泰州
     slug: taizhou-js
@@ -2442,12 +2471,14 @@ cities:
     province: 湖南省
     level: 地级市
     metrics:
+      area_km2: { v: 8109.58, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 2237.3, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 湘西
     slug: xiangxi
     province: 湖南省
     level: 自治州
     metrics:
+      area_km2: { v: 15470.54, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 889.5, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 随州
     slug: suizhou

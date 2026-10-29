@@ -9,7 +9,7 @@
 #   4. pending 榜的名次与文案均来自公开榜单整理，非本站量化结果，上线后逐条审定。
 
 meta:
-  updated: "2026-10-28"
+  updated: "2026-10-30"
   title: "城市排行榜"
   kicker: "CITY RANK"
   intro: "本站整理的城市榜单。有权威标准的按权威标准来，没有权威标准但有可查证数据的由本站按公开指标计算，两者都没有的沿用公开榜单名次并在页面上标为观点性排名。"
@@ -1506,38 +1506,22 @@ groups:
         note: 候选为全部 27 座省会 / 首府城市，面积数据已采集齐全（各市人民政府网站口径），本榜为完整口径排名。面积为行政区域陆域口径，海域面积不计入；海口按陆地面积收录，不含海洋面积。
       - slug: shandongmianjizuid
         title: 山东面积最大的十大地级市
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 临沂, slug: linyi, note: "" }
-          - { name: 潍坊, slug: weifang, note: "" }
-          - { name: 烟台, slug: yantai, note: "" }
-          - { name: 菏泽, slug: heze, note: "" }
-          - { name: 青岛, slug: qingdao, note: "" }
-          - { name: 济宁, slug: jining, note: "" }
-          - { name: 德州, slug: dezhou, note: "" }
-          - { name: 济南, slug: jinan, note: "" }
-          - { name: 滨州, slug: binzhou, note: "" }
-          - { name: 聊城, slug: liaocheng, note: "" }
+        lede: 按行政区域面积从大到小排序，范围限山东省地级行政区。
+        filter: { province: "山东省" }
+        metrics:
+          - { field: "area_km2", weight: 1.0, dir: "up", label: "行政区域面积", unit: "平方公里", scale: "log" }
+        note: 候选为山东省全部 16 座地级行政区（含副省级、计划单列市青岛），面积数据已采集齐全，本榜为完整口径排名。面积取自山东省统计局《山东统计年鉴2021》表 12-7 各市土地利用情况（2018 年土地调查面积，公顷换算），为行政区域陆域口径，海域面积不计入；济南市为 2019 年行政区划调整后口径，含原莱芜市。
       - slug: hunanmianjizuidade
         title: 湖南面积最大的十个地级市
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 怀化, slug: huaihua, note: "" }
-          - { name: 永州, slug: yongzhou, note: "" }
-          - { name: 邵阳, slug: shaoyang, note: "" }
-          - { name: 郴州, slug: chenzhou, note: "" }
-          - { name: 常德, slug: changde, note: "" }
-          - { name: 湘西, slug: xiangxi, note: "" }
-          - { name: 衡阳, slug: hengyang, note: "" }
-          - { name: 岳阳, slug: yueyang, note: "" }
-          - { name: 益阳, slug: yiyang, note: "" }
-          - { name: 长沙, slug: changsha, note: "" }
+        lede: 按行政区域面积从大到小排序，范围限湖南省地级行政区与自治州。
+        filter: { province: "湖南省" }
+        metrics:
+          - { field: "area_km2", weight: 1.0, dir: "up", label: "行政区域面积", unit: "平方公里", scale: "log" }
+        note: 候选为湖南省全部 14 座地级行政区（13 个地级市 + 湘西土家族苗族自治州），面积数据已采集齐全，本榜为完整口径排名。面积取自各市州人民政府网站及市自然资源和规划局、统计局公开发布的现行行政区域面积，为陆域口径，洞庭湖等管辖水面与海域不计入；逐城来源见 tools/city-metrics-batches/area-shandong-hunan-2026-sources.md。
 
   # ============ 环境与生态 ============
   - key: environment
