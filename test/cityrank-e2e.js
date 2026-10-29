@@ -371,6 +371,18 @@ ok('S9 §4.16 有移动端断点（真正的重排，不是等比缩小）', () 
 });
 
 // ---------- 自检：确认断言不会空转 ----------
+// E-075：PRD 进度表曾把 15 个 computed 手写成 13 个。进度数字属于「事实」，
+// 手写就一定会漂移，这里用 yml 现算的数字与文档比对，写错即 FAIL。
+ok('S10 PRD 进度表里的 computed 数量必须由实际数据统计得出（禁止手写）', () => {
+  const prd = fs.readFileSync(path.join(ROOT, 'CITY-RANK-PRD-2026-10-27.md'), 'utf8');
+  const m = /（(\d+) 个 computed）/.exec(prd);
+  assert.ok(m, 'PRD 进度表里找不到「（N 个 computed）」——断言锚点失效，先修格式');
+  const actual = (cityrank.groups || []).reduce(
+    (n, g) => n + (g.ranks || []).filter((r) => r && r.kind === 'computed').length,
+    0
+  );
+  assert.strictEqual(Number(m[1]), actual, 'PRD 写 ' + m[1] + ' 个 computed，实际统计 ' + actual + ' 个');
+});
 
 ok('自检：往 yml 里塞手写 rank 必须被 S1 抓到', () => {
   const mutated = JSON.parse(JSON.stringify(computedRanks[0]));

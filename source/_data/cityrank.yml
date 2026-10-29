@@ -527,40 +527,24 @@ groups:
         metrics:
           - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
         note: 候选范围为本数据集中已采集到 2025 年地区生产总值的浙江省城市（共 11 个）。
-      - slug: hubeishidachengshi
+      - slug: "hubeishidachengshi"
         title: 湖北十大城市
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 武汉, slug: wuhan, note: 省会 国家中心城市 }
-          - { name: 宜昌, slug: yichang, note: 省域副中心城市 GDP总量超6464亿元 }
-          - { name: 襄阳, slug: xiangyang, note: 汉江流域中心城市 GDP总量超6113亿元 }
-          - { name: 荆州, slug: jingzhou, note: 鄂中南中心城市 GDP总量超3712亿元 }
-          - { name: 孝感, slug: xiaogan, note: 区域性中心城市 GDP总量超3398亿元 }
-          - { name: 黄冈, slug: huanggang, note: 人口大市 GDP总量超3303亿元 }
-          - { name: 十堰, slug: shiyan, note: 中国卡车之都 GDP总量超2704亿元 }
-          - { name: 荆门, slug: jingmen, note: 鄂中区域性中心城市 GDP总量超2602亿元 }
-          - { name: 黄石, slug: huangshi, note: 长江中游重要工业基地 GDP总量超2430亿元 }
-          - { name: 咸宁, slug: xianning, note: 中国温泉之城 GDP总量超2033亿元 }
-      - slug: hunanshidachengshi
-        title: 湖南十大城市排行榜
-        kind: "pending"
+        lede: 按 2025 年地区生产总值从大到小排序，湖北 17 个市州与省直辖单位中取前 10。
+        filter: { province: "湖北省" }
+        metrics:
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+        note: 候选范围为本数据集中已采集到 2025 年地区生产总值的湖北省市州（共 17 个，含省直辖县级单位）。
+      - slug: "hunanshidachengshi"
+        title: 湖南十大城市
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 长沙, slug: changsha, note: 湖南省会 长江中游重要中心城市 }
-          - { name: 岳阳, slug: yueyang, note: 省域副中心城市 长江中游区域中心 }
-          - { name: 常德, slug: changde, note: 湘西北经济文化中心 GDP总量超4770亿元 }
-          - { name: 衡阳, slug: hengyang, note: 湘南中心城市 省域副中心 }
-          - { name: 株洲, slug: zhuzhou, note: 长株潭城市群核心城市 GDP总量超4063亿元 }
-          - { name: 郴州, slug: chenzhou, note: 有色金属之乡 GDP总量超3502亿元 }
-          - { name: 湘潭, slug: xiangtan, note: 长株潭都市圈核心 GDP总量超3077亿元 }
-          - { name: 邵阳, slug: shaoyang, note: 湘西南区域中心城市 GDP总量超2883亿元 }
-          - { name: 永州, slug: yongzhou, note: 湖南生态门户/湘江源头 GDP总量超2829亿元 }
-          - { name: 益阳, slug: yiyang, note: 洞庭湖生态经济区核心城市 GDP总量超2381亿元 }
+        lede: 按 2025 年地区生产总值从大到小排序，湖南 14 个市州中取前 10。
+        filter: { province: "湖南省" }
+        metrics:
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+        note: 候选范围为本数据集中已采集到 2025 年地区生产总值的湖南省市州（共 14 个，含省直辖县级单位）。
       - slug: huanbohaidiqucheng
         title: 环渤海地区城市排名 环渤海有哪些城市 环渤海十三市盘点〔2026〕
         kind: "pending"
