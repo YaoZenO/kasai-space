@@ -365,21 +365,13 @@ groups:
           - { name: 固原, slug: guyuan, note: 中国马铃薯之乡 GDP总量超488亿元 }
       - slug: anhuishidachengshi
         title: 安徽十大城市
-        kind: "pending"
+        kind: computed
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 合肥, slug: hefei, note: 省会城市 长三角副中心城市 }
-          - { name: 芜湖, slug: wuhu, note: 省域副中心城市 GDP总量超5402亿元 }
-          - { name: 滁州, slug: chuzhou, note: 南京都市圈核心成员 光伏产业重镇 }
-          - { name: 阜阳, slug: fuyang, note: 皖北人口第一大市 中原经济区重要节点 }
-          - { name: 安庆, slug: anqing, note: 皖西南区域中心 GDP总量超3306亿元 }
-          - { name: 马鞍山, slug: maanshan, note: 钢铁与智造强市 GDP总量超2920亿元 }
-          - { name: 亳州, slug: bozhou, note: 中华药都 养生文化名城 }
-          - { name: 宿州, slug: suzhou, note: 传统农业大市 GDP总量超2538亿元 }
-          - { name: 蚌埠, slug: bengbu, note: 皖北科教商贸中心 GDP总量超2421亿元 }
-          - { name: 六安, slug: luan, note: 大别山区域中心城市 GDP总量超2407亿元 }
+        lede: 按 2025 年地区生产总值从大到小排序，覆盖安徽省全部 16 个地级市，此处取前 10 名。
+        filter: { province: 安徽省 }
+        metrics:
+          - { field: gdp, weight: 1, dir: up, label: 地区生产总值, unit: 亿元 }
+        note: 候选范围为本站已采集到 2025 年地区生产总值的安徽省城市（共 16 个，安徽省统计局《全省各市地区生产总值》表）。
       - slug: fuxishipin
         title: 富硒食品
         kind: "pending"
@@ -566,20 +558,13 @@ groups:
           - { name: 陇南, slug: longnan, note: 甘肃南部枢纽 GDP总量超716亿元 }
       - slug: fujianjiudachengsh
         title: 福建九大城市
-        kind: "pending"
+        kind: computed
         size: 9
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 9 条。
-        items:
-          - { name: 福州, slug: fuzhou, note: 省会城市 GDP总量超1.5万亿元 }
-          - { name: 泉州, slug: quanzhou, note: 制造业强市 GDP总量超1.3万亿元 }
-          - { name: 厦门, slug: xiamen, note: 副省级城市 GDP总量超8980亿元 }
-          - { name: 漳州, slug: zhangzhou, note: 福建农业大市 GDP总量超6154亿元 }
-          - { name: 宁德, slug: ningde, note: 中国锂电之都 GDP总量超4251亿元 }
-          - { name: 莆田, slug: putian, note: 中国木雕之城 GDP总量超3579亿元 }
-          - { name: 龙岩, slug: longyan, note: GDP总量超3578亿元 绿色经济为主 }
-          - { name: 三明, slug: sanming, note: 中国绿都 GDP总量超2511亿元 }
-          - { name: 南平, slug: nanping, note: 中国茶都 GDP总量超2189亿元 }
+        lede: 按 2025 年地区生产总值从大到小排序，覆盖福建省全部 9 个设区市。
+        filter: { province: 福建省 }
+        metrics:
+          - { field: gdp, weight: 1, dir: up, label: 地区生产总值, unit: 亿元 }
+        note: 候选范围为本站已采集到 2025 年地区生产总值的福建省城市（共 9 个，福建省统计局统一核算口径）。
       - slug: xizangqidachengshi
         title: 西藏七大城市
         kind: "pending"

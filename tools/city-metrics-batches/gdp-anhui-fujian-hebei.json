@@ -1,0 +1,49 @@
+{
+  "source": {
+    "key": "gdp2025prov",
+    "name": "各省统计局发布的 2025 年 1—12 月省内各市地区生产总值（安徽见省统计局《全省各市地区生产总值》表，经淮南、亳州两市统计局月报转载，并与阜阳、六安市统计局公报核对；福建见省统计局口径，与省工信厅公布值、两份城投评级报告附表、鸥维数据一致；河北见省统计局与河北调查总队统一核算结果）",
+    "asOf": "2025"
+  },
+  "field": "gdp",
+  "unit": "亿元",
+  "rows": [
+    { "name": "合肥", "slug": "hefei", "province": "安徽省", "level": "省会", "v": 14210.0 },
+    { "name": "芜湖", "slug": "wuhu", "province": "安徽省", "level": "地级市", "v": 5402.7 },
+    { "name": "滁州", "slug": "chuzhou", "province": "安徽省", "level": "地级市", "v": 4221.1 },
+    { "name": "阜阳", "slug": "fuyang", "province": "安徽省", "level": "地级市", "v": 3777.6 },
+    { "name": "安庆", "slug": "anqing", "province": "安徽省", "level": "地级市", "v": 3306.1 },
+    { "name": "马鞍山", "slug": "maanshan", "province": "安徽省", "level": "地级市", "v": 2920.9 },
+    { "name": "亳州", "slug": "bozhou", "province": "安徽省", "level": "地级市", "v": 2621.1 },
+    { "name": "宿州", "slug": "suzhou-ah", "province": "安徽省", "level": "地级市", "v": 2538.4 },
+    { "name": "蚌埠", "slug": "bengbu", "province": "安徽省", "level": "地级市", "v": 2421.1 },
+    { "name": "六安", "slug": "luan", "province": "安徽省", "level": "地级市", "v": 2407.3 },
+    { "name": "宣城", "slug": "xuancheng", "province": "安徽省", "level": "地级市", "v": 2148.6 },
+    { "name": "淮南", "slug": "huainan", "province": "安徽省", "level": "地级市", "v": 1750.1 },
+    { "name": "淮北", "slug": "huaibei", "province": "安徽省", "level": "地级市", "v": 1419.2 },
+    { "name": "铜陵", "slug": "tongling", "province": "安徽省", "level": "地级市", "v": 1415.4 },
+    { "name": "池州", "slug": "chizhou", "province": "安徽省", "level": "地级市", "v": 1225.0 },
+    { "name": "黄山", "slug": "huangshan", "province": "安徽省", "level": "地级市", "v": 1204.9 },
+
+    { "name": "福州", "slug": "fuzhou", "province": "福建省", "level": "省会", "v": 15112.32 },
+    { "name": "泉州", "slug": "quanzhou", "province": "福建省", "level": "地级市", "v": 13778.34 },
+    { "name": "厦门", "slug": "xiamen", "province": "福建省", "level": "计划单列市", "v": 8980.37 },
+    { "name": "漳州", "slug": "zhangzhou", "province": "福建省", "level": "地级市", "v": 6154.12 },
+    { "name": "宁德", "slug": "ningde", "province": "福建省", "level": "地级市", "v": 4251.72 },
+    { "name": "莆田", "slug": "putian", "province": "福建省", "level": "地级市", "v": 3579.52 },
+    { "name": "龙岩", "slug": "longyan", "province": "福建省", "level": "地级市", "v": 3578.55 },
+    { "name": "三明", "slug": "sanming", "province": "福建省", "level": "地级市", "v": 2511.98 },
+    { "name": "南平", "slug": "nanping", "province": "福建省", "level": "地级市", "v": 2189.73 },
+
+    { "name": "唐山", "slug": "tangshan", "province": "河北省", "level": "地级市", "v": 10450.2 },
+    { "name": "石家庄", "slug": "shijiazhuang", "province": "河北省", "level": "省会", "v": 8651.7 },
+    { "name": "保定", "slug": "baoding", "province": "河北省", "level": "地级市", "v": 5002.5 },
+    { "name": "沧州", "slug": "cangzhou", "province": "河北省", "level": "地级市", "v": 4930.9 },
+    { "name": "邯郸", "slug": "handan", "province": "河北省", "level": "地级市", "v": 4920.1 },
+    { "name": "廊坊", "slug": "langfang", "province": "河北省", "level": "地级市", "v": 4040.5 },
+    { "name": "邢台", "slug": "xingtai", "province": "河北省", "level": "地级市", "v": 2800.8 },
+    { "name": "秦皇岛", "slug": "qinhuangdao", "province": "河北省", "level": "地级市", "v": 2200.4 },
+    { "name": "衡水", "slug": "hengshui", "province": "河北省", "level": "地级市", "v": 2011.8 },
+    { "name": "承德", "slug": "chengde", "province": "河北省", "level": "地级市", "v": 2001.7 },
+    { "name": "张家口", "slug": "zhangjiakou", "province": "河北省", "level": "地级市", "v": 1970.7 }
+  ]
+}

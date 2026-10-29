@@ -168,6 +168,7 @@ cities:
     province: 福建省
     level: 计划单列市
     metrics:
+      gdp: { v: 8980.37, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       latitude: { v: 24.5, unit: "°N", asOf: "2024", source: "lat2024" }
       double_first_class: { v: 1, unit: "所", asOf: "2022", source: "dfc2022" }
       metro_km: { v: 98.4, unit: "公里", asOf: "2025", source: "metro2025" }
@@ -403,6 +404,7 @@ cities:
     province: 河北省
     level: 省会
     metrics:
+      gdp: { v: 8651.7, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       latitude: { v: 38.0, unit: "°N", asOf: "2024", source: "lat2024" }
       metro_km: { v: 74.3, unit: "公里", asOf: "2025", source: "metro2025" }
       area_km2: { v: 15800, unit: "平方公里", asOf: "2025", source: "areaGov" }
@@ -450,7 +452,10 @@ cities:
       gdp: { v: 14210, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 黄山
     slug: huangshan
-    metrics: {}
+    province: 安徽省
+    level: 地级市
+    metrics:
+      gdp: { v: 1204.9, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 嘉兴
     slug: jiaxing
     province: 浙江省
@@ -508,7 +513,10 @@ cities:
       gdp: { v: 14210.09, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 秦皇岛
     slug: qinhuangdao
-    metrics: {}
+    province: 河北省
+    level: 地级市
+    metrics:
+      gdp: { v: 2200.4, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 台州
     slug: taizhou
     province: 浙江省
@@ -658,10 +666,16 @@ cities:
     metrics: {}
   - name: 南平
     slug: nanping
-    metrics: {}
+    province: 福建省
+    level: 地级市
+    metrics:
+      gdp: { v: 2189.73, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 宁德
     slug: ningde
-    metrics: {}
+    province: 福建省
+    level: 地级市
+    metrics:
+      gdp: { v: 4251.72, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 衢州
     slug: quzhou
     province: 浙江省
@@ -723,7 +737,10 @@ cities:
       gdp: { v: 11158.71, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 承德
     slug: chengde
-    metrics: {}
+    province: 河北省
+    level: 地级市
+    metrics:
+      gdp: { v: 2001.7, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 郴州
     slug: chenzhou
     province: 湖南省
@@ -768,7 +785,10 @@ cities:
       area_km2: { v: 142000, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 邯郸
     slug: handan
-    metrics: {}
+    province: 河北省
+    level: 地级市
+    metrics:
+      gdp: { v: 4920.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 汉中
     slug: hanzhong
     metrics: {}
@@ -845,7 +865,10 @@ cities:
     metrics: {}
   - name: 龙岩
     slug: longyan
-    metrics: {}
+    province: 福建省
+    level: 地级市
+    metrics:
+      gdp: { v: 3578.55, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 绵阳
     slug: mianyang
     province: 四川省
@@ -861,14 +884,20 @@ cities:
     metrics: {}
   - name: 莆田
     slug: putian
-    metrics: {}
+    province: 福建省
+    level: 地级市
+    metrics:
+      gdp: { v: 3579.52, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 日喀则
     slug: rikaze
     metrics:
       area_km2: { v: 179000, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 三明
     slug: sanming
-    metrics: {}
+    province: 福建省
+    level: 地级市
+    metrics:
+      gdp: { v: 2511.98, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 山东青岛
     slug: shandongqingdao
     metrics: {}
@@ -965,7 +994,10 @@ cities:
     metrics: {}
   - name: 漳州
     slug: zhangzhou
-    metrics: {}
+    province: 福建省
+    level: 地级市
+    metrics:
+      gdp: { v: 6154.12, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 镇江
     slug: zhenjiang
     province: 江苏省
@@ -1005,7 +1037,10 @@ cities:
     metrics: {}
   - name: 安庆
     slug: anqing
-    metrics: {}
+    province: 安徽省
+    level: 地级市
+    metrics:
+      gdp: { v: 3306.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 安顺
     slug: anshun
     metrics: {}
@@ -1017,7 +1052,10 @@ cities:
     metrics: {}
   - name: 保定
     slug: baoding
-    metrics: {}
+    province: 河北省
+    level: 地级市
+    metrics:
+      gdp: { v: 5002.5, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 宝鸡
     slug: baoji
     metrics: {}
@@ -1035,13 +1073,22 @@ cities:
     metrics: {}
   - name: 蚌埠
     slug: bengbu
-    metrics: {}
+    province: 安徽省
+    level: 地级市
+    metrics:
+      gdp: { v: 2421.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 亳州
     slug: bozhou
-    metrics: {}
+    province: 安徽省
+    level: 地级市
+    metrics:
+      gdp: { v: 2621.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 沧州
     slug: cangzhou
-    metrics: {}
+    province: 河北省
+    level: 地级市
+    metrics:
+      gdp: { v: 4930.9, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 昌吉
     slug: changji
     metrics: {}
@@ -1074,7 +1121,10 @@ cities:
     metrics: {}
   - name: 滁州
     slug: chuzhou
-    metrics: {}
+    province: 安徽省
+    level: 地级市
+    metrics:
+      gdp: { v: 4221.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 磁灶镇
     slug: cizaozhen
     metrics: {}
@@ -1153,7 +1203,10 @@ cities:
     metrics: {}
   - name: 阜阳
     slug: fuyang
-    metrics: {}
+    province: 安徽省
+    level: 地级市
+    metrics:
+      gdp: { v: 3777.6, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 抚远·华夏东极
     slug: fuyuanhuaxiadongji
     metrics: {}
@@ -1262,7 +1315,10 @@ cities:
     metrics: {}
   - name: 衡水
     slug: hengshui
-    metrics: {}
+    province: 河北省
+    level: 地级市
+    metrics:
+      gdp: { v: 2011.8, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 红河州
     slug: honghezhou
     metrics: {}
@@ -1400,7 +1456,10 @@ cities:
     metrics: {}
   - name: 六安
     slug: luan
-    metrics: {}
+    province: 安徽省
+    level: 地级市
+    metrics:
+      gdp: { v: 2407.3, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 洛杉矶
     slug: luoshanji
     metrics: {}
@@ -1415,7 +1474,10 @@ cities:
     metrics: {}
   - name: 马鞍山
     slug: maanshan
-    metrics: {}
+    province: 安徽省
+    level: 地级市
+    metrics:
+      gdp: { v: 2920.9, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 芒市
     slug: mang
     metrics: {}
@@ -1672,7 +1734,10 @@ cities:
       area_km2: { v: 1754, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 芜湖
     slug: wuhu
+    province: 安徽省
+    level: 地级市
     metrics:
+      gdp: { v: 5402.7, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       port_cargo: { v: 1.36, unit: "亿吨", asOf: "2025", source: "port2025" }
       metro_km: { v: 46.2, unit: "公里", asOf: "2025", source: "metro2025" }
   - name: 乌兰察布
@@ -1728,7 +1793,10 @@ cities:
     metrics: {}
   - name: 邢台
     slug: xingtai
-    metrics: {}
+    province: 河北省
+    level: 地级市
+    metrics:
+      gdp: { v: 2800.8, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 兴义
     slug: xingyi
     metrics: {}
@@ -1886,7 +1954,8 @@ cities:
     slug: zhangjiakou
     province: 河北省
     level: 地级市
-    metrics: {}
+    metrics:
+      gdp: { v: 1970.7, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 泰安
     slug: taian
     province: 山东省
@@ -2103,3 +2172,45 @@ cities:
     level: 自治州
     metrics:
       gdp: { v: 613.11, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
+  - name: 宿州
+    slug: suzhou-ah
+    province: 安徽省
+    level: 地级市
+    metrics:
+      gdp: { v: 2538.4, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
+  - name: 宣城
+    slug: xuancheng
+    province: 安徽省
+    level: 地级市
+    metrics:
+      gdp: { v: 2148.6, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
+  - name: 淮南
+    slug: huainan
+    province: 安徽省
+    level: 地级市
+    metrics:
+      gdp: { v: 1750.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
+  - name: 淮北
+    slug: huaibei
+    province: 安徽省
+    level: 地级市
+    metrics:
+      gdp: { v: 1419.2, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
+  - name: 铜陵
+    slug: tongling
+    province: 安徽省
+    level: 地级市
+    metrics:
+      gdp: { v: 1415.4, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
+  - name: 池州
+    slug: chizhou
+    province: 安徽省
+    level: 地级市
+    metrics:
+      gdp: { v: 1225, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
+  - name: 廊坊
+    slug: langfang
+    province: 河北省
+    level: 地级市
+    metrics:
+      gdp: { v: 4040.5, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
