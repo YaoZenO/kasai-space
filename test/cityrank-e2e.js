@@ -419,6 +419,57 @@ ok('S11 榜单条目的 slug 必须指向同名城市档案（防 slug 撞车错
   assert.strictEqual(bad.length, 0, 'slug 与档案名不符（共 ' + bad.length + ' 条）：\n' + bad.slice(0, 10).join('\n'));
 });
 
+// ---------- ⑤ 本批数据的专项锁 ----------
+// E-079：面积最小十大省会榜曾在 27 座省会只有 12 座有面积值、且各来源口径不一
+// （陆地 / 行政区划、含不含海域）时被转成 computed，结果广州（7434）排第一，
+// 而真正最小的海口（2304.8）、南京（6587）因缺值根本没进候选——名次对外失真。
+// 这里锁死：数据补齐前该榜只能保持 pending，谁转谁 FAIL。
+ok('S12 面积最小十大省会榜在面积数据齐备前必须保持 pending（E-079 防复发）', () => {
+  const def = allRanks.find((r) => r.slug === 'mianjizuixiaodeshi-2');
+  assert.ok(def, '找不到 mianjizuixiaodeshi-2——锚点失效');
+  assert.ok(!def.kind || def.kind === 'pending',
+    '该榜被转成了 ' + def.kind + '：27 座省会仅 12 座有面积值且口径不一，转 computed 会输出失真名次');
+});
+
+// 气候四字段必须同源同年份。年鉴表是 2024 年实况值（非多年平均），一旦混入
+// 其他年份或其他来源，气温 / 日照榜的 min-max 归一化口径就废了。
+ok('S12 气候四字段必须统一来自 climateNBS2024 且 asOf=2024（防口径混杂）', () => {
+  const fields = ['temp_jan', 'temp_jul', 'precip', 'sun_hours'];
+  let checked = 0;
+  for (const c of cities.cities || []) {
+    for (const f of fields) {
+      const m = c.metrics && c.metrics[f];
+      if (!m) continue;
+      assert.strictEqual(m.source, 'climateNBS2024', c.name + ' 的 ' + f + ' 来源不是气候年鉴');
+      assert.strictEqual(String(m.asOf), '2024', c.name + ' 的 ' + f + ' 年份不是 2024');
+      checked += 1;
+    }
+  }
+  assert.ok(checked >= 100, '气候字段样本过少（' + checked + '）——断言可能空转');
+});
+
+// E-078：落库脚本检查「已有指标」的正则只认正数，1 月均温的负值（哈尔滨 -17.2）
+// 会被判为「没有该指标」，重复跑就插重复键。这里锁死负值数据必须真的落进库。
+ok('S12 1 月均温含负值城市，落库脚本须支持负号（E-078 防复发）', () => {
+  const neg = (cities.cities || []).filter((c) => c.metrics && c.metrics.temp_jan && c.metrics.temp_jan.v < 0);
+  assert.ok(neg.length >= 5, '负值气温城市仅 ' + neg.length + ' 座——可能落库时被正则截断');
+  const haerbin = (cities.cities || []).find((c) => c.slug === 'haerbin');
+  assert.ok(haerbin && haerbin.metrics && haerbin.metrics.temp_jan && haerbin.metrics.temp_jan.v < -10,
+    '哈尔滨 1 月均温缺失或不是负值');
+});
+
+// E-080：PRD §2.1 给「最爱下雨的城市」定的指标是年降水日数（rain_days），
+// 而《中国统计年鉴 2025》表 8-6 只有年降水量（precip，毫米）。压缩会话恢复后
+// 曾误把该榜用 precip 转成 computed，口径与 PRD 冲突。锁死：rain_days 入库前必须 pending。
+ok('S12 最爱下雨榜在 rain_days 数据入库前必须保持 pending（E-080 防复发）', () => {
+  const def = allRanks.find((r) => r.slug === 'shidazuiaixiayudec');
+  assert.ok(def, '找不到 shidazuiaixiayudec——锚点失效');
+  assert.ok(!def.kind || def.kind === 'pending',
+    '该榜被转成了 ' + def.kind + '：PRD §2.1 要求年降水日数，不能用年降水量代替');
+  assert.ok(!(def.metrics || []).some((m) => m.field === 'precip'),
+    '该榜直接用了 precip（年降水量）——与 PRD 的年降水日数口径冲突');
+});
+
 ok('自检：往 yml 里塞手写 rank 必须被 S1 抓到', () => {
   const mutated = JSON.parse(JSON.stringify(computedRanks[0]));
   mutated.rank = 1;

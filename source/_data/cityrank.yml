@@ -36,10 +36,10 @@ groups:
         title: "中国人口大市"
         kind: "computed"
         size: 10
-        lede: "以 2025 年末常住人口排序，反映城市人口规模。"
+        lede: "以 2025 年末全市常住人口总量排序，反映城市人口规模；常住人口含户籍人口与外来常住人口。"
         metrics:
           - { field: "pop", weight: 1.0, dir: "up", label: "常住人口", unit: "万人" }
-        note: "仅统计已见统计公报的常住人口数据，其余城市待补后再纳入。"
+        note: "口径：常住人口指在本市居住半年以上的人口，含户籍人口与外来常住人口，不等于户籍人口、城区人口或人口增量。数据年份 2025 年末，单位万人，来源为各市统计局《2025 年国民经济和社会发展统计公报》（部分城市依据 2025 年全国 1% 人口抽样调查推算），逐城来源见 tools/city-metrics-batches/pop-2025-sources.md。候选范围为数据集中已核验 2025 年末常住人口的城市，缺该指标的城市不参与本榜，不按 0 处理。本榜只反映全市常住人口总量，不含城镇化率与人口增量。"
       - slug: "zuijuxingfugan-chengshi"
         title: "中国最具幸福感城市"
         kind: "fact"
@@ -1448,27 +1448,19 @@ groups:
           - { name: 南宁, slug: nanning, note: "" }
       - slug: shidadongnuanxiali
         title: 中国十大冬暖夏凉的城市
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 临沧, slug: lincang, note: "被誉为“恒春之都” 著名旅游景点:翁丁原始部落/沧源崖画谷/千米国画长廊等" }
-          - { name: 大理, slug: dali, note: "四季舒适无极端温差 著名旅游景点:大理古城/崇圣寺三塔/苍山洱海/周城村等" }
-          - { name: 保山, slug: baoshan, note: 冬无严寒/夏无酷暑 被誉为“世界温泉博物馆” }
-          - { name: 昆明, slug: kunming, note: “春城”标杆 全年鲜花盛开 }
-          - { name: 芒市, slug: mang, note: "被誉为“动植物基因库”和“天然氧吧” 著名旅游景点:勐焕大金塔/树包塔/勐巴娜西" }
-          - { name: 文山, slug: wenshan, note: "四季温和/干湿分明 著名旅游景点:普者黑/仙人洞/天鹅湖/坝美村/老山/西畴国家" }
-          - { name: 楚雄, slug: chuxiong, note: "四季温差小 著名旅游景点:禄丰世界恐龙谷温泉/物茂土林风景区/彝人古镇/楚雄太空" }
-          - { name: 西昌, slug: xichang, note: "被称为“一座春天栖息的城市” 著名旅游景点:邛海泸山/建昌古城/安哈彝寨仙人洞/" }
-          - { name: 玉溪, slug: yuxi, note: "山区平坝四季宜居 著名旅游景点:抚仙湖/澄江化石地/月亮湾湿地公园/聂耳文化广场" }
-          - { name: 贵阳, slug: guiyang, note: "中国避暑之都 著名旅游景点:青岩古镇/黔灵山公园/花溪十里河滩/天河潭/贵州省博" }
+        lede: 以 1 月平均气温越高、7 月平均气温越低加权计算，两项各占一半权重。
+        metrics:
+          - { field: "temp_jan", weight: 0.5, dir: "up", label: "1 月平均气温", unit: "℃" }
+          - { field: "temp_jul", weight: 0.5, dir: "down", label: "7 月平均气温", unit: "℃" }
+        note: 数据为国家统计局《中国统计年鉴 2025》表 8-4 主要城市平均气温（2024 年，中国气象局提供）；候选为数据集中 34 个主要城市，缺任一指标的城市不参与本榜。本站按 1 月与 7 月平均气温各占一半加权，两项均做 min-max 归一化；高原城市因夏季凉爽得分高，即使冬季偏冷也可能排在前列，本榜不等于「全年舒适」综合评价，也不等于主观「宜居」评价。
       - slug: shidazuiaixiayudec
         title: 中国十大最爱下雨的城市
         kind: "pending"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
+        note: 原榜共 10 条；PRD §2.1 要求本榜指标为年降水日数（rain_days），国家统计局《中国统计年鉴 2025》表 8-6 为年降水量（毫米），口径不合。本站已落库的 precip 只用于城市档案页，不用于本榜；待取得 rain_days 权威数据后再转 computed。
         items:
           - { name: 桂林, slug: guilin, note: 全年累计降水168天 全年累计降雨量约2000毫米 }
           - { name: 贵阳, slug: guiyang, note: 全年累计降水164天 全年累计降雨量约1200毫米 }
@@ -1524,53 +1516,29 @@ groups:
         note: 候选范围为本数据集中已采集到纬度的城市（国家基本气象站，36 站）。
       - slug: shidagaowendedache
         title: 中国十大高温的大城市
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 重庆, slug: chongqing, note: 夏季最高气温42℃以上 传统四大火炉之一 }
-          - { name: 杭州, slug: hangzhou, note: 夏季最高气温41℃以上 新四大火炉之一 }
-          - { name: 长沙, slug: changsha, note: 夏季最高气温41℃以上 传统四大火炉之一 }
-          - { name: 武汉, slug: wuhan, note: 夏季最高气温41℃以上 传统四大火炉之一 }
-          - { name: 南京, slug: nanjing, note: 夏季最高气温40℃以上 三大火炉之一 }
-          - { name: 南昌, slug: nanchang, note: 夏季最高气温40℃以上 传统四大火炉之一 }
-          - { name: 合肥, slug: hefei, note: 夏季最高气温40℃以上 长江流域九大火炉之一 }
-          - { name: 西安, slug: xian, note: 夏季最高气温40℃以上 北方四大火炉之一 }
-          - { name: 郑州, slug: zhengzhou, note: 夏季最高气温40℃以上 北方四大火炉之一 }
-          - { name: 福州, slug: fuzhou, note: 夏季最高气温40℃以上 新四大火炉之一 }
+        lede: 以 7 月平均气温从高到低排序，反映夏季炎热程度。
+        metrics:
+          - { field: "temp_jul", weight: 1.0, dir: "up", label: "7 月平均气温", unit: "℃" }
+        note: 数据为国家统计局《中国统计年鉴 2025》表 8-4 主要城市平均气温（2024 年，中国气象局提供）；候选为数据集中 34 个主要城市。本榜按 7 月平均气温排名，不是极端最高气温或高温日数，与「火炉城市」类说法口径不同。
       - slug: rizhaozuizhangdesh
         title: 中国日照最长的十大省会城市
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 拉萨, slug: lasa, note: "" }
-          - { name: 银川, slug: yinchuan, note: "" }
-          - { name: 呼和浩特, slug: huhehaote, note: "" }
-          - { name: 乌鲁木齐, slug: wulumuqi, note: "" }
-          - { name: 长春, slug: changchun, note: "" }
-          - { name: 西宁, slug: xining, note: "" }
-          - { name: 北京, slug: beijing, note: "" }
-          - { name: 太原, slug: taiyuan, note: "" }
-          - { name: 沈阳, slug: shenyang, note: "" }
-          - { name: 兰州, slug: lanzhou, note: "" }
+        lede: 以全年日照时数从多到少排序，范围限省会及自治区首府城市。
+        filter: { level: "省会" }
+        metrics:
+          - { field: "sun_hours", weight: 1.0, dir: "up", label: "年日照时数", unit: "小时" }
+        note: 数据为国家统计局《中国统计年鉴 2025》表 8-7 主要城市日照时数（2024 年，中国气象局提供）；候选为数据集中有日照数据且 level 为省会的城市，直辖市不参与本榜。
       - slug: zuihanlengdeshigec
         title: 中国最寒冷的十个城市
-        kind: "pending"
-        size: 8
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 8 条。
-        items:
-          - { name: 漠河, slug: mohe, note: "" }
-          - { name: 伊犁, slug: yili, note: "" }
-          - { name: 黑河, slug: heihe, note: "" }
-          - { name: 白山, slug: baishan, note: "" }
-          - { name: 克拉玛依, slug: kelamayi, note: "" }
-          - { name: 塔城地区, slug: tacheng, note: "" }
-          - { name: 哈尔滨, slug: haerbin, note: "" }
-          - { name: 长春, slug: changchun, note: "" }
+        kind: "computed"
+        size: 10
+        lede: 以 1 月平均气温从低到高排序，1 月越冷名次越前。
+        metrics:
+          - { field: "temp_jan", weight: 1.0, dir: "down", label: "1 月平均气温", unit: "℃" }
+        note: 数据为国家统计局《中国统计年鉴 2025》表 8-4 主要城市平均气温（2024 年，中国气象局提供）；候选为数据集中 34 个主要城市。原榜含漠河、黑河等县级城市，本站数据集未收录其气象站气温，故只按已收录城市计算，不沿用原榜名次。
       - slug: jixuezuihoudeshida
         title: 中国积雪最厚的十大城市
         kind: "pending"
@@ -1616,7 +1584,7 @@ groups:
         kind: "pending"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
+        note: 原榜共 10 条；各来源省会面积口径不一（陆地面积 / 行政区划面积、含不含海域），且本站数据集仅 12 座省会有面积值，暂沿用原榜名次，待 27 座省会统一口径补齐后再转本站计算。
         items:
           - { name: 海口, slug: haikou, note: "" }
           - { name: 南京, slug: nanjing, note: "" }

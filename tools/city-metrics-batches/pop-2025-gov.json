@@ -1,0 +1,41 @@
+{
+  "source": {
+    "key": "pop2025",
+    "name": "各市统计局《2025 年国民经济和社会发展统计公报》发布的 2025 年末常住人口（部分城市依据 2025 年全国 1% 人口抽样调查推算；单位万人；常住人口口径，非户籍人口、非城区人口）",
+    "asOf": "2025"
+  },
+  "field": "pop",
+  "unit": "万人",
+  "rows": [
+    { "name": "杭州", "slug": "hangzhou", "province": "浙江省", "level": "省会", "v": 1270.0 },
+    { "name": "苏州", "slug": "suzhou", "province": "江苏省", "level": "地级市", "v": 1304.77 },
+    { "name": "南京", "slug": "nanjing", "province": "江苏省", "level": "省会", "v": 963.85 },
+    { "name": "长沙", "slug": "changsha", "province": "湖南省", "level": "省会", "v": 1072.14 },
+    { "name": "青岛", "slug": "qingdao", "province": "山东省", "level": "地级市", "v": 1051.55 },
+    { "name": "济南", "slug": "jinan", "province": "山东省", "level": "省会", "v": 961.6 },
+    { "name": "宁波", "slug": "ningbo", "province": "浙江省", "level": "地级市", "v": 983.3 },
+    { "name": "温州", "slug": "wenzhou", "province": "浙江省", "level": "地级市", "v": 990.2 },
+    { "name": "金华", "slug": "jinhua", "province": "浙江省", "level": "地级市", "v": 726.9 },
+    { "name": "台州", "slug": "taizhou", "province": "浙江省", "level": "地级市", "v": 676 },
+    { "name": "绍兴", "slug": "shaoxing", "province": "浙江省", "level": "地级市", "v": 544.3 },
+    { "name": "衢州", "slug": "quzhou", "province": "浙江省", "level": "地级市", "v": 229.7 },
+    { "name": "东莞", "slug": "dongguan", "province": "广东省", "level": "地级市", "v": 1080.04 },
+    { "name": "佛山", "slug": "foshan", "province": "广东省", "level": "地级市", "v": 979.19 },
+    { "name": "中山", "slug": "zhongshan", "province": "广东省", "level": "地级市", "v": 457.23 },
+    { "name": "惠州", "slug": "huizhou", "province": "广东省", "level": "地级市", "v": 619.30 },
+    { "name": "石家庄", "slug": "shijiazhuang", "province": "河北省", "level": "省会", "v": 1124.69 },
+    { "name": "沈阳", "slug": "shenyang", "province": "辽宁省", "level": "省会", "v": 927.6 },
+    { "name": "南宁", "slug": "nanning", "province": "广西壮族自治区", "level": "省会", "v": 901.66 },
+    { "name": "无锡", "slug": "wuxi", "province": "江苏省", "level": "地级市", "v": 753.74 },
+    { "name": "昆明", "slug": "kunming", "province": "云南省", "level": "省会", "v": 874.4 },
+    { "name": "厦门", "slug": "xiamen", "province": "福建省", "level": "地级市", "v": 536.50 },
+    { "name": "福州", "slug": "fuzhou", "province": "福建省", "level": "省会", "v": 852.1 },
+    { "name": "哈尔滨", "slug": "haerbin", "province": "黑龙江省", "level": "省会", "v": 988.7 },
+    { "name": "长春", "slug": "changchun", "province": "吉林省", "level": "省会", "v": 910.50 },
+    { "name": "常州", "slug": "changzhou", "province": "江苏省", "level": "地级市", "v": 541.54 },
+    { "name": "贵阳", "slug": "guiyang", "province": "贵州省", "level": "省会", "v": 666.89 },
+    { "name": "太原", "slug": "taiyuan", "province": "山西省", "level": "省会", "v": 552.61 },
+    { "name": "湖州", "slug": "huzhou", "province": "浙江省", "level": "地级市", "v": 347.2 },
+    { "name": "合肥", "slug": "hefei", "province": "安徽省", "level": "省会", "v": 1000.5 }
+  ]
+}

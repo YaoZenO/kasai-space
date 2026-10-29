@@ -158,7 +158,10 @@ function main() {
     }
 
     // 补指标
-    const metricRe = new RegExp('^      ' + field + ': \\{ v: ([0-9.]+)');
+    // 支持负值：2026-10-29 起气候字段 temp_jan 含 -17.2 这类负值，
+    // 原正则 ([0-9.]+) 匹配不到负号，重复执行同一批次会把指标插成重复键
+    // （js-yaml 静默取最后一个，不报错）。负值必须能匹配，重复执行才会命中「已存在同值」分支。
+    const metricRe = new RegExp('^      ' + field + ': \\{ v: (-?[0-9.]+(?:e[+-]?[0-9]+)?)');
     const existing = blockLines.find((l) => metricRe.test(l));
     if (existing) {
       const v = parseFloat(metricRe.exec(existing)[1]);
