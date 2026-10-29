@@ -311,20 +311,13 @@ groups:
           - { name: 台南, slug: tainan, note: "" }
       - slug: sichuanshidachengs
         title: 四川十大城市
-        kind: "pending"
-        size: 9
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 9 条。
-        items:
-          - { name: 成都, slug: chengdu, note: 国家中心城市 GDP总量超2.4万亿元 }
-          - { name: 绵阳, slug: mianyang, note: 三线城市 中国科技城 }
-          - { name: 宜宾, slug: yibin, note: 四线城市 长江起点城市 }
-          - { name: 德阳, slug: deyang, note: 四线城市 工业强市 }
-          - { name: 泸州, slug: luzhou, note: 四线城市 川南经济中心 }
-          - { name: 达州, slug: dazhou, note: 四线城市 川东北省域经济副中心 }
-          - { name: 南充, slug: nanchong, note: 三线城市 川东北区域中心城市 }
-          - { name: 乐山, slug: leshan, note: 四线城市 文旅强市 }
-          - { name: 内江, slug: neijiang, note: 四线城市 川南工业城 }
+        kind: computed
+        size: 10
+        lede: 按 2025 年地区生产总值从大到小排序，覆盖四川省全部 21 个市州（含 3 个自治州），此处取前 10 名。
+        filter: { province: 四川省 }
+        metrics:
+          - { field: gdp, weight: 1, dir: up, label: 地区生产总值, unit: 亿元 }
+        note: 候选范围为本站已采集到 2025 年地区生产总值的四川省市州（共 21 个，四川省统计局市州经济指标表）。
       - slug: nagechengshidewaim
         title: 国内哪个城市的外卖量最大 全国外卖最多的10个城市盘点
         kind: "pending"
@@ -426,21 +419,13 @@ groups:
           - { name: 朔州, slug: shuozhou, note: 经济转型示范城市 GDP总量超1303亿元 }
       - slug: guangdongshidachen
         title: 广东十大城市
-        kind: "pending"
+        kind: computed
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 深圳, slug: shenzhen, note: 一线城市 中国特色社会主义先行示范区 }
-          - { name: 广州, slug: guangzhou, note: 一线城市​ 省会与国家中心城市 }
-          - { name: 佛山, slug: foshan, note: 制造业强市 GDP总量超1.31万亿元 }
-          - { name: 东莞, slug: dongguan, note: “世界工厂”转型“智造名城” GDP总量超1.2万亿元 }
-          - { name: 惠州, slug: huizhou, note: 二线城市 电子信息产业强劲 }
-          - { name: 珠海, slug: zhuhai, note: 二线城市 经济特区/科创高地 }
-          - { name: 中山, slug: zhongshan, note: 二线城市 制造业强市 }
-          - { name: 江门, slug: jiangmen, note: 三线城市 侨乡+湾区节点 }
-          - { name: 茂名, slug: maoming, note: 三线城市 GDP常年位居粤西地区首位 }
-          - { name: 湛江, slug: zhanjiang, note: 三线城市 省域副中心城市 }
+        lede: 按 2025 年地区生产总值从大到小排序，覆盖广东省全部 21 个地级及以上城市，此处取前 10 名。
+        filter: { province: 广东省 }
+        metrics:
+          - { field: gdp, weight: 1, dir: up, label: 地区生产总值, unit: 亿元 }
+        note: 候选范围为本站已采集到 2025 年地区生产总值的广东省城市（共 21 个，广东省统计局《2025 年各市地区生产总值初步核算结果》）。
       - slug: guangxishidachengs
         title: 广西十大城市
         kind: "pending"
@@ -1019,12 +1004,12 @@ groups:
         items:
           - { name: 重庆, slug: chongqing, note: 首个世界温泉之都 中国温泉之都 }
           - { name: 福建福州, slug: fujianfuzhou, note: 中国温泉之都 泡在温泉里的城市 }
-          - { name: 广东清远, slug: guangdongqingyuan, note: 中国温泉之城 中国温泉之乡 }
+          - { name: 清远, slug: qingyuan, note: 中国温泉之城 中国温泉之乡 }
           - { name: 广东韶关, slug: guangdongshaoguan, note: 中国温泉之乡 广东地热水出露最多的地级市之一 }
           - { name: 湖北咸宁, slug: hubeixianning, note: 中国温泉之城 1400多年历史 }
           - { name: 湖南郴州, slug: hunanchenzhou, note: 中国温泉之城 天然温泉点40多处 }
           - { name: 云南保山, slug: yunnanbaoshan, note: 世界温泉博物馆 世界温泉地质公园 }
-          - { name: 广东河源, slug: guangdongheyuan, note: 温泉之都 和平·中国温泉之乡 }
+          - { name: 河源, slug: heyuan, note: 温泉之都 和平·中国温泉之乡 }
           - { name: 广东广州, slug: guangdongguangzhou, note: 世界温泉之乡从化·世界珍稀小苏打温泉/岭南第一泉 增城派潭镇·水温27—73℃/ }
           - { name: 云南大理, slug: yunnandali, note: 洱源·中国温泉之城/温泉80余处 大理地热国/下山口温泉等 }
       - slug: shidaremenitywalkc

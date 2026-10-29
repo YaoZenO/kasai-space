@@ -106,6 +106,25 @@ function main() {
     const hit = blocks.find((b) => slugOf(b) === r.slug);
 
     if (!hit) {
+      // E-076 防复发：城市库里躺着一批「省份前缀 + 城市名」的消歧名条目
+      // （早期从公开榜单直接导入，如「广东广州」与「广州」并存），它们没有 province / metrics，
+      // 一旦再按标准名新增同一座城市，就会变成同一城市两条档案、索引页列两遍。
+      // 命中就中止，逼着先人工把两条归并，再由本脚本补数据。
+      if (r.province) {
+        const short = r.province.replace(/(省|市|自治区|特别行政区)$/, '');
+        for (const b of blocks) {
+          const nm = /^  - name: (.+)$/.exec(lines[b.start]);
+          if (!nm) continue;
+          const n = nm[1].trim();
+          if (n === short + r.name || n === short + '·' + r.name) {
+            die(
+              '命名冲突：库里已有消歧名条目「' + n + '」（slug ' + slugOf(b) + '）与要新增的「' +
+                r.name + '」是同一城市，先人工归并（改 name / slug 并同步榜单引用）再落库'
+            );
+          }
+        }
+      }
+
       const ml = ['      ' + field + ': { v: ' + r.v + ', unit: "' + unit + '", asOf: "' + src.asOf + '", source: "' + src.key + '" }'];
       const blk = ['  - name: ' + r.name, '    slug: ' + r.slug];
       if (r.province) blk.push('    province: ' + r.province);
