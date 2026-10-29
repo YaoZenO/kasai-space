@@ -470,6 +470,60 @@ ok('S12 最爱下雨榜在 rain_days 数据入库前必须保持 pending（E-080
     '该榜直接用了 precip（年降水量）——与 PRD 的年降水日数口径冲突');
 });
 
+// S13 空壳消歧名条目清零（E-076 防复发）：库里不得同时存在「装饰名」与「标准名」两个档案
+// 判定规则与 tools/merge-city-shells.js 的 stripRules 保持一致，改一边必须改另一边。
+const PROV = ('北京|天津|上海|重庆|河北|山西|内蒙古|辽宁|吉林|黑龙江|江苏|浙江|安徽|福建|江西|山东|河南|湖北|湖南|'
+  + '广东|广西|海南|四川|贵州|云南|西藏|陕西|甘肃|青海|宁夏|新疆');
+const PROV_SET = new Set(PROV.split('|'));
+function stripRules(name) {
+  const out = [];
+  const noProv = name.replace(new RegExp('^(' + PROV + ')'), '');
+  if (noProv && noProv !== name) out.push(noProv);
+  out.push(name.replace(/^[^·]+·/, ''));
+  out.push(name.replace(/·[^·]+$/, ''));
+  out.push(name.replace(/^[^/]+\//, ''));
+  out.push(name.replace(/^[^·]+·/, '').replace(/[州盟]$/, ''));
+  if (/[州盟]$/.test(name) && name.length >= 3) {
+    const b = name.slice(0, -1);
+    if (!PROV_SET.has(b)) out.push(b);
+  }
+  return [...new Set(out)].filter((x) => x && x !== name && x.length >= 2);
+}
+// 去饰后同形但实际是另一个地方的，白名单放行（改这里必须同时改 merge-city-shells.js 的 EXCLUDE）
+const SHELL_EXCLUDE = new Set(['fuzhoupingtan']);
+
+ok('S13 城市库不得残留「省份前缀 / 城市·美称」空壳，与标准名并存（E-076 防复发）', () => {
+  const list = (cities.cities || []).filter((c) => c && c.name);
+  const byName = {};
+  for (const c of list) { if (!byName[c.name]) byName[c.name] = []; byName[c.name].push(c); }
+  const dupes = [];
+  for (const c of list) {
+    if (SHELL_EXCLUDE.has(c.slug)) continue;
+    for (const bare of stripRules(c.name)) {
+      const twins = (byName[bare] || []).filter((x) => x !== c);
+      if (twins.length) { dupes.push(c.name + '(' + c.slug + ') 与 ' + twins[0].name + '(' + twins[0].slug + ')'); break; }
+    }
+  }
+  assert.strictEqual(dupes.length, 0, '仍有 ' + dupes.length + ' 条空壳与标准名并存：\n' + dupes.slice(0, 10).join('\n'));
+  assert.ok(list.length > 300, '城市样本仅 ' + list.length + ' 座——判重断言可能空转');
+});
+
+ok('自检：注入一条消歧名空壳必须被 S13 抓到', () => {
+  const injected = { name: '广东深圳', slug: 'guangdongshenzhen' };
+  const list = (cities.cities || []).concat([injected]);
+  const byName = {};
+  for (const c of list) { if (!byName[c.name]) byName[c.name] = []; byName[c.name].push(c); }
+  let hit = null;
+  for (const c of list) {
+    for (const bare of stripRules(c.name)) {
+      const twins = (byName[bare] || []).filter((x) => x !== c);
+      if (twins.length) { hit = c.name; break; }
+    }
+    if (hit) break;
+  }
+  assert.strictEqual(hit, '广东深圳', '注入的空壳没被判重逻辑抓到——断言空转');
+});
+
 ok('自检：往 yml 里塞手写 rank 必须被 S1 抓到', () => {
   const mutated = JSON.parse(JSON.stringify(computedRanks[0]));
   mutated.rank = 1;

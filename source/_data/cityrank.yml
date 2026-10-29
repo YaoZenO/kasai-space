@@ -938,7 +938,7 @@ groups:
           - { name: 大连市·长海, slug: dalianshizhanghai, note: "" }
           - { name: 舟山市·嵊泗, slug: zhoushanshishengsi, note: "" }
           - { name: 舟山市·岱山, slug: zhoushanshidaishan, note: "" }
-          - { name: 福州·平潭, slug: fuzhoupingtan, note: "" }
+          - { name: 平潭, slug: pingtan, note: "" }
       - slug: shidazuimeibianjin
         title: 中国十大最美边境城市
         kind: "pending"
@@ -949,10 +949,10 @@ groups:
           - { name: 伊犁/昭苏·塞外江南, slug: yilizhaosusaiwaijiangnan, note: "" }
           - { name: 东兴市·北部湾畔边陲明珠, slug: dongxingshibeibuwanpanbianchuimingzhu, note: "" }
           - { name: 漠河县·中国地图最北端, slug: mohexianzhongguodituzuibeiduan, note: "" }
-          - { name: 腾冲·极边第一城, slug: tengchongjibiandiyicheng, note: "" }
-          - { name: 喀什·丝路明珠, slug: kashisilumingzhu, note: "" }
+          - { name: 腾冲, slug: tengchong, note: "" }
+          - { name: 喀什, slug: kashi, note: "" }
           - { name: 满洲里·东亚之窗, slug: manzhoulidongyazhichuang, note: "" }
-          - { name: 西双版纳·动植物王国, slug: xishuangbannadongzhiwuwangguo, note: "" }
+          - { name: 西双版纳, slug: xishuangbanna, note: "" }
           - { name: 阿勒泰/布尔津·北疆水塔, slug: aleitaibuerjinbeijiangshuita, note: "" }
           - { name: 靖西·小昆明, slug: jingxixiaokunming, note: "" }
           - { name: 抚远·华夏东极, slug: fuyuanhuaxiadongji, note: "" }
@@ -964,15 +964,15 @@ groups:
         note: 原榜共 10 条。
         items:
           - { name: 重庆, slug: chongqing, note: 首个世界温泉之都 中国温泉之都 }
-          - { name: 福建福州, slug: fujianfuzhou, note: 中国温泉之都 泡在温泉里的城市 }
+          - { name: 福州, slug: fuzhou, note: 中国温泉之都 泡在温泉里的城市 }
           - { name: 清远, slug: qingyuan, note: 中国温泉之城 中国温泉之乡 }
-          - { name: 广东韶关, slug: guangdongshaoguan, note: 中国温泉之乡 广东地热水出露最多的地级市之一 }
-          - { name: 湖北咸宁, slug: hubeixianning, note: 中国温泉之城 1400多年历史 }
-          - { name: 湖南郴州, slug: hunanchenzhou, note: 中国温泉之城 天然温泉点40多处 }
-          - { name: 云南保山, slug: yunnanbaoshan, note: 世界温泉博物馆 世界温泉地质公园 }
+          - { name: 韶关, slug: shaoguan, note: 中国温泉之乡 广东地热水出露最多的地级市之一 }
+          - { name: 咸宁, slug: xianning, note: 中国温泉之城 1400多年历史 }
+          - { name: 郴州, slug: chenzhou, note: 中国温泉之城 天然温泉点40多处 }
+          - { name: 保山, slug: baoshan, note: 世界温泉博物馆 世界温泉地质公园 }
           - { name: 河源, slug: heyuan, note: 温泉之都 和平·中国温泉之乡 }
-          - { name: 广东广州, slug: guangdongguangzhou, note: 世界温泉之乡从化·世界珍稀小苏打温泉/岭南第一泉 增城派潭镇·水温27—73℃/ }
-          - { name: 云南大理, slug: yunnandali, note: 洱源·中国温泉之城/温泉80余处 大理地热国/下山口温泉等 }
+          - { name: 广州, slug: guangzhou, note: 世界温泉之乡从化·世界珍稀小苏打温泉/岭南第一泉 增城派潭镇·水温27—73℃/ }
+          - { name: 大理, slug: dali, note: 洱源·中国温泉之城/温泉80余处 大理地热国/下山口温泉等 }
       - slug: shidaremenitywalkc
         title: 中国十大热门Citywalk城市
         kind: "pending"
@@ -980,16 +980,16 @@ groups:
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
-          - { name: 上海·魔都, slug: shanghaimodou, note: "" }
-          - { name: 成都·天府之国, slug: chengdutianfuzhiguo, note: "" }
-          - { name: 北京·六朝古都, slug: beijingliuchaogudu, note: "" }
-          - { name: 西安·六朝古都/梦回大唐, slug: xianliuchaogudumenghuidatang, note: "" }
-          - { name: 广州·千年商都, slug: guangzhouqiannianshangdou, note: "" }
-          - { name: 长沙·楚汉名城, slug: changshachuhanmingcheng, note: "" }
-          - { name: 杭州·六大古都, slug: hangzhouliudagudu, note: "" }
-          - { name: 苏州·人间天堂, slug: suzhourenjiantiantang, note: "" }
-          - { name: 南京·中国四大古都, slug: nanjingzhongguosidagudu, note: "" }
-          - { name: 贵阳·森林之城, slug: guiyangsenlinzhicheng, note: "" }
+          - { name: 上海, slug: shanghai, note: "" }
+          - { name: 成都, slug: chengdu, note: "" }
+          - { name: 北京, slug: beijing, note: "" }
+          - { name: 西安, slug: xian, note: "" }
+          - { name: 广州, slug: guangzhou, note: "" }
+          - { name: 长沙, slug: changsha, note: "" }
+          - { name: 杭州, slug: hangzhou, note: "" }
+          - { name: 苏州, slug: suzhou, note: "" }
+          - { name: 南京, slug: nanjing, note: "" }
+          - { name: 贵阳, slug: guiyang, note: "" }
       - slug: shidaqiujilvyouche
         title: 中国十大秋季旅游城市
         kind: "pending"
@@ -1001,9 +1001,9 @@ groups:
           - { name: 北京, slug: beijing, note: "" }
           - { name: 阿尔山, slug: aershan, note: "" }
           - { name: 南京, slug: nanjing, note: "" }
-          - { name: 阿坝州, slug: abazhou, note: "" }
+          - { name: 阿坝, slug: aba, note: "" }
           - { name: 桂林, slug: guilin, note: "" }
-          - { name: 甘孜州, slug: ganzizhou, note: "" }
+          - { name: 甘孜, slug: ganzi, note: "" }
           - { name: 黄山, slug: huangshan, note: "" }
           - { name: 本溪, slug: benxi, note: "" }
           - { name: 林芝, slug: linzhi, note: "" }
@@ -1188,7 +1188,7 @@ groups:
           - { name: 伊犁, slug: yili, note: 适合自驾/摄影/露营与深度自然旅行 自驾穿越独库公路北段 }
           - { name: 昆明, slug: kunming, note: 错峰游的黄金窗口期 赏教场中路蓝花楹大道 }
           - { name: 呼伦贝尔, slug: hulunbeier, note: 骑马追日落 滑草与射箭 }
-          - { name: 恩施州, slug: enshizhou, note: 峡谷避暑 漂流/玩水 }
+          - { name: 恩施, slug: enshi, note: 峡谷避暑 漂流/玩水 }
           - { name: 厦门, slug: xiamen, note: 鼓浪屿登岛漫游 环岛路骑行看日出日落 }
           - { name: 六盘水, slug: liupanshui, note: 高山草原露营 邂逅星空云海 }
           - { name: 丽江, slug: lijiang, note: 漫步古城感受纳西风情 挑战玉龙雪山/邂逅高山草甸 }
@@ -1235,15 +1235,15 @@ groups:
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
-          - { name: 陕西·西安, slug: shanxixian, note: "" }
-          - { name: 新疆·阿勒泰, slug: xinjiangaleitai, note: "" }
-          - { name: 内蒙古·呼伦贝尔, slug: neimengguhulunbeier, note: "" }
-          - { name: 安徽·黄山, slug: anhuihuangshan, note: "" }
-          - { name: 辽宁·本溪, slug: liaoningbenxi, note: "" }
-          - { name: 浙江·杭州, slug: zhejianghangzhou, note: "" }
-          - { name: 西藏·林芝, slug: xizanglinzhi, note: "" }
-          - { name: 江苏·南京, slug: jiangsunanjing, note: "" }
-          - { name: 山东·青岛, slug: shandongqingdao, note: "" }
+          - { name: 西安, slug: xian, note: "" }
+          - { name: 阿勒泰, slug: aleitai, note: "" }
+          - { name: 呼伦贝尔, slug: hulunbeier, note: "" }
+          - { name: 黄山, slug: huangshan, note: "" }
+          - { name: 本溪, slug: benxi, note: "" }
+          - { name: 杭州, slug: hangzhou, note: "" }
+          - { name: 林芝, slug: linzhi, note: "" }
+          - { name: 南京, slug: nanjing, note: "" }
+          - { name: 青岛, slug: qingdao, note: "" }
           - { name: 甘肃·甘南, slug: gansugannan, note: "" }
       - slug: "shiheyuelvyoudeshi-12"
         title: 国内适合5月旅游的十大城市
@@ -1310,16 +1310,16 @@ groups:
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
-          - { name: 淄博·山东, slug: ziboshandong, note: "" }
-          - { name: 锦州·辽宁, slug: jinzhouliaoning, note: "" }
-          - { name: 徐州·江苏, slug: xuzhoujiangsu, note: "" }
-          - { name: 喀什·新疆, slug: kashixinjiang, note: "" }
-          - { name: 哈尔滨·黑龙江, slug: haerbinheilongjiang, note: "" }
-          - { name: 青岛·山东, slug: qingdaoshandong, note: "" }
-          - { name: 湛江·广东, slug: zhanjiangguangdong, note: "" }
-          - { name: 宜宾·四川, slug: yibinsichuan, note: "" }
-          - { name: 昭通·云南, slug: zhaotongyunnan, note: "" }
-          - { name: 百色·广西, slug: baiseguangxi, note: "" }
+          - { name: 淄博, slug: zibo, note: "" }
+          - { name: 锦州, slug: jinzhou, note: "" }
+          - { name: 徐州, slug: xuzhou, note: "" }
+          - { name: 喀什, slug: kashi, note: "" }
+          - { name: 哈尔滨, slug: haerbin, note: "" }
+          - { name: 青岛, slug: qingdao, note: "" }
+          - { name: 湛江, slug: zhanjiang, note: "" }
+          - { name: 宜宾, slug: yibin, note: "" }
+          - { name: 昭通, slug: zhaotong, note: "" }
+          - { name: 百色, slug: baise, note: "" }
       - slug: shidameishihuangmo
         title: 中国十大美食荒漠城市
         kind: "pending"
@@ -1625,7 +1625,7 @@ groups:
           - { name: 邵阳, slug: shaoyang, note: "" }
           - { name: 郴州, slug: chenzhou, note: "" }
           - { name: 常德, slug: changde, note: "" }
-          - { name: 湘西州, slug: xiangxizhou, note: "" }
+          - { name: 湘西, slug: xiangxi, note: "" }
           - { name: 衡阳, slug: hengyang, note: "" }
           - { name: 岳阳, slug: yueyang, note: "" }
           - { name: 益阳, slug: yiyang, note: "" }
@@ -1661,16 +1661,16 @@ groups:
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
-          - { name: 西藏拉萨, slug: xizanglasa, note: "" }
-          - { name: 福建厦门, slug: fujianxiamen, note: "" }
-          - { name: 山东威海, slug: shandongweihai, note: "" }
-          - { name: 广东珠海, slug: guangdongzhuhai, note: "" }
-          - { name: 海南海口, slug: hainanhaikou, note: "" }
-          - { name: 山西晋城, slug: shanxijincheng, note: "" }
-          - { name: 辽宁大连, slug: liaoningdalian, note: "" }
-          - { name: 江苏苏州, slug: jiangsusuzhou, note: "" }
-          - { name: 广西柳州, slug: guangxiliuzhou, note: "" }
-          - { name: 陕西西安, slug: shanxixian, note: "" }
+          - { name: 拉萨, slug: lasa, note: "" }
+          - { name: 厦门, slug: xiamen, note: "" }
+          - { name: 威海, slug: weihai, note: "" }
+          - { name: 珠海, slug: zhuhai, note: "" }
+          - { name: 海口, slug: haikou, note: "" }
+          - { name: 晋城, slug: jincheng, note: "" }
+          - { name: 大连, slug: dalian, note: "" }
+          - { name: 苏州, slug: suzhou, note: "" }
+          - { name: 柳州, slug: liuzhou, note: "" }
+          - { name: 西安, slug: xian, note: "" }
       - slug: senlinfugailvzuiga
         title: 中国森林覆盖率最高的十大城市
         kind: "pending"
@@ -2037,7 +2037,7 @@ groups:
           - { name: 潮州, slug: chaozhou, note: 中国瓷都 中国重要日用陶瓷出口基地 }
           - { name: 唐山, slug: tangshan, note: 北方瓷都 中国骨质瓷发源地 }
           - { name: 无锡宜兴, slug: wuxiyixing, note: 中国陶都 以紫砂壶闻名 }
-          - { name: 河南禹州, slug: henanyuzhou, note: 中国钧瓷之都 以自然窑变著称 }
+          - { name: 禹州, slug: yuzhou, note: 中国钧瓷之都 以自然窑变著称 }
           - { name: 佛山南海, slug: foshannanhai, note: 南国瓷都 中国建陶第一镇 }
           - { name: 河南汝州, slug: henanruzhou, note: 汝瓷之都 宋代五大名窑之首“汝窑”的产地 }
       - slug: lishizuigulaodeshi
@@ -2077,9 +2077,9 @@ groups:
           - { name: 长春, slug: changchun, note: 冰雪旅游十佳城市 }
           - { name: 呼伦贝尔, slug: hulunbeier, note: 冰雪旅游十佳城市，最美草原城市 }
           - { name: 吉林, slug: jilin, note: 冰雪旅游十佳城市 }
-          - { name: 大兴安岭地区·漠河, slug: daxinganlingdiqumohe, note: “神州北极” }
-          - { name: 兴安盟·阿尔山, slug: xinganmengaershan, note: 中国优秀旅游城市 }
-          - { name: 延边州, slug: yanbianzhou, note: 中国十佳冰雪旅游城市 }
+          - { name: 漠河, slug: mohe, note: “神州北极” }
+          - { name: 阿尔山, slug: aershan, note: 中国优秀旅游城市 }
+          - { name: 延边, slug: yanbian, note: 中国十佳冰雪旅游城市 }
           - { name: 丹东, slug: dandong, note: 中国最大最美的边境城市 }
       - slug: dongbushidalvyouch
         title: 中国东部十大旅游城市
@@ -2180,8 +2180,8 @@ groups:
           - { name: 张家界, slug: zhangjiajie, note: “美丽中国的靓丽名片” }
           - { name: 开封, slug: kaifeng, note: "" }
           - { name: 宜昌, slug: yichang, note: "" }
-          - { name: 湘西州, slug: xiangxizhou, note: 中国优秀旅游城市 }
-          - { name: 恩施州, slug: enshizhou, note: “中国最美仙境”“湖北香格里拉” }
+          - { name: 湘西, slug: xiangxi, note: 中国优秀旅游城市 }
+          - { name: 恩施, slug: enshi, note: “中国最美仙境”“湖北香格里拉” }
           - { name: 焦作, slug: jiaozuo, note: 中国优秀旅游城市 }
       - slug: huabeishidalvyouch
         title: 华北十大旅游城市
@@ -2301,7 +2301,7 @@ groups:
           - { name: 贵阳, slug: guiyang, note: 中国优秀旅游城市，中国避暑之都 }
           - { name: 大理, slug: dali, note: 中国优秀旅游城市，令人陶醉的“风花雪月”地 }
           - { name: 西双版纳, slug: xishuangbanna, note: 全球12个最热的旅游目的地，中国避寒旅游城市 }
-          - { name: 阿坝州, slug: abazhou, note: 世界最佳生态旅游目的地 }
+          - { name: 阿坝, slug: aba, note: 世界最佳生态旅游目的地 }
       - slug: xibushidalvyouchen
         title: 西部十大旅游城市
         kind: "pending"
@@ -2469,16 +2469,16 @@ groups:
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
-          - { name: 福建莆田, slug: fujianputian, note: "" }
-          - { name: 江西鹰潭, slug: jiangxiyingtan, note: "" }
-          - { name: 江西上饶, slug: jiangxishangrao, note: "" }
-          - { name: 福建福州, slug: fujianfuzhou, note: "" }
-          - { name: 浙江温州, slug: zhejiangwenzhou, note: "" }
-          - { name: 江苏南通, slug: jiangsunantong, note: "" }
+          - { name: 莆田, slug: putian, note: "" }
+          - { name: 鹰潭, slug: yingtan, note: "" }
+          - { name: 上饶, slug: shangrao, note: "" }
+          - { name: 福州, slug: fuzhou, note: "" }
+          - { name: 温州, slug: wenzhou, note: "" }
+          - { name: 南通, slug: nantong, note: "" }
           - { name: 天津, slug: tianjin, note: "" }
-          - { name: 河北沧州, slug: hebeicangzhou, note: "" }
-          - { name: 山东青岛, slug: shandongqingdao, note: "" }
-          - { name: 山东菏泽, slug: shandongheze, note: "" }
+          - { name: 沧州, slug: cangzhou, note: "" }
+          - { name: 青岛, slug: qingdao, note: "" }
+          - { name: 菏泽, slug: heze, note: "" }
       - slug: meinvzuiduodeshida
         title: 中国美女最多的十大城市
         kind: "pending"

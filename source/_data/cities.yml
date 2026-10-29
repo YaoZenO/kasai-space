@@ -886,9 +886,6 @@ cities:
   - name: 吴忠
     slug: wuzhong
     metrics: {}
-  - name: 阿坝州
-    slug: abazhou
-    metrics: {}
   - name: 鞍山
     slug: anshan
     metrics: {}
@@ -975,12 +972,6 @@ cities:
     level: 自治州
     metrics:
       gdp: { v: 1741.97, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 恩施州
-    slug: enshizhou
-    metrics: {}
-  - name: 福建福州
-    slug: fujianfuzhou
-    metrics: {}
   - name: 哈密
     slug: hami
     metrics:
@@ -1107,12 +1098,6 @@ cities:
     level: 地级市
     metrics:
       gdp: { v: 2511.98, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 山东青岛
-    slug: shandongqingdao
-    metrics: {}
-  - name: 陕西西安
-    slug: shanxixian
-    metrics: {}
   - name: 邵阳
     slug: shaoyang
     province: 湖南省
@@ -1121,9 +1106,6 @@ cities:
       gdp: { v: 2883.49, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 塔城地区
     slug: tacheng
-    metrics: {}
-  - name: 湘西州
-    slug: xiangxizhou
     metrics: {}
   - name: 襄阳
     slug: xiangyang
@@ -1244,9 +1226,6 @@ cities:
   - name: 安海镇
     slug: anhaizhen
     metrics: {}
-  - name: 安徽·黄山
-    slug: anhuihuangshan
-    metrics: {}
   - name: 安康
     slug: ankang
     metrics: {}
@@ -1265,9 +1244,6 @@ cities:
     level: 地级市
     metrics:
       gdp: { v: 2101.34, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 百色·广西
-    slug: baiseguangxi
-    metrics: {}
   - name: 保定
     slug: baoding
     province: 河北省
@@ -1285,9 +1261,6 @@ cities:
     metrics: {}
   - name: 巴音郭楞
     slug: bayinguoleng
-    metrics: {}
-  - name: 北京·六朝古都
-    slug: beijingliuchaogudu
     metrics: {}
   - name: 蚌埠
     slug: bengbu
@@ -1310,9 +1283,6 @@ cities:
   - name: 昌吉
     slug: changji
     metrics: {}
-  - name: 长沙·楚汉名城
-    slug: changshachuhanmingcheng
-    metrics: {}
   - name: 常熟
     slug: changshu
     metrics: {}
@@ -1324,9 +1294,6 @@ cities:
       gdp: { v: 1452.17, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 陈埭镇
     slug: chendaizhen
-    metrics: {}
-  - name: 成都·天府之国
-    slug: chengdutianfuzhiguo
     metrics: {}
   - name: 池店镇
     slug: chidianzhen
@@ -1354,9 +1321,6 @@ cities:
     metrics: {}
   - name: 大庆
     slug: daqing
-    metrics: {}
-  - name: 大兴安岭地区·漠河
-    slug: daxinganlingdiqumohe
     metrics: {}
   - name: 达州
     slug: dazhou
@@ -1401,12 +1365,6 @@ cities:
   - name: 佛山南海
     slug: foshannanhai
     metrics: {}
-  - name: 福建莆田
-    slug: fujianputian
-    metrics: {}
-  - name: 福建厦门
-    slug: fujianxiamen
-    metrics: {}
   - name: 抚顺
     slug: fushun
     metrics: {}
@@ -1434,8 +1392,8 @@ cities:
   - name: 抚远·华夏东极
     slug: fuyuanhuaxiadongji
     metrics: {}
-  - name: 福州·平潭
-    slug: fuzhoupingtan
+  - name: 平潭
+    slug: pingtan
     metrics: {}
   - name: 甘肃·甘南
     slug: gansugannan
@@ -1449,15 +1407,9 @@ cities:
     level: 地级市
     metrics:
       gdp: { v: 5221.3, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 甘孜州
-    slug: ganzizhou
-    metrics: {}
   - name: 高雄
     slug: gaoxiong
     province: 中国台湾地区
-    metrics: {}
-  - name: 广东广州
-    slug: guangdongguangzhou
     metrics: {}
   - name: 河源
     slug: heyuan
@@ -1471,20 +1423,8 @@ cities:
     level: 地级市
     metrics:
       gdp: { v: 2317.47, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 广东韶关
-    slug: guangdongshaoguan
-    metrics: {}
-  - name: 广东珠海
-    slug: guangdongzhuhai
-    metrics: {}
-  - name: 广西柳州
-    slug: guangxiliuzhou
-    metrics: {}
   - name: 广西阳朔县
     slug: guangxiyangshuo
-    metrics: {}
-  - name: 广州·千年商都
-    slug: guangzhouqiannianshangdou
     metrics: {}
   - name: 贵港
     slug: guigang
@@ -1492,9 +1432,6 @@ cities:
     level: 地级市
     metrics:
       gdp: { v: 1628.44, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 贵阳·森林之城
-    slug: guiyangsenlinzhicheng
-    metrics: {}
   - name: 贵州荔波县
     slug: guizhoulibo
     metrics: {}
@@ -1504,29 +1441,17 @@ cities:
   - name: 固原
     slug: guyuan
     metrics: {}
-  - name: 哈尔滨·黑龙江
-    slug: haerbinheilongjiang
-    metrics: {}
   - name: 海北州
     slug: haibeizhou
     metrics: {}
   - name: 海东
     slug: haidong
     metrics: {}
-  - name: 海南海口
-    slug: hainanhaikou
-    metrics: {}
   - name: 海南州
     slug: hainanzhou
     metrics: {}
   - name: 海西州
     slug: haixizhou
-    metrics: {}
-  - name: 杭州·六大古都
-    slug: hangzhouliudagudu
-    metrics: {}
-  - name: 河北沧州
-    slug: hebeicangzhou
     metrics: {}
   - name: 河池
     slug: hechi
@@ -1542,9 +1467,6 @@ cities:
     metrics: {}
   - name: 河南修武县
     slug: henanxiuwu
-    metrics: {}
-  - name: 河南禹州
-    slug: henanyuzhou
     metrics: {}
   - name: 衡水
     slug: hengshui
@@ -1573,12 +1495,6 @@ cities:
     level: 地级市
     metrics:
       gdp: { v: 2430.28, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 湖北咸宁
-    slug: hubeixianning
-    metrics: {}
-  - name: 湖南郴州
-    slug: hunanchenzhou
-    metrics: {}
   - name: 湖南凤凰县
     slug: hunanfenghuang
     metrics: {}
@@ -1594,27 +1510,12 @@ cities:
     level: 地级市
     metrics:
       gdp: { v: 3105.7, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 江苏·南京
-    slug: jiangsunanjing
-    metrics: {}
-  - name: 江苏南通
-    slug: jiangsunantong
-    metrics: {}
-  - name: 江苏苏州
-    slug: jiangsusuzhou
-    metrics: {}
   - name: 景德镇
     slug: jingdezhen
     province: 江西省
     level: 地级市
     metrics:
       gdp: { v: 1189.6, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 江西上饶
-    slug: jiangxishangrao
-    metrics: {}
-  - name: 江西鹰潭
-    slug: jiangxiyingtan
-    metrics: {}
   - name: 江阴
     slug: jiangyin
     metrics: {}
@@ -1648,9 +1549,6 @@ cities:
   - name: 金井镇
     slug: jinjingzhen
     metrics: {}
-  - name: 锦州·辽宁
-    slug: jinzhouliaoning
-    metrics: {}
   - name: 鸡西
     slug: jixi
     metrics: {}
@@ -1659,12 +1557,6 @@ cities:
     metrics: {}
   - name: 凯里
     slug: kaili
-    metrics: {}
-  - name: 喀什·丝路明珠
-    slug: kashisilumingzhu
-    metrics: {}
-  - name: 喀什·新疆
-    slug: kashixinjiang
     metrics: {}
   - name: 库尔勒
     slug: kuerlei
@@ -1675,12 +1567,6 @@ cities:
     level: 地级市
     metrics:
       gdp: { v: 3304.15, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 辽宁·本溪
-    slug: liaoningbenxi
-    metrics: {}
-  - name: 辽宁大连
-    slug: liaoningdalian
-    metrics: {}
   - name: 临汾
     slug: linfen
     metrics: {}
@@ -1741,9 +1627,6 @@ cities:
     level: 地级市
     metrics:
       gdp: { v: 2901.76, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 南京·中国四大古都
-    slug: nanjingzhongguosidagudu
-    metrics: {}
   - name: 南阳
     slug: nanyang
     province: 河南省
@@ -1758,9 +1641,6 @@ cities:
       gdp: { v: 2050.66, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 内坑镇
     slug: neikengzhen
-    metrics: {}
-  - name: 内蒙古·呼伦贝尔
-    slug: neimengguhulunbeier
     metrics: {}
   - name: 排球之乡：广东省台山
     slug: paiqiuzhixiangguangdongshengtaishan
@@ -1785,9 +1665,6 @@ cities:
     metrics: {}
   - name: 黔西南州
     slug: qianxinanzhou
-    metrics: {}
-  - name: 青岛·山东
-    slug: qingdaoshandong
     metrics: {}
   - name: 庆阳
     slug: qingyang
@@ -1841,17 +1718,8 @@ cities:
   - name: 曲阜
     slug: qufu
     metrics: {}
-  - name: 山东菏泽
-    slug: shandongheze
-    metrics: {}
   - name: 山东蓬莱
     slug: shandongpenglai
-    metrics: {}
-  - name: 山东威海
-    slug: shandongweihai
-    metrics: {}
-  - name: 上海·魔都
-    slug: shanghaimodou
     metrics: {}
   - name: 商洛
     slug: shangluo
@@ -1883,9 +1751,6 @@ cities:
     level: 地级市
     metrics:
       gdp: { v: 1546.3, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 山西晋城
-    slug: shanxijincheng
-    metrics: {}
   - name: 韶关
     slug: shaoguan
     province: 广东省
@@ -1925,9 +1790,6 @@ cities:
   - name: 绥化
     slug: suihua
     metrics: {}
-  - name: 苏州·人间天堂
-    slug: suzhourenjiantiantang
-    metrics: {}
   - name: 台南
     slug: tainan
     metrics: {}
@@ -1939,9 +1801,6 @@ cities:
     metrics: {}
   - name: 腾冲
     slug: tengchong
-    metrics: {}
-  - name: 腾冲·极边第一城
-    slug: tengchongjibiandiyicheng
     metrics: {}
   - name: 田径之乡：广西玉林
     slug: tianjingzhixiangguangxiyulin
@@ -2018,9 +1877,6 @@ cities:
     level: 地级市
     metrics:
       gdp: { v: 3077.23, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 西安·六朝古都/梦回大唐
-    slug: xianliuchaogudumenghuidatang
-    metrics: {}
   - name: 咸宁
     slug: xianning
     province: 湖北省
@@ -2042,9 +1898,6 @@ cities:
   - name: 兴安盟
     slug: xingan
     metrics: {}
-  - name: 兴安盟·阿尔山
-    slug: xinganmengaershan
-    metrics: {}
   - name: 邢台
     slug: xingtai
     province: 河北省
@@ -2053,9 +1906,6 @@ cities:
       gdp: { v: 2800.8, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 兴义
     slug: xingyi
-    metrics: {}
-  - name: 新疆·阿勒泰
-    slug: xinjiangaleitai
     metrics: {}
   - name: 新疆布尔津
     slug: xinjiangbuerjin
@@ -2081,26 +1931,11 @@ cities:
   - name: 新竹
     slug: xinzhu
     metrics: {}
-  - name: 西双版纳·动植物王国
-    slug: xishuangbannadongzhiwuwangguo
-    metrics: {}
   - name: 西雅图
     slug: xiyatu
     metrics: {}
   - name: 西藏江孜县
     slug: xizangjiangzi
-    metrics: {}
-  - name: 西藏拉萨
-    slug: xizanglasa
-    metrics: {}
-  - name: 西藏·林芝
-    slug: xizanglinzhi
-    metrics: {}
-  - name: 徐州·江苏
-    slug: xuzhoujiangsu
-    metrics: {}
-  - name: 延边州
-    slug: yanbianzhou
     metrics: {}
   - name: 炎陵县
     slug: yanling
@@ -2111,9 +1946,6 @@ cities:
     level: 地级市
     metrics:
       gdp: { v: 4134.73, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 宜宾·四川
-    slug: yibinsichuan
-    metrics: {}
   - name: 伊犁/昭苏·塞外江南
     slug: yilizhaosusaiwaijiangnan
     metrics: {}
@@ -2135,12 +1967,6 @@ cities:
   - name: 运城
     slug: yuncheng
     metrics: {}
-  - name: 云南保山
-    slug: yunnanbaoshan
-    metrics: {}
-  - name: 云南大理
-    slug: yunnandali
-    metrics: {}
   - name: 玉树州
     slug: yushuzhou
     metrics: {}
@@ -2153,26 +1979,14 @@ cities:
   - name: 长治
     slug: zhangzhi
     metrics: {}
-  - name: 湛江·广东
-    slug: zhanjiangguangdong
-    metrics: {}
   - name: 昭通
     slug: zhaotong
     province: 云南省
     level: 地级市
     metrics:
       gdp: { v: 2103.4, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 昭通·云南
-    slug: zhaotongyunnan
-    metrics: {}
   - name: 朝阳
     slug: zhaoyang
-    metrics: {}
-  - name: 浙江·杭州
-    slug: zhejianghangzhou
-    metrics: {}
-  - name: 浙江温州
-    slug: zhejiangwenzhou
     metrics: {}
   - name: 中卫
     slug: zhongwei
@@ -2198,9 +2012,6 @@ cities:
     level: 地级市
     metrics:
       gdp: { v: 5088.89, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 淄博·山东
-    slug: ziboshandong
-    metrics: {}
   - name: 自贡
     slug: zigong
     province: 四川省
