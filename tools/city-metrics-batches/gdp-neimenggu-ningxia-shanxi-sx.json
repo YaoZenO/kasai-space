@@ -1,0 +1,42 @@
+{
+  "_comment": "P3 第十批（1/4）内蒙古 / 宁夏 / 山西 2025 年地区生产总值。数值均人工从下列权威页面抄录，脚本不产出任何数值。",
+  "source": {
+    "key": "gdp2025prov",
+    "name": "各省统计局发布的 2025 年 1—12 月省内各市地区生产总值（内蒙古见包头市统计局《统计月报》「内蒙及各盟市主要经济指标」、赤峰市统计局《赤峰统计月报》同值；宁夏见各市统计公报；山西见省统计局各市经济运行情况）",
+    "asOf": "2025"
+  },
+  "field": "gdp",
+  "unit": "亿元",
+  "rows": [
+    { "name": "鄂尔多斯", "slug": "eerduosi", "province": "内蒙古自治区", "level": "地级市", "v": 6122.2 },
+    { "name": "包头", "slug": "baotou", "province": "内蒙古自治区", "level": "地级市", "v": 4711.9 },
+    { "name": "呼和浩特", "slug": "huhehaote", "province": "内蒙古自治区", "level": "省会", "v": 4278.3 },
+    { "name": "赤峰", "slug": "chifeng", "province": "内蒙古自治区", "level": "地级市", "v": 2407.1 },
+    { "name": "呼伦贝尔", "slug": "hulunbeier", "province": "内蒙古自治区", "level": "地级市", "v": 1749.7 },
+    { "name": "通辽", "slug": "tongliao", "province": "内蒙古自治区", "level": "地级市", "v": 1737.7 },
+    { "name": "锡林郭勒盟", "slug": "xilinguolei", "province": "内蒙古自治区", "level": "盟", "v": 1289.8 },
+    { "name": "巴彦淖尔", "slug": "bayannaoer", "province": "内蒙古自治区", "level": "地级市", "v": 1277.6 },
+    { "name": "乌兰察布", "slug": "wulanchabu", "province": "内蒙古自治区", "level": "地级市", "v": 1260.3 },
+    { "name": "兴安盟", "slug": "xingan", "province": "内蒙古自治区", "level": "盟", "v": 850.1 },
+    { "name": "乌海", "slug": "wuhai", "province": "内蒙古自治区", "level": "地级市", "v": 540.7 },
+    { "name": "阿拉善", "slug": "alashan", "province": "内蒙古自治区", "level": "盟", "v": 418.8 },
+
+    { "name": "银川", "slug": "yinchuan", "province": "宁夏回族自治区", "level": "省会", "v": 3033.52 },
+    { "name": "吴忠", "slug": "wuzhong", "province": "宁夏回族自治区", "level": "地级市", "v": 961.67 },
+    { "name": "中卫", "slug": "zhongwei", "province": "宁夏回族自治区", "level": "地级市", "v": 633.38 },
+    { "name": "石嘴山", "slug": "shizuishan", "province": "宁夏回族自治区", "level": "地级市", "v": 579.84 },
+    { "name": "固原", "slug": "guyuan", "province": "宁夏回族自治区", "level": "地级市", "v": 488.07 },
+
+    { "name": "太原", "slug": "taiyuan", "province": "山西省", "level": "省会", "v": 5382.45 },
+    { "name": "吕梁", "slug": "lvliang", "province": "山西省", "level": "地级市", "v": 2575.0 },
+    { "name": "长治", "slug": "zhangzhi", "province": "山西省", "level": "地级市", "v": 2558.3 },
+    { "name": "临汾", "slug": "linfen", "province": "山西省", "level": "地级市", "v": 2513.8 },
+    { "name": "晋中", "slug": "jinzhong", "province": "山西省", "level": "地级市", "v": 2462.6 },
+    { "name": "晋城", "slug": "jincheng", "province": "山西省", "level": "地级市", "v": 2429.9 },
+    { "name": "运城", "slug": "yuncheng", "province": "山西省", "level": "地级市", "v": 2248.0 },
+    { "name": "大同", "slug": "datong", "province": "山西省", "level": "地级市", "v": 1815.0 },
+    { "name": "忻州", "slug": "xinzhou", "province": "山西省", "level": "地级市", "v": 1330.4 },
+    { "name": "朔州", "slug": "shuozhou", "province": "山西省", "level": "地级市", "v": 1303.7 },
+    { "name": "阳泉", "slug": "yangquan", "province": "山西省", "level": "地级市", "v": 870.6 }
+  ]
+}

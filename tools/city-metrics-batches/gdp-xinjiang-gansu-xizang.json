@@ -1,0 +1,49 @@
+{
+  "_comment": "P3 第十批（2/4）新疆 / 甘肃 / 西藏 2025 年地区生产总值。注意：新疆「伊犁」为自治州全州口径（含塔城地区、阿勒泰地区）；「喀什」为喀什地区口径，不是喀什市（391.79）。",
+  "source": {
+    "key": "gdp2025prov",
+    "name": "各省统计局发布的 2025 年 1—12 月省内各市地区生产总值（新疆见各地州统计公报，昌吉州政府 1—12 月经济运行情况 2637.67、博州公报 575.15；甘肃见省统计局各市经济运行情况与省政府综述；西藏见自治区统计局统一核算结果）",
+    "asOf": "2025"
+  },
+  "field": "gdp",
+  "unit": "亿元",
+  "rows": [
+    { "name": "乌鲁木齐", "slug": "wulumuqi", "province": "新疆维吾尔自治区", "level": "省会", "v": 4658.2 },
+    { "name": "伊犁", "slug": "yili", "province": "新疆维吾尔自治区", "level": "自治州", "v": 3470.95 },
+    { "name": "昌吉", "slug": "changji", "province": "新疆维吾尔自治区", "level": "自治州", "v": 2637.67 },
+    { "name": "阿克苏", "slug": "akesu", "province": "新疆维吾尔自治区", "level": "地区", "v": 2043.0 },
+    { "name": "喀什", "slug": "kashi", "province": "新疆维吾尔自治区", "level": "地区", "v": 1752.12 },
+    { "name": "巴音郭楞", "slug": "bayinguoleng", "province": "新疆维吾尔自治区", "level": "自治州", "v": 1723.5 },
+    { "name": "克拉玛依", "slug": "kelamayi", "province": "新疆维吾尔自治区", "level": "地级市", "v": 1304.0 },
+    { "name": "哈密", "slug": "hami", "province": "新疆维吾尔自治区", "level": "地级市", "v": 1163.0 },
+    { "name": "塔城地区", "slug": "tacheng", "province": "新疆维吾尔自治区", "level": "地区", "v": 1050.5 },
+    { "name": "吐鲁番", "slug": "tulufan", "province": "新疆维吾尔自治区", "level": "地级市", "v": 668.1 },
+    { "name": "和田地区", "slug": "hetian", "province": "新疆维吾尔自治区", "level": "地区", "v": 648.1 },
+    { "name": "博尔塔拉", "slug": "boertala", "province": "新疆维吾尔自治区", "level": "自治州", "v": 575.15 },
+    { "name": "阿勒泰", "slug": "aleitai", "province": "新疆维吾尔自治区", "level": "地区", "v": 484.21 },
+    { "name": "克孜勒苏", "slug": "kezilesu", "province": "新疆维吾尔自治区", "level": "自治州", "v": 272.24 },
+
+    { "name": "兰州", "slug": "lanzhou", "province": "甘肃省", "level": "省会", "v": 3903.6 },
+    { "name": "庆阳", "slug": "qingyang", "province": "甘肃省", "level": "地级市", "v": 1235.32 },
+    { "name": "酒泉", "slug": "jiuquan", "province": "甘肃省", "level": "地级市", "v": 1103.6 },
+    { "name": "天水", "slug": "tianshui", "province": "甘肃省", "level": "地级市", "v": 980.88 },
+    { "name": "武威", "slug": "wuwei", "province": "甘肃省", "level": "地级市", "v": 802.27 },
+    { "name": "定西", "slug": "dingxi", "province": "甘肃省", "level": "地级市", "v": 793.9 },
+    { "name": "白银", "slug": "baiyin", "province": "甘肃省", "level": "地级市", "v": 789.23 },
+    { "name": "平凉", "slug": "pingliang", "province": "甘肃省", "level": "地级市", "v": 754.88 },
+    { "name": "张掖", "slug": "zhangye", "province": "甘肃省", "level": "地级市", "v": 734.35 },
+    { "name": "陇南", "slug": "longnan", "province": "甘肃省", "level": "地级市", "v": 716.0 },
+    { "name": "金昌", "slug": "jinchang", "province": "甘肃省", "level": "地级市", "v": 670.2 },
+    { "name": "临夏州", "slug": "linxiazhou", "province": "甘肃省", "level": "自治州", "v": 546.6 },
+    { "name": "嘉峪关", "slug": "jiayuguan", "province": "甘肃省", "level": "地级市", "v": 391.0 },
+    { "name": "甘南", "slug": "gannan", "province": "甘肃省", "level": "自治州", "v": 275.62 },
+
+    { "name": "拉萨", "slug": "lasa", "province": "西藏自治区", "level": "省会", "v": 1090.99 },
+    { "name": "日喀则", "slug": "rikaze", "province": "西藏自治区", "level": "地级市", "v": 509.87 },
+    { "name": "昌都", "slug": "changdou", "province": "西藏自治区", "level": "地级市", "v": 424.86 },
+    { "name": "山南", "slug": "shannan", "province": "西藏自治区", "level": "地级市", "v": 331.8 },
+    { "name": "林芝", "slug": "linzhi", "province": "西藏自治区", "level": "地级市", "v": 292.34 },
+    { "name": "那曲", "slug": "naqu", "province": "西藏自治区", "level": "地级市", "v": 267.83 },
+    { "name": "阿里地区", "slug": "ali", "province": "西藏自治区", "level": "地区", "v": 114.21 }
+  ]
+}

@@ -62,6 +62,8 @@ const EXCLUDE = new Set([
 /** 原地改名换新 slug 的条目：独立的地方，只是名字带了别处的前缀 */
 const RENAME = {
   fuzhoupingtan: { name: '平潭', slug: 'pingtan' },
+  // 甘肃·甘南 → 甘南：采甘肃 GDP 时会按标准名建「甘南」，不先归并就会两条并存
+  gansugannan: { name: '甘南', slug: 'gannan' },
 };
 
 function die(msg) {

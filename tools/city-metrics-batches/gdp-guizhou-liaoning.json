@@ -1,0 +1,36 @@
+{
+  "_comment": "P3 第十批（3/4）贵州 / 辽宁 2025 年地区生产总值。辽宁大连 10002.1、沈阳 9100.33 与库内现有值一致（统一核算口径）。",
+  "source": {
+    "key": "gdp2025prov",
+    "name": "各省统计局发布的 2025 年 1—12 月省内各市地区生产总值（贵州见各市州统计公报与省统一核算结果；辽宁见各市统计公报与省统一核算结果）",
+    "asOf": "2025"
+  },
+  "field": "gdp",
+  "unit": "亿元",
+  "rows": [
+    { "name": "贵阳", "slug": "guiyang", "province": "贵州省", "level": "省会", "v": 6038.15 },
+    { "name": "遵义", "slug": "zunyi", "province": "贵州省", "level": "地级市", "v": 5206.12 },
+    { "name": "毕节", "slug": "bijie", "province": "贵州省", "level": "地级市", "v": 2541.14 },
+    { "name": "黔南州", "slug": "qiannanzhou", "province": "贵州省", "level": "自治州", "v": 2008.49 },
+    { "name": "六盘水", "slug": "liupanshui", "province": "贵州省", "level": "地级市", "v": 1777.75 },
+    { "name": "铜仁", "slug": "tongren", "province": "贵州省", "level": "地级市", "v": 1722.66 },
+    { "name": "黔西南州", "slug": "qianxinanzhou", "province": "贵州省", "level": "自治州", "v": 1535.28 },
+    { "name": "黔东南州", "slug": "qiandongnanzhou", "province": "贵州省", "level": "自治州", "v": 1500.24 },
+    { "name": "安顺", "slug": "anshun", "province": "贵州省", "level": "地级市", "v": 1232.35 },
+
+    { "name": "大连", "slug": "dalian", "province": "辽宁省", "level": "计划单列市", "v": 10002.1 },
+    { "name": "沈阳", "slug": "shenyang", "province": "辽宁省", "level": "省会", "v": 9100.33 },
+    { "name": "鞍山", "slug": "anshan", "province": "辽宁省", "level": "地级市", "v": 2180.4 },
+    { "name": "营口", "slug": "yingkou", "province": "辽宁省", "level": "地级市", "v": 1570.22 },
+    { "name": "盘锦", "slug": "panjin", "province": "辽宁省", "level": "地级市", "v": 1417.59 },
+    { "name": "锦州", "slug": "jinzhou", "province": "辽宁省", "level": "地级市", "v": 1365.3 },
+    { "name": "朝阳", "slug": "zhaoyang", "province": "辽宁省", "level": "地级市", "v": 1156.68 },
+    { "name": "丹东", "slug": "dandong", "province": "辽宁省", "level": "地级市", "v": 1019.15 },
+    { "name": "葫芦岛", "slug": "huludao", "province": "辽宁省", "level": "地级市", "v": 1013.7 },
+    { "name": "本溪", "slug": "benxi", "province": "辽宁省", "level": "地级市", "v": 1006.02 },
+    { "name": "抚顺", "slug": "fushun", "province": "辽宁省", "level": "地级市", "v": 1003.78 },
+    { "name": "辽阳", "slug": "liaoyang", "province": "辽宁省", "level": "地级市", "v": 1001.25 },
+    { "name": "铁岭", "slug": "tieling", "province": "辽宁省", "level": "地级市", "v": 788.86 },
+    { "name": "阜新", "slug": "fuxin", "province": "辽宁省", "level": "地级市", "v": 651.8 }
+  ]
+}

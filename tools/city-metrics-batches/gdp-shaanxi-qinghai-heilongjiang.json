@@ -1,0 +1,45 @@
+{
+  "_comment": "P3 第十批（4/4）陕西 / 青海 / 黑龙江 2025 年地区生产总值。西安 13902.67 与库内现有值一致（统一核算口径）。",
+  "source": {
+    "key": "gdp2025prov",
+    "name": "各省统计局发布的 2025 年 1—12 月省内各市地区生产总值（陕西见各市统计公报与省统一核算结果；青海见省统计局统一核算结果；黑龙江见各地市统计公报与省统一核算结果）",
+    "asOf": "2025"
+  },
+  "field": "gdp",
+  "unit": "亿元",
+  "rows": [
+    { "name": "西安", "slug": "xian", "province": "陕西省", "level": "省会", "v": 13902.67 },
+    { "name": "榆林", "slug": "yulin-sx", "province": "陕西省", "level": "地级市", "v": 7501.06 },
+    { "name": "咸阳", "slug": "xianyang", "province": "陕西省", "level": "地级市", "v": 3104.53 },
+    { "name": "宝鸡", "slug": "baoji", "province": "陕西省", "level": "地级市", "v": 2648.87 },
+    { "name": "延安", "slug": "yanan", "province": "陕西省", "level": "地级市", "v": 2372.17 },
+    { "name": "渭南", "slug": "weinan", "province": "陕西省", "level": "地级市", "v": 2231.76 },
+    { "name": "汉中", "slug": "hanzhong", "province": "陕西省", "level": "地级市", "v": 2003.89 },
+    { "name": "安康", "slug": "ankang", "province": "陕西省", "level": "地级市", "v": 1190.03 },
+    { "name": "商洛", "slug": "shangluo", "province": "陕西省", "level": "地级市", "v": 823.92 },
+    { "name": "铜川", "slug": "tongchuan", "province": "陕西省", "level": "地级市", "v": 607.15 },
+
+    { "name": "西宁", "slug": "xining", "province": "青海省", "level": "省会", "v": 1914.8 },
+    { "name": "海西州", "slug": "haixizhou", "province": "青海省", "level": "自治州", "v": 917.29 },
+    { "name": "海东", "slug": "haidong", "province": "青海省", "level": "地级市", "v": 615.8 },
+    { "name": "海南州", "slug": "hainanzhou", "province": "青海省", "level": "自治州", "v": 246.26 },
+    { "name": "黄南州", "slug": "huangnanzhou", "province": "青海省", "level": "自治州", "v": 124.17 },
+    { "name": "海北州", "slug": "haibeizhou", "province": "青海省", "level": "自治州", "v": 122.5 },
+    { "name": "玉树州", "slug": "yushuzhou", "province": "青海省", "level": "自治州", "v": 97.43 },
+    { "name": "果洛州", "slug": "guoluozhou", "province": "青海省", "level": "自治州", "v": 73.15 },
+
+    { "name": "哈尔滨", "slug": "haerbin", "province": "黑龙江省", "level": "省会", "v": 6188.51 },
+    { "name": "大庆", "slug": "daqing", "province": "黑龙江省", "level": "地级市", "v": 2693.2 },
+    { "name": "齐齐哈尔", "slug": "qiqihaer", "province": "黑龙江省", "level": "地级市", "v": 1402.1 },
+    { "name": "绥化", "slug": "suihua", "province": "黑龙江省", "level": "地级市", "v": 1285.14 },
+    { "name": "牡丹江", "slug": "mudanjiang", "province": "黑龙江省", "level": "地级市", "v": 1094.77 },
+    { "name": "佳木斯", "slug": "jiamusi", "province": "黑龙江省", "level": "地级市", "v": 1052.3 },
+    { "name": "黑河", "slug": "heihe", "province": "黑龙江省", "level": "地级市", "v": 742.3 },
+    { "name": "鸡西", "slug": "jixi", "province": "黑龙江省", "level": "地级市", "v": 648.49 },
+    { "name": "双鸭山", "slug": "shuangyashan", "province": "黑龙江省", "level": "地级市", "v": 571.1 },
+    { "name": "鹤岗", "slug": "hegang", "province": "黑龙江省", "level": "地级市", "v": 392.23 },
+    { "name": "伊春", "slug": "yichun-hlj", "province": "黑龙江省", "level": "地级市", "v": 380.9 },
+    { "name": "七台河", "slug": "qitaihe", "province": "黑龙江省", "level": "地级市", "v": 249.41 },
+    { "name": "大兴安岭地区", "slug": "daxinganling", "province": "黑龙江省", "level": "地区", "v": 177.5 }
+  ]
+}

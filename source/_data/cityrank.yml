@@ -271,23 +271,15 @@ groups:
         metrics:
           - { field: gdp, weight: 1, dir: up, label: 地区生产总值, unit: 亿元 }
         note: 候选范围为本站已采集到 2025 年地区生产总值的云南省市州（共 16 个，云南省统计局《云南统计月报》分州市地区生产总值表）。
-      - slug: neimenggushidachen
+      - slug: "neimenggushidachen"
         title: 内蒙古十大城市
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 鄂尔多斯, slug: eerduosi, note: 内蒙古经济第一城 GDP总量超6122亿元 }
-          - { name: 包头, slug: baotou, note: 内蒙古工业重镇 GDP总量超4711亿元 }
-          - { name: 呼和浩特, slug: huhehaote, note: 自治区政治/经济/科教/文化中心 GDP总量超4278亿元 }
-          - { name: 赤峰, slug: chifeng, note: 内蒙古东部区域性中心城市 GDP总量超2407亿元 }
-          - { name: 呼伦贝尔, slug: hulunbeier, note: 国际生态旅游名城 GDP总量超1749亿元 }
-          - { name: 通辽, slug: tongliao, note: 内蒙古东部重要农业基地 GDP总量超1737亿元 }
-          - { name: 锡林郭勒盟, slug: xilinguolei, note: 国家重要绿色畜产品基地 GDP总量超1289亿元 }
-          - { name: 巴彦淖尔, slug: bayannaoer, note: 农业大市 GDP总量超1277亿元 }
-          - { name: 乌兰察布, slug: wulanchabu, note: GDP总量超1260亿元 风电/光伏新能源基地 }
-          - { name: 兴安盟, slug: xingan, note: 东北经济圈重要节点 GDP总量超850亿元 }
+        lede: 按 2025 年地区生产总值从大到小排序，内蒙古 12 个盟市，此处取前 10 名。
+        filter: { province: "内蒙古自治区" }
+        metrics:
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+        note: 候选范围为本站已采集到 2025 年地区生产总值的内蒙古城市（共 12 个，包头市统计局《统计月报》「内蒙及各盟市主要经济指标」，赤峰市统计局《赤峰统计月报》同值）。
       - slug: taiwanliudachengsh
         title: 中国台湾地区六大城市
         kind: "pending"
@@ -343,18 +335,15 @@ groups:
           - { name: 天津, slug: tianjin, note: 中国资源循环集团 }
           - { name: 重庆, slug: chongqing, note: 中国长安汽车集团 }
           - { name: 成都, slug: chengdu, note: 中国东方电气集团 }
-      - slug: ningxiawudachengsh
+      - slug: "ningxiawudachengsh"
         title: 宁夏五大城市
-        kind: "pending"
+        kind: "computed"
         size: 5
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 5 条。
-        items:
-          - { name: 银川, slug: yinchuan, note: 首府 GDP总量超3033亿元 }
-          - { name: 吴忠, slug: wuzhong, note: 宁夏中部重要城市 GDP总量超961亿元 }
-          - { name: 中卫, slug: zhongwei, note: 西部“沙漠硅谷” GDP总量超633亿元 }
-          - { name: 石嘴山, slug: shizuishan, note: 国家智慧城市试点 GDP总量超579亿元 }
-          - { name: 固原, slug: guyuan, note: 中国马铃薯之乡 GDP总量超488亿元 }
+        lede: 按 2025 年地区生产总值从大到小排序，覆盖宁夏全部 5 个地级市。
+        filter: { province: "宁夏回族自治区" }
+        metrics:
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+        note: 候选范围为本站已采集到 2025 年地区生产总值的宁夏回族城市（共 5 个，各市 2025 年国民经济和社会发展统计公报）。
       - slug: anhuishidachengshi
         title: 安徽十大城市
         kind: computed
@@ -384,23 +373,15 @@ groups:
         metrics:
           - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
         note: 候选范围为本数据集中已采集到 2025 年地区生产总值的山东省城市（共 16 个）。
-      - slug: shanxishidachengsh
+      - slug: "shanxishidachengsh"
         title: 山西十大城市
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 太原, slug: taiyuan, note: 省会城市 全省政治/经济与科教中心 }
-          - { name: 吕梁, slug: lvliang, note: 山西西部经济重镇 能源化工基地 }
-          - { name: 长治, slug: zhangzhi, note: 省域副中心城市 晋东南中心城市 }
-          - { name: 晋中, slug: jinzhong, note: 太原都市区核心组成部分 GDP总量超2462亿元 }
-          - { name: 临汾, slug: linfen, note: 晋南中心城市 新型能源和工业基地 }
-          - { name: 晋城, slug: jincheng, note: 太行山南麓资源型城市 GDP总量超2429亿元 }
-          - { name: 运城, slug: yuncheng, note: 晋南区域中心城市 人口与农业大市 }
-          - { name: 大同, slug: datong, note: 晋冀蒙交界区域中心城市 GDP总量超1815亿元 }
-          - { name: 忻州, slug: xinzhou, note: 最佳生态休闲旅游示范城市 GDP总量超1330亿元 }
-          - { name: 朔州, slug: shuozhou, note: 经济转型示范城市 GDP总量超1303亿元 }
+        lede: 按 2025 年地区生产总值从大到小排序，山西 11 个地级市，此处取前 10 名。
+        filter: { province: "山西省" }
+        metrics:
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+        note: 候选范围为本站已采集到 2025 年地区生产总值的山西城市（共 11 个，山西省统计局各市经济运行情况（统一核算结果））。
       - slug: guangdongshidachen
         title: 广东十大城市
         kind: computed
@@ -419,23 +400,15 @@ groups:
         metrics:
           - { field: gdp, weight: 1, dir: up, label: 地区生产总值, unit: 亿元 }
         note: 候选范围为本站已采集到 2025 年地区生产总值的广西城市（共 14 个，自治区统计局及各市统计口径）。
-      - slug: xinjiangshidacheng
+      - slug: "xinjiangshidacheng"
         title: 新疆十大城市
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 乌鲁木齐, slug: wulumuqi, note: 首府 西北中心城市 }
-          - { name: 伊犁, slug: yili, note: 北疆区域中心 丝绸之路经济带重要节点 }
-          - { name: 昌吉, slug: changji, note: 乌昌一体化核心区 GDP超2637亿元 }
-          - { name: 阿克苏, slug: akesu, note: 南疆产业高地 GDP超2042亿元 }
-          - { name: 喀什, slug: kashi, note: 南疆商贸物流中心 经济特区与自贸试验区 }
-          - { name: 巴音郭楞, slug: bayinguoleng, note: 南疆第一大经济体 GDP超1723亿元 }
-          - { name: 哈密, slug: hami, note: 新疆“东大门” GDP超1162亿元 }
-          - { name: 塔城, slug: tacheng, note: GDP超	1050亿元 农业和畜牧业发达 }
-          - { name: 克拉玛依, slug: kelamayi, note: 国家重要石油石化基地 GDP超863亿元 }
-          - { name: 吐鲁番, slug: tulufan, note: 特色文旅城市 GDP超668亿元 }
+        lede: 按 2025 年地区生产总值从大到小排序，新疆 14 个地州市，此处取前 10 名。
+        filter: { province: "新疆维吾尔自治区" }
+        metrics:
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+        note: 候选范围为本站已采集到 2025 年地区生产总值的新疆维吾尔城市（共 14 个，各地州统计公报；昌吉州政府 1—12 月经济运行情况、博州统计公报）。伊犁为伊犁哈萨克自治州全州口径（含塔城地区、阿勒泰地区），与同榜的塔城、阿勒泰存在口径重叠；喀什为喀什地区口径，不是喀什市。
       - slug: jinjiangshidaqiang
         title: 晋江十大强镇 晋江市镇区排名 晋江最发达的镇〔2026〕
         kind: "pending"
@@ -515,23 +488,15 @@ groups:
           - { name: 滨州, slug: binzhou, note: "" }
           - { name: 秦皇岛, slug: qinhuangdao, note: "" }
           - { name: 营口, slug: yingkou, note: "" }
-      - slug: gansushidachengshi
+      - slug: "gansushidachengshi"
         title: 甘肃十大城市
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 兰州, slug: lanzhou, note: 甘肃省会 Ⅰ型大城市 }
-          - { name: 庆阳, slug: qingyang, note: 石油煤炭资源型城市 GDP总量超1235亿元 }
-          - { name: 酒泉, slug: jiuquan, note: 省域副中心城市 GDP总量超1103亿元 }
-          - { name: 天水, slug: tianshui, note: 陇东南中心城市 GDP总量超980亿元 }
-          - { name: 武威, slug: wuwei, note: 河西走廊中心城市 GDP总量超802亿元 }
-          - { name: 定西, slug: dingxi, note: 陇中地区中心城市 GDP总量超793亿元 }
-          - { name: 白银, slug: baiyin, note: 兰白经济圈核心 GDP总量超789亿元 }
-          - { name: 平凉, slug: pingliang, note: 陇东重要节点 GDP总量超754亿元 }
-          - { name: 张掖, slug: zhangye, note: 河西走廊绿洲中心 GDP总量超734亿元 }
-          - { name: 陇南, slug: longnan, note: 甘肃南部枢纽 GDP总量超716亿元 }
+        lede: 按 2025 年地区生产总值从大到小排序，甘肃 14 个市州，此处取前 10 名。
+        filter: { province: "甘肃省" }
+        metrics:
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+        note: 候选范围为本站已采集到 2025 年地区生产总值的甘肃城市（共 14 个，甘肃省统计局各市经济运行情况（酒泉 1103.6、武威 802.3 等））。
       - slug: fujianjiudachengsh
         title: 福建九大城市
         kind: computed
@@ -541,109 +506,60 @@ groups:
         metrics:
           - { field: gdp, weight: 1, dir: up, label: 地区生产总值, unit: 亿元 }
         note: 候选范围为本站已采集到 2025 年地区生产总值的福建省城市（共 9 个，福建省统计局统一核算口径）。
-      - slug: xizangqidachengshi
+      - slug: "xizangqidachengshi"
         title: 西藏七大城市
-        kind: "pending"
+        kind: "computed"
         size: 7
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 7 条。
-        items:
-          - { name: 拉萨, slug: lasa, note: "" }
-          - { name: 日喀则, slug: rikaze, note: "" }
-          - { name: 山南, slug: shannan, note: "" }
-          - { name: 林芝, slug: linzhi, note: "" }
-          - { name: 昌都, slug: changdou, note: "" }
-          - { name: 阿里地区, slug: ali, note: "" }
-          - { name: 那曲, slug: naqu, note: "" }
-      - slug: guizhoujiudachengs
+        lede: 按 2025 年地区生产总值从大到小排序，覆盖西藏全部 7 个地市。
+        filter: { province: "西藏自治区" }
+        metrics:
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+        note: 候选范围为本站已采集到 2025 年地区生产总值的西藏城市（共 7 个，西藏自治区统计局地区生产总值统一核算结果）。
+      - slug: "guizhoujiudachengs"
         title: 贵州九大城市
-        kind: "pending"
+        kind: "computed"
         size: 9
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 9 条。
-        items:
-          - { name: 贵阳, slug: guiyang, note: 省会城市 西南重要中心城市 }
-          - { name: 遵义, slug: zunyi, note: 省域副中心 世界酱香酒都 }
-          - { name: 毕节, slug: bijie, note: 黔西北区域中心 GDP总量超2541亿元 }
-          - { name: 黔南州, slug: qiannanzhou, note: 黔中经济带重要节点 GDP总量超2008亿元 }
-          - { name: 六盘水, slug: liupanshui, note: 西南能源工业城市 GDP总量超1777亿元 }
-          - { name: 铜仁, slug: tongren, note: 生态资源型城市 GDP总量超1722亿元 }
-          - { name: 黔西南州, slug: qianxinanzhou, note: 西南能源基地 GDP总量超1535亿元 }
-          - { name: 黔东南州, slug: qiandongnanzhou, note: 贵州东南部中心城市 GDP总量超1500亿元 }
-          - { name: 安顺, slug: anshun, note: GDP总量超1232亿元 西部康养名城 }
-      - slug: liaoningshidacheng
+        lede: 按 2025 年地区生产总值从大到小排序，覆盖贵州全部 9 个市州。
+        filter: { province: "贵州省" }
+        metrics:
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+        note: 候选范围为本站已采集到 2025 年地区生产总值的贵州城市（共 9 个，各市州统计公报与省统一核算结果）。
+      - slug: "liaoningshidacheng"
         title: 辽宁十大城市
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 大连, slug: dalian, note: 副省级市 东北地区首个万亿GDP城市 }
-          - { name: 沈阳, slug: shenyang, note: 省会 副省级城市 }
-          - { name: 鞍山, slug: anshan, note: 辽中南地区中心城市 GDP超2180亿元 }
-          - { name: 营口, slug: yingkou, note: 沿海经济带重要节点 GDP超1570亿元 }
-          - { name: 盘锦, slug: panjin, note: 石油资源型城市 GDP超1417亿元 }
-          - { name: 锦州, slug: jinzhou, note: 辽西中心城市 GDP超1365亿元 }
-          - { name: 朝阳, slug: zhaoyang, note: 辽西北门户 GDP超1156亿元 }
-          - { name: 本溪, slug: benxi, note: 钢铁之都 GDP超1006亿元 }
-          - { name: 抚顺, slug: fushun, note: 沈阳经济区副中心 GDP超1003亿元 }
-          - { name: 丹东, slug: dandong, note: 边境口岸城市 GDP超1019亿元 }
+        lede: 按 2025 年地区生产总值从大到小排序，辽宁 14 个地级市，此处取前 10 名。
+        filter: { province: "辽宁省" }
+        metrics:
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+        note: 候选范围为本站已采集到 2025 年地区生产总值的辽宁城市（共 14 个，各市统计公报与省统一核算结果）。
       - slug: "shanxishidachengsh-2"
         title: 陕西十大城市
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 西安, slug: xian, note: 国家中心城市 世界文旅名城 }
-          - { name: 榆林, slug: yulin-sx, note: 能源之都 西部工业重镇 }
-          - { name: 咸阳, slug: xianyang, note: 西安都市圈核心城市 GDP总量超3104亿元 }
-          - { name: 宝鸡, slug: baoji, note: 关中平原城市群副中心 GDP总量超2648亿元 }
-          - { name: 延安, slug: yanan, note: 红色文化中心 GDP总量超2372亿元 }
-          - { name: 渭南, slug: weinan, note: 关中平原东部门户 人口大市/农业强市 }
-          - { name: 汉中, slug: hanzhong, note: 陕南中心城市 GDP总量超2003亿元 }
-          - { name: 安康, slug: ankang, note: 陕南生态宜居城市 GDP总量超1190亿元 }
-          - { name: 商洛, slug: shangluo, note: 秦岭生态核心区域 GDP总量超823亿元 }
-          - { name: 铜川, slug: tongchuan, note: 老工业基地转型代表城市 GDP总量超607亿元 }
-      - slug: qinghaibadachengsh
+        lede: 按 2025 年地区生产总值从大到小排序，覆盖陕西全部 10 个地级市。
+        filter: { province: "陕西省" }
+        metrics:
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+        note: 候选范围为本站已采集到 2025 年地区生产总值的陕西城市（共 10 个，各市统计公报与省统一核算结果）。
+      - slug: "qinghaibadachengsh"
         title: 青海八大城市
-        kind: "pending"
+        kind: "computed"
         size: 8
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 8 条。
-        items:
-          - { name: 西宁, slug: xining, note: "" }
-          - { name: 海西州, slug: haixizhou, note: "" }
-          - { name: 海东, slug: haidong, note: "" }
-          - { name: 海南州, slug: hainanzhou, note: "" }
-          - { name: 玉树州, slug: yushuzhou, note: "" }
-          - { name: 黄南州, slug: huangnanzhou, note: "" }
-          - { name: 海北州, slug: haibeizhou, note: "" }
-          - { name: 果洛州, slug: guoluozhou, note: "" }
-      - slug: heilongjiangshidac
+        lede: 按 2025 年地区生产总值从大到小排序，覆盖青海全部 8 个市州。
+        filter: { province: "青海省" }
+        metrics:
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+        note: 候选范围为本站已采集到 2025 年地区生产总值的青海城市（共 8 个，青海省统计局地区生产总值统一核算结果）。
+      - slug: "heilongjiangshidac"
         title: 黑龙江十大城市排行榜
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 哈尔滨, slug: haerbin, note: 省会 哈长城市群核心城市 }
-          - { name: 大庆, slug: daqing, note: 资源型经济支柱城市 GDP总量超2693亿元 }
-          - { name: 齐齐哈尔, slug: qiqihaer, note: 黑龙江西部中心城市 GDP总量超1402亿元 }
-          - { name: 绥化, slug: suihua, note: 农业大市 龙江粮仓 }
-          - { name: 牡丹江, slug: mudanjiang, note: 对俄贸易重要节点城市 GDP总量超1094亿元 }
-          - { name: 佳木斯, slug: jiamusi, note: 三江平原核心城市 GDP总量超1052亿元 }
-          - { name: 黑河, slug: heihe, note: 对俄边境城市 GDP总量超742亿元 }
-          - { name: 鸡西, slug: jixi, note: 煤炭资源型城市 GDP总量超648亿元 }
-          - { name: 双鸭山, slug: shuangyashan, note: 煤炭资源型城市 GDP总量超571亿元 }
-          - { name: 鹤岗, slug: hegang, note: 低成本定居之城 GDP总量超392亿元 }
-
-  # ============ 宜居与养老 ============
-  - key: livable
-    title: 宜居与养老
-    kicker: LIVABLE
-    desc: 居住适宜度与养老相关的榜单。
-    ranks:
+        lede: 按 2025 年地区生产总值从大到小排序，黑龙江 12 个地级市 + 大兴安岭地区，此处取前 10 名。
+        filter: { province: "黑龙江省" }
+        metrics:
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元" }
+        note: 候选范围为本站已采集到 2025 年地区生产总值的黑龙江城市（共 13 个，各地市统计公报与省统一核算结果）。
       - slug: shijiayijuchengshi
         title: 中国十佳宜居城市
         kind: "pending"
@@ -1244,7 +1160,7 @@ groups:
           - { name: 林芝, slug: linzhi, note: "" }
           - { name: 南京, slug: nanjing, note: "" }
           - { name: 青岛, slug: qingdao, note: "" }
-          - { name: 甘肃·甘南, slug: gansugannan, note: "" }
+          - { name: 甘南, slug: gannan, note: "" }
       - slug: "shiheyuelvyoudeshi-12"
         title: 国内适合5月旅游的十大城市
         kind: "pending"
