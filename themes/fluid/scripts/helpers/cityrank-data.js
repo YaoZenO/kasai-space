@@ -56,6 +56,86 @@ function normalize(x, min, max, dir, scale) {
 
 function round1(n) { return Math.round(n * 10) / 10; }
 
+// ---------------------------------------------------------------------------
+// 榜单与分组的排序规则（主人 2026-10-31 拍板，此前没有规则）
+//
+// 背景：yml 里的数组顺序就是当初抓取对标站的序号。后果是「晋江十大强镇」（镇级）
+// 插在「山东十大城市」和「江苏十大城市」之间，省级榜被外卖、富硒食品这类
+// 无关榜单打断——主人看到后直接问「这个是怎么排序的？」。
+// 所以这里把顺序**从数据算出来**，yml 的手写顺序不再决定页面顺序。
+//
+// 三层：
+//   第一层 可核验优先：computed（本站算得出）→ fact（权威名次）→ pending（观点性）
+//   第二层 空间尺度：nation（全国）→ province（省级）→ region（跨省区域）→ town（镇域）
+//   第三层 同级定序：省级按 GB/T 2260 行政区划代码，其余按登记序
+//
+// 组间：按「可核验榜占比」降序（占比相同比可核验榜数量），「待审」组固定垫底。
+// 判定数据来自两个字段：kind（已有）与 scope（由 tools/tag-cityrank-scope.js 标注）。
+// 两者任一缺失都排到该层末尾并会在测试里 FAIL（test/cityrank-e2e.js S16）。
+// ---------------------------------------------------------------------------
+
+const KIND_ORDER = { computed: 0, fact: 1, pending: 2 };
+const SCOPE_ORDER = { nation: 0, province: 1, region: 2, town: 3 };
+
+// GB/T 2260 省级行政区划代码（前两位），省级榜按它定序
+const PROVINCE_CODE = {
+  北京: 11, 天津: 12, 河北: 13, 山西: 14, 内蒙古: 15,
+  辽宁: 21, 吉林: 22, 黑龙江: 23,
+  上海: 31, 江苏: 32, 浙江: 33, 安徽: 34, 福建: 35, 江西: 36, 山东: 37,
+  河南: 41, 湖北: 42, 湖南: 43, 广东: 44, 广西: 45, 海南: 46,
+  重庆: 50, 四川: 51, 贵州: 52, 云南: 53, 西藏: 54,
+  陕西: 61, 甘肃: 62, 青海: 63, 宁夏: 64, 新疆: 65,
+  台湾: 71, 香港: 81, 澳门: 82
+};
+
+function provinceCode(rank) {
+  const src = (rank.filter && rank.filter.province) || rank.title || '';
+  for (const name of Object.keys(PROVINCE_CODE)) {
+    if (src.indexOf(name) !== -1) return PROVINCE_CODE[name];
+  }
+  return 999; // 认不出省份的省级榜落在该段末尾
+}
+
+function rankSortKey(r) {
+  return [
+    KIND_ORDER[r.kind] === undefined ? 9 : KIND_ORDER[r.kind],
+    SCOPE_ORDER[r.scope] === undefined ? 9 : SCOPE_ORDER[r.scope],
+    r.scope === 'province' ? provinceCode(r) : 0,
+    r._idx
+  ];
+}
+
+function compareKeys(a, b) {
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return a[i] - b[i];
+  }
+  return 0;
+}
+
+function sortRanks(ranks) {
+  return ranks.slice().sort((a, b) => compareKeys(rankSortKey(a), rankSortKey(b)));
+}
+
+function verifiableCount(g) {
+  return (g.ranks || []).filter((r) => r.kind === 'computed' || r.kind === 'fact').length;
+}
+
+function sortGroups(groups) {
+  return groups.slice().sort((a, b) => {
+    // 「待审」组固定垫底：它装的是等主人逐条审定的榜单，不该和数据榜抢位置
+    const pa = a.key === 'pending' ? 1 : 0;
+    const pb = b.key === 'pending' ? 1 : 0;
+    if (pa !== pb) return pa - pb;
+    const ra = verifiableCount(a) / ((a.ranks || []).length || 1);
+    const rb = verifiableCount(b) / ((b.ranks || []).length || 1);
+    if (rb !== ra) return rb - ra;
+    const ca = verifiableCount(a);
+    const cb = verifiableCount(b);
+    if (cb !== ca) return cb - ca;
+    return a._gi - b._gi;
+  });
+}
+
 // 说明列：只写数据事实，不写主观形容（CITY-RANK-CONTENT §3）。
 // 取权重最高的两个指标输出实际值，如「地区生产总值 56708.71 亿元 · 常住人口 2485.41 万人」。
 function reasonOf(metrics, values) {
@@ -154,6 +234,9 @@ function buildCityRanks(data) {
 
   const groupsIn = Array.isArray(cr.groups) ? cr.groups : [];
   const groups = [];
+  // 登记序：yml 里的原始下标，用作第三层排序的兜底（同一档内保持录入先后）
+  let gi = 0;
+  let ri = 0;
 
   // slug → 省份反查表（供名单类榜单补省份列）
   const provOf = {};
@@ -170,6 +253,8 @@ function buildCityRanks(data) {
           slug: r.slug,
           title: r.title,
           kind: 'computed',
+          scope: r.scope || '',
+          _idx: ri++,
           size: r.size || 10,
           lede: r.lede || '',
           metrics: r.metrics || [],
@@ -200,6 +285,8 @@ function buildCityRanks(data) {
           slug: r.slug,
           title: r.title,
           kind: r.kind === 'fact' ? 'fact' : 'pending',
+          scope: r.scope || '',
+          _idx: ri++,
           size: r.size || 10,
           lede: r.lede || '',
           metrics: [],
@@ -216,7 +303,9 @@ function buildCityRanks(data) {
       title: g.title,
       kicker: g.kicker || '',
       desc: g.desc || '',
-      ranks: ranks
+      _gi: gi++,
+      // 排序在 helper 里算，yml 的手写顺序不再决定页面顺序（2026-10-31 主人拍板）
+      ranks: sortRanks(ranks)
     });
   }
 
@@ -226,7 +315,7 @@ function buildCityRanks(data) {
   return {
     error: null,
     meta: cr.meta || {},
-    groups: groups,
+    groups: sortGroups(groups),
     cities: cities,
     cityCount: cities.length,
     rankCount: rankCount,
@@ -294,5 +383,9 @@ module.exports = {
   findRank: findRank,
   metricValue: metricValue,
   normalize: normalize,
-  computeRank: computeRank
+  computeRank: computeRank,
+  sortRanks: sortRanks,
+  sortGroups: sortGroups,
+  rankSortKey: rankSortKey,
+  provinceCode: provinceCode
 };

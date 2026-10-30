@@ -23,7 +23,7 @@ const path = require('node:path');
 const yaml = require('js-yaml');
 
 const {
-  buildCityRanks, findRank, findCity, normalize
+  buildCityRanks, findRank, findCity, normalize, sortRanks, provinceCode
 } = require('../themes/fluid/scripts/helpers/cityrank-data.js');
 
 const ROOT = path.join(__dirname, '..');
@@ -645,6 +645,133 @@ ok('S15 空气最好 / 污染最重两榜须保持 fact：年鉴 31 城覆盖不
   const withPm25 = (cities.cities || []).filter((c) => c.metrics && typeof c.metrics.pm25 === 'object');
   assert.ok(withPm25.length >= 25,
     'pm25 只有 ' + withPm25.length + ' 座城市，上一轮若没落库这条断言就失去意义');
+});
+
+// ---------- S16 排序规则（主人 2026-10-31 拍板） ----------
+// 起因：主人翻索引页时发现「晋江十大强镇」夹在省级十大城市榜中间，问「这个是怎么排序的？」
+// 答案是**没有规则**——yml 的数组顺序就是抓取序号。规则定下来之后必须有断言盯着，
+// 否则下一次新增榜又会按「往 yml 末尾一插」的老习惯写回去。
+console.log('\n排序规则（S16）');
+
+const SCOPES = ['nation', 'province', 'region', 'town'];
+const KIND_RANK = { computed: 0, fact: 1, pending: 2 };
+
+ok('S16 每个榜都必须带合法 scope（第二层排序依赖它）', () => {
+  for (const r of allRanks) {
+    assert.ok(SCOPES.indexOf(r.scope) !== -1, '榜 ' + r.slug + ' 的 scope 缺失或非法：' + r.scope + '（用 tools/tag-cityrank-scope.js 标注）');
+  }
+});
+
+ok('S16 组内第一层：可核验榜（computed / fact）必须全部排在观点性榜之前', () => {
+  for (const g of R.groups) {
+    let seenPending = false;
+    for (const r of g.ranks) {
+      if (r.kind === 'pending') seenPending = true;
+      else {
+        assert.ok(!seenPending,
+          '组 ' + g.key + '：' + r.slug + '（' + r.kind + '）排在观点性榜之后');
+      }
+    }
+  }
+});
+
+ok('S16 组内第二层：同一档内尺度只能 nation → province → region → town，不许回退', () => {
+  for (const g of R.groups) {
+    let curKind = null;
+    let last = -1;
+    for (const r of g.ranks) {
+      const k = KIND_RANK[r.kind];
+      if (k !== curKind) { curKind = k; last = -1; }
+      const cur = SCOPES.indexOf(r.scope);
+      assert.ok(cur >= last,
+        '组 ' + g.key + '：' + r.slug + ' 的尺度 ' + r.scope + ' 回退到 ' + (last >= 0 ? SCOPES[last] : '起点'));
+      last = cur;
+    }
+  }
+});
+
+ok('S16 组内第三层：同一档内的省级榜连成一段，且按 GB/T 2260 区划码递增', () => {
+  // 「连成一段」只在**同一档内**成立：第一层（可核验优先）优先于第二层，
+  // 所以 computed 的省级榜段与 pending 的省级榜段之间隔着 fact / pending 的全国榜，
+  // 那是规则本身的结果，不是缺陷（台湾六大城市是 pending，落在后一段的省级位置）。
+  for (const g of R.groups) {
+    for (const kind of Object.keys(KIND_RANK)) {
+      const idx = [];
+      g.ranks.forEach((r, i) => { if (r.scope === 'province' && r.kind === kind) idx.push(i); });
+      for (let i = 1; i < idx.length; i++) {
+        assert.strictEqual(idx[i], idx[i - 1] + 1,
+          '组 ' + g.key + '：' + kind + ' 档的省级榜被其它榜打断（' + g.ranks[idx[i - 1]].title + ' → ' + g.ranks[idx[i]].title + '）');
+        const a = provinceCode(g.ranks[idx[i - 1]]);
+        const b = provinceCode(g.ranks[idx[i]]);
+        assert.ok(b > a,
+          '组 ' + g.key + '：' + kind + ' 档省级榜未按区划码递增（' + g.ranks[idx[i - 1]].title + ' ' + a + ' → ' + g.ranks[idx[i]].title + ' ' + b + '）');
+      }
+    }
+  }
+  // 空转保护：至少有一个组的省级榜数量够多，否则这条断言等于没跑
+  const total = R.groups.reduce((n, g) => n + g.ranks.filter((r) => r.scope === 'province').length, 0);
+  assert.ok(total >= 20, '只覆盖到 ' + total + ' 条省级榜，断言可能空转');
+});
+
+ok('S16 镇域（town）榜只允许留在待审组，不进城市榜主序列', () => {
+  for (const g of R.groups) {
+    for (const r of g.ranks) {
+      if (r.scope === 'town') {
+        assert.strictEqual(g.key, 'pending', '镇域榜 ' + r.slug + ' 出现在 ' + g.key + ' 组，应只留在待审组');
+      }
+    }
+  }
+});
+
+ok('S16 组间：按可核验榜占比降序，待审组固定垫底', () => {
+  const gs = R.groups;
+  assert.strictEqual(gs[gs.length - 1].key, 'pending', '待审组不在最后一位');
+  const ratio = (g) => g.ranks.filter((r) => r.kind !== 'pending').length / (g.ranks.length || 1);
+  for (let i = 1; i < gs.length; i++) {
+    if (gs[i].key === 'pending') continue;
+    assert.ok(ratio(gs[i]) <= ratio(gs[i - 1]) + 1e-9,
+      '组顺序违反占比降序：' + gs[i - 1].key + ' ' + ratio(gs[i - 1]).toFixed(2) + ' 在 ' + gs[i].key + ' ' + ratio(gs[i]).toFixed(2) + ' 之前');
+  }
+});
+
+ok('S16 顺序由数据算出：颠倒 yml 输入顺序，输出顺序必须不变', () => {
+  // 这条是整套规则的根：顺序必须来自 kind / scope / 区划码，而不是 yml 里谁写在前面。
+  for (const g of R.groups) {
+    const a = g.ranks.map((r) => r.slug).join(',');
+    const b = sortRanks(g.ranks.slice().reverse()).map((r) => r.slug).join(',');
+    assert.strictEqual(b, a, '组 ' + g.key + ' 的顺序受输入顺序影响——排序没真正生效');
+  }
+});
+
+if (fs.existsSync(path.join(PUBLIC, 'cityrank', 'index.html'))) {
+  ok('S16 索引页的分组顺序与 helper 算出的顺序一致（产物层）', () => {
+    const html = fs.readFileSync(path.join(PUBLIC, 'cityrank', 'index.html'), 'utf8');
+    let prev = -1;
+    for (const g of R.groups) {
+      const i = html.indexOf(g.kicker);
+      assert.ok(i > prev, '索引页里 ' + g.kicker + '（' + g.title + '）没有排在上一组之后');
+      prev = i;
+    }
+  });
+}
+
+ok('自检：把镇域榜挪回综合与经济组必须被 S16 抓到', () => {
+  const bad = R.groups.map((g) => ({
+    key: g.key,
+    ranks: g.ranks.map((r) => Object.assign({}, r))
+  }));
+  const eco = bad.find((g) => g.key === 'economy');
+  const pen = bad.find((g) => g.key === 'pending');
+  const townIdx = pen.ranks.findIndex((r) => r.scope === 'town');
+  assert.ok(townIdx >= 0, '待审组里没有镇域榜，自检样本失效');
+  eco.ranks.push(pen.ranks.splice(townIdx, 1)[0]);
+  let caught = false;
+  for (const g of bad) {
+    for (const r of g.ranks) {
+      if (r.scope === 'town' && g.key !== 'pending') caught = true;
+    }
+  }
+  assert.ok(caught, '镇域榜混入经济组却没被判出来');
 });
 
 ok('自检：往 yml 里塞手写 rank 必须被 S1 抓到', () => {

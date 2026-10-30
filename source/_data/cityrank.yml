@@ -9,12 +9,12 @@
 #   4. pending 榜的名次与文案均来自公开榜单整理，非本站量化结果，上线后逐条审定。
 
 meta:
-  updated: "2026-10-30"
+  updated: "2026-10-31"
   title: "城市排行榜"
   kicker: "CITY RANK"
   intro: "本站整理的城市榜单。有权威标准的按权威标准来，没有权威标准但有可查证数据的由本站按公开指标计算，两者都没有的沿用公开榜单名次并在页面上标为观点性排名。"
   guideLabel: "主题导航"
-  guideNote: "榜单持续增补中；标为观点性排名的榜单未经量化核验。"
+  guideNote: "排序规则：先按可核验程度（本站算得出的 → 权威名次 → 观点性排名），再按空间尺度（全国 → 省级 → 区域），省级之间按行政区划代码排列；可核验榜单占比高的主题排在前面，「待审」组固定垫底。榜单持续增补中；标为观点性排名的榜单未经量化核验。"
 
 groups:
 
@@ -27,6 +27,7 @@ groups:
       - slug: "jingji-qiangshi"
         title: "中国十大经济强市"
         kind: "computed"
+        scope: "nation"
         size: 10
         lede: "以 2025 年地区生产总值排序，反映城市经济总量。"
         metrics:
@@ -35,6 +36,7 @@ groups:
       - slug: "renkou-dashi"
         title: "中国人口大市"
         kind: "computed"
+        scope: "nation"
         size: 10
         lede: "以 2025 年末全市常住人口总量排序，反映城市人口规模；常住人口含户籍人口与外来常住人口。"
         metrics:
@@ -43,6 +45,7 @@ groups:
       - slug: "zuijuxingfugan-chengshi"
         title: "中国最具幸福感城市"
         kind: "fact"
+        scope: "nation"
         size: 11
         lede: "名次引自新华社《瞭望东方周刊》「2025 最具幸福感城市」调查推选结果（2025-12-09 发布），非本站计算。"
         note: "权威评选结果，直接引用并注明年度与发布方；本榜不计算综合指数。"
@@ -61,6 +64,7 @@ groups:
       - slug: shidachuangyecheng
         title: 中国十大创业城市盘点
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -78,6 +82,7 @@ groups:
       - slug: shidajingjiqiangsh
         title: 中国十大经济强市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -95,6 +100,7 @@ groups:
       - slug: shidameihaoshenghu
         title: 中国十大美好生活城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -112,6 +118,7 @@ groups:
       - slug: shangbiaoshenqingl
         title: 中国商标申请量最多的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -129,6 +136,7 @@ groups:
       - slug: waimaiqishouzuiduo
         title: 中国外卖骑手最多的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -146,6 +154,7 @@ groups:
       - slug: kuaidiliangshidach
         title: 中国快递量十大城市
         kind: "computed"
+        scope: "nation"
         size: 10
         lede: 按 2025 年快递处理量（业务量＋投递量）从多到少排序，数据为国家邮政局 2025 年全年分城市统计。
         metrics:
@@ -154,6 +163,7 @@ groups:
       - slug: zuirongyizhuanqian
         title: 中国最容易赚钱十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -171,6 +181,7 @@ groups:
       - slug: zuimangludeshidach
         title: 中国最忙碌的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -188,6 +199,7 @@ groups:
       - slug: weilaifazhanqianli
         title: 中国未来发展潜力最大的10个城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -205,6 +217,7 @@ groups:
       - slug: zhianhaodeshidache
         title: 中国治安好的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -222,6 +235,7 @@ groups:
       - slug: xiaofeizuigaodeshi
         title: 中国消费最高的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -239,6 +253,7 @@ groups:
       - slug: guihuazuihaodeshid
         title: 中国规划最好的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -256,6 +271,7 @@ groups:
       - slug: yunnanshidachengsh
         title: 云南十大城市
         kind: computed
+        scope: "province"
         size: 10
         lede: 按 2025 年地区生产总值从大到小排序，覆盖云南省全部 16 个市州（含 8 个自治州），此处取前 10 名。
         filter: { province: 云南省 }
@@ -265,6 +281,7 @@ groups:
       - slug: "neimenggushidachen"
         title: 内蒙古十大城市
         kind: "computed"
+        scope: "province"
         size: 10
         lede: 按 2025 年地区生产总值从大到小排序，内蒙古 12 个盟市，此处取前 10 名。
         filter: { province: "内蒙古自治区" }
@@ -274,6 +291,7 @@ groups:
       - slug: taiwanliudachengsh
         title: 中国台湾地区六大城市
         kind: "pending"
+        scope: "province"
         size: 6
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 6 条。
@@ -287,6 +305,7 @@ groups:
       - slug: sichuanshidachengs
         title: 四川十大城市
         kind: computed
+        scope: "province"
         size: 10
         lede: 按 2025 年地区生产总值从大到小排序，覆盖四川省全部 21 个市州（含 3 个自治州），此处取前 10 名。
         filter: { province: 四川省 }
@@ -296,6 +315,7 @@ groups:
       - slug: nagechengshidewaim
         title: 国内哪个城市的外卖量最大 全国外卖最多的10个城市盘点
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -313,6 +333,7 @@ groups:
       - slug: yangqizongbuzuiduo
         title: 央企总部最多的十大城市
         kind: "pending"
+        scope: "nation"
         size: 9
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 9 条。
@@ -329,6 +350,7 @@ groups:
       - slug: "ningxiawudachengsh"
         title: 宁夏五大城市
         kind: "computed"
+        scope: "province"
         size: 5
         lede: 按 2025 年地区生产总值从大到小排序，覆盖宁夏全部 5 个地级市。
         filter: { province: "宁夏回族自治区" }
@@ -338,6 +360,7 @@ groups:
       - slug: anhuishidachengshi
         title: 安徽十大城市
         kind: computed
+        scope: "province"
         size: 10
         lede: 按 2025 年地区生产总值从大到小排序，覆盖安徽省全部 16 个地级市，此处取前 10 名。
         filter: { province: 安徽省 }
@@ -347,6 +370,7 @@ groups:
       - slug: fuxishipin
         title: 富硒食品
         kind: "pending"
+        scope: "nation"
         size: 4
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 4 条。
@@ -358,6 +382,7 @@ groups:
       - slug: "shandongshidacheng"
         title: 山东十大城市
         kind: "computed"
+        scope: "province"
         size: 10
         lede: 按 2025 年地区生产总值从大到小排序，山东 16 个设区市中取前 10。
         filter: { province: "山东省" }
@@ -367,6 +392,7 @@ groups:
       - slug: "shanxishidachengsh"
         title: 山西十大城市
         kind: "computed"
+        scope: "province"
         size: 10
         lede: 按 2025 年地区生产总值从大到小排序，山西 11 个地级市，此处取前 10 名。
         filter: { province: "山西省" }
@@ -376,6 +402,7 @@ groups:
       - slug: guangdongshidachen
         title: 广东十大城市
         kind: computed
+        scope: "province"
         size: 10
         lede: 按 2025 年地区生产总值从大到小排序，覆盖广东省全部 21 个地级及以上城市，此处取前 10 名。
         filter: { province: 广东省 }
@@ -385,6 +412,7 @@ groups:
       - slug: guangxishidachengs
         title: 广西十大城市
         kind: computed
+        scope: "province"
         size: 10
         lede: 按 2025 年地区生产总值从大到小排序，覆盖广西全部 14 个地级市，此处取前 10 名。
         filter: { province: 广西壮族自治区 }
@@ -394,32 +422,17 @@ groups:
       - slug: "xinjiangshidacheng"
         title: 新疆十大城市
         kind: "computed"
+        scope: "province"
         size: 10
         lede: 按 2025 年地区生产总值从大到小排序，新疆 14 个地州市，此处取前 10 名。
         filter: { province: "新疆维吾尔自治区" }
         metrics:
           - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元", scale: "log" }
         note: 候选范围为本站已采集到 2025 年地区生产总值的新疆维吾尔城市（共 14 个，各地州统计公报；昌吉州政府 1—12 月经济运行情况、博州统计公报）。伊犁为伊犁哈萨克自治州全州口径（含塔城地区、阿勒泰地区），与同榜的塔城、阿勒泰存在口径重叠；喀什为喀什地区口径，不是喀什市。
-      - slug: jinjiangshidaqiang
-        title: 晋江十大强镇 晋江市镇区排名 晋江最发达的镇〔2026〕
-        kind: "pending"
-        size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 陈埭镇, slug: chendaizhen, note: "" }
-          - { name: 深沪镇, slug: shenhuzhen, note: "" }
-          - { name: 磁灶镇, slug: cizaozhen, note: "" }
-          - { name: 安海镇, slug: anhaizhen, note: "" }
-          - { name: 龙湖镇, slug: longhuzhen, note: "" }
-          - { name: 池店镇, slug: chidianzhen, note: "" }
-          - { name: 东石镇, slug: dongshizhen, note: "" }
-          - { name: 英林镇, slug: yinglinzhen, note: "" }
-          - { name: 金井镇, slug: jinjingzhen, note: "" }
-          - { name: 内坑镇, slug: neikengzhen, note: "" }
       - slug: "jiangsushidachengs"
         title: 江苏十大城市
         kind: "computed"
+        scope: "province"
         size: 10
         lede: 按 2025 年地区生产总值从大到小排序，江苏 13 个设区市中取前 10。
         filter: { province: "江苏省" }
@@ -429,6 +442,7 @@ groups:
       - slug: jiangxishidachengs
         title: 江西十大城市
         kind: computed
+        scope: "province"
         size: 10
         lede: 按 2025 年地区生产总值从大到小排序，覆盖江西省全部 11 个设区市，此处取前 10 名。
         filter: { province: 江西省 }
@@ -438,6 +452,7 @@ groups:
       - slug: "zhejiangshidacheng"
         title: 浙江十大城市
         kind: "computed"
+        scope: "province"
         size: 10
         lede: 按 2025 年地区生产总值从大到小排序，覆盖浙江省全部 11 个地级及以上城市。
         filter: { province: "浙江省" }
@@ -447,6 +462,7 @@ groups:
       - slug: "hubeishidachengshi"
         title: 湖北十大城市
         kind: "computed"
+        scope: "province"
         size: 10
         lede: 按 2025 年地区生产总值从大到小排序，湖北 17 个市州与省直辖单位中取前 10。
         filter: { province: "湖北省" }
@@ -456,6 +472,7 @@ groups:
       - slug: "hunanshidachengshi"
         title: 湖南十大城市
         kind: "computed"
+        scope: "province"
         size: 10
         lede: 按 2025 年地区生产总值从大到小排序，湖南 14 个市州中取前 10。
         filter: { province: "湖南省" }
@@ -465,6 +482,7 @@ groups:
       - slug: huanbohaidiqucheng
         title: 环渤海地区城市排名 环渤海有哪些城市 环渤海十三市盘点〔2026〕
         kind: "pending"
+        scope: "region"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -482,6 +500,7 @@ groups:
       - slug: "gansushidachengshi"
         title: 甘肃十大城市
         kind: "computed"
+        scope: "province"
         size: 10
         lede: 按 2025 年地区生产总值从大到小排序，甘肃 14 个市州，此处取前 10 名。
         filter: { province: "甘肃省" }
@@ -491,6 +510,7 @@ groups:
       - slug: fujianjiudachengsh
         title: 福建九大城市
         kind: computed
+        scope: "province"
         size: 9
         lede: 按 2025 年地区生产总值从大到小排序，覆盖福建省全部 9 个设区市。
         filter: { province: 福建省 }
@@ -500,6 +520,7 @@ groups:
       - slug: "xizangqidachengshi"
         title: 西藏七大城市
         kind: "computed"
+        scope: "province"
         size: 7
         lede: 按 2025 年地区生产总值从大到小排序，覆盖西藏全部 7 个地市。
         filter: { province: "西藏自治区" }
@@ -509,6 +530,7 @@ groups:
       - slug: "guizhoujiudachengs"
         title: 贵州九大城市
         kind: "computed"
+        scope: "province"
         size: 9
         lede: 按 2025 年地区生产总值从大到小排序，覆盖贵州全部 9 个市州。
         filter: { province: "贵州省" }
@@ -518,6 +540,7 @@ groups:
       - slug: "liaoningshidacheng"
         title: 辽宁十大城市
         kind: "computed"
+        scope: "province"
         size: 10
         lede: 按 2025 年地区生产总值从大到小排序，辽宁 14 个地级市，此处取前 10 名。
         filter: { province: "辽宁省" }
@@ -527,6 +550,7 @@ groups:
       - slug: "shanxishidachengsh-2"
         title: 陕西十大城市
         kind: "computed"
+        scope: "province"
         size: 10
         lede: 按 2025 年地区生产总值从大到小排序，覆盖陕西全部 10 个地级市。
         filter: { province: "陕西省" }
@@ -536,6 +560,7 @@ groups:
       - slug: "qinghaibadachengsh"
         title: 青海八大城市
         kind: "computed"
+        scope: "province"
         size: 8
         lede: 按 2025 年地区生产总值从大到小排序，覆盖青海全部 8 个市州。
         filter: { province: "青海省" }
@@ -545,6 +570,7 @@ groups:
       - slug: "heilongjiangshidac"
         title: 黑龙江十大城市排行榜
         kind: "computed"
+        scope: "province"
         size: 10
         lede: 按 2025 年地区生产总值从大到小排序，黑龙江 12 个地级市 + 大兴安岭地区，此处取前 10 名。
         filter: { province: "黑龙江省" }
@@ -554,6 +580,7 @@ groups:
       - slug: shijiayijuchengshi
         title: 中国十佳宜居城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -571,6 +598,7 @@ groups:
       - slug: shidayanglaoyijuch
         title: 中国十大养老宜居城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -588,6 +616,7 @@ groups:
       - slug: shidayijuchengshih
         title: 中国十大宜居城市汇总
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -605,6 +634,7 @@ groups:
       - slug: shidashiheyanglaoy
         title: 中国十大适合养老宜居的二线城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -622,6 +652,7 @@ groups:
       - slug: xibuzuiyijudegeche
         title: 中国西部最宜居的10个城市 西部宜居养老城市大盘点〔2026〕
         kind: "pending"
+        scope: "region"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -646,6 +677,7 @@ groups:
       - slug: zhongguozuimeixian
         title: 10个中国最美县城 国内最好看的10座小县城和县级市〔2026〕
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -663,6 +695,7 @@ groups:
       - slug: shidawuyilvyouchen
         title: 中国十大五一旅游城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -680,6 +713,7 @@ groups:
       - slug: shidayuandanlvyouc
         title: 中国十大元旦旅游城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -697,6 +731,7 @@ groups:
       - slug: shidadongjibingxue
         title: 中国十大冬季冰雪城市
         kind: "pending"
+        scope: "nation"
         size: 9
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 9 条。
@@ -713,6 +748,7 @@ groups:
       - slug: shidadongyoumingch
         title: 中国十大冬游名城
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -730,6 +766,7 @@ groups:
       - slug: shidayejingzuimeid
         title: 中国十大夜景最美的城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -747,6 +784,7 @@ groups:
       - slug: shidahanjiaremenlv
         title: 中国十大寒假热门旅游城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -764,6 +802,7 @@ groups:
       - slug: shidalvyouchengshi
         title: 中国十大旅游城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -781,6 +820,7 @@ groups:
       - slug: shidachunjilvyouch
         title: 中国十大春季旅游城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -798,6 +838,7 @@ groups:
       - slug: shidazuimeidijishi
         title: 中国十大最美地级市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -815,6 +856,7 @@ groups:
       - slug: shidazuimeichengsh
         title: 中国十大最美城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -832,6 +874,7 @@ groups:
       - slug: shidazuimeihaidaoc
         title: 中国十大最美海岛城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -849,6 +892,7 @@ groups:
       - slug: shidazuimeibianjin
         title: 中国十大最美边境城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -866,6 +910,7 @@ groups:
       - slug: shidawenquanchengs
         title: 中国十大温泉城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -883,6 +928,7 @@ groups:
       - slug: shidaremenitywalkc
         title: 中国十大热门Citywalk城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -900,6 +946,7 @@ groups:
       - slug: shidaqiujilvyouche
         title: 中国十大秋季旅游城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -917,6 +964,7 @@ groups:
       - slug: daluhaianxianzuizh
         title: 中国大陆海岸线最长的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -934,6 +982,7 @@ groups:
       - slug: haidaozuiduodeshid
         title: 中国海岛最多的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -951,6 +1000,7 @@ groups:
       - slug: lvhuazuimeidecheng
         title: 中国绿化最美的城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -968,6 +1018,7 @@ groups:
       - slug: shiheyuelvyoudeshi
         title: 中国适合10月旅游的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -985,6 +1036,7 @@ groups:
       - slug: "shiheyuelvyoudeshi-2"
         title: 中国适合11月旅游的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1002,6 +1054,7 @@ groups:
       - slug: "shiheyuelvyoudeshi-3"
         title: 中国适合12月旅游的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1019,6 +1072,7 @@ groups:
       - slug: "shiheyuelvyoudeshi-4"
         title: 中国适合1月旅游的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1036,6 +1090,7 @@ groups:
       - slug: "shiheyuelvyoudeshi-5"
         title: 中国适合2月旅游的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1053,6 +1108,7 @@ groups:
       - slug: "shiheyuelvyoudeshi-6"
         title: 中国适合3月旅游的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1070,6 +1126,7 @@ groups:
       - slug: "shiheyuelvyoudeshi-7"
         title: 中国适合4月旅游的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1087,6 +1144,7 @@ groups:
       - slug: "shiheyuelvyoudeshi-8"
         title: 中国适合6月旅游的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1104,6 +1162,7 @@ groups:
       - slug: "shiheyuelvyoudeshi-9"
         title: 中国适合7月旅游的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1121,6 +1180,7 @@ groups:
       - slug: "shiheyuelvyoudeshi-10"
         title: 中国适合8月旅游的十个城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1138,6 +1198,7 @@ groups:
       - slug: "shiheyuelvyoudeshi-11"
         title: 中国适合9月旅游的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1155,6 +1216,7 @@ groups:
       - slug: "shiheyuelvyoudeshi-12"
         title: 国内适合5月旅游的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1172,6 +1234,7 @@ groups:
       - slug: lvyouchengshipandi
         title: 旅游城市盘点【汇总】
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1189,6 +1252,7 @@ groups:
       - slug: quanzhoulvyoujingd
         title: 泉州旅游景点大全【泉州景点】
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1213,6 +1277,7 @@ groups:
       - slug: shidashaokaochengs
         title: 中国十大烧烤城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1230,6 +1295,7 @@ groups:
       - slug: shidameishihuangmo
         title: 中国十大美食荒漠城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1247,6 +1313,7 @@ groups:
       - slug: zuiaihekafeideshiz
         title: 中国最爱喝咖啡的十座城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1264,6 +1331,7 @@ groups:
       - slug: zuinengchiladegech
         title: 中国最能吃辣的10个城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1281,6 +1349,7 @@ groups:
       - slug: meishizuiduodeshid
         title: 中国美食最多的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1305,6 +1374,7 @@ groups:
       - slug: xiabingbaozuiduode
         title: 中国下冰雹最多的十大省会城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1322,6 +1392,7 @@ groups:
       - slug: dongjizuizhangdesh
         title: 中国冬季最长的十个省会城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1339,6 +1410,7 @@ groups:
       - slug: shidaneilaochengsh
         title: 中国十大内涝城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1356,6 +1428,7 @@ groups:
       - slug: shidadongnuanxiali
         title: 中国十大冬暖夏凉的城市
         kind: "computed"
+        scope: "nation"
         size: 10
         lede: 以 1 月平均气温越高、7 月平均气温越低加权计算，两项各占一半权重。
         metrics:
@@ -1365,6 +1438,7 @@ groups:
       - slug: shidazuiaixiayudec
         title: 中国十大最爱下雨的城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条；PRD §2.1 要求本榜指标为年降水日数（rain_days），国家统计局《中国统计年鉴 2025》表 8-6 为年降水量（毫米），口径不合。本站已落库的 precip 只用于城市档案页，不用于本榜；待取得 rain_days 权威数据后再转 computed。
@@ -1382,6 +1456,7 @@ groups:
       - slug: shidazuijingchangd
         title: 中国十大最经常打雷的省会城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1399,6 +1474,7 @@ groups:
       - slug: shidazuiqueshuidec
         title: 中国十大最缺水的城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1416,6 +1492,7 @@ groups:
       - slug: "shidalichidaozuiji"
         title: 中国十大离赤道最近的城市
         kind: "computed"
+        scope: "nation"
         size: 10
         lede: 按纬度从低到高排序，纬度越低越靠近赤道。数据为国家基本气象站纬度。
         metrics:
@@ -1424,6 +1501,7 @@ groups:
       - slug: shidagaowendedache
         title: 中国十大高温的大城市
         kind: "computed"
+        scope: "nation"
         size: 10
         lede: 以 7 月平均气温从高到低排序，反映夏季炎热程度。
         metrics:
@@ -1432,6 +1510,7 @@ groups:
       - slug: rizhaozuizhangdesh
         title: 中国日照最长的十大省会城市
         kind: "computed"
+        scope: "nation"
         size: 10
         lede: 以全年日照时数从多到少排序，范围限省会及自治区首府城市。
         filter: { level: "省会" }
@@ -1441,6 +1520,7 @@ groups:
       - slug: zuihanlengdeshigec
         title: 中国最寒冷的十个城市
         kind: "computed"
+        scope: "nation"
         size: 10
         lede: 以 1 月平均气温从低到高排序，1 月越冷名次越前。
         metrics:
@@ -1449,6 +1529,7 @@ groups:
       - slug: jixuezuihoudeshida
         title: 中国积雪最厚的十大城市
         kind: "pending"
+        scope: "nation"
         size: 8
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 8 条。
@@ -1464,6 +1545,7 @@ groups:
       - slug: "mianjizuidadeshida"
         title: 中国面积最大的十大城市
         kind: "computed"
+        scope: "nation"
         size: 10
         lede: 按行政区域面积从大到小排序，面积越大名次越前。
         metrics:
@@ -1472,6 +1554,7 @@ groups:
       - slug: "mianjizuidadeshida-2"
         title: 中国面积最大的十大省会城市
         kind: "computed"
+        scope: "nation"
         size: 10
         lede: 按行政区域面积从大到小排序，范围限省会城市。
         filter: { level: "省会" }
@@ -1481,6 +1564,7 @@ groups:
       - slug: "mianjizuixiaodeshi"
         title: 中国面积最小的十大城市
         kind: "computed"
+        scope: "nation"
         size: 10
         lede: 按行政区域面积从小到大排序，面积越小名次越前。
         metrics:
@@ -1489,6 +1573,7 @@ groups:
       - slug: "mianjizuixiaodeshi-2"
         title: 中国面积最小的十大省会城市
         kind: "computed"
+        scope: "nation"
         size: 10
         lede: 按行政区域面积从小到大排序，范围限省会城市。
         filter: { level: "省会" }
@@ -1498,6 +1583,7 @@ groups:
       - slug: shandongmianjizuid
         title: 山东面积最大的十大地级市
         kind: "computed"
+        scope: "province"
         size: 10
         lede: 按行政区域面积从大到小排序，范围限山东省地级行政区。
         filter: { province: "山东省" }
@@ -1507,6 +1593,7 @@ groups:
       - slug: hunanmianjizuidade
         title: 湖南面积最大的十个地级市
         kind: "computed"
+        scope: "province"
         size: 10
         lede: 按行政区域面积从大到小排序，范围限湖南省地级行政区与自治州。
         filter: { province: "湖南省" }
@@ -1523,6 +1610,7 @@ groups:
       - slug: shidabuyidizhenche
         title: 中国十大不易地震城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1540,6 +1628,7 @@ groups:
       - slug: shidazuiganjingdec
         title: 中国十大最干净的城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1557,6 +1646,7 @@ groups:
       - slug: senlinfugailvzuiga
         title: 中国森林覆盖率最高的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1574,6 +1664,7 @@ groups:
       - slug: huanjingzuihaodesh
         title: 中国环境最好的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1591,6 +1682,7 @@ groups:
       - slug: kongqizuihaodeshid
         title: 中国空气最好的十大城市
         kind: "fact"
+        scope: "nation"
         size: 10
         lede: 名次引自生态环境部公布的 2025 年 1—9 月 168 个重点城市空气质量状况，取空气质量较好的前 20 位中的前 10 座，按官方公布顺序排列，非本站计算。
         note: 数据来源：中华人民共和国生态环境部《2025 年 9 月和 1—9 月全国环境空气质量状况》。
@@ -1608,6 +1700,7 @@ groups:
       - slug: kongqiwuranzuiyanz
         title: 中国空气污染最严重的十大城市
         kind: "fact"
+        scope: "nation"
         size: 10
         lede: 名次引自生态环境部公布的 2025 年 1—9 月 168 个重点城市空气质量状况，取空气质量较差的后 20 位中的前 10 座，按官方公布顺序排列，非本站计算。
         note: 数据来源：中华人民共和国生态环境部《2025 年 9 月和 1—9 月全国环境空气质量状况》。
@@ -1630,6 +1723,7 @@ groups:
       - slug: yiliaoshuipingjiao
         title: 中国医疗水平较高的10座城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1647,6 +1741,7 @@ groups:
       - slug: shidatiyuzhixiang
         title: 中国十大体育之乡
         kind: "pending"
+        scope: "nation"
         size: 9
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 9 条。
@@ -1663,6 +1758,7 @@ groups:
       - slug: shidatiyuguanjunzh
         title: 中国十大体育冠军之城
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1680,6 +1776,7 @@ groups:
       - slug: shidatiyuchengshi
         title: 中国十大体育城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1697,6 +1794,7 @@ groups:
       - slug: shidafamingzhuanli
         title: 中国十大发明专利最多的城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1714,6 +1812,7 @@ groups:
       - slug: shidazuishiheliuxu
         title: 中国十大最适合留学城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1731,6 +1830,7 @@ groups:
       - slug: shidadianjingcheng
         title: 中国十大电竞城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1748,6 +1848,7 @@ groups:
       - slug: shidalanqiuchengsh
         title: 中国十大篮球城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1765,6 +1866,7 @@ groups:
       - slug: shidazuqiuchengshi
         title: 中国十大足球城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1782,6 +1884,7 @@ groups:
       - slug: shuangyiliudaxuezu
         title: 中国双一流大学最多十大城市
         kind: "computed"
+        scope: "nation"
         size: 10
         lede: 按「双一流」建设高校数量从多到少排序，数据为第二轮双一流名单（147 所）。
         metrics:
@@ -1790,6 +1893,7 @@ groups:
       - slug: benkedaxuebijiaodu
         title: 中国本科大学比较多的10个城市
         kind: "computed"
+        scope: "nation"
         size: 10
         lede: 按本科高校数量从多到少排序，数据为教育部全国高等学校名单。
         metrics:
@@ -1798,6 +1902,7 @@ groups:
       - slug: quanqiudianjingzhi
         title: 十大全球电竞之都
         kind: "pending"
+        scope: "nation"
         size: 8
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 8 条。
@@ -1820,6 +1925,7 @@ groups:
       - slug: shidaditiechengshi
         title: 中国十大地铁城市
         kind: "computed"
+        scope: "nation"
         size: 10
         lede: 按城市轨道交通运营里程从长到短排序，数据为交通运输部 2025 年末运营里程。
         metrics:
@@ -1828,6 +1934,7 @@ groups:
       - slug: zuizaokaitongditie
         title: 中国最早开通地铁的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1845,6 +1952,7 @@ groups:
       - slug: gaotiezhanzuiduode
         title: 全国高铁站最多的10个城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1862,6 +1970,7 @@ groups:
       - slug: "changjiangliuyushi"
         title: 长江流域十大港口城市排行
         kind: "computed"
+        scope: "nation"
         size: 10
         lede: 按港口货物吞吐量从大到小排序，数据为交通运输部 2025 年 1—10 月内河港口吞吐量。
         metrics:
@@ -1877,6 +1986,7 @@ groups:
       - slug: shidayirenmingming
         title: 中国十大以人名命名的城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1894,6 +2004,7 @@ groups:
       - slug: shidashaoshuminzuc
         title: 中国十大少数民族城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1911,6 +2022,7 @@ groups:
       - slug: shidacidou
         title: 中国十大瓷都
         kind: "pending"
+        scope: "nation"
         size: 8
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 8 条。
@@ -1926,6 +2038,7 @@ groups:
       - slug: lishizuigulaodeshi
         title: 中国历史最古老的十座城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1950,6 +2063,7 @@ groups:
       - slug: dongbeishidalvyouc
         title: 东北十大旅游城市
         kind: "pending"
+        scope: "region"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1967,6 +2081,7 @@ groups:
       - slug: dongbushidalvyouch
         title: 中国东部十大旅游城市
         kind: "pending"
+        scope: "region"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -1984,6 +2099,7 @@ groups:
       - slug: zhongbushidalvyouc
         title: 中国中部十大旅游城市
         kind: "pending"
+        scope: "region"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -2001,6 +2117,7 @@ groups:
       - slug: beifangshidalvyouc
         title: 北方十大旅游城市
         kind: "pending"
+        scope: "region"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -2018,6 +2135,7 @@ groups:
       - slug: beifangzuiyijudesh
         title: 北方最宜居的十大城市 北方宜居城市排名 北方最舒服的城市〔2026〕
         kind: "pending"
+        scope: "region"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -2035,6 +2153,7 @@ groups:
       - slug: huadongshidalvyouc
         title: 华东十大旅游城市
         kind: "pending"
+        scope: "region"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -2052,6 +2171,7 @@ groups:
       - slug: huazhongshidalvyou
         title: 华中十大旅游城市
         kind: "pending"
+        scope: "region"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -2069,6 +2189,7 @@ groups:
       - slug: huabeishidalvyouch
         title: 华北十大旅游城市
         kind: "pending"
+        scope: "region"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -2086,6 +2207,7 @@ groups:
       - slug: huananshidalvyouch
         title: 华南十大旅游城市
         kind: "pending"
+        scope: "region"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -2103,6 +2225,7 @@ groups:
       - slug: huanandiqushidazui
         title: 华南地区十大最宜居的城市 华南最适合居住10个城市〔2026〕
         kind: "pending"
+        scope: "region"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -2120,6 +2243,7 @@ groups:
       - slug: nanfangshidalvyouc
         title: 南方十大旅游城市
         kind: "pending"
+        scope: "region"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -2137,6 +2261,7 @@ groups:
       - slug: nanfangzuiyijudeda
         title: 南方最宜居的10大城市 南方宜居城市排名 南方宜居养老城市〔2026〕
         kind: "pending"
+        scope: "region"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -2154,6 +2279,7 @@ groups:
       - slug: xibeishidalvyouche
         title: 西北十大旅游城市
         kind: "pending"
+        scope: "region"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -2171,6 +2297,7 @@ groups:
       - slug: xinanshidalvyouche
         title: 西南十大旅游城市
         kind: "pending"
+        scope: "region"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -2188,6 +2315,7 @@ groups:
       - slug: xibushidalvyouchen
         title: 西部十大旅游城市
         kind: "pending"
+        scope: "region"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -2212,6 +2340,7 @@ groups:
       - slug: qianduhushengzuiga
         title: 中国“迁都”呼声最高的10个城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -2229,6 +2358,7 @@ groups:
       - slug: shidayimeichengshi
         title: 中国十大医美城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -2246,6 +2376,7 @@ groups:
       - slug: shidayalizuidadech
         title: 中国十大压力最大的城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -2263,6 +2394,7 @@ groups:
       - slug: shidazuishishangch
         title: 中国十大最时尚城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -2280,6 +2412,7 @@ groups:
       - slug: shidalangmanchengs
         title: 中国十大浪漫城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -2297,6 +2430,7 @@ groups:
       - slug: danshennvxingzuidu
         title: 中国单身女性最多的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -2314,6 +2448,7 @@ groups:
       - slug: danshennanxingzuid
         title: 中国单身男性最多的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -2331,6 +2466,7 @@ groups:
       - slug: ditiekuisunzuiyanz
         title: 中国地铁亏损最严重的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -2348,6 +2484,7 @@ groups:
       - slug: cailizuigaodeshida
         title: 中国彩礼最高的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -2365,6 +2502,7 @@ groups:
       - slug: meinvzuiduodeshida
         title: 中国美女最多的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -2382,6 +2520,7 @@ groups:
       - slug: saoraodianhuazuidu
         title: 中国骚扰电话最多的十大城市
         kind: "pending"
+        scope: "nation"
         size: 10
         lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
@@ -2396,3 +2535,21 @@ groups:
           - { name: 西安, slug: xian, note: "" }
           - { name: 郑州, slug: zhengzhou, note: "" }
           - { name: 武汉, slug: wuhan, note: "" }
+      - slug: jinjiangshidaqiang
+        title: 晋江十大强镇 晋江市镇区排名 晋江最发达的镇〔2026〕
+        kind: "pending"
+        scope: "town"
+        size: 10
+        lede: 本榜收录的名次，整理自公开榜单。
+        note: 原榜共 10 条。
+        items:
+          - { name: 陈埭镇, slug: chendaizhen, note: "" }
+          - { name: 深沪镇, slug: shenhuzhen, note: "" }
+          - { name: 磁灶镇, slug: cizaozhen, note: "" }
+          - { name: 安海镇, slug: anhaizhen, note: "" }
+          - { name: 龙湖镇, slug: longhuzhen, note: "" }
+          - { name: 池店镇, slug: chidianzhen, note: "" }
+          - { name: 东石镇, slug: dongshizhen, note: "" }
+          - { name: 英林镇, slug: yinglinzhen, note: "" }
+          - { name: 金井镇, slug: jinjingzhen, note: "" }
+          - { name: 内坑镇, slug: neikengzhen, note: "" }
