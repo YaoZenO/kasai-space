@@ -130,10 +130,17 @@ body { font-family: var(--font-sans); }
 
 /* 标题轨（V4）：全站标题改无衬线——Archivo 拉丁 + 系统中文黑体。
    宋体系（--font-serif-title）只留给 .cal-page 单页例外；
-   此前文章标题/列表标题走宋体、页头走黑体，同一屏出现两套字体（D-1）。 */
+   此前文章标题/列表标题走宋体、页头走黑体，同一屏出现两套字体（D-1）。
+   2026-10-30 补全遗漏的三类标题（审查实测：wall-feature-title 46px、
+   关于/归档页 .page-head-title、.col-title 均落在正文轨 Nunito Sans，
+   与同屏 Archivo 的站名/文章标题形成两套标题字体——D-1 残留）。
+   .cal-page 的 serif 覆盖（.cal-page .col-title 等，特异性更高）不受影响。 */
 .post-head-title,
 .post-title,
 .pick-title,
+.wall-feature-title,
+.col-title,
+.page-head-title,
 .page-head-plain .page-head-title,
 .post-content .markdown-body h1,
 .post-content .markdown-body h2,
@@ -149,6 +156,18 @@ body { font-family: var(--font-sans); }
 .post-content .markdown-body h3,
 .post-content .markdown-body h4 {
   font-weight: 700;
+}
+
+/* 键盘焦点补偿（可访问性基线，2026-10-30）：
+   导航栏此前已逐点覆盖 :focus-visible，内容区链接/按钮（文章标题、
+   CTA、col-more 等）没有兜底——键盘用户在正文区拿不到焦点指示。
+   统一 2px 砖红 outline，与 --accent 单交互色一致；
+   :focus-visible 只在键盘导航时出现，不影响鼠标点击体验。 */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* ===== 3. 公共组件 ===== */
@@ -1090,6 +1109,56 @@ body.is-home footer {
   .home-end {
     flex-direction: column;
     gap: 0.6rem;
+  }
+}
+
+/* --- 移动端触控目标（2026-10-30，可访问性基线）---
+   390px 实测：CTA/col-more 19-22px、文章列表标题 17px、导航图标钮 30-34px、
+   导航链接 35px，全部低于 44px 触控最低线（Apple HIG / Material）。
+   两种手法：
+   1) 行内小链接用 ::after 扩大点击热区（inset 负值外扩），不改布局、
+      不动桌面端任何宽度；垂直外扩 -0.85rem（13.6px×2）保证 17px 行高也达 44px。
+      水平只外扩 0.2rem，避免盖到同行的日期/分类链接。
+   2) 导航图标钮 / 胶囊链接直接加 padding（导航本身有留白余量）。
+   仅 ≤767.98px 生效，桌面端视觉零改动。 */
+@media (max-width: 767.98px) {
+  .cta-link,
+  .col-more,
+  .wall-feature-more,
+  .post-row .post-title {
+    position: relative;
+  }
+
+  .cta-link::after,
+  .col-more::after,
+  .wall-feature-more::after,
+  .post-row .post-title::after {
+    content: "";
+    position: absolute;
+    inset: -0.85rem -0.2rem;
+  }
+
+  /* 实测 0.72rem 只到 39px，图标 16px 决定了下限——0.9rem×2+16 ≈ 45px */
+  #navbar .site-nav-actions .nav-link {
+    padding: 0.9rem 0.6rem;
+  }
+
+  #navbar .site-nav-list .nav-link {
+    padding: 0.65rem 0.95rem;
+  }
+
+  #navbar .site-nav-aux-link {
+    padding: 0.65rem 0.8rem;
+  }
+
+  /* 汉堡钮（button.navbar-toggler.site-nav-toggle，内含 26px 三条杠图标）：
+     Bootstrap 默认 .25rem padding 实测仅 34px 高 */
+  #navbar .site-nav-toggle {
+    padding: 0.75rem 0.75rem;
+  }
+
+  #navbar .site-nav-list .dropdown-menu .dropdown-item {
+    padding: 0.65rem 0.7rem;
   }
 }
 

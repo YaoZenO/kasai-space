@@ -85,12 +85,42 @@ const norm = (s) => String(s).replace(/\n+$/, '');
 // ---------- 备份 / 还原 ----------
 
 const BACKUP = {};
+
+// E-083 防复发：上一轮跑一半被中断（构建卡住 / 进程被杀）时，E2E 条目会留在数据文件里。
+// 下一轮直接 backup()，就会把「已污染的内容」当成原始基线，
+// 于是 restore() 原样写回污染内容，而「数据文件已完整还原」是与 BACKUP 比对的
+// 自证式断言——照样通过，污染就这么静默升级成基线。
+// 所以备份前先查一遍：文件里还带 E2E 标记就中止，逼着先把残留删干净再跑。
+const E2E_MARK = /(slug:\s*e2e-|example\.com)/i;
+
 function backup(name) {
-  BACKUP[name] = fs.readFileSync(path.join(DATA_DIR, name + '.yml'), 'utf8');
+  const p = path.join(DATA_DIR, name + '.yml');
+  const text = fs.readFileSync(p, 'utf8');
+  if (E2E_MARK.test(text)) {
+    console.error(
+      '\n✗ ' + name + '.yml 里残留上一轮的 E2E 测试数据（slug: e2e-* 或 example.com）。\n' +
+        '  先把这几行删掉再跑测试——否则本轮会把污染内容当成原始基线备份，\n' +
+        '  还原断言将形同虚设（E-083）。\n'
+    );
+    process.exit(1);
+  }
+  BACKUP[name] = text;
 }
 function restore(name) {
   if (BACKUP[name] != null) {
-    fs.writeFileSync(path.join(DATA_DIR, name + '.yml'), BACKUP[name], 'utf8');
+    const p = path.join(DATA_DIR, name + '.yml');
+    fs.writeFileSync(p, BACKUP[name], 'utf8');
+    // E-070 防复发（自校验兜底）：restore 曾经「写了但盘上没生效」（2026-10-30，
+    // 本地静态服务器占用 public/ 的会话里跑 E2E，残留留到了测试结束后），
+    // 而还原是否成功原本只由几十行之后的远端断言判断，报错点离病因很远。
+    // 现在写回后立即重读比对，不一致就地抛错——restore 失效绝不能静默。
+    const back = fs.readFileSync(p, 'utf8');
+    if (back !== BACKUP[name]) {
+      throw new Error(
+        'restore(' + name + ') 写回后重读不一致——文件被并发进程改写或写入被拦截。\n' +
+          '  跑 E2E 前必须停掉占用 public/ 或 source/_data 的本地服务（E-066 同类条件）。'
+      );
+    }
   }
 }
 
