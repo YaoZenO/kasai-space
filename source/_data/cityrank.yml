@@ -145,21 +145,12 @@ groups:
           - { name: 重庆, slug: chongqing, note: 重庆市 }
       - slug: kuaidiliangshidach
         title: 中国快递量十大城市
-        kind: "pending"
+        kind: "computed"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 金华, slug: jinhua, note: 快递 }
-          - { name: 广州, slug: guangzhou, note: "" }
-          - { name: 深圳, slug: shenzhen, note: 跨境电商 }
-          - { name: 上海, slug: shanghai, note: "" }
-          - { name: 揭阳, slug: jieyang, note: 服装 }
-          - { name: 东莞, slug: dongguan, note: "" }
-          - { name: 杭州, slug: hangzhou, note: "" }
-          - { name: 汕头, slug: shantou, note: "" }
-          - { name: 苏州, slug: suzhou, note: "" }
-          - { name: 成都, slug: chengdu, note: 港澳台 }
+        lede: 按 2025 年快递处理量（业务量＋投递量）从多到少排序，数据为国家邮政局 2025 年全年分城市统计。
+        metrics:
+          - { field: "express_handle", weight: 1.0, dir: "up", label: "2025 年快递处理量（业务量＋投递量）", unit: "万件", scale: "log" }
+        note: 数据来源：国家邮政局《2025 年邮政行业运行情况》快递处理量前 50 位城市情况表（2025 年全年，单位万件）。处理量＝快递业务量＋快递投递量，是一地寄出与收到的快递总和，不等同于单一「寄出」口径的业务量；国家邮政局年度发布只公开分城市「快递业务收入」与「快递处理量」两张表，年度分城市快递业务量表未公开，故本榜采用处理量口径。候选范围为本数据集中已采集到处理量的城市，未采集到的城市不参与本榜，不按 0 处理。
       - slug: zuirongyizhuanqian
         title: 中国最容易赚钱十大城市
         kind: "pending"

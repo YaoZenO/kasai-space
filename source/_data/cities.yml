@@ -58,12 +58,16 @@ sources:
   - key: "areaSD2018"
     name: "山东省统计局《山东统计年鉴2021》表 12-7 各市土地利用情况（2018 年）土地调查面积（公顷换算为平方公里；济南市含 2019 年并入的原莱芜市）"
     asOf: "2018"
+  - key: "expressSPB2025"
+    name: "国家邮政局《2025 年邮政行业运行情况》快递处理量前 50 位城市情况表（2025 年全年，单位万件；处理量＝快递业务量＋快递投递量）"
+    asOf: "2025"
 cities:
   - name: 北京
     slug: beijing
     province: 北京市
     level: 直辖市
     metrics:
+      express_handle: { v: 845100.3, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 290, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 31, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       sun_hours: { v: 2471.3, unit: "小时", asOf: "2024", source: "climateNBS2024" }
@@ -82,6 +86,7 @@ cities:
     province: 浙江省
     level: 省会
     metrics:
+      express_handle: { v: 796104, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 299, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 30, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       pop: { v: 1270, unit: "万人", asOf: "2025", source: "pop2025" }
@@ -99,6 +104,7 @@ cities:
     province: 上海市
     level: 直辖市
     metrics:
+      express_handle: { v: 1152822.4, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 323, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 28, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       sun_hours: { v: 1774.1, unit: "小时", asOf: "2024", source: "climateNBS2024" }
@@ -117,6 +123,7 @@ cities:
     province: 四川省
     level: 省会
     metrics:
+      express_handle: { v: 698957.6, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 296, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 32, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       sun_hours: { v: 1150, unit: "小时", asOf: "2024", source: "climateNBS2024" }
@@ -135,6 +142,7 @@ cities:
     province: 广东省
     level: 省会
     metrics:
+      express_handle: { v: 2189848.6, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 344, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 22, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       sun_hours: { v: 1622.2, unit: "小时", asOf: "2024", source: "climateNBS2024" }
@@ -153,6 +161,7 @@ cities:
     province: 江苏省
     level: 省会
     metrics:
+      express_handle: { v: 336789.3, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 314, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 28, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       area_km2: { v: 6587.04, unit: "平方公里", asOf: "2025", source: "areaGov" }
@@ -172,6 +181,7 @@ cities:
     province: 广东省
     level: 计划单列市
     metrics:
+      express_handle: { v: 1201663.5, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       latitude: { v: 22.5, unit: "°N", asOf: "2024", source: "lat2024" }
       universities: { v: 5, unit: "所", asOf: "2022", source: "uni2022" }
       double_first_class: { v: 1, unit: "所", asOf: "2022", source: "dfc2022" }
@@ -184,6 +194,7 @@ cities:
     province: 湖北省
     level: 省会
     metrics:
+      express_handle: { v: 547631.8, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 285, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 36, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       sun_hours: { v: 1972, unit: "小时", asOf: "2024", source: "climateNBS2024" }
@@ -202,6 +213,7 @@ cities:
     province: 重庆市
     level: 直辖市
     metrics:
+      express_handle: { v: 608954.5, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 329, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 34, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       sun_hours: { v: 1239, unit: "小时", asOf: "2024", source: "climateNBS2024" }
@@ -218,6 +230,7 @@ cities:
     province: 陕西省
     level: 省会
     metrics:
+      express_handle: { v: 486938.7, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 241, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 43, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       area_km2: { v: 10097.01, unit: "平方公里", asOf: "2025", source: "areaGov" }
@@ -236,6 +249,7 @@ cities:
     province: 福建省
     level: 计划单列市
     metrics:
+      express_handle: { v: 189683.2, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 536.5, unit: "万人", asOf: "2025", source: "pop2025" }
       gdp: { v: 8980.37, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       latitude: { v: 24.5, unit: "°N", asOf: "2024", source: "lat2024" }
@@ -247,6 +261,7 @@ cities:
     province: 江苏省
     level: 地级市
     metrics:
+      express_handle: { v: 785371.4, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 1304.77, unit: "万人", asOf: "2025", source: "pop2025" }
       port_cargo: { v: 5.09, unit: "亿吨", asOf: "2025", source: "port2025" }
       universities: { v: 8, unit: "所", asOf: "2022", source: "uni2022" }
@@ -259,6 +274,7 @@ cities:
     province: 湖南省
     level: 省会
     metrics:
+      express_handle: { v: 472437.8, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 304, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 40, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       area_km2: { v: 11816, unit: "平方公里", asOf: "2025", source: "areaGov" }
@@ -276,6 +292,7 @@ cities:
     province: 云南省
     level: 省会
     metrics:
+      express_handle: { v: 230657, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 365, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 20, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       pop: { v: 874.4, unit: "万人", asOf: "2025", source: "pop2025" }
@@ -292,6 +309,7 @@ cities:
     province: 山东省
     level: 计划单列市
     metrics:
+      express_handle: { v: 338509.3, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       area_km2: { v: 11293.36, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       pop: { v: 1051.55, unit: "万人", asOf: "2025", source: "pop2025" }
       sun_hours: { v: 2465.8, unit: "小时", asOf: "2024", source: "climateNBS2024" }
@@ -306,6 +324,7 @@ cities:
     province: 黑龙江省
     level: 省会
     metrics:
+      express_handle: { v: 231665.3, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 312, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 40, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       gdp: { v: 6188.51, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
@@ -355,6 +374,7 @@ cities:
     province: 天津市
     level: 直辖市
     metrics:
+      express_handle: { v: 478590.1, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 268, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 38, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       sun_hours: { v: 2656.2, unit: "小时", asOf: "2024", source: "climateNBS2024" }
@@ -384,6 +404,7 @@ cities:
     province: 河南省
     level: 省会
     metrics:
+      express_handle: { v: 559709, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 231, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 45, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       area_km2: { v: 7567, unit: "平方公里", asOf: "2025", source: "areaGov" }
@@ -401,6 +422,7 @@ cities:
     province: 吉林省
     level: 省会
     metrics:
+      express_handle: { v: 184065.6, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 328, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 33, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       pop: { v: 910.5, unit: "万人", asOf: "2025", source: "pop2025" }
@@ -417,6 +439,7 @@ cities:
     province: 辽宁省
     level: 省会
     metrics:
+      express_handle: { v: 334838.2, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 318, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 34, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       area_km2: { v: 12860, unit: "平方公里", asOf: "2025", source: "areaGov" }
@@ -440,6 +463,7 @@ cities:
     province: 福建省
     level: 省会
     metrics:
+      express_handle: { v: 246150.7, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 359, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 19, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       area_km2: { v: 11968.53, unit: "平方公里", asOf: "2025", source: "areaGov" }
@@ -504,6 +528,7 @@ cities:
     province: 江西省
     level: 省会
     metrics:
+      express_handle: { v: 257223.6, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 337, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 32, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       area_km2: { v: 7194.98, unit: "平方公里", asOf: "2025", source: "areaGov" }
@@ -520,6 +545,7 @@ cities:
     province: 广西壮族自治区
     level: 省会
     metrics:
+      express_handle: { v: 232639, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 354, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 25, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       pop: { v: 901.66, unit: "万人", asOf: "2025", source: "pop2025" }
@@ -536,6 +562,7 @@ cities:
     province: 浙江省
     level: 计划单列市
     metrics:
+      express_handle: { v: 386531.9, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 983.3, unit: "万人", asOf: "2025", source: "pop2025" }
       latitude: { v: 29.3, unit: "°N", asOf: "2024", source: "lat2024" }
       double_first_class: { v: 1, unit: "所", asOf: "2022", source: "dfc2022" }
@@ -557,6 +584,7 @@ cities:
     province: 广东省
     level: 地级市
     metrics:
+      express_handle: { v: 235091.1, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 619.3, unit: "万人", asOf: "2025", source: "pop2025" }
       gdp: { v: 6363.66, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 丽江
@@ -628,6 +656,7 @@ cities:
     province: 河北省
     level: 省会
     metrics:
+      express_handle: { v: 440449, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 236, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 46, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       pop: { v: 1124.69, unit: "万人", asOf: "2025", source: "pop2025" }
@@ -687,6 +716,7 @@ cities:
     province: 广东省
     level: 地级市
     metrics:
+      express_handle: { v: 862235, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 1080.04, unit: "万人", asOf: "2025", source: "pop2025" }
       universities: { v: 3, unit: "所", asOf: "2022", source: "uni2022" }
       double_first_class: { v: 0, unit: "所", asOf: "2022", source: "dfc2022" }
@@ -698,6 +728,7 @@ cities:
     province: 安徽省
     level: 省会
     metrics:
+      express_handle: { v: 383391.5, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 315, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 34, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       area_km2: { v: 11445, unit: "平方公里", asOf: "2025", source: "areaGov" }
@@ -720,6 +751,7 @@ cities:
     province: 浙江省
     level: 地级市
     metrics:
+      express_handle: { v: 316541.1, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       gdp: { v: 7851.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       port_cargo: { v: 1.26, unit: "亿吨", asOf: "2025", source: "port2025" }
   - name: 金华
@@ -727,6 +759,7 @@ cities:
     province: 浙江省
     level: 地级市
     metrics:
+      express_handle: { v: 2155310.1, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 726.9, unit: "万人", asOf: "2025", source: "pop2025" }
       gdp: { v: 7313.5, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 兰州
@@ -767,6 +800,7 @@ cities:
     province: 江苏省
     level: 地级市
     metrics:
+      express_handle: { v: 247611.1, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 753.74, unit: "万人", asOf: "2025", source: "pop2025" }
       universities: { v: 3, unit: "所", asOf: "2022", source: "uni2022" }
       metro_km: { v: 110.8, unit: "公里", asOf: "2025", source: "metro2025" }
@@ -789,6 +823,7 @@ cities:
     province: 山东省
     level: 省会
     metrics:
+      express_handle: { v: 258293.2, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 244, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 36, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       area_km2: { v: 10244.45, unit: "平方公里", asOf: "2025", source: "areaGov" }
@@ -812,6 +847,7 @@ cities:
     province: 浙江省
     level: 地级市
     metrics:
+      express_handle: { v: 288143.5, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 676, unit: "万人", asOf: "2025", source: "pop2025" }
       gdp: { v: 7005.9, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 威海
@@ -860,6 +896,7 @@ cities:
     province: 江苏省
     level: 地级市
     metrics:
+      express_handle: { v: 307325.1, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       port_cargo: { v: 1.9, unit: "亿吨", asOf: "2025", source: "port2025" }
       universities: { v: 3, unit: "所", asOf: "2022", source: "uni2022" }
       double_first_class: { v: 0, unit: "所", asOf: "2022", source: "dfc2022" }
@@ -874,6 +911,7 @@ cities:
     province: 浙江省
     level: 地级市
     metrics:
+      express_handle: { v: 260848, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 544.3, unit: "万人", asOf: "2025", source: "pop2025" }
       gdp: { v: 8932.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       metro_km: { v: 64.5, unit: "公里", asOf: "2025", source: "metro2025" }
@@ -886,6 +924,7 @@ cities:
     province: 山东省
     level: 地级市
     metrics:
+      express_handle: { v: 209823.1, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       area_km2: { v: 16167.24, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       gdp: { v: 8587.36, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 温州
@@ -893,6 +932,7 @@ cities:
     province: 浙江省
     level: 地级市
     metrics:
+      express_handle: { v: 440970.5, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 990.2, unit: "万人", asOf: "2025", source: "pop2025" }
       metro_km: { v: 52.5, unit: "公里", asOf: "2025", source: "metro2025" }
       gdp: { v: 10213.92, unit: "亿元", asOf: "2025", source: "gdp2025" }
@@ -907,6 +947,7 @@ cities:
     province: 广东省
     level: 地级市
     metrics:
+      express_handle: { v: 283982.3, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 457.23, unit: "万人", asOf: "2025", source: "pop2025" }
       gdp: { v: 4260.56, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       area_km2: { v: 1783, unit: "平方公里", asOf: "2025", source: "areaPub" }
@@ -943,6 +984,7 @@ cities:
     province: 广东省
     level: 地级市
     metrics:
+      express_handle: { v: 495760.4, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 979.19, unit: "万人", asOf: "2025", source: "pop2025" }
       universities: { v: 2, unit: "所", asOf: "2022", source: "uni2022" }
       double_first_class: { v: 0, unit: "所", asOf: "2022", source: "dfc2022" }
@@ -974,6 +1016,7 @@ cities:
     province: 山东省
     level: 地级市
     metrics:
+      express_handle: { v: 391505.4, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       area_km2: { v: 17191.21, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       gdp: { v: 6862.2, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 茂名
@@ -1309,6 +1352,7 @@ cities:
     province: 陕西省
     level: 地级市
     metrics:
+      express_handle: { v: 196256.6, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       gdp: { v: 3104.53, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       metro_km: { v: 10.7, unit: "公里", asOf: "2025", source: "metro2025" }
   - name: 西昌
@@ -1325,6 +1369,7 @@ cities:
     province: 江苏省
     level: 地级市
     metrics:
+      express_handle: { v: 236955.6, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       metro_km: { v: 95.1, unit: "公里", asOf: "2025", source: "metro2025" }
       gdp: { v: 9957.22, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 延安
@@ -1470,6 +1515,7 @@ cities:
     province: 河北省
     level: 地级市
     metrics:
+      express_handle: { v: 428076.5, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       gdp: { v: 5002.5, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 宝鸡
     slug: baoji
@@ -1512,6 +1558,7 @@ cities:
     province: 河北省
     level: 地级市
     metrics:
+      express_handle: { v: 190954.1, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       gdp: { v: 4930.9, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 昌吉
     slug: changji
@@ -1803,6 +1850,7 @@ cities:
     province: 广东省
     level: 地级市
     metrics:
+      express_handle: { v: 679658.6, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       gdp: { v: 2553.75, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 晋城
     slug: jincheng
@@ -1999,6 +2047,7 @@ cities:
     province: 福建省
     level: 地级市
     metrics:
+      express_handle: { v: 486965.6, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       double_first_class: { v: 0, unit: "所", asOf: "2022", source: "dfc2022" }
       gdp: { v: 13778.34, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 泉州十大博物馆纪念馆
@@ -2048,6 +2097,7 @@ cities:
     province: 河南省
     level: 地级市
     metrics:
+      express_handle: { v: 241764.4, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       gdp: { v: 3475.38, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 尚志
     slug: shangzhi
@@ -2063,6 +2113,7 @@ cities:
     province: 广东省
     level: 地级市
     metrics:
+      express_handle: { v: 530468.1, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       gdp: { v: 3023.83, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 汕头南澳
     slug: shantounanao
@@ -2271,6 +2322,7 @@ cities:
     province: 河北省
     level: 地级市
     metrics:
+      express_handle: { v: 238105.1, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       gdp: { v: 2800.8, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 兴义
     slug: xingyi
@@ -2683,6 +2735,7 @@ cities:
     province: 河北省
     level: 地级市
     metrics:
+      express_handle: { v: 323776.7, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       gdp: { v: 4040.5, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 抚州
     slug: fuzhou-jx
