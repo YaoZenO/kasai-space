@@ -2055,10 +2055,10 @@ groups:
           - { name: 北京, slug: beijing, note: "" }
 
   # ============ 省份与区域 ============
-  - key: province
-    title: 省份与区域
-    kicker: REGION
-    desc: 按省份或区域划分的城市榜单。
+  - key: region
+    title: 跨省区域
+    kicker: CROSS-REGION
+    desc: 跨省大区视角的城市榜单（华东、华南、西北、西南等），省级榜单不在此列——省级十大城市按统计口径归在「综合与经济」「气候与地理」各组内。
     ranks:
       - slug: dongbeishidalvyouc
         title: 东北十大旅游城市
