@@ -20,6 +20,12 @@
    color 配置下发，不走本文件 :root）；标题轨统一衬线（Fraunces 600 +
    宋体，--font-display 退出标题消费）；文章正文链接改墨色 + 细下划线
    （参考站行为），accent 只留交互态。--z-link 蓝仍只挂 .cal-page 术语链。
+   V6.0（2026-10-31 深夜，主人拍板「全盘照搬本地项目 Ties 的风格，不做任何保留」）：
+   色系整体迁到 Ties Liquid Glass 体系——ambient 冷调渐变底（#f6f7fb→#f1f3f8→#f4f2f7）、
+   墨 #1d1d25/#4c4c58/#858593、强调 #0a7cff（hover #0066e6）、蓝调阴影 rgba(31,38,80,…)；
+   标题轨并轨系统无衬线（Ties 同款字体栈，衬线退出）；黄/橙内容块改蓝色系；
+   导航胶囊与浮层玻璃化（半透明白 + backdrop blur + 白色高光描边）。
+   token 上游：D:/02_Projects/D0202_Personal/relationship/web/src/styles/tokens.css
    ============================================================ */
 
 /* ===== 1. 设计 tokens ===== */
@@ -51,12 +57,14 @@
 :root {
   /* 墨色 / 强调 —— 后台 source/admin/admin.css 的 --accent 与此等值，
      两处必须同步修改（见 ENGINEERING.md P2-3 与 test/css-tokens.js 锁定）。
-     V5.0：强调色取参考站朱红 #c4463a（原砖红 #b0482a） */
-  --accent: #c4463a;
+     V6.0：强调色取 Ties 品牌蓝 #0a7cff（hover/strong #0066e6） */
+  --accent: #0a7cff;
+  --accent-strong: #0066e6;
 
   /* 静态信息标记色（VD-11/A2）：计数 / 分类 / 类型词等静态信息用中性墨阶，
-     accent 只留给交互态。与次级色同值，纸底 #f7f6f4 上 4.97:1 达 AA */
-  --info-mark: #6b6b6b;
+     accent 只留给交互态。V6 取 Ties ink-2 #4c4c58（ambient 底 7.5:1 达 AA）；
+     ink-3 #858593 仅 3.3:1，只允许用于大字号或非文字场合 */
+  --info-mark: #4c4c58;
 
   /* 展示轨：拉丁品牌字与大数字；中文字符自动回退系统黑体（不进紧字距） */
   --font-display: "Archivo", "Arial Black", "PingFang SC", "HarmonyOS Sans SC", "MiSans",
@@ -76,23 +84,22 @@
   --font-serif-title: "Fraunces", "Songti SC", "STSong", "SimSun", "Source Han Serif SC",
     "Noto Serif CJK SC", Georgia, "Times New Roman", serif;
 
-  /* 块色（仅作内容入口卡底，整页 ≤2 处；落点由数据决定）
-     用字锁定：黄块 #e2bc6a 内只能用墨色（10.4:1）；
-     橙块 #c0491f 内只能用纸色（4.82:1）——加深后墨字仅 3.05:1，禁止照黄块模式用墨字 */
-  --block-yellow: #e2bc6a;
-  --block-orange: #c0491f;
+  /* 块色（V6 2026-10-31 主人拍板：黄/橙退役，全站蓝色系）
+     淡蓝块 rgba(10,124,255,.12) 内用墨色；品牌蓝块 #0a7cff 内用白色（3.6:1，大字/粗体达标） */
+  --block-yellow: rgba(10, 124, 255, 0.12);
+  --block-orange: #0a7cff;
 
   /* 等宽字体（元信息 / 日期 / 标签 / counter） */
   --font-mono: "Cascadia Code", "JetBrains Mono", Consolas, "SF Mono", Menlo, "Courier New", monospace;
 
-  /* 胶囊/浮层阴影 */
-  --site-float-shadow: 0 12px 32px -14px rgba(26, 26, 26, 0.28);
-  --site-chip-border: rgba(26, 26, 26, 0.10);
+  /* 胶囊/浮层阴影（V6：Ties 蓝调阴影 rgba(31,38,80,…)） */
+  --site-float-shadow: 0 12px 32px -14px rgba(31, 38, 80, 0.28);
+  --site-chip-border: rgba(29, 29, 37, 0.08);
 
   /* 组件标尺（VD-5 收口：原先只以 var(--x, fallback) 存在的 token 在此定义，
      从此改值只有单一入口；22px 大圆角已废止，不得扩散到首页入口格） */
-  --r-tile: 12px;
-  --r-card: 12px;
+  --r-tile: 16px;
+  --r-card: 16px;
   /* 主卡标题尺度档（E-041）。
      演进：3rem（10-18）→ 5.5rem（10-19 方向 B「字号断崖」）→ 3.4rem（10-21 回落）
      → 2.9rem（10-29 V4.0，见 DESIGN-REVIEW-2026-10-29.md §4.2）。
@@ -100,10 +107,10 @@
      仍为卡内最大字，但不越过站名（3.6rem）一档，与页头（2.6rem）形成 2.9/2.6
      的明确主次。375 档下限 2rem，主卡满栏宽时两行收得下 16 字标题。 */
   --fs-hero: clamp(2rem, 3.2vw, 2.9rem);
-  --cream: #fffefb;               /* 模块卡底：第三纸色 #f9f6f1 已废止 */
-  --ink-warm: #1a1a1a;
-  --cream-on-dark: #f7f6f4;
-  --line-strong: rgba(26, 26, 26, 0.24);
+  --cream: rgba(255, 255, 255, 0.66); /* V6：模块卡底改轻玻璃（半透明白，压在 ambient 渐变上） */
+  --ink-warm: #1d1d25;
+  --cream-on-dark: #f6f7fb;
+  --line-strong: rgba(29, 29, 37, 0.22);
   /* 两级分组线（方向 B，2026-10-19 显式命名）：
      --rule        区块分隔（页脚收尾 / 上下篇 / 标题下 / 详情页脚），2px、.24 墨、1.62:1——
                    与纸面 hairline 的 1.51:1 同口径（层级线，可辨识而非 3:1）
@@ -111,15 +118,15 @@
      拆开是为了让「两级」是设计而不是顺手取值；墨底区块用 --on-ink-line 保持 1px 行分隔对称 */
   --rule: var(--line-strong);
   --rule-strong: var(--text-color);
-  --accent-soft: rgba(196, 70, 58, 0.12); /* A4 定值 .12；原 pick-note fallback .28 视觉随之变浅 */
+  --accent-soft: rgba(10, 124, 255, 0.12); /* V6：Ties accent-soft 同值 */
 
   /* 方向 A：反色墨底整屏区块（2026-10-19 落地）。R-1 豁免允许每屏最多一个。
      用字锁定：墨底上一切文字用纸色及其透明度衍生（10.81:1 / 7.4:1，均过 AA），
      不引入第二彩色、不放装饰色块；新增第二个墨底区块需重新过 R-1 豁免。 */
-  --surface-ink: #1a1a1a;
-  --on-ink: #f7f6f4;
-  --on-ink-sec: rgba(247, 246, 244, .72);
-  --on-ink-line: rgba(247, 246, 244, .16);
+  --surface-ink: #1d1d25;
+  --on-ink: #f6f7fb;
+  --on-ink-sec: rgba(246, 247, 251, .72);
+  --on-ink-line: rgba(246, 247, 251, .16);
 
   /* V4 页壳顶距：首页与纸面页共用同一入口（D-10：原 clamp 散落各处） */
   --space-page-top: clamp(104px, 12vh, 136px);
@@ -132,7 +139,21 @@
 /* 全站正文栈（V3.3）：body 与文章正文统一走 --font-sans。
    主题 main.css 对 body / .markdown-body 声明了主题默认字体栈，
    特异性与本站相同，靠 site.css 后加载胜出（同 §4 竖标注释的原理）。 */
-body { font-family: var(--font-sans); }
+body {
+  font-family: var(--font-sans);
+  /* V6：底色交给下方 ambient 渐变伪元素（fixed，滚动不受影响）；本体透明，
+     主题 main.css 的 body 底色由此被本规则覆盖（同特异性后加载胜出） */
+  background-color: transparent;
+}
+html { background: #f1f3f8; }
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, #f6f7fb 0%, #f1f3f8 55%, #f4f2f7 100%);
+  pointer-events: none;
+}
 .markdown-body { font-family: var(--font-sans); }
 
 /* 标题轨（V5）：全站标题统一衬线——Fraunces 600（拉丁）+ 宋体系（中文），
@@ -162,15 +183,13 @@ body { font-family: var(--font-sans); }
   font-weight: 600;
 }
 
-/* 文章正文链接（V5，对齐参考站 .z-main .markdown-body a 的行为）：
-   墨色 + 细下划线，hover 转 accent。参考站的正文不放彩色文字链接，
-   蓝色（--z-link）只给术语链，红色只给交互态。 */
+/* 文章正文链接（V6）：Ties 品牌蓝 + 细下划线，hover 加深为 accent-strong */
 .post-content .markdown-body a {
-  color: var(--text-color);
+  color: var(--accent);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
-.post-content .markdown-body a:hover { color: var(--accent); }
+.post-content .markdown-body a:hover { color: var(--accent-strong); }
 
 /* Skip link（F-4，2026-10-31）：键盘用户 Tab 的第一站，直达正文。
    平时视觉隐藏，获得焦点时浮现于左上角（墨底纸字，与反色墨块同语）。 */
@@ -249,10 +268,10 @@ button:focus-visible,
   display: flex;
   border-radius: 999px;
   background-color: var(--navbar-bg-color);
-  -webkit-backdrop-filter: blur(14px) saturate(1.3);
-  backdrop-filter: blur(14px) saturate(1.3);
-  border: 1px solid var(--site-chip-border);
-  box-shadow: var(--site-float-shadow);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow: var(--site-float-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.6);
   padding: 0.3rem 0.35rem;
 }
 
@@ -289,9 +308,11 @@ button:focus-visible,
   min-width: 168px;
   margin-top: 0;
   padding: 0.45rem;
-  border: 1px solid var(--site-chip-border);
-  border-radius: 12px;
-  background-color: #fffefb;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 16px;
+  background-color: rgba(255, 255, 255, 0.82);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  backdrop-filter: blur(20px) saturate(1.5);
   box-shadow: var(--site-float-shadow);
 }
 
@@ -305,20 +326,20 @@ button:focus-visible,
 #navbar .site-nav-list .dropdown-menu .dropdown-item:hover,
 #navbar .site-nav-list .dropdown-menu .dropdown-item:focus-visible {
   color: var(--accent);
-  background-color: rgba(20, 20, 19, 0.05);
+  background-color: rgba(29, 29, 37, 0.05);
 }
 
 #navbar .site-nav-list .nav-link:hover,
 #navbar .site-nav-list .nav-link:focus-visible {
   color: var(--accent);
-  background-color: rgba(20, 20, 19, 0.05);
+  background-color: rgba(29, 29, 37, 0.05);
 }
 
 /* 当前页：深色实心胶囊（形状 + 颜色双编码） */
 #navbar .site-nav-list .nav-item.active .nav-link,
 #navbar .site-nav-list .nav-item.active .nav-link:hover {
-  color: #faf9f5;
-  background-color: #141413;
+  color: #f6f7fb;
+  background-color: #1d1d25;
 }
 
 /* 中列：主胶囊 + 辅助导航组（2026-10-25 主人要求：节假日 / 资料库与主胶囊错开独立）
@@ -366,14 +387,14 @@ button:focus-visible,
 #navbar .site-nav-aux-link:hover,
 #navbar .site-nav-aux-link:focus-visible {
   color: var(--accent);
-  background-color: rgba(20, 20, 19, 0.05);
+  background-color: rgba(29, 29, 37, 0.05);
 }
 
 /* 当前页：与主胶囊同一编码（深色实心），两处选中态一致 */
 #navbar .site-nav-aux-link.active,
 #navbar .site-nav-aux-link.active:hover {
-  color: #faf9f5;
-  background-color: #141413;
+  color: #f6f7fb;
+  background-color: #1d1d25;
 }
 
 /* 右侧操作区：搜索 + 移动端汉堡 */
@@ -446,13 +467,13 @@ button:focus-visible,
 }
 
 #mobile-grid-menu .mobile-grid-item {
-  background-color: rgba(20, 20, 19, 0.045);
+  background-color: rgba(29, 29, 37, 0.045);
   border: 1px solid var(--line-color);
 }
 
 #mobile-grid-menu .mobile-grid-item:hover,
 #mobile-grid-menu .mobile-grid-item:active {
-  background-color: rgba(20, 20, 19, 0.09);
+  background-color: rgba(29, 29, 37, 0.09);
 }
 
 #mobile-grid-menu .mobile-grid-group-header {
@@ -519,7 +540,7 @@ button:focus-visible,
   border-radius: 50%;
   overflow: hidden;
   border: 1px solid var(--line-strong);
-  background-color: rgba(20, 20, 19, 0.05);
+  background-color: rgba(29, 29, 37, 0.05);
   margin-bottom: 1.6rem;
 }
 
@@ -580,8 +601,8 @@ button:focus-visible,
   display: inline-block;
   padding: 0.66rem 1.45rem;
   border-radius: 6px;
-  background-color: #141413;
-  color: #faf9f5;
+  background-color: #1d1d25;
+  color: #f6f7fb;
   font-size: 0.92rem;
   font-weight: 600;
   line-height: 1.5;
@@ -590,7 +611,7 @@ button:focus-visible,
 
 .cta-solid:hover {
   background-color: var(--accent);
-  color: #fffefb;
+  color: #ffffff;
 }
 
 .cta-link {
@@ -623,8 +644,8 @@ button:focus-visible,
   justify-content: flex-end;
   border-radius: 12px;
   overflow: hidden;
-  background-color: #141413;
-  color: #faf9f5;
+  background-color: #1d1d25;
+  color: #f6f7fb;
   /* 2026-10-19 方向 B：hero 提到 5.5rem 后，原 clamp(1.5rem,2.6vw,2.4rem) 在 @1440 是 37px，
      加上 6 行标题把主卡撑到 976px、超出折叠线。padding 收到 24px 是方案 A 的一环
      （配 --fs-hero 的 8.5vh 上限与标题行高 1.04），四档实测见视觉线报告。 */
@@ -642,7 +663,7 @@ button:focus-visible,
 .wall-feature-mask {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(20, 20, 19, 0.06) 30%, rgba(20, 20, 19, 0.82) 100%);
+  background: linear-gradient(180deg, rgba(29, 29, 37, 0.06) 30%, rgba(29, 29, 37, 0.82) 100%);
 }
 
 .wall-feature-body {
@@ -669,7 +690,7 @@ button:focus-visible,
 }
 
 .wall-feature-meta a:hover {
-  color: #faf9f5;
+  color: #f6f7fb;
 }
 
 /* 尺度档演进（REVIEW §1.1 D-5 → 方向 B → E-041 回落）：
@@ -687,11 +708,11 @@ button:focus-visible,
 }
 
 .wall-feature-title a {
-  color: #faf9f5;
+  color: #f6f7fb;
 }
 
 .wall-feature-title a:hover {
-  color: #faf9f5;
+  color: #f6f7fb;
   text-decoration: underline;
 }
 
@@ -708,7 +729,7 @@ button:focus-visible,
   font-size: 0.85rem;
   font-weight: 700;
   letter-spacing: 0.06em;
-  color: #faf9f5;
+  color: #f6f7fb;
 }
 
 .wall-feature-more:hover {
@@ -743,7 +764,7 @@ a.wall-cell:hover {
 .wall-cell-mask {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(20, 20, 19, 0.04) 30%, rgba(20, 20, 19, 0.8) 100%);
+  background: linear-gradient(180deg, rgba(29, 29, 37, 0.04) 30%, rgba(29, 29, 37, 0.8) 100%);
 }
 
 .wall-cell-body {
@@ -757,7 +778,7 @@ a.wall-cell:hover {
 
 /* 照片格：压图白字（形态由 img+mask 结构判定） */
 .wall-cell-mask ~ .wall-cell-body {
-  color: #faf9f5;
+  color: #f6f7fb;
 }
 
 .wall-cell-tag {
@@ -774,15 +795,15 @@ a.wall-cell:hover {
   line-height: 1.4;
 }
 
-/* 色块格：黄 / 橙（对齐效果图 Projects / Games 入口） */
+/* 色块格：V6 改蓝色系（原黄/橙已退役；token 名保留防断链） */
 .cell-yellow {
   background-color: var(--block-yellow);
-  color: #141413;
+  color: #1d1d25;
 }
 
 .cell-orange {
   background-color: var(--block-orange);
-  color: #fffefb;
+  color: #ffffff;
 }
 
 .cell-yellow .wall-cell-count,
@@ -792,8 +813,8 @@ a.wall-cell:hover {
 
 /* 色块格内的条目小字不能沿用 --sec-text-color：
    黄底 #e2bc6a 上仅 3.1:1（P1-3 可访问性，仍不足 4.5:1），改用格内墨色/纸色 */
-.cell-yellow .wall-cell-item { color: #141413; }
-.cell-orange .wall-cell-item { color: #fffefb; }
+.cell-yellow .wall-cell-item { color: #1d1d25; }
+.cell-orange .wall-cell-item { color: #ffffff; }
 
 /* 排版格：纸底 hairline（非白底卡） */
 .cell-plain {
@@ -1543,9 +1564,9 @@ body.is-home footer {
 }
 
 #pagination .page-item.active .page-link {
-  background-color: #141413;
-  border-color: #141413;
-  color: #faf9f5;
+  background-color: #1d1d25;
+  border-color: #1d1d25;
+  color: #f6f7fb;
 }
 
 /* --- 4.4b 404 纸面页（2026-10-15 去 Banner 后）：自动跳转提示 --- */
@@ -1774,8 +1795,8 @@ body.is-home footer {
   max-width: min(92vw, 24rem);
   padding: 0.62rem 1rem;
   border-radius: 10px;
-  background-color: rgba(20, 20, 19, 0.94);
-  color: #fffefb;
+  background-color: rgba(29, 29, 37, 0.94);
+  color: #ffffff;
   font-size: 0.9rem;
   line-height: 1.5;
   text-align: center;
@@ -1800,7 +1821,7 @@ body.is-home footer {
   overflow: hidden;
   border: 1px solid var(--site-chip-border);
   box-shadow: var(--site-float-shadow);
-  background-color: rgba(20, 20, 19, 0.05);
+  background-color: rgba(29, 29, 37, 0.05);
 }
 
 .about-avatar-box img {
@@ -1837,7 +1858,7 @@ body.is-home footer {
 /* --- 4.8 搜索面板（保留 local-search.js 与 ID 契约，纸面化样式） --- */
 
 #modalSearch .modal-content {
-  background-color: #fffefb;
+  background-color: #ffffff;
   border: 1px solid var(--site-chip-border);
   border-radius: 12px;
   box-shadow: var(--site-float-shadow);
@@ -2080,7 +2101,7 @@ body.is-home footer {
   content: ""; position: absolute; inset: 0;
   background: repeating-linear-gradient(45deg, rgba(42,37,29,.045) 0 8px, transparent 8px 16px);
 }
-.games-tile-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: .5rem .7rem .55rem; background: rgba(20, 20, 19, .72); color: var(--cream-on-dark); }
+.games-tile-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: .5rem .7rem .55rem; background: rgba(29, 29, 37, .72); color: var(--cream-on-dark); }
 /* 标题强制单行 + ellipsis：折行会让 cap 高度不可预测，375 档会高过格子、削掉标题第一行
    （2026-10-19 实测：Esports Manager 2026 折两行 → cap 117.3 > 108）。 */
 .games-tile-title { display: block; font-weight: 700; font-size: .92rem; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -2191,12 +2212,14 @@ body.is-home footer {
    词语用蓝色标注，与参考站一致）。#1b5fc1 对参考站纸底 #f7f6f4 为 5.7:1，过 AA。
    蓝色只在本作用域内生效，不进 :root（test/zodiac-e2e.js 锁死边界）。 */
 .cal-page {
-  background: #f7f6f4;
-  --accent: #c4463a;
-  --text-color: #1a1a1a;
-  --sec-text-color: #6b6b6b;
-  --info-mark: #6b6b6b;
-  --z-link: #1b5fc1;
+  /* V6：参考站作用域与全站同体系——底色交给 ambient 渐变，token 与 :root 同值
+     （保留局部覆盖作为隔离层，改全站色时此处需同步） */
+  background: transparent;
+  --accent: #0a7cff;
+  --text-color: #1d1d25;
+  --sec-text-color: #4c4c58;
+  --info-mark: #4c4c58;
+  --z-link: #0a7cff;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
@@ -2214,7 +2237,7 @@ body.is-home footer {
 /* 拼音轨：Nunito Sans（参考站的 --pinyin 是 Avenir Next / Segoe UI 一系） */
 .cal-page .cal-pinyin {
   font-family: "Nunito Sans", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  color: #6b6b6b;
+  color: #4c4c58;
   letter-spacing: 0;
 }
 
@@ -2232,7 +2255,7 @@ body.is-home footer {
 }
 .cal-crumb a { color: var(--sec-text-color); }
 .cal-crumb a:hover { color: var(--accent); }
-.cal-crumb span { margin: 0 .38rem; color: rgba(26, 26, 26, 0.22); }
+.cal-crumb span { margin: 0 .38rem; color: rgba(29, 29, 37, 0.22); }
 .cal-crumb-now { color: var(--text-color); }
 
 /* 引导段（参考站 .hc-lede：17px / 行高 1.65 / 限宽 800px） */
@@ -2399,7 +2422,7 @@ body.is-home footer {
 
 /* 放假说明跟在区间与天数后面同行排（参考站同款），列宽不够时自然换行 */
 .cal-hint { font-size: .78rem; line-height: 1.6; color: var(--sec-text-color); }
-.cal-hint::before { content: "· "; color: rgba(26, 26, 26, 0.3); }
+.cal-hint::before { content: "· "; color: rgba(29, 29, 37, 0.3); }
 
 /* 调休上班日列：一个日期一行，两三个也不会挤成一坨 */
 .cal-makeup { white-space: nowrap; }
@@ -2446,10 +2469,10 @@ body.is-home footer {
   aspect-ratio: 1 / 1;
   /* 1.5px 圆角：参考站的格子就是微圆角，全方角在一屏小方块里显得更糙 */
   border-radius: 1.5px;
-  background: rgba(26, 26, 26, 0.06);
+  background: rgba(29, 29, 37, 0.06);
 }
 
-.cal-cell.is-weekend { background: rgba(26, 26, 26, 0.13); }
+.cal-cell.is-weekend { background: rgba(29, 29, 37, 0.13); }
 .cal-cell.is-holiday { background: var(--accent); }
 
 /* 一览聚焦（参考站 .hc-gl.is-hl）：悬停某个假期时，只留下属它的格子，其余降到 .28。
@@ -2457,7 +2480,7 @@ body.is-home footer {
 .cal-grid.is-hl .cal-cell { opacity: .28; }
 .cal-grid.is-hl .cal-cell.is-hl { opacity: 1; }
 /* 卡片正描述的那个格子：外圈墨线，聚焦时不被压淡 */
-.cal-cell.is-tip { box-shadow: 0 0 0 2px #f7f6f4, 0 0 0 3.5px var(--text-color); }
+.cal-cell.is-tip { box-shadow: 0 0 0 2px #f1f3f8, 0 0 0 3.5px var(--text-color); }
 .cal-grid.is-hl .cal-cell.is-tip { opacity: 1; }
 
 /* 左表对应行高亮（参考站 tr.is-hl 用 #fbf3f1） */
@@ -2466,7 +2489,7 @@ body.is-home footer {
 /* 调休上班：周末底色 + 一圈砖红内描边。2027 年数据为空时不渲染，
    官方通知发布后填入 makeup 即自动出现 */
 .cal-cell.is-makeup {
-  background: rgba(26, 26, 26, 0.13);
+  background: rgba(29, 29, 37, 0.13);
   box-shadow: inset 0 0 0 1.5px var(--accent);
 }
 
@@ -2486,7 +2509,7 @@ body.is-home footer {
   font-size: .75rem;
   line-height: 1;
   letter-spacing: -.03em;
-  color: #6b6b6b;
+  color: #4c4c58;
   /* 横排、不折行、左对齐：一格只有 1/31 宽（约 13px），不设 nowrap 的话
      "10" "15" 会被折成「1」在上「0」在下竖着排。允许溢出到右邻格，
      读数时按左边缘对齐，与参考站一致。 */
@@ -2509,10 +2532,10 @@ body.is-home footer {
 .cal-legend li { display: inline-flex; align-items: center; gap: .4rem; }
 .cal-swatch { display: block; width: 10px; height: 10px; }
 .cal-swatch.is-holiday { background: var(--accent); }
-.cal-swatch.is-weekend { background: rgba(26, 26, 26, 0.13); }
+.cal-swatch.is-weekend { background: rgba(29, 29, 37, 0.13); }
 
 .cal-swatch.is-makeup {
-  background: rgba(26, 26, 26, 0.13);
+  background: rgba(29, 29, 37, 0.13);
   box-shadow: inset 0 0 0 1.5px var(--accent);
 }
 
@@ -2547,11 +2570,11 @@ body.is-home footer {
   z-index: 1080;
   width: min(21rem, calc(100vw - 24px));
   padding: 0 0 1rem;
-  background: #f7f6f4;
-  border: 1px solid rgba(26, 26, 26, 0.12);
+  background: #ffffff;
+  border: 1px solid rgba(29, 29, 37, 0.12);
   border-radius: 12px;
   box-shadow: var(--site-float-shadow);
-  color: #1a1a1a;
+  color: #1d1d25;
   text-align: center;
 }
 
@@ -2584,27 +2607,27 @@ body.is-home footer {
   height: 24px;
   border: none;
   border-radius: 999px;
-  background: rgba(26, 26, 26, 0.45);
+  background: rgba(29, 29, 37, 0.45);
   color: #fff;
   font-size: 15px;
   line-height: 1;
   cursor: pointer;
 }
 
-.cal-panel-close:hover { background: rgba(26, 26, 26, 0.7); }
+.cal-panel-close:hover { background: rgba(29, 29, 37, 0.7); }
 
 .cal-panel-date {
   margin: 1rem 1.1rem 0;
   font-family: var(--font-mono);
   font-size: .78rem;
   letter-spacing: .06em;
-  color: #6b6b6b;
+  color: #4c4c58;
 }
 
 .cal-panel-lunar {
   margin: .18rem 1.1rem 0;
   font-size: .78rem;
-  color: #6b6b6b;
+  color: #4c4c58;
 }
 
 .cal-panel-kicker {
@@ -2612,7 +2635,7 @@ body.is-home footer {
   font-size: .75rem;
   font-weight: 700;
   letter-spacing: .12em;
-  color: #c4463a;
+  color: #0a7cff;
 }
 
 /* 参考站的卡片节日名走 --serif（拉丁 Fraunces + 中文宋体），这里对齐 */
@@ -2628,34 +2651,34 @@ body.is-home footer {
   margin: .1rem 1.1rem 0;
   font-family: "Nunito Sans", "Segoe UI", Roboto, Arial, sans-serif;
   font-size: .82rem;
-  color: #6b6b6b;
+  color: #4c4c58;
 }
 
 .cal-panel-dayno {
   margin: .5rem 1.1rem 0;
   font-family: var(--font-mono);
   font-size: .78rem;
-  color: #1a1a1a;
+  color: #1d1d25;
 }
 
 .cal-panel-desc {
   margin: .7rem 1.4rem 0;
   font-size: .84rem;
   line-height: 1.8;
-  color: #1a1a1a;
+  color: #1d1d25;
 }
 
-.cal-panel-extra { margin: .35rem 1.4rem 0; font-size: .78rem; line-height: 1.7; color: #6b6b6b; }
+.cal-panel-extra { margin: .35rem 1.4rem 0; font-size: .78rem; line-height: 1.7; color: #4c4c58; }
 
 .cal-panel-foot {
   margin: .9rem 1.1rem 0;
   padding-top: .7rem;
-  border-top: 1px solid rgba(26, 26, 26, 0.12);
+  border-top: 1px solid rgba(29, 29, 37, 0.12);
 }
 
 .cal-panel-foot[hidden] { display: none; }
-.cal-panel-arrange { font-family: var(--font-mono); font-size: .78rem; line-height: 1.6; color: #1a1a1a; }
-.cal-panel-stat { font-size: .78rem; line-height: 1.7; color: #6b6b6b; }
+.cal-panel-arrange { font-family: var(--font-mono); font-size: .78rem; line-height: 1.6; color: #1d1d25; }
+.cal-panel-stat { font-size: .78rem; line-height: 1.7; color: #4c4c58; }
 
 .cal-panel-link {
   display: block;
@@ -2663,7 +2686,7 @@ body.is-home footer {
   font-family: var(--font-mono);
   font-size: .75rem;
   letter-spacing: .06em;
-  color: #c4463a;
+  color: #0a7cff;
 }
 
 .cal-panel-link[hidden] { display: none; }
@@ -2915,7 +2938,7 @@ body.is-home footer {
   width: 100%;
   height: auto;
   border-radius: 12px;
-  background: rgba(26, 26, 26, 0.05);
+  background: rgba(29, 29, 37, 0.05);
 }
 
 .z-figure figcaption {
@@ -2965,11 +2988,11 @@ body.is-home footer {
 .z-main .markdown-body p { font-size: 0.98rem; line-height: 1.85; }
 .z-main .markdown-body h3 { font-size: 1.05rem; }
 .z-main .markdown-body a {
-  color: var(--text-color);
+  color: var(--accent);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
-.z-main .markdown-body a:hover { color: var(--accent); }
+.z-main .markdown-body a:hover { color: var(--accent-strong); }
 
 /* ---- 右栏目录 ---- */
 .z-toc {
@@ -3036,7 +3059,7 @@ body.is-home footer {
 .z-toc-list a.is-active {
   color: var(--text-color);
   font-weight: 700;
-  background: rgba(26, 26, 26, 0.05);
+  background: rgba(29, 29, 37, 0.05);
 }
 
 /* 进度环 + 已读百分比（SVG 圆环，stroke-dashoffset 由 JS 驱动） */
@@ -3149,7 +3172,7 @@ body.is-home footer {
   text-underline-offset: 2px;
 }
 
-.cal-page a.z-link:hover { color: var(--accent); }
+.cal-page a.z-link:hover { color: var(--accent-strong); }
 
 /* ---- 移动端：目录收起为悬浮按钮 + 底部抽屉（复刻参考站交互） ---- */
 .z-toc-fab,
@@ -3171,7 +3194,7 @@ body.is-home footer {
     padding: 0.55rem 0.9rem;
     border: 1px solid var(--site-chip-border);
     border-radius: 999px;
-    background: #fffefb;
+    background: rgba(255, 255, 255, 0.82);
     box-shadow: var(--site-float-shadow);
     font-size: 0.85rem;
     font-weight: 700;
@@ -3193,7 +3216,7 @@ body.is-home footer {
     position: fixed;
     inset: 0;
     z-index: 1060;
-    background: rgba(20, 20, 19, 0.32);
+    background: rgba(29, 29, 37, 0.32);
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -3217,8 +3240,8 @@ body.is-home footer {
     overflow-y: auto;
     padding: 0.9rem 1.1rem 1.4rem;
     border-radius: 16px 16px 0 0;
-    background: #f7f6f4;
-    box-shadow: 0 -12px 32px -14px rgba(20, 20, 19, 0.28);
+    background: #ffffff;
+    box-shadow: 0 -12px 32px -14px rgba(29, 29, 37, 0.28);
     transform: translateY(102%);
     transition: transform 0.22s ease;
   }
@@ -3303,7 +3326,7 @@ body.is-home footer {
 
 .lb-guide-list a:hover {
   color: var(--accent);
-  background-color: rgba(26, 26, 26, 0.05);
+  background-color: rgba(29, 29, 37, 0.05);
 }
 
 .lb-guide-count {
@@ -3348,7 +3371,7 @@ body.is-home footer {
   border-bottom: 1px solid var(--line-color);
 }
 
-.lb-entry a:hover { background-color: rgba(26, 26, 26, 0.04); }
+.lb-entry a:hover { background-color: rgba(29, 29, 37, 0.04); }
 
 .lb-entry-name {
   font-size: 0.98rem;
@@ -3449,7 +3472,7 @@ body.is-home footer {
   overflow: hidden;
   border: 1px solid var(--line-color);
   border-radius: var(--r-tile);
-  background: rgba(26, 26, 26, 0.03);
+  background: rgba(29, 29, 37, 0.03);
 }
 
 .fs-figure-media img {
@@ -3490,8 +3513,8 @@ body.is-home footer {
   inset: -30% -10%;
   transform: rotate(-24deg);
   background-image:
-    radial-gradient(circle, rgba(26, 26, 26, 0.15) 1.2px, transparent 1.4px),
-    radial-gradient(circle, rgba(26, 26, 26, 0.35) 1.2px, transparent 1.4px);
+    radial-gradient(circle, rgba(29, 29, 37, 0.15) 1.2px, transparent 1.4px),
+    radial-gradient(circle, rgba(29, 29, 37, 0.35) 1.2px, transparent 1.4px);
   background-size: 23px 23px, 11px 11px;
   /* 点阵铺满后用 mask 收束成中央斜带（严过关修正①：纸底色带改为 alpha mask，
      不与旋转后的坐标打架），两侧渐隐出纸底 */
@@ -3552,7 +3575,7 @@ body.is-home footer {
   right: 0;
   bottom: 30%;
   height: 1px;
-  background: rgba(26, 26, 26, 0.24);
+  background: rgba(29, 29, 37, 0.24);
 }
 
 .fs-figure--css[data-slug="yuandan"] .fs-fig-a {
@@ -3571,7 +3594,7 @@ body.is-home footer {
   right: 8%;
   bottom: 8%;
   height: 16%;
-  background: repeating-linear-gradient(180deg, rgba(26, 26, 26, 0.13) 0 1px, transparent 1px 10px);
+  background: repeating-linear-gradient(180deg, rgba(29, 29, 37, 0.13) 0 1px, transparent 1px 10px);
   -webkit-mask-image: linear-gradient(180deg, #000, transparent);
   mask-image: linear-gradient(180deg, #000, transparent);
 }
@@ -3655,7 +3678,7 @@ body.is-home footer {
   right: 0;
   top: 0;
   height: 70%;
-  background: repeating-linear-gradient(105deg, rgba(26, 26, 26, 0.1) 0 1px, transparent 1px 9px);
+  background: repeating-linear-gradient(105deg, rgba(29, 29, 37, 0.1) 0 1px, transparent 1px 9px);
 }
 
 /* 山影：后层（::before，alpha .10）+ 前层（本体，alpha .24）两段重叠三角 */
@@ -3665,7 +3688,7 @@ body.is-home footer {
   right: 0;
   bottom: 0;
   height: 46%;
-  background: rgba(26, 26, 26, 0.24);
+  background: rgba(29, 29, 37, 0.24);
   clip-path: polygon(0 100%, 20% 42%, 40% 76%, 58% 28%, 76% 68%, 100% 100%);
 }
 
@@ -3673,7 +3696,7 @@ body.is-home footer {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(26, 26, 26, 0.1);
+  background: rgba(29, 29, 37, 0.1);
   clip-path: polygon(0 100%, 30% 22%, 62% 88%, 84% 48%, 100% 100%);
 }
 
@@ -3703,7 +3726,7 @@ body.is-home footer {
   right: 6%;
   top: 40%;
   height: 26%;
-  background: repeating-linear-gradient(180deg, rgba(26, 26, 26, 0.13) 0 1px, transparent 1px 18px);
+  background: repeating-linear-gradient(180deg, rgba(29, 29, 37, 0.13) 0 1px, transparent 1px 18px);
 }
 
 /* 舟：下弧舟底；左端翘头由 ::before 小三角补一笔 */
@@ -3735,7 +3758,7 @@ body.is-home footer {
   bottom: 51%;
   width: 50%;
   height: 16%;
-  background: repeating-linear-gradient(90deg, rgba(26, 26, 26, 0.24) 0 2px, transparent 2px 14%);
+  background: repeating-linear-gradient(90deg, rgba(29, 29, 37, 0.24) 0 2px, transparent 2px 14%);
 }
 
 /* ⑥ 中秋「满月」（深场）：靛夜铺底 + 纸色满月带月坑 + 底部云带 */
@@ -3783,7 +3806,7 @@ body.is-home footer {
   top: 18%;
   width: 2px;
   height: 64%;
-  background: rgba(26, 26, 26, 0.24);
+  background: rgba(29, 29, 37, 0.24);
 }
 
 .fs-figure--css[data-slug="guoqing"] .fs-fig-a {
@@ -3803,7 +3826,7 @@ body.is-home footer {
   top: 26%;
   width: 12px;
   height: 12px;
-  background: #f7f6f4;
+  background: #ffffff;
   clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
 }
 
@@ -3938,7 +3961,7 @@ body.is-home footer {
   bottom: 0;
   width: 60%;
   height: 55%;
-  background: rgba(26, 26, 26, 0.1);
+  background: rgba(29, 29, 37, 0.1);
   clip-path: polygon(0 100%, 45% 12%, 92% 100%);
 }
 
@@ -3948,7 +3971,7 @@ body.is-home footer {
   bottom: 0;
   width: 55%;
   height: 42%;
-  background: rgba(26, 26, 26, 0.24);
+  background: rgba(29, 29, 37, 0.24);
   clip-path: polygon(0 100%, 55% 0, 100% 100%);
 }
 
@@ -3972,7 +3995,7 @@ body.is-home footer {
   top: 12%;
   width: 34px;
   height: 34px;
-  border: 1.5px solid rgba(26, 26, 26, 0.24);
+  border: 1.5px solid rgba(29, 29, 37, 0.24);
   border-radius: 50%;
 }
 
@@ -3989,7 +4012,7 @@ body.is-home footer {
   bottom: 16%;
   width: 2px;
   height: 56%;
-  background: rgba(26, 26, 26, 0.24);
+  background: rgba(29, 29, 37, 0.24);
   transform: rotate(15deg);
   transform-origin: bottom center;
 }
@@ -4001,7 +4024,7 @@ body.is-home footer {
   top: -8%;
   width: 2px;
   height: 16%;
-  background: rgba(26, 26, 26, 0.24);
+  background: rgba(29, 29, 37, 0.24);
   transform: rotate(-30deg);
   transform-origin: bottom center;
 }
@@ -4015,14 +4038,14 @@ body.is-home footer {
   bottom: 22%;
   background-image:
     radial-gradient(circle, var(--fs-fig-dongzhi) 99%, transparent),
-    radial-gradient(circle, transparent 3.5px, rgba(26, 26, 26, 0.24) 3.5px, rgba(26, 26, 26, 0.24) 5px, transparent 5.2px),
-    radial-gradient(circle, transparent 3.5px, rgba(26, 26, 26, 0.24) 3.5px, rgba(26, 26, 26, 0.24) 5px, transparent 5.2px),
-    radial-gradient(circle, transparent 3.5px, rgba(26, 26, 26, 0.24) 3.5px, rgba(26, 26, 26, 0.24) 5px, transparent 5.2px),
-    radial-gradient(circle, transparent 3.5px, rgba(26, 26, 26, 0.24) 3.5px, rgba(26, 26, 26, 0.24) 5px, transparent 5.2px),
-    radial-gradient(circle, transparent 3.5px, rgba(26, 26, 26, 0.24) 3.5px, rgba(26, 26, 26, 0.24) 5px, transparent 5.2px),
-    radial-gradient(circle, transparent 3.5px, rgba(26, 26, 26, 0.24) 3.5px, rgba(26, 26, 26, 0.24) 5px, transparent 5.2px),
-    radial-gradient(circle, transparent 3.5px, rgba(26, 26, 26, 0.24) 3.5px, rgba(26, 26, 26, 0.24) 5px, transparent 5.2px),
-    radial-gradient(circle, transparent 3.5px, rgba(26, 26, 26, 0.24) 3.5px, rgba(26, 26, 26, 0.24) 5px, transparent 5.2px);
+    radial-gradient(circle, transparent 3.5px, rgba(29, 29, 37, 0.24) 3.5px, rgba(29, 29, 37, 0.24) 5px, transparent 5.2px),
+    radial-gradient(circle, transparent 3.5px, rgba(29, 29, 37, 0.24) 3.5px, rgba(29, 29, 37, 0.24) 5px, transparent 5.2px),
+    radial-gradient(circle, transparent 3.5px, rgba(29, 29, 37, 0.24) 3.5px, rgba(29, 29, 37, 0.24) 5px, transparent 5.2px),
+    radial-gradient(circle, transparent 3.5px, rgba(29, 29, 37, 0.24) 3.5px, rgba(29, 29, 37, 0.24) 5px, transparent 5.2px),
+    radial-gradient(circle, transparent 3.5px, rgba(29, 29, 37, 0.24) 3.5px, rgba(29, 29, 37, 0.24) 5px, transparent 5.2px),
+    radial-gradient(circle, transparent 3.5px, rgba(29, 29, 37, 0.24) 3.5px, rgba(29, 29, 37, 0.24) 5px, transparent 5.2px),
+    radial-gradient(circle, transparent 3.5px, rgba(29, 29, 37, 0.24) 3.5px, rgba(29, 29, 37, 0.24) 5px, transparent 5.2px),
+    radial-gradient(circle, transparent 3.5px, rgba(29, 29, 37, 0.24) 3.5px, rgba(29, 29, 37, 0.24) 5px, transparent 5.2px);
   background-repeat: no-repeat;
   background-size: 10px 10px;
   background-position: 82% 2%, 30% 14%, 66% 26%, 24% 40%, 58% 52%, 16% 64%, 50% 76%, 8% 88%, 42% 96%;
@@ -4057,7 +4080,7 @@ body.is-home footer {
   right: 22%;
   bottom: 38%;
   height: 10%;
-  background: repeating-linear-gradient(90deg, rgba(26, 26, 26, 0.13) 0 1.5px, transparent 1.5px 10%);
+  background: repeating-linear-gradient(90deg, rgba(29, 29, 37, 0.13) 0 1.5px, transparent 1.5px 10%);
   -webkit-mask-image: linear-gradient(180deg, transparent, #000 55%);
   mask-image: linear-gradient(180deg, transparent, #000 55%);
 }
@@ -4284,7 +4307,7 @@ html:not(.js) .fs-years-toggle { display: none; }
 .fs-toc-list a.is-active {
   color: var(--text-color);
   font-weight: 700;
-  background: rgba(26, 26, 26, 0.05);
+  background: rgba(29, 29, 37, 0.05);
 }
 
 /* 进度环：= .z-ring 逐值（r=15.5、CIRC 97.4、rotate -90deg、0.1s linear） */
@@ -4340,7 +4363,7 @@ html:not(.js) .fs-years-toggle { display: none; }
     padding: 0.55rem 0.9rem;
     border: 1px solid var(--site-chip-border);
     border-radius: 999px;
-    background: #fffefb;
+    background: rgba(255, 255, 255, 0.82);
     box-shadow: var(--site-float-shadow);
     font-size: 0.85rem;
     font-weight: 700;
@@ -4362,7 +4385,7 @@ html:not(.js) .fs-years-toggle { display: none; }
     position: fixed;
     inset: 0;
     z-index: 1060;
-    background: rgba(20, 20, 19, 0.32);
+    background: rgba(29, 29, 37, 0.32);
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -4386,8 +4409,8 @@ html:not(.js) .fs-years-toggle { display: none; }
     overflow-y: auto;
     padding: 0.9rem 1.1rem 1.4rem;
     border-radius: 16px 16px 0 0;
-    background: #f7f6f4;
-    box-shadow: 0 -12px 32px -14px rgba(20, 20, 19, 0.28);
+    background: #ffffff;
+    box-shadow: 0 -12px 32px -14px rgba(29, 29, 37, 0.28);
     transform: translateY(102%);
     transition: transform 0.22s ease;
   }
@@ -4953,7 +4976,7 @@ html:not(.js) .fs-years-toggle { display: none; }
 /* 6.4 行内 code：主题 rgba(175,184,193,.2) 是冷灰，换墨色 8% 暖灰。
    背景变浅不影响墨字对比度（原 4.9:1 → 现约 12:1）。 */
 .markdown-body code {
-  background-color: rgba(20, 20, 19, 0.08);
+  background-color: rgba(29, 29, 37, 0.08);
   border-radius: 4px;
   padding: 0.1em 0.3em;
 }
@@ -4968,7 +4991,7 @@ html:not(.js) .fs-years-toggle { display: none; }
 /* 7.1 选中文字不再发红（规范 §6.2 配套）：砖红只留给交互与强调，
    选中是阅读行为不是交互行为，用墨色 12% 淡底 */
 ::selection {
-  background: rgba(20, 20, 19, 0.12);
+  background: rgba(29, 29, 37, 0.12);
   color: var(--text-color);
 }
 

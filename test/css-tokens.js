@@ -92,8 +92,8 @@ if (fs.existsSync(mainCssPath)) {
 
 // 方向 A：墨底整屏区块（2026-10-19 落地，R-1 豁免的唯一一处反相）
 ok('墨底 token 已定义（--surface-ink / --on-ink）', () => {
-  assert.match(siteCss, /--surface-ink:\s*#1a1a1a/, '缺少 --surface-ink');
-  assert.match(siteCss, /--on-ink:\s*#f7f6f4/, '缺少 --on-ink（墨底上的纸色）');
+  assert.match(siteCss, /--surface-ink:\s*#1d1d25/, '缺少 --surface-ink');
+  assert.match(siteCss, /--on-ink:\s*#f6f7fb/, '缺少 --on-ink（墨底上的 ambient 浅色）');
 });
 
 ok('墨底区块样式存在，且区块内不引入交互色', () => {

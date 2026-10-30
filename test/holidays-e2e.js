@@ -484,21 +484,20 @@ ok('site.css 注册了 Fraunces 与 Nunito Sans，且不含商业字体 Avenir',
     'site.css 的 font-family 里出现了 Avenir —— 那是 Monotype 的商业授权字体，不能随仓库分发');
 });
 
-ok('参考站配色全站统一（V5 2026-10-31 主人拍板）：:root 与 .cal-page 同值', () => {
+ok('Ties 冷调体系全站统一（V6 2026-10-31 主人拍板）：:root 与 .cal-page 同值', () => {
   const css = fs.readFileSync(path.join(ROOT, 'source/css/site.css'), 'utf8');
   const at = css.indexOf('.cal-page {');
   assert.ok(at !== -1, 'site.css 缺少 .cal-page 规则');
   const scoped = css.slice(at, css.indexOf('}', at));
-  assert.ok(scoped.indexOf('--accent: #c4463a') !== -1, '.cal-page 里没有 --accent #c4463a');
-  assert.ok(scoped.indexOf('background: #f7f6f4') !== -1, '.cal-page 没有参考站纸底 #f7f6f4');
+  assert.ok(scoped.indexOf('--accent: #0a7cff') !== -1, '.cal-page 里没有 --accent #0a7cff（Ties 品牌蓝）');
+  assert.ok(scoped.indexOf('background: transparent') !== -1, '.cal-page 未交出底色给 ambient 渐变（V6 应为 transparent）');
 
-  // 历史：本断言曾反向锁定「参考站配色不得写进 :root」（单页破例防溢出）。
-  // 2026-10-31 主人决定全站与节假日页统一，反向断言作废，改为正向锁定
-  // 全站 token 已取参考站值——防止未来漂移回两套皮肤。
+  // 历史：V4 反向锁「参考站色不进 :root」；V5 反转为正向锁定参考站值；
+  // V6 全站迁 Ties 冷调，继续正向锁定新值——防止漂移回两套皮肤。
   const rootAt = css.indexOf(':root {');
   const root = css.slice(rootAt, css.indexOf('}', rootAt));
-  assert.ok(/--accent:\s*#c4463a/.test(root), ':root 的 --accent 未统一为参考站朱红 #c4463a');
-  assert.ok(/--on-ink:\s*#f7f6f4/.test(root), ':root 的 --on-ink 未统一为参考站纸色 #f7f6f4');
+  assert.ok(/--accent:\s*#0a7cff/.test(root), ':root 的 --accent 未统一为 Ties 品牌蓝 #0a7cff');
+  assert.ok(/--on-ink:\s*#f6f7fb/.test(root), ':root 的 --on-ink 未统一为 ambient 浅色 #f6f7fb');
 });
 
 // 年份导航从 12 个变 16 个时，`.cal-years { flex: none }` 让它按 max-content 撑到

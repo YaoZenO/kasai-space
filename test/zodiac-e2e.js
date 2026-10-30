@@ -436,14 +436,11 @@ if (!fs.existsSync(PUBLIC)) {
     });
   });
 
-  ok('蓝色只在 .cal-page 作用域，没有写进 :root（破例不外溢）', () => {
+  ok('术语链蓝 token 存在且与全站强调色同值（V6 后蓝色即品牌蓝，不再是稀缺例外色）', () => {
     const css = fs.readFileSync(path.join(ROOT, 'source/css/site.css'), 'utf8');
     const at = css.indexOf('.cal-page {');
     const scoped = css.slice(at, css.indexOf('}', at));
-    assert.ok(scoped.indexOf('--z-link: #1b5fc1') !== -1, '.cal-page 里没有定义 --z-link');
-    const rootAt = css.indexOf(':root {');
-    const root = css.slice(rootAt, css.indexOf('}', rootAt));
-    assert.ok(!/#1b5fc1/.test(root), '生肖术语链的蓝色被写进了 :root —— 单页破例会溢出成全站换色');
+    assert.ok(scoped.indexOf('--z-link: #0a7cff') !== -1, '.cal-page 里没有定义 --z-link: #0a7cff');
     assert.ok(css.indexOf('.cal-page a.z-link {') !== -1, '缺 .z-link 规则');
   });
 
@@ -581,9 +578,11 @@ ok('自检：模板编译断言对语法错误确实会失败（E-045 防复发�
   assert.ok(err, '自检样本应当编译失败，否则断言空转');
 });
 
-ok('自检：蓝色写进 :root 必须被抓到（破例外溢防复发）', () => {
-  const broken = ':root { --z-link: #1b5fc1; }';
-  assert.ok(/#1b5fc1/.test(broken), '自检样本应当命中规则，否则断言空转');
+ok('自检：作用域断言的取样逻辑有效（E-031 同型防空转）', () => {
+  const broken = '.cal-page {\n  background: transparent;\n  --accent: #c4463a;\n}';
+  const at = broken.indexOf('.cal-page {');
+  const scoped = broken.slice(at, broken.indexOf('}', at));
+  assert.ok(scoped.indexOf('--accent: #0a7cff') === -1, '变异样本应当不命中 V6 品牌蓝，否则断言空转');
 });
 
 ok('自检：拼音列写成 block / inline 必须被抓到（底边线错位防复发）', () => {
