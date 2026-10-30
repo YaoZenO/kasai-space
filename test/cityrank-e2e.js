@@ -723,11 +723,13 @@ ok('S16 镇域（town）榜只允许留在待审组，不进城市榜主序列',
   }
 });
 
-ok('S16 组间：按可核验榜占比降序，待审组固定垫底', () => {
+ok('S16 组间：门面组置顶，其余按可核验榜占比降序，待审组固定垫底', () => {
   const gs = R.groups;
+  // 门面组例外（主人 2026-10-31 拍板）：综合与经济固定第一，不参与占比排序
+  assert.strictEqual(gs[0].key, 'economy', '门面组 economy 不在第一位');
   assert.strictEqual(gs[gs.length - 1].key, 'pending', '待审组不在最后一位');
   const ratio = (g) => g.ranks.filter((r) => r.kind !== 'pending').length / (g.ranks.length || 1);
-  for (let i = 1; i < gs.length; i++) {
+  for (let i = 2; i < gs.length; i++) {
     if (gs[i].key === 'pending') continue;
     assert.ok(ratio(gs[i]) <= ratio(gs[i - 1]) + 1e-9,
       '组顺序违反占比降序：' + gs[i - 1].key + ' ' + ratio(gs[i - 1]).toFixed(2) + ' 在 ' + gs[i].key + ' ' + ratio(gs[i]).toFixed(2) + ' 之前');

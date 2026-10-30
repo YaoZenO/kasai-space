@@ -120,12 +120,22 @@ function verifiableCount(g) {
   return (g.ranks || []).filter((r) => r.kind === 'computed' || r.kind === 'fact').length;
 }
 
+// 例外：门面组固定置顶（主人 2026-10-31 拍板）。
+// 「综合与经济」装的是板块的主榜（经济强市、人口大市、快递量…），按占比算它排第二，
+// 但它是这个板块的门面，位置不该被一个只有 18 条榜的组抢走。
+const PINNED_GROUP_KEYS = ['economy'];
+
 function sortGroups(groups) {
   return groups.slice().sort((a, b) => {
-    // 「待审」组固定垫底：它装的是等主人逐条审定的榜单，不该和数据榜抢位置
-    const pa = a.key === 'pending' ? 1 : 0;
-    const pb = b.key === 'pending' ? 1 : 0;
-    if (pa !== pb) return pa - pb;
+    // ① 门面组固定置顶（彼此之间按 yml 登记序）
+    const pa = PINNED_GROUP_KEYS.indexOf(a.key);
+    const pb = PINNED_GROUP_KEYS.indexOf(b.key);
+    if (pa !== pb) return (pa === -1 ? 99 : pa) - (pb === -1 ? 99 : pb);
+    if (pa !== -1 && pb !== -1) return a._gi - b._gi;
+    // ②「待审」组固定垫底：它装的是等主人逐条审定的榜单，不该和数据榜抢位置
+    const qa = a.key === 'pending' ? 1 : 0;
+    const qb = b.key === 'pending' ? 1 : 0;
+    if (qa !== qb) return qa - qb;
     const ra = verifiableCount(a) / ((a.ranks || []).length || 1);
     const rb = verifiableCount(b) / ((b.ranks || []).length || 1);
     if (rb !== ra) return rb - ra;
