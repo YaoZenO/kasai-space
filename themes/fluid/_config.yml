@@ -149,19 +149,20 @@ dark_mode:
 color:
   # body 背景色
   # Color of body background
-  body_bg_color: "#faf9f5"
+  # 2026-10-31（V5 统一）：主人拍板全站与节假日页参考站一致，纸底取 #f7f6f4
+  body_bg_color: "#f7f6f4"
   # 暗色模式下的 body 背景色，下同
   # Color in dark mode, the same below
   body_bg_color_dark: "#181c27"
 
   # 顶部菜单背景色
   # Color of navigation bar background
-  navbar_bg_color: "rgba(250, 249, 245, 0.88)"
+  navbar_bg_color: "rgba(247, 246, 244, 0.88)"
   navbar_bg_color_dark: "#1f3144"
 
   # 顶部菜单字体色
   # Color of navigation bar text
-  navbar_text_color: "#141413"
+  navbar_text_color: "#1a1a1a"
   navbar_text_color_dark: "#d0d0d0"
 
   # 副标题字体色
@@ -171,12 +172,12 @@ color:
 
   # 全局字体色
   # Color of global text
-  text_color: "#141413"
+  text_color: "#1a1a1a"
   text_color_dark: "#c4c6c9"
 
   # 全局次级字体色（摘要、简介等位置）
   # Color of global secondary text (excerpt, introduction, etc.)
-  sec_text_color: "#6b6862"
+  sec_text_color: "#6b6b6b"
   sec_text_color_dark: "#a7a9ad"
 
   # 主面板背景色
@@ -186,22 +187,23 @@ color:
 
   # 文章正文字体色（VD-1：回归全站墨色，文章页不再脱离暖纸体系）
   # Color of post text
-  post_text_color: "#141413"
+  post_text_color: "#1a1a1a"
   post_text_color_dark: "#c4c6c9"
 
-  # 文章正文字体色（h1 h2 h3...）（分层靠字重，不再用冷黑 #1a202c）
+  # 文章正文字体色（h1 h2 h3...）（分层靠字体轨与字重，不再用冷黑 #1a202c）
   # Color of Article heading (h1 h2 h3...)
-  post_heading_color: "#141413"
+  post_heading_color: "#1a1a1a"
   post_heading_color_dark: "#c4c6c9"
 
-  # 文章超链接字体色（VD-1：回归砖红，纸底 4.90:1 达 AA）
+  # 文章超链接字体色（V5 2026-10-31：对齐参考站——正文链接墨色 + 细下划线
+  # （下划线在 site.css .post-content .markdown-body a），hover 转 accent 朱红）
   # Color of post link
-  post_link_color: "#b0482a"
+  post_link_color: "#1a1a1a"
   post_link_color_dark: "#1589e9"
 
   # 超链接悬浮时字体色
   # Color of link when hovering
-  link_hover_color: "#b0482a"
+  link_hover_color: "#c4463a"
   link_hover_color_dark: "#30a9de"
 
   # 超链接悬浮背景色
@@ -422,9 +424,13 @@ navbar:
   # 放「工具 / 资料」性质的入口——不属于个人主页的内容板块，不进主胶囊。
   # 节假日原在「更多」下拉里，本次提出来；资料库为新增的聚合板块
   # （以后可收录各种专题，首期：十二生肖），替代原先直接暴露的「生肖」入口。
+  # 2026-10-31（F-3 整改）：生肖此前无任何导航入口（只能从节假日页跳），
+  # 城市榜/城市档案甚至无入口——一并收进辅助组，工具页不再有孤岛。
   aux_menu:
     - { key: "holidays", link: "/holidays/", name: "节假日" }
     - { key: "library", link: "/library/", name: "资料库" }
+    - { key: "zodiac", link: "/zodiac/", name: "生肖" }
+    - { key: "cityrank", link: "/cityrank/", name: "城市榜" }
 
 # 搜索功能，基于 hexo-generator-search 插件，若已安装其他搜索插件请关闭此功能，以避免生成多余的索引文件
 # Search feature, based on hexo-generator-search. If you have installed other search plugins, please disable this feature to avoid generating redundant index files
@@ -557,7 +563,7 @@ index:
 
     # 为空则按 hexo config.subtitle 显示，支持列表格式来实现随机选择一行文字显示
     # If empty, text based on `subtitle` in hexo config, support list format to random selection of a row for display
-    text: "欢迎来到我的个人博客!"
+    text: "欢迎来到我的个人空间!"
 
     # 通过 API 接口作为首页副标题的内容，必须返回的是 JSON 格式，如果请求失败则按 text 字段显示，该功能必须先开启 typing 打字机功能
     # Subtitle of the homepage through the API, must be returned a JSON. If the request fails, it will be displayed in `text` value. This feature must first enable the typing animation

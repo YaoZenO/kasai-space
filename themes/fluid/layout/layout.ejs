@@ -11,11 +11,15 @@ var colorSchema = theme.dark_mode && theme.dark_mode.enable && theme.dark_mode.d
 <body<%- is_home() ? ' class="is-home"' : '' %>>
   <%- inject_point('bodyBegin') %>
 
+  <%# F-4（2026-10-31）：skip link——键盘用户 Tab 第一站直达正文。
+      #main-content 锚点落在 <main> 上，tabindex=-1 使其可被程序聚焦。 %>
+  <a class="skip-link" href="#main-content">跳到主要内容</a>
+
   <header>
     <%- inject_point('header') %>
   </header>
 
-  <main>
+  <main id="main-content" tabindex="-1">
     <% var paperLayouts = ['archive', 'categories', 'category', 'tags', 'tag', 'about', 'project', 'game', 'module-index', 'paper', 'links', 'holidays', 'zodiac', 'library', 'festival', 'cityrank', 'rank', 'city', 'cityindex'] %>
     <% if(is_post() || is_home() || page.layout === '404' || paperLayouts.indexOf(page.layout) !== -1) { %>
       <%- body %>

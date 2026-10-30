@@ -15,6 +15,11 @@
    标题轨全站改无衬线（Archivo + 系统黑体），宋体系只留给 .cal-page
    单页例外；900 字重收口到 800/700；首屏 4:8、内容墙固定行高。
    见 DESIGN-REVIEW-2026-10-29.md / DESIGN-ROADMAP-2026-10-29.md。
+   V5.0（2026-10-31 主人拍板「整体与节假日页保持一致」）：全站向参考站
+   收敛——纸 #f7f6f4 / 墨 #1a1a1a / 次级 #6b6b6b / 强调 #c4463a（经主题
+   color 配置下发，不走本文件 :root）；标题轨统一衬线（Fraunces 600 +
+   宋体，--font-display 退出标题消费）；文章正文链接改墨色 + 细下划线
+   （参考站行为），accent 只留交互态。--z-link 蓝仍只挂 .cal-page 术语链。
    ============================================================ */
 
 /* ===== 1. 设计 tokens ===== */
@@ -45,12 +50,13 @@
 
 :root {
   /* 墨色 / 强调 —— 后台 source/admin/admin.css 的 --accent 与此等值，
-     两处必须同步修改（见 ENGINEERING.md P2-3 与 test/css-tokens.js 锁定） */
-  --accent: #b0482a;
+     两处必须同步修改（见 ENGINEERING.md P2-3 与 test/css-tokens.js 锁定）。
+     V5.0：强调色取参考站朱红 #c4463a（原砖红 #b0482a） */
+  --accent: #c4463a;
 
   /* 静态信息标记色（VD-11/A2）：计数 / 分类 / 类型词等静态信息用中性墨阶，
-     accent 只留给交互态。与次级色同色相、明度略深，纸底 5.32:1 达 AA */
-  --info-mark: #6b6255;
+     accent 只留给交互态。与次级色同值，纸底 #f7f6f4 上 4.97:1 达 AA */
+  --info-mark: #6b6b6b;
 
   /* 展示轨：拉丁品牌字与大数字；中文字符自动回退系统黑体（不进紧字距） */
   --font-display: "Archivo", "Arial Black", "PingFang SC", "HarmonyOS Sans SC", "MiSans",
@@ -63,9 +69,10 @@
     "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC",
     "Microsoft YaHei", sans-serif;
 
-  /* 标题轨（V4：全站无衬线）。Archivo 变量字重 + 系统中文黑体回退。
-     宋体系 --font-serif-title 已退出全站标题轨，只服务 .cal-page 单页例外
-     （节假日页按参考站拍板，见 §4.12）。 */
+  /* 标题轨（V5：全站统一衬线，与节假日页参考站一致）。
+     Fraunces 600（拉丁，自托管 fraunces-600-latin.woff2）+ 中文宋体系。
+     V4 曾把标题改成无衬线（Archivo），2026-10-31 主人拍板回归参考站气质，
+     标题轨恢复衬线；--font-display 保留定义但暂无标题消费者。 */
   --font-serif-title: "Fraunces", "Songti SC", "STSong", "SimSun", "Source Han Serif SC",
     "Noto Serif CJK SC", Georgia, "Times New Roman", serif;
 
@@ -79,8 +86,8 @@
   --font-mono: "Cascadia Code", "JetBrains Mono", Consolas, "SF Mono", Menlo, "Courier New", monospace;
 
   /* 胶囊/浮层阴影 */
-  --site-float-shadow: 0 12px 32px -14px rgba(20, 20, 19, 0.28);
-  --site-chip-border: rgba(20, 20, 19, 0.10);
+  --site-float-shadow: 0 12px 32px -14px rgba(26, 26, 26, 0.28);
+  --site-chip-border: rgba(26, 26, 26, 0.10);
 
   /* 组件标尺（VD-5 收口：原先只以 var(--x, fallback) 存在的 token 在此定义，
      从此改值只有单一入口；22px 大圆角已废止，不得扩散到首页入口格） */
@@ -94,9 +101,9 @@
      的明确主次。375 档下限 2rem，主卡满栏宽时两行收得下 16 字标题。 */
   --fs-hero: clamp(2rem, 3.2vw, 2.9rem);
   --cream: #fffefb;               /* 模块卡底：第三纸色 #f9f6f1 已废止 */
-  --ink-warm: #141413;
-  --cream-on-dark: #faf9f5;
-  --line-strong: rgba(20, 20, 19, 0.24);
+  --ink-warm: #1a1a1a;
+  --cream-on-dark: #f7f6f4;
+  --line-strong: rgba(26, 26, 26, 0.24);
   /* 两级分组线（方向 B，2026-10-19 显式命名）：
      --rule        区块分隔（页脚收尾 / 上下篇 / 标题下 / 详情页脚），2px、.24 墨、1.62:1——
                    与纸面 hairline 的 1.51:1 同口径（层级线，可辨识而非 3:1）
@@ -104,15 +111,15 @@
      拆开是为了让「两级」是设计而不是顺手取值；墨底区块用 --on-ink-line 保持 1px 行分隔对称 */
   --rule: var(--line-strong);
   --rule-strong: var(--text-color);
-  --accent-soft: rgba(176, 72, 42, 0.12); /* A4 定值 .12；原 pick-note fallback .28 视觉随之变浅 */
+  --accent-soft: rgba(196, 70, 58, 0.12); /* A4 定值 .12；原 pick-note fallback .28 视觉随之变浅 */
 
   /* 方向 A：反色墨底整屏区块（2026-10-19 落地）。R-1 豁免允许每屏最多一个。
      用字锁定：墨底上一切文字用纸色及其透明度衍生（10.81:1 / 7.4:1，均过 AA），
      不引入第二彩色、不放装饰色块；新增第二个墨底区块需重新过 R-1 豁免。 */
-  --surface-ink: #141413;
-  --on-ink: #faf9f5;
-  --on-ink-sec: rgba(250, 249, 245, .72);
-  --on-ink-line: rgba(250, 249, 245, .16);
+  --surface-ink: #1a1a1a;
+  --on-ink: #f7f6f4;
+  --on-ink-sec: rgba(247, 246, 244, .72);
+  --on-ink-line: rgba(247, 246, 244, .16);
 
   /* V4 页壳顶距：首页与纸面页共用同一入口（D-10：原 clamp 散落各处） */
   --space-page-top: clamp(104px, 12vh, 136px);
@@ -128,13 +135,10 @@
 body { font-family: var(--font-sans); }
 .markdown-body { font-family: var(--font-sans); }
 
-/* 标题轨（V4）：全站标题改无衬线——Archivo 拉丁 + 系统中文黑体。
-   宋体系（--font-serif-title）只留给 .cal-page 单页例外；
-   此前文章标题/列表标题走宋体、页头走黑体，同一屏出现两套字体（D-1）。
-   2026-10-30 补全遗漏的三类标题（审查实测：wall-feature-title 46px、
-   关于/归档页 .page-head-title、.col-title 均落在正文轨 Nunito Sans，
-   与同屏 Archivo 的站名/文章标题形成两套标题字体——D-1 残留）。
-   .cal-page 的 serif 覆盖（.cal-page .col-title 等，特异性更高）不受影响。 */
+/* 标题轨（V5）：全站标题统一衬线——Fraunces 600（拉丁）+ 宋体系（中文），
+   与节假日页参考站完全同轨（.cal-page 的 serif 覆盖与此等值，冗余保留作隔离层）。
+   V4 曾改无衬线（Archivo 700），2026-10-31 主人拍板「整体与节假日页一致」后回归。
+   字重 600：参考站标题口径，不用 700/800/900 制造层级（D-2 教训）。 */
 .post-head-title,
 .post-title,
 .pick-title,
@@ -146,17 +150,44 @@ body { font-family: var(--font-sans); }
 .post-content .markdown-body h2,
 .post-content .markdown-body h3,
 .post-content .markdown-body h4 {
-  font-family: var(--font-display);
-  font-weight: 700;
-  letter-spacing: -0.015em;
+  font-family: var(--font-serif-title);
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .post-content .markdown-body h1,
 .post-content .markdown-body h2,
 .post-content .markdown-body h3,
 .post-content .markdown-body h4 {
-  font-weight: 700;
+  font-weight: 600;
 }
+
+/* 文章正文链接（V5，对齐参考站 .z-main .markdown-body a 的行为）：
+   墨色 + 细下划线，hover 转 accent。参考站的正文不放彩色文字链接，
+   蓝色（--z-link）只给术语链，红色只给交互态。 */
+.post-content .markdown-body a {
+  color: var(--text-color);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.post-content .markdown-body a:hover { color: var(--accent); }
+
+/* Skip link（F-4，2026-10-31）：键盘用户 Tab 的第一站，直达正文。
+   平时视觉隐藏，获得焦点时浮现于左上角（墨底纸字，与反色墨块同语）。 */
+.skip-link {
+  position: absolute;
+  top: -48px;
+  left: 12px;
+  z-index: 2000;
+  padding: 0.55rem 1rem;
+  background: var(--surface-ink);
+  color: var(--on-ink);
+  font-size: 0.9rem;
+  border-radius: 0 0 8px 8px;
+  text-decoration: none;
+  transition: top 120ms ease-in-out;
+}
+.skip-link:focus-visible { top: 0; }
 
 /* 键盘焦点补偿（可访问性基线，2026-10-30）：
    导航栏此前已逐点覆盖 :focus-visible，内容区链接/按钮（文章标题、
@@ -202,8 +233,9 @@ button:focus-visible,
 #navbar .site-brand {
   justify-self: start;
   color: var(--navbar-text-color);
+  font-family: var(--font-serif-title);
   font-size: 1.05rem;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: 0.02em;
   padding: 0.45rem 0.2rem;
 }
@@ -512,11 +544,11 @@ button:focus-visible,
 
 .identity-name {
   margin: 0;
-  font-family: var(--font-display);
-  /* V4 §4.2：站名仍是全站最大字，但 900→800、4.6rem→3.6rem 封顶，
-     避免首屏全部元素都靠超粗超大字号争注意力（D-2）。 */
+  font-family: var(--font-serif-title);
+  /* V4 §4.2：站名仍是全站最大字、4.6rem→3.6rem 封顶（D-2）；
+     V5：字重 800→600、字体并轨衬线——层级靠字号与留白，不靠加粗。 */
   font-size: clamp(2.4rem, 4.4vw, 3.6rem);
-  font-weight: 800;
+  font-weight: 600;
   line-height: 1.1;
   /* 拉丁紧字距（纸面档案：−0.04~−0.02em）；站名为中文时视觉效果仍稳定 */
   letter-spacing: -0.02em;
@@ -650,7 +682,7 @@ button:focus-visible,
 .wall-feature-title {
   margin: 0 0 1.6rem;
   font-size: var(--fs-hero);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.12;
 }
 
@@ -824,7 +856,7 @@ a.cell-plain:hover {
 .col-title {
   margin: 0;
   font-size: clamp(1.15rem, 1.9vw, 1.35rem);
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-color);
 }
 
@@ -884,7 +916,7 @@ a.cell-plain:hover {
 
 .post-title {
   font-size: clamp(1rem, 1.5vw, 1.15rem);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.45;
   color: var(--text-color);
 }
@@ -951,7 +983,7 @@ a.cell-plain:hover {
 
 .pick-title {
   font-size: clamp(1rem, 1.5vw, 1.15rem);
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-color);
   line-height: 1.45;
 }
@@ -1186,7 +1218,7 @@ body.is-home footer {
 .page-head-title {
   margin: 0;
   font-size: clamp(1.9rem, 3.6vw, 2.6rem);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.18;
   color: var(--text-color);
   overflow-wrap: anywhere;
@@ -1251,7 +1283,7 @@ body.is-home footer {
 .post-head-title {
   margin: 0 0 1.1rem;
   font-size: clamp(1.8rem, 3.2vw, 2.35rem);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.24;
   color: var(--text-color);
   overflow-wrap: anywhere;
@@ -1898,7 +1930,7 @@ body.is-home footer {
 
 .rich-section { margin: 0 0 2.6rem; }
 .rich-section h2 {
-  font-size: clamp(1.25rem, 2.2vw, 1.5rem); font-weight: 800; letter-spacing: .01em;
+  font-size: clamp(1.25rem, 2.2vw, 1.5rem); font-family: var(--font-serif-title); font-weight: 600; letter-spacing: .01em;
   margin: 0 0 .9rem; padding-bottom: .5rem;
   /* 标题下的分组线（方向 B）：与组顶 2px 墨线同级，hairline 不再承担分隔 */
   border-bottom: 2px solid var(--rule);
@@ -4589,7 +4621,8 @@ html:not(.js) .fs-years-toggle { display: none; }
 .cr-method-title {
   margin: 0 0 0.8rem;
   font-size: 1.15rem;
-  font-weight: 900;
+  font-family: var(--font-serif-title);
+  font-weight: 600;
   color: var(--text-color);
 }
 
@@ -4695,7 +4728,8 @@ html:not(.js) .fs-years-toggle { display: none; }
 .cr-sec-title {
   margin: 2.2rem 0 0.9rem;
   font-size: 1.15rem;
-  font-weight: 900;
+  font-family: var(--font-serif-title);
+  font-weight: 600;
   color: var(--text-color);
 }
 

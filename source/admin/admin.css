@@ -5,9 +5,10 @@
   --ink: #1c1a17;
   --muted: #8a8378;
   --line: #e6e0d6;
-  /* --accent 与前台 source/css/site.css 的设计语言保持一致（rust 强调色）。
+  /* --accent 与前台 source/css/site.css 的设计语言保持一致（朱红强调色，
+     2026-10-31 随参考站统一从砖红 #b0482a 迁移）。
      改动此值必须同步 site.css，两处等值 —— 见 ENGINEERING.md P2-3。 */
-  --accent: #b0482a;
+  --accent: #c4463a;
   --ok: #3c7a4e;
   --warn: #b07d2b;
   --err: #b03a2e;

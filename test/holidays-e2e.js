@@ -484,18 +484,21 @@ ok('site.css 注册了 Fraunces 与 Nunito Sans，且不含商业字体 Avenir',
     'site.css 的 font-family 里出现了 Avenir —— 那是 Monotype 的商业授权字体，不能随仓库分发');
 });
 
-ok('参考站配色只落在 .cal-page 作用域，没有写进 :root', () => {
+ok('参考站配色全站统一（V5 2026-10-31 主人拍板）：:root 与 .cal-page 同值', () => {
   const css = fs.readFileSync(path.join(ROOT, 'source/css/site.css'), 'utf8');
   const at = css.indexOf('.cal-page {');
   assert.ok(at !== -1, 'site.css 缺少 .cal-page 规则');
   const scoped = css.slice(at, css.indexOf('}', at));
-  assert.ok(scoped.indexOf('--accent: #c4463a') !== -1, '.cal-page 里没有把 --accent 换成参考站的 #c4463a');
-  assert.ok(scoped.indexOf('background: #f7f6f4') !== -1, '.cal-page 没有换成参考站的纸底 #f7f6f4');
+  assert.ok(scoped.indexOf('--accent: #c4463a') !== -1, '.cal-page 里没有 --accent #c4463a');
+  assert.ok(scoped.indexOf('background: #f7f6f4') !== -1, '.cal-page 没有参考站纸底 #f7f6f4');
 
+  // 历史：本断言曾反向锁定「参考站配色不得写进 :root」（单页破例防溢出）。
+  // 2026-10-31 主人决定全站与节假日页统一，反向断言作废，改为正向锁定
+  // 全站 token 已取参考站值——防止未来漂移回两套皮肤。
   const rootAt = css.indexOf(':root {');
   const root = css.slice(rootAt, css.indexOf('}', rootAt));
-  assert.ok(!/#c4463a/.test(root), '参考站的强调色被写进了 :root —— 单页破例会溢出成全站换色');
-  assert.ok(!/#f7f6f4/.test(root), '参考站的纸底被写进了 :root');
+  assert.ok(/--accent:\s*#c4463a/.test(root), ':root 的 --accent 未统一为参考站朱红 #c4463a');
+  assert.ok(/--on-ink:\s*#f7f6f4/.test(root), ':root 的 --on-ink 未统一为参考站纸色 #f7f6f4');
 });
 
 // 年份导航从 12 个变 16 个时，`.cal-years { flex: none }` 让它按 max-content 撑到
