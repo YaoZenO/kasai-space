@@ -13,7 +13,7 @@
 # 年份以字段级 asOf 为准，其余字段待采集后补，一律不填估算值（CITY-RANK-CONTENT §7 C-1）。
 
 meta:
-  updated: "2026-10-30"
+  updated: "2026-10-31"
   dataYear: "2025"
   note: "本站城市数据以政府统计口径为准，批量数据站只作交叉核对，不作唯一来源；气候类为国家统计局《中国统计年鉴 2025》中国气象局提供的 2024 年实况值，年份以字段 asOf 为准。"
 
@@ -61,12 +61,16 @@ sources:
   - key: "expressSPB2025"
     name: "国家邮政局《2025 年邮政行业运行情况》快递处理量前 50 位城市情况表（2025 年全年，单位万件；处理量＝快递业务量＋快递投递量）"
     asOf: "2025"
+  - key: "scenic5aMCT2025"
+    name: "文化和旅游部数据服务「国家5A级旅游景区」名单（数据截止 2025-03-11；按景区所在城市计数，名单标注的跨市景区按涉及城市各计 1 家）"
+    asOf: "2025"
 cities:
   - name: 北京
     slug: beijing
     province: 北京市
     level: 直辖市
     metrics:
+      scenic_5a: { v: 9, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 845100.3, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 290, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 31, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -86,6 +90,7 @@ cities:
     province: 浙江省
     level: 省会
     metrics:
+      scenic_5a: { v: 3, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 796104, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 299, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 30, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -104,6 +109,7 @@ cities:
     province: 上海市
     level: 直辖市
     metrics:
+      scenic_5a: { v: 5, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 1152822.4, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 323, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 28, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -123,6 +129,7 @@ cities:
     province: 四川省
     level: 省会
     metrics:
+      scenic_5a: { v: 3, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 698957.6, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 296, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 32, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -142,6 +149,7 @@ cities:
     province: 广东省
     level: 省会
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 2189848.6, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 344, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 22, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -161,6 +169,7 @@ cities:
     province: 江苏省
     level: 省会
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 336789.3, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 314, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 28, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -181,6 +190,7 @@ cities:
     province: 广东省
     level: 计划单列市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 1201663.5, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       latitude: { v: 22.5, unit: "°N", asOf: "2024", source: "lat2024" }
       universities: { v: 5, unit: "所", asOf: "2022", source: "uni2022" }
@@ -194,6 +204,7 @@ cities:
     province: 湖北省
     level: 省会
     metrics:
+      scenic_5a: { v: 3, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 547631.8, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 285, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 36, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -213,6 +224,7 @@ cities:
     province: 重庆市
     level: 直辖市
     metrics:
+      scenic_5a: { v: 12, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 608954.5, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 329, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 34, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -230,6 +242,7 @@ cities:
     province: 陕西省
     level: 省会
     metrics:
+      scenic_5a: { v: 5, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 486938.7, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 241, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 43, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -249,6 +262,7 @@ cities:
     province: 福建省
     level: 计划单列市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 189683.2, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 536.5, unit: "万人", asOf: "2025", source: "pop2025" }
       gdp: { v: 8980.37, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
@@ -261,6 +275,7 @@ cities:
     province: 江苏省
     level: 地级市
     metrics:
+      scenic_5a: { v: 6, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 785371.4, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 1304.77, unit: "万人", asOf: "2025", source: "pop2025" }
       port_cargo: { v: 5.09, unit: "亿吨", asOf: "2025", source: "port2025" }
@@ -274,6 +289,7 @@ cities:
     province: 湖南省
     level: 省会
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 472437.8, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 304, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 40, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -292,6 +308,7 @@ cities:
     province: 云南省
     level: 省会
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 230657, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 365, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 20, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -309,6 +326,7 @@ cities:
     province: 山东省
     level: 计划单列市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 338509.3, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       area_km2: { v: 11293.36, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       pop: { v: 1051.55, unit: "万人", asOf: "2025", source: "pop2025" }
@@ -324,6 +342,7 @@ cities:
     province: 黑龙江省
     level: 省会
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 231665.3, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 312, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 40, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -343,6 +362,7 @@ cities:
     province: 广西壮族自治区
     level: 地级市
     metrics:
+      scenic_5a: { v: 3, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       sun_hours: { v: 1280.3, unit: "小时", asOf: "2024", source: "climateNBS2024" }
       temp_jul: { v: 30.3, unit: "℃", asOf: "2024", source: "climateNBS2024" }
       temp_jan: { v: 10.2, unit: "℃", asOf: "2024", source: "climateNBS2024" }
@@ -353,6 +373,7 @@ cities:
     province: 贵州省
     level: 省会
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       air_good_days: { v: 364, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 20, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       area_km2: { v: 8043.45, unit: "平方公里", asOf: "2025", source: "areaGov" }
@@ -367,6 +388,7 @@ cities:
   - name: 三亚
     slug: sanya
     metrics:
+      scenic_5a: { v: 4, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       metro_km: { v: 8.4, unit: "公里", asOf: "2025", source: "metro2025" }
       area_km2: { v: 1921, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 天津
@@ -374,6 +396,7 @@ cities:
     province: 天津市
     level: 直辖市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 478590.1, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 268, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 38, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -392,6 +415,7 @@ cities:
     province: 辽宁省
     level: 计划单列市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       sun_hours: { v: 2681.9, unit: "小时", asOf: "2024", source: "climateNBS2024" }
       temp_jul: { v: 25.1, unit: "℃", asOf: "2024", source: "climateNBS2024" }
       temp_jan: { v: -2.3, unit: "℃", asOf: "2024", source: "climateNBS2024" }
@@ -404,6 +428,7 @@ cities:
     province: 河南省
     level: 省会
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 559709, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 231, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 45, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -422,6 +447,7 @@ cities:
     province: 吉林省
     level: 省会
     metrics:
+      scenic_5a: { v: 4, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 184065.6, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 328, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 33, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -439,6 +465,7 @@ cities:
     province: 辽宁省
     level: 省会
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 334838.2, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 318, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 34, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -463,6 +490,7 @@ cities:
     province: 福建省
     level: 省会
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 246150.7, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 359, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 19, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -493,6 +521,7 @@ cities:
     province: 西藏自治区
     level: 省会
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       air_good_days: { v: 356, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 11, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       gdp: { v: 1090.99, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
@@ -507,6 +536,7 @@ cities:
     province: 河南省
     level: 地级市
     metrics:
+      scenic_5a: { v: 4, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 6164.5, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       metro_km: { v: 43.5, unit: "公里", asOf: "2025", source: "metro2025" }
   - name: 银川
@@ -514,6 +544,7 @@ cities:
     province: 宁夏回族自治区
     level: 省会
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       air_good_days: { v: 294, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 36, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       area_km2: { v: 9025.38, unit: "平方公里", asOf: "2025", source: "areaGov" }
@@ -528,6 +559,7 @@ cities:
     province: 江西省
     level: 省会
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 257223.6, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 337, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 32, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -545,6 +577,7 @@ cities:
     province: 广西壮族自治区
     level: 省会
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 232639, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 354, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 25, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -562,6 +595,7 @@ cities:
     province: 浙江省
     level: 计划单列市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 386531.9, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 983.3, unit: "万人", asOf: "2025", source: "pop2025" }
       latitude: { v: 29.3, unit: "°N", asOf: "2024", source: "lat2024" }
@@ -577,6 +611,7 @@ cities:
     province: 湖南省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       area_km2: { v: 9533.77, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 667.83, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 惠州
@@ -584,6 +619,7 @@ cities:
     province: 广东省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 235091.1, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 619.3, unit: "万人", asOf: "2025", source: "pop2025" }
       gdp: { v: 6363.66, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
@@ -592,12 +628,14 @@ cities:
     province: 云南省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 744.27, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 林芝
     slug: linzhi
     province: 西藏自治区
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 292.34, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       area_km2: { v: 114000, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 西宁
@@ -605,6 +643,7 @@ cities:
     province: 青海省
     level: 省会
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       air_good_days: { v: 335, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 33, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       area_km2: { v: 7606.89, unit: "平方公里", asOf: "2025", source: "areaGov" }
@@ -619,18 +658,21 @@ cities:
     province: 云南省
     level: 自治州
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 940.83, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 扬州
     slug: yangzhou
     province: 江苏省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 8056.75, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 呼和浩特
     slug: huhehaote
     province: 内蒙古自治区
     level: 省会
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       air_good_days: { v: 312, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 28, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       gdp: { v: 4278.3, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
@@ -646,6 +688,7 @@ cities:
     province: 内蒙古自治区
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1749.7, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       area_km2: { v: 253000, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 吉林
@@ -656,6 +699,7 @@ cities:
     province: 河北省
     level: 省会
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 440449, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 236, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 46, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -673,6 +717,7 @@ cities:
     province: 山西省
     level: 省会
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       air_good_days: { v: 248, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 40, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       area_km2: { v: 6909, unit: "平方公里", asOf: "2025", source: "areaGov" }
@@ -689,6 +734,7 @@ cities:
     province: 新疆维吾尔自治区
     level: 省会
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       air_good_days: { v: 312, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 34, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       gdp: { v: 4658.2, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
@@ -704,12 +750,14 @@ cities:
     province: 江西省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 3930.2, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 北海
     slug: beihai
     province: 广西壮族自治区
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1974.04, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 东莞
     slug: dongguan
@@ -728,6 +776,7 @@ cities:
     province: 安徽省
     level: 省会
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 383391.5, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 315, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 34, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -745,12 +794,14 @@ cities:
     province: 安徽省
     level: 地级市
     metrics:
+      scenic_5a: { v: 3, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1204.9, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 嘉兴
     slug: jiaxing
     province: 浙江省
     level: 地级市
     metrics:
+      scenic_5a: { v: 3, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 316541.1, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       gdp: { v: 7851.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       port_cargo: { v: 1.26, unit: "亿吨", asOf: "2025", source: "port2025" }
@@ -759,6 +810,7 @@ cities:
     province: 浙江省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 2155310.1, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 726.9, unit: "万人", asOf: "2025", source: "pop2025" }
       gdp: { v: 7313.5, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
@@ -794,12 +846,14 @@ cities:
     province: 江西省
     level: 地级市
     metrics:
+      scenic_5a: { v: 4, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 3935.9, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 无锡
     slug: wuxi
     province: 江苏省
     level: 地级市
     metrics:
+      scenic_5a: { v: 4, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 247611.1, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 753.74, unit: "万人", asOf: "2025", source: "pop2025" }
       universities: { v: 3, unit: "所", asOf: "2022", source: "uni2022" }
@@ -810,6 +864,7 @@ cities:
     province: 山东省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       area_km2: { v: 13864.54, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       gdp: { v: 11350.98, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 伊犁
@@ -817,12 +872,14 @@ cities:
     province: 新疆维吾尔自治区
     level: 自治州
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 3470.95, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 济南
     slug: jinan
     province: 山东省
     level: 省会
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 258293.2, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 244, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 36, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -841,12 +898,14 @@ cities:
     province: 河北省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2200.4, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 台州
     slug: taizhou
     province: 浙江省
     level: 地级市
     metrics:
+      scenic_5a: { v: 3, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 288143.5, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 676, unit: "万人", asOf: "2025", source: "pop2025" }
       gdp: { v: 7005.9, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
@@ -855,6 +914,7 @@ cities:
     province: 山东省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       area_km2: { v: 5799.84, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       gdp: { v: 3896.09, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 舟山
@@ -862,6 +922,7 @@ cities:
     province: 浙江省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2346.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       area_km2: { v: 1440, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 毕节
@@ -869,6 +930,7 @@ cities:
     province: 贵州省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2541.14, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 丹东
     slug: dandong
@@ -881,12 +943,14 @@ cities:
     province: 河南省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2860.06, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 丽水
     slug: lishui
     province: 浙江省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2301.4, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 漠河
     slug: mohe
@@ -896,6 +960,7 @@ cities:
     province: 江苏省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 307325.1, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       port_cargo: { v: 1.9, unit: "亿吨", asOf: "2025", source: "port2025" }
       universities: { v: 3, unit: "所", asOf: "2022", source: "uni2022" }
@@ -911,6 +976,7 @@ cities:
     province: 浙江省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 260848, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 544.3, unit: "万人", asOf: "2025", source: "pop2025" }
       gdp: { v: 8932.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
@@ -924,6 +990,7 @@ cities:
     province: 山东省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 209823.1, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       area_km2: { v: 16167.24, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       gdp: { v: 8587.36, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
@@ -932,6 +999,7 @@ cities:
     province: 浙江省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 440970.5, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 990.2, unit: "万人", asOf: "2025", source: "pop2025" }
       metro_km: { v: 52.5, unit: "公里", asOf: "2025", source: "metro2025" }
@@ -947,6 +1015,7 @@ cities:
     province: 广东省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 283982.3, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 457.23, unit: "万人", asOf: "2025", source: "pop2025" }
       gdp: { v: 4260.56, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
@@ -956,6 +1025,7 @@ cities:
     province: 新疆维吾尔自治区
     level: 地区
     metrics:
+      scenic_5a: { v: 3, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 484.21, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 白山
     slug: baishan
@@ -965,12 +1035,14 @@ cities:
     province: 云南省
     level: 自治州
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2087.51, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 大同
     slug: datong
     province: 山西省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1815, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 德州
     slug: dezhou
@@ -984,6 +1056,7 @@ cities:
     province: 广东省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 495760.4, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 979.19, unit: "万人", asOf: "2025", source: "pop2025" }
       universities: { v: 2, unit: "所", asOf: "2022", source: "uni2022" }
@@ -1002,6 +1075,7 @@ cities:
     province: 江西省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 4246.5, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       port_cargo: { v: 1.97, unit: "亿吨", asOf: "2025", source: "port2025" }
   - name: 酒泉
@@ -1009,6 +1083,7 @@ cities:
     province: 甘肃省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1103.6, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       area_km2: { v: 192000, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 临沂
@@ -1016,6 +1091,7 @@ cities:
     province: 山东省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 391505.4, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       area_km2: { v: 17191.21, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       gdp: { v: 6862.2, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
@@ -1030,24 +1106,28 @@ cities:
     province: 黑龙江省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1094.77, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 南平
     slug: nanping
     province: 福建省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2189.73, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 宁德
     slug: ningde
     province: 福建省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 4251.72, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 衢州
     slug: quzhou
     province: 浙江省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       pop: { v: 229.7, unit: "万人", asOf: "2025", source: "pop2025" }
       gdp: { v: 2401.6, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 唐山
@@ -1055,24 +1135,28 @@ cities:
     province: 河北省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 10450.2, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 吴忠
     slug: wuzhong
     province: 宁夏回族自治区
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 961.67, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 鞍山
     slug: anshan
     province: 辽宁省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2180.4, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 安阳
     slug: anyang
     province: 河南省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2765.8, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 白银
     slug: baiyin
@@ -1085,12 +1169,14 @@ cities:
     province: 云南省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1347.01, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 本溪
     slug: benxi
     province: 辽宁省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1006.02, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 滨州
     slug: binzhou
@@ -1104,6 +1190,7 @@ cities:
     province: 湖南省
     level: 地级市
     metrics:
+      scenic_5a: { v: 4, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       area_km2: { v: 18187, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 4770.93, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 昌都
@@ -1126,12 +1213,14 @@ cities:
     province: 河北省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2001.7, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 郴州
     slug: chenzhou
     province: 湖南省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       area_km2: { v: 19342.03, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 3502.08, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 赤峰
@@ -1139,6 +1228,7 @@ cities:
     province: 内蒙古自治区
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2407.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       area_km2: { v: 90000, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 大兴安岭地区
@@ -1146,18 +1236,21 @@ cities:
     province: 黑龙江省
     level: 地区
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 177.5, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 迪庆香格里拉
     slug: diqingxianggelila
     province: 云南省
     level: 自治州
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 316.65, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 东营
     slug: dongying
     province: 山东省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       area_km2: { v: 8243.27, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       gdp: { v: 4502.73, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 鄂尔多斯
@@ -1165,6 +1258,7 @@ cities:
     province: 内蒙古自治区
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 6122.2, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       area_km2: { v: 87000, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 恩施
@@ -1172,6 +1266,7 @@ cities:
     province: 湖北省
     level: 自治州
     metrics:
+      scenic_5a: { v: 3, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1741.97, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 哈密
     slug: hami
@@ -1185,6 +1280,7 @@ cities:
     province: 河北省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 4920.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 汉中
     slug: hanzhong
@@ -1204,12 +1300,14 @@ cities:
     province: 黑龙江省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 742.3, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 衡阳
     slug: hengyang
     province: 湖南省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       area_km2: { v: 15299.18, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 4689.55, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 黄冈
@@ -1217,12 +1315,14 @@ cities:
     province: 湖北省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 3303.59, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 湖州
     slug: huzhou
     province: 浙江省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       pop: { v: 347.2, unit: "万人", asOf: "2025", source: "pop2025" }
       gdp: { v: 4452.8, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       port_cargo: { v: 1.22, unit: "亿吨", asOf: "2025", source: "port2025" }
@@ -1231,18 +1331,21 @@ cities:
     province: 广东省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 4293.91, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 焦作
     slug: jiaozuo
     province: 河南省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2479.6, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 济宁
     slug: jining
     province: 山东省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       area_km2: { v: 11186.98, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       gdp: { v: 6128.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 晋中
@@ -1250,6 +1353,7 @@ cities:
     province: 山西省
     level: 地级市
     metrics:
+      scenic_5a: { v: 3, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2462.6, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 锦州
     slug: jinzhou
@@ -1265,18 +1369,21 @@ cities:
     province: 新疆维吾尔自治区
     level: 地区
     metrics:
+      scenic_5a: { v: 3, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1752.12, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 克拉玛依
     slug: kelamayi
     province: 新疆维吾尔自治区
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1304, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 乐山
     slug: leshan
     province: 四川省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2501.54, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 临沧
     slug: lincang
@@ -1289,12 +1396,14 @@ cities:
     province: 福建省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 3578.55, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 绵阳
     slug: mianyang
     province: 四川省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 4600.66, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 那曲
     slug: naqu
@@ -1308,18 +1417,21 @@ cities:
     province: 江西省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1276, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 莆田
     slug: putian
     province: 福建省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 3579.52, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 日喀则
     slug: rikaze
     province: 西藏自治区
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 509.87, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       area_km2: { v: 179000, unit: "平方公里", asOf: "2025", source: "areaPub" }
   - name: 三明
@@ -1327,12 +1439,14 @@ cities:
     province: 福建省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2511.98, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 邵阳
     slug: shaoyang
     province: 湖南省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       area_km2: { v: 20824.37, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 2883.49, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 塔城地区
@@ -1346,12 +1460,14 @@ cities:
     province: 湖北省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 6113.85, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 咸阳
     slug: xianyang
     province: 陕西省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 196256.6, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       gdp: { v: 3104.53, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       metro_km: { v: 10.7, unit: "公里", asOf: "2025", source: "metro2025" }
@@ -1363,12 +1479,14 @@ cities:
     province: 河南省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 3196.7, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 徐州
     slug: xuzhou
     province: 江苏省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 236955.6, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       metro_km: { v: 95.1, unit: "公里", asOf: "2025", source: "metro2025" }
       gdp: { v: 9957.22, unit: "亿元", asOf: "2025", source: "gdp2025" }
@@ -1377,21 +1495,25 @@ cities:
     province: 陕西省
     level: 地级市
     metrics:
+      scenic_5a: { v: 4, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2372.17, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 延边
     slug: yanbian
-    metrics: {}
+    metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 盐城
     slug: yancheng
     province: 江苏省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 8045.3, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 宜昌
     slug: yichang
     province: 湖北省
     level: 地级市
     metrics:
+      scenic_5a: { v: 4, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 6464.42, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       port_cargo: { v: 1.34, unit: "亿吨", asOf: "2025", source: "port2025" }
   - name: 营口
@@ -1419,6 +1541,7 @@ cities:
     province: 湖南省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       area_km2: { v: 14858, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 5386.88, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       port_cargo: { v: 1.21, unit: "亿吨", asOf: "2025", source: "port2025" }
@@ -1439,6 +1562,7 @@ cities:
     province: 甘肃省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 734.35, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 漳州
     slug: zhangzhou
@@ -1451,6 +1575,7 @@ cities:
     province: 江苏省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 5736.78, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       port_cargo: { v: 2.4, unit: "亿吨", asOf: "2025", source: "port2025" }
   - name: 阿坝
@@ -1458,6 +1583,7 @@ cities:
     province: 四川省
     level: 自治州
     metrics:
+      scenic_5a: { v: 4, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 601.19, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 阿尔山
     slug: aershan
@@ -1467,12 +1593,14 @@ cities:
     province: 新疆维吾尔自治区
     level: 地区
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2043, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 阿拉善
     slug: alashan
     province: 内蒙古自治区
     level: 盟
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 418.8, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 阿勒泰/布尔津·北疆水塔
     slug: aleitaibuerjinbeijiangshuita
@@ -1497,24 +1625,28 @@ cities:
     province: 安徽省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 3306.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 安顺
     slug: anshun
     province: 贵州省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1232.35, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 百色
     slug: baise
     province: 广西壮族自治区
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2101.34, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 保定
     slug: baoding
     province: 河北省
     level: 地级市
     metrics:
+      scenic_5a: { v: 4, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 428076.5, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       gdp: { v: 5002.5, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 宝鸡
@@ -1522,6 +1654,7 @@ cities:
     province: 陕西省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2648.87, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 包头
     slug: baotou
@@ -1540,6 +1673,7 @@ cities:
     province: 新疆维吾尔自治区
     level: 自治州
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1723.5, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 蚌埠
     slug: bengbu
@@ -1565,6 +1699,7 @@ cities:
     province: 新疆维吾尔自治区
     level: 自治州
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2637.67, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 常熟
     slug: changshu
@@ -1580,7 +1715,8 @@ cities:
     metrics: {}
   - name: 池店镇
     slug: chidianzhen
-    metrics: {}
+    metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 楚雄
     slug: chuxiong
     province: 云南省
@@ -1592,6 +1728,7 @@ cities:
     province: 安徽省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 4221.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 磁灶镇
     slug: cizaozhen
@@ -1659,6 +1796,7 @@ cities:
     province: 辽宁省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1003.78, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 富硒茶
     slug: fuxicha
@@ -1683,6 +1821,7 @@ cities:
     province: 安徽省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 3777.6, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 抚远·华夏东极
     slug: fuyuanhuaxiadongji
@@ -1695,6 +1834,7 @@ cities:
     province: 甘肃省
     level: 自治州
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 275.62, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 甘肃夏河县
     slug: gansuxiahe
@@ -1704,6 +1844,7 @@ cities:
     province: 江西省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 5221.3, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 高雄
     slug: gaoxiong
@@ -1714,12 +1855,14 @@ cities:
     province: 广东省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1434.57, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 清远
     slug: qingyuan
     province: 广东省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2317.47, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 广西阳朔县
     slug: guangxiyangshuo
@@ -1744,18 +1887,21 @@ cities:
     province: 宁夏回族自治区
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 488.07, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 海北州
     slug: haibeizhou
     province: 青海省
     level: 自治州
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 122.5, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 海东
     slug: haidong
     province: 青海省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 615.8, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 海南州
     slug: hainanzhou
@@ -1792,6 +1938,7 @@ cities:
     province: 河北省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2011.8, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 红河州
     slug: honghezhou
@@ -1835,12 +1982,14 @@ cities:
     province: 江西省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 3105.7, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 景德镇
     slug: jingdezhen
     province: 江西省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1189.6, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 江阴
     slug: jiangyin
@@ -1857,12 +2006,14 @@ cities:
     province: 山西省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2429.9, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 荆门
     slug: jingmen
     province: 湖北省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2602.26, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 靖西·小昆明
     slug: jingxixiaokunming
@@ -1884,6 +2035,7 @@ cities:
     province: 黑龙江省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 648.49, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 举重之乡：广东省石龙镇
     slug: juzhongzhixiangguangdongshengshilongzhen
@@ -1906,12 +2058,14 @@ cities:
     province: 山西省
     level: 地级市
     metrics:
+      scenic_5a: { v: 3, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2513.8, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 柳州
     slug: liuzhou
     province: 广西壮族自治区
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 3096.91, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 里约热内卢
     slug: liyuereneilu
@@ -1924,12 +2078,14 @@ cities:
     province: 甘肃省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 716, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 六安
     slug: luan
     province: 安徽省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2407.3, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 洛杉矶
     slug: luoshanji
@@ -1951,6 +2107,7 @@ cities:
     province: 安徽省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2920.9, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 芒市
     slug: mang
@@ -1969,12 +2126,14 @@ cities:
     province: 四川省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2901.76, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 南阳
     slug: nanyang
     province: 河南省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 5167.86, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 内江
     slug: neijiang
@@ -1993,12 +2152,14 @@ cities:
     province: 辽宁省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1417.59, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 平凉
     slug: pingliang
     province: 甘肃省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 754.88, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 普洱
     slug: puer
@@ -2011,18 +2172,21 @@ cities:
     province: 贵州省
     level: 自治州
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1500.24, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 黔南州
     slug: qiannanzhou
     province: 贵州省
     level: 自治州
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2008.49, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 黔西南州
     slug: qianxinanzhou
     province: 贵州省
     level: 自治州
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1535.28, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 庆阳
     slug: qingyang
@@ -2041,12 +2205,14 @@ cities:
     province: 黑龙江省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1402.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 泉州
     slug: quanzhou
     province: 福建省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 486965.6, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       double_first_class: { v: 0, unit: "所", asOf: "2022", source: "dfc2022" }
       gdp: { v: 13778.34, unit: "亿元", asOf: "2025", source: "gdp2025" }
@@ -2091,12 +2257,14 @@ cities:
     province: 陕西省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 823.92, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 商丘
     slug: shangqiu
     province: 河南省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 241764.4, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       gdp: { v: 3475.38, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 尚志
@@ -2129,6 +2297,7 @@ cities:
     province: 广东省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1705.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 深沪镇
     slug: shenhuzhen
@@ -2138,12 +2307,14 @@ cities:
     province: 湖北省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2704.8, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 石嘴山
     slug: shizuishan
     province: 宁夏回族自治区
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 579.84, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 首尔
     slug: shouer
@@ -2186,7 +2357,8 @@ cities:
     metrics: {}
   - name: 腾冲
     slug: tengchong
-    metrics: {}
+    metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 田径之乡：广西玉林
     slug: tianjingzhixiangguangxiyulin
     metrics: {}
@@ -2195,6 +2367,7 @@ cities:
     province: 甘肃省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 980.88, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 跳水之乡：广东省湛江
     slug: tiaoshuizhixiangguangdongshengzhanjiang
@@ -2219,12 +2392,14 @@ cities:
     province: 贵州省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1722.66, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 吐鲁番
     slug: tulufan
     province: 新疆维吾尔自治区
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 668.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 网球之乡：湖北省京山
     slug: wangqiuzhixianghubeishengjingshan
@@ -2234,12 +2409,14 @@ cities:
     province: 陕西省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2231.76, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 文山
     slug: wenshan
     province: 云南省
     level: 自治州
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1632.64, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 乌海
     slug: wuhai
@@ -2253,6 +2430,7 @@ cities:
     province: 安徽省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 5402.7, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       port_cargo: { v: 1.36, unit: "亿吨", asOf: "2025", source: "port2025" }
       metro_km: { v: 46.2, unit: "公里", asOf: "2025", source: "metro2025" }
@@ -2288,6 +2466,7 @@ cities:
     province: 湖南省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       area_km2: { v: 5005.81, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 3077.23, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 咸宁
@@ -2295,6 +2474,7 @@ cities:
     province: 湖北省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2033.31, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 孝感
     slug: xiaogan
@@ -2316,6 +2496,7 @@ cities:
     province: 内蒙古自治区
     level: 盟
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 850.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 邢台
     slug: xingtai
@@ -2338,6 +2519,7 @@ cities:
     province: 河南省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 3687.07, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 新余
     slug: xinyu
@@ -2350,6 +2532,7 @@ cities:
     province: 山西省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1330.4, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 新竹
     slug: xinzhu
@@ -2380,6 +2563,7 @@ cities:
     province: 江西省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1459.4, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 游泳之乡：广东省东莞
     slug: youyongzhixiangguangdongshengdongguan
@@ -2410,6 +2594,7 @@ cities:
     province: 山西省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2558.3, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 昭通
     slug: zhaotong
@@ -2428,6 +2613,7 @@ cities:
     province: 宁夏回族自治区
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 633.38, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 舟山市·岱山
     slug: zhoushanshidaishan
@@ -2443,6 +2629,7 @@ cities:
     province: 湖南省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       area_km2: { v: 11247.6, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 4063.46, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 淄博
@@ -2450,6 +2637,7 @@ cities:
     province: 山东省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       area_km2: { v: 5964.92, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       gdp: { v: 5088.89, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 自贡
@@ -2463,6 +2651,7 @@ cities:
     province: 贵州省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 5206.12, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 左权县
     slug: zuoquan
@@ -2478,6 +2667,7 @@ cities:
     province: 山东省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       area_km2: { v: 7761.41, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       gdp: { v: 3803.5, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 日照
@@ -2492,6 +2682,7 @@ cities:
     province: 山东省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       area_km2: { v: 4563.53, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
       gdp: { v: 2502.52, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 泰州
@@ -2505,18 +2696,21 @@ cities:
     province: 江苏省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 5630.11, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 连云港
     slug: lianyungang
     province: 江苏省
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 4830.94, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 宿迁
     slug: suqian
     province: 江苏省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 5026.6, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 娄底
     slug: loudi
@@ -2530,6 +2724,7 @@ cities:
     province: 湖南省
     level: 自治州
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       area_km2: { v: 15470.54, unit: "平方公里", asOf: "2025", source: "areaGov" }
       gdp: { v: 889.5, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 随州
@@ -2561,12 +2756,14 @@ cities:
     province: 湖北省
     level: 林区
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 52.28, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 周口
     slug: zhoukou
     province: 河南省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 3810.83, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 许昌
     slug: xuchang
@@ -2579,12 +2776,14 @@ cities:
     province: 河南省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 3501.64, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 平顶山
     slug: pingdingshan
     province: 河南省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2929.4, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 濮阳
     slug: puyang
@@ -2615,18 +2814,21 @@ cities:
     province: 广东省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2974.84, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 阳江
     slug: yangjiang
     province: 广东省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1671.22, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 梅州
     slug: meizhou
     province: 广东省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1583.23, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 云浮
     slug: yunfu
@@ -2657,6 +2859,7 @@ cities:
     province: 四川省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1700.87, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 攀枝花
     slug: panzhihua
@@ -2669,6 +2872,7 @@ cities:
     province: 四川省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1348.78, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 资阳
     slug: ziyang
@@ -2681,18 +2885,21 @@ cities:
     province: 四川省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1131.6, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 巴中
     slug: bazhong
     province: 四川省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 916.64, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 甘孜
     slug: ganzi
     province: 四川省
     level: 自治州
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 613.11, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 宿州
     slug: suzhou-ah
@@ -2705,6 +2912,7 @@ cities:
     province: 安徽省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2148.6, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 淮南
     slug: huainan
@@ -2748,6 +2956,7 @@ cities:
     province: 广西壮族自治区
     level: 地级市
     metrics:
+      scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1358.64, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 来宾
     slug: laibin
@@ -2760,6 +2969,7 @@ cities:
     province: 广西壮族自治区
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1006.74, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 怒江
     slug: nujiang
@@ -2778,6 +2988,7 @@ cities:
     province: 黑龙江省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 380.9, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 阳泉
     slug: yangquan
@@ -2796,6 +3007,7 @@ cities:
     province: 新疆维吾尔自治区
     level: 自治州
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 575.15, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 克孜勒苏
     slug: kezilesu
@@ -2814,12 +3026,14 @@ cities:
     province: 甘肃省
     level: 自治州
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 546.6, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 嘉峪关
     slug: jiayuguan
     province: 甘肃省
     level: 地级市
     metrics:
+      scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 391, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 葫芦岛
     slug: huludao

@@ -1,0 +1,1067 @@
+{
+  "_comment": "P3 第十五批：各城市国家 5A 级旅游景区数量，取自文化和旅游部数据服务「国家5A级旅游景区」名单（https://sjfw.mct.gov.cn/site/dataservice/rural?type=10 ，数据截止 2025-03-11，共 359 条）。按景区所在城市计数；名单自带城市标注的跨市/跨省景区（黄河壶口瀑布：延安市·临汾市；兵团十师185团白沙湖：阿勒泰地区）按标注城市各计 1 家。未落库的 10 条见 tools/city-metrics-batches/scenic-5a-2025-sources.md（4 条城市未建档：白城/松原/通化/阿拉尔；6 条无法确定地级市归属：福建土楼（永定·南靖）、沂蒙山、保亭 2 条、陵水、青海湖）",
+  "source": {
+    "key": "scenic5aMCT2025",
+    "name": "文化和旅游部数据服务「国家5A级旅游景区」名单（数据截止 2025-03-11；按景区所在城市计数，名单标注的跨市景区按涉及城市各计 1 家）",
+    "asOf": "2025"
+  },
+  "field": "scenic_5a",
+  "unit": "家",
+  "rows": [
+    {
+      "name": "重庆",
+      "slug": "chongqing",
+      "v": 12
+    },
+    {
+      "name": "北京",
+      "slug": "beijing",
+      "v": 9
+    },
+    {
+      "name": "苏州",
+      "slug": "suzhou",
+      "v": 6
+    },
+    {
+      "name": "上海",
+      "slug": "shanghai",
+      "v": 5
+    },
+    {
+      "name": "西安",
+      "slug": "xian",
+      "v": 5
+    },
+    {
+      "name": "阿坝",
+      "slug": "aba",
+      "v": 4
+    },
+    {
+      "name": "保定",
+      "slug": "baoding",
+      "v": 4
+    },
+    {
+      "name": "长春",
+      "slug": "changchun",
+      "v": 4
+    },
+    {
+      "name": "常德",
+      "slug": "changde",
+      "v": 4
+    },
+    {
+      "name": "洛阳",
+      "slug": "luoyang",
+      "v": 4
+    },
+    {
+      "name": "三亚",
+      "slug": "sanya",
+      "v": 4
+    },
+    {
+      "name": "上饶",
+      "slug": "shangrao",
+      "v": 4
+    },
+    {
+      "name": "无锡",
+      "slug": "wuxi",
+      "v": 4
+    },
+    {
+      "name": "延安",
+      "slug": "yanan",
+      "v": 4
+    },
+    {
+      "name": "宜昌",
+      "slug": "yichang",
+      "v": 4
+    },
+    {
+      "name": "阿勒泰",
+      "slug": "aleitai",
+      "v": 3
+    },
+    {
+      "name": "成都",
+      "slug": "chengdu",
+      "v": 3
+    },
+    {
+      "name": "恩施",
+      "slug": "enshi",
+      "v": 3
+    },
+    {
+      "name": "桂林",
+      "slug": "guilin",
+      "v": 3
+    },
+    {
+      "name": "杭州",
+      "slug": "hangzhou",
+      "v": 3
+    },
+    {
+      "name": "黄山",
+      "slug": "huangshan",
+      "v": 3
+    },
+    {
+      "name": "嘉兴",
+      "slug": "jiaxing",
+      "v": 3
+    },
+    {
+      "name": "晋中",
+      "slug": "jinzhong",
+      "v": 3
+    },
+    {
+      "name": "喀什",
+      "slug": "kashi",
+      "v": 3
+    },
+    {
+      "name": "临汾",
+      "slug": "linfen",
+      "v": 3
+    },
+    {
+      "name": "台州",
+      "slug": "taizhou",
+      "v": 3
+    },
+    {
+      "name": "武汉",
+      "slug": "wuhan",
+      "v": 3
+    },
+    {
+      "name": "安顺",
+      "slug": "anshun",
+      "v": 2
+    },
+    {
+      "name": "安阳",
+      "slug": "anyang",
+      "v": 2
+    },
+    {
+      "name": "宝鸡",
+      "slug": "baoji",
+      "v": 2
+    },
+    {
+      "name": "巴音郭楞",
+      "slug": "bayinguoleng",
+      "v": 2
+    },
+    {
+      "name": "本溪",
+      "slug": "benxi",
+      "v": 2
+    },
+    {
+      "name": "毕节",
+      "slug": "bijie",
+      "v": 2
+    },
+    {
+      "name": "昌吉",
+      "slug": "changji",
+      "v": 2
+    },
+    {
+      "name": "长沙",
+      "slug": "changsha",
+      "v": 2
+    },
+    {
+      "name": "承德",
+      "slug": "chengde",
+      "v": 2
+    },
+    {
+      "name": "崇左",
+      "slug": "chongzuo",
+      "v": 2
+    },
+    {
+      "name": "大连",
+      "slug": "dalian",
+      "v": 2
+    },
+    {
+      "name": "鄂尔多斯",
+      "slug": "eerduosi",
+      "v": 2
+    },
+    {
+      "name": "佛山",
+      "slug": "foshan",
+      "v": 2
+    },
+    {
+      "name": "赣州",
+      "slug": "ganzhou",
+      "v": 2
+    },
+    {
+      "name": "甘孜",
+      "slug": "ganzi",
+      "v": 2
+    },
+    {
+      "name": "广州",
+      "slug": "guangzhou",
+      "v": 2
+    },
+    {
+      "name": "邯郸",
+      "slug": "handan",
+      "v": 2
+    },
+    {
+      "name": "惠州",
+      "slug": "huizhou",
+      "v": 2
+    },
+    {
+      "name": "呼伦贝尔",
+      "slug": "hulunbeier",
+      "v": 2
+    },
+    {
+      "name": "金华",
+      "slug": "jinhua",
+      "v": 2
+    },
+    {
+      "name": "济宁",
+      "slug": "jining",
+      "v": 2
+    },
+    {
+      "name": "九江",
+      "slug": "jiujiang",
+      "v": 2
+    },
+    {
+      "name": "昆明",
+      "slug": "kunming",
+      "v": 2
+    },
+    {
+      "name": "拉萨",
+      "slug": "lasa",
+      "v": 2
+    },
+    {
+      "name": "乐山",
+      "slug": "leshan",
+      "v": 2
+    },
+    {
+      "name": "连云港",
+      "slug": "lianyungang",
+      "v": 2
+    },
+    {
+      "name": "丽江",
+      "slug": "lijiang",
+      "v": 2
+    },
+    {
+      "name": "林芝",
+      "slug": "linzhi",
+      "v": 2
+    },
+    {
+      "name": "丽水",
+      "slug": "lishui",
+      "v": 2
+    },
+    {
+      "name": "龙岩",
+      "slug": "longyan",
+      "v": 2
+    },
+    {
+      "name": "六安",
+      "slug": "luan",
+      "v": 2
+    },
+    {
+      "name": "南充",
+      "slug": "nanchong",
+      "v": 2
+    },
+    {
+      "name": "南京",
+      "slug": "nanjing",
+      "v": 2
+    },
+    {
+      "name": "宁波",
+      "slug": "ningbo",
+      "v": 2
+    },
+    {
+      "name": "宁德",
+      "slug": "ningde",
+      "v": 2
+    },
+    {
+      "name": "青岛",
+      "slug": "qingdao",
+      "v": 2
+    },
+    {
+      "name": "衢州",
+      "slug": "quzhou",
+      "v": 2
+    },
+    {
+      "name": "深圳",
+      "slug": "shenzhen",
+      "v": 2
+    },
+    {
+      "name": "泰安",
+      "slug": "taian",
+      "v": 2
+    },
+    {
+      "name": "唐山",
+      "slug": "tangshan",
+      "v": 2
+    },
+    {
+      "name": "天津",
+      "slug": "tianjin",
+      "v": 2
+    },
+    {
+      "name": "威海",
+      "slug": "weihai",
+      "v": 2
+    },
+    {
+      "name": "温州",
+      "slug": "wenzhou",
+      "v": 2
+    },
+    {
+      "name": "厦门",
+      "slug": "xiamen",
+      "v": 2
+    },
+    {
+      "name": "湘西",
+      "slug": "xiangxi",
+      "v": 2
+    },
+    {
+      "name": "新乡",
+      "slug": "xinxiang",
+      "v": 2
+    },
+    {
+      "name": "忻州",
+      "slug": "xinzhou",
+      "v": 2
+    },
+    {
+      "name": "延边",
+      "slug": "yanbian",
+      "v": 2
+    },
+    {
+      "name": "烟台",
+      "slug": "yantai",
+      "v": 2
+    },
+    {
+      "name": "伊犁",
+      "slug": "yili",
+      "v": 2
+    },
+    {
+      "name": "银川",
+      "slug": "yinchuan",
+      "v": 2
+    },
+    {
+      "name": "镇江",
+      "slug": "zhenjiang",
+      "v": 2
+    },
+    {
+      "name": "阿克苏",
+      "slug": "akesu",
+      "v": 1
+    },
+    {
+      "name": "阿拉善",
+      "slug": "alashan",
+      "v": 1
+    },
+    {
+      "name": "安庆",
+      "slug": "anqing",
+      "v": 1
+    },
+    {
+      "name": "鞍山",
+      "slug": "anshan",
+      "v": 1
+    },
+    {
+      "name": "百色",
+      "slug": "baise",
+      "v": 1
+    },
+    {
+      "name": "保山",
+      "slug": "baoshan",
+      "v": 1
+    },
+    {
+      "name": "巴中",
+      "slug": "bazhong",
+      "v": 1
+    },
+    {
+      "name": "北海",
+      "slug": "beihai",
+      "v": 1
+    },
+    {
+      "name": "博尔塔拉",
+      "slug": "boertala",
+      "v": 1
+    },
+    {
+      "name": "郴州",
+      "slug": "chenzhou",
+      "v": 1
+    },
+    {
+      "name": "池店镇",
+      "slug": "chidianzhen",
+      "v": 1
+    },
+    {
+      "name": "赤峰",
+      "slug": "chifeng",
+      "v": 1
+    },
+    {
+      "name": "滁州",
+      "slug": "chuzhou",
+      "v": 1
+    },
+    {
+      "name": "大理",
+      "slug": "dali",
+      "v": 1
+    },
+    {
+      "name": "大同",
+      "slug": "datong",
+      "v": 1
+    },
+    {
+      "name": "大兴安岭地区",
+      "slug": "daxinganling",
+      "v": 1
+    },
+    {
+      "name": "迪庆香格里拉",
+      "slug": "diqingxianggelila",
+      "v": 1
+    },
+    {
+      "name": "东营",
+      "slug": "dongying",
+      "v": 1
+    },
+    {
+      "name": "抚顺",
+      "slug": "fushun",
+      "v": 1
+    },
+    {
+      "name": "阜阳",
+      "slug": "fuyang",
+      "v": 1
+    },
+    {
+      "name": "福州",
+      "slug": "fuzhou",
+      "v": 1
+    },
+    {
+      "name": "甘南",
+      "slug": "gannan",
+      "v": 1
+    },
+    {
+      "name": "广安",
+      "slug": "guangan",
+      "v": 1
+    },
+    {
+      "name": "广元",
+      "slug": "guangyuan",
+      "v": 1
+    },
+    {
+      "name": "贵阳",
+      "slug": "guiyang",
+      "v": 1
+    },
+    {
+      "name": "固原",
+      "slug": "guyuan",
+      "v": 1
+    },
+    {
+      "name": "哈尔滨",
+      "slug": "haerbin",
+      "v": 1
+    },
+    {
+      "name": "海北州",
+      "slug": "haibeizhou",
+      "v": 1
+    },
+    {
+      "name": "海东",
+      "slug": "haidong",
+      "v": 1
+    },
+    {
+      "name": "合肥",
+      "slug": "hefei",
+      "v": 1
+    },
+    {
+      "name": "黑河",
+      "slug": "heihe",
+      "v": 1
+    },
+    {
+      "name": "衡水",
+      "slug": "hengshui",
+      "v": 1
+    },
+    {
+      "name": "衡阳",
+      "slug": "hengyang",
+      "v": 1
+    },
+    {
+      "name": "河源",
+      "slug": "heyuan",
+      "v": 1
+    },
+    {
+      "name": "贺州",
+      "slug": "hezhou",
+      "v": 1
+    },
+    {
+      "name": "淮安",
+      "slug": "huaian",
+      "v": 1
+    },
+    {
+      "name": "黄冈",
+      "slug": "huanggang",
+      "v": 1
+    },
+    {
+      "name": "呼和浩特",
+      "slug": "huhehaote",
+      "v": 1
+    },
+    {
+      "name": "湖州",
+      "slug": "huzhou",
+      "v": 1
+    },
+    {
+      "name": "吉安",
+      "slug": "jian",
+      "v": 1
+    },
+    {
+      "name": "江门",
+      "slug": "jiangmen",
+      "v": 1
+    },
+    {
+      "name": "焦作",
+      "slug": "jiaozuo",
+      "v": 1
+    },
+    {
+      "name": "嘉峪关",
+      "slug": "jiayuguan",
+      "v": 1
+    },
+    {
+      "name": "济南",
+      "slug": "jinan",
+      "v": 1
+    },
+    {
+      "name": "晋城",
+      "slug": "jincheng",
+      "v": 1
+    },
+    {
+      "name": "景德镇",
+      "slug": "jingdezhen",
+      "v": 1
+    },
+    {
+      "name": "荆门",
+      "slug": "jingmen",
+      "v": 1
+    },
+    {
+      "name": "酒泉",
+      "slug": "jiuquan",
+      "v": 1
+    },
+    {
+      "name": "鸡西",
+      "slug": "jixi",
+      "v": 1
+    },
+    {
+      "name": "开封",
+      "slug": "kaifeng",
+      "v": 1
+    },
+    {
+      "name": "克拉玛依",
+      "slug": "kelamayi",
+      "v": 1
+    },
+    {
+      "name": "临夏州",
+      "slug": "linxiazhou",
+      "v": 1
+    },
+    {
+      "name": "临沂",
+      "slug": "linyi",
+      "v": 1
+    },
+    {
+      "name": "柳州",
+      "slug": "liuzhou",
+      "v": 1
+    },
+    {
+      "name": "陇南",
+      "slug": "longnan",
+      "v": 1
+    },
+    {
+      "name": "马鞍山",
+      "slug": "maanshan",
+      "v": 1
+    },
+    {
+      "name": "梅州",
+      "slug": "meizhou",
+      "v": 1
+    },
+    {
+      "name": "绵阳",
+      "slug": "mianyang",
+      "v": 1
+    },
+    {
+      "name": "牡丹江",
+      "slug": "mudanjiang",
+      "v": 1
+    },
+    {
+      "name": "南昌",
+      "slug": "nanchang",
+      "v": 1
+    },
+    {
+      "name": "南宁",
+      "slug": "nanning",
+      "v": 1
+    },
+    {
+      "name": "南平",
+      "slug": "nanping",
+      "v": 1
+    },
+    {
+      "name": "南通",
+      "slug": "nantong",
+      "v": 1
+    },
+    {
+      "name": "南阳",
+      "slug": "nanyang",
+      "v": 1
+    },
+    {
+      "name": "盘锦",
+      "slug": "panjin",
+      "v": 1
+    },
+    {
+      "name": "平顶山",
+      "slug": "pingdingshan",
+      "v": 1
+    },
+    {
+      "name": "平凉",
+      "slug": "pingliang",
+      "v": 1
+    },
+    {
+      "name": "萍乡",
+      "slug": "pingxiang",
+      "v": 1
+    },
+    {
+      "name": "莆田",
+      "slug": "putian",
+      "v": 1
+    },
+    {
+      "name": "黔东南州",
+      "slug": "qiandongnanzhou",
+      "v": 1
+    },
+    {
+      "name": "黔南州",
+      "slug": "qiannanzhou",
+      "v": 1
+    },
+    {
+      "name": "黔西南州",
+      "slug": "qianxinanzhou",
+      "v": 1
+    },
+    {
+      "name": "清远",
+      "slug": "qingyuan",
+      "v": 1
+    },
+    {
+      "name": "秦皇岛",
+      "slug": "qinhuangdao",
+      "v": 1
+    },
+    {
+      "name": "齐齐哈尔",
+      "slug": "qiqihaer",
+      "v": 1
+    },
+    {
+      "name": "泉州",
+      "slug": "quanzhou",
+      "v": 1
+    },
+    {
+      "name": "日喀则",
+      "slug": "rikaze",
+      "v": 1
+    },
+    {
+      "name": "三明",
+      "slug": "sanming",
+      "v": 1
+    },
+    {
+      "name": "商洛",
+      "slug": "shangluo",
+      "v": 1
+    },
+    {
+      "name": "商丘",
+      "slug": "shangqiu",
+      "v": 1
+    },
+    {
+      "name": "韶关",
+      "slug": "shaoguan",
+      "v": 1
+    },
+    {
+      "name": "绍兴",
+      "slug": "shaoxing",
+      "v": 1
+    },
+    {
+      "name": "邵阳",
+      "slug": "shaoyang",
+      "v": 1
+    },
+    {
+      "name": "神农架",
+      "slug": "shennongjia",
+      "v": 1
+    },
+    {
+      "name": "沈阳",
+      "slug": "shenyang",
+      "v": 1
+    },
+    {
+      "name": "石家庄",
+      "slug": "shijiazhuang",
+      "v": 1
+    },
+    {
+      "name": "十堰",
+      "slug": "shiyan",
+      "v": 1
+    },
+    {
+      "name": "石嘴山",
+      "slug": "shizuishan",
+      "v": 1
+    },
+    {
+      "name": "宿迁",
+      "slug": "suqian",
+      "v": 1
+    },
+    {
+      "name": "太原",
+      "slug": "taiyuan",
+      "v": 1
+    },
+    {
+      "name": "腾冲",
+      "slug": "tengchong",
+      "v": 1
+    },
+    {
+      "name": "天水",
+      "slug": "tianshui",
+      "v": 1
+    },
+    {
+      "name": "铜仁",
+      "slug": "tongren",
+      "v": 1
+    },
+    {
+      "name": "吐鲁番",
+      "slug": "tulufan",
+      "v": 1
+    },
+    {
+      "name": "潍坊",
+      "slug": "weifang",
+      "v": 1
+    },
+    {
+      "name": "渭南",
+      "slug": "weinan",
+      "v": 1
+    },
+    {
+      "name": "文山",
+      "slug": "wenshan",
+      "v": 1
+    },
+    {
+      "name": "芜湖",
+      "slug": "wuhu",
+      "v": 1
+    },
+    {
+      "name": "乌鲁木齐",
+      "slug": "wulumuqi",
+      "v": 1
+    },
+    {
+      "name": "吴忠",
+      "slug": "wuzhong",
+      "v": 1
+    },
+    {
+      "name": "湘潭",
+      "slug": "xiangtan",
+      "v": 1
+    },
+    {
+      "name": "襄阳",
+      "slug": "xiangyang",
+      "v": 1
+    },
+    {
+      "name": "咸宁",
+      "slug": "xianning",
+      "v": 1
+    },
+    {
+      "name": "咸阳",
+      "slug": "xianyang",
+      "v": 1
+    },
+    {
+      "name": "兴安盟",
+      "slug": "xingan",
+      "v": 1
+    },
+    {
+      "name": "西宁",
+      "slug": "xining",
+      "v": 1
+    },
+    {
+      "name": "信阳",
+      "slug": "xinyang",
+      "v": 1
+    },
+    {
+      "name": "西双版纳",
+      "slug": "xishuangbanna",
+      "v": 1
+    },
+    {
+      "name": "宣城",
+      "slug": "xuancheng",
+      "v": 1
+    },
+    {
+      "name": "徐州",
+      "slug": "xuzhou",
+      "v": 1
+    },
+    {
+      "name": "雅安",
+      "slug": "yaan",
+      "v": 1
+    },
+    {
+      "name": "盐城",
+      "slug": "yancheng",
+      "v": 1
+    },
+    {
+      "name": "阳江",
+      "slug": "yangjiang",
+      "v": 1
+    },
+    {
+      "name": "扬州",
+      "slug": "yangzhou",
+      "v": 1
+    },
+    {
+      "name": "宜春",
+      "slug": "yichun",
+      "v": 1
+    },
+    {
+      "name": "伊春",
+      "slug": "yichun-hlj",
+      "v": 1
+    },
+    {
+      "name": "鹰潭",
+      "slug": "yingtan",
+      "v": 1
+    },
+    {
+      "name": "岳阳",
+      "slug": "yueyang",
+      "v": 1
+    },
+    {
+      "name": "枣庄",
+      "slug": "zaozhuang",
+      "v": 1
+    },
+    {
+      "name": "张家界",
+      "slug": "zhangjiajie",
+      "v": 1
+    },
+    {
+      "name": "张掖",
+      "slug": "zhangye",
+      "v": 1
+    },
+    {
+      "name": "长治",
+      "slug": "zhangzhi",
+      "v": 1
+    },
+    {
+      "name": "肇庆",
+      "slug": "zhaoqing",
+      "v": 1
+    },
+    {
+      "name": "郑州",
+      "slug": "zhengzhou",
+      "v": 1
+    },
+    {
+      "name": "中山",
+      "slug": "zhongshan",
+      "v": 1
+    },
+    {
+      "name": "中卫",
+      "slug": "zhongwei",
+      "v": 1
+    },
+    {
+      "name": "周口",
+      "slug": "zhoukou",
+      "v": 1
+    },
+    {
+      "name": "舟山",
+      "slug": "zhoushan",
+      "v": 1
+    },
+    {
+      "name": "驻马店",
+      "slug": "zhumadian",
+      "v": 1
+    },
+    {
+      "name": "株洲",
+      "slug": "zhuzhou",
+      "v": 1
+    },
+    {
+      "name": "淄博",
+      "slug": "zibo",
+      "v": 1
+    },
+    {
+      "name": "遵义",
+      "slug": "zunyi",
+      "v": 1
+    }
+  ]
+}

@@ -801,22 +801,13 @@ groups:
           - { name: 北海, slug: beihai, note: 银滩“暖冬” 慢享滨海“小垦丁”与亲子赶海 }
       - slug: shidalvyouchengshi
         title: 中国十大旅游城市
-        kind: "pending"
+        kind: "computed"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 北京, slug: beijing, note: 千年古都 中国首都 }
-          - { name: 西安, slug: xian, note: 世界四大文明古都之一 汉唐文化代表 }
-          - { name: 南京, slug: nanjing, note: 六朝古都 中国唯一“世界文学之都” }
-          - { name: 洛阳, slug: luoyang, note: 十三朝古都 华夏文明的重要发祥地 }
-          - { name: 成都, slug: chengdu, note: 天府之国 古蜀文明的重要发源地 }
-          - { name: 张家界, slug: zhangjiajie, note: 因旅游建市 美丽中国的靓丽名片 }
-          - { name: 上海, slug: shanghai, note: “东方明珠” 世界四大“魔都”之一 }
-          - { name: 苏州, slug: suzhou, note: “人间天堂” 著名江南水乡 }
-          - { name: 上饶, slug: shangrao, note: 中国旅游美食名城 国家森林城市 }
-          - { name: 杭州, slug: hangzhou, note: “人间天堂” 国际花园城市 }
+        lede: 按城市辖区内的国家 5A 级旅游景区数量排序，数据源为文化和旅游部「国家5A级旅游景区」名单（截至 2025-03-11）。
+        metrics:
+          - { field: "scenic_5a", weight: 1.0, dir: "up", label: "国家 5A 级旅游景区数量", unit: "家", scale: "log" }
+        note: 口径说明：本榜只计「国家 5A 级旅游景区数量」这一个可查证指标（文化和旅游部名单，数据截止 2025-03-11，按景区所在城市计数；名单自带城市标注的跨市景区按涉及城市各计 1 家）。它反映的是高等级景区资源的集中度，**不等于城市综合旅游吸引力**——游客接待量、气候舒适度、美食与交通便利度均未计入，所以本榜前十与常见的「旅游城市」口碑榜会有出入（例如重庆因辖内 12 家 5A 景区居首）。第 6 名起多家城市同为 4 家 5A，属名次并列，先后不代表差异；未采集到该指标的城市不参与本榜，不按 0 处理。未入库的 5A 景区（城市未建档或无法确定地级市归属，共 10 条）逐条列在 tools/city-metrics-batches/scenic-5a-2025-sources.md。
       - slug: shidachunjilvyouch
         title: 中国十大春季旅游城市
         kind: "pending"
