@@ -42,7 +42,8 @@ var fsNext = fsIdx > -1 ? FS_NAV[(fsIdx + 1) % FS_NAV.length] : null
       <p class="page-head-kicker">FESTIVAL</p>
       <h1 class="page-head-title">节日文化</h1>
     </header>
-    <p class="post-desc">这一页的数据没有就位（<code><%= page.festival || '未知页面' %></code>）：<%= f && f.error ? f.error : 'front-matter 缺少 festival 字段' %>。请在 <code>source/_data/festivals.yml</code> 与 <code>source/_data/holidays.yml</code> 里补齐后重新构建。</p>
+    <p class="post-desc">这一页的内容还在整理中，暂时无法展示，欢迎稍后再来看看。</p>
+    <!-- dev: <%= page.festival || '未知页面' %>; <%= f && f.error ? f.error : 'front-matter 缺少 festival 字段' %> -->
   </div>
 </div>
 <% } else { %>

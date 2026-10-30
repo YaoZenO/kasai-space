@@ -38,7 +38,8 @@ for (var j = 0; j < list.length; j += 1) { if (list[j].n > 0) withMentions += 1 
     </header>
 
     <% if (CR.error) { %>
-    <p class="post-desc">城市数据没有就位：<%= CR.error %>。</p>
+    <p class="post-desc">城市档案的数据还在整理中，暂时无法展示，欢迎稍后再来看看。</p>
+    <!-- dev: <%= CR.error %> -->
     <% } else { %>
 
     <ul class="cr-citylist">

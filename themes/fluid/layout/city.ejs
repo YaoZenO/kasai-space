@@ -41,7 +41,8 @@ for (var si = 0; si < CR.citySources.length; si += 1) { srcMap[CR.citySources[si
       <p class="page-head-kicker">CITY</p>
       <h1 class="page-head-title">城市档案</h1>
     </header>
-    <p class="post-desc">这座城市的数据没有就位（<code><%= page.citySlug || '未知城市' %></code>）：<%= CR.error || '数据里找不到该城市' %>。</p>
+    <p class="post-desc">这座城市的档案还在整理中，暂时无法展示，欢迎稍后再来看看。</p>
+    <!-- dev: slug=<%= page.citySlug || '未知城市' %>; <%= CR.error || '数据里找不到该城市' %> -->
     <% } else { %>
 
     <header class="page-head">
