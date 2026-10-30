@@ -1,0 +1,192 @@
+{
+  "_comment": "P3 第十六批：36 座省会与计划单列市的医院数 / 执业(助理)医师数，全部取自国家统计局《中国统计年鉴2025》表 25-2「省会城市和计划单列市主要指标(2024年)」（图片表 https://www.stats.gov.cn/sj/ndsj/2025/html/C25-02.jpg ，口径为「包括市辖县」）。数值经三次读图核对：沈阳 41187、深圳 54295 两次读数分歧后按 2:1 取值，其余 34 城两次一致。逐城数据与核对记录见 tools/city-metrics-batches/health-nbs-2024-sources.md",
+  "source": {
+    "key": "nbs2025city",
+    "name": "国家统计局《中国统计年鉴2025》表 25-2 省会城市和计划单列市主要指标（2024 年，包括市辖县）",
+    "asOf": "2024"
+  },
+  "field": "hospitals",
+  "unit": "个",
+  "rows": [
+    {
+      "name": "北京",
+      "slug": "beijing",
+      "v": 682
+    },
+    {
+      "name": "天津",
+      "slug": "tianjin",
+      "v": 453
+    },
+    {
+      "name": "石家庄",
+      "slug": "shijiazhuang",
+      "v": 344
+    },
+    {
+      "name": "太原",
+      "slug": "taiyuan",
+      "v": 162
+    },
+    {
+      "name": "呼和浩特",
+      "slug": "huhehaote",
+      "v": 122
+    },
+    {
+      "name": "沈阳",
+      "slug": "shenyang",
+      "v": 314
+    },
+    {
+      "name": "大连",
+      "slug": "dalian",
+      "v": 250
+    },
+    {
+      "name": "长春",
+      "slug": "changchun",
+      "v": 289
+    },
+    {
+      "name": "哈尔滨",
+      "slug": "haerbin",
+      "v": 360
+    },
+    {
+      "name": "上海",
+      "slug": "shanghai",
+      "v": 492
+    },
+    {
+      "name": "南京",
+      "slug": "nanjing",
+      "v": 315
+    },
+    {
+      "name": "杭州",
+      "slug": "hangzhou",
+      "v": 417
+    },
+    {
+      "name": "宁波",
+      "slug": "ningbo",
+      "v": 214
+    },
+    {
+      "name": "合肥",
+      "slug": "hefei",
+      "v": 231
+    },
+    {
+      "name": "福州",
+      "slug": "fuzhou",
+      "v": 152
+    },
+    {
+      "name": "厦门",
+      "slug": "xiamen",
+      "v": 70
+    },
+    {
+      "name": "南昌",
+      "slug": "nanchang",
+      "v": 158
+    },
+    {
+      "name": "济南",
+      "slug": "jinan",
+      "v": 336
+    },
+    {
+      "name": "青岛",
+      "slug": "qingdao",
+      "v": 369
+    },
+    {
+      "name": "郑州",
+      "slug": "zhengzhou",
+      "v": 292
+    },
+    {
+      "name": "武汉",
+      "slug": "wuhan",
+      "v": 373
+    },
+    {
+      "name": "长沙",
+      "slug": "changsha",
+      "v": 245
+    },
+    {
+      "name": "广州",
+      "slug": "guangzhou",
+      "v": 336
+    },
+    {
+      "name": "深圳",
+      "slug": "shenzhen",
+      "v": 162
+    },
+    {
+      "name": "南宁",
+      "slug": "nanning",
+      "v": 179
+    },
+    {
+      "name": "海口",
+      "slug": "haikou",
+      "v": 78
+    },
+    {
+      "name": "重庆",
+      "slug": "chongqing",
+      "v": 851
+    },
+    {
+      "name": "成都",
+      "slug": "chengdu",
+      "v": 807
+    },
+    {
+      "name": "贵阳",
+      "slug": "guiyang",
+      "v": 225
+    },
+    {
+      "name": "昆明",
+      "slug": "kunming",
+      "v": 314
+    },
+    {
+      "name": "拉萨",
+      "slug": "lasa",
+      "v": 35
+    },
+    {
+      "name": "西安",
+      "slug": "xian",
+      "v": 390
+    },
+    {
+      "name": "兰州",
+      "slug": "lanzhou",
+      "v": 120
+    },
+    {
+      "name": "西宁",
+      "slug": "xining",
+      "v": 81
+    },
+    {
+      "name": "银川",
+      "slug": "yinchuan",
+      "v": 86
+    },
+    {
+      "name": "乌鲁木齐",
+      "slug": "wulumuqi",
+      "v": 130
+    }
+  ]
+}

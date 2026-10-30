@@ -64,12 +64,17 @@ sources:
   - key: "scenic5aMCT2025"
     name: "文化和旅游部数据服务「国家5A级旅游景区」名单（数据截止 2025-03-11；按景区所在城市计数，名单标注的跨市景区按涉及城市各计 1 家）"
     asOf: "2025"
+  - key: "nbs2025city"
+    name: "国家统计局《中国统计年鉴2025》表 25-2 省会城市和计划单列市主要指标（2024 年，包括市辖县）"
+    asOf: "2024"
 cities:
   - name: 北京
     slug: beijing
     province: 北京市
     level: 直辖市
     metrics:
+      doctors: { v: 126405, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 682, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 9, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 845100.3, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 290, unit: "天", asOf: "2024", source: "airNBS2024" }
@@ -90,6 +95,8 @@ cities:
     province: 浙江省
     level: 省会
     metrics:
+      doctors: { v: 66209, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 417, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 3, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 796104, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 299, unit: "天", asOf: "2024", source: "airNBS2024" }
@@ -109,6 +116,8 @@ cities:
     province: 上海市
     level: 直辖市
     metrics:
+      doctors: { v: 94160, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 492, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 5, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 1152822.4, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 323, unit: "天", asOf: "2024", source: "airNBS2024" }
@@ -129,6 +138,8 @@ cities:
     province: 四川省
     level: 省会
     metrics:
+      doctors: { v: 91158, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 807, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 3, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 698957.6, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 296, unit: "天", asOf: "2024", source: "airNBS2024" }
@@ -149,6 +160,8 @@ cities:
     province: 广东省
     level: 省会
     metrics:
+      doctors: { v: 75350, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 336, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 2189848.6, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 344, unit: "天", asOf: "2024", source: "airNBS2024" }
@@ -169,6 +182,8 @@ cities:
     province: 江苏省
     level: 省会
     metrics:
+      doctors: { v: 45824, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 315, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 336789.3, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 314, unit: "天", asOf: "2024", source: "airNBS2024" }
@@ -190,6 +205,8 @@ cities:
     province: 广东省
     level: 计划单列市
     metrics:
+      doctors: { v: 54295, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 162, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 1201663.5, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       latitude: { v: 22.5, unit: "°N", asOf: "2024", source: "lat2024" }
@@ -204,6 +221,8 @@ cities:
     province: 湖北省
     level: 省会
     metrics:
+      doctors: { v: 52766, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 373, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 3, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 547631.8, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 285, unit: "天", asOf: "2024", source: "airNBS2024" }
@@ -224,6 +243,8 @@ cities:
     province: 重庆市
     level: 直辖市
     metrics:
+      doctors: { v: 108727, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 851, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 12, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 608954.5, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 329, unit: "天", asOf: "2024", source: "airNBS2024" }
@@ -242,6 +263,8 @@ cities:
     province: 陕西省
     level: 省会
     metrics:
+      doctors: { v: 56689, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 390, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 5, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 486938.7, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 241, unit: "天", asOf: "2024", source: "airNBS2024" }
@@ -262,6 +285,8 @@ cities:
     province: 福建省
     level: 计划单列市
     metrics:
+      doctors: { v: 20147, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 70, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 189683.2, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 536.5, unit: "万人", asOf: "2025", source: "pop2025" }
@@ -289,6 +314,8 @@ cities:
     province: 湖南省
     level: 省会
     metrics:
+      doctors: { v: 45101, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 245, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 472437.8, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 304, unit: "天", asOf: "2024", source: "airNBS2024" }
@@ -308,6 +335,8 @@ cities:
     province: 云南省
     level: 省会
     metrics:
+      doctors: { v: 40909, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 314, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 230657, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 365, unit: "天", asOf: "2024", source: "airNBS2024" }
@@ -326,6 +355,8 @@ cities:
     province: 山东省
     level: 计划单列市
     metrics:
+      doctors: { v: 44910, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 369, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 338509.3, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       area_km2: { v: 11293.36, unit: "平方公里", asOf: "2018", source: "areaSD2018" }
@@ -342,6 +373,8 @@ cities:
     province: 黑龙江省
     level: 省会
     metrics:
+      doctors: { v: 36225, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 360, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 231665.3, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 312, unit: "天", asOf: "2024", source: "airNBS2024" }
@@ -373,6 +406,8 @@ cities:
     province: 贵州省
     level: 省会
     metrics:
+      doctors: { v: 28082, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 225, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       air_good_days: { v: 364, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 20, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -396,6 +431,8 @@ cities:
     province: 天津市
     level: 直辖市
     metrics:
+      doctors: { v: 60779, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 453, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 478590.1, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 268, unit: "天", asOf: "2024", source: "airNBS2024" }
@@ -415,6 +452,8 @@ cities:
     province: 辽宁省
     level: 计划单列市
     metrics:
+      doctors: { v: 28295, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 250, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       sun_hours: { v: 2681.9, unit: "小时", asOf: "2024", source: "climateNBS2024" }
       temp_jul: { v: 25.1, unit: "℃", asOf: "2024", source: "climateNBS2024" }
@@ -428,6 +467,8 @@ cities:
     province: 河南省
     level: 省会
     metrics:
+      doctors: { v: 59968, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 292, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 559709, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 231, unit: "天", asOf: "2024", source: "airNBS2024" }
@@ -447,6 +488,8 @@ cities:
     province: 吉林省
     level: 省会
     metrics:
+      doctors: { v: 39747, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 289, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 4, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 184065.6, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 328, unit: "天", asOf: "2024", source: "airNBS2024" }
@@ -465,6 +508,8 @@ cities:
     province: 辽宁省
     level: 省会
     metrics:
+      doctors: { v: 41187, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 314, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 334838.2, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 318, unit: "天", asOf: "2024", source: "airNBS2024" }
@@ -490,6 +535,8 @@ cities:
     province: 福建省
     level: 省会
     metrics:
+      doctors: { v: 31051, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 152, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 246150.7, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 359, unit: "天", asOf: "2024", source: "airNBS2024" }
@@ -508,6 +555,8 @@ cities:
     province: 海南省
     level: 省会
     metrics:
+      doctors: { v: 12726, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 78, unit: "个", asOf: "2024", source: "nbs2025city" }
       air_good_days: { v: 353, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 16, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       area_km2: { v: 2297.04, unit: "平方公里", asOf: "2025", source: "areaGov" }
@@ -521,6 +570,8 @@ cities:
     province: 西藏自治区
     level: 省会
     metrics:
+      doctors: { v: 4277, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 35, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       air_good_days: { v: 356, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 11, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -544,6 +595,8 @@ cities:
     province: 宁夏回族自治区
     level: 省会
     metrics:
+      doctors: { v: 13007, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 86, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       air_good_days: { v: 294, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 36, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -559,6 +612,8 @@ cities:
     province: 江西省
     level: 省会
     metrics:
+      doctors: { v: 24515, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 158, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 257223.6, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 337, unit: "天", asOf: "2024", source: "airNBS2024" }
@@ -577,6 +632,8 @@ cities:
     province: 广西壮族自治区
     level: 省会
     metrics:
+      doctors: { v: 35930, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 179, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 232639, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 354, unit: "天", asOf: "2024", source: "airNBS2024" }
@@ -595,6 +652,8 @@ cities:
     province: 浙江省
     level: 计划单列市
     metrics:
+      doctors: { v: 39719, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 214, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 386531.9, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 983.3, unit: "万人", asOf: "2025", source: "pop2025" }
@@ -643,6 +702,8 @@ cities:
     province: 青海省
     level: 省会
     metrics:
+      doctors: { v: 12282, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 81, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       air_good_days: { v: 335, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 33, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -672,6 +733,8 @@ cities:
     province: 内蒙古自治区
     level: 省会
     metrics:
+      doctors: { v: 15874, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 122, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       air_good_days: { v: 312, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 28, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -699,6 +762,8 @@ cities:
     province: 河北省
     level: 省会
     metrics:
+      doctors: { v: 52430, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 344, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 440449, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 236, unit: "天", asOf: "2024", source: "airNBS2024" }
@@ -717,6 +782,8 @@ cities:
     province: 山西省
     level: 省会
     metrics:
+      doctors: { v: 29108, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 162, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       air_good_days: { v: 248, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 40, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -734,6 +801,8 @@ cities:
     province: 新疆维吾尔自治区
     level: 省会
     metrics:
+      doctors: { v: 19204, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 130, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       air_good_days: { v: 312, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 34, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
@@ -776,6 +845,8 @@ cities:
     province: 安徽省
     level: 省会
     metrics:
+      doctors: { v: 36418, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 231, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 383391.5, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 315, unit: "天", asOf: "2024", source: "airNBS2024" }
@@ -819,6 +890,8 @@ cities:
     province: 甘肃省
     level: 省会
     metrics:
+      doctors: { v: 19434, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 120, unit: "个", asOf: "2024", source: "nbs2025city" }
       air_good_days: { v: 301, unit: "天", asOf: "2024", source: "airNBS2024" }
       pm25: { v: 37, unit: "微克/立方米", asOf: "2024", source: "airNBS2024" }
       area_km2: { v: 13100, unit: "平方公里", asOf: "2025", source: "areaGov" }
@@ -879,6 +952,8 @@ cities:
     province: 山东省
     level: 省会
     metrics:
+      doctors: { v: 50920, unit: "人", asOf: "2024", source: "nbs2025city" }
+      hospitals: { v: 336, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 258293.2, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       air_good_days: { v: 244, unit: "天", asOf: "2024", source: "airNBS2024" }

@@ -1713,22 +1713,14 @@ groups:
     ranks:
       - slug: yiliaoshuipingjiao
         title: 中国医疗水平较高的10座城市
-        kind: "pending"
+        kind: "computed"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 北京, slug: beijing, note: 全国医疗资源最集中地区 拥有全国约1/4的百强医院 }
-          - { name: 上海, slug: shanghai, note: 医疗体系国际化程度高 专科实力强 }
-          - { name: 广州, slug: guangzhou, note: 华南医疗中心 临床与科研并重 }
-          - { name: 武汉, slug: wuhan, note: 中部医疗中心 国家设置的十大国家医学中心之一 }
-          - { name: 南京, slug: nanjing, note: 医疗教育资源雄厚 重症医学/肾脏病/心血管病等领域实力雄厚 }
-          - { name: 成都, slug: chengdu, note: 西部医疗高地 高原病/创伤急救/妇幼健康等领域特色鲜明 }
-          - { name: 重庆, slug: chongqing, note: 西南重要医疗中心 三甲医院数量多 }
-          - { name: 杭州, slug: hangzhou, note: 数字医疗与综合医疗实力兼具 智慧医疗/肿瘤精准治疗/眼科等领域领先 }
-          - { name: 长沙, slug: changsha, note: 专科实力突出 人均医疗资源丰富 }
-          - { name: 西安, slug: xian, note: 西北医疗核心城市 医疗资源集中 }
+        lede: 按执业（助理）医师数量与医院数量加权排序，两项均为国家统计局《中国统计年鉴2025》表 25-2 的 2024 年统一口径。
+        metrics:
+          - { field: "doctors", weight: 0.6, dir: "up", label: "执业（助理）医师数", unit: "人", scale: "log" }
+          - { field: "hospitals", weight: 0.4, dir: "up", label: "医院数", unit: "个", scale: "log" }
+        note: 口径说明：医师数权重 0.6、医院数 0.4——医师规模更能代表实际服务能力，医院数作为资源覆盖面的补充。数据为国家统计局《中国统计年鉴2025》表 25-2「省会城市和计划单列市主要指标（2024年）」，口径为「包括市辖县」。候选范围为该表覆盖的 36 座省会与计划单列市，其他城市未采集到同口径数据，不参与本榜，不按 0 处理。两点边界：① 本榜用的是总量而非人均密度——常住人口（2025 年末）与医师数（2024 年）统计时点不同，做密度会混入口径差；② PRD §2.1 提到的「三甲医院数」没有全国统一权威名单（各市卫健委口径不一），故改用国家统计局统一口径的医师数与医院数。
       - slug: shidatiyuzhixiang
         title: 中国十大体育之乡
         kind: "pending"
