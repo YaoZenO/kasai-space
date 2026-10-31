@@ -268,8 +268,8 @@ button:focus-visible,
   display: flex;
   border-radius: 999px;
   background-color: var(--navbar-bg-color);
-  -webkit-backdrop-filter: blur(20px) saturate(1.5);
-  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  backdrop-filter: blur(24px) saturate(1.8);
   border: 1px solid rgba(255, 255, 255, 0.75);
   box-shadow: var(--site-float-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.6);
   padding: 0.3rem 0.35rem;
@@ -368,11 +368,18 @@ button:focus-visible,
 
 /* 辅助导航：不用胶囊底，左侧细分隔线 + 留白与主胶囊分开；文字链接形态 */
 #navbar .site-nav-aux {
+  /* V6.1：辅助导航升级为第二枚玻璃胶囊（此前裸文字贴冷底，与主胶囊割裂）——
+     与主胶囊同材质：半透明白 + blur + 白高光描边 + 蓝调投影，去竖分隔线 */
   display: flex;
   align-items: center;
   gap: 0.15rem;
-  padding-left: 1.35rem;
-  border-left: 1px solid var(--site-chip-border);
+  padding: 0.3rem 0.35rem;
+  border-radius: 999px;
+  background-color: var(--navbar-bg-color);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  backdrop-filter: blur(24px) saturate(1.8);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow: var(--site-float-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 #navbar .site-nav-aux-link {
@@ -2635,7 +2642,7 @@ body.is-home footer {
   font-size: .75rem;
   font-weight: 700;
   letter-spacing: .12em;
-  color: #0a7cff;
+  color: var(--accent);
 }
 
 /* 参考站的卡片节日名走 --serif（拉丁 Fraunces + 中文宋体），这里对齐 */
@@ -2686,7 +2693,7 @@ body.is-home footer {
   font-family: var(--font-mono);
   font-size: .75rem;
   letter-spacing: .06em;
-  color: #0a7cff;
+  color: var(--accent);
 }
 
 .cal-panel-link[hidden] { display: none; }
@@ -2893,14 +2900,20 @@ body.is-home footer {
 
 /* ---- 生肖导航条：全宽横排（2026-10-25 主人指出旧版右栏导航与标题视觉不对齐，横排从结构上消除） ---- */
 .z-nav-strip {
+  /* V6.1：生肖导航条玻璃化（此前上下 hairline 直接卡在 ambient 渐变上，割裂感强）——
+     改为通栏玻璃条，与导航胶囊同材质 */
   display: flex;
   align-items: baseline;
   flex-wrap: wrap;
   gap: 0.55rem 1.1rem;
   margin: 1.6rem 0 0;
-  padding: 0.7rem 0;
-  border-top: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
+  padding: 0.7rem 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 16px;
+  background: var(--navbar-bg-color);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  backdrop-filter: blur(24px) saturate(1.8);
+  box-shadow: var(--site-float-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 .z-nav-strip-label {
@@ -3174,6 +3187,15 @@ body.is-home footer {
 
 .cal-page a.z-link:hover { color: var(--accent-strong); }
 
+/* V6.1（2026-10-31）：节假日页专属「印章红」——主人拍板「变红才是放假的主旋律」。
+   冷色系不动（底/墨/玻璃全站共享），仅此页把 accent 换回朱红：
+   日历「休」日期块、当前日圆环、面板小标与链接随红；蓝留给术语链（--z-link）。
+   红蓝分工 = 红是放假语义、蓝是跳转语义。其它 cal 族（生肖/节气/城市榜）不受影响。 */
+.pg-holidays {
+  --accent: #c4463a;
+  --accent-strong: #a83a30;
+}
+
 /* ---- 移动端：目录收起为悬浮按钮 + 底部抽屉（复刻参考站交互） ---- */
 .z-toc-fab,
 .z-toc-overlay,
@@ -3425,9 +3447,13 @@ body.is-home footer {
   min-width: 0;
   gap: 0.55rem 1.1rem;
   margin: 1.6rem 0 0;
-  padding: 0.7rem 0;
-  border-top: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
+  padding: 0.7rem 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 16px;
+  background: var(--navbar-bg-color);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  backdrop-filter: blur(24px) saturate(1.8);
+  box-shadow: var(--site-float-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 .fs-nav-strip-label {

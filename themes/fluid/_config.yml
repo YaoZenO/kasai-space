@@ -157,7 +157,7 @@ color:
 
   # 顶部菜单背景色
   # Color of navigation bar background
-  navbar_bg_color: "rgba(255, 255, 255, 0.55)"
+  navbar_bg_color: "rgba(255, 255, 255, 0.45)"
   navbar_bg_color_dark: "#1f3144"
 
   # 顶部菜单字体色
