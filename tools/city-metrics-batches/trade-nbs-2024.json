@@ -1,0 +1,192 @@
+{
+  "_comment": "P3 第十八批：36 座省会与计划单列市的社会消费品零售总额 / 住户存款余额 / 货物进出口总额，全部取自国家统计局《中国统计年鉴2025》表 25-2「省会城市和计划单列市主要指标(2024年)」（图片表 https://www.stats.gov.cn/sj/ndsj/2025/html/C25-02.jpg ，口径「包括市辖县」；住户存款余额为年末金融机构人民币各项存款中的储蓄存款，见原表脚注）。读图两次核对一致；表内自检：北京 GDP 49843 = 三次产业 116+7227+42500。逐城数据见 tools/city-metrics-batches/econ-nbs-2024-sources.md",
+  "source": {
+    "key": "nbs2025city",
+    "name": "国家统计局《中国统计年鉴2025》表 25-2 省会城市和计划单列市主要指标（2024 年，包括市辖县）",
+    "asOf": "2024"
+  },
+  "field": "trade_total",
+  "unit": "亿元",
+  "rows": [
+    {
+      "name": "北京",
+      "slug": "beijing",
+      "v": 36079
+    },
+    {
+      "name": "天津",
+      "slug": "tianjin",
+      "v": 8133
+    },
+    {
+      "name": "石家庄",
+      "slug": "shijiazhuang",
+      "v": 1319
+    },
+    {
+      "name": "太原",
+      "slug": "taiyuan",
+      "v": 1296
+    },
+    {
+      "name": "呼和浩特",
+      "slug": "huhehaote",
+      "v": 227
+    },
+    {
+      "name": "沈阳",
+      "slug": "shenyang",
+      "v": 1466
+    },
+    {
+      "name": "大连",
+      "slug": "dalian",
+      "v": 4497
+    },
+    {
+      "name": "长春",
+      "slug": "changchun",
+      "v": 1275
+    },
+    {
+      "name": "哈尔滨",
+      "slug": "haerbin",
+      "v": 483
+    },
+    {
+      "name": "上海",
+      "slug": "shanghai",
+      "v": 42707
+    },
+    {
+      "name": "南京",
+      "slug": "nanjing",
+      "v": 5459
+    },
+    {
+      "name": "杭州",
+      "slug": "hangzhou",
+      "v": 8649
+    },
+    {
+      "name": "宁波",
+      "slug": "ningbo",
+      "v": 14203
+    },
+    {
+      "name": "合肥",
+      "slug": "hefei",
+      "v": 3791
+    },
+    {
+      "name": "福州",
+      "slug": "fuzhou",
+      "v": 3653
+    },
+    {
+      "name": "厦门",
+      "slug": "xiamen",
+      "v": 9323
+    },
+    {
+      "name": "南昌",
+      "slug": "nanchang",
+      "v": 1090
+    },
+    {
+      "name": "济南",
+      "slug": "jinan",
+      "v": 2324
+    },
+    {
+      "name": "青岛",
+      "slug": "qingdao",
+      "v": 9077
+    },
+    {
+      "name": "郑州",
+      "slug": "zhengzhou",
+      "v": 5566
+    },
+    {
+      "name": "武汉",
+      "slug": "wuhan",
+      "v": 4034
+    },
+    {
+      "name": "长沙",
+      "slug": "changsha",
+      "v": 2777
+    },
+    {
+      "name": "广州",
+      "slug": "guangzhou",
+      "v": 11249
+    },
+    {
+      "name": "深圳",
+      "slug": "shenzhen",
+      "v": 45648
+    },
+    {
+      "name": "南宁",
+      "slug": "nanning",
+      "v": 930
+    },
+    {
+      "name": "海口",
+      "slug": "haikou",
+      "v": 860
+    },
+    {
+      "name": "重庆",
+      "slug": "chongqing",
+      "v": 7151
+    },
+    {
+      "name": "成都",
+      "slug": "chengdu",
+      "v": 8390
+    },
+    {
+      "name": "贵阳",
+      "slug": "guiyang",
+      "v": 531
+    },
+    {
+      "name": "昆明",
+      "slug": "kunming",
+      "v": 1534
+    },
+    {
+      "name": "拉萨",
+      "slug": "lasa",
+      "v": 65
+    },
+    {
+      "name": "西安",
+      "slug": "xian",
+      "v": 4118
+    },
+    {
+      "name": "兰州",
+      "slug": "lanzhou",
+      "v": 96
+    },
+    {
+      "name": "西宁",
+      "slug": "xining",
+      "v": 49
+    },
+    {
+      "name": "银川",
+      "slug": "yinchuan",
+      "v": 122
+    },
+    {
+      "name": "乌鲁木齐",
+      "slug": "wulumuqi",
+      "v": 801
+    }
+  ]
+}

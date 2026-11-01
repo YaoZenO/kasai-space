@@ -234,22 +234,13 @@ groups:
           - { name: 南京, slug: nanjing, note: 社会治安长期稳定 通信枢纽地位保障信息畅通 }
       - slug: xiaofeizuigaodeshi
         title: 中国消费最高的十大城市
-        kind: "pending"
+        kind: "computed"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 杭州, slug: hangzhou, note: 人均消费支出超5.29万元 人均可支配收入超7.67万元 }
-          - { name: 上海, slug: shanghai, note: 人均消费支出超5.27万元 人均可支配收入超8.83万元 }
-          - { name: 深圳, slug: shenzhen, note: 人均消费支出超5.14万元 人均可支配收入超8.11万元 }
-          - { name: 温州, slug: wenzhou, note: 人均消费支出超5.02万元 人均可支配收入超7.08万元 }
-          - { name: 北京, slug: beijing, note: 人均消费支出超4.97万元 人均可支配收入超8.54万元 }
-          - { name: 厦门, slug: xiamen, note: 人均消费支出超4.9万元 人均可支配收入超7.42万元 }
-          - { name: 宁波, slug: ningbo, note: 人均消费支出超4.83万元 人均可支配收入超7.48万元 }
-          - { name: 苏州, slug: suzhou, note: 人均消费支出超4.81万元 人均可支配收入超7.75万元 }
-          - { name: 广州, slug: guangzhou, note: 人均消费支出超4.78万元 人均可支配收入超8.34万元 }
-          - { name: 绍兴, slug: shaoxing, note: 人均消费支出超4.68万元 人均可支配收入超7.28万元 }
+        lede: 按社会消费品零售总额从大到小排序，候选范围为 36 座省会与计划单列市，数据源为国家统计局《中国统计年鉴2025》表 25-2（2024 年）。
+        metrics:
+          - { field: "retail_sales", weight: 1.0, dir: "up", label: "社会消费品零售总额", unit: "亿元", scale: "log" }
+        note: 口径说明：本榜按社会消费品零售总额（商品零售 + 餐饮收入，反映消费市场总规模）排序，与原榜的人均消费支出口径不同——原榜的温州、苏州、绍兴等非省会 / 非计划单列市不在本榜候选内。数据为国家统计局《中国统计年鉴2025》表 25-2「省会城市和计划单列市主要指标（2024年）」，口径「包括市辖县」。两点边界：① 总量榜与人均榜含义不同——重庆、成都这类人口大市的社零总量天然靠前，不代表市民人均消费水平高；② PRD §2.1 提到的 CPI 加权未实做（无城市级统一口径的月度 CPI 全量数据）。候选范围为该表覆盖的 36 城，其他城市未采集到同口径数据，不参与本榜，不按 0 处理。
       - slug: guihuazuihaodeshid
         title: 中国规划最好的十大城市
         kind: "pending"

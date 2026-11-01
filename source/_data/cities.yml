@@ -77,6 +77,9 @@ cities:
     zone: 北方
     bohai: 环渤海
     metrics:
+      trade_total: { v: 36079, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 70398, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 14982, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 126405, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 682, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 9, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -102,6 +105,9 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      trade_total: { v: 8649, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 25546, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 9151, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 66209, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 417, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 3, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -126,6 +132,9 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      trade_total: { v: 42707, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 63911, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 15872, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 94160, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 492, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 5, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -151,6 +160,9 @@ cities:
     belt: 西部
     zone: 南方
     metrics:
+      trade_total: { v: 8390, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 28992, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 10835, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 91158, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 807, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 3, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -176,6 +188,9 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      trade_total: { v: 11249, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 32394, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 10451, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 75350, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 336, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -201,6 +216,9 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      trade_total: { v: 5459, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 17092, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 7864, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 45824, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 315, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -227,6 +245,9 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      trade_total: { v: 45648, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 30759, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 10026, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 54295, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 162, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -246,6 +267,9 @@ cities:
     belt: 中部
     zone: 南方
     metrics:
+      trade_total: { v: 4034, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 18249, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 7932, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 52766, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 373, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 3, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -271,6 +295,9 @@ cities:
     belt: 西部
     zone: 南方
     metrics:
+      trade_total: { v: 7151, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 31882, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 16190, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 108727, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 851, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 12, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -294,6 +321,9 @@ cities:
     belt: 西部
     zone: 北方
     metrics:
+      trade_total: { v: 4118, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 18530, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 5436, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 56689, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 390, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 5, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -319,6 +349,9 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      trade_total: { v: 9323, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 6548, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 3330, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 20147, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 70, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -354,6 +387,9 @@ cities:
     belt: 中部
     zone: 南方
     metrics:
+      trade_total: { v: 2777, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 12424, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 5798, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 45101, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 245, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -378,6 +414,9 @@ cities:
     belt: 西部
     zone: 南方
     metrics:
+      trade_total: { v: 1534, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 9096, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 3769, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 40909, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 314, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -402,6 +441,9 @@ cities:
     zone: 北方
     bohai: 环渤海
     metrics:
+      trade_total: { v: 9077, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 14168, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 6747, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 44910, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 369, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -423,6 +465,9 @@ cities:
     belt: 中部
     zone: 北方
     metrics:
+      trade_total: { v: 483, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 12056, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 2460, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 36225, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 360, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -462,6 +507,9 @@ cities:
     belt: 西部
     zone: 南方
     metrics:
+      trade_total: { v: 531, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 5685, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 2491, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 28082, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 225, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -495,6 +543,9 @@ cities:
     zone: 北方
     bohai: 环渤海
     metrics:
+      trade_total: { v: 8133, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 24070, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 4128, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 60779, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 453, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -520,6 +571,9 @@ cities:
     zone: 北方
     bohai: 环渤海
     metrics:
+      trade_total: { v: 4497, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 12401, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 2136, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 28295, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 250, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -538,6 +592,9 @@ cities:
     belt: 中部
     zone: 北方
     metrics:
+      trade_total: { v: 5566, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 14363, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 6311, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 59968, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 292, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -562,6 +619,9 @@ cities:
     belt: 中部
     zone: 北方
     metrics:
+      trade_total: { v: 1275, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 11747, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 2454, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 39747, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 289, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 4, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -585,6 +645,9 @@ cities:
     belt: 东部
     zone: 北方
     metrics:
+      trade_total: { v: 1466, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 15132, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 4155, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 41187, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 314, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -619,6 +682,9 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      trade_total: { v: 3653, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 11461, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 5634, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 31051, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 152, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -642,6 +708,9 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      trade_total: { v: 860, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 3155, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 1046, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       doctors: { v: 12726, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 78, unit: "个", asOf: "2024", source: "nbs2025city" }
@@ -661,6 +730,9 @@ cities:
     belt: 西部
     zone: 南方
     metrics:
+      trade_total: { v: 65, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 792, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 527, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 4277, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 35, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -692,6 +764,9 @@ cities:
     belt: 西部
     zone: 北方
     metrics:
+      trade_total: { v: 122, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 3453, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 840, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 13007, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 86, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -712,6 +787,9 @@ cities:
     belt: 中部
     zone: 南方
     metrics:
+      trade_total: { v: 1090, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 7516, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 2848, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 24515, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 158, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -735,6 +813,9 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      trade_total: { v: 930, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 6713, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 2100, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 35930, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 179, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -758,6 +839,9 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      trade_total: { v: 14203, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 16256, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 5605, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 39719, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 214, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -826,6 +910,9 @@ cities:
     belt: 西部
     zone: 北方
     metrics:
+      trade_total: { v: 49, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 2774, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 619, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 12282, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 81, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -866,6 +953,9 @@ cities:
     belt: 中部
     zone: 北方
     metrics:
+      trade_total: { v: 227, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 3771, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 1176, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 15874, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 122, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -906,6 +996,9 @@ cities:
     belt: 东部
     zone: 北方
     metrics:
+      trade_total: { v: 1319, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 14831, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 3022, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 52430, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 344, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -929,6 +1022,9 @@ cities:
     belt: 中部
     zone: 北方
     metrics:
+      trade_total: { v: 1296, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 9741, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 2260, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 29108, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 162, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -951,6 +1047,9 @@ cities:
     belt: 西部
     zone: 北方
     metrics:
+      trade_total: { v: 801, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 5906, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 1232, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 19204, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 130, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -1008,6 +1107,9 @@ cities:
     belt: 中部
     zone: 南方
     metrics:
+      trade_total: { v: 3791, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 10786, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 5156, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 36418, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 231, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
@@ -1065,6 +1167,9 @@ cities:
     belt: 西部
     zone: 北方
     metrics:
+      trade_total: { v: 96, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 5640, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 1464, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       doctors: { v: 19434, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 120, unit: "个", asOf: "2024", source: "nbs2025city" }
@@ -1152,6 +1257,9 @@ cities:
     belt: 东部
     zone: 北方
     metrics:
+      trade_total: { v: 2324, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      deposits: { v: 13284, unit: "亿元", asOf: "2024", source: "nbs2025city" }
+      retail_sales: { v: 5316, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       doctors: { v: 50920, unit: "人", asOf: "2024", source: "nbs2025city" }
       hospitals: { v: 336, unit: "个", asOf: "2024", source: "nbs2025city" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
