@@ -4629,6 +4629,11 @@ html:not(.js) .fs-years-toggle { display: none; }
   border-bottom: 1px solid var(--line-color);
 }
 
+/* V6.4b：城市榜表格并入全站玻璃卡体系——玻璃由 .cal-table-wrap 承载，
+   表本体去硬边与外边距（原 2px 强顶线/1.4rem 顶距随卡片退役） */
+.cal-table-wrap .cr-table,
+.cal-table-wrap .cr-method-table { margin: 0; border-top: 0; }
+
 /* 省级行政区：次级信息，等宽轨小字，不抢城市名的视觉焦点 */
 .cr-prov {
   width: 8rem;
