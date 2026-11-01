@@ -55,8 +55,18 @@ for (var si = 0; si < CR.citySources.length; si += 1) { srcMap[CR.citySources[si
       <nav class="cal-crumb" aria-label="面包屑">
         <a href="<%= url_for('/library/') %>">资料库</a><span aria-hidden="true">/</span><a href="<%= url_for('/cityrank/') %>">城市排行榜</a><span aria-hidden="true">/</span><span class="cal-crumb-now"><%= c.name %></span>
       </nav>
-      <h1 class="page-head-title"><%= c.name %></h1>
-      <p class="archive-total"><% if (c.province) { %><%= c.province %><% } %><% if (c.province && c.level) { %> · <% } %><% if (c.level) { %><%= c.level %><% } %><% if (!c.province && !c.level) { %>行政归属待补<% } %> · 数据年份 <%= CR.cityMeta.dataYear || '2025' %></p>
+      <div class="cr-head-row">
+        <div class="cr-head-text">
+          <h1 class="page-head-title"><%= c.name %></h1>
+          <p class="archive-total"><% if (c.province) { %><%= c.province %><% } %><% if (c.province && c.level) { %> · <% } %><% if (c.level) { %><%= c.level %><% } %><% if (!c.province && !c.level) { %>行政归属待补<% } %> · 数据年份 <%= CR.cityMeta.dataYear || '2025' %></p>
+        </div>
+        <% if (page.cityPhoto) { %>
+        <figure class="cr-hero-fig">
+          <img src="<%= page.cityPhoto.src %>" alt="<%= c.name %>城市景观照片" width="300" height="200" loading="lazy">
+          <figcaption><%= page.cityPhoto.credit %></figcaption>
+        </figure>
+        <% } %>
+      </div>
     </header>
 
     <section class="cr-profile">

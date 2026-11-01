@@ -872,6 +872,23 @@ if (fs.existsSync(path.join(PUBLIC, 'city', 'index.html'))) {
         '索引页缺省级入口：' + p.slug);
     }
   });
+
+  ok('S19 城市头图双闸：登记且有文件才渲染，未登记城市不得出现 /img/cities/ 引用（防无出处图与死链）', () => {
+    const sh = fs.readFileSync(path.join(PUBLIC, 'city', 'shanghai', 'index.html'), 'utf8');
+    assert.ok(sh.indexOf('/img/cities/shanghai.jpg') !== -1, '上海已登记且有照片，页面却没渲染头图');
+    assert.ok(sh.indexOf('credit') === -1 || sh.indexOf('Freeman Zhou') !== -1, '头图缺来源署名');
+    assert.ok(fs.existsSync(path.join(PUBLIC, 'img', 'cities', 'shanghai.jpg')),
+      '头图文件没进产物（source/img/cities/ 未被 Hexo 复制）');
+    // 未登记的城市不得出现任何 /img/cities/ 引用——生成器 cityPhoto 双闸的防死链面
+    for (const c of cities.cities || []) {
+      if (!c.slug || c.slug === 'shanghai') continue;
+      const f = path.join(PUBLIC, 'city', c.slug, 'index.html');
+      if (!fs.existsSync(f)) continue;
+      const html = fs.readFileSync(f, 'utf8');
+      assert.ok(html.indexOf('/img/cities/') === -1,
+        '未登记头图的城市页出现图片引用（死链风险）：' + c.slug);
+    }
+  });
 }
 
 ok('自检：把镇域榜挪回综合与经济组必须被 S16 抓到', () => {

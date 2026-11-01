@@ -10,6 +10,21 @@
 
 const { buildCityRanks, cityHasPage, cityProvinces } = require('../helpers/cityrank-data.js');
 
+const fs = require('fs');
+const path = require('path');
+
+// 城市头图（2026-11-01）：source/img/cities/<slug>.jpg 存在且在 cityphotos.yml 登记
+// 才下发到页头；两道闸都过才渲染，缺任一即不出图（无出处图与死链都不允许）。
+// 文件检测必须在生成器（Node 侧，有 fs）做，模板里不做存在性判断。
+function cityPhoto(slug, registry) {
+  const entry = registry && registry[slug];
+  if (!entry || !entry.credit) return null;
+  const file = path.join(__dirname, '..', '..', '..', '..',
+    'source', 'img', 'cities', slug + '.jpg');
+  if (!fs.existsSync(file)) return null;
+  return { src: '/img/cities/' + slug + '.jpg', credit: entry.credit };
+}
+
 hexo.extend.generator.register('cityrank-pages', function (locals) {
   const data =
     (locals && locals.site && locals.site.data) ||
@@ -68,7 +83,8 @@ hexo.extend.generator.register('cityrank-pages', function (locals) {
       data: {
         title: c.name,
         __city: true,
-        citySlug: c.slug
+        citySlug: c.slug,
+        cityPhoto: cityPhoto(c.slug, data.cityphotos)
       }
     });
   }

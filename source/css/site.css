@@ -4827,6 +4827,48 @@ html:not(.js) .fs-years-toggle { display: none; }
   width: min(50rem, 100% - clamp(36px, 8vw, 96px));
 }
 
+/* 头图（2026-11-01 图文改版 P3 照片支）：页头文字左、照片右，移动端照片上提整幅。
+   图源与署名由 cityphotos.yml 登记 + 生成器文件检测双闸下发，模板零判断 */
+.cr-head-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.cr-head-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.cr-hero-fig {
+  margin: 0;
+  flex: 0 0 300px;
+}
+
+.cr-hero-fig img {
+  display: block;
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: var(--r-sm);
+  border: 0.5px solid var(--site-chip-border);
+}
+
+.cr-hero-fig figcaption {
+  margin-top: 0.3rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--sec-text-color);
+  text-align: right;
+}
+
+@media (max-width: 719px) {
+  .cr-head-row { flex-direction: column; align-items: stretch; gap: 0.9rem; }
+  .cr-hero-fig { flex: none; order: -1; }
+  .cr-hero-fig img { height: 180px; }
+}
+
 .cr-sec-title {
   margin: 2.2rem 0 0.9rem;
   font-size: 1.3rem;

@@ -1,0 +1,5 @@
+# 城市头图清单（2026-11-01）：source/img/cities/<slug>.jpg 存在且在此登记才在
+# /city/<slug>/ 页头渲染；两道闸缺一不可——文件在而未登记 = 无出处，登记而无文件 = 坏链。
+# Unsplash License 不强制署名，站内保留出处是好习惯。
+shanghai:
+  credit: 图 / Unsplash · Freeman Zhou
