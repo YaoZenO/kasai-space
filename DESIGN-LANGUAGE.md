@@ -247,7 +247,7 @@
 
 | 页面 | 命中选择器 | 状态 |
 |---|---|---|
-| 文章页 | `.post-content .markdown-body` | 已命中；但须先中和主题 `10%` 左右 padding（RL-3），否则 780×0.8≈624px < 646px，两种宽度 |
+| 文章页 | `.post-content .markdown-body` | 已命中；但须先中和主题 `10%` 左右 padding（RL-3），否则 780×0.8≈624px < 646px，两种宽度。2026-11-01 起 `.post-content` 整体同轨（见 §4.5），标题 / meta / hr / 页脚与正文右缘一刀齐 |
 | 关于页 | `.about-body .markdown-body` | 已命中（646px） |
 | 模块详情页（项目 / 游戏） | `.about-body .markdown-body` | **不命中**——模板把两个 class 放在同一元素（VD-9），实际落到主题 16px/1.6 + `#2c3e50` 全宽基线；须改为嵌套结构后命中 |
 | 档案页（now / uses / links） | `.about-body .markdown-body` | 已命中（与 about.ejs 同构） |
@@ -284,7 +284,7 @@
 
 - 页面容器：`width: min(1200px, 100% - clamp(36px, 8vw, 96px))`（`.home-wrap` / `.post-wrap`）；
 - 页首留白：`clamp(104px, 14vh, 150px)`（避让悬浮胶囊导航，`.home` / `.paper-page` 同值）；
-- 文章页双栏：`.post-side` 230px + `.post-main-col` `max-width: 780px`（内含 646px 正文轨）；RL-3 修复后正文轨与关于页同宽；
+- 文章页双栏：`.post-side` 230px + `.post-main-col` `max-width: 780px`（内含 646px 正文轨）；RL-3 修复后正文轨与关于页同宽；2026-11-01 起 `.post-content` 整体 `max-width: 40.375rem`（=38em×17px=646px），文章页头尾与正文同轨——此前仅正文在轨内、标题横跨 780px，右缘参差（主人截图反馈）；
 - 内容墙：`grid-auto-rows: minmax(158px, auto)` + `gap: 14px`。
 
 ---
