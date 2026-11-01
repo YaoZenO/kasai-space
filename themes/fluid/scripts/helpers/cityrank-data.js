@@ -65,11 +65,11 @@ function round1(n) { return Math.round(n * 10) / 10; }
 // 所以这里把顺序**从数据算出来**，yml 的手写顺序不再决定页面顺序。
 //
 // 三层：
-//   第一层 可核验优先：computed（本站算得出）→ fact（权威名次）→ pending（观点性）
+//   第一层 可核验优先：computed（本站算得出）→ fact（权威名次）→ pending（参考榜）
 //   第二层 空间尺度：nation（全国）→ province（省级）→ region（跨省区域）→ town（镇域）
 //   第三层 同级定序：省级按 GB/T 2260 行政区划代码，其余按登记序
 //
-// 组间：按「可核验榜占比」降序（占比相同比可核验榜数量），「待审」组固定垫底。
+// 组间：按「可核验榜占比」降序（占比相同比可核验榜数量），「参考榜」组固定垫底。
 // 判定数据来自两个字段：kind（已有）与 scope（由 tools/tag-cityrank-scope.js 标注）。
 // 两者任一缺失都排到该层末尾并会在测试里 FAIL（test/cityrank-e2e.js S16）。
 // ---------------------------------------------------------------------------
@@ -132,7 +132,7 @@ function sortGroups(groups) {
     const pb = PINNED_GROUP_KEYS.indexOf(b.key);
     if (pa !== pb) return (pa === -1 ? 99 : pa) - (pb === -1 ? 99 : pb);
     if (pa !== -1 && pb !== -1) return a._gi - b._gi;
-    // ②「待审」组固定垫底：它装的是等主人逐条审定的榜单，不该和数据榜抢位置
+    // ②「参考榜」组固定垫底：它装的是等主人逐条审定的榜单，不该和数据榜抢位置
     const qa = a.key === 'pending' ? 1 : 0;
     const qb = b.key === 'pending' ? 1 : 0;
     if (qa !== qb) return qa - qb;

@@ -3,7 +3,7 @@
 // 计算：themes/fluid/scripts/helpers/cityrank-data.js（名次现算；yml 里不存名次）
 // 样式：site.css §4.16（.cr-* 规则）；视觉作用域复用 .cal-page
 // 约定（PRD §5.1 P0 铁律）：computed 榜的名次是计算结果，页面必须公开指标与权重；
-//   pending 榜必须显眼标注「观点性排名 · 未量化核验」（CITY-RANK-CONTENT §7 C-8）。
+//   pending（参考榜）只在页脚保留一条小字免责，不再用警示框（主人 2026-11-01 拍板）。
 // 布局（主人 2026-10-28 定）：同组榜单放右侧常驻侧栏，不用划到页面底部才能看到。
 page.layout = 'rank'
 page.hide_banner = true
@@ -13,7 +13,7 @@ var found = CR.error ? null : findRank(CR, page.rankSlug)
 var g = found ? found.group : null
 var r = found ? found.rank : null
 
-var KIND_LABEL = { computed: '本站按公开数据计算', fact: '权威结果引用', pending: '观点性排名 · 未量化核验' }
+var KIND_LABEL = { computed: '本站按公开数据计算', fact: '权威结果引用', pending: '参考榜' }
 %>
 
 <div class="paper-page cal-page cr-page">
@@ -37,12 +37,6 @@ var KIND_LABEL = { computed: '本站按公开数据计算', fact: '权威结果�
         更新于 <%= fmtItemDate(CR.meta.updated) %> · 数据年份 <%= CR.cityMeta.dataYear || '2025' %> · 候选城市 <%= r.candidateCount %> 座 · <%= KIND_LABEL[r.kind] || r.kind %>
       </p>
     </header>
-
-    <% if (r.kind === 'pending') { %>
-    <div class="cr-warn">
-      <p>本榜没有权威标准，也没有可靠的量化数据，名次参考公开榜单整理，<strong>属观点性排名，本站未做量化核验</strong>。</p>
-    </div>
-    <% } %>
 
     <div class="cr-layout">
       <div class="cr-main">

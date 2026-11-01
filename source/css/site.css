@@ -4707,21 +4707,6 @@ html:not(.js) .fs-years-toggle { display: none; }
   color: var(--sec-text-color);
 }
 
-/* 观点性排名警示（pending 榜） */
-.cr-warn {
-  margin: 1rem 0 0;
-  padding: 0.8rem 1rem;
-  border-left: 2px solid var(--accent);
-  background-color: var(--cream);
-}
-
-.cr-warn p {
-  margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.7;
-  color: var(--text-color);
-}
-
 /* 城市大类索引页：城市名单（行式，组顶 2px 全墨线 + 行底 hairline，§4.3） */
 .cr-citylist {
   margin: 1.4rem 0 0;

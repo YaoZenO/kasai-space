@@ -11,7 +11,8 @@
 //     ② 独立复算（S2 最关键）：用 yml 原始数据自己排一遍序，与 helper 输出逐项比对；
 //     ③ 数据纪律（S3 / C-1）：每个数值字段必须带 v / unit / asOf / source 四元组；
 //     ④ 产物落地（S4–S7 / E-029）：三档页面存在且非 0 字节、城市链接无死链、
-//        pending 榜必带警示文案、CSS §4.16 核心选择器齐全、移动端断点存在。
+//        pending 榜页脚保留一条小字免责（主人 2026-11-01 拍板：警示框已删）、
+//        CSS §4.16 核心选择器齐全、移动端断点存在。
 //
 // 运行：node test/cityrank-e2e.js
 // 前置：npm run build（产物断言依赖 public/）。public/ 不存在时产物段 SKIP，
@@ -346,7 +347,7 @@ if (!hasPublic) {
     assert.ok(checked > 100, '解析到的城市链接过少（' + checked + '）——断言空转');
   });
 
-  ok('S7 pending 榜必须显眼标注「观点性排名 · 未量化核验」（C-8 红线）', () => {
+  ok('S7 pending 榜页脚保留一条小字免责：观点性排名 + 未量化核验（C-8 口径 2026-11-01 更新）', () => {
     assert.ok(pendingRanks.length > 0, '没有 pending 榜，本断言会空转');
     for (const def of pendingRanks) {
       const p = path.join(PUBLIC, 'cityrank', def.slug, 'index.html');
@@ -423,7 +424,7 @@ const secIdx = css.indexOf('4.16 城市排行榜页');
 
 ok('S9 样式 §4.16 存在且核心选择器齐全', () => {
   assert.ok(secIdx !== -1, 'site.css 缺少 §4.16 城市排行榜段');
-  for (const sel of ['.cr-table', '.cr-rank', '.cr-score', '.cr-method', '.cr-profile-list', '.cr-mention-list', '.cr-warn']) {
+  for (const sel of ['.cr-table', '.cr-rank', '.cr-score', '.cr-method', '.cr-profile-list', '.cr-mention-list']) {
     assert.ok(css.indexOf(sel) !== -1, '§4.16 缺少选择器：' + sel);
   }
 });
@@ -717,17 +718,17 @@ ok('S16 镇域（town）榜只允许留在待审组，不进城市榜主序列',
   for (const g of R.groups) {
     for (const r of g.ranks) {
       if (r.scope === 'town') {
-        assert.strictEqual(g.key, 'pending', '镇域榜 ' + r.slug + ' 出现在 ' + g.key + ' 组，应只留在待审组');
+        assert.strictEqual(g.key, 'pending', '镇域榜 ' + r.slug + ' 出现在 ' + g.key + ' 组，应只留在参考榜组');
       }
     }
   }
 });
 
-ok('S16 组间：门面组置顶，其余按可核验榜占比降序，待审组固定垫底', () => {
+ok('S16 组间：门面组置顶，其余按可核验榜占比降序，参考榜组固定垫底', () => {
   const gs = R.groups;
   // 门面组例外（主人 2026-10-31 拍板）：综合与经济固定第一，不参与占比排序
   assert.strictEqual(gs[0].key, 'economy', '门面组 economy 不在第一位');
-  assert.strictEqual(gs[gs.length - 1].key, 'pending', '待审组不在最后一位');
+  assert.strictEqual(gs[gs.length - 1].key, 'pending', '参考榜组不在最后一位');
   const ratio = (g) => g.ranks.filter((r) => r.kind !== 'pending').length / (g.ranks.length || 1);
   for (let i = 2; i < gs.length; i++) {
     if (gs[i].key === 'pending') continue;
@@ -765,7 +766,7 @@ ok('自检：把镇域榜挪回综合与经济组必须被 S16 抓到', () => {
   const eco = bad.find((g) => g.key === 'economy');
   const pen = bad.find((g) => g.key === 'pending');
   const townIdx = pen.ranks.findIndex((r) => r.scope === 'town');
-  assert.ok(townIdx >= 0, '待审组里没有镇域榜，自检样本失效');
+  assert.ok(townIdx >= 0, '参考榜组里没有镇域榜，自检样本失效');
   eco.ranks.push(pen.ranks.splice(townIdx, 1)[0]);
   let caught = false;
   for (const g of bad) {
