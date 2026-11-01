@@ -2374,11 +2374,12 @@ body.is-home footer {
   text-align: left;
 }
 
-/* 表头：沙色底带（参考站 --sand #f7f5f0），600 字重、无下边框——
-   底带本身就把表头和数据行分开了，再加一条线会显得三层 */
+/* 表头：V6.2 冷调玻璃底带（原参考站沙色 #f7f5f0 在冷底上是每张表头一条暖色割裂带
+   ——主人 2026-11-01 指认）。半透明白压在 ambient 光场上即成冷玻璃带；
+   600 字重、无下边框——底带本身 separates 表头与数据行，再加线会三层 */
 .cal-table thead th {
   padding: .5rem .5rem;
-  background: #f7f5f0;
+  background: rgba(255, 255, 255, 0.6);
   border-bottom: 0;
   font-family: var(--font-mono);
   font-size: .75rem;
@@ -2509,8 +2510,8 @@ body.is-home footer {
 .cal-cell.is-tip { box-shadow: 0 0 0 2px #f1f3f8, 0 0 0 3.5px var(--text-color); }
 .cal-grid.is-hl .cal-cell.is-tip { opacity: 1; }
 
-/* 左表对应行高亮（参考站 tr.is-hl 用 #fbf3f1） */
-.cal-table tbody tr.is-hl { background: #fbf3f1; }
+/* 左表对应行高亮（V6.2：原参考站暖粉 #fbf3f1 改中性墨阶淡底，任何页面色系下都不突兀） */
+.cal-table tbody tr.is-hl { background: rgba(29, 29, 37, 0.05); }
 
 /* 调休上班：周末底色 + 一圈砖红内描边。2027 年数据为空时不渲染，
    官方通知发布后填入 makeup 即自动出现 */
