@@ -367,8 +367,8 @@ if (!fs.existsSync(PUBLIC)) {
     assert.ok(/<tr id="holiday-guoqing" data-h="guoqing">/.test(h), '表格行没带 data-h');
     const css = fs.readFileSync(path.join(ROOT, 'source/css/site.css'), 'utf8');
     assert.ok(css.indexOf('.cal-grid.is-hl .cal-cell { opacity: .28; }') !== -1, '缺「其余格子变淡」规则');
-    assert.ok(css.indexOf('.cal-table tbody tr.is-hl { background: #fbf3f1; }') !== -1, '缺「左表行高亮」规则');
-    assert.ok(css.indexOf('border-radius: 1.5px;') !== -1, '格子没有圆角（参考站是 1.5px）');
+    assert.ok(css.indexOf('.cal-table tbody tr.is-hl { background: rgba(29, 29, 37, 0.05); }') !== -1, '缺「左表行高亮」规则');
+    assert.ok(css.indexOf('border-radius: var(--r-xs);') !== -1, '格子没有圆角（V6.4 圆角统一到 --r-xs 8px）');
   });
 
   ok('日期渲染为纯日期，没有机器串（E-028）', () => {

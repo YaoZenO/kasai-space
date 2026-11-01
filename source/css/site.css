@@ -100,6 +100,12 @@
      从此改值只有单一入口；22px 大圆角已废止，不得扩散到首页入口格） */
   --r-tile: 16px;
   --r-card: 16px;
+  /* V6.4 圆角体系（借鉴 MD3 / Apple HIG / Ties 10-16-22，全站只允许三档 + 胶囊）：
+     --r-xs 8px 小件（下拉项 / 标签 / toc 项 / toast）·
+     --r-sm 12px 小图 / 输入 · --r-tile--r-card 16px 卡与表（默认档）·
+     999px 胶囊 / 50% 圆 · 贴边半圆（16 16 0 0）为有意设计。直角 0 仅限无边框下划线输入。 */
+  --r-xs: 8px;
+  --r-sm: 12px;
   /* 主卡标题尺度档（E-041）。
      演进：3rem（10-18）→ 5.5rem（10-19 方向 B「字号断崖」）→ 3.4rem（10-21 回落）
      → 2.9rem（10-29 V4.0，见 DESIGN-REVIEW-2026-10-29.md §4.2）。
@@ -158,10 +164,10 @@ body::before {
   inset: -10vh -6vw;
   z-index: -1;
   background:
-    radial-gradient(42vw 42vw at 82% 6%, rgba(174, 200, 240, 0.5), transparent 68%),
-    radial-gradient(38vw 38vw at 10% 82%, rgba(212, 198, 238, 0.42), transparent 68%),
-    radial-gradient(30vw 30vw at 4% 42%, rgba(246, 217, 189, 0.34), transparent 68%),
-    radial-gradient(26vw 26vw at 72% 90%, rgba(192, 230, 211, 0.3), transparent 68%),
+    radial-gradient(46vw 46vw at 82% 6%, rgba(154, 190, 242, 0.72), transparent 68%),
+    radial-gradient(42vw 42vw at 10% 82%, rgba(198, 178, 240, 0.6), transparent 68%),
+    radial-gradient(34vw 34vw at 4% 42%, rgba(245, 205, 165, 0.5), transparent 68%),
+    radial-gradient(30vw 30vw at 72% 90%, rgba(172, 226, 198, 0.45), transparent 68%),
     linear-gradient(180deg, #f6f7fb 0%, #f1f3f8 55%, #f4f2f7 100%);
   pointer-events: none;
   animation: ambient-drift 56s ease-in-out infinite alternate;
@@ -287,10 +293,10 @@ button:focus-visible,
   display: flex;
   border-radius: 999px;
   background-color: var(--navbar-bg-color);
-  -webkit-backdrop-filter: blur(24px) saturate(1.8);
-  backdrop-filter: blur(24px) saturate(1.8);
-  border: 1px solid rgba(255, 255, 255, 0.75);
-  box-shadow: var(--site-float-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  -webkit-backdrop-filter: blur(28px) saturate(2);
+  backdrop-filter: blur(28px) saturate(2);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: var(--site-float-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.7);
   padding: 0.3rem 0.35rem;
 }
 
@@ -327,11 +333,11 @@ button:focus-visible,
   min-width: 168px;
   margin-top: 0;
   padding: 0.45rem;
-  border: 1px solid rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: 16px;
-  background-color: rgba(255, 255, 255, 0.82);
-  -webkit-backdrop-filter: blur(20px) saturate(1.5);
-  backdrop-filter: blur(20px) saturate(1.5);
+  background-color: rgba(255, 255, 255, 0.72);
+  -webkit-backdrop-filter: blur(28px) saturate(2);
+  backdrop-filter: blur(28px) saturate(2);
   box-shadow: var(--site-float-shadow);
 }
 
@@ -395,10 +401,10 @@ button:focus-visible,
   padding: 0.3rem 0.35rem;
   border-radius: 999px;
   background-color: var(--navbar-bg-color);
-  -webkit-backdrop-filter: blur(24px) saturate(1.8);
-  backdrop-filter: blur(24px) saturate(1.8);
-  border: 1px solid rgba(255, 255, 255, 0.75);
-  box-shadow: var(--site-float-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  -webkit-backdrop-filter: blur(28px) saturate(2);
+  backdrop-filter: blur(28px) saturate(2);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: var(--site-float-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 #navbar .site-nav-aux-link {
@@ -626,7 +632,7 @@ button:focus-visible,
 .cta-solid {
   display: inline-block;
   padding: 0.66rem 1.45rem;
-  border-radius: 6px;
+  border-radius: var(--r-xs);
   background-color: #1d1d25;
   color: #f6f7fb;
   font-size: 0.92rem;
@@ -668,7 +674,7 @@ button:focus-visible,
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  border-radius: 12px;
+  border-radius: var(--r-card);
   overflow: hidden;
   background-color: #1d1d25;
   color: #f6f7fb;
@@ -766,7 +772,7 @@ button:focus-visible,
 .wall-cell {
   position: relative;
   display: flex;
-  border-radius: 12px;
+  border-radius: var(--r-tile);
   overflow: hidden;
   min-height: 158px;
 }
@@ -1017,7 +1023,7 @@ a.cell-plain:hover {
   width: 88px;
   height: 60px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   display: block;
 }
 
@@ -1820,7 +1826,7 @@ body.is-home footer {
   transform: translate(-50%, 0.6rem);
   max-width: min(92vw, 24rem);
   padding: 0.62rem 1rem;
-  border-radius: 10px;
+  border-radius: var(--r-xs);
   background-color: rgba(29, 29, 37, 0.94);
   color: #ffffff;
   font-size: 0.9rem;
@@ -1843,7 +1849,7 @@ body.is-home footer {
   flex: 0 0 auto;
   width: 132px;
   height: 132px;
-  border-radius: 12px;
+  border-radius: var(--r-card);
   overflow: hidden;
   border: 1px solid var(--site-chip-border);
   box-shadow: var(--site-float-shadow);
@@ -1884,10 +1890,12 @@ body.is-home footer {
 /* --- 4.8 搜索面板（保留 local-search.js 与 ID 契约，纸面化样式） --- */
 
 #modalSearch .modal-content {
-  background-color: #ffffff;
-  border: 1px solid var(--site-chip-border);
-  border-radius: 12px;
-  box-shadow: var(--site-float-shadow);
+  background-color: rgba(255, 255, 255, 0.82);
+  -webkit-backdrop-filter: blur(28px) saturate(2);
+  backdrop-filter: blur(28px) saturate(2);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: var(--r-card);
+  box-shadow: var(--site-float-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.6);
   overflow: hidden;
 }
 
@@ -2056,7 +2064,7 @@ body.is-home footer {
   width: 4px;
   height: .92em;
   background: var(--accent);
-  border-radius: 1px;
+  border-radius: 2px;
 }
 
 .media-wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .8rem; }
@@ -2365,22 +2373,32 @@ body.is-home footer {
 }
 
 /* 法定节假日表：组顶 2px 全墨线 + 行底 hairline（§4.3 两级线） */
-.cal-table-wrap { overflow-x: auto; }
+/* V6.4：表格玻璃卡片化——每张 .cal-table 连同表头整体坐在一块磨砂玻璃上
+   （此前表是裸 hairline 网格 + 孤立表头色带，直接浮在 ambient 光场上，割裂且丑）。
+   卡片本体是玻璃（半透明白 + blur + 白描边 + 蓝调投影），表头退为卡内一行
+   letter-spacing 小字，靠 hairline 与数据行分隔。移动端 overflow-x 滚动保留。 */
+.cal-table-wrap {
+  overflow-x: auto;
+  background: rgba(255, 255, 255, 0.5);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+  backdrop-filter: blur(18px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  box-shadow: var(--site-float-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  padding: 0.2rem 1rem 0.5rem;
+}
 
 .cal-table {
   width: 100%;
   border-collapse: collapse;
-  border-top: 2px solid var(--rule-strong);
   text-align: left;
 }
 
-/* 表头：V6.2 冷调玻璃底带（原参考站沙色 #f7f5f0 在冷底上是每张表头一条暖色割裂带
-   ——主人 2026-11-01 指认）。半透明白压在 ambient 光场上即成冷玻璃带；
-   600 字重、无下边框——底带本身 separates 表头与数据行，再加线会三层 */
+/* 表头：卡内首行，无底色，小字 mono 大字距；与数据行之间一条极细墨线 */
 .cal-table thead th {
-  padding: .5rem .5rem;
-  background: rgba(255, 255, 255, 0.6);
-  border-bottom: 0;
+  padding: .8rem .5rem .55rem;
+  background: transparent;
+  border-bottom: 1px solid rgba(29, 29, 37, 0.1);
   font-family: var(--font-mono);
   font-size: .75rem;
   font-weight: 600;
@@ -2494,8 +2512,8 @@ body.is-home footer {
   display: grid;
   place-items: center;
   aspect-ratio: 1 / 1;
-  /* 1.5px 圆角：参考站的格子就是微圆角，全方角在一屏小方块里显得更糙 */
-  border-radius: 1.5px;
+  /* V6.4 圆角统一：原参考站微圆角 1.5px 在三档体系外，统一到 --r-xs */
+  border-radius: var(--r-xs);
   background: rgba(29, 29, 37, 0.06);
 }
 
@@ -2597,17 +2615,19 @@ body.is-home footer {
   z-index: 1080;
   width: min(21rem, calc(100vw - 24px));
   padding: 0 0 1rem;
-  background: #ffffff;
-  border: 1px solid rgba(29, 29, 37, 0.12);
-  border-radius: 12px;
-  box-shadow: var(--site-float-shadow);
+  background: rgba(255, 255, 255, 0.82);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  backdrop-filter: blur(24px) saturate(1.8);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 16px;
+  box-shadow: var(--site-float-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.6);
   color: #1d1d25;
   text-align: center;
 }
 
 .cal-panel[hidden] { display: none; }
 .cal-panel > * { margin: 0; }
-.cal-panel-media { position: relative; overflow: hidden; border-radius: 11px 11px 0 0; }
+.cal-panel-media { position: relative; overflow: hidden; border-radius: 15px 15px 0 0; }
 .cal-panel-media[hidden] { display: none; }
 .cal-panel-img { display: block; width: 100%; height: 148px; object-fit: cover; }
 
@@ -2928,12 +2948,12 @@ body.is-home footer {
   gap: 0.55rem 1.1rem;
   margin: 1.6rem 0 0;
   padding: 0.7rem 1.1rem;
-  border: 1px solid rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: 16px;
   background: var(--navbar-bg-color);
-  -webkit-backdrop-filter: blur(24px) saturate(1.8);
-  backdrop-filter: blur(24px) saturate(1.8);
-  box-shadow: var(--site-float-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  -webkit-backdrop-filter: blur(28px) saturate(2);
+  backdrop-filter: blur(28px) saturate(2);
+  box-shadow: var(--site-float-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 .z-nav-strip-label {
@@ -3081,7 +3101,7 @@ body.is-home footer {
 .z-toc-list a {
   display: block;
   padding: 0.28rem 0.5rem;
-  border-radius: 6px;
+  border-radius: var(--r-xs);
   font-size: 0.85rem;
   line-height: 1.5;
   color: var(--sec-text-color);
@@ -3468,12 +3488,12 @@ body.is-home footer {
   gap: 0.55rem 1.1rem;
   margin: 1.6rem 0 0;
   padding: 0.7rem 1.1rem;
-  border: 1px solid rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: 16px;
   background: var(--navbar-bg-color);
-  -webkit-backdrop-filter: blur(24px) saturate(1.8);
-  backdrop-filter: blur(24px) saturate(1.8);
-  box-shadow: var(--site-float-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  -webkit-backdrop-filter: blur(28px) saturate(2);
+  backdrop-filter: blur(28px) saturate(2);
+  box-shadow: var(--site-float-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 .fs-nav-strip-label {
@@ -4342,7 +4362,7 @@ html:not(.js) .fs-years-toggle { display: none; }
 .fs-toc-list a {
   display: block;
   padding: 0.28rem 0.5rem;
-  border-radius: 6px;
+  border-radius: var(--r-xs);
   font-size: 0.85rem;
   line-height: 1.5;
   color: var(--sec-text-color);
@@ -4953,7 +4973,7 @@ html:not(.js) .fs-years-toggle { display: none; }
 #scroll-top-button {
   background: var(--board-color);
   border: 1px solid var(--site-chip-border);
-  border-radius: 12px;
+  border-radius: var(--r-tile);
   box-shadow: var(--site-float-shadow);
   color: var(--text-color);
   animation: none !important;
