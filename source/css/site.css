@@ -146,13 +146,32 @@ body {
   background-color: transparent;
 }
 html { background: #f1f3f8; }
+/* V6.2 氛围光场（2026-10-31 主人反馈「玻璃看不出变化」）：
+   近白底上玻璃不可见——玻璃的透与液必须有颜色可透射。移植 Ties MainLayout
+   .ambient__blob 四色光场（蓝/紫/桃/薄荷，radial 软边代替 110px blur，合并为
+   单伪元素的多层背景，避免大面积 filter 的 GPU 开销），供玻璃层透射。
+   漂移动画极慢（56s alternate），reads as 环境缓变而非动画；
+   prefers-reduced-motion 下静止。负 inset 防止位移露边。 */
 body::before {
   content: "";
   position: fixed;
-  inset: 0;
+  inset: -10vh -6vw;
   z-index: -1;
-  background: linear-gradient(180deg, #f6f7fb 0%, #f1f3f8 55%, #f4f2f7 100%);
+  background:
+    radial-gradient(42vw 42vw at 82% 6%, rgba(174, 200, 240, 0.5), transparent 68%),
+    radial-gradient(38vw 38vw at 10% 82%, rgba(212, 198, 238, 0.42), transparent 68%),
+    radial-gradient(30vw 30vw at 4% 42%, rgba(246, 217, 189, 0.34), transparent 68%),
+    radial-gradient(26vw 26vw at 72% 90%, rgba(192, 230, 211, 0.3), transparent 68%),
+    linear-gradient(180deg, #f6f7fb 0%, #f1f3f8 55%, #f4f2f7 100%);
   pointer-events: none;
+  animation: ambient-drift 56s ease-in-out infinite alternate;
+}
+@keyframes ambient-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(-1.6vw, 1.6vh, 0) scale(1.04); }
+}
+@media (prefers-reduced-motion: reduce) {
+  body::before { animation: none; }
 }
 .markdown-body { font-family: var(--font-sans); }
 
