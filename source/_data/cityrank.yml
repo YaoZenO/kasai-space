@@ -66,7 +66,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 深圳, slug: shenzhen, note: 中国经济特区 政府全力支持创业 }
@@ -84,7 +83,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 上海, slug: shanghai, note: "" }
@@ -102,7 +100,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 上海, slug: shanghai, note: "" }
@@ -120,7 +117,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 深圳, slug: shenzhen, note: "" }
@@ -138,7 +134,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 上海, slug: shanghai, note: "" }
@@ -165,7 +160,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 深圳, slug: shenzhen, note: "" }
@@ -183,7 +177,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 石家庄, slug: shijiazhuang, note: "" }
@@ -201,7 +194,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 上海, slug: shanghai, note: 中国经济中心 世界一线城市 }
@@ -219,7 +211,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 北京, slug: beijing, note: 国家级应急指挥中心所在地 首都特殊安保机制 }
@@ -246,7 +237,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 苏州, slug: suzhou, note: "" }
@@ -281,18 +271,30 @@ groups:
         note: 候选范围为本站已采集到 2025 年地区生产总值的内蒙古城市（共 12 个，包头市统计局《统计月报》「内蒙及各盟市主要经济指标」，赤峰市统计局《赤峰统计月报》同值）。
       - slug: taiwanliudachengsh
         title: 中国台湾地区六大城市
-        kind: "pending"
+        kind: "fact"
         scope: "province"
         size: 6
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 6 条。
+        lede: 名次按台湾地区内政部门户政户籍统计 2025 年底各市户籍登记人口由多到少排列，六城即台湾地区六座“直辖市”（俗称六都），非本站计算。
+        note: 数据来源：台湾地区内政部门户政司户籍人口统计（2025 年底），经台北市政府统计资料交叉核对一致。
         items:
-          - { name: 台北, slug: taibei, note: "" }
-          - { name: 新北, slug: xinbei, note: "" }
-          - { name: 桃园, slug: taoyuan, note: "" }
-          - { name: 台中, slug: taizhong, note: "" }
-          - { name: 高雄, slug: gaoxiong, note: "" }
-          - { name: 台南, slug: tainan, note: "" }
+          - name: 新北
+            slug: xinbei
+            note: 户籍人口约 404.5 万，全台第一
+          - name: 台中
+            slug: taizhong
+            note: 户籍人口约 286.8 万
+          - name: 高雄
+            slug: gaoxiong
+            note: 户籍人口约 271.9 万
+          - name: 台北
+            slug: taibei
+            note: 户籍人口约 244.0 万
+          - name: 桃园
+            slug: taoyuan
+            note: 户籍人口约 235.5 万
+          - name: 台南
+            slug: tainan
+            note: 户籍人口约 185.2 万
       - slug: sichuanshidachengs
         title: 四川十大城市
         kind: computed
@@ -308,7 +310,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 北京, slug: beijing, note: 外卖 }
@@ -326,7 +327,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 9
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 9 条。
         items:
           - { name: 北京, slug: beijing, note: 中石油/国家电网/中国航天科技集团/中国核工业集团/中国移动等 }
@@ -358,18 +358,6 @@ groups:
         metrics:
           - { field: gdp, weight: 1, dir: up, label: 地区生产总值, unit: 亿元, scale: log }
         note: 候选范围为本站已采集到 2025 年地区生产总值的安徽省城市（共 16 个，安徽省统计局《全省各市地区生产总值》表）。
-      - slug: fuxishipin
-        title: 富硒食品
-        kind: "pending"
-        scope: "nation"
-        size: 4
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 4 条。
-        items:
-          - { name: 富硒茶, slug: fuxicha, note: 安康富硒茶 紫阳富硒茶 }
-          - { name: 富硒蛋, slug: fuxidan, note: 鸭蛋30.7μg/100g 鸡蛋20μg/100g }
-          - { name: 富硒蔬菜, slug: fuxishucai, note: 干口蘑(松蘑)98ug/100g 云耳 }
-          - { name: 富硒水果, slug: fuxishuiguo, note: 皋兰软儿梨8.43μg/100g 桑葚5.65μg/100g }
       - slug: "shandongshidacheng"
         title: 山东十大城市
         kind: "computed"
@@ -565,7 +553,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 珠海, slug: zhuhai, note: 滨海花园城市典范 空气质量常年优良 }
@@ -583,7 +570,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 海口, slug: haikou, note: 四季常青 气候温暖舒适宜人 }
@@ -601,7 +587,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 珠海, slug: zhuhai, note: 滨海花园城市典范 空气质量常年优良 }
@@ -619,7 +604,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 无锡, slug: wuxi, note: 四季分明温和 绿化覆盖率高 }
@@ -637,7 +621,6 @@ groups:
         kind: "pending"
         scope: "region"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 昆明, slug: kunming, note: 中国十大宜居城市，联合国宜居生态城市 }
@@ -680,7 +663,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 四川稻城县, slug: sichuandaocheng, note: 三宝圣地美 }
@@ -698,7 +680,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 北京, slug: beijing, note: 沉浸中轴文化 赏春日花海 }
@@ -716,7 +697,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 哈尔滨, slug: haerbin, note: 冰雪王国跨年 赏冰雕冰灯 }
@@ -734,7 +714,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 9
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 9 条。
         items:
           - { name: 哈尔滨, slug: haerbin, note: 中国冰雪旅游第一城 雪期长达5个多月 }
@@ -751,7 +730,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 哈尔滨, slug: haerbin, note: 中国冰雪旅游第一城 雪期长达5个多月 }
@@ -769,7 +747,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 中国香港, slug: xianggang, note: 旧/新世界三大夜景之一 “东方之珠” }
@@ -787,7 +764,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 哈尔滨, slug: haerbin, note: "梦幻的冰雪王国 打卡地:哈尔滨冰雪大世界/太阳岛雪博会等" }
@@ -814,7 +790,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 上饶, slug: shangrao, note: 赏花踏青(油菜花/杜鹃花/桃花) 登云雾仙山 }
@@ -832,7 +807,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 苏州, slug: suzhou, note: "" }
@@ -850,7 +824,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 杭州, slug: hangzhou, note: 八大古都 中国四大园林城市 国家生态园林城 中国首批美丽山水 }
@@ -868,7 +841,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 长岛, slug: zhangdao, note: "" }
@@ -886,7 +858,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 伊犁/昭苏·塞外江南, slug: yilizhaosusaiwaijiangnan, note: "" }
@@ -904,7 +875,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 重庆, slug: chongqing, note: 首个世界温泉之都 中国温泉之都 }
@@ -922,7 +892,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 上海, slug: shanghai, note: "" }
@@ -940,7 +909,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 阿勒泰, slug: aleitai, note: "" }
@@ -958,7 +926,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 大连, slug: dalian, note: "" }
@@ -976,7 +943,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 舟山, slug: zhoushan, note: "" }
@@ -994,7 +960,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 珠海, slug: zhuhai, note: "" }
@@ -1012,7 +977,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 北京, slug: beijing, note: "" }
@@ -1030,7 +994,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 北京, slug: beijing, note: "" }
@@ -1048,7 +1011,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 哈尔滨, slug: haerbin, note: "" }
@@ -1066,7 +1028,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 哈尔滨, slug: haerbin, note: "看冰雕/滑雪/泡温泉/赏林海雪原/不冻河景观 游玩景点:哈尔滨冰雪大世界/太阳岛" }
@@ -1084,7 +1045,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 丽江, slug: lijiang, note: "观赏雪峰/冰川地貌/高原冬季景观/泡温泉/观鸟等 游玩景点:丽江古城/玉龙雪山/" }
@@ -1102,7 +1062,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 无锡, slug: wuxi, note: "3月下旬太湖赏樱/惠山泉煮茶/蠡园赏桃花/夜间游船赏灯等 游玩景点:鼋头渚长春桥" }
@@ -1120,7 +1079,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 昆明, slug: kunming, note: "沉浸式赏花/滇池环湖骑行观鸥/体验傣族泼水节/逛吃老街巷 游玩景点:教场中路/圆" }
@@ -1138,7 +1096,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 青岛, slug: qingdao, note: 初夏海风清爽/气温舒适 栈桥喂海鸥/赶海 }
@@ -1156,7 +1113,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 桂林, slug: guilin, note: "" }
@@ -1174,7 +1130,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 青岛, slug: qingdao, note: "" }
@@ -1192,7 +1147,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 西安, slug: xian, note: "" }
@@ -1210,7 +1164,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 杭州, slug: hangzhou, note: 苏堤/白堤骑行 雷峰塔赏夕照 }
@@ -1228,7 +1181,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 北京, slug: beijing, note: 千年古都 中国首都 }
@@ -1246,7 +1198,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 泉州十大名山·峡谷, slug: quanzhoushidamingshanxiagu, note: 清源山/德化九仙山/德化石牛山/牛姆林/仙公山等 }
@@ -1271,7 +1222,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 淄博, slug: zibo, note: "" }
@@ -1284,30 +1234,11 @@ groups:
           - { name: 宜宾, slug: yibin, note: "" }
           - { name: 昭通, slug: zhaotong, note: "" }
           - { name: 百色, slug: baise, note: "" }
-      - slug: shidameishihuangmo
-        title: 中国十大美食荒漠城市
-        kind: "pending"
-        scope: "nation"
-        size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 杭州, slug: hangzhou, note: 杭州 }
-          - { name: 北京, slug: beijing, note: "" }
-          - { name: 深圳, slug: shenzhen, note: 湘菜 }
-          - { name: 上海, slug: shanghai, note: "" }
-          - { name: 武汉, slug: wuhan, note: 热干面 }
-          - { name: 南京, slug: nanjing, note: "" }
-          - { name: 苏州, slug: suzhou, note: 饮食 }
-          - { name: 天津, slug: tianjin, note: "" }
-          - { name: 厦门, slug: xiamen, note: 美食小吃 }
-          - { name: 合肥, slug: hefei, note: "" }
       - slug: zuiaihekafeideshiz
         title: 中国最爱喝咖啡的十座城市
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 上海, slug: shanghai, note: "" }
@@ -1325,7 +1256,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 成都, slug: chengdu, note: 香辣典范 辣中带麻/讲究麻辣平衡 }
@@ -1343,7 +1273,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 成都, slug: chengdu, note: 联合国教科文组织“世界美食之都” 川菜的灵魂地 }
@@ -1368,7 +1297,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 拉萨, slug: lasa, note: "高发季节5-10月 世界冰雹之都" }
@@ -1386,7 +1314,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 哈尔滨, slug: haerbin, note: "冬季时长:约6个月 通常10月中下旬至次年4月中旬" }
@@ -1404,7 +1331,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 武汉, slug: wuhan, note: "" }
@@ -1432,8 +1358,7 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条；PRD §2.1 要求本榜指标为年降水日数（rain_days），国家统计局《中国统计年鉴 2025》表 8-6 为年降水量（毫米），口径不合。本站已落库的 precip 只用于城市档案页，不用于本榜；待取得 rain_days 权威数据后再转 computed。
+        note: 原榜共 10 条；PRD §2.1 要求本榜指标为年降水日数（rain_days），国家统计局《中国统计年鉴 2025》表 8-6 为年降水量（毫米），口径不合。本站已落库的 precip 只用于城市档案页，不用于本榜；2026-11-01 核验结论：城市级年降水日数无公开权威单源（《中国统计年鉴》自 2024 卷起不再收录主要城市降水量，分城市降水日数仅能逐城向气象部门查询），按单源纪律维持待审，不硬拼。
         items:
           - { name: 桂林, slug: guilin, note: 全年累计降水168天 全年累计降雨量约2000毫米 }
           - { name: 贵阳, slug: guiyang, note: 全年累计降水164天 全年累计降雨量约1200毫米 }
@@ -1450,7 +1375,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 海口, slug: haikou, note: "" }
@@ -1468,7 +1392,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 郑州, slug: zhengzhou, note: "" }
@@ -1523,7 +1446,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 8
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 8 条。
         items:
           - { name: 徐州, slug: xuzhou, note: "" }
@@ -1604,7 +1526,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 衢州, slug: quzhou, note: 位于扬子地块东南缘 浙中稳定区核心 }
@@ -1622,7 +1543,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 拉萨, slug: lasa, note: "" }
@@ -1640,7 +1560,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 大兴安岭地区, slug: daxinganling, note: "森林覆盖率约85.70% 中国最大/最完整的寒温带针叶林区" }
@@ -1658,7 +1577,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 海口, slug: haikou, note: "常年位居全国空气质量榜首 城市绿化覆盖率超43%" }
@@ -1727,7 +1645,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 9
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 9 条。
         items:
           - { name: 体操之乡：湖北省仙桃, slug: ticaozhixianghubeishengxiantao, note: "" }
@@ -1744,7 +1661,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 北京, slug: beijing, note: "" }
@@ -1762,7 +1678,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 北京, slug: beijing, note: "" }
@@ -1780,8 +1695,7 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
+        note: 原榜共 10 条。2026-11-01 核验：国家知识产权局统计年报分地区数据仅到省级行政区，城市级发明专利授权量前四可核验（2024 年北京约 12 万件、深圳近 7.5 万件、上海 5.1 万件、广州 3.8 万件），第 5 名以后无单源拼不齐，维持待审。
         items:
           - { name: 北京, slug: beijing, note: "" }
           - { name: 深圳, slug: shenzhen, note: "" }
@@ -1798,7 +1712,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 中国香港, slug: xianggang, note: "" }
@@ -1816,7 +1729,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 上海, slug: shanghai, note: "" }
@@ -1834,7 +1746,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 东莞, slug: dongguan, note: "" }
@@ -1852,7 +1763,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 大连, slug: dalian, note: "" }
@@ -1888,7 +1798,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 8
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 8 条。
         items:
           - { name: 上海, slug: shanghai, note: 产业链生态成熟 电竞消费全球领先 }
@@ -1929,7 +1838,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 重庆, slug: chongqing, note: "" }
@@ -1963,7 +1871,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 秦皇岛, slug: qinhuangdao, note: 以秦始皇命名 }
@@ -1981,7 +1888,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 凯里, slug: kaili, note: "" }
@@ -1999,7 +1905,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 8
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 8 条。
         items:
           - { name: 景德镇, slug: jingdezhen, note: 世界瓷都之源 被誉为“千年瓷都” }
@@ -2015,7 +1920,6 @@ groups:
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 商丘, slug: shangqiu, note: "" }
@@ -2080,7 +1984,6 @@ groups:
         kind: "pending"
         scope: "region"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 青岛, slug: qingdao, note: 中国十大宜居城市 }
@@ -2138,7 +2041,6 @@ groups:
         kind: "pending"
         scope: "region"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 珠海, slug: zhuhai, note: 中国十大宜居城市 }
@@ -2166,7 +2068,6 @@ groups:
         kind: "pending"
         scope: "region"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 珠海, slug: zhuhai, note: 中国十大宜居城市 }
@@ -2214,30 +2115,11 @@ groups:
     kicker: PENDING
     desc: 这一组暂无权威标准与可靠量化数据，名次整理自公开榜单，供参考。
     ranks:
-      - slug: qianduhushengzuiga
-        title: 中国“迁都”呼声最高的10个城市
-        kind: "pending"
-        scope: "nation"
-        size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 上海, slug: shanghai, note: 国际经济/金融中心 基础设施极其完善 }
-          - { name: 成都, slug: chengdu, note: 天府粮仓 西南地区中心城市 }
-          - { name: 重庆, slug: chongqing, note: 曾为战时陪都 长江上游经济中心 }
-          - { name: 西安, slug: xian, note: 十三朝古都 位于中国版图几何中心 }
-          - { name: 武汉, slug: wuhan, note: 华中天元/九省通衢 长江中游核心 }
-          - { name: 汉中, slug: hanzhong, note: 秦巴粮仓 汉文化起源 }
-          - { name: 洛阳, slug: luoyang, note: 中国建都时间最长的城市之一 十三朝古都 }
-          - { name: 南京, slug: nanjing, note: 六朝古都 十朝都会 }
-          - { name: 襄阳, slug: xiangyang, note: 南北咽喉要塞 汉江流域中心 }
-          - { name: 南阳, slug: nanyang, note: 中原豫西南腹地 国土几何中心 }
       - slug: shidayimeichengshi
         title: 中国十大医美城市
         kind: "pending"
         scope: "nation"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 北京, slug: beijing, note: 全国医美人才高地 公立整形顶尖科室集中 }
@@ -2250,174 +2132,11 @@ groups:
           - { name: 青岛, slug: qingdao, note: 北方医美滨海标杆 中韩医美交流窗口 }
           - { name: 郑州, slug: zhengzhou, note: 中原医美中心 郑大一附院等公立整形实力强劲 }
           - { name: 重庆, slug: chongqing, note: 西南医美重镇 本土大型医美集团较多 }
-      - slug: shidayalizuidadech
-        title: 中国十大压力最大的城市
-        kind: "pending"
-        scope: "nation"
-        size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 深圳, slug: shenzhen, note: "" }
-          - { name: 上海, slug: shanghai, note: "" }
-          - { name: 中国香港, slug: xianggang, note: "" }
-          - { name: 广州, slug: guangzhou, note: "" }
-          - { name: 北京, slug: beijing, note: "" }
-          - { name: 杭州, slug: hangzhou, note: "" }
-          - { name: 厦门, slug: xiamen, note: "" }
-          - { name: 重庆, slug: chongqing, note: "" }
-          - { name: 天津, slug: tianjin, note: "" }
-          - { name: 南京, slug: nanjing, note: "" }
-      - slug: shidazuishishangch
-        title: 中国十大最时尚城市
-        kind: "pending"
-        scope: "nation"
-        size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 深圳, slug: shenzhen, note: "" }
-          - { name: 上海, slug: shanghai, note: "" }
-          - { name: 北京, slug: beijing, note: "" }
-          - { name: 中国香港, slug: xianggang, note: "" }
-          - { name: 成都, slug: chengdu, note: "" }
-          - { name: 广州, slug: guangzhou, note: "" }
-          - { name: 厦门, slug: xiamen, note: "" }
-          - { name: 西安, slug: xian, note: "" }
-          - { name: 青岛, slug: qingdao, note: "" }
-          - { name: 杭州, slug: hangzhou, note: "" }
-      - slug: shidalangmanchengs
-        title: 中国十大浪漫城市
-        kind: "pending"
-        scope: "nation"
-        size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 三亚, slug: sanya, note: 中国唯一热带海滨城市 被誉为“东方夏威夷” }
-          - { name: 大理, slug: dali, note: 典型的“诗与远方”式浪漫 “风花雪月”的浪漫代名词 }
-          - { name: 大连, slug: dalian, note: 有“北方明珠/浪漫之都”称号 东北浪漫标杆 }
-          - { name: 重庆, slug: chongqing, note: 魔幻山城夜景迷人 璀璨梦幻的浪漫地 }
-          - { name: 成都, slug: chengdu, note: 治愈系浪漫的代表 “安逸”生活哲学中的烟火温情城市 }
-          - { name: 杭州, slug: hangzhou, note: 古典诗意的江南城市 素有“人间天堂”的美誉 }
-          - { name: 厦门, slug: xiamen, note: 文艺清新的海上花园 情侣打卡首选文艺浪漫城 }
-          - { name: 昆明, slug: kunming, note: 享“春城”之美誉 四季如春 }
-          - { name: 长沙, slug: changsha, note: 青春活力的烟火浪漫 最易产生浪漫邂逅的城市 }
-          - { name: 哈尔滨, slug: haerbin, note: 素有“东方小巴黎”的美誉 冬日浪漫天花板 }
-      - slug: danshennvxingzuidu
-        title: 中国单身女性最多的十大城市
-        kind: "pending"
-        scope: "nation"
-        size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 重庆, slug: chongqing, note: "" }
-          - { name: 上海, slug: shanghai, note: "" }
-          - { name: 北京, slug: beijing, note: "" }
-          - { name: 广州, slug: guangzhou, note: "" }
-          - { name: 成都, slug: chengdu, note: "" }
-          - { name: 深圳, slug: shenzhen, note: "" }
-          - { name: 天津, slug: tianjin, note: "" }
-          - { name: 东莞, slug: dongguan, note: "" }
-          - { name: 郑州, slug: zhengzhou, note: "" }
-          - { name: 武汉, slug: wuhan, note: "" }
-      - slug: danshennanxingzuid
-        title: 中国单身男性最多的十大城市
-        kind: "pending"
-        scope: "nation"
-        size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 重庆, slug: chongqing, note: "" }
-          - { name: 上海, slug: shanghai, note: "" }
-          - { name: 广州, slug: guangzhou, note: "" }
-          - { name: 深圳, slug: shenzhen, note: "" }
-          - { name: 成都, slug: chengdu, note: "" }
-          - { name: 北京, slug: beijing, note: "" }
-          - { name: 东莞, slug: dongguan, note: "" }
-          - { name: 武汉, slug: wuhan, note: "" }
-          - { name: 佛山, slug: foshan, note: "" }
-          - { name: 杭州, slug: hangzhou, note: "" }
-      - slug: ditiekuisunzuiyanz
-        title: 中国地铁亏损最严重的十大城市
-        kind: "pending"
-        scope: "nation"
-        size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 深圳, slug: shenzhen, note: "" }
-          - { name: 北京, slug: beijing, note: "" }
-          - { name: 杭州, slug: hangzhou, note: "" }
-          - { name: 重庆, slug: chongqing, note: "" }
-          - { name: 郑州, slug: zhengzhou, note: "" }
-          - { name: 青岛, slug: qingdao, note: "" }
-          - { name: 宁波, slug: ningbo, note: "" }
-          - { name: 成都, slug: chengdu, note: "" }
-          - { name: 南京, slug: nanjing, note: "" }
-          - { name: 西安, slug: xian, note: "" }
-      - slug: cailizuigaodeshida
-        title: 中国彩礼最高的十大城市
-        kind: "pending"
-        scope: "nation"
-        size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 莆田, slug: putian, note: "" }
-          - { name: 鹰潭, slug: yingtan, note: "" }
-          - { name: 上饶, slug: shangrao, note: "" }
-          - { name: 福州, slug: fuzhou, note: "" }
-          - { name: 温州, slug: wenzhou, note: "" }
-          - { name: 南通, slug: nantong, note: "" }
-          - { name: 天津, slug: tianjin, note: "" }
-          - { name: 沧州, slug: cangzhou, note: "" }
-          - { name: 青岛, slug: qingdao, note: "" }
-          - { name: 菏泽, slug: heze, note: "" }
-      - slug: meinvzuiduodeshida
-        title: 中国美女最多的十大城市
-        kind: "pending"
-        scope: "nation"
-        size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 成都, slug: chengdu, note: 时尚精致 皮肤细腻 }
-          - { name: 重庆, slug: chongqing, note: 热情火辣 皮肤白皙 }
-          - { name: 乌鲁木齐, slug: wulumuqi, note: 异域风情 五官深邃 }
-          - { name: 哈尔滨, slug: haerbin, note: 高挑明艳 五官立体 }
-          - { name: 长沙, slug: changsha, note: 明艳果敢 肤色红润 }
-          - { name: 杭州, slug: hangzhou, note: 温婉灵秀 气质古典 }
-          - { name: 苏州, slug: suzhou, note: 古典柔美 吴侬软语 }
-          - { name: 南京, slug: nanjing, note: 知性优雅 肤白清秀 }
-          - { name: 上海, slug: shanghai, note: 精致摩登 优雅时尚 }
-          - { name: 大连, slug: dalian, note: 高挑时尚 自信阳光 }
-      - slug: saoraodianhuazuidu
-        title: 中国骚扰电话最多的十大城市
-        kind: "pending"
-        scope: "nation"
-        size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 北京, slug: beijing, note: "" }
-          - { name: 广州, slug: guangzhou, note: "" }
-          - { name: 上海, slug: shanghai, note: "" }
-          - { name: 深圳, slug: shenzhen, note: "" }
-          - { name: 成都, slug: chengdu, note: "" }
-          - { name: 重庆, slug: chongqing, note: "" }
-          - { name: 杭州, slug: hangzhou, note: "" }
-          - { name: 西安, slug: xian, note: "" }
-          - { name: 郑州, slug: zhengzhou, note: "" }
-          - { name: 武汉, slug: wuhan, note: "" }
       - slug: jinjiangshidaqiang
         title: 晋江十大强镇 晋江市镇区排名 晋江最发达的镇〔2026〕
         kind: "pending"
         scope: "town"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
         note: 原榜共 10 条。
         items:
           - { name: 陈埭镇, slug: chendaizhen, note: "" }
