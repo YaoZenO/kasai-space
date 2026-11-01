@@ -481,22 +481,14 @@ groups:
         note: 候选范围为本数据集中已采集到 2025 年地区生产总值的湖南省市州（共 14 个，含省直辖县级单位）。
       - slug: huanbohaidiqucheng
         title: 环渤海地区城市排名 环渤海有哪些城市 环渤海十三市盘点〔2026〕
-        kind: "pending"
+        kind: "computed"
         scope: "region"
-        size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 天津, slug: tianjin, note: "" }
-          - { name: 烟台, slug: yantai, note: "" }
-          - { name: 唐山, slug: tangshan, note: "" }
-          - { name: 大连, slug: dalian, note: "" }
-          - { name: 潍坊, slug: weifang, note: "" }
-          - { name: 沧州, slug: cangzhou, note: "" }
-          - { name: 东营, slug: dongying, note: "" }
-          - { name: 滨州, slug: binzhou, note: "" }
-          - { name: 秦皇岛, slug: qinhuangdao, note: "" }
-          - { name: 营口, slug: yingkou, note: "" }
+        size: 13
+        lede: 按 2025 年地区生产总值从大到小排序，候选范围限定为环渤海地区的 18 座城市。
+        metrics:
+          - { field: "gdp", weight: 1.0, dir: "up", label: "地区生产总值", unit: "亿元", scale: "log" }
+        filter: { bohai: "环渤海" }
+        note: 口径：2025 年地区生产总值（各省统计局 / 各市统计公报口径）。环渤海范围取「沿岸城市 + 北京、天津」：北京、天津，河北的秦皇岛、唐山、沧州，辽宁的大连、丹东、营口、盘锦、锦州、葫芦岛，山东的青岛、烟台、威海、潍坊、东营、滨州、日照，共 18 座；不含内陆的沈阳、济南、石家庄等「环渤海经济圈」广义成员——范围口径不同会得出不同名次，这里按沿岸 + 京津的窄口径。候选范围内缺 2025 年 GDP 的城市不参与本榜，不按 0 处理。
       - slug: "gansushidachengshi"
         title: 甘肃十大城市
         kind: "computed"
@@ -806,7 +798,7 @@ groups:
         size: 10
         lede: 按城市辖区内的国家 5A 级旅游景区数量排序，数据源为文化和旅游部「国家5A级旅游景区」名单（截至 2025-03-11）。
         metrics:
-          - { field: "scenic_5a", weight: 1.0, dir: "up", label: "国家 5A 级旅游景区数量", unit: "家", scale: "log" }
+          - { field: "scenic_5a", weight: 1.0, dir: "up", label: "国家 5A 级旅游景区数量", unit: "家" }
         note: 口径说明：本榜只计「国家 5A 级旅游景区数量」这一个可查证指标（文化和旅游部名单，数据截止 2025-03-11，按景区所在城市计数；名单自带城市标注的跨市景区按涉及城市各计 1 家）。它反映的是高等级景区资源的集中度，**不等于城市综合旅游吸引力**——游客接待量、气候舒适度、美食与交通便利度均未计入，所以本榜前十与常见的「旅游城市」口碑榜会有出入（例如重庆因辖内 12 家 5A 景区居首）。第 6 名起多家城市同为 4 家 5A，属名次并列，先后不代表差异；未采集到该指标的城市不参与本榜，不按 0 处理。未入库的 5A 景区（城市未建档或无法确定地级市归属，共 10 条）逐条列在 tools/city-metrics-batches/scenic-5a-2025-sources.md。
       - slug: shidachunjilvyouch
         title: 中国十大春季旅游城市
@@ -2045,76 +2037,44 @@ groups:
     ranks:
       - slug: dongbeishidalvyouc
         title: 东北十大旅游城市
-        kind: "pending"
+        kind: "computed"
         scope: "region"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 哈尔滨, slug: haerbin, note: 中国十佳冰雪旅游城市，“冰城” }
-          - { name: 沈阳, slug: shenyang, note: 冰雪旅游十佳城市，国家历史文化名城 }
-          - { name: 大连, slug: dalian, note: 全国滨海海岛旅游热门城市 }
-          - { name: 长春, slug: changchun, note: 冰雪旅游十佳城市 }
-          - { name: 呼伦贝尔, slug: hulunbeier, note: 冰雪旅游十佳城市，最美草原城市 }
-          - { name: 吉林, slug: jilin, note: 冰雪旅游十佳城市 }
-          - { name: 漠河, slug: mohe, note: “神州北极” }
-          - { name: 阿尔山, slug: aershan, note: 中国优秀旅游城市 }
-          - { name: 延边, slug: yanbian, note: 中国十佳冰雪旅游城市 }
-          - { name: 丹东, slug: dandong, note: 中国最大最美的边境城市 }
+        lede: 按各市辖区内的国家 5A 级旅游景区数量排序，候选范围限定为东北，数据源为文化和旅游部 5A 名单（截至 2025-03-11）。
+        metrics:
+          - { field: "scenic_5a", weight: 1.0, dir: "up", label: "国家 5A 级旅游景区数量", unit: "家" }
+        filter: { region: "东北" }
+        note: 口径：国家 5A 级旅游景区数量（文化和旅游部数据服务「国家5A级旅游景区」名单，数据截止 2025-03-11，按景区所在城市计数；该名单为全国全量名单，未出现的城市按 0 家计）。区域范围：辽宁、吉林、黑龙江。该指标只反映高等级景区资源的集中度，不等于城市综合旅游吸引力（游客接待量、气候、美食、交通便利度均未计入），页面名次应与口碑榜区别看待。候选范围为本区域内已建档并采集该指标的城市；未建档的城市不参与本榜，不按 0 处理。
       - slug: dongbushidalvyouch
         title: 中国东部十大旅游城市
-        kind: "pending"
+        kind: "computed"
         scope: "region"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 北京, slug: beijing, note: 世界古都，国内十大最热门旅游城市 }
-          - { name: 上海, slug: shanghai, note: 国家历史文化名城，中国优秀旅游城市 }
-          - { name: 杭州, slug: hangzhou, note: 中国最佳旅游城市，“人间天堂” }
-          - { name: 广州, slug: guangzhou, note: 国家历史文化名城，中国优秀旅游城市 }
-          - { name: 南京, slug: nanjing, note: 国家历史文化名城，中国四大古都，全球最佳旅游目的地 }
-          - { name: 三亚, slug: sanya, note: 国际旅游城市，中国十大旅游目的地必去城市 }
-          - { name: 苏州, slug: suzhou, note: 国家历史文化名城，江南水乡 }
-          - { name: 深圳, slug: shenzhen, note: 中国优秀旅游城市 }
-          - { name: 厦门, slug: xiamen, note: 中国优秀旅游城市，海滨旅游城市 }
-          - { name: 青岛, slug: qingdao, note: 海滨旅游城市，国家历史文化名城，中国优秀旅游城市 }
+        lede: 按各市辖区内的国家 5A 级旅游景区数量排序，候选范围限定为东部，数据源为文化和旅游部 5A 名单（截至 2025-03-11）。
+        metrics:
+          - { field: "scenic_5a", weight: 1.0, dir: "up", label: "国家 5A 级旅游景区数量", unit: "家" }
+        filter: { belt: "东部" }
+        note: 口径：国家 5A 级旅游景区数量（文化和旅游部数据服务「国家5A级旅游景区」名单，数据截止 2025-03-11，按景区所在城市计数；该名单为全国全量名单，未出现的城市按 0 家计）。区域范围：国家统计局三大地带口径：北京、天津、河北、辽宁、上海、江苏、浙江、福建、山东、广东、广西、海南。该指标只反映高等级景区资源的集中度，不等于城市综合旅游吸引力（游客接待量、气候、美食、交通便利度均未计入），页面名次应与口碑榜区别看待。候选范围为本区域内已建档并采集该指标的城市；未建档的城市不参与本榜，不按 0 处理。
       - slug: zhongbushidalvyouc
         title: 中国中部十大旅游城市
-        kind: "pending"
+        kind: "computed"
         scope: "region"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 武汉, slug: wuhan, note: 中国十大热门旅游城市，国家历史文化名城 }
-          - { name: 郑州, slug: zhengzhou, note: 中国优秀旅游城市，国家历史文化名城 }
-          - { name: 长沙, slug: changsha, note: 国内著名网红城市，年轻人最钟爱的城市之一 }
-          - { name: 洛阳, slug: luoyang, note: 千年古都，国家历史文化名城 }
-          - { name: 张家界, slug: zhangjiajie, note: “美丽中国的靓丽名片” }
-          - { name: 开封, slug: kaifeng, note: "" }
-          - { name: 南昌, slug: nanchang, note: 国家历史文化名城，中国优秀旅游城市 }
-          - { name: 太原, slug: taiyuan, note: 中国优秀旅游城市，国家历史文化名城 }
-          - { name: 大同, slug: datong, note: 国内文化旅游十大热门城市，国家历史文化名城 }
-          - { name: 黄山, slug: huangshan, note: 中国优秀旅游城市 }
+        lede: 按各市辖区内的国家 5A 级旅游景区数量排序，候选范围限定为中部，数据源为文化和旅游部 5A 名单（截至 2025-03-11）。
+        metrics:
+          - { field: "scenic_5a", weight: 1.0, dir: "up", label: "国家 5A 级旅游景区数量", unit: "家" }
+        filter: { belt: "中部" }
+        note: 口径：国家 5A 级旅游景区数量（文化和旅游部数据服务「国家5A级旅游景区」名单，数据截止 2025-03-11，按景区所在城市计数；该名单为全国全量名单，未出现的城市按 0 家计）。区域范围：国家统计局三大地带口径：山西、内蒙古、吉林、黑龙江、安徽、江西、河南、湖北、湖南。该指标只反映高等级景区资源的集中度，不等于城市综合旅游吸引力（游客接待量、气候、美食、交通便利度均未计入），页面名次应与口碑榜区别看待。候选范围为本区域内已建档并采集该指标的城市；未建档的城市不参与本榜，不按 0 处理。
       - slug: beifangshidalvyouc
         title: 北方十大旅游城市
-        kind: "pending"
+        kind: "computed"
         scope: "region"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 北京, slug: beijing, note: 世界古都，国内十大最热门旅游城市 }
-          - { name: 西安, slug: xian, note: 中国十大旅游目的地必去城市 }
-          - { name: 青岛, slug: qingdao, note: 海滨旅游城市，国家历史文化名城，中国优秀旅游城市 }
-          - { name: 天津, slug: tianjin, note: “近代百年看天津”，国家历史文化名城 }
-          - { name: 郑州, slug: zhengzhou, note: 中国优秀旅游城市，国家历史文化名城 }
-          - { name: 洛阳, slug: luoyang, note: 千年古都，国家历史文化名城 }
-          - { name: 哈尔滨, slug: haerbin, note: 中国十佳冰雪旅游城市，“冰城” }
-          - { name: 沈阳, slug: shenyang, note: 冰雪旅游十佳城市，国家历史文化名城 }
-          - { name: 大连, slug: dalian, note: 全国滨海海岛旅游热门城市 }
-          - { name: 长春, slug: changchun, note: 冰雪旅游十佳城市 }
+        lede: 按各市辖区内的国家 5A 级旅游景区数量排序，候选范围限定为北方，数据源为文化和旅游部 5A 名单（截至 2025-03-11）。
+        metrics:
+          - { field: "scenic_5a", weight: 1.0, dir: "up", label: "国家 5A 级旅游景区数量", unit: "家" }
+        filter: { zone: "北方" }
+        note: 口径：国家 5A 级旅游景区数量（文化和旅游部数据服务「国家5A级旅游景区」名单，数据截止 2025-03-11，按景区所在城市计数；该名单为全国全量名单，未出现的城市按 0 家计）。区域范围：秦岭—淮河以北（江苏徐州 / 连云港 / 宿迁、安徽淮北 / 亳州 / 宿州 / 蚌埠 / 阜阳 / 淮南按淮河以北计入）。该指标只反映高等级景区资源的集中度，不等于城市综合旅游吸引力（游客接待量、气候、美食、交通便利度均未计入），页面名次应与口碑榜区别看待。候选范围为本区域内已建档并采集该指标的城市；未建档的城市不参与本榜，不按 0 处理。
       - slug: beifangzuiyijudesh
         title: 北方最宜居的十大城市 北方宜居城市排名 北方最舒服的城市〔2026〕
         kind: "pending"
@@ -2135,76 +2095,44 @@ groups:
           - { name: 唐山, slug: tangshan, note: 联合国人居奖，中国宜居城市50强 }
       - slug: huadongshidalvyouc
         title: 华东十大旅游城市
-        kind: "pending"
+        kind: "computed"
         scope: "region"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 上海, slug: shanghai, note: 国家历史文化名城，中国优秀旅游城市 }
-          - { name: 杭州, slug: hangzhou, note: 中国最佳旅游城市，“人间天堂” }
-          - { name: 南京, slug: nanjing, note: 国家历史文化名城，中国四大古都，全球最佳旅游目的地 }
-          - { name: 厦门, slug: xiamen, note: 中国优秀旅游城市，海滨旅游城市 }
-          - { name: 苏州, slug: suzhou, note: 国家历史文化名城，江南水乡 }
-          - { name: 青岛, slug: qingdao, note: 海滨旅游城市，国家历史文化名城，中国优秀旅游城市 }
-          - { name: 南昌, slug: nanchang, note: 国家历史文化名城，中国优秀旅游城市 }
-          - { name: 黄山, slug: huangshan, note: 中国优秀旅游城市 }
-          - { name: 无锡, slug: wuxi, note: 国家历史文化名城，中国优秀旅游城市 }
-          - { name: 福州, slug: fuzhou, note: 国家历史文化名城，中国优秀旅游城市 }
+        lede: 按各市辖区内的国家 5A 级旅游景区数量排序，候选范围限定为华东，数据源为文化和旅游部 5A 名单（截至 2025-03-11）。
+        metrics:
+          - { field: "scenic_5a", weight: 1.0, dir: "up", label: "国家 5A 级旅游景区数量", unit: "家" }
+        filter: { region: "华东" }
+        note: 口径：国家 5A 级旅游景区数量（文化和旅游部数据服务「国家5A级旅游景区」名单，数据截止 2025-03-11，按景区所在城市计数；该名单为全国全量名单，未出现的城市按 0 家计）。区域范围：上海、江苏、浙江、安徽、福建、江西、山东。该指标只反映高等级景区资源的集中度，不等于城市综合旅游吸引力（游客接待量、气候、美食、交通便利度均未计入），页面名次应与口碑榜区别看待。候选范围为本区域内已建档并采集该指标的城市；未建档的城市不参与本榜，不按 0 处理。
       - slug: huazhongshidalvyou
         title: 华中十大旅游城市
-        kind: "pending"
+        kind: "computed"
         scope: "region"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 武汉, slug: wuhan, note: 中国十大热门旅游城市，国家历史文化名城 }
-          - { name: 郑州, slug: zhengzhou, note: 中国优秀旅游城市，国家历史文化名城 }
-          - { name: 长沙, slug: changsha, note: 国内著名网红城市，年轻人最钟爱的城市之一 }
-          - { name: 洛阳, slug: luoyang, note: 千年古都，国家历史文化名城 }
-          - { name: 张家界, slug: zhangjiajie, note: “美丽中国的靓丽名片” }
-          - { name: 开封, slug: kaifeng, note: "" }
-          - { name: 宜昌, slug: yichang, note: "" }
-          - { name: 湘西, slug: xiangxi, note: 中国优秀旅游城市 }
-          - { name: 恩施, slug: enshi, note: “中国最美仙境”“湖北香格里拉” }
-          - { name: 焦作, slug: jiaozuo, note: 中国优秀旅游城市 }
+        lede: 按各市辖区内的国家 5A 级旅游景区数量排序，候选范围限定为华中，数据源为文化和旅游部 5A 名单（截至 2025-03-11）。
+        metrics:
+          - { field: "scenic_5a", weight: 1.0, dir: "up", label: "国家 5A 级旅游景区数量", unit: "家" }
+        filter: { region: "华中" }
+        note: 口径：国家 5A 级旅游景区数量（文化和旅游部数据服务「国家5A级旅游景区」名单，数据截止 2025-03-11，按景区所在城市计数；该名单为全国全量名单，未出现的城市按 0 家计）。区域范围：河南、湖北、湖南。该指标只反映高等级景区资源的集中度，不等于城市综合旅游吸引力（游客接待量、气候、美食、交通便利度均未计入），页面名次应与口碑榜区别看待。候选范围为本区域内已建档并采集该指标的城市；未建档的城市不参与本榜，不按 0 处理。
       - slug: huabeishidalvyouch
         title: 华北十大旅游城市
-        kind: "pending"
+        kind: "computed"
         scope: "region"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 北京, slug: beijing, note: 世界古都，国内十大最热门旅游城市 }
-          - { name: 天津, slug: tianjin, note: “近代百年看天津”，国家历史文化名城 }
-          - { name: 秦皇岛, slug: qinhuangdao, note: 国内滨海旅游热门城市，国家历史文化名城 }
-          - { name: 太原, slug: taiyuan, note: 中国优秀旅游城市，国家历史文化名城 }
-          - { name: 大同, slug: datong, note: 国内文化旅游十大热门城市，国家历史文化名城 }
-          - { name: 承德, slug: chengde, note: 中国避暑名城，中国优秀旅游城市 }
-          - { name: 呼和浩特, slug: huhehaote, note: 中国优秀旅游城市，国家历史文化名城 }
-          - { name: 石家庄, slug: shijiazhuang, note: 中国优秀旅游城市，国家历史文化名城 }
-          - { name: 晋中, slug: jinzhong, note: 中国最具影响力文化旅游城市 }
-          - { name: 保定, slug: baoding, note: 中国优秀旅游城市，国家历史文化名城 }
+        lede: 按各市辖区内的国家 5A 级旅游景区数量排序，候选范围限定为华北，数据源为文化和旅游部 5A 名单（截至 2025-03-11）。
+        metrics:
+          - { field: "scenic_5a", weight: 1.0, dir: "up", label: "国家 5A 级旅游景区数量", unit: "家" }
+        filter: { region: "华北" }
+        note: 口径：国家 5A 级旅游景区数量（文化和旅游部数据服务「国家5A级旅游景区」名单，数据截止 2025-03-11，按景区所在城市计数；该名单为全国全量名单，未出现的城市按 0 家计）。区域范围：北京、天津、河北、山西、内蒙古。该指标只反映高等级景区资源的集中度，不等于城市综合旅游吸引力（游客接待量、气候、美食、交通便利度均未计入），页面名次应与口碑榜区别看待。候选范围为本区域内已建档并采集该指标的城市；未建档的城市不参与本榜，不按 0 处理。
       - slug: huananshidalvyouch
         title: 华南十大旅游城市
-        kind: "pending"
+        kind: "computed"
         scope: "region"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 广州, slug: guangzhou, note: 国家历史文化名城， }
-          - { name: 三亚, slug: sanya, note: 国际旅游城市，中国十大旅游目的地必去城市 }
-          - { name: 桂林, slug: guilin, note: 国家历史文化名城，世界著名风景游览城市 }
-          - { name: 深圳, slug: shenzhen, note: 中国优秀旅游 }
-          - { name: 南宁, slug: nanning, note: 中国优秀旅游城市，中国绿城 }
-          - { name: 海口, slug: haikou, note: 国家历史文化名城，中国优秀旅游城市，滨海海岛旅游热门城市 }
-          - { name: 北海, slug: beihai, note: 国家历史文化名城，中国优秀旅游城市，滨海海岛旅游热门城市 }
-          - { name: 佛山, slug: foshan, note: 国家历史文化名城，中国优秀旅游城市,岭南水乡 }
-          - { name: 珠海, slug: zhuhai, note: 中国优秀旅游城市，滨海海岛旅游热门城市 }
-          - { name: 惠州, slug: huizhou, note: 国家历史文化名城，中国优秀旅游城市 }
+        lede: 按各市辖区内的国家 5A 级旅游景区数量排序，候选范围限定为华南，数据源为文化和旅游部 5A 名单（截至 2025-03-11）。
+        metrics:
+          - { field: "scenic_5a", weight: 1.0, dir: "up", label: "国家 5A 级旅游景区数量", unit: "家" }
+        filter: { region: "华南" }
+        note: 口径：国家 5A 级旅游景区数量（文化和旅游部数据服务「国家5A级旅游景区」名单，数据截止 2025-03-11，按景区所在城市计数；该名单为全国全量名单，未出现的城市按 0 家计）。区域范围：广东、广西、海南。该指标只反映高等级景区资源的集中度，不等于城市综合旅游吸引力（游客接待量、气候、美食、交通便利度均未计入），页面名次应与口碑榜区别看待。候选范围为本区域内已建档并采集该指标的城市；未建档的城市不参与本榜，不按 0 处理。
       - slug: huanandiqushidazui
         title: 华南地区十大最宜居的城市 华南最适合居住10个城市〔2026〕
         kind: "pending"
@@ -2225,22 +2153,14 @@ groups:
           - { name: 桂林, slug: guilin, note: 中国人居环境奖，中国康养旅游城市百强榜，中国长寿之乡 }
       - slug: nanfangshidalvyouc
         title: 南方十大旅游城市
-        kind: "pending"
+        kind: "computed"
         scope: "region"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 上海, slug: shanghai, note: 国家历史文化名城，中国优秀旅游城市 }
-          - { name: 成都, slug: chengdu, note: 中国最佳旅游城市，国家历史文化名城 }
-          - { name: 昆明, slug: kunming, note: “春城”，国内避暑旅游热门目的地，国内避寒旅游热门城市 }
-          - { name: 杭州, slug: hangzhou, note: 中国最佳旅游城市，“人间天堂” }
-          - { name: 重庆, slug: chongqing, note: 8D魔幻之都，网红城市，中国优秀旅游城市 }
-          - { name: 广州, slug: guangzhou, note: 国家历史文化名城，中国优秀旅游城市 }
-          - { name: 南京, slug: nanjing, note: 国家历史文化名城，中国四大古都，全球最佳旅游目的地 }
-          - { name: 武汉, slug: wuhan, note: 中国十大热门旅游城市，国家历史文化名城 }
-          - { name: 三亚, slug: sanya, note: 国际旅游城市，中国十大旅游目的地必去城市 }
-          - { name: 桂林, slug: guilin, note: "" }
+        lede: 按各市辖区内的国家 5A 级旅游景区数量排序，候选范围限定为南方，数据源为文化和旅游部 5A 名单（截至 2025-03-11）。
+        metrics:
+          - { field: "scenic_5a", weight: 1.0, dir: "up", label: "国家 5A 级旅游景区数量", unit: "家" }
+        filter: { zone: "南方" }
+        note: 口径：国家 5A 级旅游景区数量（文化和旅游部数据服务「国家5A级旅游景区」名单，数据截止 2025-03-11，按景区所在城市计数；该名单为全国全量名单，未出现的城市按 0 家计）。区域范围：秦岭—淮河以南（含河南信阳 / 南阳 / 驻马店、陕西汉中 / 安康 / 商洛、甘肃陇南等秦岭南麓城市）。该指标只反映高等级景区资源的集中度，不等于城市综合旅游吸引力（游客接待量、气候、美食、交通便利度均未计入），页面名次应与口碑榜区别看待。候选范围为本区域内已建档并采集该指标的城市；未建档的城市不参与本榜，不按 0 处理。
       - slug: nanfangzuiyijudeda
         title: 南方最宜居的10大城市 南方宜居城市排名 南方宜居养老城市〔2026〕
         kind: "pending"
@@ -2261,60 +2181,34 @@ groups:
           - { name: 成都, slug: chengdu, note: 中国十大宜居城市 }
       - slug: xibeishidalvyouche
         title: 西北十大旅游城市
-        kind: "pending"
+        kind: "computed"
         scope: "region"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 西安, slug: xian, note: 中国十大旅游目的地必去城市 }
-          - { name: 酒泉市·敦煌, slug: jiuquanshidunhuang, note: 中国最具国际影响力旅游目的地 }
-          - { name: 乌鲁木齐, slug: wulumuqi, note: 中国十佳冰雪旅游城市 }
-          - { name: 西宁, slug: xining, note: “中国夏都”，中国十大避暑城市 }
-          - { name: 兰州, slug: lanzhou, note: “黄河之都”，避暑之都，中国优秀旅游城市 }
-          - { name: 伊犁, slug: yili, note: 塞外江南 }
-          - { name: 阿勒泰, slug: aleitai, note: 中国雪都，中国冰雪旅游十佳城市 }
-          - { name: 延安, slug: yanan, note: 中国革命圣地，国内最热门的红色旅游城市 }
-          - { name: 张掖, slug: zhangye, note: “彩虹张掖·七彩丹霞”，中国优秀旅游城市 }
-          - { name: 银川, slug: yinchuan, note: 塞上江南，国家历史文化名城，中国优秀旅游城市 }
+        lede: 按各市辖区内的国家 5A 级旅游景区数量排序，候选范围限定为西北，数据源为文化和旅游部 5A 名单（截至 2025-03-11）。
+        metrics:
+          - { field: "scenic_5a", weight: 1.0, dir: "up", label: "国家 5A 级旅游景区数量", unit: "家" }
+        filter: { region: "西北" }
+        note: 口径：国家 5A 级旅游景区数量（文化和旅游部数据服务「国家5A级旅游景区」名单，数据截止 2025-03-11，按景区所在城市计数；该名单为全国全量名单，未出现的城市按 0 家计）。区域范围：陕西、甘肃、青海、宁夏、新疆。该指标只反映高等级景区资源的集中度，不等于城市综合旅游吸引力（游客接待量、气候、美食、交通便利度均未计入），页面名次应与口碑榜区别看待。候选范围为本区域内已建档并采集该指标的城市；未建档的城市不参与本榜，不按 0 处理。
       - slug: xinanshidalvyouche
         title: 西南十大旅游城市
-        kind: "pending"
+        kind: "computed"
         scope: "region"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 成都, slug: chengdu, note: 中国最佳旅游城市，国家历史文化名城 }
-          - { name: 昆明, slug: kunming, note: “春城”，国内避暑旅游热门目的地，国内避寒旅游热门城市 }
-          - { name: 重庆, slug: chongqing, note: 8D魔幻之都，网红城市，中国优秀旅游城市 }
-          - { name: 丽江, slug: lijiang, note: 世界上最令人向往的旅游目的地 }
-          - { name: 拉萨, slug: lasa, note: 中国十大旅游目的地必去城市 }
-          - { name: 迪庆香格里拉, slug: diqingxianggelila, note: 中国十大旅游目的地必去城市 }
-          - { name: 贵阳, slug: guiyang, note: 中国优秀旅游城市，中国避暑之都 }
-          - { name: 大理, slug: dali, note: 中国优秀旅游城市，令人陶醉的“风花雪月”地 }
-          - { name: 西双版纳, slug: xishuangbanna, note: 全球12个最热的旅游目的地，中国避寒旅游城市 }
-          - { name: 阿坝, slug: aba, note: 世界最佳生态旅游目的地 }
+        lede: 按各市辖区内的国家 5A 级旅游景区数量排序，候选范围限定为西南，数据源为文化和旅游部 5A 名单（截至 2025-03-11）。
+        metrics:
+          - { field: "scenic_5a", weight: 1.0, dir: "up", label: "国家 5A 级旅游景区数量", unit: "家" }
+        filter: { region: "西南" }
+        note: 口径：国家 5A 级旅游景区数量（文化和旅游部数据服务「国家5A级旅游景区」名单，数据截止 2025-03-11，按景区所在城市计数；该名单为全国全量名单，未出现的城市按 0 家计）。区域范围：重庆、四川、贵州、云南、西藏。该指标只反映高等级景区资源的集中度，不等于城市综合旅游吸引力（游客接待量、气候、美食、交通便利度均未计入），页面名次应与口碑榜区别看待。候选范围为本区域内已建档并采集该指标的城市；未建档的城市不参与本榜，不按 0 处理。
       - slug: xibushidalvyouchen
         title: 西部十大旅游城市
-        kind: "pending"
+        kind: "computed"
         scope: "region"
         size: 10
-        lede: 本榜收录的名次，整理自公开榜单。
-        note: 原榜共 10 条。
-        items:
-          - { name: 成都, slug: chengdu, note: 中国最佳旅游城市，国家历史文化名城 }
-          - { name: 昆明, slug: kunming, note: “春城”，国内避暑旅游热门目的地，国内避寒旅游热门城市 }
-          - { name: 重庆, slug: chongqing, note: 8D魔幻之都，网红城市，中国优秀旅游城市 }
-          - { name: 西安, slug: xian, note: 中国十大旅游目的地必去城市 }
-          - { name: 丽江, slug: lijiang, note: 世界上最令人向往的旅游目的地 }
-          - { name: 酒泉市·敦煌, slug: jiuquanshidunhuang, note: 中国最具国际影响力旅游目的地 }
-          - { name: 桂林, slug: guilin, note: 国家历史文化名城，世界著名风景游览城市 }
-          - { name: 拉萨, slug: lasa, note: 中国十大旅游目的地必去城市 }
-          - { name: 迪庆香格里拉, slug: diqingxianggelila, note: 中国十大旅游目的地必去城市 }
-          - { name: 贵阳, slug: guiyang, note: 中国优秀旅游城市，中国避暑之都 }
-
-  # ============ 待审 ============
+        lede: 按各市辖区内的国家 5A 级旅游景区数量排序，候选范围限定为西部，数据源为文化和旅游部 5A 名单（截至 2025-03-11）。
+        metrics:
+          - { field: "scenic_5a", weight: 1.0, dir: "up", label: "国家 5A 级旅游景区数量", unit: "家" }
+        filter: { belt: "西部" }
+        note: 口径：国家 5A 级旅游景区数量（文化和旅游部数据服务「国家5A级旅游景区」名单，数据截止 2025-03-11，按景区所在城市计数；该名单为全国全量名单，未出现的城市按 0 家计）。区域范围：国家统计局三大地带口径：重庆、四川、贵州、云南、西藏、陕西、甘肃、青海、宁夏、新疆。该指标只反映高等级景区资源的集中度，不等于城市综合旅游吸引力（游客接待量、气候、美食、交通便利度均未计入），页面名次应与口碑榜区别看待。候选范围为本区域内已建档并采集该指标的城市；未建档的城市不参与本榜，不按 0 处理。
   - key: pending
     title: 待审
     kicker: PENDING

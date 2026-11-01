@@ -1,0 +1,1112 @@
+{
+  "_comment": "P3 第十六批补：文化和旅游部「国家5A级旅游景区」名单是全国全量名单（数据截止 2025-03-11，359 条），名单中未出现的城市即 0 家 5A——这是可核对的事实，不是占位值也不是估算。本批次给库内其余城市补 0，使区域类榜单的候选池完整（否则华东/西北等区域榜的指标覆盖率不足 90%，会被 S15 断言拦下）。0 值城市清单按省统计见 tools/city-metrics-batches/scenic-5a-2025-sources.md",
+  "source": {
+    "key": "scenic5aMCT2025",
+    "name": "文化和旅游部数据服务「国家5A级旅游景区」名单（数据截止 2025-03-11；按景区所在城市计数，名单标注的跨市景区按涉及城市各计 1 家）",
+    "asOf": "2025"
+  },
+  "field": "scenic_5a",
+  "unit": "家",
+  "rows": [
+    {
+      "name": "珠海",
+      "slug": "zhuhai",
+      "v": 0
+    },
+    {
+      "name": "海口",
+      "slug": "haikou",
+      "v": 0
+    },
+    {
+      "name": "中国香港",
+      "slug": "xianggang",
+      "v": 0
+    },
+    {
+      "name": "吉林",
+      "slug": "jilin",
+      "v": 0
+    },
+    {
+      "name": "东莞",
+      "slug": "dongguan",
+      "v": 0
+    },
+    {
+      "name": "兰州",
+      "slug": "lanzhou",
+      "v": 0
+    },
+    {
+      "name": "六盘水",
+      "slug": "liupanshui",
+      "v": 0
+    },
+    {
+      "name": "曲靖",
+      "slug": "qujing",
+      "v": 0
+    },
+    {
+      "name": "丹东",
+      "slug": "dandong",
+      "v": 0
+    },
+    {
+      "name": "漠河",
+      "slug": "mohe",
+      "v": 0
+    },
+    {
+      "name": "三沙",
+      "slug": "sansha",
+      "v": 0
+    },
+    {
+      "name": "台北",
+      "slug": "taibei",
+      "v": 0
+    },
+    {
+      "name": "湛江",
+      "slug": "zhanjiang",
+      "v": 0
+    },
+    {
+      "name": "白山",
+      "slug": "baishan",
+      "v": 0
+    },
+    {
+      "name": "德州",
+      "slug": "dezhou",
+      "v": 0
+    },
+    {
+      "name": "菏泽",
+      "slug": "heze",
+      "v": 0
+    },
+    {
+      "name": "茂名",
+      "slug": "maoming",
+      "v": 0
+    },
+    {
+      "name": "白银",
+      "slug": "baiyin",
+      "v": 0
+    },
+    {
+      "name": "滨州",
+      "slug": "binzhou",
+      "v": 0
+    },
+    {
+      "name": "昌都",
+      "slug": "changdou",
+      "v": 0
+    },
+    {
+      "name": "常州",
+      "slug": "changzhou",
+      "v": 0
+    },
+    {
+      "name": "哈密",
+      "slug": "hami",
+      "v": 0
+    },
+    {
+      "name": "汉中",
+      "slug": "hanzhong",
+      "v": 0
+    },
+    {
+      "name": "鹤壁",
+      "slug": "hebi",
+      "v": 0
+    },
+    {
+      "name": "锦州",
+      "slug": "jinzhou",
+      "v": 0
+    },
+    {
+      "name": "酒泉市·敦煌",
+      "slug": "jiuquanshidunhuang",
+      "v": 0
+    },
+    {
+      "name": "临沧",
+      "slug": "lincang",
+      "v": 0
+    },
+    {
+      "name": "那曲",
+      "slug": "naqu",
+      "v": 0
+    },
+    {
+      "name": "塔城地区",
+      "slug": "tacheng",
+      "v": 0
+    },
+    {
+      "name": "西昌",
+      "slug": "xichang",
+      "v": 0
+    },
+    {
+      "name": "营口",
+      "slug": "yingkou",
+      "v": 0
+    },
+    {
+      "name": "益阳",
+      "slug": "yiyang",
+      "v": 0
+    },
+    {
+      "name": "永州",
+      "slug": "yongzhou",
+      "v": 0
+    },
+    {
+      "name": "玉林",
+      "slug": "yulin",
+      "v": 0
+    },
+    {
+      "name": "玉溪",
+      "slug": "yuxi",
+      "v": 0
+    },
+    {
+      "name": "漳州",
+      "slug": "zhangzhou",
+      "v": 0
+    },
+    {
+      "name": "阿尔山",
+      "slug": "aershan",
+      "v": 0
+    },
+    {
+      "name": "阿勒泰/布尔津·北疆水塔",
+      "slug": "aleitaibuerjinbeijiangshuita",
+      "v": 0
+    },
+    {
+      "name": "阿里地区",
+      "slug": "ali",
+      "v": 0
+    },
+    {
+      "name": "安海镇",
+      "slug": "anhaizhen",
+      "v": 0
+    },
+    {
+      "name": "安康",
+      "slug": "ankang",
+      "v": 0
+    },
+    {
+      "name": "包头",
+      "slug": "baotou",
+      "v": 0
+    },
+    {
+      "name": "巴彦淖尔",
+      "slug": "bayannaoer",
+      "v": 0
+    },
+    {
+      "name": "蚌埠",
+      "slug": "bengbu",
+      "v": 0
+    },
+    {
+      "name": "亳州",
+      "slug": "bozhou",
+      "v": 0
+    },
+    {
+      "name": "沧州",
+      "slug": "cangzhou",
+      "v": 0
+    },
+    {
+      "name": "常熟",
+      "slug": "changshu",
+      "v": 0
+    },
+    {
+      "name": "潮州",
+      "slug": "chaozhou",
+      "v": 0
+    },
+    {
+      "name": "陈埭镇",
+      "slug": "chendaizhen",
+      "v": 0
+    },
+    {
+      "name": "楚雄",
+      "slug": "chuxiong",
+      "v": 0
+    },
+    {
+      "name": "磁灶镇",
+      "slug": "cizaozhen",
+      "v": 0
+    },
+    {
+      "name": "大连市·长海",
+      "slug": "dalianshizhanghai",
+      "v": 0
+    },
+    {
+      "name": "儋州",
+      "slug": "danzhou",
+      "v": 0
+    },
+    {
+      "name": "大庆",
+      "slug": "daqing",
+      "v": 0
+    },
+    {
+      "name": "达州",
+      "slug": "dazhou",
+      "v": 0
+    },
+    {
+      "name": "德宏",
+      "slug": "dehong",
+      "v": 0
+    },
+    {
+      "name": "德阳",
+      "slug": "deyang",
+      "v": 0
+    },
+    {
+      "name": "定西",
+      "slug": "dingxi",
+      "v": 0
+    },
+    {
+      "name": "东石镇",
+      "slug": "dongshizhen",
+      "v": 0
+    },
+    {
+      "name": "东兴市·北部湾畔边陲明珠",
+      "slug": "dongxingshibeibuwanpanbianchuimingzhu",
+      "v": 0
+    },
+    {
+      "name": "鄂州",
+      "slug": "ezhou",
+      "v": 0
+    },
+    {
+      "name": "防城港",
+      "slug": "fangchenggang",
+      "v": 0
+    },
+    {
+      "name": "佛山南海",
+      "slug": "foshannanhai",
+      "v": 0
+    },
+    {
+      "name": "富硒茶",
+      "slug": "fuxicha",
+      "v": 0
+    },
+    {
+      "name": "富硒蛋",
+      "slug": "fuxidan",
+      "v": 0
+    },
+    {
+      "name": "阜新",
+      "slug": "fuxin",
+      "v": 0
+    },
+    {
+      "name": "富硒蔬菜",
+      "slug": "fuxishucai",
+      "v": 0
+    },
+    {
+      "name": "富硒水果",
+      "slug": "fuxishuiguo",
+      "v": 0
+    },
+    {
+      "name": "抚远·华夏东极",
+      "slug": "fuyuanhuaxiadongji",
+      "v": 0
+    },
+    {
+      "name": "平潭",
+      "slug": "pingtan",
+      "v": 0
+    },
+    {
+      "name": "甘肃夏河县",
+      "slug": "gansuxiahe",
+      "v": 0
+    },
+    {
+      "name": "高雄",
+      "slug": "gaoxiong",
+      "v": 0
+    },
+    {
+      "name": "广西阳朔县",
+      "slug": "guangxiyangshuo",
+      "v": 0
+    },
+    {
+      "name": "贵港",
+      "slug": "guigang",
+      "v": 0
+    },
+    {
+      "name": "贵州荔波县",
+      "slug": "guizhoulibo",
+      "v": 0
+    },
+    {
+      "name": "果洛州",
+      "slug": "guoluozhou",
+      "v": 0
+    },
+    {
+      "name": "海南州",
+      "slug": "hainanzhou",
+      "v": 0
+    },
+    {
+      "name": "海西州",
+      "slug": "haixizhou",
+      "v": 0
+    },
+    {
+      "name": "河池",
+      "slug": "hechi",
+      "v": 0
+    },
+    {
+      "name": "鹤岗",
+      "slug": "hegang",
+      "v": 0
+    },
+    {
+      "name": "河南汝州",
+      "slug": "henanruzhou",
+      "v": 0
+    },
+    {
+      "name": "河南修武县",
+      "slug": "henanxiuwu",
+      "v": 0
+    },
+    {
+      "name": "红河州",
+      "slug": "honghezhou",
+      "v": 0
+    },
+    {
+      "name": "怀化",
+      "slug": "huaihua",
+      "v": 0
+    },
+    {
+      "name": "黄南州",
+      "slug": "huangnanzhou",
+      "v": 0
+    },
+    {
+      "name": "黄石",
+      "slug": "huangshi",
+      "v": 0
+    },
+    {
+      "name": "湖南凤凰县",
+      "slug": "hunanfenghuang",
+      "v": 0
+    },
+    {
+      "name": "湖南醴陵",
+      "slug": "hunanliling",
+      "v": 0
+    },
+    {
+      "name": "佳木斯",
+      "slug": "jiamusi",
+      "v": 0
+    },
+    {
+      "name": "江阴",
+      "slug": "jiangyin",
+      "v": 0
+    },
+    {
+      "name": "揭阳",
+      "slug": "jieyang",
+      "v": 0
+    },
+    {
+      "name": "靖西·小昆明",
+      "slug": "jingxixiaokunming",
+      "v": 0
+    },
+    {
+      "name": "靖宇县",
+      "slug": "jingyu",
+      "v": 0
+    },
+    {
+      "name": "荆州",
+      "slug": "jingzhou",
+      "v": 0
+    },
+    {
+      "name": "金井镇",
+      "slug": "jinjingzhen",
+      "v": 0
+    },
+    {
+      "name": "举重之乡：广东省石龙镇",
+      "slug": "juzhongzhixiangguangdongshengshilongzhen",
+      "v": 0
+    },
+    {
+      "name": "凯里",
+      "slug": "kaili",
+      "v": 0
+    },
+    {
+      "name": "库尔勒",
+      "slug": "kuerlei",
+      "v": 0
+    },
+    {
+      "name": "聊城",
+      "slug": "liaocheng",
+      "v": 0
+    },
+    {
+      "name": "里约热内卢",
+      "slug": "liyuereneilu",
+      "v": 0
+    },
+    {
+      "name": "龙湖镇",
+      "slug": "longhuzhen",
+      "v": 0
+    },
+    {
+      "name": "洛杉矶",
+      "slug": "luoshanji",
+      "v": 0
+    },
+    {
+      "name": "泸州",
+      "slug": "luzhou",
+      "v": 0
+    },
+    {
+      "name": "吕梁",
+      "slug": "lvliang",
+      "v": 0
+    },
+    {
+      "name": "芒市",
+      "slug": "mang",
+      "v": 0
+    },
+    {
+      "name": "满洲里·东亚之窗",
+      "slug": "manzhoulidongyazhichuang",
+      "v": 0
+    },
+    {
+      "name": "蒙自",
+      "slug": "mengzi",
+      "v": 0
+    },
+    {
+      "name": "漠河县·中国地图最北端",
+      "slug": "mohexianzhongguodituzuibeiduan",
+      "v": 0
+    },
+    {
+      "name": "内江",
+      "slug": "neijiang",
+      "v": 0
+    },
+    {
+      "name": "内坑镇",
+      "slug": "neikengzhen",
+      "v": 0
+    },
+    {
+      "name": "排球之乡：广东省台山",
+      "slug": "paiqiuzhixiangguangdongshengtaishan",
+      "v": 0
+    },
+    {
+      "name": "普洱",
+      "slug": "puer",
+      "v": 0
+    },
+    {
+      "name": "庆阳",
+      "slug": "qingyang",
+      "v": 0
+    },
+    {
+      "name": "钦州",
+      "slug": "qinzhou",
+      "v": 0
+    },
+    {
+      "name": "泉州十大博物馆纪念馆",
+      "slug": "quanzhoushidabowuguanjinianguan",
+      "v": 0
+    },
+    {
+      "name": "泉州十大公园·园林",
+      "slug": "quanzhoushidagongyuanyuanlin",
+      "v": 0
+    },
+    {
+      "name": "泉州十大海滩沙滩",
+      "slug": "quanzhoushidahaitanshatan",
+      "v": 0
+    },
+    {
+      "name": "泉州十大街巷广场古镇",
+      "slug": "quanzhoushidajiexiangguangchangguzhen",
+      "v": 0
+    },
+    {
+      "name": "泉州十大乐园亲子景点",
+      "slug": "quanzhoushidaleyuanqinzijingdian",
+      "v": 0
+    },
+    {
+      "name": "泉州十大历史古迹·古桥",
+      "slug": "quanzhoushidalishigujiguqiao",
+      "v": 0
+    },
+    {
+      "name": "泉州十大庙宇",
+      "slug": "quanzhoushidamiaoyu",
+      "v": 0
+    },
+    {
+      "name": "泉州十大名山·峡谷",
+      "slug": "quanzhoushidamingshanxiagu",
+      "v": 0
+    },
+    {
+      "name": "泉州十大寺院",
+      "slug": "quanzhoushidasiyuan",
+      "v": 0
+    },
+    {
+      "name": "泉州五大岛屿",
+      "slug": "quanzhouwudadaoyu",
+      "v": 0
+    },
+    {
+      "name": "曲阜",
+      "slug": "qufu",
+      "v": 0
+    },
+    {
+      "name": "山东蓬莱",
+      "slug": "shandongpenglai",
+      "v": 0
+    },
+    {
+      "name": "尚志",
+      "slug": "shangzhi",
+      "v": 0
+    },
+    {
+      "name": "山南",
+      "slug": "shannan",
+      "v": 0
+    },
+    {
+      "name": "汕头",
+      "slug": "shantou",
+      "v": 0
+    },
+    {
+      "name": "汕头南澳",
+      "slug": "shantounanao",
+      "v": 0
+    },
+    {
+      "name": "汕尾",
+      "slug": "shanwei",
+      "v": 0
+    },
+    {
+      "name": "深沪镇",
+      "slug": "shenhuzhen",
+      "v": 0
+    },
+    {
+      "name": "首尔",
+      "slug": "shouer",
+      "v": 0
+    },
+    {
+      "name": "摔跤之乡：山西省忻州",
+      "slug": "shuaijiaozhixiangshanxishengxinzhou",
+      "v": 0
+    },
+    {
+      "name": "双鸭山",
+      "slug": "shuangyashan",
+      "v": 0
+    },
+    {
+      "name": "朔州",
+      "slug": "shuozhou",
+      "v": 0
+    },
+    {
+      "name": "四川稻城县",
+      "slug": "sichuandaocheng",
+      "v": 0
+    },
+    {
+      "name": "四川黑水县",
+      "slug": "sichuanheishui",
+      "v": 0
+    },
+    {
+      "name": "绥化",
+      "slug": "suihua",
+      "v": 0
+    },
+    {
+      "name": "台南",
+      "slug": "tainan",
+      "v": 0
+    },
+    {
+      "name": "台中",
+      "slug": "taizhong",
+      "v": 0
+    },
+    {
+      "name": "桃园",
+      "slug": "taoyuan",
+      "v": 0
+    },
+    {
+      "name": "田径之乡：广西玉林",
+      "slug": "tianjingzhixiangguangxiyulin",
+      "v": 0
+    },
+    {
+      "name": "跳水之乡：广东省湛江",
+      "slug": "tiaoshuizhixiangguangdongshengzhanjiang",
+      "v": 0
+    },
+    {
+      "name": "体操之乡：湖北省仙桃",
+      "slug": "ticaozhixianghubeishengxiantao",
+      "v": 0
+    },
+    {
+      "name": "铜川",
+      "slug": "tongchuan",
+      "v": 0
+    },
+    {
+      "name": "通辽",
+      "slug": "tongliao",
+      "v": 0
+    },
+    {
+      "name": "网球之乡：湖北省京山",
+      "slug": "wangqiuzhixianghubeishengjingshan",
+      "v": 0
+    },
+    {
+      "name": "乌海",
+      "slug": "wuhai",
+      "v": 0
+    },
+    {
+      "name": "乌兰察布",
+      "slug": "wulanchabu",
+      "v": 0
+    },
+    {
+      "name": "吴起县",
+      "slug": "wuqi",
+      "v": 0
+    },
+    {
+      "name": "武威",
+      "slug": "wuwei",
+      "v": 0
+    },
+    {
+      "name": "无锡宜兴",
+      "slug": "wuxiyixing",
+      "v": 0
+    },
+    {
+      "name": "梧州",
+      "slug": "wuzhou",
+      "v": 0
+    },
+    {
+      "name": "厦门·湖里·思明",
+      "slug": "xiamenhulisiming",
+      "v": 0
+    },
+    {
+      "name": "孝感",
+      "slug": "xiaogan",
+      "v": 0
+    },
+    {
+      "name": "锡林郭勒盟",
+      "slug": "xilinguolei",
+      "v": 0
+    },
+    {
+      "name": "新北",
+      "slug": "xinbei",
+      "v": 0
+    },
+    {
+      "name": "邢台",
+      "slug": "xingtai",
+      "v": 0
+    },
+    {
+      "name": "兴义",
+      "slug": "xingyi",
+      "v": 0
+    },
+    {
+      "name": "新疆布尔津",
+      "slug": "xinjiangbuerjin",
+      "v": 0
+    },
+    {
+      "name": "新加坡",
+      "slug": "xinjiapo",
+      "v": 0
+    },
+    {
+      "name": "新余",
+      "slug": "xinyu",
+      "v": 0
+    },
+    {
+      "name": "新竹",
+      "slug": "xinzhu",
+      "v": 0
+    },
+    {
+      "name": "西雅图",
+      "slug": "xiyatu",
+      "v": 0
+    },
+    {
+      "name": "西藏江孜县",
+      "slug": "xizangjiangzi",
+      "v": 0
+    },
+    {
+      "name": "炎陵县",
+      "slug": "yanling",
+      "v": 0
+    },
+    {
+      "name": "宜宾",
+      "slug": "yibin",
+      "v": 0
+    },
+    {
+      "name": "伊犁/昭苏·塞外江南",
+      "slug": "yilizhaosusaiwaijiangnan",
+      "v": 0
+    },
+    {
+      "name": "英林镇",
+      "slug": "yinglinzhen",
+      "v": 0
+    },
+    {
+      "name": "游泳之乡：广东省东莞",
+      "slug": "youyongzhixiangguangdongshengdongguan",
+      "v": 0
+    },
+    {
+      "name": "羽毛球之乡：湖南省益阳",
+      "slug": "yumaoqiuzhixianghunanshengyiyang",
+      "v": 0
+    },
+    {
+      "name": "运城",
+      "slug": "yuncheng",
+      "v": 0
+    },
+    {
+      "name": "玉树州",
+      "slug": "yushuzhou",
+      "v": 0
+    },
+    {
+      "name": "禹州",
+      "slug": "yuzhou",
+      "v": 0
+    },
+    {
+      "name": "长岛",
+      "slug": "zhangdao",
+      "v": 0
+    },
+    {
+      "name": "昭通",
+      "slug": "zhaotong",
+      "v": 0
+    },
+    {
+      "name": "朝阳",
+      "slug": "zhaoyang",
+      "v": 0
+    },
+    {
+      "name": "舟山市·岱山",
+      "slug": "zhoushanshidaishan",
+      "v": 0
+    },
+    {
+      "name": "舟山市·普陀",
+      "slug": "zhoushanshiputuo",
+      "v": 0
+    },
+    {
+      "name": "舟山市·嵊泗",
+      "slug": "zhoushanshishengsi",
+      "v": 0
+    },
+    {
+      "name": "自贡",
+      "slug": "zigong",
+      "v": 0
+    },
+    {
+      "name": "左权县",
+      "slug": "zuoquan",
+      "v": 0
+    },
+    {
+      "name": "张家口",
+      "slug": "zhangjiakou",
+      "v": 0
+    },
+    {
+      "name": "日照",
+      "slug": "rizhao",
+      "v": 0
+    },
+    {
+      "name": "泰州",
+      "slug": "taizhou-js",
+      "v": 0
+    },
+    {
+      "name": "娄底",
+      "slug": "loudi",
+      "v": 0
+    },
+    {
+      "name": "随州",
+      "slug": "suizhou",
+      "v": 0
+    },
+    {
+      "name": "仙桃",
+      "slug": "xiantao",
+      "v": 0
+    },
+    {
+      "name": "潜江",
+      "slug": "qianjiang",
+      "v": 0
+    },
+    {
+      "name": "天门",
+      "slug": "tianmen",
+      "v": 0
+    },
+    {
+      "name": "许昌",
+      "slug": "xuchang",
+      "v": 0
+    },
+    {
+      "name": "濮阳",
+      "slug": "puyang",
+      "v": 0
+    },
+    {
+      "name": "漯河",
+      "slug": "luohe",
+      "v": 0
+    },
+    {
+      "name": "三门峡",
+      "slug": "sanmenxia",
+      "v": 0
+    },
+    {
+      "name": "济源",
+      "slug": "jiyuan",
+      "v": 0
+    },
+    {
+      "name": "云浮",
+      "slug": "yunfu",
+      "v": 0
+    },
+    {
+      "name": "凉山",
+      "slug": "liangshan",
+      "v": 0
+    },
+    {
+      "name": "眉山",
+      "slug": "meishan",
+      "v": 0
+    },
+    {
+      "name": "遂宁",
+      "slug": "suining",
+      "v": 0
+    },
+    {
+      "name": "攀枝花",
+      "slug": "panzhihua",
+      "v": 0
+    },
+    {
+      "name": "资阳",
+      "slug": "ziyang",
+      "v": 0
+    },
+    {
+      "name": "宿州",
+      "slug": "suzhou-ah",
+      "v": 0
+    },
+    {
+      "name": "淮南",
+      "slug": "huainan",
+      "v": 0
+    },
+    {
+      "name": "淮北",
+      "slug": "huaibei",
+      "v": 0
+    },
+    {
+      "name": "铜陵",
+      "slug": "tongling",
+      "v": 0
+    },
+    {
+      "name": "池州",
+      "slug": "chizhou",
+      "v": 0
+    },
+    {
+      "name": "廊坊",
+      "slug": "langfang",
+      "v": 0
+    },
+    {
+      "name": "抚州",
+      "slug": "fuzhou-jx",
+      "v": 0
+    },
+    {
+      "name": "来宾",
+      "slug": "laibin",
+      "v": 0
+    },
+    {
+      "name": "怒江",
+      "slug": "nujiang",
+      "v": 0
+    },
+    {
+      "name": "榆林",
+      "slug": "yulin-sx",
+      "v": 0
+    },
+    {
+      "name": "阳泉",
+      "slug": "yangquan",
+      "v": 0
+    },
+    {
+      "name": "和田地区",
+      "slug": "hetian",
+      "v": 0
+    },
+    {
+      "name": "克孜勒苏",
+      "slug": "kezilesu",
+      "v": 0
+    },
+    {
+      "name": "金昌",
+      "slug": "jinchang",
+      "v": 0
+    },
+    {
+      "name": "葫芦岛",
+      "slug": "huludao",
+      "v": 0
+    },
+    {
+      "name": "辽阳",
+      "slug": "liaoyang",
+      "v": 0
+    },
+    {
+      "name": "铁岭",
+      "slug": "tieling",
+      "v": 0
+    },
+    {
+      "name": "七台河",
+      "slug": "qitaihe",
+      "v": 0
+    }
+  ]
+}
