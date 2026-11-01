@@ -1408,7 +1408,14 @@ body.is-home footer {
 }
 
 /* 正文轨等宽（RL-3）：主题给 .post-content 左右各 10% padding，把 38em 定宽
-   二次压缩到 ≈624px；桌面归零与关于页同轨，移动端保留主题的 2rem */
+   二次压缩到 ≈624px；桌面归零与关于页同轨，移动端保留主题的 2rem。
+   2026-11-01：.post-content 整体限宽到与正文轨同宽（40.375rem = 38em × 17px）。
+   此前只有 .markdown-body 在轨内，post-head 标题 / 元信息 / hr / 页脚横跨
+   780px 主列，正文右缘统一提前换行，出现「标题宽、正文窄」的参差空白带
+   （主人以地铁 GDP 文章页截图反馈）；整列同轨后右缘一刀齐。 */
+.post-content {
+  max-width: 40.375rem;
+}
 @media (min-width: 768px) {
   .post-content {
     padding-left: 0;
