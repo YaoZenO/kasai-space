@@ -4813,7 +4813,13 @@ html:not(.js) .fs-years-toggle { display: none; }
 /* 城市档案页（2026-11-01 可读性改版：
    条目限宽 46rem——1200px 版心下 dt/dd 两端对齐会把视线拉出大半屏空白；
    dt 降档退灰、数值升档，让「值」成为每行唯一主角；
-   分位升为徽标，来源注记收进行悬停与页尾清单，不再逐条平铺 12px 小字） */
+   分位升为徽标，来源注记收进行悬停与页尾清单，不再逐条平铺 12px 小字；
+   整页收为 50rem 居中窄栏（cr-citypage 只作用本页，省页/榜页等共用 .cr-page 不动）——
+   只收列表不收外壳会让内容整体贴左、右侧空出半屏 */
+.cr-citypage .home-wrap {
+  width: min(50rem, 100% - clamp(36px, 8vw, 96px));
+}
+
 .cr-sec-title {
   margin: 2.2rem 0 0.9rem;
   font-size: 1.3rem;
