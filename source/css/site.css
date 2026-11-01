@@ -4803,10 +4803,13 @@ html:not(.js) .fs-years-toggle { display: none; }
   color: var(--sec-text-color);
 }
 
-/* 城市档案页 */
+/* 城市档案页（2026-11-01 可读性改版：
+   条目限宽 46rem——1200px 版心下 dt/dd 两端对齐会把视线拉出大半屏空白；
+   dt 降档退灰、数值升档，让「值」成为每行唯一主角；
+   分位升为徽标，来源注记收进行悬停与页尾清单，不再逐条平铺 12px 小字） */
 .cr-sec-title {
   margin: 2.2rem 0 0.9rem;
-  font-size: 1.15rem;
+  font-size: 1.3rem;
   font-family: var(--font-serif-title);
   font-weight: 600;
   color: var(--text-color);
@@ -4815,6 +4818,7 @@ html:not(.js) .fs-years-toggle { display: none; }
 .cr-profile-list {
   margin: 0;
   padding: 0;
+  max-width: 46rem;
   border-top: 2px solid var(--line-strong);
 }
 
@@ -4828,9 +4832,9 @@ html:not(.js) .fs-years-toggle { display: none; }
 }
 
 .cr-profile-item dt {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--text-color);
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--sec-text-color);
 }
 
 .cr-profile-item dd {
@@ -4840,7 +4844,7 @@ html:not(.js) .fs-years-toggle { display: none; }
 
 .cr-pval {
   font-family: var(--font-mono);
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--text-color);
 }
@@ -4851,18 +4855,34 @@ html:not(.js) .fs-years-toggle { display: none; }
   color: var(--sec-text-color);
 }
 
-.cr-pmeta {
-  display: block;
-  margin-top: 0.15rem;
-  font-size: 0.76rem;
-  line-height: 1.6;
-  color: var(--sec-text-color);
-}
-
 .cr-pending {
   font-family: var(--font-mono);
   font-size: 0.95rem;
   color: var(--sec-text-color);
+}
+
+/* 分位徽标（2026-11-01 方向一改版）：候选池位次升为可见层级。
+   VD-11/A2：计数类静态信息用中性墨阶，accent 只留给交互态；
+   口径词「城参比」被 test/cityrank-e2e.js S17 产物断言锁定 */
+.cr-standing-badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.08rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(27, 23, 18, 0.06);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--info-mark);
+  white-space: nowrap;
+  vertical-align: 0.12em;
+}
+
+/* 城市页副行是中文（省份·层级·数据年份），归档页的 0.78rem + 0.1em 宽字距
+   套在中文小字上过散过小，就地收一档；只作用域 .cr-page，不动归档/404 等共用场景 */
+.cr-page .archive-total {
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
 }
 
 .cr-profile-note {
@@ -4888,6 +4908,7 @@ html:not(.js) .fs-years-toggle { display: none; }
 .cr-mention-list {
   margin: 0;
   padding: 0;
+  max-width: 46rem;
   list-style: none;
   border-top: 2px solid var(--line-strong);
 }
@@ -4915,8 +4936,8 @@ html:not(.js) .fs-years-toggle { display: none; }
   color: var(--sec-text-color);
 }
 
-/* 分位注记（2026-11-01 方向一）：字段值旁的参比池位次，位次事实不含优劣评价 */
-.cr-standing { margin-left: 0.45rem; }
+/* 分位注记改版（2026-11-01）：旧 .cr-standing 随逐条 cr-pmeta 退役，
+   位次改由 .cr-standing-badge 呈现 */
 
 /* 上榜分组小结（2026-11-01 方向一）：组标题右侧的「上榜 N 项 · 最好成绩第 M 名」 */
 .cr-mention-sum {

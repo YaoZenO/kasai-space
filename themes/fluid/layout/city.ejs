@@ -45,7 +45,6 @@ for (var si = 0; si < CR.citySources.length; si += 1) { srcMap[CR.citySources[si
   <div class="home-wrap">
     <% if (!c) { %>
     <header class="page-head">
-      <p class="page-head-kicker">CITY</p>
       <h1 class="page-head-title">城市档案</h1>
     </header>
     <p class="post-desc">这座城市的档案还在整理中，暂时无法展示，欢迎稍后再来看看。</p>
@@ -56,7 +55,6 @@ for (var si = 0; si < CR.citySources.length; si += 1) { srcMap[CR.citySources[si
       <nav class="cal-crumb" aria-label="面包屑">
         <a href="<%= url_for('/library/') %>">资料库</a><span aria-hidden="true">/</span><a href="<%= url_for('/cityrank/') %>">城市排行榜</a><span aria-hidden="true">/</span><span class="cal-crumb-now"><%= c.name %></span>
       </nav>
-      <p class="page-head-kicker">CITY</p>
       <h1 class="page-head-title"><%= c.name %></h1>
       <p class="archive-total"><% if (c.province) { %><%= c.province %><% } %><% if (c.province && c.level) { %> · <% } %><% if (c.level) { %><%= c.level %><% } %><% if (!c.province && !c.level) { %>行政归属待补<% } %> · 数据年份 <%= CR.cityMeta.dataYear || '2025' %></p>
     </header>
@@ -68,15 +66,19 @@ for (var si = 0; si < CR.citySources.length; si += 1) { srcMap[CR.citySources[si
       <p class="cr-empty">这座城市的统计字段还没有采集到权威来源，暂不列出——不填估算值。</p>
       <% } else { %>
       <dl class="cr-profile-list">
-        <% for (var ki = 0; ki < keys.length; ki += 1) { var fk = keys[ki]; var mv = c.metrics[fk]; %>
-        <div class="cr-profile-item">
+        <% for (var ki = 0; ki < keys.length; ki += 1) { var fk = keys[ki]; var mv = c.metrics[fk];
+          // 来源注记不再逐条平铺（2026-11-01 可读性改版）：收进行级 title 悬停 + 页尾来源清单，
+          // 位次（页面最有信息量的字段）升为徽标。口径词「城参比」「从高到低第」被
+          // test/cityrank-e2e.js S17 产物断言锁定，改措辞必须连断言一起改。
+          var hasV = mv && typeof mv.v === 'number';
+          var mvTitle = hasV ? ((mv.asOf || '') + (srcMap[mv.source] ? ' · ' + srcMap[mv.source].name : '')) : ''; %>
+        <div class="cr-profile-item"<% if (mvTitle) { %> title="<%= mvTitle %>"<% } %>>
           <dt><%= FIELD_LABEL[fk] || fk %></dt>
           <dd>
-            <% if (mv && typeof mv.v === 'number') { %>
+            <% if (hasV) { %>
             <span class="cr-pval"><%= mv.v %></span><% if (mv.unit) { %><span class="cr-punit"><%= mv.unit %></span><% } %>
-            <span class="cr-pmeta"><%= mv.asOf || '' %><% if (srcMap[mv.source]) { %> · <%= srcMap[mv.source].name %><% } %></span>
             <% var st = standings[fk]; if (st) { %>
-            <span class="cr-pmeta cr-standing"><%= st.total %> 城参比 · 从高到低第 <%= st.rank %> 位</span>
+            <span class="cr-standing-badge"><%= st.total %> 城参比 · 第 <%= st.rank %> 位</span>
             <% } %>
             <% } else { %>
             <span class="cr-pending">[待补]</span>
@@ -86,7 +88,6 @@ for (var si = 0; si < CR.citySources.length; si += 1) { srcMap[CR.citySources[si
         <% } %>
       </dl>
       <% } %>
-      <p class="cr-profile-note">以上只列已核验过的字段，未列出的指标表示尚未采集到权威来源，不做估算填充。位次是同字段候选池内从高到低的排序位置（同值按拼音定序），不含优劣评价。</p>
     </section>
 
     <% if (mentions.length) { %>
@@ -111,8 +112,19 @@ for (var si = 0; si < CR.citySources.length; si += 1) { srcMap[CR.citySources[si
     </section>
     <% } %>
 
+    <%
+    // 本页来源清单（2026-11-01 可读性改版）：原逐条 cr-pmeta 的来源收拢到这里，
+    // 与 cr-profile-note、cal-note 三处说明合并为页尾一处。
+    var usedSources = [];
+    for (var ui = 0; ui < keys.length; ui += 1) {
+      var umv = c.metrics[keys[ui]];
+      if (umv && typeof umv.v === 'number' && srcMap[umv.source] && usedSources.indexOf(srcMap[umv.source].name) === -1) {
+        usedSources.push(srcMap[umv.source].name);
+      }
+    }
+    %>
     <div class="cal-after">
-      <p class="cal-note">数据来自各地统计公报与行业主管部门公开名录；批量数据站只作交叉核对，不作唯一来源。缺值一律标 [待补]，不填估算值。</p>
+      <p class="cal-note">以上只列已核验过的字段，缺值一律标 [待补]、不填估算值；位次是同字段候选池内从高到低第几位的排序位置（同值按拼音定序），不含优劣评价。数据来自各地统计公报与行业主管部门公开名录，批量数据站只作交叉核对、不作唯一来源，单条数据的年份与来源可悬停字段行查看。<% if (usedSources.length) { %>本页来源：<%= usedSources.join('、') %>。<% } %></p>
     </div>
 
     <% } %>
