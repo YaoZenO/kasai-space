@@ -46,6 +46,18 @@ function ok(label, fn) {
 
 // ---------- 测试数据：完全按后台新增条目时的字段结构 ----------
 
+// 摘要类元素（首页大卡 / 最新文字 / 归档精选）内部出现 `&amp;#...;` 或字面 `&#...;`
+// 即说明 helper 没把实体解码干净（E-085）。返回样本便于定位。
+function excerptLeaks(html) {
+  const re = /<(?:p|span)[^>]*class="(?:wall-feature-desc|post-desc|pick-desc)"[^>]*>([\s\S]*?)<\/(?:p|span)>/g;
+  const leaks = [];
+  let m;
+  while ((m = re.exec(html))) {
+    if (/&(?:amp;)?&#/.test(m[1])) leaks.push(m[1].trim().slice(0, 60));
+  }
+  return leaks;
+}
+
 const RICH_PROJECT = {
   slug: 'e2e-rich',
   title: 'E2E 富文本项目',
@@ -149,27 +161,23 @@ function cleanGenerated() {
 // 少了这一步，跑完测试的 public/ 里会留着 /games/、/projects/e2e-rich/ 死链
 // （测试数据的 hexo.generate 是全量生成过的，只还原 yml 不够）。
 async function rebuildClean() {
-  let removed = false;
   try {
     fs.rmSync(PUBLIC, { recursive: true, force: true });
-    removed = true;
   } catch (e) {
     // Windows 下若有进程的工作目录在 public/（如本地静态服务），整目录删除会被锁住；
     // 某些环境还会对「单轮批量删除超过阈值」做拦截（E-066）——两者表现相同：删除失败。
     console.log('      （提示：public/ 未能整体删除——' + (e && e.message) + '；已启用强制全量兜底）');
   }
   //
-  // 兜底（E-066）：public/ 删不掉时，Hexo 会拿 db.json 做增量判断。
-  // 而本测试刚把 yml 还原成原始内容，源 hash 回到「未修改」状态，
-  // Hexo 于是跳过生成——含测试条目的旧 index.html 原地不动，E-019 断言必定红。
-  // 删掉 db.json 就断掉了这条增量捷径：无论 public/ 在不在，都会全量重生成并覆盖旧产物。
-  // db.json 是构建数据库且已在 .gitignore 第 3 行，删除安全（下次构建会自行重建）。
-  if (!removed || fs.existsSync(PUBLIC)) {
-    try {
-      fs.rmSync(path.join(ROOT, 'db.json'), { force: true });
-    } catch (e2) {
-      console.log('      （提示：db.json 未能删除，重建可能仍是增量——' + (e2 && e2.message) + '）');
-    }
+  // 兜底（E-066 / E-087）：无论 public/ 是否删除成功，都要删 db.json。
+  // Hexo 用 db.json 的源 hash 判断「是否重新解析」：本测试把 yml 还原成原始内容后，
+  // hash 回到「未修改」状态，Hexo 于是沿用 db.json 里**测试数据**解析出的 site.data，
+  // 重建后的 public/projects/e2e-rich 死链又回来了（E-019 断言红）。
+  // db.json 是构建数据库且已在 .gitignore，删除安全（下次构建会自行重建）。
+  try {
+    fs.rmSync(path.join(ROOT, 'db.json'), { force: true });
+  } catch (e2) {
+    console.log('      （提示：db.json 未能删除，重建可能仍是增量——' + (e2 && e2.message) + '）');
   }
   try {
     const fresh = new Hexo(ROOT, { silent: true });
@@ -488,11 +496,29 @@ async function main() {
     assert.deepStrictEqual(problems, [], problems.join('; '));
   });
 
+  // ---------- [10] 摘要 HTML 实体泄漏（E-085 防复发） ----------
+  // 摘要走 excerpt-text.js：stripHTML 只去标签、不解码实体，EJS 的 <%= %> 再把
+  // & 转义一次，页面就会出现字面的 `&#x2F;`。这里只看「摘要类元素」内部，
+  // 不扫全文——代码块里的实体写法是合法内容。
+  console.log('\n[10] 摘要 HTML 实体泄漏断言');
+  ok('首页 / 归档页摘要不出现未解码的 HTML 实体', () => {
+    for (const rel of ['index.html', 'archives/index.html']) {
+      const file = path.join(PUBLIC, rel);
+      assert.ok(fs.existsSync(file), rel + ' 不存在（构建未产出，见 E-029 0 字节教训）');
+      const leaks = excerptLeaks(fs.readFileSync(file, 'utf8'));
+      assert.deepStrictEqual(leaks, [], rel + ' 摘要里有未解码实体：' + JSON.stringify(leaks));
+    }
+  });
+
   console.log('\n' + pass + ' 项断言通过');
   console.log('提示：public/ 已用真实数据全量重建，工作区可直接预览或部署。');
 }
 
-main().catch((e) => {
-  console.error('\nE2E 执行失败：', e && e.message ? e.message : e);
-  process.exitCode = 1;
-});
+main()
+  // E-088：Hexo 实例会挂在事件循环上，不显式退出的话脚本打完汇总就退不下去——
+  // 进程一直活着并持有仓库文件，后续测试会看到「上一轮」留下的测试数据。
+  .then(() => process.exit(process.exitCode || 0))
+  .catch((e) => {
+    console.error('\nE2E 执行失败：', e && e.message ? e.message : e);
+    process.exit(1);
+  });

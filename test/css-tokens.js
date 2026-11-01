@@ -92,8 +92,8 @@ if (fs.existsSync(mainCssPath)) {
 
 // 方向 A：墨底整屏区块（2026-10-19 落地，R-1 豁免的唯一一处反相）
 ok('墨底 token 已定义（--surface-ink / --on-ink）', () => {
-  assert.match(siteCss, /--surface-ink:\s*#1d1d25/, '缺少 --surface-ink');
-  assert.match(siteCss, /--on-ink:\s*#f6f7fb/, '缺少 --on-ink（墨底上的 ambient 浅色）');
+  assert.match(siteCss, /--surface-ink:\s*#1b1712/, '缺少 --surface-ink');
+  assert.match(siteCss, /--on-ink:\s*#fdfaf4/, '缺少 --on-ink（墨底上的纸色）');
 });
 
 ok('墨底区块样式存在，且区块内不引入交互色', () => {
@@ -115,6 +115,15 @@ ok('前台字号全部 ≥12px（0.75rem）', () => {
     if (m && parseFloat(m[1]) < 0.75) bad.push(`L${i + 1}: ${m[1]}rem`);
   });
   assert.deepStrictEqual(bad, [], `存在 <12px 的字号：${bad.join(' / ')}`);
+});
+
+// 模块页页头字重必须与衬线标题轨同口径（600）。V5 标题轨收口到 600 后，
+// 模块页页头仍是 700，衬线在 700 下笔画会糊（E-086）。
+ok('模块页页头 H1 字重与标题轨一致（600）', () => {
+  const rule = siteCss.match(/\.page-head-plain\s+\.page-head-title\s*\{[^}]*\}/);
+  assert.ok(rule, 'site.css 缺少 .page-head-plain .page-head-title 规则');
+  assert.match(rule[0], /font-weight:\s*600/,
+    '模块页页头字重不是 600 —— 与全站衬线标题轨分叉，衬线 700 会加粗糊笔画');
 });
 
 // A10：头像圆形化（2026-10-21 主人确认）。圆角标尺的唯一例外，

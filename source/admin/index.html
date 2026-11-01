@@ -9,7 +9,7 @@
 <!-- ASSET_V：后台静态资源缓存破坏版本号。改动 source/admin/ 下任何前端文件后，
      必须同步 bump 此处与 admin.js 动态 import 的 ?v=（由 test/admin-smoke.js 断言两处一致），
      否则浏览器会继续用本地缓存的旧副本，表现为「改了线上看不到」（2026-10-15 实际发生过）。 -->
-<link rel="stylesheet" href="/admin/admin.css?v=20261023">
+<link rel="stylesheet" href="/admin/admin.css?v=20261101">
 </head>
 <body>
 
@@ -290,6 +290,6 @@
 <div id="toast" class="toast" hidden></div>
 <!-- ES module：admin-core / admin-list 静态加载；编辑器等重模块在登录成功后动态 import，
      登录页不会下载这部分代码（P2-2） -->
-<script type="module" src="/admin/admin.js?v=20261023"></script>
+<script type="module" src="/admin/admin.js?v=20261101"></script>
 </body>
 </html>

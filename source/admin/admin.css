@@ -5,10 +5,10 @@
   --ink: #1c1a17;
   --muted: #8a8378;
   --line: #e6e0d6;
-  /* --accent 与前台 source/css/site.css 的设计语言保持一致（Ties 品牌蓝，
-     2026-10-31 V6 随全站色系迁移从朱红 #c4463a 更换）。
+  /* --accent 与前台 source/css/site.css 的设计语言保持一致（V6.5 陶土深调，
+     2026-11-01 随全站回归暖纸从品牌蓝 #0a7cff 更换）。
      改动此值必须同步 site.css，两处等值 —— 见 ENGINEERING.md P2-3。 */
-  --accent: #0a7cff;
+  --accent: #a8482c;
   --ok: #3c7a4e;
   --warn: #b07d2b;
   --err: #b03a2e;

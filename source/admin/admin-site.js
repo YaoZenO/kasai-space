@@ -3,8 +3,8 @@
  */
 'use strict';
 
-import { S, $, api, toast, guard, reloadList, hooks , handleOpError, markDirty, clearDirty, markListStale } from './admin-core.js?v=20261023';
-import { uploadOneImage, sitePath } from './admin-media.js?v=20261023';
+import { S, $, api, toast, guard, reloadList, hooks , handleOpError, markDirty, clearDirty, markListStale } from './admin-core.js?v=20261101';
+import { uploadOneImage, sitePath } from './admin-media.js?v=20261101';
 
 // 设置 tab 直接展示编辑器视图（无列表态）；进入时填充表单
 export function renderSiteEditor(box, site) {

@@ -20,8 +20,8 @@
 
 const { stripHTML } = require('hexo-util');
 
-const ENTITY_RE = /&(amp|lt|gt|quot|#39|#x27|nbsp);/g;
-const ENTITY_MAP = {
+const NAMED_ENTITY_RE = /&(amp|lt|gt|quot|#39|#x27|nbsp);/g;
+const NAMED_ENTITY_MAP = {
   '&amp;': '&',
   '&lt;': '<',
   '&gt;': '>',
@@ -30,6 +30,22 @@ const ENTITY_MAP = {
   '&#x27;': "'",
   '&nbsp;': ' '
 };
+// 数字实体（十进制 / 十六进制）：Markdown 正文经渲染后会出现 &#x2F;、&#46; 这类
+// 「斜杠/句点被编码」的串。原实现只认 7 个白名单实体，遇到它们就原样放行，
+// 再被 EJS 的 <%= %> 转义一次 &，读者看到的是字面的 `&#x2F;`（D-01）。
+const NUM_ENTITY_RE = /&#(?:[xX][0-9a-fA-F]+|\d+);/g;
+
+function decodeEntities(text) {
+  // 先命名实体（可把 &amp;#x2F; 还原成 &#x2F;），再数字实体，顺序不可颠倒
+  let out = text.replace(NAMED_ENTITY_RE, (m) => NAMED_ENTITY_MAP[m] || m);
+  out = out.replace(NUM_ENTITY_RE, (m) => {
+    const body = m.slice(2, -1);
+    const code = /^[xX]/.test(body) ? parseInt(body.slice(1), 16) : parseInt(body, 10);
+    if (!Number.isFinite(code) || code <= 0 || code > 0x10ffff) return m;
+    try { return String.fromCodePoint(code); } catch (e) { return m; }
+  });
+  return out;
+}
 // highlight.js 行号：数字紧贴标识符/符号（如 1if、2const、3{）
 const LINE_NO_RE = /\b\d{1,3}(?=[A-Za-z_$([{!<'"])/g;
 
@@ -42,7 +58,7 @@ hexo.extend.helper.register('excerptText', function (post, len) {
   let text = String(raw).replace(/<pre[\s\S]*?<\/pre>/gi, ' ');
 
   text = stripHTML(text);
-  text = text.replace(ENTITY_RE, function (m) { return ENTITY_MAP[m] || m; });
+  text = decodeEntities(text);
 
   // 行号兜底：出现两处及以上「数字+标识符」才判定为代码行号，避免误伤「3D 打印」
   const hits = text.match(LINE_NO_RE) || [];
