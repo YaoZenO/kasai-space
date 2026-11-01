@@ -68,13 +68,13 @@ var CR = buildCityRanks(site.data)
             <li class="lb-entry">
               <a href="<%= url_for('/cityrank/' + rk.slug + '/') %>">
                 <span class="lb-entry-name"><%= rk.title %></span>
-                <span class="lb-entry-note">
-                  <% if (rk.kind === 'computed' && rk.items.length) { %>
-                    <% for (var pi = 0; pi < Math.min(3, rk.items.length); pi += 1) { var pit = rk.items[pi] %><%= pi > 0 ? ' · ' : '' %><%= pit.rank %> <%= pit.name %><% } %>
-                  <% } else { %>
-                    <%= rk.lede || '' %>
-                  <% } %>
-                </span>
+                <% var noteText = ''; %>
+                <% if (rk.kind === 'computed' && rk.items.length) { %>
+                  <% for (var pi = 0; pi < Math.min(3, rk.items.length); pi += 1) { var pit = rk.items[pi] %><%= pi > 0 ? ' · ' : '' %><%= pit.rank %> <%= pit.name %><% } %>
+                <% } else { %>
+                  <% noteText = rk.lede || ''; %>
+                <% } %>
+                <% if (noteText) { %><span class="lb-entry-note"><%= noteText %></span><% } %>
               </a>
             </li>
             <% } %>

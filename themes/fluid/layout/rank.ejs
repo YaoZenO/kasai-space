@@ -3,7 +3,8 @@
 // 计算：themes/fluid/scripts/helpers/cityrank-data.js（名次现算；yml 里不存名次）
 // 样式：site.css §4.16（.cr-* 规则）；视觉作用域复用 .cal-page
 // 约定（PRD §5.1 P0 铁律）：computed 榜的名次是计算结果，页面必须公开指标与权重；
-//   pending（参考榜）只在页脚保留一条小字免责，不再用警示框（主人 2026-11-01 拍板）。
+//   pending（参考榜）的来源说明、收录范围与免责柔和合并为页脚一条小字
+//   （主人 2026-11-01 拍板：警示框与重复 lede 已删，全页只此一条）。
 // 布局（主人 2026-10-28 定）：同组榜单放右侧常驻侧栏，不用划到页面底部才能看到。
 page.layout = 'rank'
 page.hide_banner = true
@@ -69,7 +70,6 @@ var KIND_LABEL = { computed: '本站按公开数据计算', fact: '权威结果�
             <% } %>
           </tbody>
         </table>
-        <% if (!hasReason) { %><p class="cr-empty">本榜只收录名次，上榜理由尚未整理到本站。</p><% } %>
         <% } else { %>
         <p class="cr-empty">这个榜还没有可发布的数据（候选城市不足）。</p>
         <% } %>
@@ -115,7 +115,7 @@ var KIND_LABEL = { computed: '本站按公开数据计算', fact: '权威结果�
             <% } else if (r.kind === 'fact') { %>
             本榜为权威评选结果引用，名次非本站计算，已注明来源与年度。
             <% } else { %>
-            本榜为观点性排名，未做量化核验，仅供参考。
+            本榜名次整理自公开榜单，<%= hasReason ? '上榜理由见表内说明；' : '仅收录名次；' %>属观点性排名，未做量化核验，仅供参考。
             <% } %>
           </p>
         </div>
