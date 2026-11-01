@@ -67,6 +67,9 @@ sources:
   - key: "nbs2025city"
     name: "国家统计局《中国统计年鉴2025》表 25-2 省会城市和计划单列市主要指标（2024 年，包括市辖县）"
     asOf: "2024"
+  - key: "wikiMetro2025"
+    name: "维基百科《中国城市轨道交通系统》条目运营中系统表（内容源自各城市轨道交通官方开通信息；截至 2025-12-31）"
+    asOf: "2025"
 cities:
   - name: 北京
     slug: beijing
@@ -77,6 +80,7 @@ cities:
     zone: 北方
     bohai: 环渤海
     metrics:
+      metro_first_year: { v: 1969, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 36079, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 70398, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 14982, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -105,6 +109,7 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      metro_first_year: { v: 2012, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 8649, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 25546, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 9151, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -132,6 +137,7 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      metro_first_year: { v: 1993, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 42707, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 63911, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 15872, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -160,6 +166,7 @@ cities:
     belt: 西部
     zone: 南方
     metrics:
+      metro_first_year: { v: 2010, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 8390, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 28992, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 10835, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -188,6 +195,7 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      metro_first_year: { v: 1997, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 11249, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 32394, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 10451, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -216,6 +224,7 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      metro_first_year: { v: 2005, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 5459, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 17092, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 7864, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -245,6 +254,7 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      metro_first_year: { v: 2004, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 45648, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 30759, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 10026, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -267,6 +277,7 @@ cities:
     belt: 中部
     zone: 南方
     metrics:
+      metro_first_year: { v: 2004, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 4034, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 18249, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 7932, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -295,6 +306,7 @@ cities:
     belt: 西部
     zone: 南方
     metrics:
+      metro_first_year: { v: 2004, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 7151, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 31882, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 16190, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -321,6 +333,7 @@ cities:
     belt: 西部
     zone: 北方
     metrics:
+      metro_first_year: { v: 2011, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 4118, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 18530, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 5436, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -349,6 +362,7 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      metro_first_year: { v: 2017, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 9323, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 6548, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 3330, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -370,6 +384,7 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      metro_first_year: { v: 2012, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       scenic_5a: { v: 6, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 785371.4, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 1304.77, unit: "万人", asOf: "2025", source: "pop2025" }
@@ -387,6 +402,7 @@ cities:
     belt: 中部
     zone: 南方
     metrics:
+      metro_first_year: { v: 2014, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 2777, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 12424, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 5798, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -414,6 +430,7 @@ cities:
     belt: 西部
     zone: 南方
     metrics:
+      metro_first_year: { v: 2012, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 1534, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 9096, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 3769, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -441,6 +458,7 @@ cities:
     zone: 北方
     bohai: 环渤海
     metrics:
+      metro_first_year: { v: 2015, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 9077, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 14168, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 6747, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -465,6 +483,7 @@ cities:
     belt: 中部
     zone: 北方
     metrics:
+      metro_first_year: { v: 2013, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 483, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 12056, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 2460, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -507,6 +526,7 @@ cities:
     belt: 西部
     zone: 南方
     metrics:
+      metro_first_year: { v: 2017, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 531, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 5685, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 2491, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -543,6 +563,7 @@ cities:
     zone: 北方
     bohai: 环渤海
     metrics:
+      metro_first_year: { v: 1976, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 8133, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 24070, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 4128, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -571,6 +592,7 @@ cities:
     zone: 北方
     bohai: 环渤海
     metrics:
+      metro_first_year: { v: 2003, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 4497, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 12401, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 2136, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -592,6 +614,7 @@ cities:
     belt: 中部
     zone: 北方
     metrics:
+      metro_first_year: { v: 2013, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 5566, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 14363, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 6311, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -619,6 +642,7 @@ cities:
     belt: 中部
     zone: 北方
     metrics:
+      metro_first_year: { v: 2002, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 1275, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 11747, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 2454, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -645,6 +669,7 @@ cities:
     belt: 东部
     zone: 北方
     metrics:
+      metro_first_year: { v: 2010, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 1466, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 15132, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 4155, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -682,6 +707,7 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      metro_first_year: { v: 2016, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 3653, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 11461, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 5634, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -753,6 +779,7 @@ cities:
     belt: 中部
     zone: 北方
     metrics:
+      metro_first_year: { v: 2021, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       scenic_5a: { v: 4, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 6164.5, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       metro_km: { v: 43.5, unit: "公里", asOf: "2025", source: "metro2025" }
@@ -787,6 +814,7 @@ cities:
     belt: 中部
     zone: 南方
     metrics:
+      metro_first_year: { v: 2015, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 1090, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 7516, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 2848, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -813,6 +841,7 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      metro_first_year: { v: 2016, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 930, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 6713, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 2100, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -839,6 +868,7 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      metro_first_year: { v: 2014, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 14203, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 16256, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 5605, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -857,6 +887,7 @@ cities:
     region: 华南
     zone: 南方
     metrics:
+      metro_first_year: { v: 1979, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 张家界
     slug: zhangjiajie
@@ -953,6 +984,7 @@ cities:
     belt: 中部
     zone: 北方
     metrics:
+      metro_first_year: { v: 2019, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 227, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 3771, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 1176, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -996,6 +1028,7 @@ cities:
     belt: 东部
     zone: 北方
     metrics:
+      metro_first_year: { v: 2017, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 1319, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 14831, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 3022, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -1022,6 +1055,7 @@ cities:
     belt: 中部
     zone: 北方
     metrics:
+      metro_first_year: { v: 2020, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 1296, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 9741, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 2260, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -1047,6 +1081,7 @@ cities:
     belt: 西部
     zone: 北方
     metrics:
+      metro_first_year: { v: 2018, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 801, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 5906, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 1232, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -1091,6 +1126,7 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      metro_first_year: { v: 2016, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 862235, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 1080.04, unit: "万人", asOf: "2025", source: "pop2025" }
@@ -1107,6 +1143,7 @@ cities:
     belt: 中部
     zone: 南方
     metrics:
+      metro_first_year: { v: 2016, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 3791, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 10786, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 5156, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -1167,6 +1204,7 @@ cities:
     belt: 西部
     zone: 北方
     metrics:
+      metro_first_year: { v: 2019, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 96, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 5640, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 1464, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -1221,6 +1259,7 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      metro_first_year: { v: 2014, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       scenic_5a: { v: 4, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 247611.1, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 753.74, unit: "万人", asOf: "2025", source: "pop2025" }
@@ -1257,6 +1296,7 @@ cities:
     belt: 东部
     zone: 北方
     metrics:
+      metro_first_year: { v: 2019, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       trade_total: { v: 2324, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       deposits: { v: 13284, unit: "亿元", asOf: "2024", source: "nbs2025city" }
       retail_sales: { v: 5316, unit: "亿元", asOf: "2024", source: "nbs2025city" }
@@ -1375,6 +1415,7 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      metro_first_year: { v: 2022, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 307325.1, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       port_cargo: { v: 1.9, unit: "亿吨", asOf: "2025", source: "port2025" }
@@ -1395,6 +1436,7 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      metro_first_year: { v: 2021, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 260848, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 544.3, unit: "万人", asOf: "2025", source: "pop2025" }
@@ -1406,6 +1448,7 @@ cities:
     region: 台湾
     zone: 南方
     metrics:
+      metro_first_year: { v: 1996, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 潍坊
     slug: weifang
@@ -1428,6 +1471,7 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      metro_first_year: { v: 2019, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 440970.5, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 990.2, unit: "万人", asOf: "2025", source: "pop2025" }
@@ -1513,6 +1557,7 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      metro_first_year: { v: 2010, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       scenic_5a: { v: 2, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 495760.4, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       pop: { v: 979.19, unit: "万人", asOf: "2025", source: "pop2025" }
@@ -1729,6 +1774,7 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      metro_first_year: { v: 2019, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       pop: { v: 541.54, unit: "万人", asOf: "2025", source: "pop2025" }
       metro_km: { v: 54.0, unit: "公里", asOf: "2025", source: "metro2025" }
@@ -2136,6 +2182,7 @@ cities:
     belt: 东部
     zone: 北方
     metrics:
+      metro_first_year: { v: 2019, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       express_handle: { v: 236955.6, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       metro_km: { v: 95.1, unit: "公里", asOf: "2025", source: "metro2025" }
@@ -2681,6 +2728,7 @@ cities:
     region: 台湾
     zone: 南方
     metrics:
+      metro_first_year: { v: 2008, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 河源
     slug: heyuan
@@ -3535,6 +3583,7 @@ cities:
     belt: 中部
     zone: 南方
     metrics:
+      metro_first_year: { v: 2021, unit: "年", asOf: "2025", source: "wikiMetro2025" }
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 5402.7, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
       port_cargo: { v: 1.36, unit: "亿吨", asOf: "2025", source: "port2025" }
