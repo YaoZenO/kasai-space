@@ -248,9 +248,12 @@ console.log('\n冷启动全量构建（模拟 Vercel 干净 checkout）');
   let out = '';
   try {
     fs.rmSync(PUBLIC, { recursive: true, force: true });
+    // E-091（2026-11-01）：只删 public/ 不删 db.json，陈旧增量缓存会让 Hexo
+    // 跳过重建、冷启动断言假红。与 E-087 同一修法：重建前无条件删 db.json。
+    fs.rmSync(path.join(ROOT, 'db.json'), { force: true });
     out = execSync('npx hexo generate', { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
   } catch (e) {
-    out = String((e && e.stdout) || '');
+    out = String((e && e.stdout) || '') + String((e && e.stderr) || '');
   }
 
   ok('冷启动构建成功产出 public/index.html', () => {
