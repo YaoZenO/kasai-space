@@ -4915,6 +4915,103 @@ html:not(.js) .fs-years-toggle { display: none; }
   color: var(--sec-text-color);
 }
 
+/* 分位注记（2026-11-01 方向一）：字段值旁的参比池位次，位次事实不含优劣评价 */
+.cr-standing { margin-left: 0.45rem; }
+
+/* 上榜分组小结（2026-11-01 方向一）：组标题右侧的「上榜 N 项 · 最好成绩第 M 名」 */
+.cr-mention-sum {
+  margin-left: 0.6rem;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* 按省份浏览（2026-11-01 方向四）：/city/ 索引页的省级入口，chip 行式 */
+.cr-provnav { margin-top: 1.4rem; }
+
+.cr-provnav-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0.7rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cr-provnav-list a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-xs);
+  font-size: 0.88rem;
+  color: var(--text-color);
+}
+
+.cr-provnav-list a:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.cr-provnav-count {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--sec-text-color);
+}
+
+/* 省级聚合页（2026-11-01 方向四） */
+/* 未建页城市：与 .cr-citylist-item a 同构但不参与交互，明确「档案整理中」而非坏链 */
+.cr-citylist-plain {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--line-color);
+}
+
+.cr-citylist-plain .cr-citylist-name {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--sec-text-color);
+}
+
+/* 省内各榜 / 全国榜表现：一榜一行，行内列省内城市名次（共用行式） */
+.cr-provrank-list,
+.cr-provnat-list {
+  margin: 0.7rem 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 2px solid var(--line-strong);
+}
+
+.cr-provrank-list li,
+.cr-provnat-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--line-color);
+}
+
+.cr-provrank-list a,
+.cr-provnat-list a {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.cr-provrank-list a:hover,
+.cr-provnat-list a:hover { color: var(--accent); }
+
+.cr-provrank-top {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--sec-text-color);
+  text-align: right;
+}
+
 /* ===== 4.16 断点：移动端真正的重排，不是等比缩小 ===== */
 
 /* 平板：右栏收窄 */
@@ -4963,6 +5060,11 @@ html:not(.js) .fs-years-toggle { display: none; }
 
   .cr-profile-item { flex-direction: column; align-items: flex-start; gap: 0.2rem; }
   .cr-profile-item dd { text-align: left; }
+
+  /* 省级页两行行式在窄屏改为上下堆叠：榜名一行、城市名次折到第二行 */
+  .cr-provrank-list li,
+  .cr-provnat-list li { flex-direction: column; align-items: flex-start; gap: 0.2rem; }
+  .cr-provrank-top { text-align: left; }
 }
 
 /* ===== 5. 第三方组件纸面化（site.css 在 main.css 之后加载，覆盖即生效） ===== */

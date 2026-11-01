@@ -24,7 +24,8 @@ const path = require('node:path');
 const yaml = require('js-yaml');
 
 const {
-  buildCityRanks, findRank, findCity, normalize, sortRanks, provinceCode
+  buildCityRanks, findRank, findCity, normalize, sortRanks, provinceCode,
+  cityHasPage, cityMetricStandings, cityProvinces, provinceSlug
 } = require('../themes/fluid/scripts/helpers/cityrank-data.js');
 
 const ROOT = path.join(__dirname, '..');
@@ -758,6 +759,121 @@ if (fs.existsSync(path.join(PUBLIC, 'cityrank', 'index.html'))) {
   });
 }
 
+// ---------- S17 指标分位（2026-11-01 方向一：城市页画像） ----------
+// 分位是排序位置的事实陈述（候选池内从高到低），不含优劣评价。
+// 一旦 helper 的位次口径（降序 / slug 定序 / 池 < 2 不标注）漂移，页面就静默给出
+// 另一套数字——所以独立复算全量比对，与 S2 对榜单名次的锁法同一思路。
+console.log('\n指标分位（S17）');
+
+ok('S17 分位现算：全量城市 × 全量字段与独立复算逐项一致', () => {
+  let checked = 0;
+  for (const c of cities.cities || []) {
+    const got = cityMetricStandings(R, c);
+    for (const field of Object.keys(c.metrics || {})) {
+      const pool = (cities.cities || [])
+        .map((x) => ({
+          slug: x.slug,
+          v: x.metrics && x.metrics[field] && typeof x.metrics[field].v === 'number' ? x.metrics[field].v : null
+        }))
+        .filter((x) => x.v !== null);
+      if (pool.length < 2) {
+        assert.ok(!got[field],
+          c.name + ' 的 ' + field + ' 候选池不足 2 城，不应标注位次（无位次可言）');
+        continue;
+      }
+      pool.sort((a, b) => (b.v - a.v) || String(a.slug).localeCompare(String(b.slug)));
+      const expectRank = pool.findIndex((x) => x.slug === c.slug) + 1;
+      assert.ok(got[field], c.name + ' 的 ' + field + ' 有候选池却没给出位次');
+      assert.strictEqual(got[field].rank, expectRank,
+        c.name + ' 的 ' + field + ' 位次应为 ' + expectRank + '，实为 ' + got[field].rank);
+      assert.strictEqual(got[field].total, pool.length,
+        c.name + ' 的 ' + field + ' 参比池应为 ' + pool.length + '，实为 ' + got[field].total);
+      checked += 1;
+    }
+  }
+  assert.ok(checked > 200, '只复算 ' + checked + ' 项——断言可能空转');
+});
+
+ok('S17 分位锚点：该字段最大值城市的位次必须是第 1 位', () => {
+  const field = 'gdp';
+  const maxCity = (cities.cities || [])
+    .filter((c) => c.metrics && c.metrics[field] && typeof c.metrics[field].v === 'number')
+    .sort((a, b) => b.metrics[field].v - a.metrics[field].v)[0];
+  assert.ok(maxCity, '没有城市带 gdp——锚点失效');
+  const st = cityMetricStandings(R, maxCity);
+  assert.strictEqual(st[field].rank, 1,
+    maxCity.name + ' 的 gdp 是全库最大值，位次应为 1，实为 ' + (st[field] && st[field].rank));
+});
+
+// ---------- S18 省级聚合（2026-11-01 方向四：/city/province/<slug>/） ----------
+console.log('\n省级聚合（S18）');
+
+ok('S18 归组：按 province 现算、区划码升序、归属字段不被篡改', () => {
+  const provs = cityProvinces(R);
+  assert.ok(provs.length >= 20, '省级聚合只有 ' + provs.length + ' 个——断言可能空转');
+  let prev = -1;
+  for (const p of provs) {
+    assert.ok(p.slug, '省 ' + p.name + ' 没有路由 slug');
+    assert.ok(p.pageCount > 0, '省 ' + p.name + ' 没有可建页城市，不应生成');
+    assert.ok(p.cities.length >= p.pageCount, '省 ' + p.name + ' 页面数大于城市数');
+    assert.ok(p.code >= prev, '省级聚合未按 GB/T 2260 区划码升序：' + p.name);
+    prev = p.code;
+    for (const c of p.cities) {
+      assert.strictEqual(c.province, p.name, '城市 ' + c.name + ' 被归进了错误的省');
+    }
+  }
+});
+
+ok('S18 生成口径：有建页城市的省必须在列，全无建页城市的省不得在列', () => {
+  const provs = cityProvinces(R);
+  const inList = new Set(provs.map((p) => p.name));
+  const byProv = {};
+  for (const c of cities.cities || []) {
+    if (!c.province) continue; // 归属待补的城市不进省级聚合
+    if (!byProv[c.province]) byProv[c.province] = [];
+    byProv[c.province].push(c);
+  }
+  let withPage = 0;
+  for (const name of Object.keys(byProv)) {
+    const anyPage = byProv[name].some((c) => cityHasPage(R, c));
+    if (anyPage) withPage += 1;
+    assert.strictEqual(inList.has(name), anyPage,
+      '省 ' + name + ' 的生成与否与建页口径不符（有页=' + anyPage + '，在列=' + inList.has(name) + '）');
+  }
+  assert.ok(withPage >= 20, '有建页城市的省仅 ' + withPage + ' 个——断言可能空转');
+});
+
+if (fs.existsSync(path.join(PUBLIC, 'city', 'index.html'))) {
+  ok('S18 产物：每个省都有非 0 字节聚合页，页内城市链接无死链', () => {
+    const provs = cityProvinces(R);
+    for (const p of provs) {
+      const f = path.join(PUBLIC, 'city', 'province', p.slug, 'index.html');
+      assert.ok(fs.existsSync(f), '省级页缺失：' + p.slug);
+      assert.ok(fs.statSync(f).size > 2000, '省级页字节数异常：' + p.slug);
+      const html = fs.readFileSync(f, 'utf8');
+      const re = /href="(\/city\/[a-z0-9-]+\/)"/g;
+      let m;
+      while ((m = re.exec(html)) !== null) {
+        assert.ok(fs.existsSync(path.join(PUBLIC, m[1], 'index.html')),
+          '省级页死链：' + m[1] + '（来自 ' + p.slug + '）');
+      }
+    }
+  });
+
+  ok('S17 产物：城市页带分位注记，/city/ 索引带按省导航', () => {
+    const sh = fs.readFileSync(path.join(PUBLIC, 'city', 'shanghai', 'index.html'), 'utf8');
+    assert.ok(sh.indexOf('城参比') !== -1, '上海页没有分位注记');
+    assert.ok(sh.indexOf('从高到低第') !== -1, '上海页没有位次口径词');
+    assert.ok(sh.indexOf('最好成绩') !== -1, '上海页上榜记录缺分组小结');
+    const idx = fs.readFileSync(path.join(PUBLIC, 'city', 'index.html'), 'utf8');
+    assert.ok(idx.indexOf('按省份浏览') !== -1, '/city/ 索引页缺按省导航');
+    for (const p of cityProvinces(R)) {
+      assert.ok(idx.indexOf('/city/province/' + p.slug + '/') !== -1,
+        '索引页缺省级入口：' + p.slug);
+    }
+  });
+}
+
 ok('自检：把镇域榜挪回综合与经济组必须被 S16 抓到', () => {
   const bad = R.groups.map((g) => ({
     key: g.key,
@@ -801,6 +917,12 @@ ok('自检：§4.16 注入硬编码色值必须被抓到', () => {
   const sec = css.slice(secIdx, nextSec === -1 ? css.length : nextSec);
   const mutated = sec + '\n.cr-table { color: #ff0000; }';
   assert.ok(/#[0-9a-fA-F]{3,8}/.test(mutated), '变异没生效——自检空转');
+});
+
+ok('自检：认不出拼音的省级名必须拿不到 slug（不硬造路由）', () => {
+  assert.strictEqual(provinceSlug('某未知地区'), '');
+  assert.strictEqual(provinceSlug(''), '');
+  assert.strictEqual(provinceSlug('浙江省'), 'zhejiang', '常规省份名必须能拿到 slug——自检样本失效');
 });
 
 console.log('\nRESULT: ' + pass + ' 项断言通过' + (process.exitCode ? '，存在失败' : ''));

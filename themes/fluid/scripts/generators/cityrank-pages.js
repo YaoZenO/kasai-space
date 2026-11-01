@@ -8,7 +8,7 @@
 //
 // 名次一律由 helper 现算（PRD §5.1 P0 铁律），这里只负责把结果挂到路由上。
 
-const { buildCityRanks, cityMentions, cityMentionCount } = require('../helpers/cityrank-data.js');
+const { buildCityRanks, cityHasPage, cityProvinces } = require('../helpers/cityrank-data.js');
 
 hexo.extend.generator.register('cityrank-pages', function (locals) {
   const data =
@@ -59,10 +59,9 @@ hexo.extend.generator.register('cityrank-pages', function (locals) {
   // 城市页：城市档案是与榜单并列的一大类，凡建档的城市都要有页——
   // 有已核验数据的展示档案表，暂时没有数据的只展示上榜记录并标注待补。
   // （早期版本要求「有 metrics 才生成」，会让榜单里的城市链接变成死链。）
+  // 建页口径 2026-11-01 起走 helper 的 cityHasPage（省级聚合用同一份，不许两处各写一份）。
   for (const c of R.cities) {
-    const mentions = cityMentions(R, c.slug);
-    const hasData = c.metrics && Object.keys(c.metrics).length > 0;
-    if (!hasData && !mentions.length) continue;
+    if (!cityHasPage(R, c)) continue;
     routes.push({
       path: 'city/' + c.slug + '/index.html',
       layout: 'city',
@@ -70,6 +69,21 @@ hexo.extend.generator.register('cityrank-pages', function (locals) {
         title: c.name,
         __city: true,
         citySlug: c.slug
+      }
+    });
+  }
+
+  // 省级聚合页（/city/province/<slug>/，2026-11-01 方向四）：
+  // 省内城市 + 省内各榜 + 省内城市在全国榜的表现，全部由数据现算。
+  // 省内没有可建页城市的省份不生成（helper 已过滤），这里只负责挂路由。
+  for (const p of cityProvinces(R)) {
+    routes.push({
+      path: 'city/province/' + p.slug + '/index.html',
+      layout: 'province',
+      data: {
+        title: p.name,
+        __cityProvince: true,
+        provinceSlug: p.slug
       }
     });
   }

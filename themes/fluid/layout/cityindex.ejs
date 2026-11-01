@@ -42,6 +42,19 @@ for (var j = 0; j < list.length; j += 1) { if (list[j].n > 0) withMentions += 1 
     <!-- dev: <%= CR.error %> -->
     <% } else { %>
 
+    <% var provs = cityProvinces(CR); %>
+    <% if (provs.length) { %>
+    <section class="cr-provnav">
+      <h2 class="cr-sec-title">按省份浏览</h2>
+      <ul class="cr-provnav-list">
+        <% for (var pi = 0; pi < provs.length; pi += 1) { var pv = provs[pi] %>
+        <li><a href="<%= url_for('/city/province/' + pv.slug + '/') %>"><%= pv.name %><span class="cr-provnav-count"><%= pv.total %></span></a></li>
+        <% } %>
+      </ul>
+      <p class="cr-profile-note">按 GB/T 2260 行政区划代码排序。行政归属尚未采集的城市不进省级聚合，仍可在下方名单中查看。</p>
+    </section>
+    <% } %>
+
     <ul class="cr-citylist">
       <% for (var k = 0; k < list.length; k += 1) { var row = list[k]; var cc = row.c %>
       <li class="cr-citylist-item">

@@ -367,6 +367,118 @@ function findCity(R, citySlug) {
   return R.cities.find((c) => c.slug === citySlug) || null;
 }
 
+// ---------------------------------------------------------------------------
+// 城市建页判定（2026-11-01 方向一/四重构：生成器与省级聚合必须用同一口径）
+// 与 cityrank-pages.js 的既有口径一致：有已核验指标、或至少上过一次榜，才建城市页。
+// 口径只写这一份——两处各写一份必然漂移（E-052 同型教训）。
+// ---------------------------------------------------------------------------
+function cityHasPage(R, c) {
+  if (!c) return false;
+  if (c.metrics && Object.keys(c.metrics).length > 0) return true;
+  return cityMentionCount(R, c.slug) > 0;
+}
+
+// ---------------------------------------------------------------------------
+// 指标分位（2026-11-01 方向一：城市页画像）
+// 对城市的每个已采字段，在该字段的候选池（全库有值城市）内给出「从高到低第几位」。
+//
+// 口径说明（页面必须原样转达给读者）：
+//   1. 分位是**位次事实**，不是优劣判断——1 月均温从高到低第 30 位只是排序位置，
+//      不含「好/差」评价，与 computed 榜「指标方向 + 权重」的指数完全两回事。
+//   2. 候选池 = 全库该字段有值的城市（缺值不参与，与榜单候选池同一规则）。
+//   3. 同值按 slug 升序定序——与榜单同分规则的兜底键一致，位次稳定可复算。
+// ---------------------------------------------------------------------------
+function cityMetricStandings(R, city) {
+  if (!R || R.error || !Array.isArray(R.cities) || !city || !city.metrics) return {};
+  const out = {};
+  for (const field of Object.keys(city.metrics)) {
+    const pool = [];
+    for (const c of R.cities) {
+      const v = metricValue(c, field);
+      if (v !== null) pool.push({ slug: c.slug, v: v });
+    }
+    if (pool.length < 2) continue; // 只有自己有值的字段没有「位次」可言，不标注
+    pool.sort((a, b) => (b.v - a.v) || String(a.slug).localeCompare(String(b.slug)));
+    let rank = 0;
+    for (let i = 0; i < pool.length; i += 1) {
+      if (pool[i].slug === city.slug) { rank = i + 1; break; }
+    }
+    if (rank > 0) out[field] = { rank: rank, total: pool.length };
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------------------
+// 省级聚合（2026-11-01 方向四：/city/province/<slug>/）
+// 按城市记录的 province 字段归组。三个硬规则：
+//   1. province 为空的城市不进省级聚合（归属待补的不硬凑分组）；
+//   2. 省内没有任何可建页城市（cityHasPage 全 false）的省不生成省级页——
+//      否则页面里全是死链或空壳（DESIGN-LANGUAGE §1 无数据不生成）；
+//   3. 顺序按 GB/T 2260 行政区划代码升序，与省级榜排序同一把尺子。
+// ---------------------------------------------------------------------------
+const PROVINCE_PINYIN = {
+  北京: 'beijing', 天津: 'tianjin', 河北: 'hebei', 山西: 'shanxi',
+  内蒙古: 'neimenggu', 辽宁: 'liaoning', 吉林: 'jilin', 黑龙江: 'heilongjiang',
+  上海: 'shanghai', 江苏: 'jiangsu', 浙江: 'zhejiang', 安徽: 'anhui',
+  福建: 'fujian', 江西: 'jiangxi', 山东: 'shandong', 河南: 'henan',
+  湖北: 'hubei', 湖南: 'hunan', 广东: 'guangdong', 广西: 'guangxi',
+  海南: 'hainan', 重庆: 'chongqing', 四川: 'sichuan', 贵州: 'guizhou',
+  云南: 'yunnan', 西藏: 'xizang', 陕西: 'shaanxi', 甘肃: 'gansu',
+  青海: 'qinghai', 宁夏: 'ningxia', 新疆: 'xinjiang',
+  台湾: 'taiwan', 香港: 'xianggang', 澳门: 'aomen'
+};
+
+// 「浙江省 / 广西壮族自治区 / 北京市」→「浙江 / 广西 / 北京」
+function provinceBaseName(name) {
+  return String(name || '')
+    .replace(/(维吾尔|壮族|回族)?自治区$/, '')
+    .replace(/特别行政区$/, '')
+    .replace(/省$/, '')
+    .replace(/市$/, '');
+}
+
+function provinceSlug(name) {
+  const raw = String(name || '');
+  // 合规全称（C-4：中国台湾地区 / 中国香港 / 中国澳门）不参与后缀剥离，直接整名映射
+  const FULL = { 中国台湾地区: 'taiwan', 中国香港: 'xianggang', 中国澳门: 'aomen' };
+  if (FULL[raw]) return FULL[raw];
+  const base = provinceBaseName(raw);
+  return PROVINCE_PINYIN[base] || '';
+}
+
+function provinceNameCode(name) {
+  const base = provinceBaseName(name);
+  return PROVINCE_CODE[base] === undefined ? 999 : PROVINCE_CODE[base];
+}
+
+function cityProvinces(R) {
+  if (!R || R.error || !Array.isArray(R.cities)) return [];
+  const map = {};
+  for (const c of R.cities) {
+    if (!c || !c.province) continue;
+    if (!map[c.province]) map[c.province] = [];
+    map[c.province].push(c);
+  }
+  const out = [];
+  for (const name of Object.keys(map)) {
+    const slug = provinceSlug(name);
+    if (!slug) continue; // 认不出拼音的省级行政区不硬造路由，测试会盯着这种情况
+    const cities = map[name];
+    const pageCount = cities.filter((c) => cityHasPage(R, c)).length;
+    if (!pageCount) continue;
+    out.push({
+      name: name,
+      slug: slug,
+      code: provinceNameCode(name),
+      cities: cities,
+      pageCount: pageCount,
+      total: cities.length
+    });
+  }
+  out.sort((a, b) => (a.code - b.code) || a.name.localeCompare(b.name));
+  return out;
+}
+
 // 取单个榜
 function findRank(R, rankSlug) {
   if (!R || R.error || !Array.isArray(R.groups)) return null;
@@ -383,6 +495,10 @@ if (typeof hexo !== 'undefined' && hexo.extend && hexo.extend.helper) {
   hexo.extend.helper.register('cityMentionCount', cityMentionCount);
   hexo.extend.helper.register('findCity', findCity);
   hexo.extend.helper.register('findRank', findRank);
+  hexo.extend.helper.register('cityHasPage', cityHasPage);
+  hexo.extend.helper.register('cityMetricStandings', cityMetricStandings);
+  hexo.extend.helper.register('cityProvinces', cityProvinces);
+  hexo.extend.helper.register('provinceSlug', provinceSlug);
 }
 
 module.exports = {
@@ -397,5 +513,11 @@ module.exports = {
   sortRanks: sortRanks,
   sortGroups: sortGroups,
   rankSortKey: rankSortKey,
-  provinceCode: provinceCode
+  provinceCode: provinceCode,
+  cityHasPage: cityHasPage,
+  cityMetricStandings: cityMetricStandings,
+  cityProvinces: cityProvinces,
+  provinceSlug: provinceSlug,
+  provinceBaseName: provinceBaseName,
+  provinceNameCode: provinceNameCode
 };
