@@ -220,8 +220,8 @@ if (!fs.existsSync(PUBLIC)) {
     })(PUBLIC);
     assert(!empties.length, `0 字节页面（渲染失败）：${empties.slice(0, 10).join(', ')}`);
   });
-  ok('关键页面有真实内容（首页 / 三个模块列表页）', () => {
-    for (const f of ['index.html', 'games/index.html', 'projects/index.html', 'collections/index.html']) {
+  ok('关键页面有真实内容（首页 / 三个模块列表页 / 节假日页，E-093）', () => {
+    for (const f of ['index.html', 'games/index.html', 'projects/index.html', 'collections/index.html', 'holidays/index.html']) {
       const p = path.join(PUBLIC, f);
       assert(fs.existsSync(p), `缺页面 ${f}`);
       const size = fs.statSync(p).size;

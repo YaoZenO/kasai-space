@@ -828,12 +828,20 @@ a.wall-cell:hover {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* 2026-11-02：封面来自外部（LoL 立绘的霓虹紫、Esports Manager 的冷蓝底），
+     原样贴进暖纸页面会像另一套色系。轻度去饱和 + 微暖偏移，把冷色拉回纸墨体系，
+     不改图源、不重编码。 */
+  filter: sepia(0.12) saturate(0.88);
 }
 
 .wall-cell-mask {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(27, 23, 18, 0.04) 30%, rgba(27, 23, 18, 0.8) 100%);
+  /* 2026-11-02：顶部 0.04 → 0.16，并叠一层淡陶土。四格的"压边"密度因此一致，
+     照片格的顶部不再是一整片原色（原先只有底部 30% 才压暗，上沿与纸面割裂）。 */
+  background:
+    linear-gradient(180deg, rgba(27, 23, 18, 0.16) 0%, rgba(27, 23, 18, 0.82) 100%),
+    rgba(168, 72, 44, 0.12);
 }
 
 .wall-cell-body {
@@ -885,29 +893,36 @@ a.wall-cell:hover {
 .cell-yellow .wall-cell-item { color: #1b1712; }
 .cell-orange .wall-cell-item { color: #ffffff; }
 
-/* 排版格：纸底 hairline（非白底卡） */
+/* 排版格：与项目格同族的淡陶土实底
+   2026-11-02：原 hairline 描边是本页四格里唯一的边框，读起来像「按钮」或
+   「没填内容的格子」；改为与 .cell-yellow 同一块底色后，墙面收敛成
+   「两张照片 + 两块淡陶土」两种材质（照片格带 cover 时底色被图覆盖，不受影响）。 */
 .cell-plain {
-  border: 1px solid var(--line-color);
-  background-color: transparent;
+  background-color: var(--block-yellow);
   color: var(--text-color);
 }
 
 a.cell-plain:hover {
-  border-color: var(--accent);
+  background-color: rgba(168, 72, 44, 0.2);
 }
 
+/* 2026-11-02：计数降级为标题后的内联元信息。
+   此前四格里只有两块无封面的排版格顶着 1.7~2.3rem 的大数字（表格里最抢眼的
+   东西是一个统计数），与两格照片的「图 + 名称」层级完全对不上。改成跟在
+   名称后面的小号等宽字，四格的视觉重心统一落回名称本身
+   （同时避开 R-4：不以统计数为主视觉）。 */
 .wall-cell-count {
   font-family: var(--font-mono);
-  font-size: clamp(1.7rem, 2.6vw, 2.3rem);
-  font-weight: 700;
-  line-height: 1.1;
-  color: var(--text-color);
-  margin-bottom: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--info-mark);
 }
 
 .wall-cell-title {
-  font-size: 0.98rem;
+  font-size: 1.05rem;
   font-weight: 700;
+  line-height: 1.35;
 }
 
 .wall-cell-item {
@@ -1038,6 +1053,26 @@ a.cell-plain:hover {
 .post-cat:hover {
   color: var(--accent);
   text-decoration: underline;
+}
+
+/* 2026-11-02：首页两栏主次。
+   左侧「精选内容」是主编栏目，右侧「最新文字」是时序流，但此前两栏的列表标题
+   字号完全一致（都是 clamp(1rem,1.5vw,1.15rem)）、组顶线同为 2px 全墨，
+   读起来像两个并列的同级栏目。这里把精选标题升一档、最新文字降一档，
+   并把右侧组顶线退到 hairline —— 层级差异只靠字号与线重，不加装饰。
+   作用域限定在 .home-cols，archive 页的 .pick-title 有其自己的尺度（§4.10）。
+   上限取 1.22rem：1440 下约 19.5px，比右栏 16.8px 高出一档，同时仍低于
+   栏头 .col-title 的 21.6px —— 条目标题不得追平栏头，否则「栏」与「条」平级。 */
+.home-cols .pick-title {
+  font-size: clamp(1.05rem, 1.7vw, 1.22rem);
+}
+
+.home-cols .post-title {
+  font-size: clamp(0.95rem, 1.3vw, 1.05rem);
+}
+
+.home-cols .post-list {
+  border-top: 1px solid var(--line-color);
 }
 
 /* C 精选内容：首条主行 + 其余行 */
@@ -4856,12 +4891,15 @@ html:not(.js) .fs-years-toggle { display: none; }
 }
 
 /* 头图（2026-11-01 图文改版 P3 照片支）：页头文字左、照片右，移动端照片上提整幅。
-   图源与署名由 cityphotos.yml 登记 + 生成器文件检测双闸下发，模板零判断 */
+   图源与署名由 cityphotos.yml 登记 + 生成器文件检测双闸下发，模板零判断。
+   2026-11-02：改为**按原比例完整显示·不裁切**——竖幅航拍塞进固定高度横条只保住一条天际线，
+   画面信息全丢；现在列宽决定尺寸，高度随原图比例走（height:auto）。
+   两栏顶对齐（flex-start），图像一页图版而非页头装饰。 */
 .cr-head-row {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 1.5rem;
+  gap: 2rem;
 }
 
 .cr-head-text {
@@ -4871,30 +4909,28 @@ html:not(.js) .fs-years-toggle { display: none; }
 
 .cr-hero-fig {
   margin: 0;
-  flex: 0 0 300px;
+  flex: 0 0 clamp(260px, 44%, 400px);
 }
 
 .cr-hero-fig img {
   display: block;
   width: 100%;
-  height: 200px;
-  object-fit: cover;
+  height: auto;
   border-radius: var(--r-sm);
   border: 0.5px solid var(--site-chip-border);
 }
 
 .cr-hero-fig figcaption {
-  margin-top: 0.3rem;
+  margin-top: 0.5rem;
   font-size: 0.75rem;
   line-height: 1.5;
   color: var(--sec-text-color);
-  text-align: right;
+  text-align: left;
 }
 
 @media (max-width: 719px) {
-  .cr-head-row { flex-direction: column; align-items: stretch; gap: 0.9rem; }
-  .cr-hero-fig { flex: none; order: -1; }
-  .cr-hero-fig img { height: 180px; }
+  .cr-head-row { flex-direction: column; align-items: stretch; gap: 1.2rem; }
+  .cr-hero-fig { flex: none; order: -1; max-width: min(320px, 82%); margin: 0 auto; }
 }
 
 .cr-sec-title {

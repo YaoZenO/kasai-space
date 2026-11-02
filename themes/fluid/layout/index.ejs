@@ -238,8 +238,7 @@ wallModules.forEach(function (m) { if (m.key === 'projects') { featuredModule = 
         </div>
         <% } else { %>
         <div class="wall-cell-body">
-          <span class="wall-cell-count"><%= m.count %></span>
-          <span class="wall-cell-title"><%= m.title %></span>
+          <span class="wall-cell-title"><%= m.title %><span class="wall-cell-count"> · <%= m.count %></span></span>
           <% if (latestTitle) { %><span class="wall-cell-item">最新 · <%= latestTitle %></span><% } %>
         </div>
         <% } %>
@@ -248,8 +247,7 @@ wallModules.forEach(function (m) { if (m.key === 'projects') { featuredModule = 
 
       <a class="wall-cell cell-plain<%= wallOverflow ? ' wall-cell-wide' : '' %>" href="<%= url_for('/categories/') %>">
         <div class="wall-cell-body">
-          <span class="wall-cell-count"><%= site.categories.length %></span>
-          <span class="wall-cell-title">分类</span>
+          <span class="wall-cell-title">分类<span class="wall-cell-count"> · <%= site.categories.length %></span></span>
           <span class="wall-cell-item">按主题浏览</span>
         </div>
       </a>

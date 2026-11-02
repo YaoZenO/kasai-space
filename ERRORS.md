@@ -127,6 +127,7 @@
 | E-090 | P2 | 首页主卡内容超出固定高度，被 flex-end 顶到上边框：FEATURED 元信息整行消失、标题贴边 | 已修复 |
 | E-091 | P1 | 冷启动套件只删 public/ 不删 db.json，陈旧增量缓存令 Hexo 跳过重建，断言假红（E-087 同族漏改） | 已修复 |
 | E-092 | P3 | 首页审查把「左栏与右墙不共基线」误判成「上下留白、center 居中」，照此改 `space-between` 是零效果 | 已修复（按实测重做） |
+| E-093 | P1 | `hexo server` 运行中并发跑 `hexo generate`，产出残缺 `public/`（holidays 整目录消失），构建仍报「702 files generated」、退出码 0 | 已修复 |
 
 ---
 
@@ -2032,6 +2033,31 @@
   53px 只占约 23 像素，肉眼读不出谁高谁低。
 - **教训（同类通用）：** 「看起来空」不等于「有空隙可分配」。审查给方案前先把容器与
   内容的实际高度差量出来，否则会给出一个渲染结果完全不变的「修复」。
+
+### E-093 并发跑 `hexo server` 与 `hexo generate`，产出残缺 public/ 而构建照报成功
+
+- **发生时间：** 2026-11-02 ｜ **发现方式：** 自查发现（首页 ②③ 落地后 build 报
+  「702 files generated」，而同一轮改动前的全量构建是 949 个）
+- **现象：** `npm run build` 退出码 0、打印「702 files generated」，但
+  `public/holidays/index.html` 根本不存在（该页由 `source/holidays/index.md`
+  + `layout: holidays` 生成，正常为 171199 字节）。为 CDP 实测启动的
+  `hexo server` 在后台运行期间执行了这次 generate。停掉 server 后重跑，
+  947 个文件、holidays 页 171199 字节恢复。
+- **根因：** `hexo server` 与 `hexo generate` 共用同一份 `db.json` 增量缓存与
+  同一个 `public/` 写目标，并发时会话互相改写缓存，generate 侧路由表被截断，
+  约 245 个页面（含 `holidays/` 整个目录）没有被写盘。Hexo 只统计「写了几个」，
+  不校验「该写的都写了没有」，所以不报错、退出码 0。
+- **修法：** 验证流程不再用 `hexo server` 充当测量目标，改为对
+  `public/` 起只读静态服务（临时脚本，不入仓库）；停掉 server 后重跑 generate
+  补齐产物（947 files）。
+- **防复发（机制）：** `test/module-dates.js` 的「关键页面有真实内容」断言补入
+  `holidays/index.html`。该断言原本只覆盖首页与三个模块列表页（存在性 + >1000 字节），
+  holidays 在集外，残缺构建因此无人报；补入后任何一次丢页（并发、增量缓存、
+  渲染失败）都会让 `npm test` 直接红。
+- **教训（同类通用）：** Hexo 的「N files generated」是「写了 N 个」，不是
+  「该写的都写了」。页面清单必须单独抽查，文件数口径不能当覆盖证明。
+  另：`hexo server` 与 `hexo generate` 永远不得并发；`hexo clean` 遇到 EBUSY
+  说明有进程正持有 `public/`，先停进程再 clean。
 
 ---
 
