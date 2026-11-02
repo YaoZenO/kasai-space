@@ -371,6 +371,21 @@ if (!fs.existsSync(PUBLIC)) {
     assert.ok(css.indexOf('border-radius: var(--r-xs);') !== -1, '格子没有圆角（V6.4 圆角统一到 --r-xs 8px）');
   });
 
+  // E-095 / E-096：图例必须与格子同形（圆形），详情卡不许再用大半径毛玻璃。
+  // 两条都是「改上层形态时漏改配套」的同型问题：格子圆了图例还方、卡片换格时
+  // 24px backdrop-filter 连带重算整张年历，快速划过就掉帧。
+  ok('图例与格子同形（圆形），详情卡不用毛玻璃、悬停按帧合并', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'source/css/site.css'), 'utf8');
+    const at = css.indexOf('.cal-swatch {');
+    assert.ok(at !== -1, '找不到 .cal-swatch 规则');
+    const rule = css.slice(at, css.indexOf('}', at));
+    assert.ok(rule.indexOf('border-radius: 999px') !== -1, '图例色块还是方角，和圆形格子两套形态');
+    assert.strictEqual(css.indexOf('backdrop-filter: blur(24px)'), -1, '详情卡又用回 24px 毛玻璃：换格重绘会掉帧');
+    const js = fs.readFileSync(path.join(ROOT, 'source/js/holidays.js'), 'utf8');
+    assert.ok(js.indexOf('requestAnimationFrame') !== -1, '悬停没有按帧合并，连续假期会逐格同步重排');
+    assert.ok(js.indexOf('groups[key]') !== -1, '聚焦高亮没有按假期预分组，又在遍历全部 365 格');
+  });
+
   ok('日期渲染为纯日期，没有机器串（E-028）', () => {
     assert.ok(html.indexOf('GMT') === -1, '页面出现 GMT 字样：有日期被当成 Date 直接输出了');
     // 判据只看本页自己渲染的 <time>，不扫全页文本：

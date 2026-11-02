@@ -2652,7 +2652,9 @@ body.is-home footer {
 }
 
 .cal-legend li { display: inline-flex; align-items: center; gap: .4rem; }
-.cal-swatch { display: block; width: 10px; height: 10px; }
+/* 图例色块必须和年览格子同形：格子已是圆形（见 .cal-cell 的圆角），
+   图例还留方角会让「上面圆圈、下面方框」两套语言并存。 */
+.cal-swatch { display: block; width: 10px; height: 10px; border-radius: 999px; }
 .cal-swatch.is-holiday { background: var(--accent); }
 .cal-swatch.is-weekend { background: rgba(27, 23, 18, 0.13); }
 
@@ -2686,16 +2688,16 @@ body.is-home footer {
 .cal-after-line a:hover { color: var(--accent); }
 
 /* 常驻详情卡：纸面浮层 = 面板底 + 12px + chip border + 全站唯一阴影（§4.3 / §6.3）。
-   位置由 JS 决定（优先贴在格子左侧），这里只定外观；内容居中，对齐参考站。 */
+   位置由 JS 决定（优先贴在格子左侧），这里只定外观；内容居中，对齐参考站。
+   底改为不透明纸色、去掉毛玻璃：卡片每换一格就要移动/重绘，blur 会连带重算它下面的
+   整张年历与玻璃表格，快速划过格子时明显掉帧（「出现慢/跟不上」的主因，E-096）。 */
 .cal-panel {
   position: fixed;
   z-index: 1080;
   width: min(21rem, calc(100vw - 24px));
   padding: 0 0 1rem;
-  background: rgba(255, 253, 247, 0.82);
-  -webkit-backdrop-filter: blur(24px) saturate(1.8);
-  backdrop-filter: blur(24px) saturate(1.8);
-  border: 1px solid rgba(255, 253, 247, 0.85);
+  background: #f7f6f4;
+  border: 1px solid var(--site-chip-border);
   border-radius: 16px;
   box-shadow: var(--site-float-shadow), inset 0 1px 0 rgba(255, 253, 247, 0.6);
   color: #1b1712;
