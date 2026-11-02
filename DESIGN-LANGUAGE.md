@@ -247,13 +247,13 @@
 
 | 页面 | 命中选择器 | 状态 |
 |---|---|---|
-| 文章页 | `.post-content .markdown-body` | 已命中；但须先中和主题 `10%` 左右 padding（RL-3），否则 780×0.8≈624px < 646px，两种宽度。2026-11-01 起 `.post-content` 整体同轨（见 §4.5），标题 / meta / hr / 页脚与正文右缘一刀齐 |
+| 文章页 | `.post-content .markdown-body` | 仍命中选择器；但 2026-11-02 起文章页为**宽度例外**：正文放宽至主列全宽 ≈780px（≈45.9em），与标题右缘同轨（主人拍板「正文往右走」），不再是 646px。仍须先中和主题 `10%` 左右 padding（RL-3）。**文章页的验收宽度改查 780px** |
 | 关于页 | `.about-body .markdown-body` | 已命中（646px） |
 | 模块详情页（项目 / 游戏） | `.about-body .markdown-body` | **不命中**——模板把两个 class 放在同一元素（VD-9），实际落到主题 16px/1.6 + `#2c3e50` 全宽基线；须改为嵌套结构后命中 |
 | 档案页（now / uses / links） | `.about-body .markdown-body` | 已命中（与 about.ejs 同构） |
 
 **规则**：任何长文正文容器必须命中 `.about-body .markdown-body` 或 `.post-content .markdown-body` 之一。
-**验收口径**：构建后抽查文章页、关于页、`/games/<任意 slug>/`、`/projects/<任意 slug>/`、`/now/` 五个页面的正文计算宽度均为 646px、字号 17px、行高 1.75。
+**验收口径**：构建后抽查关于页、`/games/<任意 slug>/`、`/projects/<任意 slug>/`、`/now/` 四个页面的正文计算宽度均为 646px、字号 17px、行高 1.75；文章页为宽度例外（2026-11-02 主人拍板放宽到主列全宽 ≈780px，与标题同轨），字号行高口径不变。
 
 ### 4.3 纸面层级语言（不靠色差）
 
@@ -284,7 +284,7 @@
 
 - 页面容器：`width: min(1200px, 100% - clamp(36px, 8vw, 96px))`（`.home-wrap` / `.post-wrap`）；
 - 页首留白：`clamp(104px, 14vh, 150px)`（避让悬浮胶囊导航，`.home` / `.paper-page` 同值）；
-- 文章页双栏：`.post-side` 230px + `.post-main-col` `max-width: 780px`（内含 646px 正文轨）；RL-3 修复后正文轨与关于页同宽；2026-11-01 起 `.post-content` 整体 `max-width: 40.375rem`（=38em×17px=646px），文章页头尾与正文同轨——此前仅正文在轨内、标题横跨 780px，右缘参差（主人截图反馈）；
+- 文章页双栏：`.post-side` 230px + `.post-main-col` `max-width: 780px`；RL-3 修复后关于页与文章页同轨。宽度沿革：2026-11-01 曾把 `.post-content` 整列收窄到 646px 去对齐正文（主人截图反馈标题宽正文窄），2026-11-02 被主人推翻——「应该让下面往右走，而不是让目录往左边走」，正文轨在文章页放宽到主列全宽 ≈780px，标题与正文右缘一刀齐；646px 定稿继续适用于关于页等其余纸面页；
 - 内容墙：`grid-auto-rows: minmax(158px, auto)` + `gap: 14px`。
 
 ---
