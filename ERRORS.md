@@ -121,6 +121,7 @@
 | E-084 | P1 | 标注脚本按缩进启发式定位插入点，把 `scope` 插进 `metrics:` 与它的列表项之间，把 cityrank.yml 写成无法解析的坏 YAML | 已修复（写回前解析校验闸） |
 | E-085 | P1 | 归档页/首页摘要把 HTML 数字实体当文字输出，读者看到字面的 `&#x2F;`、`&#46;` | 已修复（helper 补数字实体解码 + 产物断言） |
 | E-086 | P2 | 模块页页头 H1 字重 700，与全站衬线标题轨 600 口径分叉，衬线笔画糊 | 已修复（改 600 + 测试锁死） |
+| E-087 | P1 | `hexo clean` 因 public 被占用报 ENOTEMPTY 半途而废，紧随的 `hexo generate` 打印「0 files generated」且退出码 2，构建状态完全失真 | 已修复（构建验证三件套脚本） |
 | E-087 | P1 | `module-pages-e2e` 还原数据后用陈旧 db.json 增量重建，把测试死链 `public/projects/e2e-rich` 又生成回来 | 已修复（重建前无条件删 db.json） |
 | E-088 | P1 | `module-pages-e2e` 打完汇总不退出进程，幽灵进程持着仓库文件，下一轮测试读到「上一轮」的 e2e 数据 | 已修复（`process.exit` 显式退出） |
 | E-089 | P2 | 改了 `admin.css` 的强调色却没 bump `?v=`，后台 CSS 仍走浏览器旧缓存（§5.1 漏做） | 已修复（全链路 bump 到 20261101） |
@@ -2100,3 +2101,20 @@
 ```markdown
 | E-0XX | P? | 一句话描述 | 已修复 / 待修复 |
 ```
+
+### E-087 `hexo clean` 静默半途而废，紧随的 `hexo generate` 状态完全失真
+
+- **发生时间：** 2026-11-02 ｜ **发现方式：** 删除两道榜后按 E-019 流程 clean 全量重建，构建打印「0 files generated in 20 s」且退出码 2
+- **现象：** `hexo clean` 删 public 时报 `FATAL ENOTEMPTY: directory not empty, rmdir 'public/about'`（文件被占用），
+  db.json 删了、public 删了一半；紧随的 `hexo generate` 打印「0 files generated」、退出码 2，
+  产物状态既不是干净全量也不是有效增量。单独重跑 `hexo clean` 也复现 ENOTEMPTY。
+- **根因：** Windows 下 public 内文件被其他进程占用（本地静态服务 / 杀毒扫描 / 残留进程）时，
+  `hexo clean` 的 rmdir 逐目录失败并在第一个错误处中止；hexo 不会重试也不清理已完成部分。
+  退出码 2 是唯一可靠信号，stdout 里的「0 files generated」与 E-037 的缓存命中假象字面相同但根因不同。
+- **修法：** 手动 `rm -rf public` 成功（占用随时间解除）后重新全量构建，947 files、退出码 0，
+  产物残留检查为 0。
+- **防复发（机制）：** 项目根 `tools/verify-build.sh`——构建后依次断言 ① 退出码为 0、
+  ② 产物文件数 ≥ 900（全量基线）、③ 指定关键页存在；三者任一失败立即报错。
+  clean 失败一律改用手动删除 public 后重建，不再依赖 hexo clean 的成功输出。
+- **教训（同类通用）：** 与 E-037 同族——「N files generated」的 stdout 不可信，
+  退出码与产物实测才是状态真相；验证脚本必须同时看两者。
