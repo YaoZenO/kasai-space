@@ -106,6 +106,25 @@ ok('墨底区块样式存在，且区块内不引入交互色', () => {
     '墨底区块内出现了交互色 —— R-2：反相区块不得引入第二彩色，只用纸色透明度衍生');
 });
 
+// 首页主卡内容必须被行数上限锁死（E-090 防复发）。
+// 主卡高度由 grid-auto-rows × 2 固定，且是 justify-content: flex-end + overflow: hidden：
+// 内容一旦比卡片高，溢出方向是上边，FEATURED 元信息与标题顶部会被静默裁掉。
+// 只有标题/摘要各自设上限，内容高度才是常量。
+ok('首页主卡标题与摘要都有行数上限（E-090）', () => {
+  const rule = (sel) => siteCss.match(new RegExp(`${sel}\\s*\\{[^}]*\\}`));
+  const feature = rule('.wall-feature');
+  const title = rule('.wall-feature-title');
+  const desc = rule('.wall-feature-desc');
+  assert.ok(feature, 'site.css 缺少 .wall-feature 规则');
+  assert.match(feature[0], /padding:\s*24px/, '主卡内边距变了，需重新实测顶部留白');
+  assert.ok(title, 'site.css 缺少 .wall-feature-title 规则');
+  assert.match(title[0], /-webkit-line-clamp:\s*4/, '主卡标题没有 4 行上限：'
+    + '超长标题会把内容顶到上边框，元信息被裁掉');
+  assert.ok(desc, 'site.css 缺少 .wall-feature-desc 规则');
+  assert.match(desc[0], /-webkit-line-clamp:\s*2/, '主卡摘要没有 2 行上限：'
+    + '90 字摘要约 4 行，会把元信息顶出卡片');
+});
+
 // 前台中文字号 ≥12px（VD-4 / T1-4）。中文小字低于 12px 在纸底上不可读，
 // 这条锁死「新增样式时不许再写出 .7xrem 以下的中文」。
 ok('前台字号全部 ≥12px（0.75rem）', () => {
@@ -172,6 +191,24 @@ ok('头像 96px 是 84px 的面积补偿（圆形 π/4≈0.785），不得无依
   const w = rule[0].match(/width:\s*(\d+)px/);
   const h = rule[0].match(/height:\s*(\d+)px/);
   assert.strictEqual(w[1], h[1], '头像宽高不相等 —— border-radius:50% 会渲染成椭圆');
+});
+
+// --- E-092：首屏左栏与内容墙共用上下边线（2026-11-01）---
+// 内容墙高度恒为 2×196 + 14 = 406px。身份域只要带纵向内边距（原 1rem 0），
+// 或头像下边距回到 1.6rem，左栏总高就会超过 406，两栏上下沿立刻错开
+// （实测曾出现头像顶比墙顶低 16px、CTA 底比墙底低 53px）。这里锁死「零纵向内边距」，
+// 与 E-072「内容墙固定行高与主卡跨行成对」构成闭环：
+// 墙高变了会被 E-072 报，左栏预算变了会被本条报。
+// 注意：站名换行行数 / tagline 文案长度变化不在本断言内，改动后须用
+// Edge headless + CDP 量两栏上下沿坐标（做法见 ERRORS E-092），不能凭截图判断。
+ok('首屏左栏与右墙共用基线：.identity 不得带纵向内边距（E-092）', () => {
+  const rule = siteCss.match(/\.identity\s*\{[^}]*\}/);
+  assert.ok(rule, 'site.css 缺少 .identity 规则');
+  assert.match(rule[0], /padding:\s*0/, '身份域又有了内边距 —— 左栏会超出 406px 墙高，'
+    + '首屏两栏上下沿将再次错开（E-092）');
+  const av = siteCss.match(/\.identity-avatar\s*\{[^}]*\}/);
+  assert.match(av[0], /margin-bottom:\s*1rem/, '头像下边距不是 1rem —— '
+    + '纵向预算已按 406px 重算，改回 1.6rem 会让左栏重新高于内容墙（E-092）');
 });
 
 // --- E-040：站名词中断行（2026-10-21 主人反馈「Personal 都没在一行出现」）---

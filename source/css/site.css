@@ -562,8 +562,15 @@ button:focus-visible,
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: center;
-  padding: 1rem 0;
+  justify-content: flex-start;
+  /* 2026-11-01：padding 1rem 0 + center → 0 + flex-start。
+     实测身份域内容高 443.4px、加内边距 475.4px，比右侧内容墙（2×196 + 14 = 406px）
+     高出 37px，于是首屏两栏上下沿都不对齐：头像顶比墙顶低 16px、CTA 底比墙底低 53px。
+     （原先按截图判断「上下留白、center 居中」是错的：内容恰好等于容器，center 与
+     space-between 都没有空隙可分配，改 justify-content 是零效果——见 ERRORS E-091。）
+     现在内边距归零 + 三处纵向间距收紧（头像下 1rem、站名与 tagline 上下 0.95rem），
+     左栏总高回到 406，与墙共用 120/526 两条边线。 */
+  padding: 0;
 }
 
 /* A10（2026-10-21 主人确认）：头像圆形化，圆角标尺的唯一例外。
@@ -580,7 +587,9 @@ button:focus-visible,
   overflow: hidden;
   border: 1px solid var(--line-strong);
   background-color: rgba(27, 23, 18, 0.05);
-  margin-bottom: 1.6rem;
+  /* 2026-11-01：1.6rem → 1rem。左栏要与 406px 墙等高，纵向预算只有 406px，
+     头像到站名的 25.6px 是其中最大的一处余量（见 .identity 注释）。 */
+  margin-bottom: 1rem;
 }
 
 .identity-avatar-img {
@@ -621,7 +630,9 @@ button:focus-visible,
 }
 
 .identity-tagline {
-  margin: 1.4rem 0 2.2rem;
+  /* 2026-11-01：1.4rem / 2.2rem → 0.95rem / 0.95rem，与头像下边距同一档收紧，
+     让 CTA 底边落到墙底 526 这条线上（见 .identity 注释）。 */
+  margin: 0.95rem 0;
   max-width: 44ch;
   font-size: 1.02rem;
   line-height: 1.9;
@@ -669,7 +680,11 @@ button:focus-visible,
 .wall {
   display: grid;
   grid-template-columns: minmax(0, 3fr) minmax(0, 1.25fr) minmax(0, 1.25fr);
-  /* V4：内容墙改固定行高（原 minmax(158px, auto) 让每行被内容撑高，行基线不齐，D-4） */
+  /* V4：内容墙改固定行高（原 minmax(158px, auto) 让每行被内容撑高，行基线不齐，D-4）
+     行高保持 196 不动（E-090 期间试过 206/216，会把入口格一起拉高、主卡顶部
+     空出一大片，弃用）。真正要保证的是主卡内容不再溢出：
+     「标题 ≤4 行 + 摘要 ≤2 行」两项上限见 .wall-feature-title / -desc，
+     内容总高因此恒定，196 档下上边框与正文之间仍有约 31px（下内边距 24px 对齐底边）。 */
   grid-auto-rows: 196px;
   grid-auto-flow: dense;
   gap: 14px;
@@ -716,7 +731,9 @@ button:focus-visible,
   /* 1.5rem：源自方向 B 时期（hero 76–88px、标题占卡高 66%）的排印修正。
      E-041 回落后标题为卡内最大字但不再撑满卡片，该间距保留作 meta 与标题的
      稳定呼吸量；如后续再调 --fs-hero，此处按 0.5em 惯例复核。 */
-  margin: 0 0 1.5rem;
+  /* E-090：1.5rem → 1.15rem。主卡是固定高度容器，纵向节奏要留给「标题 4 行 +
+     摘要 2 行」；1.5rem 只适合内容短的时期，长标题会再次把溢出顶到上边框。 */
+  margin: 0 0 1.15rem;
   font-family: var(--font-mono);
   font-size: 0.76rem;
   letter-spacing: 0.16em;
@@ -740,10 +757,17 @@ button:focus-visible,
           断崖主张暂停，档位回落到 3.4rem（仍为卡内最大字，低于站名一档）。
    用 token --fs-hero 而不是写死 clamp，改档位只有一处入口。 */
 .wall-feature-title {
-  margin: 0 0 1.6rem;
+  margin: 0 0 1.15rem;
   font-size: var(--fs-hero);
   font-weight: 600;
   line-height: 1.12;
+  /* E-090：标题最多 4 行。主卡高度固定，超长标题（5 行以上）若不设上限，
+     会把 flex-end 定位的整块内容往上顶、再次裁掉元信息。截断是显式的（省略号），
+     不再静默裁切。 */
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .wall-feature-title a {
@@ -756,11 +780,17 @@ button:focus-visible,
 }
 
 .wall-feature-desc {
-  margin: 0 0 1.3rem;
+  margin: 0 0 1.05rem;
   max-width: 46ch;
   font-size: 0.94rem;
   line-height: 1.85;
   color: rgba(253, 250, 244, 0.78);
+  /* E-090：摘要最多 2 行。90 字摘要 ≈ 4 行，是主卡溢出的主因；
+     摘要本身是「要不要点进去」的辅助信息，2 行足够，全文在列表里另有一份。 */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .wall-feature-more {
