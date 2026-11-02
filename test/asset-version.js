@@ -271,16 +271,41 @@ console.log('\n冷启动全量构建（模拟 Vercel 干净 checkout）');
     });
 
     ok('全站覆盖：除 admin/ 外每个 HTML 都带版本号', () => {
-      const all = [];
-      (function walk(dir) {
-        for (const name of fs.readdirSync(dir)) {
-          const abs = path.join(dir, name);
-          if (fs.statSync(abs).isDirectory()) walk(abs);
-          else if (/\.html$/i.test(name)) all.push(path.relative(PUBLIC, abs).replace(/\\/g, '/'));
+      // E-092（2026-11-02）：早先实现是「先 walk 收集全部路径，再逐个 readFileSync」。
+      // 遍历与读取之间若有进程在重建 public/（并行构建、编辑器索引、另一个会话跑测试），
+      // 会出现「目录在、文件没了」的 ENOENT 假红——实测 947 个文件里只缺 1 个，
+      // 紧接着单独构建该页却能正常产出。现在把遍历与读取合到同一轮，
+      // 遇到文件瞬时消失则整轮重来一次；两轮都读不到才算真缺失，不掩盖真实失败。
+      const collect = () => {
+        const out = [];
+        (function walk(dir) {
+          for (const name of fs.readdirSync(dir)) {
+            const abs = path.join(dir, name);
+            if (fs.statSync(abs).isDirectory()) walk(abs);
+            else if (/\.html$/i.test(name)) out.push(path.relative(PUBLIC, abs).replace(/\\/g, '/'));
+          }
+        })(PUBLIC);
+        return out.filter((n) => !n.startsWith('admin/'));
+      };
+
+      let missing = [];
+      let vanished = null;
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        missing = [];
+        vanished = null;
+        for (const rel of collect()) {
+          try {
+            if (!fs.readFileSync(path.join(PUBLIC, rel), 'utf8').includes('main.css?v=')) missing.push(rel);
+          } catch (e) {
+            vanished = rel; // 遍历后文件被移除：整轮重来
+            break;
+          }
         }
-      })(PUBLIC);
-      const expect = all.filter((n) => !n.startsWith('admin/'));
-      const missing = expect.filter((n) => !fs.readFileSync(path.join(PUBLIC, n), 'utf8').includes('main.css?v='));
+        if (!vanished) break;
+      }
+
+      assert.strictEqual(vanished, null,
+        `页面在断言期间消失（两轮都读不到）：${vanished} —— 构建期间是否有其它进程在重建 public/？`);
       assert.strictEqual(missing.length, 0,
         `${missing.length} 个页面缺少 main.css 版本号：${missing.slice(0, 5).join(', ')}`);
     });

@@ -16,13 +16,41 @@ const path = require('path');
 // 城市头图（2026-11-01）：source/img/cities/<slug>.jpg 存在且在 cityphotos.yml 登记
 // 才下发到页头；两道闸都过才渲染，缺任一即不出图（无出处图与死链都不允许）。
 // 文件检测必须在生成器（Node 侧，有 fs）做，模板里不做存在性判断。
+//
+// 2026-11-02：头图改为**按原比例完整显示、不裁切**，因此必须把真实像素尺寸交给模板
+// 写进 img 的 width/height——固定写成 300×200 会让浏览器按 3:2 预留版面，
+// 竖幅图加载后高度突变、正文整体下跳（CLS）。尺寸现读 JPEG 的 SOF 段，不引图像库。
+function readJpegSize(file) {
+  try {
+    const b = fs.readFileSync(file);
+    let i = 2;
+    while (i < b.length - 9) {
+      if (b[i] !== 0xFF) { i += 1; continue; }
+      const m = b[i + 1];
+      if (m >= 0xC0 && m <= 0xCF && m !== 0xC4 && m !== 0xC8 && m !== 0xCC) {
+        return { w: b.readUInt16BE(i + 7), h: b.readUInt16BE(i + 5) };
+      }
+      i += 2 + b.readUInt16BE(i + 2);
+    }
+  } catch (e) {
+    /* 读不到尺寸就不写 width/height，CSS 仍按原比例排 */
+  }
+  return null;
+}
+
 function cityPhoto(slug, registry) {
   const entry = registry && registry[slug];
   if (!entry || !entry.credit) return null;
   const file = path.join(__dirname, '..', '..', '..', '..',
     'source', 'img', 'cities', slug + '.jpg');
   if (!fs.existsSync(file)) return null;
-  return { src: '/img/cities/' + slug + '.jpg', credit: entry.credit };
+  const size = readJpegSize(file);
+  return {
+    src: '/img/cities/' + slug + '.jpg',
+    credit: entry.credit,
+    width: size ? size.w : null,
+    height: size ? size.h : null
+  };
 }
 
 hexo.extend.generator.register('cityrank-pages', function (locals) {

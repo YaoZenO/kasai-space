@@ -4907,6 +4907,55 @@ html:not(.js) .fs-years-toggle { display: none; }
   min-width: 0;
 }
 
+/* 档案导语（2026-11-02）：与右侧图版对等的文字量，只陈述字段数与位次事实。
+   限宽 30em——中文单行过长会让视线回扫吃力。 */
+.cr-lede {
+  margin: 1rem 0 0;
+  max-width: 30em;
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--sec-text-color);
+}
+
+/* 档案要点：图版左侧的「一眼看全」小表，与下方完整档案表同一视觉语言（hairline 分隔）。
+   数值用等宽轨与档案表一致；位次用小字跟在数值后，不另设徽标——徽标留给档案表。 */
+.cr-glance {
+  margin: 1.6rem 0 0;
+  max-width: 26rem;
+  border-top: 1px solid var(--line-color);
+}
+
+.cr-glance-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--line-color);
+}
+
+.cr-glance-item dt {
+  font-size: 0.85rem;
+  color: var(--sec-text-color);
+}
+
+.cr-glance-item dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-color);
+  white-space: nowrap;
+}
+
+.cr-glance-sub {
+  margin-left: 0.35rem;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--sec-text-color);
+}
+
 .cr-hero-fig {
   margin: 0;
   flex: 0 0 clamp(260px, 44%, 400px);

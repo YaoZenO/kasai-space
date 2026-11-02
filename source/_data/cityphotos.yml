@@ -1,5 +1,8 @@
 # 城市头图清单（2026-11-01）：source/img/cities/<slug>.jpg 存在且在此登记才在
 # /city/<slug>/ 页头渲染；两道闸缺一不可——文件在而未登记 = 无出处，登记而无文件 = 坏链。
-# Unsplash License 不强制署名，站内保留出处是好习惯。
+# Unsplash License / Pexels License 均不强制署名，站内保留出处是好习惯。
+# 2026-11-02 换图（主人指定）：高空俯瞰陆家嘴蓝调夜景，东方明珠居中完整。
+# 原图竖构图 5304×7952，本站存 1200px 宽；头图按原比例完整呈现、不裁切，
+# 列宽由 .cr-hero-fig 决定，高度随图走（见 site.css）。
 shanghai:
-  credit: 图 / Unsplash · Freeman Zhou
+  credit: 图 / Pexels · Ted McDonnell

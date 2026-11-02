@@ -51,6 +51,34 @@ for (var si = 0; si < CR.citySources.length; si += 1) { srcMap[CR.citySources[si
     <!-- dev: slug=<%= page.citySlug || '未知城市' %>; <%= CR.error || '数据里找不到该城市' %> -->
     <% } else { %>
 
+    <%
+    // 档案导语与要点（2026-11-02）：头图改为完整呈现后，左侧只留标题会空出半屏，
+    // 图就成了孤零零的贴片。这里补上与图版对等的文字量——全部由已核验字段现算，
+    // 只陈述「有多少字段、位次第几」这类事实，不做综合评价（CITY-RANK-CONTENT §7）。
+    var measured = [];
+    var mk = Object.keys(c.metrics || {});
+    for (var mi = 0; mi < mk.length; mi += 1) {
+      var mv0 = c.metrics[mk[mi]];
+      if (mv0 && typeof mv0.v === 'number') measured.push(mk[mi]);
+    }
+    var poolCnt = 0;
+    for (var pi = 0; pi < measured.length; pi += 1) {
+      if (standings[measured[pi]]) poolCnt += 1;
+    }
+
+    // 要点取「规模与公共资源」类字段，顺序固定，不随数据多少抖动
+    var GLANCE_ORDER = ['gdp', 'pop', 'area_km2', 'metro_km', 'universities', 'scenic_5a', 'trade_total', 'sun_hours'];
+    var glance = [];
+    for (var gi = 0; gi < GLANCE_ORDER.length && glance.length < 4; gi += 1) {
+      var gk = GLANCE_ORDER[gi];
+      var gv = c.metrics[gk];
+      if (gv && typeof gv.v === 'number') {
+        glance.push({ label: FIELD_LABEL[gk] || gk, v: gv.v, unit: gv.unit || '', st: standings[gk] || null });
+      }
+    }
+    var gdpM = c.metrics.gdp;
+    var gdpSt = standings.gdp;
+    %>
     <header class="page-head">
       <nav class="cal-crumb" aria-label="面包屑">
         <a href="<%= url_for('/library/') %>">资料库</a><span aria-hidden="true">/</span><a href="<%= url_for('/cityrank/') %>">城市排行榜</a><span aria-hidden="true">/</span><span class="cal-crumb-now"><%= c.name %></span>
@@ -59,10 +87,25 @@ for (var si = 0; si < CR.citySources.length; si += 1) { srcMap[CR.citySources[si
         <div class="cr-head-text">
           <h1 class="page-head-title"><%= c.name %></h1>
           <p class="archive-total"><% if (c.province) { %><%= c.province %><% } %><% if (c.province && c.level) { %> · <% } %><% if (c.level) { %><%= c.level %><% } %><% if (!c.province && !c.level) { %>行政归属待补<% } %> · 数据年份 <%= CR.cityMeta.dataYear || '2025' %></p>
+
+          <p class="cr-lede">本站为<%= c.name %>建档 <%= measured.length %> 项已核验的统计字段<% if (poolCnt === measured.length && measured.length) { %>，全部可放进全国候选池比较位次<% } else if (poolCnt) { %>，其中 <%= poolCnt %> 项可放进全国候选池比较位次<% } %><% if (gdpM && typeof gdpM.v === 'number') { %>；地区生产总值 <%= gdpM.v %> <%= gdpM.unit || '' %><% if (gdpSt) { %>，在 <%= gdpSt.total %> 座城市中列第 <%= gdpSt.rank %> 位<% } %><% } %>。</p>
+
+          <% if (glance.length) { %>
+          <dl class="cr-glance">
+            <% for (var gj = 0; gj < glance.length; gj += 1) { var g = glance[gj]; %>
+            <div class="cr-glance-item">
+              <dt><%= g.label %></dt>
+              <dd><%= g.v %><% if (g.unit) { %><span class="cr-glance-sub"><%= g.unit %></span><% } %><% if (g.st) { %><span class="cr-glance-sub">第 <%= g.st.rank %> / <%= g.st.total %></span><% } %></dd>
+            </div>
+            <% } %>
+          </dl>
+          <% } %>
         </div>
         <% if (page.cityPhoto) { %>
         <figure class="cr-hero-fig">
-          <img src="<%= page.cityPhoto.src %>" alt="<%= c.name %>城市景观照片" width="300" height="200" loading="lazy">
+          <%# 图按原比例完整呈现（不裁切）：width/height 用图片真实像素，只作宽高比参考，
+              CSS 用 width:100% + height:auto 自适应列宽 %>
+          <img src="<%= page.cityPhoto.src %>" alt="<%= c.name %>城市景观照片"<% if (page.cityPhoto.width) { %> width="<%= page.cityPhoto.width %>" height="<%= page.cityPhoto.height %>"<% } %> loading="lazy">
           <figcaption><%= page.cityPhoto.credit %></figcaption>
         </figure>
         <% } %>
