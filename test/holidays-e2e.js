@@ -138,8 +138,8 @@ ok('清明节气日与官方通知里的清明节日期一致（节气公式的�
   });
 });
 
-ok('预计放假合计 28 天，且统计值来自逐日状态而非手填', () => {
-  assert.strictEqual(cal.stats.holidayDays, 28, '合计放假天数变了');
+ok('预计放假合计 29 天，且统计值来自逐日状态而非手填', () => {
+  assert.strictEqual(cal.stats.holidayDays, 29, '合计放假天数变了');
   const counted = Object.keys(cal.days).filter((k) => cal.days[k].state === 'holiday').length;
   assert.strictEqual(counted, cal.stats.holidayDays, '统计值与逐日状态不一致');
 });
@@ -223,8 +223,8 @@ ok('悬停数据覆盖除夕且带放假区间与锚点', () => {
   assert.strictEqual(t.name, '春节');
   assert.strictEqual(t.kicker, cal.label + '法定节假日');
   assert.strictEqual(t.lunar, '除夕 · 腊月廿九', '除夕当天没带农历');
-  assert.strictEqual(t.dayNo, '第 1 天，共 8 天');
-  assert.match(t.arrange, /02-05 → 02-12 · 8 天/);
+  assert.strictEqual(t.dayNo, '第 2 天，共 9 天');
+  assert.match(t.arrange, /02-04 → 02-12 · 9 天/);
   assert.strictEqual(t.anchor, 'holiday-chunjie');
 });
 
@@ -320,13 +320,13 @@ if (!fs.existsSync(PUBLIC)) {
 
   const html = fs.existsSync(PAGE) ? fs.readFileSync(PAGE, 'utf8') : '';
 
-  ok('365 个格子 / 28 个放假格 / 12 个月行（2027 页）', () => {
+  ok('365 个格子 / 29 个放假格 / 12 个月行（2027 页）', () => {
     const h = fs.readFileSync(PAGE27, 'utf8');
     const cells = (h.match(/class="cal-cell /g) || []).length;
     const holidayCells = (h.match(/cal-cell is-holiday/g) || []).length;
     const rows = (h.match(/class="cal-row"/g) || []).length;
     assert.strictEqual(cells, 365, '格子数不是 365（实际 ' + cells + '）');
-    assert.strictEqual(holidayCells, 28, '放假格数不是 28（实际 ' + holidayCells + '）');
+    assert.strictEqual(holidayCells, 29, '放假格数不是 29（实际 ' + holidayCells + '）');
     assert.strictEqual(rows, 12, '月份行数不是 12（实际 ' + rows + '）');
   });
 
@@ -357,7 +357,7 @@ if (!fs.existsSync(PUBLIC)) {
   ok('统计不重复：一览下面不再有第二份统计', () => {
     const h = fs.readFileSync(PAGE27, 'utf8');
     assert.ok(h.indexOf('cal-stats-line') === -1, '年一览下面又出现了一份统计');
-    assert.ok(h.indexOf('合计 28 天') !== -1, '页头缺合计说明');
+    assert.ok(h.indexOf('合计 29 天') !== -1, '页头缺合计说明');
   });
 
   // 聚焦效果的地基：格子与表格行都要带 data-h（哪个法定节假日）
