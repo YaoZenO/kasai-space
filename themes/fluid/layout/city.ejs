@@ -112,6 +112,15 @@ for (var si = 0; si < CR.citySources.length; si += 1) { srcMap[CR.citySources[si
       </div>
     </header>
 
+    <% if (page.cityMap) { %>
+    <%# 位置图（2026-11-02）：一省一份静态 SVG，本省填 accent。
+        底图只做投影与抽稀、不改边界；数据来源见 tools/build-china-map-data.js %>
+    <figure class="cr-map">
+      <img src="<%= page.cityMap.src %>" alt="<%= page.cityMap.province %>在中国的方位" width="420" height="396" loading="lazy">
+      <figcaption>深色为 <%= page.cityMap.province %>。底图为公开省级边界数据的投影简版，边界未作改动。</figcaption>
+    </figure>
+    <% } %>
+
     <section class="cr-profile">
       <h2 class="cr-sec-title">城市档案</h2>
       <% var keys = Object.keys(c.metrics || {}); %>

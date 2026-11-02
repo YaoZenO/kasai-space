@@ -4956,6 +4956,27 @@ html:not(.js) .fs-years-toggle { display: none; }
   color: var(--sec-text-color);
 }
 
+/* 位置图（2026-11-02）：本城所在省级行政区在中国地图上的位置。
+   一省一份静态 SVG（<img> 加载），本省填 accent；底图只做投影与抽稀、不改边界。
+   宽 420px 是编辑式版心下的插图档位——再宽会压过正文，再窄看不清省级轮廓。 */
+.cr-map {
+  margin: 2.4rem 0 0;
+  max-width: 440px;
+}
+
+.cr-map img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.cr-map figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--sec-text-color);
+}
+
 .cr-hero-fig {
   margin: 0;
   flex: 0 0 clamp(260px, 44%, 400px);

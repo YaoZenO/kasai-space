@@ -9,6 +9,9 @@
 // 名次一律由 helper 现算（PRD §5.1 P0 铁律），这里只负责把结果挂到路由上。
 
 const { buildCityRanks, cityHasPage, cityProvinces } = require('../helpers/cityrank-data.js');
+// 省级小地图（2026-11-02）：路径数据由 tools/build-china-map-data.js 预生成为
+// themes/fluid/data/china-provinces.json，这里只负责拼 SVG 与挂路由。
+const { svgFor: mapSvgFor, fileNameOf: mapFileNameOf } = require('../helpers/china-map.js');
 
 const fs = require('fs');
 const path = require('path');
@@ -103,8 +106,14 @@ hexo.extend.generator.register('cityrank-pages', function (locals) {
   // 有已核验数据的展示档案表，暂时没有数据的只展示上榜记录并标注待补。
   // （早期版本要求「有 metrics 才生成」，会让榜单里的城市链接变成死链。）
   // 建页口径 2026-11-01 起走 helper 的 cityHasPage（省级聚合用同一份，不许两处各写一份）。
+  //
+  // cityMap（2026-11-02）：本城所在省级行政区的小地图，一省一份 SVG，
+  // 路由在本函数末尾统一输出；这里只记住哪些省真的要出图。
+  const mapProvinces = new Set();
   for (const c of R.cities) {
     if (!cityHasPage(R, c)) continue;
+    const mapFile = c.province ? mapFileNameOf(c.province) : null;
+    if (mapFile) mapProvinces.add(c.province);
     routes.push({
       path: 'city/' + c.slug + '/index.html',
       layout: 'city',
@@ -112,9 +121,18 @@ hexo.extend.generator.register('cityrank-pages', function (locals) {
         title: c.name,
         __city: true,
         citySlug: c.slug,
-        cityPhoto: cityPhoto(c.slug, data.cityphotos)
+        cityPhoto: cityPhoto(c.slug, data.cityphotos),
+        cityMap: mapFile ? { src: '/' + mapFile, province: c.province } : null
       }
     });
+  }
+
+  // 省级小地图 SVG：只输出城市页真正引用到的省份，避免多写无人用的文件。
+  for (const provName of mapProvinces) {
+    const file = mapFileNameOf(provName);
+    const svg = mapSvgFor(provName);
+    if (!file || !svg) continue;
+    routes.push({ path: file, data: svg });
   }
 
   // 省级聚合页（/city/province/<slug>/，2026-11-01 方向四）：
