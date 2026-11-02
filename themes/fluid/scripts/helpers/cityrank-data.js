@@ -126,7 +126,10 @@ function verifiableCount(g) {
 const PINNED_GROUP_KEYS = ['economy'];
 
 function sortGroups(groups) {
-  return groups.slice().sort((a, b) => {
+  return groups
+    // 空组不进页面（2026-11-02 待审组清空后，参考榜组不再渲染「/ 0」占位）
+    .filter((g) => (g.ranks || []).length > 0)
+    .slice().sort((a, b) => {
     // ① 门面组固定置顶（彼此之间按 yml 登记序）
     const pa = PINNED_GROUP_KEYS.indexOf(a.key);
     const pb = PINNED_GROUP_KEYS.indexOf(b.key);

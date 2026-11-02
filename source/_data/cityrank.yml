@@ -2115,37 +2115,3 @@ groups:
     kicker: PENDING
     desc: 这一组暂无权威标准与可靠量化数据，名次整理自公开榜单，供参考。
     ranks:
-      - slug: shidayimeichengshi
-        title: 中国十大医美城市
-        kind: "pending"
-        scope: "nation"
-        size: 10
-        note: 原榜共 10 条。
-        items:
-          - { name: 北京, slug: beijing, note: 全国医美人才高地 公立整形顶尖科室集中 }
-          - { name: 成都, slug: chengdu, note: 西部医美之都 医美消费渗透率高 }
-          - { name: 深圳, slug: shenzhen, note: 大湾区医美消费高地 年轻客群基数庞大 }
-          - { name: 广州, slug: guangzhou, note: 华南医美中心 三甲整形科室底蕴深厚 }
-          - { name: 上海, slug: shanghai, note: 全国高端医美标杆 九院等公立整形顶尖 }
-          - { name: 长沙, slug: changsha, note: 华中医美重镇 湘雅系公立整形支撑 }
-          - { name: 杭州, slug: hangzhou, note: 长三角医美特色城市 三甲医美科室配套完善 }
-          - { name: 青岛, slug: qingdao, note: 北方医美滨海标杆 中韩医美交流窗口 }
-          - { name: 郑州, slug: zhengzhou, note: 中原医美中心 郑大一附院等公立整形实力强劲 }
-          - { name: 重庆, slug: chongqing, note: 西南医美重镇 本土大型医美集团较多 }
-      - slug: jinjiangshidaqiang
-        title: 晋江十大强镇 晋江市镇区排名 晋江最发达的镇〔2026〕
-        kind: "pending"
-        scope: "town"
-        size: 10
-        note: 原榜共 10 条。
-        items:
-          - { name: 陈埭镇, slug: chendaizhen, note: "" }
-          - { name: 深沪镇, slug: shenhuzhen, note: "" }
-          - { name: 磁灶镇, slug: cizaozhen, note: "" }
-          - { name: 安海镇, slug: anhaizhen, note: "" }
-          - { name: 龙湖镇, slug: longhuzhen, note: "" }
-          - { name: 池店镇, slug: chidianzhen, note: "" }
-          - { name: 东石镇, slug: dongshizhen, note: "" }
-          - { name: 英林镇, slug: yinglinzhen, note: "" }
-          - { name: 金井镇, slug: jinjingzhen, note: "" }
-          - { name: 内坑镇, slug: neikengzhen, note: "" }

@@ -551,6 +551,7 @@ ok('S12 1 月均温含负值城市，落库脚本须支持负号（E-078 防复�
 // E-080：PRD §2.1 给「最爱下雨的城市」定的指标是年降水日数（rain_days），
 // 而《中国统计年鉴 2025》表 8-6 只有年降水量（precip，毫米）。压缩会话恢复后
 // 曾误把该榜用 precip 转成 computed，口径与 PRD 冲突。锁死：rain_days 入库前必须 pending。
+// 2026-11-02 核验：城市级降水日数无公开权威单源，该榜维持 pending（主人拍板保留）。
 ok('S12 最爱下雨榜在 rain_days 数据入库前必须保持 pending（E-080 防复发）', () => {
   const def = allRanks.find((r) => r.slug === 'shidazuiaixiayudec');
   assert.ok(def, '找不到 shidazuiaixiayudec——锚点失效');
@@ -729,12 +730,20 @@ ok('S16 组间：门面组置顶，其余按可核验榜占比降序，参考榜
   const gs = R.groups;
   // 门面组例外（主人 2026-10-31 拍板）：综合与经济固定第一，不参与占比排序
   assert.strictEqual(gs[0].key, 'economy', '门面组 economy 不在第一位');
-  assert.strictEqual(gs[gs.length - 1].key, 'pending', '参考榜组不在最后一位');
+  // 2026-11-02 待审组清空后空组被 helper 滤掉；存在时必须垫底，且不得出现在中间
+  const pendingIdx = gs.findIndex((g) => g.key === 'pending');
+  if (pendingIdx !== -1) {
+    assert.strictEqual(pendingIdx, gs.length - 1, '参考榜组不在最后一位');
+  }
   const ratio = (g) => g.ranks.filter((r) => r.kind !== 'pending').length / (g.ranks.length || 1);
   for (let i = 2; i < gs.length; i++) {
     if (gs[i].key === 'pending') continue;
     assert.ok(ratio(gs[i]) <= ratio(gs[i - 1]) + 1e-9,
       '组顺序违反占比降序：' + gs[i - 1].key + ' ' + ratio(gs[i - 1]).toFixed(2) + ' 在 ' + gs[i].key + ' ' + ratio(gs[i]).toFixed(2) + ' 之前');
+  }
+  // 空组一律不得出现在输出里（参考榜组清空后不渲染「/ 0」占位）
+  for (const g of gs) {
+    assert.ok(g.ranks.length > 0, '空组 ' + g.key + ' 未被过滤，会渲染成空占位');
   }
 });
 
@@ -891,16 +900,14 @@ if (fs.existsSync(path.join(PUBLIC, 'city', 'index.html'))) {
   });
 }
 
-ok('自检：把镇域榜挪回综合与经济组必须被 S16 抓到', () => {
+ok('自检：镇域榜混入主序列必须被 S16 抓到（变异样本自造，不依赖真实待审组样本）', () => {
   const bad = R.groups.map((g) => ({
     key: g.key,
     ranks: g.ranks.map((r) => Object.assign({}, r))
   }));
   const eco = bad.find((g) => g.key === 'economy');
-  const pen = bad.find((g) => g.key === 'pending');
-  const townIdx = pen.ranks.findIndex((r) => r.scope === 'town');
-  assert.ok(townIdx >= 0, '参考榜组里没有镇域榜，自检样本失效');
-  eco.ranks.push(pen.ranks.splice(townIdx, 1)[0]);
+  // 2026-11-02 待审组清空后不再有真实镇域榜可挪，改为构造变异样本
+  eco.ranks.push({ slug: '_mutation_town_rank', scope: 'town', kind: 'pending', title: '变异样本' });
   let caught = false;
   for (const g of bad) {
     for (const r of g.ranks) {
