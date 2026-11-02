@@ -885,7 +885,12 @@ if (fs.existsSync(path.join(PUBLIC, 'city', 'index.html'))) {
   ok('S19 城市头图双闸：登记且有文件才渲染，未登记城市不得出现 /img/cities/ 引用（防无出处图与死链）', () => {
     const sh = fs.readFileSync(path.join(PUBLIC, 'city', 'shanghai', 'index.html'), 'utf8');
     assert.ok(sh.indexOf('/img/cities/shanghai.jpg') !== -1, '上海已登记且有照片，页面却没渲染头图');
-    assert.ok(sh.indexOf('credit') === -1 || sh.indexOf('Freeman Zhou') !== -1, '头图缺来源署名');
+    // 署名必须与登记表一致。2026-11-02 修：这里原先写死摄影师名「Freeman Zhou」，
+    // 换图后断言恒真（`indexOf('credit') === -1` 短路），等于长期失效。
+    const photos = yaml.load(fs.readFileSync(path.join(ROOT, 'source', '_data', 'cityphotos.yml'), 'utf8')) || {};
+    const credit = photos.shanghai && photos.shanghai.credit;
+    assert.ok(credit, 'cityphotos.yml 没登记上海头图署名');
+    assert.ok(sh.indexOf(credit) !== -1, '头图署名与登记表不一致，页面应出现：' + credit);
     assert.ok(fs.existsSync(path.join(PUBLIC, 'img', 'cities', 'shanghai.jpg')),
       '头图文件没进产物（source/img/cities/ 未被 Hexo 复制）');
     // 未登记的城市不得出现任何 /img/cities/ 引用——生成器 cityPhoto 双闸的防死链面
@@ -897,6 +902,63 @@ if (fs.existsSync(path.join(PUBLIC, 'city', 'index.html'))) {
       assert.ok(html.indexOf('/img/cities/') === -1,
         '未登记头图的城市页出现图片引用（死链风险）：' + c.slug);
     }
+  });
+
+  // S20 位置图（2026-11-02）：合规红线级断言——省级单位一个都不能少，
+  // 台湾/港澳必须在列，南海断续线必须在。数据换源或抽稀参数被改动时先红在这里。
+  ok('S20 位置图：34 个省级单位齐全、含港澳台与南海断续线，直辖市有定位标记', () => {
+    const dataFile = path.join(ROOT, 'themes', 'fluid', 'data', 'china-provinces.json');
+    assert.ok(fs.existsSync(dataFile), '缺少位置图数据：themes/fluid/data/china-provinces.json');
+    const map = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
+
+    assert.strictEqual(map.provinces.length, 34,
+      '省级单位应为 34 个（含港澳台），实际 ' + map.provinces.length);
+    const names = map.provinces.map((p) => p.name);
+    for (const need of ['台湾省', '香港特别行政区', '澳门特别行政区']) {
+      assert.ok(names.indexOf(need) !== -1, '位置图数据缺省级单位：' + need);
+    }
+    assert.ok(map.nineDash && map.nineDash.length > 100, '位置图数据缺南海断续线要素');
+
+    // 省级单位必须有实际路径：澳门只有 33 km²，抽稀或面积阈值一旦写错就会整块消失
+    const empty = map.provinces.filter((p) => !p.d || p.d.length < 20).map((p) => p.name);
+    assert.strictEqual(empty.length, 0, '这些省级单位没有路径：' + empty.join('、'));
+
+    const sh = fs.readFileSync(path.join(PUBLIC, 'city', 'shanghai', 'index.html'), 'utf8');
+    assert.ok(sh.indexOf('/img/map/cn-310000.svg') !== -1, '上海页没有引用位置图');
+
+    const svgFile = path.join(PUBLIC, 'img', 'map', 'cn-310000.svg');
+    assert.ok(fs.existsSync(svgFile), '位置图 SVG 没进产物');
+    const svg = fs.readFileSync(svgFile, 'utf8');
+    assert.ok(svg.indexOf('#a8482c') !== -1, '位置图没有高亮本省（缺 accent 填充）');
+    assert.ok(/<circle[^>]*r="2\.6"/.test(svg),
+      '位置图缺定位标记——直辖市/港澳面积太小，只靠填色在图上找不到');
+    assert.ok(svg.indexOf('stroke-dasharray') !== -1, '位置图没画南海断续线');
+
+    // 路径语法（E-094）：坐标对之间漏分隔空格会把两组数字粘成「-40.58101.77」，
+    // 浏览器不报错、只画出一堆横线。按命令字母切分逐段校验——
+    // 'ZM' 这种命令连写是合法的，不能当粘连误报。
+    const badD = [];
+    const checkD = (d, label) => {
+      const s = String(d || '');
+      if (!s) return badD.push(label + '（空路径）');
+      const segs = s.match(/[A-Za-z][^A-Za-z]*/g) || [];
+      for (const seg of segs) {
+        const cmd = seg[0];
+        const args = seg.slice(1).trim();
+        if (cmd === 'Z' || cmd === 'z') {
+          if (args) return badD.push(label + '（闭合命令带参数）');
+          continue;
+        }
+        if (!args) return badD.push(label + '（命令缺参数）');
+        const toks = args.split(/\s+/);
+        const bad = toks.find((t) => !/^-?\d+(\.\d+)?$/.test(t));
+        if (bad) return badD.push(label + '（非法数值 ' + bad + '）');
+        if (toks.length % 2 !== 0) return badD.push(label + '（坐标不成对）');
+      }
+    };
+    map.provinces.forEach((p) => checkD(p.d, p.name));
+    checkD(map.nineDash, '南海断续线');
+    assert.strictEqual(badD.length, 0, '位置图路径语法不合法：' + badD.slice(0, 5).join('；'));
   });
 }
 
