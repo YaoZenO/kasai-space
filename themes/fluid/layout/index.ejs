@@ -55,7 +55,10 @@ var heroExcerpt = ''
 if (hero) {
   heroExcerpt = hero.summary || (hero._raw ? excerptText(hero._raw, 90) : '')
 }
-var LATEST_MAX = 5
+/* 「最新文字」栏在 2026-11-04 瘦身（PLAN-V3 §2.1）：5 条带摘要 → 3 条纯标题。
+   个人主页需要「最近写了什么」，但不需要它跟左边的精选栏抢版面；
+   摘要是精选栏该干的事，时间流只负责让人看见标题。 */
+var LATEST_MAX = 3
 var latestPosts = []
 /* 2026-10-21 主人拍板：不再跳过主卡那一篇。「最新文字」从全站真正最新开始列，
    与首屏主卡重复出现同一标题是可接受结果——栏目标题承诺的就是全站最新，
@@ -69,13 +72,8 @@ for (var j = 0; j < postsArr.length; j++) {
 latestPosts = latestPosts.filter(function (p) { return postHasSubstance(p) })
 var totalPosts = site.posts.length
 
-/* 摘要统一走 helper（VD-8）：strip_html 后解码 HTML 实体、去代码块行号，
-   避免 EJS 输出标签二次转义成 &amp;amp;，也让摘要回归人话 */
-function postExcerpt(post, len) {
-  return excerptText(post, len)
-}
-
-/* 文章可选封面由精选池条目自带的 cover 字段直接取，不再单独包一层函数 */
+/* 摘要统一走 excerptText helper（VD-8）；主卡摘要见上方 heroExcerpt。
+   「最新文字」2026-11-04 起不再显示摘要，所以这里不再包 postExcerpt 一层。 */
 
 /* ---------- 类型注册表 ----------
    新增模块类型 = 在此加一行配置
@@ -166,6 +164,12 @@ var postUrlTarget = theme.index.post_url_target || '_self'
 /* 精选栏原先绑死 projects 模块平铺全部条目（那不是评选，是把项目清单原样铺开）。
    现在改用池内第 2 位起的 5 条，跨类型混排，规则见 curation-pool.js。 */
 var featuredPicks = pool.picks || []
+
+/* 资料库专题数：入口格上的数字从数据文件现取，不写死。
+   topics 缺失时显示 0，入口格仍可点（/library/ 自身有空态兜底）。 */
+var libraryTopicCount = (site.data && site.data.library && Array.isArray(site.data.library.topics))
+  ? site.data.library.topics.length
+  : 0
 %>
 
 <div class="home" id="top">
@@ -240,10 +244,14 @@ var featuredPicks = pool.picks || []
       </<%= m.page ? 'a' : 'div' %>>
       <% }) %>
 
-      <a class="wall-cell cell-plain<%= wallOverflow ? ' wall-cell-wide' : '' %>" href="<%= url_for('/categories/') %>">
+      <% /* 入口格「分类」→「资料库」（2026-11-04，PLAN-V3 §2.1）。
+          分类是博客的编目概念，读者进个人主页想看的是「你整理了什么」，
+          不是「你按什么主题给文章编了目」。分类页与标签页都还在、URL 不变，
+          只是不再占首页入口——从文章详情页的元信息仍然能进去。 */ %>
+      <a class="wall-cell cell-plain<%= wallOverflow ? ' wall-cell-wide' : '' %>" href="<%= url_for('/library/') %>">
         <div class="wall-cell-body">
-          <span class="wall-cell-title">分类<span class="wall-cell-count"> · <%= site.categories.length %></span></span>
-          <span class="wall-cell-item">按主题浏览</span>
+          <span class="wall-cell-title">资料库<span class="wall-cell-count"> · <%= libraryTopicCount %></span></span>
+          <span class="wall-cell-item">按专题浏览</span>
         </div>
       </a>
       <% /* 标签格已撤（2026-10-19，方案 A：标签降级为详情页检索）。/tags/ 页面与所有
@@ -290,8 +298,7 @@ var featuredPicks = pool.picks || []
           <div class="post-main">
             <time class="post-time" datetime="<%= full_date(post.date, 'YYYY-MM-DD HH:mm') %>" pubdate><%= date(post.date, config.date_format) %></time>
             <a class="post-title" href="<%= url_for(post.path) %>" target="<%= postUrlTarget %>"><%= post.title %></a>
-            <% var ex = postExcerpt(post, 76) %>
-            <% if (ex) { %><p class="post-desc"><%= ex %></p><% } %>
+            <% /* 摘要已撤（PLAN-V3 §2.1）：时间流只负责让人看见标题，摘要是精选栏的活 */ %>
           </div>
           <% var cat = post.categories.length ? post.categories[0] : null %>
           <% if (cat) { %><a class="post-cat" href="<%= url_for(cat.path) %>"><%= cat.name %></a><% } %>
