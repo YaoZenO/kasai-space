@@ -2386,7 +2386,10 @@ body.is-home footer {
 .cal-page .page-head { margin-bottom: 1.5rem; }
 .cal-page .col-head { margin-bottom: 1.05rem; }
 
-/* 面包屑（参考站 .hc-crumbs：14px muted，分隔符更淡） */
+/* 面包屑（参考站 .hc-crumbs：14px muted，分隔符更淡）
+   2026-11-04：分隔符原来写成 `.cal-crumb span`，特异性 (0,1,1) 压过 `.cal-crumb-now`
+   (0,1,0)，把当前页名也染成 22% 墨——1.6:1，等于看不见（E-104）。
+   分隔符改用模板里已有的 aria-hidden 标记定位，不再用元素名兜整类。 */
 .cal-crumb {
   margin: 0 0 .55rem;
   font-size: .875rem;
@@ -2394,7 +2397,7 @@ body.is-home footer {
 }
 .cal-crumb a { color: var(--sec-text-color); }
 .cal-crumb a:hover { color: var(--accent); }
-.cal-crumb span { margin: 0 .38rem; color: rgba(27, 23, 18, 0.22); }
+.cal-crumb [aria-hidden='true'] { margin: 0 .38rem; color: rgba(27, 23, 18, 0.22); }
 .cal-crumb-now { color: var(--text-color); }
 
 /* 引导段（参考站 .hc-lede：17px / 行高 1.65 / 限宽 800px）
@@ -5432,4 +5435,185 @@ a {
 a:hover {
   text-decoration-thickness: 2px;
   text-underline-offset: 6px;
+}
+
+/* ==========================================================================
+   .sr-* 搜索页（2026-11-04，PLAN-V3 §4 / P3）
+   独立页取代原导航弹窗。沿用纸面体系：纸底、hairline 分隔、等宽元信息轨，
+   accent 只出现在交互态（chip 激活、命中高亮、结果 hover），不做装饰色。
+   作用域收在 .sr-page 内，避免与主题原厂的 .search-* 规则互相污染。
+   ========================================================================== */
+
+.sr-box {
+  margin: 1.8rem 0 0;
+  border-top: 2px solid var(--rule-strong);
+  padding-top: 1.1rem;
+}
+
+.sr-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--sec-text-color);
+  margin-bottom: 0.5rem;
+}
+
+.sr-input {
+  width: 100%;
+  border: 0;
+  border-bottom: 2px solid var(--text-color);
+  border-radius: 0;
+  background: transparent;
+  padding: 0.45rem 0;
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  color: var(--text-color);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.sr-input:focus {
+  outline: none;
+  border-bottom-color: var(--accent);
+}
+
+.sr-input::placeholder {
+  color: var(--sec-text-color);
+  opacity: 0.7;
+}
+
+.sr-hint {
+  margin: 0.6rem 0 0;
+  font-size: 0.8rem;
+  color: var(--sec-text-color);
+}
+
+.sr-hint code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-color);
+}
+
+.sr-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 1.4rem 0 1.2rem;
+}
+
+.sr-chip {
+  border: 1px solid var(--line-color);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--sec-text-color);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  padding: 0.22rem 0.8rem;
+  cursor: pointer;
+  transition: color 0.12s ease, border-color 0.12s ease, background-color 0.12s ease;
+}
+
+.sr-chip:hover {
+  color: var(--text-color);
+  border-color: var(--line-strong);
+}
+
+.sr-chip.is-active {
+  color: var(--body-bg-color, #faf9f5);
+  background: var(--text-color);
+  border-color: var(--text-color);
+}
+
+.sr-meta {
+  margin: 0 0 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--sec-text-color);
+}
+
+.sr-list {
+  border-top: 1px solid var(--line-color);
+}
+
+.sr-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.2rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--line-color);
+  text-decoration: none;
+}
+
+.sr-row-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.sr-row-title {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--text-color);
+}
+
+.sr-row:hover .sr-row-title {
+  color: var(--accent);
+}
+
+.sr-row-desc {
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: var(--sec-text-color);
+}
+
+.sr-row-cat {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+.sr-row-title mark,
+.sr-row-desc mark {
+  background: transparent;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.sr-empty {
+  padding: 2.2rem 0 1.4rem;
+  border-top: 1px solid var(--line-color);
+}
+
+.sr-empty-title {
+  margin: 0 0 0.4rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.sr-empty-note {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.75;
+  color: var(--sec-text-color);
+}
+
+@media (max-width: 575.98px) {
+  .sr-row {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .sr-row-cat {
+    align-self: flex-start;
+  }
+
+  .sr-input {
+    font-size: 1rem;
+  }
 }

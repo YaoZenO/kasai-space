@@ -323,5 +323,28 @@ ok('内容墙固定行高与主卡跨行成对（E-072）', () => {
     + '下一行、被自动排布的小格盖住（E-072）');
 });
 
+// E-104：面包屑分隔符曾用 `.cal-crumb span` 兜整类，特异性 (0,1,1) 压过
+// `.cal-crumb-now` (0,1,0)，把「当前页名」也染成 22% 墨（对纸 1.6:1，等于看不见）。
+// 锁三件事：分隔符不得再用元素名兜类、必须仍由 aria-hidden 定位、当前页名回到正文墨色。
+ok('面包屑当前页不得被分隔符规则压成淡色（E-104）', () => {
+  // 注释里会写到这条选择器本身（就是本条错误的说明），比对前先剥掉注释
+  const css = siteCss.replace(/\/\*[\s\S]*?\*\//g, '');
+  assert.ok(
+    !/\.cal-crumb\s+span\b/.test(css),
+    '.cal-crumb span 这类元素名兜底规则会压过 .cal-crumb-now（特异性 0,1,1 > 0,1,0）'
+    + '——分隔符请用 [aria-hidden=\'true\'] 定位'
+  );
+  assert.match(
+    css,
+    /\.cal-crumb \[aria-hidden=['"]true['"]\]/,
+    '分隔符定位丢失：斜杠会继承正文色，与当前页名同级，面包屑的层级就没了'
+  );
+  assert.match(
+    css,
+    /\.cal-crumb-now\s*\{[^}]*color:\s*var\(--text-color\)/,
+    '.cal-crumb-now 不再指向 --text-color：当前页名会被压成次级色或更淡'
+  );
+});
+
 console.log(`\nRESULT: ${passed} 项断言通过${process.exitCode ? '，存在失败' : ''}`);
 process.exit(process.exitCode || 0);
