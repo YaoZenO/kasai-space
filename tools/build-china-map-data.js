@@ -33,13 +33,14 @@ const MIN_RING_AREA = 0.005;
 // 经度压缩比：按中纬度取余弦，避免等距投影把中国画得过胖
 const MID_LAT_COS = Math.cos((30 * Math.PI) / 180);
 
-// 主图下边界（投影后的 y，-纬度）。取海南岛南端（18.15°N）略南一点。
+// 取景：省域包围盒与断续线包围盒的并集，一幅画到底（2026-11-04 主人改判）。
 //
-// 为什么要把主图裁到海南以南：全国从 53.5°N 一路到 3.4°N，其中 7～18°N 这一段
-// 只有南海断续线和几个礁点，纵向却占掉整幅图的四成——主图直接铺满会让下半张
-// 全是空白，读起来像「地图只画了一半」。中国地图的通行做法是主图裁到大陆＋海南，
-// 再在右下角用带边框的插图单列南海诸岛，断续线完整画在插图里。
-const MAIN_SOUTH_Y = -18.4;
+// 曾试过「主图裁到海南以南 + 右下角插图单列南海诸岛」的纸图版面——那是印刷品为了
+// 省纸面的折衷，放在网页上反而像把南海切下去另装了一格：读者看到的是「右下角多了
+// 个框」，不是「这是同一张图」。现在恢复完整取景：3°N 到 54°N 全在框内，断续线
+// 与大陆同框，省域的方位关系一眼可读。
+// 代价是纵向多出约 200px 的南海海面——这是完整性必须付的成本，不再用插图回避。
+const FRAME_PAD = 0.5;
 
 function perpDist(p, a, b) {
   const [x, y] = p;
@@ -149,8 +150,8 @@ async function loadGeo(localPath) {
       track(nineBounds, bbox.minX, bbox.minY);
       track(nineBounds, bbox.maxX, bbox.maxY);
     } else {
-      // 中心点：直辖市与港澳面积太小，单靠填色在图上只有针尖大小，
-      // 必须再用一个定位标记指出来，否则读者找不到「我在哪」
+      // 中心点：港澳这类面积过小的省级单位，填色在图上只有几个像素，
+      // 需要用它挂一条指引线把小名字标出来（见 helpers/china-map.js）
       let cx = null;
       let cy = null;
       const c = props.center || props.centroid;
@@ -158,7 +159,17 @@ async function loadGeo(localPath) {
         cx = Math.round(c[0] * MID_LAT_COS * 100) / 100;
         cy = Math.round(-c[1] * 100) / 100;
       }
-      provinces.push({ adcode, name: props.name || adcode, cx, cy, d, bbox });
+      provinces.push({
+        adcode,
+        name: props.name || adcode,
+        cx,
+        cy,
+        d,
+        // 投影后的外接尺寸：模板据此判断「这块填色是不是只有几个像素」，
+        // 决定要不要补一条指引线 + 名字。写死名单会在换数据时悄悄失效。
+        bw: Math.round((bbox.maxX - bbox.minX) * 100) / 100,
+        bh: Math.round((bbox.maxY - bbox.minY) * 100) / 100
+      });
       track(provBounds, bbox.minX, bbox.minY);
       track(provBounds, bbox.maxX, bbox.maxY);
     }
@@ -166,37 +177,16 @@ async function loadGeo(localPath) {
 
   const num = (n) => Math.round(n * 100) / 100;
 
-  // 主图：取省域包围盒。左右留白不对称——左边是新疆（本身顶到边），右边要留出
-  // 南海诸岛插图的位置（插图压在东海一侧的空白海面上），所以右侧多放 3 个单位。
-  const pad = 0.4;
-  const rightPad = 3.0;
-  const mainX = num(provBounds.minX - pad);
-  const mainY = num(provBounds.minY - pad);
-  const mainW = num(provBounds.maxX + rightPad - mainX);
-  const mainH = num(MAIN_SOUTH_Y - mainY);
-
-  // 插图：南海诸岛取景。上边缘要带上台湾（断续线北端与台湾同纬度带，
-  // 只按断续线取景会把台湾切掉一半，插图里的海岸线就断了）。
-  const taiwan = provinces.find((p) => /^台湾/.test(p.name));
-  const ipad = 0.7;
-  const insetTop = Math.min(nineBounds.minY, taiwan ? taiwan.bbox.minY : nineBounds.minY) - 0.5;
-  const insX0 = num(nineBounds.minX - ipad);
-  const insY0 = num(insetTop);
-  const insW0 = num(nineBounds.maxX + ipad - insX0);
-  const insH0 = num(nineBounds.maxY + ipad - insY0);
-
-  // 插图在主图里的落位：右下角贴边，宽度取主图的 17.5%（纸图上南海诸岛插图的常规档位），
-  // 高度按插图自身长宽比推出；左边必须离大陆东岸足够远，否则上海这类贴海的城市，
-  // 定位圆环会和小图挤在一起（第一版就是这样，圆环几乎贴着插图边框）。
-  const boxW = num(mainW * 0.175);
-  const boxH = num(boxW * (insH0 / insW0));
-  const inset = {
-    viewBox: [insX0, insY0, insW0, insH0].join(' '),
-    x: num(mainX + mainW - 0.5 - boxW),
-    y: num(mainY + mainH - 0.7 - boxH),
-    width: boxW,
-    height: boxH
-  };
+  // 单幅取景：省域 ∪ 断续线，四周留同样的白。
+  // 左右不再额外加宽——插图撤掉后右侧不需要留它的位置了。
+  const minX = Math.min(provBounds.minX, nineBounds.minX) - FRAME_PAD;
+  const minY = Math.min(provBounds.minY, nineBounds.minY) - FRAME_PAD;
+  const maxX = Math.max(provBounds.maxX, nineBounds.maxX) + FRAME_PAD;
+  const maxY = Math.max(provBounds.maxY, nineBounds.maxY) + FRAME_PAD;
+  const mainX = num(minX);
+  const mainY = num(minY);
+  const mainW = num(maxX - mainX);
+  const mainH = num(maxY - mainY);
 
   const out = {
     source: SOURCE_URL,
@@ -204,11 +194,10 @@ async function loadGeo(localPath) {
     projection: '等距圆柱 + 中纬度余弦压缩（x = lon·cos30°, y = −lat），仅投影与抽稀，未改动边界',
     tolerance: TOLERANCE,
     main: { viewBox: [mainX, mainY, mainW, mainH].join(' '), aspect: num(mainW / mainH) },
-    inset,
-    // 断续线的包围盒（minX minY maxX maxY）：留给测试断言「插图取景盖住了整条线」，
+    // 断续线的包围盒（minX minY maxX maxY）：留给测试断言「取景盖住了整条线」，
     // 否则哪天取景窗改小了，画出来的断续线会断头，而页面上只表现为「图有点怪」
     nineBox: [num(nineBounds.minX), num(nineBounds.minY), num(nineBounds.maxX), num(nineBounds.maxY)],
-    provinces: provinces.map((p) => ({ adcode: p.adcode, name: p.name, cx: p.cx, cy: p.cy, d: p.d })),
+    provinces: provinces.map((p) => ({ adcode: p.adcode, name: p.name, cx: p.cx, cy: p.cy, bw: p.bw, bh: p.bh, d: p.d })),
     nineDash
   };
 
@@ -245,19 +234,22 @@ async function loadGeo(localPath) {
   console.log('省级单位：', provinces.length, '（应为 34）');
   console.log('九段线 path 长度：', nineDash.length);
   console.log('主图 viewBox：', out.main.viewBox, '（比高', out.main.aspect, '）');
-  console.log('插图 viewBox：', inset.viewBox, '落位', inset.x, inset.y, inset.width, inset.height);
   console.log('输出：', OUT, (bytes / 1024).toFixed(0) + 'KB');
 
-  // 版面自检：插图必须完整落在主图里，否则会被外层 viewBox 裁掉一角，
-  // 南海诸岛少一块 —— 这类错误在页面上只表现为「图有点怪」，肉眼很难判定。
+  // 取景自检：单幅地图必须同时容下所有省域与整条断续线。少容一条断续线，
+  // 页面上只表现为「图有点怪」，肉眼很难判定是取景窗小了还是路径画错了。
   const over = [];
-  if (!(mainH > 0)) over.push('主图高度不为正（MAIN_SOUTH_Y 与省域包围盒冲突）');
-  if (inset.x < mainX || inset.y < mainY) over.push('插图越出主图左上边界');
-  if (inset.x + inset.width > mainX + mainW + 0.001) over.push('插图越出主图右边界');
-  if (inset.y + inset.height > mainY + mainH + 0.001) over.push('插图越出主图下边界');
-  if (!(inset.width > 4 && inset.height > 6)) over.push('插图尺寸过小，看不清南海诸岛');
+  if (!(mainH > 0)) over.push('主图高度不为正');
+  const [nx0, ny0, nx1, ny1] = [nineBounds.minX, nineBounds.minY, nineBounds.maxX, nineBounds.maxY];
+  if (nx0 < mainX || ny0 < mainY || nx1 > mainX + mainW || ny1 > mainY + mainH) {
+    over.push('取景窗没盖住整条南海断续线：窗 ' + out.main.viewBox + '，线 ' + out.nineBox.join(' '));
+  }
+  if (provBounds.minX < mainX || provBounds.minY < mainY ||
+      provBounds.maxX > mainX + mainW || provBounds.maxY > mainY + mainH) {
+    over.push('取景窗没盖住全部省域');
+  }
   if (over.length) {
-    console.error('!! 版面自检失败：\n  ' + over.join('\n  '));
+    console.error('!! 取景自检失败：\n  ' + over.join('\n  '));
     process.exitCode = 1;
   }
   if (badPaths.length) {

@@ -906,7 +906,7 @@ if (fs.existsSync(path.join(PUBLIC, 'city', 'index.html'))) {
 
   // S20 位置图（2026-11-02）：合规红线级断言——省级单位一个都不能少，
   // 台湾/港澳必须在列，南海断续线必须在。数据换源或抽稀参数被改动时先红在这里。
-  ok('S20 位置图：34 个省级单位齐全、含港澳台与南海断续线，直辖市有定位标记', () => {
+  ok('S20 位置图：34 个省级单位齐全、含港澳台与南海断续线，本省沿边界高亮', () => {
     const dataFile = path.join(ROOT, 'themes', 'fluid', 'data', 'china-provinces.json');
     assert.ok(fs.existsSync(dataFile), '缺少位置图数据：themes/fluid/data/china-provinces.json');
     const map = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
@@ -929,10 +929,26 @@ if (fs.existsSync(path.join(PUBLIC, 'city', 'index.html'))) {
     const svgFile = path.join(PUBLIC, 'img', 'map', 'cn-310000.svg');
     assert.ok(fs.existsSync(svgFile), '位置图 SVG 没进产物');
     const svg = fs.readFileSync(svgFile, 'utf8');
-    assert.ok(svg.indexOf('#a8482c') !== -1, '位置图没有高亮本省（缺 accent 填充）');
-    assert.ok(/<circle[^>]*r="2\.6"/.test(svg),
-      '位置图缺定位标记——直辖市/港澳面积太小，只靠填色在图上找不到');
+    // 高亮必须是「本省边界那条 path 填 accent」，不是叠一个标记盖住本省（2026-11-04 改判）
+    assert.ok(/<path[^>]*fill="#a8482c"/.test(svg),
+      '位置图没有沿本省边界高亮（缺 accent 填充的省级 path）');
+    assert.ok(!/<circle[^>]*r="0\.75"/.test(svg),
+      '位置图仍在用实心圆点标本省——圆点盖住的是省的形状本身，应只靠边界高亮');
     assert.ok(svg.indexOf('stroke-dasharray') !== -1, '位置图没画南海断续线');
+
+    // 省级名称归一（E-103）：城市数据写「中国香港」「中国台湾地区」，边界数据写
+    // 「香港特别行政区」「台湾省」。不做归一，这两座城市的页面会**悄悄没有地图**——
+    // 不报错、不告警，只是少一块，肉眼要逐页翻才看得出来。
+    const hk = fs.readFileSync(path.join(PUBLIC, 'city', 'xianggang', 'index.html'), 'utf8');
+    assert.ok(hk.indexOf('/img/map/cn-810000.svg') !== -1,
+      '香港页没有引用位置图——省级名称没归一（中国香港 → 香港特别行政区）');
+    const hkSvgFile = path.join(PUBLIC, 'img', 'map', 'cn-810000.svg');
+    assert.ok(fs.existsSync(hkSvgFile), '香港的位置图 SVG 没进产物');
+    assert.ok(fs.readFileSync(hkSvgFile, 'utf8').indexOf('>香港</text>') !== -1,
+      '香港填色只有几像素，缺指引线与名字标注');
+    const tw = fs.readFileSync(path.join(PUBLIC, 'city', 'taibei', 'index.html'), 'utf8');
+    assert.ok(tw.indexOf('/img/map/cn-710000.svg') !== -1,
+      '台北页没有引用位置图——省级名称没归一（中国台湾地区 → 台湾省）');
 
     // 路径语法（E-094）：坐标对之间漏分隔空格会把两组数字粘成「-40.58101.77」，
     // 浏览器不报错、只画出一堆横线。按命令字母切分逐段校验——
@@ -961,48 +977,32 @@ if (fs.existsSync(path.join(PUBLIC, 'city', 'index.html'))) {
     assert.strictEqual(badD.length, 0, '位置图路径语法不合法：' + badD.slice(0, 5).join('；'));
   });
 
-  // S21 位置图版面（2026-11-02）：主图裁到海南以南 + 右下角南海诸岛插图。
-  // 两件事互为条件：只裁不补插图 = 断续线被裁没；补了插图但取景窗小一圈 = 断续线断头；
-  // 边框先画后画错 = 上边框被陆地盖掉（E-098）。这三种错在页面上都只表现为「图有点怪」。
-  ok('S21 位置图版面：主图裁到海南以南、插图盖住整条断续线且边框最后绘制', () => {
+  // S21 位置图版面（2026-11-04 改回单幅）：一张图画到底，南海诸岛不另设插图。
+  // 取景窗必须同时包住全部省域与整条断续线——少包一点，页面上只表现为「图有点怪」，
+  // 肉眼很难判定是取景窗小了还是路径画错了。
+  ok('S21 位置图版面：单幅取景完整包住南海诸岛，不再另设插图框', () => {
     const dataFile = path.join(ROOT, 'themes', 'fluid', 'data', 'china-provinces.json');
     const map = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
     const box = (vb) => String(vb || '').split(/\s+/).map(Number);
 
     assert.ok(map.main && map.main.viewBox, '缺主图 viewBox');
     const [mx, my, mw, mh] = box(map.main.viewBox);
-    const mainBottom = my + mh;
-    assert.ok(mainBottom > -19.2 && mainBottom < -17.6,
-      '主图下边界应落在海南以南（约 −18.4），实际 ' + mainBottom
-      + '：再往上切会切掉海南岛，再往下放空白就回来了');
-    assert.ok(mw / mh > 1.4 && mw / mh < 1.8, '主图长宽比异常：' + (mw / mh).toFixed(2));
-
-    const ins = map.inset;
-    assert.ok(ins && ins.viewBox, '缺南海诸岛插图——主图裁到海南以南后，不补插图等于把断续线裁掉了');
-    const [ix, iy, iw, ih] = box(ins.viewBox);
-    assert.ok(ins.x >= mx - 0.01 && ins.y >= my - 0.01, '插图越出主图左上边界');
-    assert.ok(ins.x + ins.width <= mx + mw + 0.01, '插图越出主图右边界');
-    assert.ok(ins.y + ins.height <= my + mh + 0.01, '插图越出主图下边界');
-    assert.ok(ins.width >= 8, '插图过窄，南海诸岛看不清：' + ins.width);
-
     const [nx0, ny0, nx1, ny1] = map.nineBox;
-    assert.ok(ix <= nx0 && iy <= ny0 && ix + iw >= nx1 && iy + ih >= ny1,
-      '插图取景窗没盖住整条断续线：窗 ' + ins.viewBox + '，线 ' + map.nineBox.join(' '));
+
+    assert.ok(mx <= nx0 && my <= ny0 && mx + mw >= nx1 && my + mh >= ny1,
+      '取景窗把南海诸岛裁出去了：窗 ' + map.main.viewBox + '，线 ' + map.nineBox.join(' '));
+    // 3°N–54°N 的完整取景，长宽比约 1.06；若又回到 1.5 左右，说明有人把南界切回海南以南
+    assert.ok(mw / mh > 0.95 && mw / mh < 1.2,
+      '单幅取景长宽比异常：' + (mw / mh).toFixed(2) + '（完整取景应约 1.06）');
+    assert.ok(!map.inset, '数据里还留着右下角插图（inset）——2026-11-04 已改回单幅');
 
     const svgFile = path.join(PUBLIC, 'img', 'map', 'cn-310000.svg');
     const svg = fs.readFileSync(svgFile, 'utf8');
-    assert.ok(svg.indexOf('南海诸岛') !== -1, '插图里没有标注文字——小图面积小、内容又是大片海面，没标注会被读成一个空框');
-    assert.strictEqual((svg.match(/<use /g) || []).length, 2,
-      '陆地组应在主图与插图各引用一次（一省一份文件不复制路径，靠 <use> 复用）');
-    assert.ok(/<svg x="[\d.-]+" y="[\d.-]+"/.test(svg), 'SVG 里没有插图（缺嵌套 <svg> 取景窗）');
-
-    // E-098 防复发：插图边框必须在陆地之后画。先画的话，顶部的陆地填充会把上边框整条盖掉，
-    // 只剩左、右、下三条边，看着像小图被切掉了一截。
-    const frameIdx = svg.lastIndexOf('stroke="#c9bfab"');
-    assert.ok(frameIdx !== -1, '插图缺边框');
-    assert.ok(frameIdx > svg.lastIndexOf('<use '), '插图边框画在陆地之前，上边框会被陆地盖住（E-098）');
-    assert.ok(/<rect[^>]*stroke="#c9bfab"[^>]*\/><\/svg><\/svg>$/.test(svg),
-      '插图边框应是插图（嵌套 <svg>）的最后一个元素');
+    assert.ok(svg.indexOf('viewBox="' + map.main.viewBox + '"') !== -1,
+      'SVG 取景与数据不一致：' + map.main.viewBox);
+    assert.strictEqual((svg.match(/<svg /g) || []).length, 1,
+      '位置图里还有嵌套取景窗（插图已撤，只应有一个 <svg>）');
+    assert.ok(svg.indexOf('stroke-dasharray') !== -1, '缺南海断续线');
   });
 }
 

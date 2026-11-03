@@ -14,6 +14,7 @@
 //
 // 合规纪律：路径数据只做投影与抽稀，不改动边界（见 tools/build-china-map-data.js）；
 //   台湾、港澳、南海断续线为数据里的独立要素，缺任何一个都应让构建断言直接失败。
+//   取景是**一幅画到底**：3°N 到 54°N 全在框内，南海诸岛与大陆同框，不另设插图。
 
 const fs = require('fs');
 const path = require('path');
@@ -28,12 +29,17 @@ const COLOR = {
   active: '#a8482c',
   activeStroke: '#8c3a22',
   nineDash: '#9a9184',
-  // 插图的底取纸色系而不是纯白：右下角本来就是空白海面，纯白会亮成一块「空格子」，
-  // 只有跟纸面同调 + 稍深的边框，才读得成一张单独的小图。
-  insetBg: '#f7f3e9',
-  insetStroke: '#c9bfab',
-  insetLabel: '#8c8377'
+  tag: '#8c3a22'
 };
+
+// 本省填色 + 描边的线宽（用户单位）。0.12 个单位在 780px 宽的图上约 1.7px：
+// 省界本来只有 1px，本省加粗一档才分得出来，又不至于把轮廓糊成一团。
+const ACTIVE_STROKE = 0.12;
+
+// 填色在图上不足这个边长（单位）时，补一条指引线 + 名字。
+// 780px 宽的地图上 1 个单位约 14px，1.0 单位以下就是 14px 以内——
+// 香港、澳门在这个尺度只有几像素，光靠颜色找不到。
+const TAG_SIZE = 1.0;
 
 let CACHE = null;
 
@@ -46,15 +52,79 @@ function load() {
   return CACHE;
 }
 
+// 省级名称归一（2026-11-04）。
+// 城市数据里写的是「中国香港」「中国台湾地区」，边界数据里是「香港特别行政区」
+// 「台湾省」——直接按字面查会查不到，这两座城市的页面上就**悄悄没有地图**
+// （不报错、不报警，只是少一块）。这里做三级归一：全名 → 去掉「中国」前缀 → 去后缀比对。
+const SUFFIX = /(维吾尔自治区|壮族自治区|回族自治区|特别行政区|自治区|地区|省|市)$/;
+
+function coreOf(name) {
+  return String(name || '').replace(/^中国/, '').replace(SUFFIX, '');
+}
+
+function resolveName(provinceName) {
+  const { byName } = load();
+  if (!provinceName) return null;
+  if (byName[provinceName]) return provinceName;
+  const core = coreOf(provinceName);
+  if (!core) return null;
+  for (const key of Object.keys(byName)) {
+    if (coreOf(key) === core) return key;
+  }
+  return null;
+}
+
 function adcodeOf(provinceName) {
   const { byName } = load();
-  const hit = byName[provinceName];
-  return hit ? hit.adcode : null;
+  const key = resolveName(provinceName);
+  return key ? byName[key].adcode : null;
+}
+
+// 图内小标注用的短名：香港特别行政区 → 香港，广西壮族自治区 → 广西
+function shortName(name) {
+  return String(name).replace(/^中国/, '').replace(SUFFIX, '');
+}
+
+// 指引线朝哪边：默认朝右（东侧多为海面，压不到别的省），
+// 右边 2.4 个单位内有别的省级单位就改朝左，免得两个标注叠在一起（澳门右边就是香港）。
+function tagSide(target, raw) {
+  for (const p of raw.provinces) {
+    if (p.adcode === target.adcode) continue;
+    if (typeof p.cx !== 'number' || typeof p.cy !== 'number') continue;
+    if (Math.abs(p.cy - target.cy) < 0.8 && p.cx > target.cx && p.cx - target.cx < 2.4) return -1;
+  }
+  return 1;
+}
+
+// 面积过小的省级单位：一圈细环指出位置 + 一条短引线 + 名字。
+// 不用实心圆点——实心点会把本省整个盖掉（上海就吃过这个亏），
+// 环只围不盖，填色仍然沿着本省的形状走。
+function tagFor(target, raw) {
+  if (!target || !target.d) return '';
+  if (Math.max(target.bw || 0, target.bh || 0) >= TAG_SIZE) return '';
+  if (typeof target.cx !== 'number' || typeof target.cy !== 'number') return '';
+  const dir = tagSide(target, raw);
+  const ax = target.cx;
+  const ay = target.cy;
+  // 引线要够长，名字才落得到开阔海面上；太短会贴着海岸线，和岸线糊成一片
+  const lx = Math.round((ax + dir * 0.9) * 100) / 100;
+  const tx = Math.round((ax + dir * 1.3) * 100) / 100;
+  const ty = Math.round((ay + 0.32) * 100) / 100;
+  return (
+    '<circle cx="' + ax + '" cy="' + ay + '" r="0.5" fill="none" stroke="' +
+    COLOR.active + '" stroke-width="0.09" opacity="0.75"/>' +
+    '<line x1="' + ax + '" y1="' + ay + '" x2="' + lx + '" y2="' + ay + '" stroke="' +
+    COLOR.activeStroke + '" stroke-width="0.06"/>' +
+    '<text x="' + tx + '" y="' + ty + '" font-size="0.95" font-family="serif" ' +
+    'text-anchor="' + (dir > 0 ? 'start' : 'end') + '" fill="' + COLOR.tag + '">' +
+    shortName(target.name) + '</text>'
+  );
 }
 
 function svgFor(provinceName) {
   const { raw, byName } = load();
-  const target = byName[provinceName];
+  const key = resolveName(provinceName);
+  const target = key ? byName[key] : null;
   if (!target) return null;
 
   const parts = [];
@@ -64,67 +134,19 @@ function svgFor(provinceName) {
     parts.push('<path d="' + p.d + '"/>');
   }
 
-  // 定位标记：上海、澳门这类面积过小的省级单位，填色在图上只有几个像素，
-  // 光靠颜色找不到，必须配一个圆环 + 实心点。
-  const marker =
-    typeof target.cx === 'number' && typeof target.cy === 'number'
-      ? '<circle cx="' + target.cx + '" cy="' + target.cy + '" r="2.6" fill="none" ' +
-        'stroke="' + COLOR.active + '" stroke-width="0.32" opacity="0.55"/>' +
-        '<circle cx="' + target.cx + '" cy="' + target.cy + '" r="0.75" fill="' + COLOR.active + '"/>'
-      : '';
-
-  // 南海诸岛插图（右下角带边框的小图）。
-  // 主图裁到海南以南，7～18°N 那段空白与断续线全部挪进这张插图——这是中国地图的
-  // 通行版面；不裁则版心下半张全是空的，裁了不补插图则等于把断续线裁没了。
-  // 插图与主图共用同一份 <g>（用 <use> 引用，不复制 59KB 路径），
-  // 但插图放大倍率不同，描边要按倍率折算，否则细线会粗成一片。
-  const ins = raw.inset;
-  let insetSvg = '';
-  if (ins && raw.nineDash) {
-    const box = ins.viewBox.split(/\s+/).map(Number);
-    const scale = ins.width / box[2];
-    const k = (v) => Math.round((v / scale) * 1000) / 1000;
-    const r2 = (v) => Math.round(v * 100) / 100;
-    const frame = k(0.12);
-    const fx = r2(box[0] + frame / 2);
-    const fy = r2(box[1] + frame / 2);
-    const fw = r2(box[2] - frame);
-    const fh = r2(box[3] - frame);
-    insetSvg =
-      '<svg x="' + ins.x + '" y="' + ins.y + '" width="' + ins.width + '" height="' + ins.height + '" ' +
-      'viewBox="' + ins.viewBox + '" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' +
-      // 底色在内、边框在最外层：边框若先画，顶部的陆地会把上边框整个盖掉，
-      // 只剩左、右、下三条边（第一版就是这样，看着像图被裁掉了一截）。
-      '<rect x="' + box[0] + '" y="' + box[1] + '" width="' + box[2] + '" height="' + box[3] + '" ' +
-      'fill="' + COLOR.insetBg + '"/>' +
-      '<use href="#cn-land" fill="' + COLOR.land + '" stroke="' + COLOR.landStroke + '" ' +
-      'stroke-width="' + k(0.09) + '" stroke-linejoin="round"/>' +
-      // 本省在 defs 的陆地组里是被排除的（主图里单独高亮）。插图若不补这一笔，
-      // 广东、海南这些落在插图里的省份会留下一个洞。
-      '<path d="' + target.d + '" fill="' + COLOR.active + '" stroke="' + COLOR.activeStroke + '" ' +
-      'stroke-width="' + k(0.09) + '" stroke-linejoin="round"/>' +
-      '<path d="' + raw.nineDash + '" fill="none" stroke="' + COLOR.nineDash + '" ' +
-      'stroke-width="' + k(0.1) + '" stroke-dasharray="' + k(0.55) + ' ' + k(0.4) + '" ' +
-      'stroke-linecap="round"/>' +
-      // 图内小标注：这张小图面积小、内容本来就是大片海面，不写名字会被当成一个空框
-      '<text x="' + r2(box[0] + box[2] / 2) + '" y="' + r2(box[1] + box[3] - 1.1) + '" ' +
-      'font-size="1.4" font-family="serif" text-anchor="middle" ' +
-      'letter-spacing="0.15" fill="' + COLOR.insetLabel + '">南海诸岛</text>' +
-      '<rect x="' + fx + '" y="' + fy + '" width="' + fw + '" height="' + fh + '" ' +
-      'fill="none" stroke="' + COLOR.insetStroke + '" stroke-width="' + frame + '"/>' +
-      '</svg>';
-  }
-
   return (
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + raw.main.viewBox + '" ' +
-    'role="img" aria-label="' + provinceName + '在中国的位置">' +
-    '<defs><g id="cn-land">' + parts.join('') + '</g></defs>' +
-    '<use href="#cn-land" fill="' + COLOR.land + '" stroke="' + COLOR.landStroke + '" ' +
-    'stroke-width="0.09" stroke-linejoin="round"/>' +
+    'role="img" aria-label="' + shortName(target.name) + '在中国的位置">' +
+    '<g fill="' + COLOR.land + '" stroke="' + COLOR.landStroke + '" stroke-width="0.09" ' +
+    'stroke-linejoin="round">' + parts.join('') + '</g>' +
+    (raw.nineDash
+      ? '<path d="' + raw.nineDash + '" fill="none" stroke="' + COLOR.nineDash + '" ' +
+        'stroke-width="0.1" stroke-dasharray="0.55 0.4" stroke-linecap="round"/>'
+      : '') +
+    // 本省：沿行政边界填 accent，不再用圆点标记——圆点盖住的是省的形状本身
     '<path d="' + target.d + '" fill="' + COLOR.active + '" stroke="' + COLOR.activeStroke + '" ' +
-    'stroke-width="0.09" stroke-linejoin="round"/>' +
-    marker +
-    insetSvg +
+    'stroke-width="' + ACTIVE_STROKE + '" stroke-linejoin="round"/>' +
+    tagFor(target, raw) +
     '</svg>'
   );
 }
@@ -140,4 +162,4 @@ function aspectOf() {
   return raw.main && raw.main.aspect ? raw.main.aspect : null;
 }
 
-module.exports = { load, adcodeOf, svgFor, fileNameOf, aspectOf, DATA_FILE };
+module.exports = { load, resolveName, adcodeOf, svgFor, fileNameOf, aspectOf, DATA_FILE };

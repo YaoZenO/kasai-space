@@ -157,7 +157,16 @@ body {
   /* V6：底色交给下方 ambient 渐变伪元素（fixed，滚动不受影响）；本体透明，
      主题 main.css 的 body 底色由此被本规则覆盖（同特异性后加载胜出） */
   background-color: transparent;
+  /* 全站基准行高（2026-11-04）：主题只声明字体栈、不声明行高，凡是没写 line-height
+     的元素全部落在浏览器的 normal（≈1.2）上——拉丁字靠上下伸部撑着还行，
+     中文方块字没有留白，1.2 就是「字挤在一起」。正文轨另有 .markdown-body 的 1.75，
+     这里兜住所有没显式声明的地方：导航、表头、卡片摘要、图注、页脚、纸面页清单。 */
+  line-height: 1.7;
 }
+
+/* 标题不跟正文行高走：多行标题按 1.7 排会散架。1.3 是中文标题的常见档位，
+   各行字号越大越要收——凡元素自带行高的（类选择器优先）不受这条影响。 */
+h1, h2, h3, h4, h5, h6 { line-height: 1.3; }
 html { background: #faf6ee; }
 /* V6.2 氛围光场（2026-10-31 主人反馈「玻璃看不出变化」）：
    近白底上玻璃不可见——玻璃的透与液必须有颜色可透射。移植 Ties MainLayout
@@ -1022,7 +1031,8 @@ a.cell-plain:hover {
 .post-title {
   font-size: clamp(1rem, 1.5vw, 1.15rem);
   font-weight: 600;
-  line-height: 1.45;
+  /* 1.45 → 1.55（2026-11-04）：标题常折两行，1.45 时两行几乎贴在一起 */
+  line-height: 1.55;
   color: var(--text-color);
 }
 
@@ -1110,7 +1120,8 @@ a.cell-plain:hover {
   font-size: clamp(1rem, 1.5vw, 1.15rem);
   font-weight: 600;
   color: var(--text-color);
-  line-height: 1.45;
+  /* 与 .post-title 同档（2026-11-04） */
+  line-height: 1.55;
 }
 
 a.pick-row:hover .pick-title {
@@ -2386,12 +2397,14 @@ body.is-home footer {
 .cal-crumb span { margin: 0 .38rem; color: rgba(27, 23, 18, 0.22); }
 .cal-crumb-now { color: var(--text-color); }
 
-/* 引导段（参考站 .hc-lede：17px / 行高 1.65 / 限宽 800px） */
+/* 引导段（参考站 .hc-lede：17px / 行高 1.65 / 限宽 800px）
+   2026-11-04 行高 1.6 → 1.8：17px 中文长段按 1.6 排，行间只剩 10px，
+   密到需要手指跟读；1.8 与正文轨（1.75）同档，读起来是一口气。 */
 .cal-lede {
   max-width: 50rem;
   margin: .8rem 0 0;
   font-size: 1.0625rem;
-  line-height: 1.6;
+  line-height: 1.8;
   color: var(--text-color);
 }
 .cal-lede a { color: var(--text-color); text-decoration: underline; text-underline-offset: 2px; }
@@ -2560,7 +2573,7 @@ body.is-home footer {
 }
 
 /* 放假说明跟在区间与天数后面同行排（参考站同款），列宽不够时自然换行 */
-.cal-hint { font-size: .78rem; line-height: 1.6; color: var(--sec-text-color); }
+.cal-hint { font-size: .78rem; line-height: 1.7; color: var(--sec-text-color); }
 .cal-hint::before { content: "· "; color: rgba(27, 23, 18, 0.3); }
 
 /* 调休上班日列：一个日期一行，两三个也不会挤成一坨 */
@@ -2733,7 +2746,7 @@ body.is-home footer {
   padding: .32rem .55rem .1rem;
   font-family: var(--font-mono);
   font-size: .75rem;
-  line-height: 1.5;
+  line-height: 1.6;
   color: var(--sec-text-color);
   text-align: right;
   text-decoration: none;
@@ -3093,7 +3106,7 @@ body.is-home footer {
 .z-figure figcaption {
   margin-top: 0.5rem;
   font-size: 0.78rem;
-  line-height: 1.6;
+  line-height: 1.7;
   color: var(--sec-text-color);
 }
 
@@ -3199,7 +3212,7 @@ body.is-home footer {
   padding: 0.28rem 0.5rem;
   border-radius: var(--r-xs);
   font-size: 0.85rem;
-  line-height: 1.5;
+  line-height: 1.6;
   color: var(--sec-text-color);
 }
 
@@ -3497,7 +3510,7 @@ body.is-home footer {
 .lb-guide-note {
   margin: 0.8rem 0 0;
   font-size: 0.76rem;
-  line-height: 1.6;
+  line-height: 1.7;
   color: var(--sec-text-color);
 }
 
@@ -3647,7 +3660,7 @@ body.is-home footer {
 .fs-figure figcaption {
   margin-top: 0.5rem;
   font-size: 0.78rem;
-  line-height: 1.6;
+  line-height: 1.7;
   color: var(--sec-text-color);
 }
 
@@ -4460,7 +4473,7 @@ html:not(.js) .fs-years-toggle { display: none; }
   padding: 0.28rem 0.5rem;
   border-radius: var(--r-xs);
   font-size: 0.85rem;
-  line-height: 1.5;
+  line-height: 1.6;
   color: var(--sec-text-color);
 }
 
@@ -4913,33 +4926,41 @@ html:not(.js) .fs-years-toggle { display: none; }
    图源与署名由 cityphotos.yml 登记 + 生成器文件检测双闸下发，模板零判断。
    2026-11-02：改为**按原比例完整显示·不裁切**——竖幅航拍塞进固定高度横条只保住一条天际线，
    画面信息全丢；现在列宽决定尺寸，高度随原图比例走（height:auto）。
-   两栏顶对齐（flex-start），图像一页图版而非页头装饰。 */
+   2026-11-04：文字列改为与图版等高的纵列（align-items: stretch + 要点表贴底）。
+   竖幅照片 400×600，左侧按原来的 1.75 行高排完只有 350px 高，图底下空出 250px 白——
+   空白的解法不是拉长间距硬凑，而是先把行距放到能读的高度，残余的空隙交给
+   .cr-glance 的 margin-top: auto，让要点表压在图的下沿，空白变成两段文字之间的呼吸。 */
 .cr-head-row {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: space-between;
-  gap: 2rem;
+  gap: 2.4rem;
 }
 
 .cr-head-text {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-/* 档案导语（2026-11-02）：与右侧图版对等的文字量，只陈述字段数与位次事实。
-   限宽 30em——中文单行过长会让视线回扫吃力。 */
+/* 档案导语（2026-11-02，2026-11-04 放松）：与右侧图版对等的文字量，只陈述字段数与位次事实。
+   限宽 30em——中文单行过长会让视线回扫吃力。行高 1.75 → 1.95：这一列实际宽度只有
+   360px 上下，一行 21 字左右，密排时五行挤成一块砖；放到 1.95 才读得出段落。 */
 .cr-lede {
-  margin: 1rem 0 0;
+  margin: 1.3rem 0 0;
   max-width: 30em;
-  font-size: 0.95rem;
-  line-height: 1.75;
+  font-size: 1rem;
+  line-height: 2;
   color: var(--sec-text-color);
 }
 
 /* 档案要点：图版左侧的「一眼看全」小表，与下方完整档案表同一视觉语言（hairline 分隔）。
-   数值用等宽轨与档案表一致；位次用小字跟在数值后，不另设徽标——徽标留给档案表。 */
+   数值用等宽轨与档案表一致；位次用小字跟在数值后，不另设徽标——徽标留给档案表。
+   margin-top: auto —— 文字列被图版拉到同等高度时，剩余的空白全部落在导语与表格之间，
+   表格下沿因此与图片下沿齐平，而不是悬在半空。 */
 .cr-glance {
-  margin: 1.6rem 0 0;
+  margin: auto 0 0;
   max-width: 26rem;
   border-top: 1px solid var(--line-color);
 }
@@ -4949,19 +4970,19 @@ html:not(.js) .fs-years-toggle { display: none; }
   align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.45rem 0;
+  padding: 0.8rem 0;
   border-bottom: 1px solid var(--line-color);
 }
 
 .cr-glance-item dt {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: var(--sec-text-color);
 }
 
 .cr-glance-item dd {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text-color);
   white-space: nowrap;
@@ -4975,11 +4996,12 @@ html:not(.js) .fs-years-toggle { display: none; }
   color: var(--sec-text-color);
 }
 
-/* 位置图（2026-11-02）：本城所在省级行政区在中国地图上的位置。
-   一省一份静态 SVG（<img> 加载），本省填 accent；底图只做投影与抽稀、不改边界。
+/* 位置图（2026-11-02，2026-11-04 改回单幅）：本城所在省级行政区在中国地图上的位置。
+   一省一份静态 SVG（<img> 加载），本省沿边界填 accent；底图只做投影与抽稀、不改边界。
    版面：与「城市档案」同级成节，图占满版心、左对齐——图的左边缘必须和上面的「位置」
    标题、下面的「城市档案」表格对齐。试过 440 左对齐（右半边空着）和 560 居中
-   （标题在左、图在中间，图相对自己的标题缩进一截）两版，都对不齐。 */
+   （标题在左、图在中间，图相对自己的标题缩进一截）两版，都对不齐。
+   整幅长宽比约 1.06（含南海诸岛），780px 宽时高 735px；不再做右下角插图。 */
 .cr-mapsec {
   margin-top: 0.4rem;
 }
@@ -4999,7 +5021,7 @@ html:not(.js) .fs-years-toggle { display: none; }
   margin-top: 0.7rem;
   max-width: 46em;
   font-size: 0.75rem;
-  line-height: 1.6;
+  line-height: 1.7;
   color: var(--sec-text-color);
 }
 
@@ -5019,7 +5041,7 @@ html:not(.js) .fs-years-toggle { display: none; }
 .cr-hero-fig figcaption {
   margin-top: 0.5rem;
   font-size: 0.75rem;
-  line-height: 1.5;
+  line-height: 1.7;
   color: var(--sec-text-color);
   text-align: left;
 }
