@@ -7,6 +7,12 @@ hexo.extend.generator.register('_hexo_generator_search', function(locals) {
   if (!config.search.enable) {
     return;
   }
+  // 2026-11-04（PLAN-V3 §4）：搜索改独立页后不再产出 XML 索引。
+  // 本生成器只遍历 posts / pages，资料页全是 generator 挂的路由、不在 locals.pages 里，
+  // 继续生成只会留一个「看起来有索引、实际搜不到东西」的 /local-search.xml。
+  if (config.search.mode === 'page') {
+    return;
+  }
 
   const nunjucks = require('nunjucks');
   const env = new nunjucks.Environment();

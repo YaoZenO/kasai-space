@@ -436,6 +436,14 @@ navbar:
 search:
   enable: true
 
+  # 2026-11-04（PLAN-V3 §4）：搜索改为独立页 /search/，索引由
+  # themes/fluid/scripts/generators/search-index.js 生成 /search-index.json。
+  # 主题原厂的 local-search.xml 只遍历 posts 与 pages，而站内 600+ 资料页
+  # （城市档案 / 榜单 / 生肖 / 节日 / 节假日）都是 generator 直接挂路由、
+  # 不属于 Page 模型，一条都收不进去（实测长期只有 6 条 entry）。
+  # mode 为 page 时，下面 path / generate_path 仅供历史兼容，不再产出 XML。
+  mode: "page"
+
   # 搜索索引文件的路径，可以是相对路径或外站的绝对路径
   # Path for search index file, it can be a relative path or an absolute path
   path: /local-search.xml

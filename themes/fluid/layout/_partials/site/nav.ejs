@@ -80,16 +80,12 @@ var currentPath = ('/' + (page.path || '')).replace(/index\.html$/, '')
 
     <div class="site-nav-actions">
       <% if (theme.search.enable) { %>
-        <a id="search-btn" class="nav-link" target="_self" href="javascript:;"
-           data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+        <%# 2026-11-04：搜索从弹窗改为独立页（PLAN-V3 §4）。图标直接进 /search/，
+            不再 data-toggle 弹窗，也不再加载主题原厂的 local-search.js ——
+            那套只索引文章与 Markdown 页，600+ 资料页一条都进不去。 %>
+        <a id="search-btn" class="nav-link" target="_self" href="<%= url_for('/search/') %>" aria-label="搜索站内内容">
           <i class="iconfont icon-search"></i>
         </a>
-        <%#
-          P0-4：local-search.js 是 IIFE，解析期立即执行并直接调用 jQuery，
-          而 jquery.min.js 已改 defer（晚于解析期）。必须也改 defer 才能保序：
-          defer 脚本按文档顺序执行，jquery 在前 → local-search 在其后，依赖成立。
-        %>
-        <% import_js(theme.static_prefix.internal_js, 'local-search.js', 'defer') %>
       <% } %>
       <button id="navbar-toggler-btn" class="navbar-toggler site-nav-toggle" type="button"
               aria-controls="mobile-grid-menu" aria-expanded="false" aria-label="Toggle navigation">
@@ -148,7 +144,7 @@ var currentPath = ('/' + (page.path || '')).replace(/index\.html$/, '')
         <% } %>
         <% if (theme.search.enable) { %>
           <div class="col-4 mobile-grid-cell" id="mobile-search-btn">
-            <a href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+            <a href="<%= url_for('/search/') %>" aria-label="搜索站内内容">
               <div class="mobile-grid-item">
                 <i class="iconfont icon-search"></i>
                 <span><%= __('search.title') !== 'search.title' ? __('search.title') : 'Search' %></span>
