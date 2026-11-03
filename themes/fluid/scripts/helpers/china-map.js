@@ -27,7 +27,12 @@ const COLOR = {
   landStroke: '#d3ccbc',
   active: '#a8482c',
   activeStroke: '#8c3a22',
-  nineDash: '#9a9184'
+  nineDash: '#9a9184',
+  // 插图的底取纸色系而不是纯白：右下角本来就是空白海面，纯白会亮成一块「空格子」，
+  // 只有跟纸面同调 + 稍深的边框，才读得成一张单独的小图。
+  insetBg: '#f7f3e9',
+  insetStroke: '#c9bfab',
+  insetLabel: '#8c8377'
 };
 
 let CACHE = null;
@@ -68,18 +73,58 @@ function svgFor(provinceName) {
         '<circle cx="' + target.cx + '" cy="' + target.cy + '" r="0.75" fill="' + COLOR.active + '"/>'
       : '';
 
+  // 南海诸岛插图（右下角带边框的小图）。
+  // 主图裁到海南以南，7～18°N 那段空白与断续线全部挪进这张插图——这是中国地图的
+  // 通行版面；不裁则版心下半张全是空的，裁了不补插图则等于把断续线裁没了。
+  // 插图与主图共用同一份 <g>（用 <use> 引用，不复制 59KB 路径），
+  // 但插图放大倍率不同，描边要按倍率折算，否则细线会粗成一片。
+  const ins = raw.inset;
+  let insetSvg = '';
+  if (ins && raw.nineDash) {
+    const box = ins.viewBox.split(/\s+/).map(Number);
+    const scale = ins.width / box[2];
+    const k = (v) => Math.round((v / scale) * 1000) / 1000;
+    const r2 = (v) => Math.round(v * 100) / 100;
+    const frame = k(0.12);
+    const fx = r2(box[0] + frame / 2);
+    const fy = r2(box[1] + frame / 2);
+    const fw = r2(box[2] - frame);
+    const fh = r2(box[3] - frame);
+    insetSvg =
+      '<svg x="' + ins.x + '" y="' + ins.y + '" width="' + ins.width + '" height="' + ins.height + '" ' +
+      'viewBox="' + ins.viewBox + '" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' +
+      // 底色在内、边框在最外层：边框若先画，顶部的陆地会把上边框整个盖掉，
+      // 只剩左、右、下三条边（第一版就是这样，看着像图被裁掉了一截）。
+      '<rect x="' + box[0] + '" y="' + box[1] + '" width="' + box[2] + '" height="' + box[3] + '" ' +
+      'fill="' + COLOR.insetBg + '"/>' +
+      '<use href="#cn-land" fill="' + COLOR.land + '" stroke="' + COLOR.landStroke + '" ' +
+      'stroke-width="' + k(0.09) + '" stroke-linejoin="round"/>' +
+      // 本省在 defs 的陆地组里是被排除的（主图里单独高亮）。插图若不补这一笔，
+      // 广东、海南这些落在插图里的省份会留下一个洞。
+      '<path d="' + target.d + '" fill="' + COLOR.active + '" stroke="' + COLOR.activeStroke + '" ' +
+      'stroke-width="' + k(0.09) + '" stroke-linejoin="round"/>' +
+      '<path d="' + raw.nineDash + '" fill="none" stroke="' + COLOR.nineDash + '" ' +
+      'stroke-width="' + k(0.1) + '" stroke-dasharray="' + k(0.55) + ' ' + k(0.4) + '" ' +
+      'stroke-linecap="round"/>' +
+      // 图内小标注：这张小图面积小、内容本来就是大片海面，不写名字会被当成一个空框
+      '<text x="' + r2(box[0] + box[2] / 2) + '" y="' + r2(box[1] + box[3] - 1.1) + '" ' +
+      'font-size="1.4" font-family="serif" text-anchor="middle" ' +
+      'letter-spacing="0.15" fill="' + COLOR.insetLabel + '">南海诸岛</text>' +
+      '<rect x="' + fx + '" y="' + fy + '" width="' + fw + '" height="' + fh + '" ' +
+      'fill="none" stroke="' + COLOR.insetStroke + '" stroke-width="' + frame + '"/>' +
+      '</svg>';
+  }
+
   return (
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + raw.viewBox + '" ' +
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + raw.main.viewBox + '" ' +
     'role="img" aria-label="' + provinceName + '在中国的位置">' +
-    '<g fill="' + COLOR.land + '" stroke="' + COLOR.landStroke + '" stroke-width="0.09" ' +
-    'stroke-linejoin="round">' + parts.join('') + '</g>' +
+    '<defs><g id="cn-land">' + parts.join('') + '</g></defs>' +
+    '<use href="#cn-land" fill="' + COLOR.land + '" stroke="' + COLOR.landStroke + '" ' +
+    'stroke-width="0.09" stroke-linejoin="round"/>' +
     '<path d="' + target.d + '" fill="' + COLOR.active + '" stroke="' + COLOR.activeStroke + '" ' +
     'stroke-width="0.09" stroke-linejoin="round"/>' +
-    (raw.nineDash
-      ? '<path d="' + raw.nineDash + '" fill="none" stroke="' + COLOR.nineDash + '" ' +
-        'stroke-width="0.1" stroke-dasharray="0.55 0.4" stroke-linecap="round"/>'
-      : '') +
     marker +
+    insetSvg +
     '</svg>'
   );
 }
@@ -89,4 +134,10 @@ function fileNameOf(provinceName) {
   return code ? 'img/map/cn-' + code + '.svg' : null;
 }
 
-module.exports = { load, adcodeOf, svgFor, fileNameOf, DATA_FILE };
+// 主图宽高比，供模板写 <img width height>（只影响加载前的占位比例，防 CLS）
+function aspectOf() {
+  const { raw } = load();
+  return raw.main && raw.main.aspect ? raw.main.aspect : null;
+}
+
+module.exports = { load, adcodeOf, svgFor, fileNameOf, aspectOf, DATA_FILE };

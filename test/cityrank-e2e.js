@@ -960,6 +960,50 @@ if (fs.existsSync(path.join(PUBLIC, 'city', 'index.html'))) {
     checkD(map.nineDash, '南海断续线');
     assert.strictEqual(badD.length, 0, '位置图路径语法不合法：' + badD.slice(0, 5).join('；'));
   });
+
+  // S21 位置图版面（2026-11-02）：主图裁到海南以南 + 右下角南海诸岛插图。
+  // 两件事互为条件：只裁不补插图 = 断续线被裁没；补了插图但取景窗小一圈 = 断续线断头；
+  // 边框先画后画错 = 上边框被陆地盖掉（E-098）。这三种错在页面上都只表现为「图有点怪」。
+  ok('S21 位置图版面：主图裁到海南以南、插图盖住整条断续线且边框最后绘制', () => {
+    const dataFile = path.join(ROOT, 'themes', 'fluid', 'data', 'china-provinces.json');
+    const map = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
+    const box = (vb) => String(vb || '').split(/\s+/).map(Number);
+
+    assert.ok(map.main && map.main.viewBox, '缺主图 viewBox');
+    const [mx, my, mw, mh] = box(map.main.viewBox);
+    const mainBottom = my + mh;
+    assert.ok(mainBottom > -19.2 && mainBottom < -17.6,
+      '主图下边界应落在海南以南（约 −18.4），实际 ' + mainBottom
+      + '：再往上切会切掉海南岛，再往下放空白就回来了');
+    assert.ok(mw / mh > 1.4 && mw / mh < 1.8, '主图长宽比异常：' + (mw / mh).toFixed(2));
+
+    const ins = map.inset;
+    assert.ok(ins && ins.viewBox, '缺南海诸岛插图——主图裁到海南以南后，不补插图等于把断续线裁掉了');
+    const [ix, iy, iw, ih] = box(ins.viewBox);
+    assert.ok(ins.x >= mx - 0.01 && ins.y >= my - 0.01, '插图越出主图左上边界');
+    assert.ok(ins.x + ins.width <= mx + mw + 0.01, '插图越出主图右边界');
+    assert.ok(ins.y + ins.height <= my + mh + 0.01, '插图越出主图下边界');
+    assert.ok(ins.width >= 8, '插图过窄，南海诸岛看不清：' + ins.width);
+
+    const [nx0, ny0, nx1, ny1] = map.nineBox;
+    assert.ok(ix <= nx0 && iy <= ny0 && ix + iw >= nx1 && iy + ih >= ny1,
+      '插图取景窗没盖住整条断续线：窗 ' + ins.viewBox + '，线 ' + map.nineBox.join(' '));
+
+    const svgFile = path.join(PUBLIC, 'img', 'map', 'cn-310000.svg');
+    const svg = fs.readFileSync(svgFile, 'utf8');
+    assert.ok(svg.indexOf('南海诸岛') !== -1, '插图里没有标注文字——小图面积小、内容又是大片海面，没标注会被读成一个空框');
+    assert.strictEqual((svg.match(/<use /g) || []).length, 2,
+      '陆地组应在主图与插图各引用一次（一省一份文件不复制路径，靠 <use> 复用）');
+    assert.ok(/<svg x="[\d.-]+" y="[\d.-]+"/.test(svg), 'SVG 里没有插图（缺嵌套 <svg> 取景窗）');
+
+    // E-098 防复发：插图边框必须在陆地之后画。先画的话，顶部的陆地填充会把上边框整条盖掉，
+    // 只剩左、右、下三条边，看着像小图被切掉了一截。
+    const frameIdx = svg.lastIndexOf('stroke="#c9bfab"');
+    assert.ok(frameIdx !== -1, '插图缺边框');
+    assert.ok(frameIdx > svg.lastIndexOf('<use '), '插图边框画在陆地之前，上边框会被陆地盖住（E-098）');
+    assert.ok(/<rect[^>]*stroke="#c9bfab"[^>]*\/><\/svg><\/svg>$/.test(svg),
+      '插图边框应是插图（嵌套 <svg>）的最后一个元素');
+  });
 }
 
 ok('自检：镇域榜混入主序列必须被 S16 抓到（变异样本自造，不依赖真实待审组样本）', () => {

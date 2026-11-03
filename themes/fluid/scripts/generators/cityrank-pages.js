@@ -11,7 +11,7 @@
 const { buildCityRanks, cityHasPage, cityProvinces } = require('../helpers/cityrank-data.js');
 // 省级小地图（2026-11-02）：路径数据由 tools/build-china-map-data.js 预生成为
 // themes/fluid/data/china-provinces.json，这里只负责拼 SVG 与挂路由。
-const { svgFor: mapSvgFor, fileNameOf: mapFileNameOf } = require('../helpers/china-map.js');
+const { svgFor: mapSvgFor, fileNameOf: mapFileNameOf, aspectOf: mapAspectOf } = require('../helpers/china-map.js');
 
 const fs = require('fs');
 const path = require('path');
@@ -110,6 +110,11 @@ hexo.extend.generator.register('cityrank-pages', function (locals) {
   // cityMap（2026-11-02）：本城所在省级行政区的小地图，一省一份 SVG，
   // 路由在本函数末尾统一输出；这里只记住哪些省真的要出图。
   const mapProvinces = new Set();
+  // 主图宽高比：模板里的 <img width height> 只用于加载前占位，比例来自数据文件，
+  // 免得改了取景又要来改模板里的魔数
+  const mapAspect = mapAspectOf() || 1.6;
+  const mapW = 800;
+  const mapH = Math.round(mapW / mapAspect);
   for (const c of R.cities) {
     if (!cityHasPage(R, c)) continue;
     const mapFile = c.province ? mapFileNameOf(c.province) : null;
@@ -122,7 +127,7 @@ hexo.extend.generator.register('cityrank-pages', function (locals) {
         __city: true,
         citySlug: c.slug,
         cityPhoto: cityPhoto(c.slug, data.cityphotos),
-        cityMap: mapFile ? { src: '/' + mapFile, province: c.province } : null
+        cityMap: mapFile ? { src: '/' + mapFile, province: c.province, width: mapW, height: mapH } : null
       }
     });
   }
