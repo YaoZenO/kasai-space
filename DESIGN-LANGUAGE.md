@@ -186,8 +186,9 @@
 | D3 主卡标题（已停用） | `clamp(1.9rem, 3.6vw, 3rem)` | 900 | 1.18 | — | 正文轨 | 原 `.wall-feature-title` 档位；2026-10-19 起该元素改走 `--fs-hero`（D0+），本档已无用点，留档备查 |
 | D4 栏标题 | `clamp(1.15rem, 1.9vw, 1.35rem)` | 700 | — | — | 展示 | `.col-title`、详情页 `rich-section h2` |
 | D5 归档年份 | 1.5rem | 700 | — | 0.06em | 等宽 | `.archive-year-title` |
+| B0 全站基准 | 继承主题 16px | 400 | **1.7** | — | — | `body`（2026-11-04 新增）：兜住所有没写 `line-height` 的元素；标题另降 1.3 |
 | B1 正文 | 1.0625rem（17px） | 400 | 1.75 | — | 正文轨 | 正文轨全部长文（§4.2） |
-| B2 行标题 | `clamp(1rem, 1.5vw, 1.15rem)` | 700 | 1.45 | — | 展示 | `.post-title`、`.pick-title`、`.archive-row-title` |
+| B2 行标题 | `clamp(1rem, 1.5vw, 1.15rem)` | 700 | **1.55** | — | 展示 | `.post-title`、`.pick-title`（1.45→1.55，2026-11-04）；`.archive-row-title` 单行不折，仍 1.5 |
 | B3 次级正文 | 1.02rem / 0.87rem / 0.85rem | 400 | 1.9 / 1.75 / 1.7 | — | 正文轨 | tagline / 行描述 / 摘录描述 |
 | M1 kicker | 0.76rem | 700 | — | 0.22em | 等宽 | `.page-head-kicker`、`.post-head-kicker`（每页 1 处） |
 | M2 元信息 | 0.8rem / 0.78rem / 0.76rem | 400 | — | 0.04–0.16em | 等宽 | 日期、meta、tag、导航品牌 |
@@ -251,6 +252,12 @@
 | 关于页 | `.about-body .markdown-body` | 已命中（646px） |
 | 模块详情页（项目 / 游戏） | `.about-body .markdown-body` | **不命中**——模板把两个 class 放在同一元素（VD-9），实际落到主题 16px/1.6 + `#2c3e50` 全宽基线；须改为嵌套结构后命中 |
 | 档案页（now / uses / links） | `.about-body .markdown-body` | 已命中（与 about.ejs 同构） |
+
+**基准行高（2026-11-04）**：`body { line-height: 1.7 }`，标题轨 `h1–h6 { line-height: 1.3 }`。
+主题 main.css 只声明字体栈、不声明行高，此前凡没写 `line-height` 的元素全部落在浏览器
+`normal`（≈1.2）——中文方块字没有上下伸部留白，1.2 就是「字挤在一起」。
+新增组件时：正文长文一律显式写 1.75 以上；图注、小字注释不低于 1.65；
+只有单行按钮、徽标、标签这类不折行的控件可以用 1.4–1.5。
 
 **规则**：任何长文正文容器必须命中 `.about-body .markdown-body` 或 `.post-content .markdown-body` 之一。
 **验收口径**：构建后抽查关于页、`/games/<任意 slug>/`、`/projects/<任意 slug>/`、`/now/` 四个页面的正文计算宽度均为 646px、字号 17px、行高 1.75；文章页为宽度例外（2026-11-02 主人拍板放宽到主列全宽 ≈780px，与标题同轨），字号行高口径不变。
