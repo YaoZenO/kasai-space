@@ -3570,6 +3570,94 @@ body.is-home footer {
 
 .lb-topic-more:hover { color: var(--accent); }
 
+/* 资料库专题卡片墙（2026-11-04，PLAN-V3 §5）。
+   旧版是「左导读 + 右 28 行目录」，现在每张卡只回答三件事：
+   这一专题是什么、有多少内容、点去哪。无封面分支——五个专题里只有两个有图，
+   混着排会一高一低；统一走排版卡，靠 kicker 与信息密度区分。 */
+.lb-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.2rem;
+  margin: 2rem 0 0;
+}
+
+.lb-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 1.25rem 1.3rem 1.1rem;
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-card);
+  background: var(--board-color, #fffefb);
+  text-decoration: none;
+  transition: transform 0.18s ease, border-color 0.18s ease;
+}
+
+.lb-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--line-strong);
+}
+
+.lb-card-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.lb-card-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text-color);
+}
+
+.lb-card:hover .lb-card-title {
+  color: var(--accent);
+}
+
+.lb-card-desc {
+  font-size: 0.86rem;
+  line-height: 1.75;
+  color: var(--sec-text-color);
+  /* 描述长短不一（12 字到 70 字），截到 4 行让五张卡的高度更接近；
+     foot 有 margin-top:auto 兜底，最后一行仍会贴底对齐。 */
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.lb-card-foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line-color);
+}
+
+.lb-card-count {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  color: var(--text-color);
+}
+
+.lb-card-unit {
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+.lb-card-go {
+  font-size: 0.8rem;
+  color: var(--sec-text-color);
+}
+
+.lb-card:hover .lb-card-go {
+  color: var(--accent);
+}
+
 @media (max-width: 991.98px) {
   /* 导读栏转横向链接条，主区占满 */
   .lb-layout { grid-template-columns: minmax(0, 1fr); gap: 1.6rem; }

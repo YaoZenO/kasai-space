@@ -487,36 +487,41 @@ if (!fs.existsSync(PUBLIC)) {
     });
   });
 
-  ok('资料库页生成：导读栏 + 专题锚点 + 条目链接齐全（条目数按数据现算）', () => {
+  ok('资料库页生成：专题卡片墙（卡片数 = 专题数，计数按数据现算）', () => {
     const idx = path.join(PUBLIC, 'library', 'index.html');
     assert.ok(fs.existsSync(idx), 'public/library/index.html 不存在 —— 构建漏了资料库页');
-    assert.ok(fs.statSync(idx).size > 10000, '资料库页内容过少');
+    assert.ok(fs.statSync(idx).size > 5000, '资料库页内容过少');
     const h = fs.readFileSync(idx, 'utf8');
     assert.ok(h.indexOf('资料库') !== -1, '缺标题');
-    assert.ok(h.indexOf('topic-zodiac') !== -1 && h.indexOf('topic-holidays') !== -1, '缺专题锚点');
-    const entries = (h.match(/class="lb-entry"/g) || []).length;
-    //
-    // 条目数从 library.yml 现算，不写死数字——写死过两次：
-    // 2026-10-27 加「节日文化」专题时 14 → 26，同日加「城市排行榜」专题时 26 → 28。
-    // 断言假设数据停在某个状态，每次加专题都会假红（E-020 / E-021 教训）。
+
+    // 2026-11-04（PLAN-V3 §5）：本页从「平铺全部条目」改为「专题卡片墙」，
+    // 旧断言数的是 lb-entry 行数，改版后必然假红，这里改成数卡片。
     const libData = yaml.load(fs.readFileSync(path.join(ROOT, 'source/_data/library.yml'), 'utf8'));
     const topics = (libData && libData.topics) || [];
-    const expectEntries = topics.reduce((s, t) => s + ((t.entries || []).length), 0);
-    assert.ok(expectEntries > 0, 'library.yml 里没有条目——断言会空转');
-    assert.strictEqual(entries, expectEntries,
-      '条目数不对（页面 ' + entries + '，library.yml ' + expectEntries + '）');
-    // 每个专题的锚点都必须存在，新增专题时自动纳入校验
+    assert.ok(topics.length >= 5, 'library.yml 专题数少于 5（生肖/节假日/节日文化/城市榜/城市档案）');
+
+    const cards = (h.match(/class="lb-card"/g) || []).length;
+    assert.strictEqual(cards, topics.length,
+      '卡片数不对（页面 ' + cards + '，library.yml ' + topics.length + '）—— 新增专题时这里会自动纳入');
+
+    // 每张卡必须链到自己的专题页，并渲染标题
     for (const t of topics) {
-      assert.ok(h.indexOf('topic-' + t.key) !== -1, '缺专题锚点：topic-' + t.key);
+      const link = t.link || '/library/';
+      assert.ok(h.indexOf('href="' + link + '"') !== -1, '缺专题卡链接：' + t.key + ' → ' + link);
+      assert.ok(h.indexOf(t.title) !== -1, '缺专题卡标题：' + t.title);
     }
-    assert.ok(h.indexOf('topic-festivals') !== -1, '缺节日文化专题锚点');
-    assert.ok(h.indexOf('topic-cityrank') !== -1, '缺城市排行榜专题锚点');
-    PAGES.forEach((k) => {
-      assert.ok(h.indexOf('href="/zodiac/' + k + '/"') !== -1, '资料库缺 /zodiac/' + k + '/ 条目');
-    });
-    assert.ok(h.indexOf('href="/holidays/2026/"') !== -1, '资料库缺节假日条目');
-    assert.ok(h.indexOf('href="/cityrank/"') !== -1, '资料库缺城市排行榜入口');
-    assert.ok(h.indexOf('lb-guide-list') !== -1, '缺导读栏');
+
+    // 导读栏与条目列表已随改版撤除，重新出现说明改回去了
+    assert.ok(h.indexOf('lb-guide') === -1, '导读栏已撤，页面不应再出现 lb-guide');
+    assert.ok(h.indexOf('lb-entry') === -1, '条目列表已撤，页面不应再出现 lb-entry');
+
+    // 计数必须来自数据（写死过两次：2026-10-27 两次加专题都是 14→26→28，E-020/E-021）
+    const zodiacCount = ((yaml.load(fs.readFileSync(path.join(ROOT, 'source/_data/zodiac.yml'), 'utf8')) || {}).animals || []).length;
+    const cityCount = ((yaml.load(fs.readFileSync(path.join(ROOT, 'source/_data/cities.yml'), 'utf8')) || {}).cities || []).length;
+    assert.ok(h.indexOf('lb-card-count">' + zodiacCount + ' <span class="lb-card-unit">个生肖') !== -1,
+      '生肖卡计数与 zodiac.yml 不一致');
+    assert.ok(h.indexOf('lb-card-count">' + cityCount + ' <span class="lb-card-unit">座城市') !== -1,
+      '城市卡计数与 cities.yml 不一致');
   });
 
   ok('导航与页面互链存在（辅助导航含节假日 / 资料库入口）', () => {

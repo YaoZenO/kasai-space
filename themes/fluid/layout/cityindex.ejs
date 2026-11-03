@@ -29,7 +29,9 @@ for (var j = 0; j < list.length; j += 1) { if (list[j].n > 0) withMentions += 1 
   <div class="home-wrap">
     <header class="page-head">
       <nav class="cal-crumb" aria-label="面包屑">
-        <a href="<%= url_for('/library/') %>">资料库</a><span aria-hidden="true">/</span><a href="<%= url_for('/cityrank/') %>">城市排行榜</a><span aria-hidden="true">/</span><span class="cal-crumb-now">城市档案</span>
+        <%# 面包屑修正（2026-11-04，PLAN-V3 §5）：城市档案与城市排行榜是并列专题，
+            不是它的子级。原来写成「资料库 / 城市排行榜 / 城市档案」，等于把城挂在了榜下面。 %>
+        <a href="<%= url_for('/library/') %>">资料库</a><span aria-hidden="true">/</span><span class="cal-crumb-now">城市档案</span>
       </nav>
       <p class="page-head-kicker">CITY</p>
       <h1 class="page-head-title">城市档案</h1>

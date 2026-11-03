@@ -413,17 +413,21 @@ if (!fs.existsSync(PUBLIC)) {
     });
   });
 
-  ok('S5：资料库 #topic-festivals 列出 12 条且产物都存在；holidays 专题仍 2 条', () => {
+  ok('S5：资料库有节日文化专题卡；12 个节日页产物齐全；holidays 专题仍 2 条', () => {
+    // 2026-11-04（PLAN-V3 §5）：资料库页从「平铺全部条目」改为「专题卡片墙」，
+    // 页面不再逐个列出 12 个节日链接——那是专题自己的列表页该干的事。
+    // 但仍然必须有一张指向节日文化的卡，且 12 个详情页的产物一个都不能少。
     const lib = fs.readFileSync(path.join(PUBLIC, 'library', 'index.html'), 'utf8');
-    assert.ok(lib.indexOf('topic-festivals') !== -1, '资料库缺节日文化专题锚点');
-    SLUGS.forEach((s) => {
-      assert.ok(lib.indexOf('href="/library/' + s + '/"') !== -1, '资料库缺 /library/' + s + '/ 条目');
-      assert.ok(fs.existsSync(path.join(PUBLIC, 'library', s, 'index.html')),
-        '条目 link 指向的产物不存在：library/' + s + '/');
-    });
     const libYml = yaml.load(fs.readFileSync(path.join(ROOT, 'source', '_data', 'library.yml'), 'utf8'));
     const ft = (libYml.topics || []).find((t) => t.key === 'festivals');
     assert.ok(ft, 'library.yml 缺 festivals 专题');
+    assert.ok(lib.indexOf('节日文化') !== -1, '资料库缺节日文化专题卡');
+    assert.ok(lib.indexOf('href="' + ft.link + '"') !== -1, '节日文化专题卡的链接不对：' + ft.link);
+
+    SLUGS.forEach((s) => {
+      assert.ok(fs.existsSync(path.join(PUBLIC, 'library', s, 'index.html')),
+        '条目 link 指向的产物不存在：library/' + s + '/');
+    });
     assert.strictEqual(ft.entries.length, 12, 'festivals 专题条目不是 12 条');
     const ht = (libYml.topics || []).find((t) => t.key === 'holidays');
     assert.ok(ht && ht.entries.length === 2, 'holidays 专题条目数被动过（应仍为 2）');

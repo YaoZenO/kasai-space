@@ -421,15 +421,13 @@ navbar:
 
   # 辅助导航（2026-10-25 主人要求）：与主胶囊错开、稍往右独立成组，导航右侧留空。
   # 放「工具 / 资料」性质的入口——不属于个人主页的内容板块，不进主胶囊。
-  # 节假日原在「更多」下拉里，本次提出来；资料库为新增的聚合板块
-  # （以后可收录各种专题，首期：十二生肖），替代原先直接暴露的「生肖」入口。
-  # 2026-10-31（F-3 整改）：生肖此前无任何导航入口（只能从节假日页跳），
-  # 城市榜/城市档案甚至无入口——一并收进辅助组，工具页不再有孤岛。
+  # 2026-11-04（PLAN-V3 §5）：收敛为两项。原来「节假日 / 资料库 / 生肖 / 城市榜」
+  # 四项平级，导致「导航→资料库→生肖」和「导航→生肖」两条路径同时存在，
+  # 资料库既不是唯一入口也不是最快入口。生肖与城市榜改由资料库页进入。
+  # 节假日留在导航上是「快捷方式」，不代表它是并列入口。
   aux_menu:
     - { key: "holidays", link: "/holidays/", name: "节假日" }
     - { key: "library", link: "/library/", name: "资料库" }
-    - { key: "zodiac", link: "/zodiac/", name: "生肖" }
-    - { key: "cityrank", link: "/cityrank/", name: "城市榜" }
 
 # 搜索功能，基于 hexo-generator-search 插件，若已安装其他搜索插件请关闭此功能，以避免生成多余的索引文件
 # Search feature, based on hexo-generator-search. If you have installed other search plugins, please disable this feature to avoid generating redundant index files
