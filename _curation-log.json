@@ -141,6 +141,13 @@
       "eligible": true
     },
     {
+      "key": "topic:city",
+      "title": "城市档案",
+      "kind": "topic",
+      "score": 3,
+      "eligible": true
+    },
+    {
       "key": "topic:cityrank",
       "title": "城市排行榜",
       "kind": "topic",
@@ -176,13 +183,13 @@
       "reason": "篇幅不足"
     },
     {
-      "key": "post:stylekit-design-styles",
-      "title": "StyleKit设计风格库全库整理（149种）",
+      "key": "post:empty-card-and-latest-post",
+      "title": "关于「先做出来，再做好」",
       "reason": "篇幅不足"
     },
     {
-      "key": "post:empty-card-and-latest-post",
-      "title": "关于「先做出来，再做好」",
+      "key": "post:stylekit-design-styles",
+      "title": "StyleKit设计风格库全库整理（149种）",
       "reason": "篇幅不足"
     }
   ],
