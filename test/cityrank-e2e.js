@@ -27,6 +27,7 @@ const {
   buildCityRanks, findRank, findCity, normalize, sortRanks, provinceCode,
   cityHasPage, cityMetricStandings, cityProvinces, provinceSlug
 } = require('../themes/fluid/scripts/helpers/cityrank-data.js');
+const CF = require('../themes/fluid/scripts/helpers/city-fields.js');
 
 const ROOT = path.join(__dirname, '..');
 const PUBLIC = path.join(ROOT, 'public');
@@ -425,7 +426,8 @@ const secIdx = css.indexOf('4.16 城市排行榜页');
 
 ok('S9 样式 §4.16 存在且核心选择器齐全', () => {
   assert.ok(secIdx !== -1, 'site.css 缺少 §4.16 城市排行榜段');
-  for (const sel of ['.cr-table', '.cr-rank', '.cr-score', '.cr-method', '.cr-profile-list', '.cr-mention-list']) {
+  // .cr-profile-list 随 2026-11-04 档案分组改版退役，换成 .cr-spec（组名左列 + 字段两列）
+  for (const sel of ['.cr-table', '.cr-rank', '.cr-score', '.cr-method', '.cr-spec', '.cr-mention-list']) {
     assert.ok(css.indexOf(sel) !== -1, '§4.16 缺少选择器：' + sel);
   }
 });
@@ -867,6 +869,41 @@ if (fs.existsSync(path.join(PUBLIC, 'city', 'index.html'))) {
           '省级页死链：' + m[1] + '（来自 ' + p.slug + '）');
       }
     }
+  });
+
+  // 2026-11-04 结构改版：档案从「一列 21 行平铺」改成「组名左列 + 字段两列」，
+  // 上榜记录从单列改成两栏。这一节锁住分组本身，防止哪天又被改回平铺：
+  //   ① 组内字段一个不丢（分组漏字段＝页面静默少一行，比排版难看严重得多，E-047 同型）；
+  //   ② 组出现在页面上的顺序必须与目录一致（目录就是阅读顺序）；
+  //   ③ 出现的组名必须都在目录里（拼错或临时加的组不能悄悄上线）。
+  ok('S22 档案分组：字段不丢、组顺序按目录、榜单两栏', () => {
+    for (const g of CF.GROUPS) {
+      for (const k of g.fields) assert.ok(CF.LABEL[k], '字段 ' + k + ' 未登记中文名');
+    }
+
+    const citiesYml = yaml.load(fs.readFileSync(path.join(ROOT, 'source', '_data', 'cities.yml'), 'utf8'));
+    const shCity = (citiesYml.cities || []).find((c) => c.slug === 'shanghai');
+    assert.ok(shCity, '数据里找不到上海');
+
+    const sh = fs.readFileSync(path.join(PUBLIC, 'city', 'shanghai', 'index.html'), 'utf8');
+    const specLabels = [...sh.matchAll(/class="cr-spec-item"[^>]*>\s*<dt>([^<]+)<\/dt>/g)].map((m) => m[1]);
+    const glanceLabels = [...sh.matchAll(/class="cr-glance-item">\s*<dt>([^<]+)<\/dt>/g)].map((m) => m[1]);
+    const expect = Object.keys(shCity.metrics || {}).map((k) => CF.label(k)).sort();
+    assert.deepStrictEqual(specLabels.concat(glanceLabels).sort(), expect,
+      '档案字段与数据不一致：分组丢字段，或页头要点与档案表重复');
+
+    const allowed = CF.GROUPS.map((g) => g.name).concat(['其他']);
+    const names = [...sh.matchAll(/class="cr-spec-title">([^<]+)</g)].map((m) => m[1]);
+    assert.ok(names.length >= 6, '上海页档案只有 ' + names.length + ' 组，分组没生效');
+    let prev = -1;
+    for (const n of names) {
+      const at = allowed.indexOf(n);
+      assert.ok(at !== -1, '出现目录里没有的组名：' + n);
+      assert.ok(at > prev, '组顺序与目录不符：' + n + ' 出现在 ' + names.join('/') + ' 里');
+      prev = at;
+    }
+
+    assert.ok(sh.indexOf('cr-mention-cols') !== -1, '上榜记录没走两栏容器');
   });
 
   ok('S17 产物：城市页带分位注记，/city/ 索引带按省导航', () => {

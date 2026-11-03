@@ -3658,6 +3658,17 @@ body.is-home footer {
   color: var(--accent);
 }
 
+@media (max-width: 575.98px) {
+  .lb-cards {
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+  }
+
+  .lb-card {
+    padding: 1.05rem 1.1rem 0.9rem;
+  }
+}
+
 @media (max-width: 991.98px) {
   /* 导读栏转横向链接条，主区占满 */
   .lb-layout { grid-template-columns: minmax(0, 1fr); gap: 1.6rem; }
@@ -5150,67 +5161,111 @@ html:not(.js) .fs-years-toggle { display: none; }
   color: var(--text-color);
 }
 
-.cr-profile-list {
-  margin: 0;
-  padding: 0;
+/* 城市档案（2026-11-04 结构改版）：原先是 21 行横贯全宽的 dt/dd 同构横条，
+   顺序还沿用 yml 的采集批次——上海页第一行是「地铁首线开通年份」，地区生产总值排到倒数第二。
+   现在按 PRD §4.2 的十组呈现，排法是「规格表」：组名在左成一个竖列，字段在右排两列。
+   为什么不用两栏并流（column-count）：组高不一，左右两栏的组顶线会错开 80–130px，
+   横线不齐比单栏更难读。组名排成竖列后，七个组名一眼扫得完，纵向长度也比单栏短一半。 */
+.cr-spec {
+  margin-top: 0.2rem;
   max-width: 46rem;
-  border-top: 2px solid var(--line-strong);
 }
 
-.cr-profile-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 1rem;
-  padding: 0.6rem 0;
-  border-bottom: 1px solid var(--line-color);
+/* 组名用 max-content 而不是定宽：将来出现「公共服务」这种四字组名不会挤成两行 */
+.cr-spec-group {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: clamp(1rem, 3vw, 1.8rem);
+  padding: 0.6rem 0 0.5rem;
+  border-top: 1px solid var(--line-strong);
 }
 
-.cr-profile-item dt {
-  font-size: 0.9rem;
-  font-weight: 400;
+.cr-spec-group:last-child {
+  border-bottom: 1px solid var(--line-strong);
+}
+
+/* 组名用等宽小字 + 宽字距，和正文拉开字体层级——中文标题与中文标签同字体时，
+   只能靠字号区分，2rem 的落差在小字号区间不够用。
+   padding-top 对齐右侧首行基线，不是垂直居中：组名居中的话，短组会浮在两行之间。 */
+.cr-spec-title {
+  margin: 0;
+  padding-top: 0.32rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
   color: var(--sec-text-color);
 }
 
-.cr-profile-item dd {
+.cr-spec-list {
   margin: 0;
-  text-align: right;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 1.6rem;
 }
 
+/* 行高按两列重算：单列时 0.6rem 的内边距让 21 行铺出 950px */
+.cr-spec-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.34rem 0;
+  border-bottom: 1px solid var(--line-color);
+}
+
+.cr-spec-item dt {
+  font-size: 0.84rem;
+  font-weight: 400;
+  color: var(--sec-text-color);
+  min-width: 0;
+}
+
+.cr-spec-item dd {
+  margin: 0;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* 档案值（2026-11-04 两栏改版）：1.15rem → 1rem。两栏后每栏约 350px，
+   「社会消费品零售总额」+ 1.15rem 的等宽数字 + 单位 + 徽标挤在一行会换行，
+   而一行换行就把组内整齐的右对齐基线打破——宁可小一号也不能让组内参差。 */
 .cr-pval {
   font-family: var(--font-mono);
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text-color);
 }
 
 .cr-punit {
-  margin-left: 0.25rem;
-  font-size: 0.85rem;
+  margin-left: 0.2rem;
+  font-size: 0.76rem;
   color: var(--sec-text-color);
 }
 
 .cr-pending {
   font-family: var(--font-mono);
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   color: var(--sec-text-color);
 }
 
-/* 分位徽标（2026-11-01 方向一改版）：候选池位次升为可见层级。
+/* 分位徽标（2026-11-01 方向一，2026-11-04 收窄）：行内只留「第 N 位」，
+   候选池总数进 title 悬停——两栏并流时「36 城参比 · 第 2 位」会把行撑破。
    VD-11/A2：计数类静态信息用中性墨阶，accent 只留给交互态；
-   口径词「城参比」被 test/cityrank-e2e.js S17 产物断言锁定 */
+   口径词「城参比」被 test/cityrank-e2e.js S17 产物断言锁定（现在在 title 里）。 */
 .cr-standing-badge {
   display: inline-block;
-  margin-left: 0.5rem;
-  padding: 0.08rem 0.55rem;
+  margin-left: 0.4rem;
+  padding: 0.02rem 0.38rem;
   border-radius: 999px;
   background: rgba(27, 23, 18, 0.06);
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--info-mark);
   white-space: nowrap;
-  vertical-align: 0.12em;
+  vertical-align: 0.1em;
 }
 
 /* 城市页副行是中文（省份·层级·数据年份），归档页的 0.78rem + 0.1em 宽字距
@@ -5228,48 +5283,82 @@ html:not(.js) .fs-years-toggle { display: none; }
   color: var(--sec-text-color);
 }
 
-/* 上榜记录 */
-.cr-mention-group { margin-top: 1.1rem; }
+/* 上榜记录（2026-11-04 结构改版）：45 条横贯全宽的一列，一条一条拉满两屏，
+   整页读到这里就成了流水账。现在两栏并流 + 名次前置成固定列——
+   名次是这一节唯一可比的信息，固定列宽才能竖着扫；榜单名在右，占满剩余宽度。 */
+.cr-mentions-note {
+  margin: 0 0 1.1rem;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: var(--sec-text-color);
+}
+
+.cr-mentions-note strong {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.cr-mention-cols {
+  max-width: 46rem;
+  column-count: 2;
+  column-gap: clamp(2rem, 5vw, 3.6rem);
+}
+
+.cr-mention-group {
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+  margin: 0 0 2rem;
+}
 
 .cr-mention-group-title {
-  margin: 0 0 0.4rem;
+  margin: 0 0 0.25rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--line-strong);
   font-family: var(--font-mono);
-  font-size: 0.76rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.12em;
   color: var(--sec-text-color);
 }
 
 .cr-mention-list {
   margin: 0;
   padding: 0;
-  max-width: 46rem;
   list-style: none;
-  border-top: 2px solid var(--line-strong);
 }
 
+/* 3.6em 容得下「第 45」；固定列宽让长短不一的榜单名左边缘竖成一条线，名次才能成列扫读 */
 .cr-mention-list li {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 3.6em minmax(0, 1fr);
+  gap: 0.5rem;
   align-items: baseline;
-  gap: 1rem;
-  padding: 0.5rem 0;
+  padding: 0.34rem 0;
   border-bottom: 1px solid var(--line-color);
 }
 
-.cr-mention-list a {
-  font-size: 0.98rem;
+.cr-mention-rank {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--sec-text-color);
+  white-space: nowrap;
+}
+
+.cr-mention-rank b {
   font-weight: 700;
+  color: var(--info-mark);
+}
+
+.cr-mention-list a {
+  font-size: 0.9rem;
+  font-weight: 400;
+  line-height: 1.65;
   color: var(--text-color);
 }
 
 .cr-mention-list a:hover { color: var(--accent); }
-
-.cr-mention-rank {
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  color: var(--sec-text-color);
-}
 
 /* 分位注记改版（2026-11-01）：旧 .cr-standing 随逐条 cr-pmeta 退役，
    位次改由 .cr-standing-badge 呈现 */
@@ -5414,8 +5503,18 @@ html:not(.js) .fs-years-toggle { display: none; }
 
   .cr-city .cr-reason { display: none; }
 
-  .cr-profile-item { flex-direction: column; align-items: flex-start; gap: 0.2rem; }
-  .cr-profile-item dd { text-align: left; }
+  /* 手机：榜单两栏回落单栏；档案的「组名 + 两列字段」改成组名一行、字段一列——
+     320px 下字段横向排两列会折行，等宽数值一折行，右对齐的基线就散了 */
+  .cr-mention-cols { column-count: 1; }
+
+  .cr-spec-group { grid-template-columns: minmax(0, 1fr); row-gap: 0.3rem; }
+  /* 窄屏组名从左侧列变成上方一行，此时它与字段标签同处一条竖线、同为灰色小字，
+     只靠字号区分不够用——组名改用正文墨色，重新拉开层级 */
+  .cr-spec-title { padding-top: 0; color: var(--text-color); }
+  .cr-spec-list { grid-template-columns: minmax(0, 1fr); }
+
+  .cr-spec-item { flex-direction: column; align-items: flex-start; gap: 0.1rem; }
+  .cr-spec-item dd { text-align: left; }
 
   /* 省级页两行行式在窄屏改为上下堆叠：榜名一行、城市名次折到第二行 */
   .cr-provrank-list li,
