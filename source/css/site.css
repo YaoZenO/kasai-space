@@ -1123,6 +1123,23 @@ a.pick-row:hover .pick-title {
   color: var(--sec-text-color);
 }
 
+/* 精选行的类型标签（2026-11-04）：跨类型混排后，读者需要一眼分清
+   这是文章、项目还是资料库专题。字号守 §3.3 的 12px 下限（0.75rem）。 */
+.pick-kind {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.42rem;
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-xs);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--sec-text-color);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
 /* E 近期动态：跨类型聚合行 */
 .feed-list {
   list-style: none;

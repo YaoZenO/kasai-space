@@ -78,7 +78,7 @@ function validateItem(module, raw) {
 const POST_ACTIONS = ['save-draft', 'publish-draft', 'publish-new', 'update', 'unpublish', 'publish-private'];
 const POST_FIELDS = [
   'kind', 'action', 'slug', 'prevSlug', 'path',
-  'title', 'tags', 'categories', 'body', 'cover', 'featured',
+  'title', 'tags', 'categories', 'body', 'cover', 'featured', 'pinned',
   'sha', 'expectedHeadSha',
 ];
 // 与 api/_lib/content.js 的 POSTS_DIR / DRAFTS_DIR 保持一致
@@ -121,6 +121,16 @@ function validatePost(raw) {
     if (b.featured === true || b.featured === 'true') b.featured = true;
     else if (b.featured === false || b.featured === 'false' || b.featured === '' ) b.featured = false;
     else fail('featured', '仅支持 true / false');
+  }
+
+  // 置顶（PLAN-V3 §1.5）：true = 现在置顶（域层补成当天日期，作为 60 天租期的起点）；
+  // 'YYYY-MM-DD' 表示补标某个日期；false / '' 表示取消。
+  // 其它值一律拒绝——置顶日期算不出来，首页就不知道什么时候该自动降级。
+  if (b.pinned !== undefined && b.pinned !== null) {
+    if (b.pinned === true || b.pinned === 'true') b.pinned = true;
+    else if (b.pinned === false || b.pinned === 'false' || b.pinned === '') b.pinned = false;
+    else if (/^\d{4}-\d{2}-\d{2}$/.test(String(b.pinned))) b.pinned = String(b.pinned);
+    else fail('pinned', '仅支持 true / false / YYYY-MM-DD');
   }
 
   for (const k of ['tags', 'categories']) {

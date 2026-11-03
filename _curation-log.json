@@ -1,0 +1,206 @@
+{
+  "generatedAt": "2026-11-03",
+  "pinDays": 60,
+  "margin": 2,
+  "hero": {
+    "key": "post:metro-vs-gdp-rank-mismatch",
+    "title": "地铁修得越长，经济就越强吗——43 座城市的两项排名错位",
+    "kind": "post",
+    "score": 5,
+    "breakdown": {
+      "E": 0,
+      "L": 1,
+      "T": 3,
+      "C": 1
+    },
+    "pinned": false
+  },
+  "picks": [
+    {
+      "key": "post:70b-to-cluster",
+      "title": "70B 到底有多大：从一块卡到一千张卡",
+      "kind": "post",
+      "score": 6
+    },
+    {
+      "key": "post:deepseek-pm-interview",
+      "title": "DeepSeek AI产品经理面试全过程整理",
+      "kind": "post",
+      "score": 5
+    },
+    {
+      "key": "game:esports-manager-2026",
+      "title": "Esports Manager 2026",
+      "kind": "game",
+      "score": 5
+    },
+    {
+      "key": "topic:festivals",
+      "title": "节日文化",
+      "kind": "topic",
+      "score": 4
+    },
+    {
+      "key": "topic:zodiac",
+      "title": "十二生肖",
+      "kind": "topic",
+      "score": 4
+    }
+  ],
+  "pinned": [],
+  "pool": [
+    {
+      "key": "post:70b-to-cluster",
+      "title": "70B 到底有多大：从一块卡到一千张卡",
+      "kind": "post",
+      "score": 6,
+      "eligible": true
+    },
+    {
+      "key": "post:metro-vs-gdp-rank-mismatch",
+      "title": "地铁修得越长，经济就越强吗——43 座城市的两项排名错位",
+      "kind": "post",
+      "score": 5,
+      "eligible": true
+    },
+    {
+      "key": "post:deepseek-pm-interview",
+      "title": "DeepSeek AI产品经理面试全过程整理",
+      "kind": "post",
+      "score": 5,
+      "eligible": true
+    },
+    {
+      "key": "game:esports-manager-2026",
+      "title": "Esports Manager 2026",
+      "kind": "game",
+      "score": 5,
+      "eligible": true
+    },
+    {
+      "key": "topic:festivals",
+      "title": "节日文化",
+      "kind": "topic",
+      "score": 4,
+      "eligible": true
+    },
+    {
+      "key": "topic:zodiac",
+      "title": "十二生肖",
+      "kind": "topic",
+      "score": 4,
+      "eligible": true
+    },
+    {
+      "key": "collection:Esports Manager 2026 mods",
+      "title": "Esports Manager 2026 mods",
+      "kind": "collection",
+      "score": 4,
+      "eligible": true
+    },
+    {
+      "key": "game:cs2",
+      "title": "Counter-Strike 2",
+      "kind": "game",
+      "score": 4,
+      "eligible": true
+    },
+    {
+      "key": "game:lol",
+      "title": "英雄联盟",
+      "kind": "game",
+      "score": 4,
+      "eligible": true
+    },
+    {
+      "key": "game:overwatch",
+      "title": "守望先锋",
+      "kind": "game",
+      "score": 4,
+      "eligible": true
+    },
+    {
+      "key": "game:pubg",
+      "title": "绝地求生",
+      "kind": "game",
+      "score": 4,
+      "eligible": true
+    },
+    {
+      "key": "project:Ties",
+      "title": "Ties",
+      "kind": "project",
+      "score": 4,
+      "eligible": true
+    },
+    {
+      "key": "project:校园课程资源共享平台",
+      "title": "校园课程资源共享平台",
+      "kind": "project",
+      "score": 4,
+      "eligible": true
+    },
+    {
+      "key": "topic:cityrank",
+      "title": "城市排行榜",
+      "kind": "topic",
+      "score": 3,
+      "eligible": true
+    },
+    {
+      "key": "topic:holidays",
+      "title": "中国节假日",
+      "kind": "topic",
+      "score": 3,
+      "eligible": true
+    },
+    {
+      "key": "post:C++-Job-StudyRoadMap",
+      "title": "C++ 求职向学习路线",
+      "kind": "post",
+      "score": 3,
+      "eligible": true
+    },
+    {
+      "key": "project:资产追踪系统",
+      "title": "资产追踪系统",
+      "kind": "project",
+      "score": 2,
+      "eligible": true
+    }
+  ],
+  "excluded": [
+    {
+      "key": "post:date-becomes-machine-string",
+      "title": "日期怎么会变成一长串",
+      "reason": "篇幅不足"
+    },
+    {
+      "key": "post:stylekit-design-styles",
+      "title": "StyleKit设计风格库全库整理（149种）",
+      "reason": "篇幅不足"
+    },
+    {
+      "key": "post:empty-card-and-latest-post",
+      "title": "关于「先做出来，再做好」",
+      "reason": "篇幅不足"
+    }
+  ],
+  "history": [
+    {
+      "date": "2026-11-03",
+      "key": "post:metro-vs-gdp-rank-mismatch",
+      "title": "地铁修得越长，经济就越强吗——43 座城市的两项排名错位",
+      "kind": "post",
+      "score": 5,
+      "breakdown": {
+        "E": 0,
+        "L": 1,
+        "T": 3,
+        "C": 1
+      },
+      "replaced": null,
+      "reason": "首次入选"
+    }
+  ]
+}

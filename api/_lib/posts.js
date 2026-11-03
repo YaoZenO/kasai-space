@@ -4,7 +4,7 @@
 // 其余未知 front matter 行原样保留；正文原样保留。
 // 永久链接稳定性：文件名与 date 由调用方锁定，本层不做任何变更。
 
-const KNOWN = ['title', 'date', 'tags', 'categories', 'featured', 'cover'];
+const KNOWN = ['title', 'date', 'tags', 'categories', 'featured', 'cover', 'pinned'];
 
 function parseFrontMatter(text) {
   const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
@@ -23,6 +23,11 @@ function parseFrontMatter(text) {
     if (KNOWN.includes(key)) {
       if (key === 'featured') {
         fm.featured = val === 'true' || val === true;
+      } else if (key === 'pinned') {
+        // 置顶存的是「标记日期」（YYYY-MM-DD），首页据此算 60 天租期。
+        // true 也接受（由域层补成当天），false / 空串视为未置顶。
+        const pv = val.replace(/^["']|["']$/g, '');
+        fm.pinned = (pv === 'true') ? true : (pv === 'false' || pv === '') ? false : pv;
       } else if (val.startsWith('[') && val.endsWith(']')) {
         const inner = val.slice(1, -1).trim();
         fm[key] = inner ? inner.split(',').map((s) => s.trim().replace(/^["']|["']$/g, '')).filter(Boolean) : [];
@@ -58,6 +63,11 @@ function serializeFrontMatter(fm, unknownLines) {
   if (fm.categories !== undefined) lines.push(`categories: ${Array.isArray(fm.categories) ? serializeList(fm.categories) : serializeScalar(fm.categories)}`);
   if (fm.featured !== undefined && fm.featured !== null) lines.push(`featured: ${fm.featured ? 'true' : 'false'}`);
   if (fm.cover !== undefined && fm.cover !== null && fm.cover !== '') lines.push(`cover: ${serializeScalar(fm.cover)}`);
+  // 置顶：只在真的有值时才写行。取消置顶（false / null / 空）不写，
+  // 靠「字段不存在」表达——比留一行 pinned: false 更干净。
+  if (fm.pinned !== undefined && fm.pinned !== null && fm.pinned !== false && fm.pinned !== '') {
+    lines.push(`pinned: ${fm.pinned === true ? 'true' : serializeScalar(fm.pinned)}`);
+  }
   for (const l of unknownLines || []) lines.push(l);
   return `---\n${lines.join('\n')}\n---\n`;
 }

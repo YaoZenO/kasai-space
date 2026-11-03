@@ -5,8 +5,8 @@
  */
 'use strict';
 
-import { S, $, api, toast, confirmDialog, handleOpError, hooks, guard, switchTab, markDirty, clearDirty, markListStale } from './admin-core.js?v=20261101';
-import { mountComposer, bindPaste } from './admin-composer.js?v=20261101';
+import { S, $, api, toast, confirmDialog, handleOpError, hooks, guard, switchTab, markDirty, clearDirty, markListStale } from './admin-core.js?v=20261104';
+import { mountComposer, bindPaste } from './admin-composer.js?v=20261104';
 
 let composer = null;
 
@@ -16,7 +16,7 @@ function slugifyClient(title) {
 }
 
 function setEditorBusy(busy) {
-  ['post-title', 'post-slug', 'post-tags', 'post-categories', 'post-cover', 'post-featured', 'btn-save-draft', 'btn-publish', 'btn-delete-post', 'btn-toggle-preview'].forEach((id) => {
+  ['post-title', 'post-slug', 'post-tags', 'post-categories', 'post-cover', 'post-featured', 'post-pinned', 'post-pinned-state', 'btn-save-draft', 'btn-publish', 'btn-delete-post', 'btn-toggle-preview'].forEach((id) => {
     const n = $(id);
     if (n) n.disabled = busy;
   });
@@ -77,7 +77,7 @@ async function openPostEditor(path) {
       sha = f.sha;
       name = path.split('/').pop().replace(/\.md$/, '');
     }
-    S.editor = { mode, path: path || null, sha: sha || null, slug: name, dirty: false };
+    S.editor = { mode, path: path || null, sha: sha || null, slug: name, dirty: false, pinned: '' };
     $('post-title').value = frontmatter.title || '';
     $('post-slug').value = name;
     $('post-slug').disabled = mode === 'published' || mode === 'private';
@@ -85,6 +85,13 @@ async function openPostEditor(path) {
     $('post-categories').value = (frontmatter.categories || []).join(',');
     $('post-cover').value = frontmatter.cover || '';
     $('post-featured').checked = !!frontmatter.featured;
+    // 置顶：front-matter 存的是「标记日期」，租期 60 天，到期由构建自动降级。
+    // 这里把原始值记进编辑器状态，保存时原样传回——否则每次保存都会把日期刷成今天，
+    // 等于无限续期，永远不会到期。
+    const pinRaw = frontmatter.pinned || '';
+    S.editor.pinned = pinRaw;
+    $('post-pinned').checked = !!pinRaw;
+    updatePinState(pinRaw);
     composer.setValue(body);
     updateWordCount();
     const pl = $('post-permalink');
@@ -123,8 +130,25 @@ function collectEditor() {
     categories: $('post-categories').value,
     cover: $('post-cover').value.trim(),
     featured: $('post-featured').checked,
+    // 已置顶的传回原日期（不续期）；新勾的传 true，由服务端补当天。
+    pinned: $('post-pinned').checked ? (S.editor && S.editor.pinned ? S.editor.pinned : true) : false,
     body: composer.getValue(),
   };
+}
+
+// 置顶状态行：只显示剩余天数，不做任何告警——站是公开的，这些只在后台可见。
+// 到期后首页自动降级为普通精选，不需要人处理。
+function updatePinState(raw) {
+  const el = $('post-pinned-state');
+  if (!el) return;
+  if (!raw) { el.textContent = ''; return; }
+  if (raw === true) { el.textContent = '已置顶（租期从下次保存或构建起算）'; return; }
+  const start = new Date(raw + 'T00:00:00+08:00').getTime();
+  if (!isFinite(start)) { el.textContent = ''; return; }
+  const days = Math.ceil((start + 60 * 86400000 - Date.now()) / 86400000);
+  el.textContent = days > 0
+    ? `置顶于 ${raw} · 剩余 ${days} 天`
+    : `置顶于 ${raw} · 已到期（按普通精选参与评分）`;
 }
 
 let wcTimer = null;
@@ -157,7 +181,7 @@ export async function saveCurrentEditing(opts) {
       body: {
         kind: 'post', action: 'update',
         path: ed.path, title: e.title, tags: e.tags, categories: e.categories, body: e.body,
-        cover: e.cover, featured: e.featured,
+        cover: e.cover, featured: e.featured, pinned: e.pinned,
         sha: o.force ? null : ed.sha, expectedHeadSha: o.headSha || S.lastListSha,
       },
     });
@@ -172,7 +196,7 @@ export async function saveCurrentEditing(opts) {
         kind: 'post', action: 'save-draft',
         slug: e.slug, prevSlug: ed.slug && ed.slug !== e.slug ? ed.slug : null,
         title: e.title, tags: e.tags, categories: e.categories, body: e.body,
-        cover: e.cover, featured: e.featured,
+        cover: e.cover, featured: e.featured, pinned: e.pinned,
         sha: o.force ? null : ed.sha, expectedHeadSha: o.headSha || S.lastListSha,
       },
     });
@@ -234,7 +258,7 @@ export async function publishCurrentEditing() {
   } else {
     const r = await api('/api/content-save', {
       method: 'POST',
-      body: { kind: 'post', action: 'publish-new', slug, title: e.title, tags: e.tags, categories: e.categories, body: e.body, cover: e.cover, featured: e.featured, expectedHeadSha: S.lastListSha },
+      body: { kind: 'post', action: 'publish-new', slug, title: e.title, tags: e.tags, categories: e.categories, body: e.body, cover: e.cover, featured: e.featured, pinned: e.pinned, expectedHeadSha: S.lastListSha },
     });
     S.lastListSha = r.headSha;
     hooks.setDeployCommitted(r.commitSha);

@@ -7,6 +7,18 @@ const posts = require('../posts');
 const { HttpError } = require('../http');
 const { assertSlug, normTags, nowCst, POSTS_DIR, DRAFTS_DIR, PRIVATE_DIR } = require('../shared');
 
+// 置顶（PLAN-V3 §1.5）：front-matter 里存的是「标记日期」，首页据此算 60 天租期。
+// 传 true 表示「现在置顶」→ 补成当天日期；传 false / '' / null 表示取消。
+// 非法日期一律按取消处理，宁可回到评分制，也不要留一个算不出租期的值。
+function normPin(v) {
+  if (v === undefined) return undefined;
+  if (v === false || v === null || v === '') return null;
+  if (v === true || v === 'true') return nowCst().slice(0, 10);
+  const s = String(v).trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
+  return s;
+}
+
 async function getPostFile(path) {
   const inPosts = path.startsWith(`${POSTS_DIR}/`);
   const inDrafts = path.startsWith(`${DRAFTS_DIR}/`);
@@ -27,6 +39,7 @@ async function getPostFile(path) {
       categories: normTags(parsed.fm.categories),
       featured: !!parsed.fm.featured,
       cover: parsed.fm.cover || '',
+      pinned: parsed.fm.pinned || '',
     },
     body: parsed.body || '',
     sha: f.sha,
@@ -40,6 +53,8 @@ function buildPostText(title, tags, categories, body, date, extra) {
   const ex = extra || {};
   if (ex.featured !== undefined && ex.featured !== null) fm.featured = !!ex.featured;
   if (ex.cover) fm.cover = String(ex.cover).trim();
+  const pin = normPin(ex.pinned);
+  if (pin) fm.pinned = pin;
   return posts.serializeFrontMatter(fm, []) + (body || '').replace(/^\r?\n/, '');
 }
 
@@ -198,6 +213,13 @@ async function updatePost(input) {
   // featured / cover：显式传入则替换，否则沿用原值
   fm.featured = input.featured !== undefined ? !!input.featured : parsed.fm.featured;
   fm.cover = input.cover !== undefined ? String(input.cover || '').trim() : parsed.fm.cover;
+  // 置顶：显式传入才动。传 false 表示取消（序列化时该行直接不写）。
+  if (input.pinned !== undefined) {
+    const pin = normPin(input.pinned);
+    fm.pinned = pin === undefined ? parsed.fm.pinned : pin;
+  } else {
+    fm.pinned = parsed.fm.pinned;
+  }
   // date 与文件名锁死：显式沿用原值
   fm.date = parsed.fm.date || nowCst();
   const text = posts.serializeFrontMatter(fm, parsed.unknownLines) + (input.body !== undefined ? input.body : parsed.body || '');

@@ -16,11 +16,9 @@ var PUNCT_RE = /[\s\u3000-\u303f\uff00-\uffef!-\/:-@\[-`{-~]/g
 /* ---------- 文章数据 ---------- */
 var postsArr = page.posts.sort('date', -1).toArray()
 
-/* 主卡候选资格分级：
-   - 有实质内容（正文去标点后 ≥ 40 字，或有封面）：才配上首屏最大板块；
-   - 只写了极短一句的（如「我要环游世界。」）：算真实文章，进「最新文字」列表，
-     但不占主卡——首屏最大位置留给讲得清楚的那篇。 */
-var POST_FEATURE_MIN_CHARS = 40
+/* 主卡资格原先在这里按「正文 ≥40 字 + 有封面」判定（POST_FEATURE_MIN_CHARS）。
+   2026-11-04 起主卡改由跨类型精选池决定，准入闸（文章 ≥800 字 + 有分类 + 非空壳）
+   在 curation-pool.js 里，这里只保留「最新文字」列表用的空壳判定。 */
 
 function bodyTextLength(post) {
   var raw = post.content || post._content || ''
@@ -44,20 +42,18 @@ function postHasSubstance(post) {
   return false
 }
 
-/* 占首页主卡的资格：比列表更严一档 */
-function postCanBeFeatured(post) {
-  if (post.cover) { return true }
-  return realBodyText(post).length >= POST_FEATURE_MIN_CHARS
-}
+/* 占首页主卡的资格：已移交精选池（curation-pool.js 的闸一） */
 
-var featuredPost = null
-for (var i = 0; i < postsArr.length; i++) {
-  if (postsArr[i].featured && postCanBeFeatured(postsArr[i])) { featuredPost = postsArr[i]; break }
-}
-if (!featuredPost) {
-  for (var k = 0; k < postsArr.length; k++) {
-    if (postCanBeFeatured(postsArr[k])) { featuredPost = postsArr[k]; break }
-  }
+/* ---------- 精选池（PLAN-V3 §1） ----------
+   主卡不再「谁新谁上」：改由跨类型池决定，池里装文章 / 项目 / 游戏 / 收藏 / 资料库专题。
+   置顶（60 天租期）直通主卡；无有效置顶时按分数排，且挑战者必须高出 2 分才顶掉在位者。
+   池的完整规则、台账与排队历史在 themes/fluid/scripts/helpers/curation-pool.js。 */
+var pool = buildCurationPool(site, site.data)
+var hero = pool.hero
+var heroIsPost = !!(hero && hero.kind === 'post')
+var heroExcerpt = ''
+if (hero) {
+  heroExcerpt = hero.summary || (hero._raw ? excerptText(hero._raw, 90) : '')
 }
 var LATEST_MAX = 5
 var latestPosts = []
@@ -79,8 +75,7 @@ function postExcerpt(post, len) {
   return excerptText(post, len)
 }
 
-/* 文章可选封面：front-matter cover 字段，无则降级排版形态 */
-function postCover(post) { return post.cover || '' }
+/* 文章可选封面由精选池条目自带的 cover 字段直接取，不再单独包一层函数 */
 
 /* ---------- 类型注册表 ----------
    新增模块类型 = 在此加一行配置
@@ -167,11 +162,10 @@ site.posts.each(function (p) {
 var sinceYear = isFinite(earliestTs) ? new Date(earliestTs).getFullYear() : ''
 
 var postUrlTarget = theme.index.post_url_target || '_self'
-var fCat = featuredPost && featuredPost.categories.length ? featuredPost.categories[0] : null
 
-/* 精选内容栏绑定 projects 类型：有真实条目才渲染 */
-var featuredModule = null
-wallModules.forEach(function (m) { if (m.key === 'projects') { featuredModule = m } })
+/* 精选栏原先绑死 projects 模块平铺全部条目（那不是评选，是把项目清单原样铺开）。
+   现在改用池内第 2 位起的 5 条，跨类型混排，规则见 curation-pool.js。 */
+var featuredPicks = pool.picks || []
 %>
 
 <div class="home" id="top">
@@ -206,18 +200,19 @@ wallModules.forEach(function (m) { if (m.key === 'projects') { featuredModule = 
     var wallOverflow = wallCellCount > 4
     %>
     <div class="wall">
-      <% if (featuredPost) { %>
-      <article class="wall-feature<%= postCover(featuredPost) ? ' has-cover' : '' %>">
-        <% if (postCover(featuredPost)) { %>
-        <img class="wall-feature-img" src="<%= url_for(postCover(featuredPost)) %>" alt="<%= featuredPost.title %>">
+      <% if (hero) { %>
+      <article class="wall-feature<%= hero.cover ? ' has-cover' : '' %>">
+        <% if (hero.cover) { %>
+        <img class="wall-feature-img" src="<%= url_for(hero.cover) %>" alt="<%= hero.title %>">
         <div class="wall-feature-mask"></div>
         <% } %>
         <div class="wall-feature-body">
-          <p class="wall-feature-meta">FEATURED · <%= date(featuredPost.date, config.date_format) %><% if (fCat) { %> · <a href="<%= url_for(fCat.path) %>"><%= fCat.name %></a><% } %></p>
-          <h2 class="wall-feature-title"><a href="<%= url_for(featuredPost.path) %>" target="<%= postUrlTarget %>"><%= featuredPost.title %></a></h2>
-          <% var fe = postExcerpt(featuredPost, 90) %>
-          <% if (fe) { %><p class="wall-feature-desc"><%= fe %></p><% } %>
-          <a class="wall-feature-more" href="<%= url_for(featuredPost.path) %>" target="<%= postUrlTarget %>">阅读全文 →</a>
+          <% /* 三档标注，都不是谎话：PINNED=主人指定；FEATURED=池内评选第一；
+                LATEST=全站没有够格参评的内容时退回最新一篇 */ %>
+          <p class="wall-feature-meta"><%= hero.fallback ? 'LATEST' : (hero.pin && hero.pin.active ? 'PINNED' : 'FEATURED') %> · <%= hero.kindLabel %><% if (hero.date) { %> · <%= fmtItemDate(hero.date) %><% } %></p>
+          <h2 class="wall-feature-title"><a href="<%= url_for(hero.url) %>" target="<%= postUrlTarget %>"><%= hero.title %></a></h2>
+          <% if (heroExcerpt) { %><p class="wall-feature-desc"><%= heroExcerpt %></p><% } %>
+          <a class="wall-feature-more" href="<%= url_for(hero.url) %>" target="<%= postUrlTarget %>">查看详情 →</a>
         </div>
       </article>
       <% } %>
@@ -260,29 +255,25 @@ wallModules.forEach(function (m) { if (m.key === 'projects') { featuredModule = 
   /* 下半部两栏：C 精选内容（projects 有条目才渲染）+ D 最新文字。
      E 最近更新按方向 A 提为墨底整屏区块（R-1 豁免：每屏最多一个反色区块），见文件末尾。 */
   var activeCols = []
-  if (featuredModule) { activeCols.push('c') }
+  if (featuredPicks.length) { activeCols.push('c') }
   activeCols.push('d')
   %>
   <div class="home-wrap home-cols cols-<%= activeCols.length %>">
 
-    <% if (featuredModule) { %>
+    <% if (featuredPicks.length) { %>
     <section class="home-col">
       <div class="col-head">
-        <h2 class="col-title">精选内容 <span class="col-count">/<%= featuredModule.count %></span></h2>
-        <a class="col-more" href="<%= url_for(featuredModule.page || '/projects/') %>">查看全部项目 →</a>
+        <h2 class="col-title">精选内容 <span class="col-count">/<%= featuredPicks.length %></span></h2>
       </div>
       <div class="pick-list">
-        <% featuredModule.items.forEach(function (it, idx) { %>
-        <% var detailUrl = featuredModule.page ? '/' + featuredModule.key + '/' + (it.slug || encodeURIComponent(String(it.title))) + '/' : '' %>
-        <<%= detailUrl || it.link ? 'a' : 'div' %> class="pick-row<%= idx === 0 ? ' is-lead' : '' %>"<% if (detailUrl) { %> href="<%= url_for(detailUrl) %>"<% } else if (it.link) { %> href="<%= url_for(it.link) %>" target="_blank" rel="noopener"<% } %>>
+        <% featuredPicks.forEach(function (it, idx) { %>
+        <a class="pick-row<%= idx === 0 ? ' is-lead' : '' %>" href="<%= url_for(it.url) %>">
           <% if (it.cover) { %><img class="pick-img" src="<%= url_for(it.cover) %>" alt="<%= it.title %>"><% } %>
           <div class="pick-main">
-            <span class="pick-title"><%= it.title %></span>
-            <% var pickSum = it.summary || it.desc %>
-            <% if (pickSum) { %><span class="pick-desc"><%= pickSum %></span><% } %>
-            <% if (detailUrl && it.link) { %><span class="pick-ext"><%= String(it.link).replace(/^https?:\/\//, '').replace(/\/$/, '') %> ↗</span><% } %>
+            <span class="pick-title"><%= it.title %><span class="pick-kind"><%= it.kindLabel %></span></span>
+            <% if (it.summary) { %><span class="pick-desc"><%= it.summary %></span><% } %>
           </div>
-        </<%= detailUrl || it.link ? 'a' : 'div' %>>
+        </a>
         <% }) %>
       </div>
     </section>
