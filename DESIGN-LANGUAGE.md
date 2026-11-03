@@ -373,13 +373,14 @@
 - **禁止**：主题作者署名（`yaoyu ♥ blog`）继续露出；PV/UV 统计（红线 R-4）。
 - `TOP ↑`：必须是真实锚点（`.home` 加 `id="top"`，href `#top`，UX-2：现行 `href="#"` 把 `#` 塞进 URL 且跳顶后 fixed 胶囊仍覆盖视口顶，键盘用户无法确认焦点位置）；保留 focus-visible。
 
-### 5.9 搜索弹窗（`#modalSearch`）
+### 5.9 搜索页（`/search/`，2026-11-04 取代原导航弹窗）
 
-- **构成**：面板 `#fdfbf6` + 12px 圆角 + chip border + float shadow；标题（900 字重，0.04em）；输入框无底、2px 墨色底线、等宽字体、focus 时底线变 accent；结果行 hairline 分隔、末行无线；命中词高亮；结果标题左边框。
-- **状态**：打开 / 关闭须有焦点管理（焦点入输入框为既有良好实践；关闭后焦点回触发按钮）；空结果须有清晰反馈（PRD §5.7）。
-- **必须修的三处（审查在案）**：命中词选择器 `.search-keyword` 落空 → 改 `.search-word` 并上 accent（VD-3，现状 orangered `#ff4500`）；结果标题 3px 深蓝竖边 `#0d47a1` → accent 或删除（VD-3）；`aria-labelledby="ModalLabel"` 悬空 → 标题补 `id="ModalLabel"` 或改 `aria-label="搜索"`（UX-7）。
-- **可访问性**：标题层级 h4 → h2（P2-1，消除每页一次无意义跳级）；BS4 模态不锁 Tab → 必须补焦点圈禁（P2-2）；搜索按钮 aria-label 同源（UX-15）。
-- **禁止**：orangered / 深蓝（§2.3）；破坏既有 local-search 机制（PRD §5.7）。
+- **变更原因**：原 `#modalSearch` 弹窗只有一屏高、移动端被键盘压掉一半、结果无法分享；驱动它的 `local-search.js` 只遍历文章与 Markdown 页，站内 600+ 资料页（城市/榜单/生肖/节日/节假日）全部由 generator 直接挂路由、不在 Page 模型里，**一条都进不了索引**（实测长期只有 6 条 entry）。现改为独立页 + 构建期全站索引，方案见 `PLAN-V3-CURATION-HOMEPAGE-2026-11-04.md` §4。
+- **构成**：页头 kicker `SEARCH` + h1「搜索」+ 一句范围说明；输入框无底、**2px 墨色底线**、等宽字体、focus 时底线转 accent；类型 chip 行（全部 / 文章 / 城市 / 榜单 / 生肖 / 节日 / 节假日 / 资料库），激活态为墨底纸字；结果计数一行等宽小字；结果行 hairline 分隔，标题 600 + 摘要次级 + 右侧类型标签；命中词用 `<mark>` 走 accent。
+- **状态**：空查询只留骨架与 chips，不显示「没有结果」；有查询但无命中走独立空态（标题 + 三条检索建议）；索引加载失败必须有可见提示，不能静默空白。
+- **可访问性**：结果区 `aria-live="polite"`；chips 用 `aria-pressed` 表达选中；导航搜索按钮 `aria-label="搜索站内内容"`；输入框带 `aria-describedby` 指向拼音提示。
+- **禁止**：orangered / 深蓝（§2.3）；在模板里写死结果条数或类型清单（类型与数量必须来自索引本身，否则加一类内容就要改模板）。
+- **样式作用域**：`site.css` 的 `.sr-*` 全部收在 `.sr-page` 内，不复用主题原厂 `.search-*`（那套已随弹窗一起下线）。
 
 ### 5.10 404 页
 

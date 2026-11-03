@@ -303,3 +303,40 @@ P1 独立可先做——只动首页与后台，做完主卡就从「最新那�
    决定权在主人。
 3. **首页精选栏的「查看全部」链接已移除**：跨类型后没有对应的汇总页可指。
    若后续建了统一的「精选归档」页，可以加回来。
+
+### 10.5 P2（2026-11-04，083d54c）
+
+- 入口格 `.cell-plain`：`/categories/` → `/library/`，计数从 `site.categories.length` 改成
+  `libraryTopicCount`（读 `site.data.library.topics`）。
+- 「最新文字」`LATEST_MAX` 5 → 3，去摘要，删掉失效的 `postExcerpt` 包装。
+- 桌面实测两栏高差约 230px，右栏留白（主人拍板「先空出来看」）；移动端 CDP 实测无溢出。
+
+### 10.6 P3（2026-11-04）
+
+**索引**：新增 `themes/fluid/scripts/generators/search-index.js`，从数据文件直接构造
+`/search-index.json`，不依赖 Page 模型。
+
+| 类型 | 条数 | 来源 |
+|---|---|---|
+| post | 7 | `locals.posts` |
+| page | 7 | `locals.pages`（排除已由专门类型收录的生成页）+ 5 个导航级固定页 |
+| city | 431 | `cities.yml`（带 slug 作拼音别名） |
+| rank | 145 | `cityrank.yml` 的 groups[].ranks |
+| zodiac | 12 | `zodiac.yml`（带拼音别名） |
+| festival | 12 | `festivals.yml` |
+| holiday | 16 | `holidays.yml` 的 years |
+| topic | 4 | `library.yml`（URL 带 `#topic-<key>` 锚点，避免与节日页撞车） |
+
+合计 **634 条 · 79.2KB**（旧 `local-search.xml` 是 6 条）。
+
+**页面**：`themes/fluid/layout/search.ejs`（登记进 `paperLayouts`）+ `source/js/site-search.js`
+（原生 JS，无 jQuery）。检索五级打分：标题前缀 > 标题包含 > 别名 > 摘要 > 路径；
+同分先按标题长度、再按类型次序。支持 `?q=` 直达、类型 chip 过滤、`aria-live` 结果区。
+
+**下线**：`layout.ejs` 去掉弹窗 partial；`nav.ejs` 两处按钮改指 `/search/` 并停止加载
+`local-search.js`；`local-search.js` 生成器在 `search.mode === 'page'` 时直接返回，
+不再产出 XML（`_config.yml` 新增 `search.mode`）。
+
+**验证**：`test/search-index.js` 12 项（条数、八类齐全、URL 规范、无重复、逐条产物存在、
+拼音别名、页面产出、旧机制下线、体积上限）；实测查询「深圳 / shenzhen / 龙 / 2026 / 地铁 /
+zzzz」结果与空态均正确，无 JS 异常。
