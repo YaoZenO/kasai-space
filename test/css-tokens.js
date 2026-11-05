@@ -346,5 +346,18 @@ ok('面包屑当前页不得被分隔符规则压成淡色（E-104）', () => {
   );
 });
 
+// E-107：入口格标签原先是自由换行的 span，模块名一长就在 165px 的格子里折成三行
+// （「最新 · Esports Manager 2026 mods」实测三行），把下面的格名顶到照片水印上。
+// 标签是「这一格装什么」的一行索引，锁死单行省略：nowrap + hidden + ellipsis 三者缺一，
+// 长名字就会重新撑开格子。
+ok('入口格标签必须单行省略（E-107）', () => {
+  const css = siteCss.replace(/\/\*[\s\S]*?\*\//g, '');
+  const m = css.match(/\.wall-cell-tag\s*\{([^}]*)\}/);
+  assert.ok(m, '.wall-cell-tag 规则丢失');
+  assert.match(m[1], /white-space:\s*nowrap/, '标签必须 nowrap：否则长模块名会折行撑高格子');
+  assert.match(m[1], /overflow:\s*hidden/, '标签必须 overflow: hidden，否则省略号不生效');
+  assert.match(m[1], /text-overflow:\s*ellipsis/, '标签必须 text-overflow: ellipsis');
+});
+
 console.log(`\nRESULT: ${passed} 项断言通过${process.exitCode ? '，存在失败' : ''}`);
 process.exit(process.exitCode || 0);

@@ -867,12 +867,19 @@ a.wall-cell:hover {
   color: #fdfaf4;
 }
 
+/* 入口格标签（2026-11-05）：原先不限制行数，「最新 · Esports Manager 2026 mods」
+   在 165px 宽的格子里折成三行，把下面的格名顶到照片水印上，两行字叠在一起。
+   标签是「这一格装的是什么」的一行索引，不是正文，一律单行省略。 */
 .wall-cell-tag {
+  display: block;
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 0.14em;
   color: rgba(253, 250, 244, 0.78);
   margin-bottom: 0.35rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .wall-cell-name {
