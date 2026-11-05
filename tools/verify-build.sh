@@ -26,7 +26,9 @@ else
   echo "PASS ② 产物文件数 $COUNT"
 fi
 
-for p in "index.html" "cityrank/index.html" "cityrank/waimaoshiqiangchengshi/index.html" "about/index.html"; do
+# E-108 追加 city/library 两个索引页：它们是模板改动最频繁的两页，
+# 且渲染抛错时 Hexo 会写 0 字节文件、构建照样打印「N files generated」（E-029）。
+for p in "index.html" "city/index.html" "library/index.html" "cityrank/index.html" "cityrank/waimaoshiqiangchengshi/index.html" "about/index.html"; do
   if [ -f "$ROOT/public/$p" ] && [ -s "$ROOT/public/$p" ]; then
     echo "PASS ③ public/$p 存在且非空"
   else

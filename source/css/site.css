@@ -3595,7 +3595,7 @@ body.is-home footer {
   padding: 1.25rem 1.3rem 1.1rem;
   border: 1px solid var(--line-color);
   border-radius: var(--r-card);
-  background: var(--board-color, #fffefb);
+  background: var(--board-color);
   text-decoration: none;
   transition: transform 0.18s ease, border-color 0.18s ease;
 }
@@ -5013,6 +5013,185 @@ html:not(.js) .fs-years-toggle { display: none; }
 @media (max-width: 767px) {
   .cr-citylist-item a { flex-wrap: wrap; gap: 0.2rem 0.6rem; }
   .cr-citylist-meta { flex: 1 0 100%; order: 3; }
+}
+
+/* 城市索引改版（2026-11-04，PLAN-V3 §6）：
+   旧的 .cr-citylist 把 431 座城市平铺成一列同构名单——滚到第 50 行读者就丢了坐标，
+   而且城市之间没有任何可比的数字。新版分两段：
+   ① 上榜最多的 30 座做数据卡（GDP / 常住人口 / 档案厚度 / 上榜次数四个可比的量）
+   ② 其余按省级行政区 <details> 折叠，原生展开，不依赖 JS，无 JS 也能读
+   .cr-citylist 保留，因为 province.ejs 的省级名单还在用它。 */
+.cr-cards-sec { margin: 2.4rem 0 0; }
+
+.cr-sec-note {
+  margin: 0.35rem 0 1.1rem;
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: var(--sec-text-color);
+}
+
+.cr-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.cr-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.95rem 1rem 0.85rem;
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-card);
+  background: var(--board-color);
+  text-decoration: none;
+  transition: transform 0.18s ease, border-color 0.18s ease;
+}
+
+.cr-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--line-strong);
+}
+
+.cr-card-head { display: flex; flex-direction: column; gap: 0.15rem; }
+
+.cr-card-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text-color);
+}
+
+.cr-card:hover .cr-card-name { color: var(--accent); }
+
+.cr-card-meta {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--sec-text-color);
+}
+
+.cr-card-nums {
+  display: flex;
+  gap: 1.1rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--line-color);
+  border-bottom: 1px solid var(--line-color);
+}
+
+.cr-card-num { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
+
+.cr-card-num b {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.cr-card-num i {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+.cr-card-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+.cr-card-rank { color: var(--accent); }
+
+.cr-folds {
+  border-top: 1px solid var(--line-color);
+}
+
+.cr-fold { border-bottom: 1px solid var(--line-color); }
+
+.cr-fold-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.7rem 0.2rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.cr-fold-head::-webkit-details-marker { display: none; }
+
+.cr-fold-head::marker { content: ''; }
+
+.cr-fold-head::after {
+  content: '+';
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--sec-text-color);
+}
+
+.cr-fold[open] .cr-fold-head::after { content: '−'; }
+
+.cr-fold-name {
+  flex: 1;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.cr-fold-head:hover .cr-fold-name { color: var(--accent); }
+
+.cr-fold-count {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+.cr-fold[open] .cr-fold-count { color: var(--accent); }
+
+.cr-fold-list {
+  margin: 0 0 0.7rem;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.1rem 1.2rem;
+}
+
+.cr-fold-item a {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.3rem 0.2rem;
+  font-size: 0.88rem;
+  color: var(--text-color);
+  text-decoration: none;
+}
+
+.cr-fold-item a:hover { color: var(--accent); }
+
+.cr-fold-city { flex: none; }
+
+.cr-fold-meta {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+.cr-fold-n {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+@media (max-width: 575.98px) {
+  .cr-cards { grid-template-columns: 1fr; gap: 0.8rem; }
+  .cr-fold-list { grid-template-columns: 1fr; }
 }
 
 .cr-empty {

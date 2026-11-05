@@ -1,13 +1,39 @@
 <%
 // 城市大类索引页（/city/）：城市档案是与城市榜单并列的一大类。
-// 列出全部建档城市，按「上榜次数」降序——上过榜的城市信息密度更高，排在前面；
-// 每座城市显示所属省级行政区（有数据的）与上榜次数。
+//
+// 2026-11-04 改版（PLAN-V3 §6）：原来把 431 座城市平铺成一列 431 行的名单，
+// 读者滚到第 50 行就不知道自己在哪了，而且名单里城市之间没有任何可比的数字。
+// 现在分两段：
+//   ① 上榜最多的 30 座 → 数据卡（省·级别 / 档案厚度 / 上榜次数 / GDP 与人口）
+//   ② 其余按省份折叠 → 原生 <details>，不依赖 JS，无 JS 也能展开
+//
 // 数据：source/_data/cities.yml + cityrank.yml；计算：helpers/cityrank-data.js
-// 样式：site.css §4.16（.cr-* 规则）
+// 样式：site.css §4.16（.cr-card / .cr-fold 规则）
 page.layout = 'cityindex'
 page.hide_banner = true
 
 var CR = buildCityRanks(site.data)
+
+/* 卡片里的数值统一加千分位（DESIGN-LANGUAGE §5.19）：1152822.4 读不出来，
+   1,152,822.4 才读得出来。等宽栈下千分位不改变字宽节奏，只让位数可数。 */
+function fmtCardNum(v) {
+  if (v === null || v === undefined || v === '') return ''
+  if (typeof v !== 'number') return String(v)
+  var s = String(Math.round(v * 100) / 100)
+  var parts = s.split('.')
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  return parts.join('.')
+}
+
+/* 取城市某个指标的数值。metricValue 在 helper 里只做了 module.exports、
+   没有注册成 Hexo helper，模板里拿不到，所以这里按其同一套判据内联一份：
+   缺字段 / 值不是有限数字一律当「待补」，不按 0 处理。 */
+function cardVal(city, field) {
+  var m = (city && city.metrics) ? city.metrics[field] : null
+  if (!m || typeof m !== 'object') return null
+  var v = m.v
+  return (typeof v === 'number' && isFinite(v)) ? v : null
+}
 
 // 按上榜次数降序，同次数按拼音 slug 升序（稳定次序）
 var list = []
@@ -23,6 +49,33 @@ if (!CR.error) {
 }
 var withMentions = 0
 for (var j = 0; j < list.length; j += 1) { if (list[j].n > 0) withMentions += 1 }
+
+// 前 30 座做成卡；其余按省折叠。城市不足 30 座时全部做成卡，不产生空段。
+var TOP_N = 30
+var topRows = list.slice(0, TOP_N)
+var restRows = list.slice(TOP_N)
+
+// 其余城市按省级行政区归组；没采集到归属的单列一组放最后
+var byProv = {}
+var provOrder = []
+for (var r = 0; r < restRows.length; r += 1) {
+  var pvName = restRows[r].c.province || '归属待补'
+  if (!byProv[pvName]) {
+    byProv[pvName] = []
+    provOrder.push(pvName)
+  }
+  byProv[pvName].push(restRows[r])
+}
+// 省份次序沿用 GB/T 2260 的列表（与上方省份导航一致），未知归属排末尾
+var provs = CR.error ? [] : cityProvinces(CR)
+var provNames = []
+for (var pv = 0; pv < provs.length; pv += 1) { provNames.push(provs[pv].name) }
+provOrder.sort(function (a, b) {
+  var ia = provNames.indexOf(a); if (ia < 0) ia = 999
+  var ib = provNames.indexOf(b); if (ib < 0) ib = 999
+  if (ia !== ib) return ia - ib
+  return String(a).localeCompare(String(b), 'zh')
+})
 %>
 
 <div class="paper-page cal-page cr-page">
@@ -44,30 +97,75 @@ for (var j = 0; j < list.length; j += 1) { if (list[j].n > 0) withMentions += 1 
     <!-- dev: <%= CR.error %> -->
     <% } else { %>
 
-    <% var provs = cityProvinces(CR); %>
     <% if (provs.length) { %>
     <section class="cr-provnav">
       <h2 class="cr-sec-title">按省份浏览</h2>
       <ul class="cr-provnav-list">
-        <% for (var pi = 0; pi < provs.length; pi += 1) { var pv = provs[pi] %>
-        <li><a href="<%= url_for('/city/province/' + pv.slug + '/') %>"><%= pv.name %><span class="cr-provnav-count"><%= pv.total %></span></a></li>
+        <% for (var pi = 0; pi < provs.length; pi += 1) { var pv2 = provs[pi] %>
+        <li><a href="<%= url_for('/city/province/' + pv2.slug + '/') %>"><%= pv2.name %><span class="cr-provnav-count"><%= pv2.total %></span></a></li>
         <% } %>
       </ul>
       <p class="cr-profile-note">按 GB/T 2260 行政区划代码排序。行政归属尚未采集的城市不进省级聚合，仍可在下方名单中查看。</p>
     </section>
     <% } %>
 
-    <ul class="cr-citylist">
-      <% for (var k = 0; k < list.length; k += 1) { var row = list[k]; var cc = row.c %>
-      <li class="cr-citylist-item">
-        <a href="<%= url_for('/city/' + cc.slug + '/') %>">
-          <span class="cr-citylist-name"><%= cc.name %></span>
-          <% if (cc.province) { %><span class="cr-citylist-meta"><%= cc.province %><% if (cc.level) { %> · <%= cc.level %><% } %></span><% } %>
-          <span class="cr-citylist-count"><%= row.n > 0 ? ('上榜 ' + row.n + ' 次') : '待补' %></span>
+    <section class="cr-cards-sec">
+      <h2 class="cr-sec-title">上榜最多的 <%= topRows.length %> 座</h2>
+      <p class="cr-sec-note">按在本站榜单中出现的次数排序；次数相同按拼音次序。数量为档案中已核验的字段项数。</p>
+      <div class="cr-cards">
+        <% for (var t = 0; t < topRows.length; t += 1) { var tr = topRows[t]; var tc = tr.c %>
+        <a class="cr-card" href="<%= url_for('/city/' + tc.slug + '/') %>">
+          <span class="cr-card-head">
+            <span class="cr-card-name"><%= tc.name %></span>
+            <span class="cr-card-meta"><%= tc.province || '' %><% if (tc.province && tc.level) { %> · <% } %><%= tc.level || '' %></span>
+          </span>
+          <span class="cr-card-nums">
+            <% var gdp = cardVal(tc, 'gdp'); var pop = cardVal(tc, 'pop') %>
+            <span class="cr-card-num">
+              <b><%= gdp === null ? '待补' : fmtCardNum(gdp) %></b>
+              <i>亿元 GDP</i>
+            </span>
+            <span class="cr-card-num">
+              <b><%= pop === null ? '待补' : fmtCardNum(pop) %></b>
+              <i>万人 常住</i>
+            </span>
+          </span>
+          <span class="cr-card-foot">
+            <span class="cr-card-thick">档案 <%= Object.keys(tc.metrics || {}).length %> 项</span>
+            <span class="cr-card-rank"><%= tr.n > 0 ? ('上榜 ' + tr.n + ' 次') : '未上榜' %></span>
+          </span>
         </a>
-      </li>
-      <% } %>
-    </ul>
+        <% } %>
+      </div>
+    </section>
+
+    <% if (restRows.length) { %>
+    <section class="cr-cards-sec">
+      <h2 class="cr-sec-title">其余 <%= restRows.length %> 座</h2>
+      <p class="cr-sec-note">按省级行政区折叠，点开即看。每行给出省份、级别与上榜次数，点城市名进档案。</p>
+      <div class="cr-folds">
+        <% for (var po = 0; po < provOrder.length; po += 1) { var pName = provOrder[po]; var pRows = byProv[pName] %>
+        <details class="cr-fold">
+          <summary class="cr-fold-head">
+            <span class="cr-fold-name"><%= pName %></span>
+            <span class="cr-fold-count"><%= pRows.length %> 座</span>
+          </summary>
+          <ul class="cr-fold-list">
+            <% for (var q = 0; q < pRows.length; q += 1) { var qr = pRows[q]; var qc = qr.c %>
+            <li class="cr-fold-item">
+              <a href="<%= url_for('/city/' + qc.slug + '/') %>">
+                <span class="cr-fold-city"><%= qc.name %></span>
+                <span class="cr-fold-meta"><% if (qc.level) { %><%= qc.level %><% } %></span>
+                <span class="cr-fold-n"><%= qr.n > 0 ? (qr.n + ' 次') : '—' %></span>
+              </a>
+            </li>
+            <% } %>
+          </ul>
+        </details>
+        <% } %>
+      </div>
+    </section>
+    <% } %>
 
     <div class="cal-after">
       <p class="cal-note">城市档案持续扩充中：先收录榜单里出现过的城市，再逐步补齐面积、气候、环境、公共服务等字段，每一项都要有权威来源才写入。</p>
