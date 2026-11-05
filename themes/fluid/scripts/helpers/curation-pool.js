@@ -8,14 +8,19 @@
 // 下方「精选内容」栏直接绑死 projects.yml 全量输出（不是评选）；
 // 文字页摘录是手写 slug 清单，其中一条已失效也没人知道。
 //
-// 本 helper 把三类内容收进同一个池，用同一套分数排序，并施加三道闸：
-//   闸一 准入：不够格的不进池
-//   闸二 计分：E×3 + L + T + C（满分 13，E 封顶 1）
-//   闸三 顶替：挑战者必须比上一位高出 2 分才上位（差 1 分留在位者）
+// 本 helper 把六类内容收进同一个池，用同一套分数排序。
 //
-// 置顶：不走分数，直接锁定主卡（主人 2026-11-04 拍板），带 60 天租期，
-// 到期自动降级为普通精选，交回评分制。这与「提醒」无关——租期本身就是收尾机制，
-// 不依赖任何人记得去换。站是公开的，所以任何状态都不上页面，只在后台显示。
+// 主卡三层优先级（主人 2026-11-06 拍板）：
+//   1 置顶     勾了 pinned 且未满 60 天 → 直接锁主卡
+//   2 FEATURED 勾了 featured → 在 featured 里选内容分最高
+//   3 自动保底 什么都没勾 → 前 3 名文章/项目按 30 天周期轮值
+// 手动标记永远优先；轮值只在你没有表态时兜底。
+//
+// 计分：E×3 + L×2 + C（满分 10）。新鲜度 T 已退出计分（E-105）——
+// 它曾与整个 L 跨度同权，导致 148 字的游戏压过 2736 字的长文。
+//
+// 置顶带 60 天租期，到期自动降级为普通精选，交回下层规则。
+// 站是公开的，所以任何状态都不上页面，只在后台显示。
 //
 // 位置约束：必须放 themes/fluid/scripts/helpers/ 且自包含（AGENTS §5.2 /
 // E-028）——Hexo 用 vm 逐个执行脚本，跨文件 require 会解析失败。
@@ -30,8 +35,14 @@ const path = require('path');
 const PIN_DAYS = 60;
 const DAY_MS = 86400000;
 
-// 顶替门槛：挑战者总分必须高出在位者这么多分，才允许换人。
-const REPLACE_MARGIN = 2;
+// 自动保底：主卡在前 3 名之间轮值，周期 30 天。
+// 用固定基准日做整数取模，不依赖台账，也不依赖是否发新文。
+const ROTATION_DAYS = 30;
+const HERO_TOP_N = 3;
+const ROTATION_EPOCH = Date.UTC(2026, 0, 1);
+
+// 新文破例：发布 7 天内且内容分并列第 1，可当期直接上位。
+const FRESH_OVERRIDE_DAYS = 7;
 
 // 正文去标点：中文标点、全角符号、空白、常见 ASCII 标点一并去掉，
 // 只留下「真的写了字」的部分，用来判断空壳与篇幅。
@@ -85,16 +96,6 @@ function lenTier(n, cuts) {
   return 0;
 }
 
-// 新鲜度档：3 / 2 / 1 / 0。不归零到负数——好内容放旧了也只是掉分，不判死刑。
-function freshTier(ts, today) {
-  if (!ts) return 0;
-  const days = Math.floor((today - ts) / DAY_MS);
-  if (days <= 90) return 3;
-  if (days <= 180) return 2;
-  if (days <= 365) return 1;
-  return 0;
-}
-
 function slugOfPost(post) {
   const p = String(post.path || '');
   return post.slug || p.replace(/^\//, '').replace(/\/$/, '').split('/').pop();
@@ -118,12 +119,16 @@ function articleEntry(post, today) {
   // 空壳：正文去掉标点后与标题一模一样（后台新建文章会把标题填进正文）
   const isShell = titleLen > 0 && body === titleLen;
 
-  // 闸一：篇幅 + 分类 + 非空壳，三条全过才有资格参评
-  const eligible = body >= ARTICLE_MIN_CHARS && catCount > 0 && !isShell;
-
   const E = post.featured ? 1 : 0;
+  const manual = E === 1 || !!post.pinned;
+
+  // 闸一：篇幅 + 分类 + 非空壳，三条全过才有资格参评。
+  // 手动标记（featured / 置顶）可以越过篇幅门槛——主人点它就是因为「重要」，
+  // 不该被 800 字的自动化门槛吞掉；但空壳仍然排除，避免首页出现只有标题的卡片。
+  const baseEligible = body >= ARTICLE_MIN_CHARS && catCount > 0;
+  const eligible = !isShell && (baseEligible || manual);
+
   const L = lenTier(body, [ARTICLE_MIN_CHARS, 2000, 4000]);
-  const T = freshTier(toTs(post.date), today);
   // 完整度只看「编目是否齐」：分类 + 标签。
   // 不把封面算作必要条件——全站 6 篇文章一张封面都没有（实测 2026-11-04），
   // 用封面当门槛等于给所有文章系统性扣 1 分，跨类型比较就失真了。
@@ -141,8 +146,8 @@ function articleEntry(post, today) {
     eligible: eligible,
     reason: eligible ? '' : (body < ARTICLE_MIN_CHARS ? '篇幅不足' : (isShell ? '空壳' : '缺分类')),
     chars: body,
-    E: E, L: L, T: T, C: C,
-    score: E * 3 + L + T + C,
+    E: E, L: L, C: C,
+    score: E * 3 + L * 2 + C,
     pinned: post.pinned || false,
     _raw: post
   };
@@ -162,12 +167,12 @@ function projectEntry(item, today) {
   });
 
   const tagCount = Array.isArray(item.tags) ? item.tags.length : 0;
-  // 闸一：四段里至少三段有内容
-  const eligible = filled >= 3;
-
   const E = item.featured ? 1 : 0;
+
+  // 闸一：四段里至少三段有内容；手动标记可越过门槛。
+  const eligible = filled >= 3 || E === 1 || !!item.pinned;
+
   const L = lenTier(total, [800, 2000, 4000]);
-  const T = freshTier(toTs(item.date), today);
   const C = (item.summary && tagCount > 0 && item.link) ? 1 : 0;
 
   return {
@@ -182,8 +187,8 @@ function projectEntry(item, today) {
     eligible: eligible,
     reason: eligible ? '' : '四段内容不足三段',
     chars: total,
-    E: E, L: L, T: T, C: C,
-    score: E * 3 + L + T + C,
+    E: E, L: L, C: C,
+    score: E * 3 + L * 2 + C,
     pinned: item.pinned || false,
     _raw: item
   };
@@ -194,12 +199,15 @@ function projectEntry(item, today) {
 function gameEntry(item, today) {
   const body = bodyLen(item.gameplay);
   const summaryLen = bodyLen(item.summary);
-  const eligible = !!(item.summary && (item.genre || item.platform));
-
   const E = item.featured ? 1 : 0;
-  // 游戏页的正文本来就比文章短，档位按游戏的量级切
-  const L = lenTier(body + summaryLen, [200, 600, 1500]);
-  const T = freshTier(toTs(item.date), today);
+  // 手动标记可越过「有简介」门槛。
+  const eligible = !!(item.summary && (item.genre || item.platform)) || E === 1 || !!item.pinned;
+
+  // 游戏与文章共用一把尺（800/2000/4000）。旧阈值 200/600/1500 让 479 字的
+  // 游戏拿到 3 分、压过 1355 字文章，这是 E-105 的核心症状。
+  // 后果是现有五款游戏（10–479 字）全部落在 0 档、只拿 1 分——
+  // 想让某款游戏上首页，要么把内容写厚，要么后台手动勾 featured。
+  const L = lenTier(body + summaryLen, [800, 2000, 4000]);
   const C = (item.genre && item.platform && item.cover) ? 1 : 0;
 
   return {
@@ -214,8 +222,8 @@ function gameEntry(item, today) {
     eligible: eligible,
     reason: eligible ? '' : '缺简介或元字段',
     chars: body + summaryLen,
-    E: E, L: L, T: T, C: C,
-    score: E * 3 + L + T + C,
+    E: E, L: L, C: C,
+    score: E * 3 + L * 2 + C,
     pinned: item.pinned || false,
     _raw: item
   };
@@ -223,11 +231,10 @@ function gameEntry(item, today) {
 
 function collectionEntry(item, today) {
   const body = bodyLen(item.desc || item.summary);
-  const eligible = !!(item.title && (item.desc || item.summary));
-
   const E = item.featured ? 1 : 0;
+  const eligible = !!(item.title && (item.desc || item.summary)) || E === 1 || !!item.pinned;
+
   const L = lenTier(body, [100, 300, 800]);
-  const T = freshTier(toTs(item.date), today);
   const C = (item.summary && item.link) ? 1 : 0;
 
   return {
@@ -242,8 +249,8 @@ function collectionEntry(item, today) {
     eligible: eligible,
     reason: eligible ? '' : '缺简介',
     chars: body,
-    E: E, L: L, T: T, C: C,
-    score: E * 3 + L + T + C,
+    E: E, L: L, C: C,
+    score: E * 3 + L * 2 + C,
     pinned: item.pinned || false,
     _raw: item
   };
@@ -256,14 +263,11 @@ function collectionEntry(item, today) {
 // 由 library.yml 的 entries 表达不了，这里按 2 条起算，L 档位也相应收紧。
 function topicEntry(topic, updatedTs, today) {
   const entries = Array.isArray(topic.entries) ? topic.entries.length : 0;
-  const eligible = entries >= 2;
   const E = topic.featured ? 1 : 0;
+  const eligible = entries >= 2 || E === 1 || !!topic.featuredAt;
   // 专题的厚度按条目数分档，但阈值要收紧：12 个条目（每个只有名称 + 一句注）
   // 的信息量远不如一篇 2000 字文章，给同一个档位会让所有专题系统性地压过文章。
   const L = lenTier(entries, [12, 24, 40]);
-  // 新鲜度封顶 2 档：library.yml 的 updated 是整份数据文件的更新日，
-  // 四个专题共享同一个日期，直接给满分等于同时把四个专题顶到最高。
-  const T = Math.min(2, freshTier(updatedTs, today));
   const C = topic.link ? 1 : 0;
 
   return {
@@ -278,8 +282,8 @@ function topicEntry(topic, updatedTs, today) {
     eligible: eligible,
     reason: eligible ? '' : '条目不足',
     chars: entries,
-    E: E, L: L, T: T, C: C,
-    score: E * 3 + L + T + C,
+    E: E, L: L, C: C,
+    score: E * 3 + L * 2 + C,
     pinned: topic.featuredAt || false,
     _raw: topic
   };
@@ -379,41 +383,53 @@ function pickPool(site, data, opts) {
   list.forEach(function (e) { e.pin = pinState(e, today); });
   const pinnedActive = list.filter(function (e) { return e.pin && e.pin.active; });
 
-  // 闸三：与上一次的榜首比较，差不足 2 分就留在位者。
-  // 没有台账（首次构建）时直接取第 1 名，不做无意义的「顶替」判断。
-  // 测试传 noLedger: true 时既不读也不写台账——否则跑一次测试就会改掉
-  // 真实的排队历史，下次构建的主卡会莫名其妙地被「在位优势」锁住。
-  const useLedger = options.noLedger !== true;
-  // 测试可以注入 ledger 直接给定「上一次的榜首」，不必落盘；
-  // 注入时不写文件，避免测试污染真实排队历史。
-  const injected = options.ledger !== undefined;
-  const ledger = injected ? options.ledger : (useLedger ? readLedger() : null);
-  const prevHeroKey = ledger && ledger.hero ? ledger.hero.key : null;
-  const prevHeroScore = ledger && ledger.hero ? ledger.hero.score : null;
-
+  // 主卡三层优先级：置顶 > FEATURED > 自动保底。
+  // 手动标记是主人的意志入口，永远压过算法；轮值只在他没表态时兜底。
   let hero = null;
   let heroReason = '';
 
   if (pinnedActive.length) {
-    // 置顶直通：不看分数，多篇置顶时取分最高的那一篇
+    // 第 1 层：置顶直通，不看分数；多篇置顶时取分最高的那一篇
     pinnedActive.sort(function (a, b) { return b.score - a.score; });
     hero = pinnedActive[0];
     heroReason = '置顶';
   } else if (eligible.length) {
-    const top = eligible[0];
-    if (prevHeroKey && prevHeroScore !== null) {
-      const incumbent = eligible.filter(function (e) { return e.key === prevHeroKey; })[0];
-      if (incumbent && (top.score - incumbent.score) < REPLACE_MARGIN) {
-        // 挑战者没赢够 2 分 → 在位者继续
-        hero = incumbent;
-        heroReason = '在位（挑战者差 ' + (top.score - incumbent.score) + ' 分，未达 ' + REPLACE_MARGIN + ' 分门槛）';
-      } else {
-        hero = top;
-        heroReason = incumbent ? ('顶替 ' + incumbent.title + '，高 ' + (top.score - incumbent.score) + ' 分') : '首次入选';
-      }
+    const featuredList = eligible.filter(function (e) { return e.E === 1; });
+
+    if (featuredList.length) {
+      // 第 2 层：勾了 featured 的内容里，内容分最高者当主卡。
+      // eligible 已按分数降序，featuredList 保持该顺序，取第 1 个即可。
+      hero = featuredList[0];
+      heroReason = 'FEATURED 手动标记';
     } else {
-      hero = top;
-      heroReason = '首次入选';
+      // 第 3 层：自动保底。
+      // 主卡只从文章 / 项目里选——游戏、收藏、专题各有自己的模块入口，
+      // 且资料库专题共享同一个 updated 日，放进来会靠日期挤掉文章。
+      const textTop = eligible
+        .filter(function (e) { return e.kind === 'post' || e.kind === 'project'; })
+        .slice(0, HERO_TOP_N);
+
+      if (textTop.length) {
+        const maxScore = eligible[0].score;
+        // 新文破例：发布 7 天内且内容分并列第 1 → 当期直接上位，之后回到轮值。
+        const freshList = textTop.filter(function (e) {
+          const d = toTs(e.date);
+          return d && (today - d) <= FRESH_OVERRIDE_DAYS * DAY_MS && e.score === maxScore;
+        });
+
+        if (freshList.length) {
+          hero = freshList[0];
+          heroReason = '新文破例（发布 7 天内，内容分并列第 1）';
+        } else {
+          const idx = Math.floor((today - ROTATION_EPOCH) / DAY_MS / ROTATION_DAYS) % textTop.length;
+          hero = textTop[idx];
+          heroReason = '自动轮值（第 ' + (idx + 1) + '/' + textTop.length + ' 位，每 ' + ROTATION_DAYS + ' 天轮换）';
+        }
+      } else {
+        // 池里只有游戏/专题等非文字内容：退回内容分第 1，不让首屏空着
+        hero = eligible[0];
+        heroReason = '自动：无文字类候选，取内容分第 1';
+      }
     }
   } else {
     // 池空兜底（PLAN-V3 §1.3）：全站没有够格参评的内容时，退回最新一篇有正文的文章。
@@ -427,13 +443,18 @@ function pickPool(site, data, opts) {
     }
   }
 
-  // 精选栏：池内第 2 位起，去掉主卡那一篇，取 5 条
-  const picks = [];
-  for (let i = 0; i < eligible.length && picks.length < 5; i += 1) {
-    const e = eligible[i];
-    if (hero && e.key === hero.key) continue;
-    picks.push(e);
-  }
+  // 精选栏：去掉主卡，手动标记优先（置顶 > FEATURED），其余按内容分，取 5 条。
+  // 这里不隐藏低分内容——它只是排在后面。
+  const picks = eligible
+    .filter(function (e) { return !hero || e.key !== hero.key; })
+    .sort(function (a, b) {
+      const pa = a.pin && a.pin.active ? 1 : 0;
+      const pb = b.pin && b.pin.active ? 1 : 0;
+      if (pb !== pa) return pb - pa;
+      if (b.E !== a.E) return b.E - a.E;
+      return 0; // 同层保持 eligible 的原始顺序（分数降序 → 日期降序）
+    })
+    .slice(0, 5);
 
   // 文字池：只从文章里选，供「文字」页的精选摘录用（PLAN-V3 §1.7）
   const textPool = eligible.filter(function (e) { return e.kind === 'post'; });
@@ -450,10 +471,16 @@ function pickPool(site, data, opts) {
     textPicks: textPicks,
     pinned: pinnedActive,
     pinDays: PIN_DAYS,
-    margin: REPLACE_MARGIN
+    rotationDays: ROTATION_DAYS
   };
 
-  // 台账：只在有变化时落盘，避免每次渲染都写
+  // 台账：只作审计快照，不再参与主卡决策。
+  // 测试传 noLedger: true 时既不读也不写台账——否则跑一次测试就会改掉真实记录。
+  const useLedger = options.noLedger !== true;
+  const injected = options.ledger !== undefined;
+  const ledger = injected ? options.ledger : (useLedger ? readLedger() : null);
+
+  // 只在主卡变化时追加历史，避免每次渲染都写。
   const prevKeys = ledger && ledger.hero ? ledger.hero.key : null;
   const nowKey = hero ? hero.key : null;
   const changed = prevKeys !== nowKey;
@@ -465,7 +492,7 @@ function pickPool(site, data, opts) {
       title: hero.title,
       kind: hero.kind,
       score: hero.score,
-      breakdown: { E: hero.E, L: hero.L, T: hero.T, C: hero.C },
+      breakdown: { E: hero.E, L: hero.L, C: hero.C },
       replaced: prevKeys,
       reason: heroReason
     });
@@ -474,13 +501,14 @@ function pickPool(site, data, opts) {
   if (useLedger && !injected) writeLedger({
     generatedAt: new Date(today).toISOString().slice(0, 10),
     pinDays: PIN_DAYS,
-    margin: REPLACE_MARGIN,
+    rotationDays: ROTATION_DAYS,
     hero: hero ? {
       key: hero.key,
       title: hero.title,
       kind: hero.kind,
       score: hero.score,
-      breakdown: { E: hero.E, L: hero.L, T: hero.T, C: hero.C },
+      breakdown: { E: hero.E, L: hero.L, C: hero.C },
+      reason: heroReason,
       pinned: !!(hero.pin && hero.pin.active),
       pinRemain: hero.pin ? hero.pin.remain : null
     } : null,
@@ -528,7 +556,6 @@ module.exports = {
   pinState: pinState,
   bodyLen: bodyLen,
   lenTier: lenTier,
-  freshTier: freshTier,
   PIN_DAYS: PIN_DAYS,
-  REPLACE_MARGIN: REPLACE_MARGIN
+  ROTATION_DAYS: ROTATION_DAYS
 };

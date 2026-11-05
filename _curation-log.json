@@ -1,50 +1,50 @@
 {
-  "generatedAt": "2026-11-03",
+  "generatedAt": "2026-11-05",
   "pinDays": 60,
-  "margin": 2,
+  "rotationDays": 30,
   "hero": {
-    "key": "post:metro-vs-gdp-rank-mismatch",
-    "title": "地铁修得越长，经济就越强吗——43 座城市的两项排名错位",
+    "key": "post:70b-to-cluster",
+    "title": "70B 到底有多大：从一块卡到一千张卡",
     "kind": "post",
     "score": 5,
     "breakdown": {
       "E": 0,
-      "L": 1,
-      "T": 3,
+      "L": 2,
       "C": 1
     },
+    "reason": "新文破例（发布 7 天内，内容分并列第 1）",
     "pinned": false
   },
   "picks": [
     {
-      "key": "post:70b-to-cluster",
-      "title": "70B 到底有多大：从一块卡到一千张卡",
+      "key": "post:C++-Job-StudyRoadMap",
+      "title": "C++ 求职向学习路线",
       "kind": "post",
-      "score": 6
-    },
-    {
-      "key": "post:deepseek-pm-interview",
-      "title": "DeepSeek AI产品经理面试全过程整理",
-      "kind": "post",
-      "score": 5
-    },
-    {
-      "key": "game:esports-manager-2026",
-      "title": "Esports Manager 2026",
-      "kind": "game",
       "score": 5
     },
     {
       "key": "topic:festivals",
       "title": "节日文化",
       "kind": "topic",
-      "score": 4
+      "score": 3
     },
     {
       "key": "topic:zodiac",
       "title": "十二生肖",
       "kind": "topic",
-      "score": 4
+      "score": 3
+    },
+    {
+      "key": "post:metro-vs-gdp-rank-mismatch",
+      "title": "地铁修得越长，经济就越强吗——43 座城市的两项排名错位",
+      "kind": "post",
+      "score": 3
+    },
+    {
+      "key": "post:deepseek-pm-interview",
+      "title": "DeepSeek AI产品经理面试全过程整理",
+      "kind": "post",
+      "score": 3
     }
   ],
   "pinned": [],
@@ -53,27 +53,13 @@
       "key": "post:70b-to-cluster",
       "title": "70B 到底有多大：从一块卡到一千张卡",
       "kind": "post",
-      "score": 6,
-      "eligible": true
-    },
-    {
-      "key": "post:metro-vs-gdp-rank-mismatch",
-      "title": "地铁修得越长，经济就越强吗——43 座城市的两项排名错位",
-      "kind": "post",
       "score": 5,
       "eligible": true
     },
     {
-      "key": "post:deepseek-pm-interview",
-      "title": "DeepSeek AI产品经理面试全过程整理",
+      "key": "post:C++-Job-StudyRoadMap",
+      "title": "C++ 求职向学习路线",
       "kind": "post",
-      "score": 5,
-      "eligible": true
-    },
-    {
-      "key": "game:esports-manager-2026",
-      "title": "Esports Manager 2026",
-      "kind": "game",
       "score": 5,
       "eligible": true
     },
@@ -81,98 +67,112 @@
       "key": "topic:festivals",
       "title": "节日文化",
       "kind": "topic",
-      "score": 4,
+      "score": 3,
       "eligible": true
     },
     {
       "key": "topic:zodiac",
       "title": "十二生肖",
       "kind": "topic",
-      "score": 4,
+      "score": 3,
       "eligible": true
     },
     {
-      "key": "collection:Esports Manager 2026 mods",
-      "title": "Esports Manager 2026 mods",
-      "kind": "collection",
-      "score": 4,
+      "key": "post:metro-vs-gdp-rank-mismatch",
+      "title": "地铁修得越长，经济就越强吗——43 座城市的两项排名错位",
+      "kind": "post",
+      "score": 3,
       "eligible": true
     },
     {
-      "key": "game:cs2",
-      "title": "Counter-Strike 2",
-      "kind": "game",
-      "score": 4,
-      "eligible": true
-    },
-    {
-      "key": "game:lol",
-      "title": "英雄联盟",
-      "kind": "game",
-      "score": 4,
-      "eligible": true
-    },
-    {
-      "key": "game:overwatch",
-      "title": "守望先锋",
-      "kind": "game",
-      "score": 4,
-      "eligible": true
-    },
-    {
-      "key": "game:pubg",
-      "title": "绝地求生",
-      "kind": "game",
-      "score": 4,
-      "eligible": true
-    },
-    {
-      "key": "project:Ties",
-      "title": "Ties",
-      "kind": "project",
-      "score": 4,
+      "key": "post:deepseek-pm-interview",
+      "title": "DeepSeek AI产品经理面试全过程整理",
+      "kind": "post",
+      "score": 3,
       "eligible": true
     },
     {
       "key": "project:校园课程资源共享平台",
       "title": "校园课程资源共享平台",
       "kind": "project",
-      "score": 4,
+      "score": 3,
+      "eligible": true
+    },
+    {
+      "key": "collection:Esports Manager 2026 mods",
+      "title": "Esports Manager 2026 mods",
+      "kind": "collection",
+      "score": 2,
+      "eligible": true
+    },
+    {
+      "key": "project:Ties",
+      "title": "Ties",
+      "kind": "project",
+      "score": 2,
       "eligible": true
     },
     {
       "key": "topic:city",
       "title": "城市档案",
       "kind": "topic",
-      "score": 3,
+      "score": 1,
       "eligible": true
     },
     {
       "key": "topic:cityrank",
       "title": "城市排行榜",
       "kind": "topic",
-      "score": 3,
+      "score": 1,
       "eligible": true
     },
     {
       "key": "topic:holidays",
       "title": "中国节假日",
       "kind": "topic",
-      "score": 3,
+      "score": 1,
       "eligible": true
     },
     {
-      "key": "post:C++-Job-StudyRoadMap",
-      "title": "C++ 求职向学习路线",
-      "kind": "post",
-      "score": 3,
+      "key": "game:cs2",
+      "title": "Counter-Strike 2",
+      "kind": "game",
+      "score": 1,
+      "eligible": true
+    },
+    {
+      "key": "game:esports-manager-2026",
+      "title": "Esports Manager 2026",
+      "kind": "game",
+      "score": 1,
+      "eligible": true
+    },
+    {
+      "key": "game:lol",
+      "title": "英雄联盟",
+      "kind": "game",
+      "score": 1,
+      "eligible": true
+    },
+    {
+      "key": "game:overwatch",
+      "title": "守望先锋",
+      "kind": "game",
+      "score": 1,
+      "eligible": true
+    },
+    {
+      "key": "game:pubg",
+      "title": "绝地求生",
+      "kind": "game",
+      "score": 1,
       "eligible": true
     },
     {
       "key": "project:资产追踪系统",
       "title": "资产追踪系统",
       "kind": "project",
-      "score": 2,
+      "score": 1,
       "eligible": true
     }
   ],
@@ -208,6 +208,20 @@
       },
       "replaced": null,
       "reason": "首次入选"
+    },
+    {
+      "date": "2026-11-05",
+      "key": "post:70b-to-cluster",
+      "title": "70B 到底有多大：从一块卡到一千张卡",
+      "kind": "post",
+      "score": 5,
+      "breakdown": {
+        "E": 0,
+        "L": 2,
+        "C": 1
+      },
+      "replaced": "post:metro-vs-gdp-rank-mismatch",
+      "reason": "新文破例（发布 7 天内，内容分并列第 1）"
     }
   ]
 }
