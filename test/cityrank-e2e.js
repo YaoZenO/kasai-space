@@ -914,8 +914,20 @@ if (fs.existsSync(path.join(PUBLIC, 'city', 'index.html'))) {
     const idx = fs.readFileSync(path.join(PUBLIC, 'city', 'index.html'), 'utf8');
     assert.ok(idx.indexOf('按省份浏览') !== -1, '/city/ 索引页缺按省导航');
     for (const p of cityProvinces(R)) {
-      assert.ok(idx.indexOf('/city/province/' + p.slug + '/') !== -1,
-        '索引页缺省级入口：' + p.slug);
+      // 2026-11-06（主人指出「上海市还要再点一下上海」）：只有一座城市的省级单位
+      // （直辖市 / 特别行政区）直接链到那座城市的档案页，中间的省级页只会多按一次。
+      // 因此这类省份不该再出现 /city/province/<slug>/ 链接——反向也一并锁死。
+      const solo = p.total === 1 && p.pageCount === 1 && Array.isArray(p.cities) && p.cities.length === 1;
+      if (solo) {
+        const direct = '/city/' + p.cities[0].slug + '/';
+        assert.ok(idx.indexOf('href="' + direct + '"') !== -1,
+          '索引页缺直辖市直连：' + p.name + ' → ' + direct);
+        assert.ok(idx.indexOf('/city/province/' + p.slug + '/') === -1,
+          '直辖市仍在链中间页（应该直连城市页）：' + p.name + ' → /city/province/' + p.slug + '/');
+      } else {
+        assert.ok(idx.indexOf('/city/province/' + p.slug + '/') !== -1,
+          '索引页缺省级入口：' + p.slug);
+      }
     }
   });
 

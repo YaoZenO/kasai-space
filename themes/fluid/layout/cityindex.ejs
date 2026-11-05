@@ -102,7 +102,10 @@ provOrder.sort(function (a, b) {
       <h2 class="cr-sec-title">按省份浏览</h2>
       <ul class="cr-provnav-list">
         <% for (var pi = 0; pi < provs.length; pi += 1) { var pv2 = provs[pi] %>
-        <li><a href="<%= url_for('/city/province/' + pv2.slug + '/') %>"><%= pv2.name %><span class="cr-provnav-count"><%= pv2.total %></span></a></li>
+        <%# 直辖市与特别行政区只有一座城市：中间的省级页只会再让人多按一次，
+            直接链到那座城市的档案页（2026-11-06 主人指出「上海市还要再点一下上海」）。 %>
+        <% var pvHref = (pv2.total === 1 && pv2.pageCount === 1 && pv2.cities && pv2.cities.length) ? ('/city/' + pv2.cities[0].slug + '/') : ('/city/province/' + pv2.slug + '/') %>
+        <li><a href="<%= url_for(pvHref) %>"><%= pv2.name %><span class="cr-provnav-count"><%= pv2.total %></span></a></li>
         <% } %>
       </ul>
       <p class="cr-profile-note">按 GB/T 2260 行政区划代码排序。行政归属尚未采集的城市不进省级聚合，仍可在下方名单中查看。</p>
