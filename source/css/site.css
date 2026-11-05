@@ -2209,7 +2209,7 @@ body.is-home footer {
 /* 模块列表页 */
 .page-head-plain { margin: 0 0 1.6rem; }
 .page-head-plain .page-head-title { font-size: clamp(1.9rem, 3.6vw, 2.6rem); font-weight: 600; margin: .3rem 0 .4rem; }
-.module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+.module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
 .module-card {
   display: block; background: var(--cream); border: 1px solid var(--line-color);
   border-radius: var(--r-tile); overflow: hidden; color: var(--text-color);
@@ -5154,13 +5154,16 @@ html:not(.js) .fs-years-toggle { display: none; }
   .cr-citylist-meta { flex: 1 0 100%; order: 3; }
 }
 
-/* 城市索引改版（2026-11-04，PLAN-V3 §6）：
-   旧的 .cr-citylist 把 431 座城市平铺成一列同构名单——滚到第 50 行读者就丢了坐标，
-   而且城市之间没有任何可比的数字。新版分两段：
-   ① 上榜最多的 30 座做数据卡（GDP / 常住人口 / 档案厚度 / 上榜次数四个可比的量）
-   ② 其余按省级行政区 <details> 折叠，原生展开，不依赖 JS，无 JS 也能读
+/* 城市索引（2026-11-04 初版 → 2026-11-06 二次改版）：
+   初版把前 30 座做成 3 列数据卡，主人的评断是「太离谱」。原因有二：
+   ① 本节的排序键是「上榜次数」，卡片却把它压在右下角 0.75rem 灰字里，
+      视线第一落点是 0.95rem 的 GDP——「上榜最多的 30 座」被读成「GDP 前 30」；
+   ② 30 张等高卡各重复一次「档案 N 项」——那是后台采集进度，不是城市属性。
+   二次改版换成榜单行：名次前置固定列、上榜次数做主指标并配一条以榜首次数为
+   满格的横条、GDP 与人口右对齐等宽（DESIGN-LANGUAGE §5.19 同族，名次前置）。
+   其余城市仍按省级行政区 <details> 折叠，原生展开、不依赖 JS。
    .cr-citylist 保留，因为 province.ejs 的省级名单还在用它。 */
-.cr-cards-sec { margin: 2.4rem 0 0; }
+.cr-sec-block { margin: 2.4rem 0 0; }
 
 .cr-sec-note {
   margin: 0.35rem 0 1.1rem;
@@ -5169,81 +5172,135 @@ html:not(.js) .fs-years-toggle { display: none; }
   color: var(--sec-text-color);
 }
 
-.cr-cards {
+.cr-board {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line-strong);
+}
+
+.cr-board-row > a {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 1rem;
-}
-
-.cr-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-  padding: 0.95rem 1rem 0.85rem;
-  border: 1px solid var(--line-color);
-  border-radius: var(--r-card);
-  background: var(--board-color);
+  grid-template-columns: 2.6rem minmax(0, 1fr) 7.4rem 13.2rem;
+  column-gap: 1rem;
+  align-items: baseline;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--line-color);
   text-decoration: none;
-  transition: transform 0.18s ease, border-color 0.18s ease;
 }
 
-.cr-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--line-strong);
-}
-
-.cr-card-head { display: flex; flex-direction: column; gap: 0.15rem; }
-
-.cr-card-name {
-  font-size: 1.05rem;
-  font-weight: 700;
-  line-height: 1.4;
-  color: var(--text-color);
-}
-
-.cr-card:hover .cr-card-name { color: var(--accent); }
-
-.cr-card-meta {
+.cr-board-rank {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
-  line-height: 1.6;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
   color: var(--sec-text-color);
 }
 
-.cr-card-nums {
+.cr-board-main {
   display: flex;
-  gap: 1.1rem;
-  padding: 0.5rem 0;
-  border-top: 1px solid var(--line-color);
-  border-bottom: 1px solid var(--line-color);
+  align-items: baseline;
+  gap: 0.6rem;
+  min-width: 0;
 }
 
-.cr-card-num { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
+/* 行首缩略图（2026-11-06，PLAN-V3 §6）：
+   只有 cityphotos.yml 登记过、且 source/img/cities/<slug>.jpg 存在的城市才有这一格。
+   没图的行不预留空位、不放灰块——「无图不做占位」是硬规则，宁可少一块也不造假。
+   竖构图原图（1200×1799）裁成方图时把焦点抬高一点，让天际线落在中间而不是留白。 */
+.cr-board-photo {
+  flex: none;
+  align-self: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 3px;
+  object-fit: cover;
+  object-position: center 38%;
+  border: 1px solid var(--line-color);
+}
 
-.cr-card-num b {
-  font-family: var(--font-mono);
-  font-size: 0.95rem;
-  font-weight: 600;
+.cr-board-name {
+  font-size: 0.98rem;
+  font-weight: 700;
   color: var(--text-color);
 }
 
-.cr-card-num i {
+.cr-board-row > a:hover .cr-board-name { color: var(--accent); }
+
+.cr-board-meta {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+/* 排序键：数字 + 单位 + 横条。横条承担「谁更靠前」的直觉判断，
+   数字承担精度——两者都要，但不能让数字自己扛排序。 */
+.cr-board-mentions {
+  display: grid;
+  grid-template-columns: 1.7em auto minmax(2.6rem, 1fr);
+  column-gap: 0.3rem;
+  align-items: center;
+}
+
+.cr-board-mentions b {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--text-color);
+}
+
+.cr-board-mentions i {
   font-style: normal;
   font-family: var(--font-mono);
   font-size: 0.75rem;
   color: var(--sec-text-color);
 }
 
-.cr-card-foot {
+.cr-board-bar {
+  position: relative;
+  height: 0.22rem;
+  border-radius: 2px;
+  background: var(--line-color);
+}
+
+.cr-board-bar > span {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.cr-board-nums {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 1rem;
+}
+
+.cr-board-num {
   display: flex;
-  justify-content: space-between;
-  gap: 0.8rem;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.cr-board-num b {
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-color);
+}
+
+.cr-board-num i {
+  font-style: normal;
   font-family: var(--font-mono);
   font-size: 0.75rem;
   color: var(--sec-text-color);
 }
-
-.cr-card-rank { color: var(--accent); }
 
 .cr-folds {
   border-top: 1px solid var(--line-color);
@@ -5328,8 +5385,35 @@ html:not(.js) .fs-years-toggle { display: none; }
   color: var(--sec-text-color);
 }
 
+/* 窄屏：榜单行退成两段——上行「名次 城市 上榜次数」，下行「省·级别 …… GDP 人口」。
+   横条在这一档隐去，因为剩余宽度不足以让长度差读出来，反而挤掉数字。 */
+@media (max-width: 719.98px) {
+  .cr-board-row > a {
+    grid-template-columns: 2.1rem minmax(0, 1fr) auto;
+    grid-template-areas:
+      'rank main mentions'
+      'rank nums nums';
+    row-gap: 0.2rem;
+    column-gap: 0.7rem;
+    align-items: start;
+  }
+
+  .cr-board-rank { grid-area: rank; }
+  .cr-board-main { grid-area: main; flex-direction: column; align-items: flex-start; gap: 0.05rem; }
+  /* 缩略图在窄屏隐去（2026-11-06）：这一档 .cr-board-main 变成竖排，
+     44px 的方图会独占一行、把行高从 92 撑到 137，而它在 320–390 宽度下
+     也看不出内容，只剩一个深色方块。宁可窄屏不带图。 */
+  .cr-board-photo { display: none; }
+  .cr-board-mentions { grid-area: mentions; grid-template-columns: 1.7em auto; }
+  .cr-board-bar { display: none; }
+
+  .cr-board-nums {
+    grid-area: nums;
+    column-gap: 0.9rem;
+  }
+}
+
 @media (max-width: 575.98px) {
-  .cr-cards { grid-template-columns: 1fr; gap: 0.8rem; }
   .cr-fold-list { grid-template-columns: 1fr; }
 }
 

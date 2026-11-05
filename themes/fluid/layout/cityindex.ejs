@@ -4,22 +4,26 @@
 // 2026-11-04 改版（PLAN-V3 §6）：原来把 431 座城市平铺成一列 431 行的名单，
 // 读者滚到第 50 行就不知道自己在哪了，而且名单里城市之间没有任何可比的数字。
 // 现在分两段：
-//   ① 上榜最多的 30 座 → 数据卡（省·级别 / 档案厚度 / 上榜次数 / GDP 与人口）
+//   ① 上榜最多的 30 座 → 榜单行（名次 / 城市·省·级别 / 上榜次数+横条 / GDP / 人口）
 //   ② 其余按省份折叠 → 原生 <details>，不依赖 JS，无 JS 也能展开
 //
+// 2026-11-06 二次改版：① 从 3 列卡片换成榜单行——卡片的排序键（上榜次数）被压在
+// 右下角灰字里，读者会把它读成「GDP 前 30」；同时删掉每城重复的「档案 N 项」。
+//
 // 数据：source/_data/cities.yml + cityrank.yml；计算：helpers/cityrank-data.js
-// 样式：site.css §4.16（.cr-card / .cr-fold 规则）
+// 样式：site.css §4.16（.cr-board / .cr-fold 规则）
 page.layout = 'cityindex'
 page.hide_banner = true
 
 var CR = buildCityRanks(site.data)
 
-/* 卡片里的数值统一加千分位（DESIGN-LANGUAGE §5.19）：1152822.4 读不出来，
-   1,152,822.4 才读得出来。等宽栈下千分位不改变字宽节奏，只让位数可数。 */
+/* 榜单里的数值统一加千分位（DESIGN-LANGUAGE §5.19）：1152822.4 读不出来，
+   1,152,822.4 才读得出来。等宽栈下千分位不改变字宽节奏，只让位数可数。
+   小数收到 1 位：GDP 的 2 位小数（24,763.61）是假精度，各城来源本身就在亿元级浮动。 */
 function fmtCardNum(v) {
   if (v === null || v === undefined || v === '') return ''
   if (typeof v !== 'number') return String(v)
-  var s = String(Math.round(v * 100) / 100)
+  var s = String(Math.round(v * 10) / 10)
   var parts = s.split('.')
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
   return parts.join('.')
@@ -50,10 +54,17 @@ if (!CR.error) {
 var withMentions = 0
 for (var j = 0; j < list.length; j += 1) { if (list[j].n > 0) withMentions += 1 }
 
-// 前 30 座做成卡；其余按省折叠。城市不足 30 座时全部做成卡，不产生空段。
+// 前 30 座做成榜单行；其余按省折叠。城市不足 30 座时全部进榜，不产生空段。
 var TOP_N = 30
 var topRows = list.slice(0, TOP_N)
 var restRows = list.slice(TOP_N)
+
+// 横条按榜首的次数换算：读者不用读 30 个数字就能看出谁靠前。
+var maxMentions = topRows.length ? topRows[0].n : 0
+function barPct(n) {
+  if (!maxMentions) return 0
+  return Math.max(0, Math.round((n / maxMentions) * 100))
+}
 
 // 其余城市按省级行政区归组；没采集到归属的单列一组放最后
 var byProv = {}
@@ -112,38 +123,49 @@ provOrder.sort(function (a, b) {
     </section>
     <% } %>
 
-    <section class="cr-cards-sec">
+    <%# 2026-11-06 改版（主人：卡片「太离谱」）：原来 30 张等高卡片把「上榜次数」——
+        本节的排序键——压在右下角 0.75rem 灰字里，视线第一落点反而是 GDP，读者会
+        误读成「GDP 前 30」。改成榜单行：名次前置、上榜次数做主指标并配一条按榜首
+        换算的横条、GDP 与人口右对齐；「档案 N 项」是后台采集进度，不是城市属性，
+        整节删除（§5.19 同族，名次前置固定列）。 %>
+    <section class="cr-sec-block">
       <h2 class="cr-sec-title">上榜最多的 <%= topRows.length %> 座</h2>
-      <p class="cr-sec-note">按在本站榜单中出现的次数排序；次数相同按拼音次序。数量为档案中已核验的字段项数。</p>
-      <div class="cr-cards">
+      <p class="cr-sec-note">按在本站榜单中出现的次数排序，次数相同按拼音次序。横条以榜首次数为满格；人口为常住人口。</p>
+      <ol class="cr-board">
+        <% var photos = (site.data && site.data.cityphotos) || {} %>
         <% for (var t = 0; t < topRows.length; t += 1) { var tr = topRows[t]; var tc = tr.c %>
-        <a class="cr-card" href="<%= url_for('/city/' + tc.slug + '/') %>">
-          <span class="cr-card-head">
-            <span class="cr-card-name"><%= tc.name %></span>
-            <span class="cr-card-meta"><%= tc.province || '' %><% if (tc.province && tc.level) { %> · <% } %><%= tc.level || '' %></span>
-          </span>
-          <span class="cr-card-nums">
-            <% var gdp = cardVal(tc, 'gdp'); var pop = cardVal(tc, 'pop') %>
-            <span class="cr-card-num">
-              <b><%= gdp === null ? '待补' : fmtCardNum(gdp) %></b>
-              <i>亿元 GDP</i>
+        <% var gdp = cardVal(tc, 'gdp'); var pop = cardVal(tc, 'pop') %>
+        <%#
+          行首缩略图（2026-11-06，PLAN-V3 §6「有图升级为图文卡」在榜单行结构下的落地）。
+          只有 cityphotos.yml 登记过、且 source/img/cities/<slug>.jpg 存在的城市才出图；
+          没登记的城市不预留空位、不放灰块（DESIGN §1「无数据不生成」）。
+          图少的时候只是个别行略高，不会把整张表撑乱；图补到十几张后自然形成节奏。
+        %>
+        <% var photo = photos[tc.slug] %>
+        <li class="cr-board-row">
+          <a href="<%= url_for('/city/' + tc.slug + '/') %>">
+            <span class="cr-board-rank"><%= t + 1 %></span>
+            <span class="cr-board-main">
+              <% if (photo) { %><img class="cr-board-photo" src="<%= url_for('/img/cities/' + tc.slug + '.jpg') %>" alt="" width="44" height="44" loading="lazy" decoding="async"><% } %>
+              <span class="cr-board-name"><%= tc.name %></span>
+              <span class="cr-board-meta"><%= tc.province || '' %><% if (tc.province && tc.level) { %> · <% } %><%= tc.level || '' %></span>
             </span>
-            <span class="cr-card-num">
-              <b><%= pop === null ? '待补' : fmtCardNum(pop) %></b>
-              <i>万人 常住</i>
+            <span class="cr-board-mentions">
+              <b><%= tr.n > 0 ? tr.n : '—' %></b><i>次</i>
+              <span class="cr-board-bar" aria-hidden="true"><span style="width: <%= barPct(tr.n) %>%"></span></span>
             </span>
-          </span>
-          <span class="cr-card-foot">
-            <span class="cr-card-thick">档案 <%= Object.keys(tc.metrics || {}).length %> 项</span>
-            <span class="cr-card-rank"><%= tr.n > 0 ? ('上榜 ' + tr.n + ' 次') : '未上榜' %></span>
-          </span>
-        </a>
+            <span class="cr-board-nums">
+              <span class="cr-board-num"><b><%= gdp === null ? '—' : fmtCardNum(gdp) %></b><i>亿元</i></span>
+              <span class="cr-board-num"><b><%= pop === null ? '—' : fmtCardNum(pop) %></b><i>万人</i></span>
+            </span>
+          </a>
+        </li>
         <% } %>
-      </div>
+      </ol>
     </section>
 
     <% if (restRows.length) { %>
-    <section class="cr-cards-sec">
+    <section class="cr-sec-block">
       <h2 class="cr-sec-title">其余 <%= restRows.length %> 座</h2>
       <p class="cr-sec-note">按省级行政区折叠，点开即看。每行给出省份、级别与上榜次数，点城市名进档案。</p>
       <div class="cr-folds">
