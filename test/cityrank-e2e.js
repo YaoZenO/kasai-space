@@ -945,6 +945,27 @@ if (fs.existsSync(path.join(PUBLIC, 'city', 'index.html'))) {
     }
   });
 
+  // S23 榜单行（2026-11-06 二次改版）：初版的 3 列卡片把排序键「上榜次数」压在
+  // 右下角灰字里，读者会把这节读成「GDP 前 30」。这一节锁住三件事：
+  //   ① 前 30 座一行一座、名次 1..30 连续（缺号＝有城市被静默漏掉，E-047 同型）；
+  //   ② 排序键必须就位（横条按榜首满格，榜首是 100%）；
+  //   ③ 每城重复的「档案 N 项」不再出现——它是采集进度，不是城市属性。
+  ok('S23 榜单行：30 行、名次连续、排序键有横条、无「档案 N 项」残留', () => {
+    const idx = fs.readFileSync(path.join(PUBLIC, 'city', 'index.html'), 'utf8');
+    const rows = [...idx.matchAll(/class="cr-board-row"/g)];
+    assert.strictEqual(rows.length, Math.min(30, cityProvinces(R).reduce((a, p) => a + p.total, 0)),
+      '榜单行数与城市总数不符：' + rows.length);
+
+    const ranks = [...idx.matchAll(/class="cr-board-rank">(\d+)</g)].map((m) => Number(m[1]));
+    assert.strictEqual(ranks.length, rows.length, '名次格与行数不一致');
+    ranks.forEach((n, i) => assert.strictEqual(n, i + 1, '名次不连续：第 ' + (i + 1) + ' 行是 ' + n));
+
+    assert.ok(idx.indexOf('cr-board-bar') !== -1, '榜单缺排序键横条');
+    assert.ok(idx.indexOf('style="width: 100%"') !== -1, '榜首横条不是满格');
+    assert.strictEqual((idx.match(/档案 \d+ 项/g) || []).length, 0, '「档案 N 项」仍在渲染');
+    assert.strictEqual((idx.match(/cr-card/g) || []).length, 0, '旧卡片类名仍在产物里');
+  });
+
   ok('S19 城市头图双闸：登记且有文件才渲染，未登记城市不得出现 /img/cities/ 引用（防无出处图与死链）', () => {
     const sh = fs.readFileSync(path.join(PUBLIC, 'city', 'shanghai', 'index.html'), 'utf8');
     assert.ok(sh.indexOf('/img/cities/shanghai.jpg') !== -1, '上海已登记且有照片，页面却没渲染头图');

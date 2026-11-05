@@ -155,8 +155,8 @@ provOrder.sort(function (a, b) {
               <span class="cr-board-bar" aria-hidden="true"><span style="width: <%= barPct(tr.n) %>%"></span></span>
             </span>
             <span class="cr-board-nums">
-              <span class="cr-board-num"><b><%= gdp === null ? '—' : fmtCardNum(gdp) %></b><i>亿元</i></span>
-              <span class="cr-board-num"><b><%= pop === null ? '—' : fmtCardNum(pop) %></b><i>万人</i></span>
+              <span class="cr-board-num"><b><%= gdp === null ? '—' : fmtCardNum(gdp) %></b><% if (gdp !== null) { %><i>亿元</i><% } %></span>
+              <span class="cr-board-num"><b><%= pop === null ? '—' : fmtCardNum(pop) %></b><% if (pop !== null) { %><i>万人</i><% } %></span>
             </span>
           </a>
         </li>
