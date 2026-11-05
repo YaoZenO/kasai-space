@@ -144,6 +144,11 @@ hexo.extend.generator.register('cityrank-pages', function (locals) {
   // 省内城市 + 省内各榜 + 省内城市在全国榜的表现，全部由数据现算。
   // 省内没有可建页城市的省份不生成（helper 已过滤），这里只负责挂路由。
   for (const p of cityProvinces(R)) {
+    // 2026-11-06（主人指出「上海市还要再点一下上海」）：只有一座城市的省级单位
+    // （直辖市 / 特别行政区）不生成省页——页里只有一座城市，中间层没有信息价值，
+    // 索引页的省份导航已直连该城市档案页。这类 URL 由 vercel.json 重定向到城市页，
+    // 已收藏的旧链接不会断。
+    if (p.total === 1 && p.pageCount === 1) continue;
     routes.push({
       path: 'city/province/' + p.slug + '/index.html',
       layout: 'province',

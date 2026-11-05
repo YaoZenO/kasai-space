@@ -855,9 +855,20 @@ ok('S18 生成口径：有建页城市的省必须在列，全无建页城市的
 });
 
 if (fs.existsSync(path.join(PUBLIC, 'city', 'index.html'))) {
-  ok('S18 产物：每个省都有非 0 字节聚合页，页内城市链接无死链', () => {
+  ok('S18 产物：省级聚合页存在且无死链（单城市省级单位不生成）', () => {
     const provs = cityProvinces(R);
+    let checked = 0;
+    let skipped = 0;
     for (const p of provs) {
+      // 2026-11-06（主人指出「上海市还要再点一下上海」）：单城市省级单位
+      // （直辖市 / 特别行政区）不再生成聚合页，索引页直连城市页。
+      // 这里反向断言该页确实不存在，防止生成器条件被改回去、又悄悄长出一个空壳。
+      if (p.total === 1 && p.pageCount === 1) {
+        const f0 = path.join(PUBLIC, 'city', 'province', p.slug, 'index.html');
+        assert.ok(!fs.existsSync(f0), '单城市省级单位不应再有聚合页：' + p.slug);
+        skipped += 1;
+        continue;
+      }
       const f = path.join(PUBLIC, 'city', 'province', p.slug, 'index.html');
       assert.ok(fs.existsSync(f), '省级页缺失：' + p.slug);
       assert.ok(fs.statSync(f).size > 2000, '省级页字节数异常：' + p.slug);
@@ -868,7 +879,10 @@ if (fs.existsSync(path.join(PUBLIC, 'city', 'index.html'))) {
         assert.ok(fs.existsSync(path.join(PUBLIC, m[1], 'index.html')),
           '省级页死链：' + m[1] + '（来自 ' + p.slug + '）');
       }
+      checked += 1;
     }
+    assert.ok(checked >= 20, '受检省级页只有 ' + checked + ' 个——断言可能空转');
+    assert.ok(skipped >= 1, '单城市省级单位一个都没识别到——直连口径可能失效');
   });
 
   // 2026-11-04 结构改版：档案从「一列 21 行平铺」改成「组名左列 + 字段两列」，

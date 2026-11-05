@@ -10,6 +10,56 @@
       "source": "/uses/",
       "destination": "/now/",
       "permanent": true
+    },
+    {
+      "source": "/city/province/beijing",
+      "destination": "/city/beijing/",
+      "permanent": true
+    },
+    {
+      "source": "/city/province/beijing/",
+      "destination": "/city/beijing/",
+      "permanent": true
+    },
+    {
+      "source": "/city/province/tianjin",
+      "destination": "/city/tianjin/",
+      "permanent": true
+    },
+    {
+      "source": "/city/province/tianjin/",
+      "destination": "/city/tianjin/",
+      "permanent": true
+    },
+    {
+      "source": "/city/province/shanghai",
+      "destination": "/city/shanghai/",
+      "permanent": true
+    },
+    {
+      "source": "/city/province/shanghai/",
+      "destination": "/city/shanghai/",
+      "permanent": true
+    },
+    {
+      "source": "/city/province/chongqing",
+      "destination": "/city/chongqing/",
+      "permanent": true
+    },
+    {
+      "source": "/city/province/chongqing/",
+      "destination": "/city/chongqing/",
+      "permanent": true
+    },
+    {
+      "source": "/city/province/xianggang",
+      "destination": "/city/xianggang/",
+      "permanent": true
+    },
+    {
+      "source": "/city/province/xianggang/",
+      "destination": "/city/xianggang/",
+      "permanent": true
     }
   ],
   "headers": [
