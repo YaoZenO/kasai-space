@@ -277,37 +277,29 @@ var ov = zodiacOverview(site.data.zodiac)
 
     <section class="cal-block">
       <div class="col-head">
-        <h2 class="col-title">十二生肖一览</h2>
+        <h2 class="col-title">十二生肖</h2>
         <span class="col-count">/ <%= ov.rows.length %></span>
       </div>
-      <div class="cal-table-wrap">
-        <table class="cal-table z-animals">
-          <thead>
-            <tr>
-              <th scope="col">位次</th>
-              <th scope="col">生肖</th>
-              <th scope="col">拼音</th>
-              <th scope="col">地支</th>
-              <th scope="col">本轮年份</th>
-              <th scope="col">干支</th>
-              <th scope="col">称号</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% for (var ri2 = 0; ri2 < ov.rows.length; ri2 += 1) { var r = ov.rows[ri2] %>
-            <tr>
-              <td class="z-pos"><%= r.position %></td>
-              <th scope="row"><a class="z-animal-link" href="<%= url_for('/zodiac/' + r.key + '/') %>"><span class="cal-name"><%= r.animal %></span></a></th>
-              <td class="cal-pinyin"><%= r.pinyin %></td>
-              <td><%= r.branch %></td>
-              <td><% if (r.span) { %><time datetime="<%= r.span.start %>"><%= r.featured %></time><% } else { %><%= r.featured %><% } %></td>
-              <td><%= r.ganzhi %></td>
-              <td><%= r.title %></td>
-            </tr>
-            <% } %>
-          </tbody>
-        </table>
+      <%#
+        2026-11-06 改版（PLAN-V3 §7 P6）：原七列表格换成生肖卡。
+        表格能一次看全 12 行的字段，但每行 7 列要横向扫视对齐，
+        手机上视口只放得下一行半。卡片把「第几位、配什么地支、哪一年」压进一个块。
+        拼音与称号两列没有随之搬过来：拼音属于检索用的东西（站内搜索已覆盖），
+        称号就是「X 年」，与卡片标题重复。
+      %>
+      <div class="z-cards">
+        <% for (var ci = 0; ci < ov.rows.length; ci += 1) { var zr = ov.rows[ci] %>
+        <a class="z-card" href="<%= url_for('/zodiac/' + zr.key + '/') %>">
+          <span class="z-card-head">
+            <span class="z-card-name"><%= zr.animal %></span>
+            <span class="z-card-pos">第 <%= zr.position %> 位</span>
+          </span>
+          <span class="z-card-line">地支「<%= zr.branch %>」· 五行 <%= zr.element %></span>
+          <span class="z-card-year">本轮 <%= zr.featured %> · <%= zr.ganzhi %></span>
+        </a>
+        <% } %>
       </div>
+      <p class="cal-fest-lead">年份是该生肖在本轮（<%= ov.cycle.from %>–<%= ov.cycle.to %>）次序中对应的那一年，从春节当天起算、不按 1 月 1 日；查自己出生那年属什么，见下方按出生年份的对照表。</p>
     </section>
 
     <section class="cal-block">

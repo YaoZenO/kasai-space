@@ -1,0 +1,106 @@
+<%
+// 节日文化索引页（/festivals/，2026-11-06 新建，PLAN-V3 §7 P6）。
+//
+// 为什么要有这一页：12 篇节日长文原本只能靠「资料库 → 从元旦开始读」一篇一篇往下翻，
+// 或者在站内搜索里逐个搜名字。资料库把「节日文化」列为一个专题，点进去应当看到一个
+// 能横向比较的列表，而不是某篇文章的正文。
+//
+// 数据：source/_data/festivals.yml（唯一数据源）；页面文案只做分组，不写日期。
+// 样式：site.css §4.15（.fs-card 规则，与生肖卡同一套语法）。
+page.layout = 'festivals'
+page.hide_banner = true
+
+var fsData = (site.data && site.data.festivals) || {}
+var allFestivals = Array.isArray(fsData.festivals) ? fsData.festivals : []
+var fsMeta = fsData.meta || {}
+
+// 法定（有放假安排，statutory 是法定假日天数）与传统（不放假）分两组
+// 组内保持 yml 中的顺序——那是按年内时间先后排的，不是抓取序号
+var legalFestivals = []
+var folkFestivals = []
+for (var i = 0; i < allFestivals.length; i += 1) {
+  var f = allFestivals[i]
+  if (!f || !f.key || !f.name) continue
+  if (f.kind === 'legal') legalFestivals.push(f)
+  else folkFestivals.push(f)
+}
+
+// 摘要取 desc（一句完整陈述），截到 2 行；desc 缺失时退回 lede
+function fsBrief(f) {
+  var t = String(f.desc || f.lede || '').replace(/\s+/g, ' ').trim()
+  return t.length > 68 ? t.slice(0, 68) + '…' : t
+}
+
+function fsTag(f) {
+  if (f.kind === 'legal') {
+    return f.statutory ? '法定 ' + f.statutory + ' 天' : '法定假日'
+  }
+  return '不放假'
+}
+%>
+
+<div class="paper-page cal-page fs-page">
+  <div class="home-wrap">
+    <header class="page-head">
+      <nav class="cal-crumb" aria-label="面包屑">
+        <a href="<%= url_for('/library/') %>">资料库</a><span aria-hidden="true">/</span><span class="cal-crumb-now">节日文化</span>
+      </nav>
+      <p class="page-head-kicker">FESTIVAL</p>
+      <h1 class="page-head-title">节日文化</h1>
+      <p class="cal-lede"><%= fsMeta.lede || '十二个节日的逐页长文：来历与传说、习俗与食物、词汇与常见问题，以及从本站节假日数据现算的逐年日期。' %></p>
+      <p class="archive-total"><%= allFestivals.length %> 个节日 · 法定 <%= legalFestivals.length %> 个 · 传统 <%= folkFestivals.length %> 个</p>
+    </header>
+
+    <% if (!allFestivals.length) { %>
+    <p class="post-desc">节日内容还在整理中，页面会随数据录入自动生成，欢迎稍后再来看看。</p>
+    <% } else { %>
+
+    <% if (legalFestivals.length) { %>
+    <section class="cal-block">
+      <div class="col-head">
+        <h2 class="col-title">法定节假日</h2>
+        <span class="col-count">/ <%= legalFestivals.length %></span>
+      </div>
+      <div class="fs-cards">
+        <% for (var li = 0; li < legalFestivals.length; li += 1) { var lf = legalFestivals[li] %>
+        <a class="fs-card" href="<%= url_for('/library/' + lf.key + '/') %>">
+          <span class="fs-card-head">
+            <span class="fs-card-name"><%= lf.name %></span>
+            <span class="fs-card-tag fs-card-tag--legal"><%= fsTag(lf) %></span>
+          </span>
+          <span class="fs-card-desc"><%= fsBrief(lf) %></span>
+        </a>
+        <% } %>
+      </div>
+      <p class="cal-fest-lead">天数是《全国年节及纪念日放假办法》规定的法定假日天数，不含调休与周末连休；实际放假区间逐年不同，见各节页面内的逐年表。</p>
+    </section>
+    <% } %>
+
+    <% if (folkFestivals.length) { %>
+    <section class="cal-block">
+      <div class="col-head">
+        <h2 class="col-title">传统节日</h2>
+        <span class="col-count">/ <%= folkFestivals.length %></span>
+      </div>
+      <div class="fs-cards">
+        <% for (var fi = 0; fi < folkFestivals.length; fi += 1) { var ff = folkFestivals[fi] %>
+        <a class="fs-card" href="<%= url_for('/library/' + ff.key + '/') %>">
+          <span class="fs-card-head">
+            <span class="fs-card-name"><%= ff.name %></span>
+            <span class="fs-card-tag"><%= fsTag(ff) %></span>
+          </span>
+          <span class="fs-card-desc"><%= fsBrief(ff) %></span>
+        </a>
+        <% } %>
+      </div>
+      <p class="cal-fest-lead">这些节日没有法定假期安排，日期按农历计算，逐年对应到不同的公历日期。</p>
+    </section>
+    <% } %>
+
+    <div class="cal-after">
+      <p class="cal-note">每个节日的日期都由本站节假日数据现算，不手抄；民俗与说法部分已注明口径，来源互有出入的地方只列有依据的主流说法。</p>
+    </div>
+
+    <% } %>
+  </div>
+</div>

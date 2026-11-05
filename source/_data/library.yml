@@ -53,8 +53,8 @@ topics:
     title: "节日文化"
     kicker: "FESTIVAL"
     desc: "十二个节日的逐页长文：来历与传说、习俗与食物、词汇与常见问题，以及从本站节假日数据现算的逐年日期。"
-    link: "/library/yuandan/"
-    linkText: "从元旦开始读"
+    link: "/festivals/"
+    linkText: "进入节日文化"
     entries:
       - { name: "元旦", note: "公历1月1日 · 跨年 · 法定1天", link: "/library/yuandan/" }
       - { name: "春节", note: "正月初一 · 守岁与红包 · 法定4天", link: "/library/chunjie/" }

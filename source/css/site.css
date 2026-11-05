@@ -3285,6 +3285,79 @@ body.is-home footer {
 }
 .z-vocab-note { font-size: 0.82rem; color: var(--sec-text-color); }
 
+/* 生肖卡（2026-11-06，PLAN-V3 §7 P6）：索引页原来是一张七列表格，
+   每行要横向扫视七个字段才能拼出一个生肖的样子，手机上只放得下一行半。
+   卡片只回答三件事：是哪一个生肖、配什么地支、最近是哪一年。 */
+.z-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.9rem;
+  margin: 1.1rem 0 0;
+}
+
+.z-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.9rem 1rem 0.85rem;
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-card);
+  background: var(--board-color);
+  text-decoration: none;
+  transition: transform 0.18s ease, border-color 0.18s ease;
+}
+
+.z-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--line-strong);
+}
+
+.z-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.z-card-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-color);
+}
+
+.z-card:hover .z-card-name { color: var(--accent); }
+
+.z-card-pos {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+.z-card-line {
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--sec-text-color);
+}
+
+.z-card-year {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--line-color);
+}
+
+@media (max-width: 575.98px) {
+  .z-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.7rem;
+  }
+
+  .z-card-name { font-size: 1.3rem; }
+}
+
 .z-pos {
   width: 3.2rem;
   font-family: var(--font-mono);
@@ -3747,6 +3820,72 @@ body.is-home footer {
 
 /* ---- 配图两分支共用外壳盒：16:9、12px 圆角（--r-tile）、1px hairline。
    实图与 CSS 纹样的唯一差异是填充物，宽高比 / 圆角 / 边框 / 留白完全一致。 ---- */
+/* 节日索引卡（2026-11-06，PLAN-V3 §7 P6）：/festivals/ 新建页的卡片。
+   与生肖卡同一套语法，区别在于这里按「法定 / 传统」分两组，
+   法定那组的天数用 accent 标出来——它是「有没有假」这个最实用的差别。 */
+.fs-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin: 1.1rem 0 0;
+}
+
+.fs-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-card);
+  background: var(--board-color);
+  text-decoration: none;
+  transition: transform 0.18s ease, border-color 0.18s ease;
+}
+
+.fs-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--line-strong);
+}
+
+.fs-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.fs-card-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text-color);
+}
+
+.fs-card:hover .fs-card-name { color: var(--accent); }
+
+.fs-card-tag {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+.fs-card-tag--legal { color: var(--accent); }
+
+.fs-card-desc {
+  font-size: 0.85rem;
+  line-height: 1.75;
+  color: var(--sec-text-color);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (max-width: 575.98px) {
+  .fs-cards { grid-template-columns: 1fr; gap: 0.8rem; }
+}
+
 .fs-figure { margin: 1.6rem 0 0; }
 
 .fs-figure-media {

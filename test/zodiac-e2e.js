@@ -404,10 +404,14 @@ if (!fs.existsSync(PUBLIC)) {
     });
   });
 
-  ok('索引页：一览表 12 行 + 出生年份表 + 五行表 + 三合相冲表', () => {
+  ok('索引页：生肖卡 12 张 + 出生年份表 + 五行表 + 三合相冲表', () => {
     const h = fs.readFileSync(path.join(PUBLIC, 'zodiac', 'index.html'), 'utf8');
+    // 2026-11-06（PLAN-V3 §7 P6）：七列「一览表」换成 12 张生肖卡。
+    // 生肖名链因此只剩出生年份表的 12 个，卡片单独计数。
+    const cardCount = (h.match(/class="z-card"/g) || []).length;
+    assert.strictEqual(cardCount, 12, '索引页生肖卡不是 12 张');
     const animalCells = (h.match(/z-animal-link/g) || []).length;
-    assert.strictEqual(animalCells, 24, '索引页生肖名链不是 24 个（一览表 12 + 出生年份表 12）');
+    assert.strictEqual(animalCells, 12, '索引页生肖名链不是 12 个（出生年份表）');
     assert.ok(h.indexOf('1948 · 1960 · 1972 · 1984 · 1996 · 2008 · 2020 · 2032') !== -1,
       '索引页缺鼠年出生年份行');
     assert.ok(h.indexOf('1959 · 1971 · 1983 · 1995 · 2007 · 2019 · 2031 · 2043') !== -1,
@@ -466,8 +470,10 @@ if (!fs.existsSync(PUBLIC)) {
     assert.ok(css.indexOf('.cal-table .cal-pinyin { display: none; }') === -1, '窄屏还在整列隐藏拼音（数据行会少一格）');
   });
 
-  ok('两张表的列数：表头与每个数据行格数一致（拼音列不能被藏掉）', () => {
-    const tables = [['horse', 'z-vocab'], ['index', 'z-animals']];
+  ok('表格列数：表头与每个数据行格数一致（拼音列不能被藏掉）', () => {
+    // 2026-11-06：索引页的 z-animals 七列表已换成生肖卡（卡数由上面那条断言守着），
+    // 这里只剩详情页的 z-vocab 表需要核对列数。
+    const tables = [['horse', 'z-vocab']];
     tables.forEach(([page, cls]) => {
       const file = page === 'index'
         ? path.join(PUBLIC, 'zodiac', 'index.html')
