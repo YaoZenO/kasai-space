@@ -189,7 +189,9 @@
 ## T11 后台与 API 共存（阶段 4）
 
 - [x] `dist/admin/` 完整产出：`index.html`、`admin.css`、`admin.js`、`lib/`、`img/`、`fonts/`
-- [x] `api/**` 未改动；`vercel.json` 未改动（仍无 `buildCommand` / `outputDirectory`）
+- [x] `api/**` 未改动；`vercel.json` 已声明 `buildCommand` / `outputDirectory` / `installCommand`
+      （`vercel.json` 会覆盖项目设置里的同名项，preview 不必手工改 dashboard）
+- [x] 构建环境加固：`engines.node` 改为 `22.x`（Vercel 拒绝 `>=22` 这类范围写法）
 - [x] mock 回归：`ADMIN_DEV_MOCK=1 node test/admin-smoke.js` → 100 项断言全部 PASS
 - [x] 后台资源缓存破坏：`index.html` 与 `admin.js` 的 `?v=` 版本一致（E-018 断言 PASS）
 - [ ] **未验证**：`api/` 与 Astro 静态产物在 **Vercel preview** 中共存
@@ -213,9 +215,12 @@
 - [x] 12 条重定向对线上逐条验证：`/uses`、`/uses/`、`/city/province/{beijing,tianjin,shanghai,chongqing,xianggang}`
       （各带 / 不带尾斜杠）→ 目标正确，状态 **308**（Vercel `permanent:true` 实际返回 308），目标页均 200
 - [x] 像素验收（1440×900）：见 T10 表格；post / city 修复后 diff = 0
-- [ ] **待主人拍板**：Vercel 项目 Override Build Command=`npm run astro:build`、
-      Output Directory=`dist`；是否让 Astro 预设识别 `api/`
-- [ ] **未执行**：`git fetch` / commit / push / 合并 `main`（按主人要求，等全量校验后再议）
+- [x] 冷构建（清空 `dist/`、`static-public/`、`.astro/` 后重建）：708/708，0 字节 HTML = 0
+- [x] 构建配置已写进 `vercel.json`；Node 版本锁定 `22.x`
+- [x] 已推送 `astro-migration`（`44ae49c` + `a107c43`），**未合并 `main`**
+- [ ] **待验证（线上 preview）**：`/api/session-check`、`/api/content/list` 返回 401 而非 404；
+      首页源码为 Astro 产物（不是 Hexo 旧页）
+- [ ] **待主人确认**：preview 通过后再合并 `main`
 
 ## 停止点
 
