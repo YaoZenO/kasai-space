@@ -191,7 +191,8 @@
 - [x] `dist/admin/` 完整产出：`index.html`、`admin.css`、`admin.js`、`lib/`、`img/`、`fonts/`
 - [x] `api/**` 未改动；`vercel.json` 已声明 `buildCommand` / `outputDirectory` / `installCommand`
       （`vercel.json` 会覆盖项目设置里的同名项，preview 不必手工改 dashboard）
-- [x] 构建环境加固：`engines.node` 改为 `22.x`（Vercel 拒绝 `>=22` 这类范围写法）
+- [x] 构建环境加固：`engines.node` 对齐 Vercel 项目设置的 `24.x`；`hexo-util` 改默认导入
+      （Node 22 不支持 CJS 具名导入，见 E-112）；`test/build-env.js` 串入 `npm test`
 - [x] mock 回归：`ADMIN_DEV_MOCK=1 node test/admin-smoke.js` → 100 项断言全部 PASS
 - [x] 后台资源缓存破坏：`index.html` 与 `admin.js` 的 `?v=` 版本一致（E-018 断言 PASS）
 - [ ] **未验证**：`api/` 与 Astro 静态产物在 **Vercel preview** 中共存

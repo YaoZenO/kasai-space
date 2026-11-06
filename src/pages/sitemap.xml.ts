@@ -3,10 +3,13 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { encodeURL } from 'hexo-util';
+import hexoUtil from 'hexo-util';
 import { getPosts, getTags, getCategories } from '../lib/posts';
 import { siteConfig } from '../lib/site-config';
 import { pageDates } from '../lib/page-meta';
+
+// hexo-util 是 CommonJS，Node 22 不支持具名导入，必须走默认导入（E-112）。
+const { encodeURL } = hexoUtil as typeof import('hexo-util');
 
 const SITE = String(siteConfig.url || 'https://www.040925.xyz');
 const ROOT = path.join(process.cwd(), 'source');

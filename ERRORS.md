@@ -147,6 +147,7 @@
 | E-109 | P2 | 新卡片背景写成 `var(--board-color, #fffefb)`，把纸色字面量硬编码进 §4.16，被 S9 色值断言拦下 | 已修复（去掉兜底字面量） |
 | E-110 | P1 | Astro JSX 重写：tocbot 路径 404、表达式间换行、漏掉空壳占位节点，导致「文字一致但版式错位」 | 已修复（像素对照逐页验证） |
 | E-111 | P2 | `postHasSubstance` 对 number 调 `.length`，首页「最新文字」误筛成 1 篇 | 已修复（字符数比较） |
+| E-112 | P0 | `hexo-util` 具名导入在 Node 22 下构建失败（本地 Node 24 看不出来），Vercel preview 整站构建退出 1 | 已修复（默认导入 + engines 对齐 + `test/build-env.js` 断言） |
 
 ---
 
@@ -2487,5 +2488,24 @@
   已纳入像素/文本对照（首页文本对照能直接看出 `/1` 与 `/3`）。
 - **教训（同类通用）：** 复刻过滤条件时，先把中间函数的**返回类型**对齐，
   再抄表达式；类型不同的 `.length` 只会静默返回 `undefined`，不报错。
+
+### E-112 `hexo-util` 具名导入在 Node 22 下构建失败，本地 Node 24 完全看不出来
+
+- **发生时间：** 2026-11-06 ｜ **发现方式：** Vercel preview 部署 `Error`，构建日志报
+  `SyntaxError: Named export 'encodeURL' not found`（`/atom.xml` 生成时抛出，整站退出 1）
+- **现象：** 本地 `npm run astro:build` 全绿、`verify-urls --mode=exact` 708/708；
+  推到分支后 Vercel 构建 18 秒即失败。
+- **根因：** 两层叠加：
+  1. `hexo-util` 是 CommonJS 包，`import { encodeURL } from 'hexo-util'` 依赖 Node 的
+     CJS 具名导出探测。Node 24 能识别，Node 22 直接抛 `Named export not found`。
+  2. 我为了让 `engines` 更“保守”，把 `>=22` 写成了 `22.x`；而 Vercel 项目设置本来就是
+     `24.x`，这条 `engines` 反而把部署环境**降级**到 22，制造出本地不存在的差异。
+- **修法：** `src/pages/atom.xml.ts`、`src/pages/sitemap.xml.ts` 改为默认导入再解构；
+  `engines.node` 对齐项目实际的 `24.x`；`package-lock` 同步。
+- **防复发（机制）：** 新增 `test/build-env.js` 并串入 `npm test`：
+  - 扫描 `src/` 禁止从 `hexo-util`（CJS）具名导入；
+  - 断言 `engines.node` 主版本与当前构建机一致，防止再次把部署环境降级。
+- **教训（同类通用）：** `engines` 不是「越保守越安全」——它决定部署机运行时；
+  必须与线上项目设置和本地验证环境**对齐**。本地全绿只能证明本地那一个 Node 版本。
 
 ---

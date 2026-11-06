@@ -3,9 +3,12 @@
 // content 去掉控制字符后用 CDATA 输出、分类与标签带各自 permalink。
 
 import { generateAtomFeed } from 'feedsmith';
-import { encodeURL } from 'hexo-util';
+import hexoUtil from 'hexo-util';
 import { getPosts, taxonomyHref } from '../lib/posts';
 import { siteConfig } from '../lib/site-config';
+
+// hexo-util 是 CommonJS，Node 22 不支持具名导入，必须走默认导入（E-112）。
+const { encodeURL } = hexoUtil as typeof import('hexo-util');
 
 const SITE = String(siteConfig.url || 'https://www.040925.xyz');
 const LIMIT = Number(siteConfig.feed?.limit) || 20;
