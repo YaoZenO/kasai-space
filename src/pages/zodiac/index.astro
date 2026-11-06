@@ -1,0 +1,172 @@
+---
+// 生肖总览页（/zodiac/）：复刻 themes/fluid/layout/zodiac.ejs 的索引（overview）分支
+// （z 为空、ov 非空）。动物页分支未在本阶段移植。
+// 数据：source/_data/zodiac.yml；计算：src/lib/zodiac-data.ts（干支、起止、三合六冲）
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getData } from '../../lib/data';
+import { buildOverview } from '../../lib/zodiac-data';
+import { fmtItemDate } from '../../lib/dates';
+import { urlFor } from '../../lib/url';
+import { pageDates } from '../../lib/page-meta';
+
+const ov = buildOverview(getData().zodiac);
+const { published, modified } = pageDates('zodiac/index.md');
+---
+
+<BaseLayout title="十二生肖" currentPath="/zodiac/" ogDate={published} ogUpdated={modified}>
+  <div class="paper-page cal-page z-page">
+    <div class="home-wrap">
+      {!ov ? (
+        <>
+          <header class="page-head">
+            <p class="page-head-kicker">ZODIAC</p>
+            <h1 class="page-head-title">十二生肖</h1>
+          </header>
+          <p class="post-desc">生肖内容还在整理中，页面会随数据录入自动生成，欢迎稍后再来看看。</p>
+        </>
+      ) : (
+        <>
+          <header class="page-head">
+            <p class="page-head-kicker">ZODIAC</p>
+            <h1 class="page-head-title">十二生肖</h1>
+            <p class="cal-lede"><Fragment set:html={ov.lede} /></p>
+            <p class="archive-total">
+              更新于 {fmtItemDate(ov.updated)} · {ov.rows.length} 个生肖 · 本轮 {ov.cycle.from}–{ov.cycle.to}
+            </p>
+          </header>
+
+          <section class="cal-block">
+            <div class="col-head">
+              <h2 class="col-title">十二生肖</h2>
+              <span class="col-count">/ {ov.rows.length}</span>
+            </div>
+            <div class="z-cards">
+              {ov.rows.map((zr: any) => (
+                <a class="z-card" href={urlFor('/zodiac/' + zr.key + '/')}>
+                  <span class="z-card-head">
+                    <span class="z-card-name">{zr.animal}</span>
+                    <span class="z-card-pos">第 {zr.position} 位</span>
+                  </span>
+                  <span class="z-card-line">地支「{zr.branch}」· 五行 {zr.element}</span>
+                  <span class="z-card-year">本轮 {zr.featured} · {zr.ganzhi}</span>
+                </a>
+              ))}
+            </div>
+            <p class="cal-fest-lead">年份是该生肖在本轮（{ov.cycle.from}–{ov.cycle.to}）次序中对应的那一年，从春节当天起算、不按 1 月 1 日；查自己出生那年属什么，见下方按出生年份的对照表。</p>
+          </section>
+
+          <section class="cal-block">
+            <div class="col-head">
+              <h2 class="col-title">按出生年份查生肖</h2>
+            </div>
+            <p class="cal-fest-lead">找到出生年份对应的生肖即可。出生在 1 月或 2 月初的人，属相可能属于上一年——生肖年按春节更替，不按 1 月 1 日，请以出生当年的春节日期为准。</p>
+            <div class="cal-table-wrap">
+              <table class="cal-table z-birth">
+                <thead>
+                  <tr>
+                    <th scope="col">生肖</th>
+                    <th scope="col">出生年份（每 12 年一轮）</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ov.rows.map((br: any) => (
+                    <tr>
+                      <th scope="row"><a class="z-animal-link" href={urlFor('/zodiac/' + br.key + '/')}><span class="cal-name">{br.animal}</span></a></th>
+                      <td>{br.birthYears.join(' · ')}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <div class="cal-top">
+            <section class="cal-block">
+              <div class="col-head">
+                <h2 class="col-title">五行与传统方位、颜色</h2>
+              </div>
+              <div class="cal-table-wrap">
+                <table class="cal-table z-elements">
+                  <thead>
+                    <tr>
+                      <th scope="col">五行</th>
+                      <th scope="col">天干</th>
+                      <th scope="col">方位</th>
+                      <th scope="col">传统色</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {ov.elements.map((el: any) => (
+                      <tr>
+                        <th scope="row"><span class="cal-name">{el.element}</span></th>
+                        <td>{el.stems}</td>
+                        <td>{el.direction}</td>
+                        <td>{el.color}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p class="z-note">五行与方位、颜色的对应是传统说法（《黄帝内经》一系），不是命理吉凶；生肖的五行由天干决定，每十年一轮。</p>
+            </section>
+
+            <section class="cal-block cal-year">
+              <div class="col-head">
+                <h2 class="col-title">三合与相冲</h2>
+              </div>
+              <div class="cal-table-wrap">
+                <table class="cal-table z-sanhe">
+                  <thead>
+                    <tr>
+                      <th scope="col">组合</th>
+                      <th scope="col">传统解释</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {ov.sanhe.map((sh: any) => (
+                      <tr>
+                        <th scope="row"><span class="cal-name">{sh.animals.join('')}</span></th>
+                        <td>三合，三者合成{sh.ju}，互相增强</td>
+                      </tr>
+                    ))}
+                    {ov.chong.map((ch: any) => (
+                      <tr>
+                        <th scope="row"><span class="cal-name">{ch.join('')}</span></th>
+                        <td>六冲，正对相对，传统上是最强的对立</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+
+          <div class="cal-notes">
+            <article class="about-body cal-prose">
+              <div class="markdown-body">
+                <Fragment set:html={ov.prose} />
+              </div>
+            </article>
+
+            {ov.faq.length > 0 && (
+              <aside class="cal-faq">
+                <h2 class="col-title">关于生肖的常见问题</h2>
+                {ov.faq.map((item: any) => (
+                  <details class="cal-faq-item">
+                    <summary>{item.q}</summary>
+                    <p>{item.a}</p>
+                  </details>
+                ))}
+              </aside>
+            )}
+          </div>
+
+          <div class="cal-after">
+            <p class="cal-note">生肖与干支依据公开历法资料整理，生肖年以农历正月初一为界（GB/T 33661-2017《农历的编算和颁行》）；各生肖年的起止日期与本站节假日页一致。性格与幸运物是民间流传的说法，只作参考。</p>
+          </div>
+        </>
+      )}
+    </div>
+  </div>
+</BaseLayout>

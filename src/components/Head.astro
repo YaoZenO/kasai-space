@@ -1,0 +1,97 @@
+---
+// <head> 内容：逐项对齐 _partials/head.ejs 的输出顺序。
+
+import { siteConfig, themeConfig, documentTitle, canonicalEnable, darkModeEnable, openGraphEnable } from '../lib/site-config';
+import { openGraphTags } from '../lib/opengraph';
+import Styles from './Styles.astro';
+import ExportConfig from './ExportConfig.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** description 已由 excerptFromMarkdown 预转义（页面摘要），不要再转义一次 */
+  descriptionPreformatted?: boolean;
+  ogType?: 'website' | 'article';
+  ogImages?: string[];
+  ogKeywords?: string[];
+  ogDate?: Date | null;
+  ogUpdated?: Date | null;
+  canonicalPath?: string;
+  markdownPlugins?: boolean;
+}
+
+const { title, description, descriptionPreformatted, ogType, ogImages, ogKeywords, ogDate, ogUpdated, canonicalPath, markdownPlugins } = Astro.props;
+
+const path = canonicalPath ?? Astro.url.pathname;
+const absoluteUrl = new URL(path, siteConfig.url).toString();
+const fullTitle = documentTitle(title);
+
+const keywords: string = Array.isArray(siteConfig.keywords)
+  ? siteConfig.keywords.join(',')
+  : siteConfig.keywords || '';
+
+const themeColor: string = themeConfig.color?.navbar_bg_color || '';
+
+const ogHtml = openGraphEnable
+  ? openGraphTags({
+      title: title || siteConfig.title,
+      description,
+      descriptionPreformatted,
+      url: absoluteUrl,
+      type: ogType,
+      images: ogImages,
+      keywords: ogKeywords,
+      date: ogDate,
+      updated: ogUpdated,
+    })
+  : '';
+---
+
+<meta charset="UTF-8">
+
+<link rel="apple-touch-icon" sizes="180x180" href={themeConfig.apple_touch_icon} />
+<link rel="icon" type="image/png" sizes="32x32" href={themeConfig.favicon} />
+<link rel="icon" type="image/png" sizes="16x16" href={themeConfig.favicon_16} />
+
+<link rel="preload" href="/fonts/archivo-latin-var.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/fraunces-600-latin.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/nunito-sans-var-latin.woff2" as="font" type="font/woff2" crossorigin />
+
+{canonicalEnable && <link rel="canonical" href={absoluteUrl} />}
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no" />
+<meta http-equiv="x-ua-compatible" content="ie=edge" />
+{themeColor && <meta name="theme-color" content={themeColor} />}
+{siteConfig.author && <meta name="author" content={siteConfig.author} />}
+{keywords && <meta name="keywords" content={keywords} />}
+
+{openGraphEnable && <Fragment set:html={ogHtml} />}
+
+<title>{fullTitle}</title>
+
+<Styles markdownPlugins={markdownPlugins} />
+
+<ExportConfig />
+
+<script defer src="/js/utils.js"></script>
+<script defer src="/js/color-schema.js"></script>
+
+<script type="speculationrules" is:inline>
+{
+  "prefetch": [{
+    "where": {
+      "and": [
+        { "href_matches": "/*" },
+        { "not": { "href_matches": "/admin/*" } },
+        { "not": { "href_matches": "/archives*" } },
+        { "not": { "href_matches": "/categories/*" } },
+        { "not": { "href_matches": "/tags/*" } },
+        { "not": { "href_matches": "/*.xml" } }
+      ]
+    },
+    "eagerness": "moderate"
+  }]
+}
+</script>
+
+<link rel="alternate" href="/atom.xml" title={siteConfig.title} type="application/atom+xml">

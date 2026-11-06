@@ -1,0 +1,205 @@
+---
+// 城市榜详情页（/cityrank/<slug>/）：复刻 themes/fluid/layout/rank.ejs。
+// 排名表 + 评分口径；右栏常驻同组榜单（桌面 sticky，移动端落到内容下方）。
+// 约定（PRD §5.1 P0 铁律）：computed 榜必须公开指标与权重；来源与免责全页只留页脚一条小字。
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getData } from '../../lib/data';
+import { buildCityRanks, findRank } from '../../lib/cityrank-data';
+import { fmtItemDate } from '../../lib/dates';
+import { urlFor } from '../../lib/url';
+
+export function getStaticPaths() {
+  const CR = buildCityRanks(getData());
+  if (CR.error) return [];
+  return CR.groups.flatMap((g: any) =>
+    g.ranks.map((r: any) => ({ params: { slug: r.slug }, props: { rankSlug: r.slug } })),
+  );
+}
+
+const { rankSlug } = Astro.props;
+const CR = buildCityRanks(getData());
+const found = CR.error ? null : findRank(CR, rankSlug);
+const g = found ? found.group : null;
+const r = found ? found.rank : null;
+
+const KIND_LABEL: Record<string, string> = {
+  computed: '本站按公开数据计算',
+  fact: '权威结果引用',
+  pending: '参考榜',
+};
+
+const items: any[] = r?.items || [];
+const hasReason = items.some((it) => it.reason);
+const hasProv = items.some((it) => it.province);
+const hasLog = !!(r && r.metrics && r.metrics.some((m: any) => m.scale === 'log'));
+
+const navItems: any[] = [];
+const seenT: Record<string, boolean> = {};
+if (r) {
+  navItems.push(r);
+  seenT[r.title] = true;
+  for (const nf of g.ranks) {
+    if (nf.slug !== r.slug && !seenT[nf.title]) {
+      navItems.push(nf);
+      seenT[nf.title] = true;
+    }
+  }
+}
+---
+
+<BaseLayout title={r ? r.title : '城市排行榜'} currentPath={`/cityrank/${rankSlug}/`}>
+  <div class="paper-page cal-page cr-page">
+    <div class="home-wrap">
+      {
+        !r ? (
+          <>
+            <header class="page-head">
+              <p class="page-head-kicker">CITY RANK</p>
+              <h1 class="page-head-title">城市排行榜</h1>
+            </header>
+            <p class="post-desc">
+              这个榜单没有就位（<code>{rankSlug || '未知榜单'}</code>）：{CR.error || '数据里找不到该榜单'}。
+            </p>
+          </>
+        ) : (
+          <>
+            <header class="page-head">
+              <nav class="cal-crumb" aria-label="面包屑">
+                <a href={urlFor('/library/')}>资料库</a><span aria-hidden="true">/</span><a href={urlFor('/cityrank/')}>城市排行榜</a><span aria-hidden="true">/</span><span class="cal-crumb-now">{r.title}</span>
+              </nav>
+              <p class="page-head-kicker">{g.kicker || 'CITY RANK'}</p>
+              <h1 class="page-head-title">{r.title}</h1>
+              {r.lede && <p class="cal-lede">{r.lede}</p>}
+              <p class="archive-total">
+                更新于 {fmtItemDate(CR.meta.updated)} · 数据年份 {CR.cityMeta.dataYear || '2025'} · 候选城市 {r.candidateCount} 座 · {KIND_LABEL[r.kind] || r.kind}
+              </p>
+            </header>
+
+            <div class="cr-layout">
+              <div class="cr-main">
+                {items.length > 0 ? (
+                  <div class="cal-table-wrap">
+                    <table class="cr-table">
+                      <caption class="cr-caption">{r.title}（按{r.kind === 'computed' ? '综合指数' : '名次'}排列）</caption>
+                      <thead>
+                        <tr>
+                          <th scope="col" class="cr-th-rank">名次</th>
+                          <th scope="col" class="cr-th-city">城市</th>
+                          {hasProv && <th scope="col" class="cr-th-prov">省级行政区</th>}
+                          {r.kind === 'computed' && <th scope="col" class="cr-th-score">综合指数</th>}
+                          {hasReason && <th scope="col" class="cr-th-val">上榜说明</th>}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {items.map((it: any) => (
+                          <tr class={'cr-row' + (it.rank <= 3 ? ' cr-row-top' : '')}>
+                            <th scope="row" class="cr-rank"><span class="cr-rank-num">{it.rank < 10 ? '0' + it.rank : String(it.rank)}</span></th>
+                            <td class="cr-city">
+                              <a href={urlFor('/city/' + it.slug + '/')}>{it.name}</a>
+                            </td>
+                            {hasProv && <td class="cr-prov">{it.province}</td>}
+                            {r.kind === 'computed' && <td class="cr-score">{it.score}</td>}
+                            {hasReason && <td class="cr-val">{it.reason}</td>}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <p class="cr-empty">这个榜还没有可发布的数据（候选城市不足）。</p>
+                )}
+
+                {r.kind === 'computed' && r.metrics.length > 0 && (
+                  <section class="cr-method">
+                    <h2 class="cr-method-title">评分口径</h2>
+                    <div class="cal-table-wrap">
+                      <table class="cr-method-table">
+                        <thead>
+                          <tr>
+                            <th scope="col">指标</th>
+                            <th scope="col">权重</th>
+                            <th scope="col">方向</th>
+                            <th scope="col">刻度</th>
+                            <th scope="col">单位</th>
+                            <th scope="col">数据年份</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {r.metrics.map((mt: any) => (
+                            <tr>
+                              <td>{mt.label || mt.field}</td>
+                              <td>{mt.weight}</td>
+                              <td>{mt.dir === 'down' ? '越小越好' : '越大越好'}</td>
+                              <td>{mt.scale === 'log' ? '对数' : '线性'}</td>
+                              <td>{mt.unit || '—'}</td>
+                              <td>{CR.cityMeta.dataYear || '2025'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <p class="cr-method-note">
+                      名次由数据算出，不是先定名次再配分数。每项指标在本榜 <strong>{r.candidateCount} 座候选城市</strong>内归一化到 0–100，再按上表权重加权求和得综合指数（保留 1 位小数）；100 分 = 候选池最高值，0 分 = 候选池最低值。缺任一指标的城市不参与本榜，不按 0 分处理。
+                    </p>
+                    {hasLog && (
+                      <p class="cr-method-note">
+                        刻度为「线性」的指标按 <code>(x − 最小) / (最大 − 最小)</code> 计算；刻度为「对数」的指标（地区生产总值、常住人口、行政区域面积这类跨数量级的规模量）先取自然对数再按同一公式。后者按倍数关系定距，与联合国人类发展指数对收入维度的处理一致——这类量在候选池里是极端右偏分布，若用线性刻度，唯一的极端最大值会把整个刻度拽走，第 10 名与中位数城市都会被压到很低。
+                      </p>
+                    )}
+                    {r.note && <p class="cr-method-note">{r.note}</p>}
+                  </section>
+                )}
+
+                <div class="cal-after">
+                  <p class="cal-note">
+                    {r.kind === 'computed' ? (
+                      <>数据来自各地统计公报与行业主管部门公开名录；批量数据站只作交叉核对，不作唯一来源。数据年份 {CR.cityMeta.dataYear || '2025'}。</>
+                    ) : r.kind === 'fact' ? (
+                      <>本榜为权威评选结果引用，名次非本站计算，已注明来源与年度。</>
+                    ) : (
+                      <>本榜名次整理自公开榜单，{hasReason ? '上榜理由见表内说明；' : '仅收录名次；'}属观点性排名，未做量化核验，仅供参考。</>
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              <aside class="cr-side" aria-label="榜单导航">
+                <div class="cr-side-block">
+                  <p class="cr-side-label">同组榜单</p>
+                  <ul class="cr-side-list">
+                    {navItems.map((nv: any) => (
+                      <li>
+                        {nv.slug === r.slug ? (
+                          <span class="cr-side-current" aria-current="page">{nv.title}</span>
+                        ) : (
+                          <a href={urlFor('/cityrank/' + nv.slug + '/')}>{nv.title}</a>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div class="cr-side-block">
+                  <p class="cr-side-label">其他主题</p>
+                  <ul class="cr-side-list">
+                    {CR.groups.map((og: any) => (
+                      <li>
+                        {og.key === g.key ? (
+                          <span class="cr-side-muted">{og.title}</span>
+                        ) : (
+                          <a href={urlFor('/cityrank/') + '#group-' + og.key}>{og.title}</a>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <p class="cr-side-note"><a href={urlFor('/city/')}>按城市查看档案 →</a></p>
+              </aside>
+            </div>
+          </>
+        )
+      }
+    </div>
+  </div>
+</BaseLayout>

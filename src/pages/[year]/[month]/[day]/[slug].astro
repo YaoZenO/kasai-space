@@ -1,0 +1,23 @@
+---
+// 文章详情页路由：permalinks 为 :year/:month/:day/:title/
+
+import PostLayout from '../../../../layouts/PostLayout.astro';
+import { getPosts } from '../../../../lib/posts';
+import { formatWithPattern } from '../../../../lib/dates';
+
+export function getStaticPaths() {
+  return getPosts().map(post => ({
+    params: {
+      year: formatWithPattern(post.date, 'YYYY'),
+      month: formatWithPattern(post.date, 'MM'),
+      day: formatWithPattern(post.date, 'DD'),
+      slug: post.slug,
+    },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+---
+
+<PostLayout post={post} />

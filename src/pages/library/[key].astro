@@ -1,0 +1,368 @@
+---
+// 节日文化详情页族（/library/<slug>/，12 页）：复刻 themes/fluid/layout/festival.ejs。
+// 页头 + 全宽节日导航条 + 配图（实图 / CSS 纹样两分支）+ 两栏（左正文 / 右 sticky 目录）。
+// 数据：source/_data/festivals.yml（文案与静态素材）+ source/_data/holidays.yml（逐年日期）
+// 计算：src/lib/festival-data.ts（跨源取数、日期表、facts 后三行、章节注入）
+// 脚本：/js/festival.js（进度环 / scrollspy / 收起展开 / 移动抽屉 / 年份表展开）
+
+import fs from 'node:fs';
+import path from 'node:path';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getData } from '../../lib/data';
+import { buildFestival } from '../../lib/festival-data';
+import { fmtItemDate } from '../../lib/dates';
+import { urlFor } from '../../lib/url';
+import { pageFrontMatter, pageDates } from '../../lib/page-meta';
+
+export function getStaticPaths() {
+  const root = path.join(process.cwd(), 'source', 'library');
+  const keys = fs
+    .readdirSync(root)
+    .filter((name) => fs.existsSync(path.join(root, name, 'index.md')));
+
+  return keys.map((key) => {
+    const fm = pageFrontMatter(`library/${key}/index.md`);
+    return { params: { key }, props: { key, fm } };
+  });
+}
+
+// 12 个节日的固定导航序（法定在前、传统在后，PRD §4.1 排序）
+const FS_NAV = [
+  { s: 'yuandan', n: '元旦' },
+  { s: 'chunjie', n: '春节' },
+  { s: 'qingming', n: '清明' },
+  { s: 'duanwu', n: '端午' },
+  { s: 'zhongqiu', n: '中秋' },
+  { s: 'guoqing', n: '国庆' },
+  { s: 'yuanxiao', n: '元宵' },
+  { s: 'qixi', n: '七夕' },
+  { s: 'zhongyuan', n: '中元' },
+  { s: 'chongyang', n: '重阳' },
+  { s: 'dongzhi', n: '冬至' },
+  { s: 'laba', n: '腊八' },
+];
+
+const { key, fm } = Astro.props;
+const data = getData();
+const f = buildFestival(data.festivals, data.holidays, key);
+const { published, modified } = pageDates(`library/${key}/index.md`);
+---
+
+<BaseLayout
+  title={fm.title || '节日文化'}
+  description={fm.description}
+  currentPath={`/library/${key}/`}
+  ogDate={published}
+  ogUpdated={modified}
+>
+  {
+    !f || f.error ? (
+      <div class="paper-page cal-page fs-page">
+        <div class="home-wrap">
+          <header class="page-head">
+            <p class="page-head-kicker">FESTIVAL</p>
+            <h1 class="page-head-title">节日文化</h1>
+          </header>
+          <p class="post-desc">这一页的内容还在整理中，暂时无法展示，欢迎稍后再来看看。</p>
+        </div>
+      </div>
+    ) : (
+      <>
+        <div class="paper-page cal-page fs-page">
+          <div class="home-wrap">
+            <header class="page-head">
+              <nav class="cal-crumb" aria-label="面包屑">
+                <a href={urlFor('/library/')}>资料库</a><span aria-hidden="true">/</span><a href={urlFor('/library/') + '#topic-festivals'}>节日文化</a><span aria-hidden="true">/</span><span class="cal-crumb-now">{f.name}</span>
+              </nav>
+              <p class="page-head-kicker">FESTIVAL</p>
+              <h1 class="page-head-title">{f.name}</h1>
+              <p class="cal-lede"><Fragment set:html={f.lede} /></p>
+              <p class="archive-total">
+                更新于 {fmtItemDate(f.updated)} · {f.pinyin} · {f.legal ? '法定假日 ' + f.statutory + ' 天' : '非法定，不放假'}
+              </p>
+            </header>
+
+            <nav class="fs-nav-strip" aria-label="按节日查看">
+              <span class="fs-nav-strip-label">按节日查看</span>
+              <ul>
+                {FS_NAV.map((nf) => (
+                  <li>
+                    {nf.s === f.slug ? (
+                      <span class="fs-nav-current" aria-current="page">{nf.n}</span>
+                    ) : (
+                      <a href={urlFor('/library/' + nf.s + '/')}>{nf.n}</a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            {f.image && f.image.css === true ? (
+              <figure class="fs-figure">
+                <div class="fs-figure-media fs-figure--css" data-slug={f.slug} aria-hidden="true">
+                  <i class="fs-fig-a" /><i class="fs-fig-b" /><i class="fs-fig-c" />
+                </div>
+              </figure>
+            ) : f.image ? (
+              <figure class="fs-figure">
+                <div class="fs-figure-media">
+                  <img src={f.image.file} alt={f.image.alt} loading="lazy" decoding="async" />
+                </div>
+                <figcaption>
+                  图：<a href={f.image.page} target="_blank" rel="noopener">{f.image.author}</a> / {f.image.license}
+                </figcaption>
+              </figure>
+            ) : null}
+
+            <div class="fs-layout">
+              <div class="fs-main">
+                {f.sections.map((sec: any) => (
+                  <section class="fs-section" id={'sec-' + sec.id}>
+                    <h2 class="fs-section-title">{sec.title}</h2>
+
+                    {sec.id === 'what' ? (
+                      <>
+                        <div class="markdown-body"><Fragment set:html={sec.body} /></div>
+                        {f.facts.length > 0 && (
+                          <div class="cal-table-wrap">
+                            <table class="cal-table fs-facts">
+                              <tbody>
+                                {f.facts.map((fa: any) => (
+                                  <tr>
+                                    <th scope="row">{fa.k}</th>
+                                    <td><Fragment set:html={fa.v} /></td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </>
+                    ) : sec.id === 'when' ? (
+                      <>
+                        <div class="markdown-body"><Fragment set:html={sec.body} /></div>
+                        {f.tableRows.length > 0 && (
+                          <>
+                            <h3 class="fs-sub-title">{f.tableYears[0]}–{f.tableYears[1]} 年{f.name}日期</h3>
+                            <div class="cal-table-wrap">
+                              <table class="cal-table fs-years" data-collapsed="true">
+                                <thead>
+                                  {f.tableMode === 'calendar' ? (
+                                    <tr>
+                                      <th scope="col">年份</th>
+                                      <th scope="col">放假区间（当年内）</th>
+                                      <th scope="col">天数</th>
+                                      <th scope="col">调休上班日</th>
+                                    </tr>
+                                  ) : f.legal ? (
+                                    <tr>
+                                      <th scope="col">年份</th>
+                                      <th scope="col">当天</th>
+                                      <th scope="col">放假区间</th>
+                                      <th scope="col">天数</th>
+                                      <th scope="col">标签</th>
+                                    </tr>
+                                  ) : (
+                                    <tr>
+                                      <th scope="col">年份</th>
+                                      <th scope="col">当天</th>
+                                      <th scope="col">标签</th>
+                                    </tr>
+                                  )}
+                                </thead>
+                                <tbody>
+                                  {f.tableRows.map((tr: any, ti: number) => (
+                                    <tr class={ti === 0 ? 'is-hl' : undefined} data-fs-extra={ti >= 5 ? '' : undefined}>
+                                      <th scope="row"><span class="cal-name">{tr.year}</span></th>
+                                      {f.tableMode === 'calendar' ? (
+                                        <>
+                                          <td>
+                                            <span class="cal-range">
+                                              <time datetime={tr.start}>{tr.start}</time>
+                                              <span class="cal-arrow"> → </span>
+                                              <time datetime={tr.end}>{tr.end}</time>
+                                            </span>
+                                            {tr.arrange && <span class="fs-arrange">{tr.arrange}</span>}
+                                          </td>
+                                          <td><span class="cal-days">{tr.days} 天</span></td>
+                                          <td class="cal-makeup">
+                                            {tr.makeup && tr.makeup.length
+                                              ? tr.makeup.map((m: string) => <span class="cal-makeup-day">{m}</span>)
+                                              : <span class="cal-makeup-none">—</span>}
+                                          </td>
+                                        </>
+                                      ) : f.legal ? (
+                                        <>
+                                          <td class="cal-when">
+                                            <time datetime={tr.date}>{Number(tr.date.slice(5, 7))} 月 {Number(tr.date.slice(8, 10))} 日</time>
+                                            <span class="cal-weekday">{tr.weekday}</span>
+                                          </td>
+                                          <td>
+                                            <span class="cal-range">
+                                              <time datetime={tr.start}>{tr.start}</time>
+                                              <span class="cal-arrow"> → </span>
+                                              <time datetime={tr.end}>{tr.end}</time>
+                                            </span>
+                                            <span class="cal-days">{tr.days} 天</span>
+                                          </td>
+                                          <td><span class="cal-tag">{tr.label}</span></td>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <td class="cal-when">
+                                            <time datetime={tr.date}>{Number(tr.date.slice(5, 7))} 月 {Number(tr.date.slice(8, 10))} 日</time>
+                                            <span class="cal-weekday">{tr.weekday}</span>
+                                            {tr.lunar && <span class="fs-lunar">{tr.lunar}</span>}
+                                          </td>
+                                          <td><span class="cal-tag">{tr.label}</span></td>
+                                        </>
+                                      )}
+                                    </tr>
+                                  ))}
+                                </tbody>
+                                <tfoot>
+                                  <tr>
+                                    <td colspan={f.tableMode === 'calendar' ? 4 : f.legal ? 5 : 3}>
+                                      <button class="fs-years-toggle" type="button" aria-expanded="false">
+                                        展开全部 {f.tableRows.length} 年 ↓
+                                      </button>
+                                    </td>
+                                  </tr>
+                                </tfoot>
+                              </table>
+                            </div>
+                            <p class="fs-note">
+                              日期与本站 <a href={urlFor('/holidays/' + f.currentYear + '/')}>{f.currentYear} 年节假日页</a> 一致；{f.tableYears[0] + 1} 年起为按历法推算的预计值，可能与日后的官方通知不同。
+                            </p>
+                          </>
+                        )}
+                      </>
+                    ) : sec.kind === 'vocab' ? (
+                      <>
+                        {f.vocab.length > 0 && (
+                          <div class="cal-table-wrap">
+                            <table class="cal-table fs-vocab">
+                              <thead>
+                                <tr>
+                                  <th scope="col">中文</th>
+                                  <th scope="col">拼音</th>
+                                  <th scope="col">含义</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {f.vocab.map((vb: any) => (
+                                  <tr>
+                                    <th scope="row"><span class="cal-name">{vb.t}</span></th>
+                                    <td class="cal-pinyin">{vb.p}</td>
+                                    <td>{vb.m}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                        {f.greetings.length > 0 && (
+                          <>
+                            <h3 class="fs-sub-title">{f.greetingsLabel}</h3>
+                            <div class="cal-table-wrap">
+                              <table class="cal-table fs-greetings">
+                                <tbody>
+                                  {f.greetings.map((gr: any) => (
+                                    <tr>
+                                      <th scope="row"><span class="cal-name">{gr.t}</span></th>
+                                      <td class="cal-pinyin">{gr.p}</td>
+                                      <td>{gr.m}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </>
+                        )}
+                      </>
+                    ) : sec.kind === 'faq' ? (
+                      f.faq.length > 0 && (
+                        <div class="fs-faq">
+                          {f.faq.map((item: any) => (
+                            <details class="cal-faq-item">
+                              <summary>{item.q}</summary>
+                              <p>{item.a}</p>
+                            </details>
+                          ))}
+                        </div>
+                      )
+                    ) : sec.body ? (
+                      <div class="markdown-body"><Fragment set:html={sec.body} /></div>
+                    ) : null}
+                  </section>
+                ))}
+
+                <section class="fs-related">
+                  <h2 class="fs-related-title">相关阅读</h2>
+                  <ul class="fs-related-list">
+                    {FS_NAV.filter((rf) => rf.s !== f.slug).map((rf) => (
+                      <li class="fs-related-item">
+                        <a class="fs-related-link" href={urlFor('/library/' + rf.s + '/')}>{rf.n}</a>
+                      </li>
+                    ))}
+                    <li class="fs-related-item">
+                      <a class="fs-related-link fs-related-holiday" href={urlFor('/holidays/' + f.currentYear + '/')}>
+                        {f.currentYear} 年节假日页
+                      </a>
+                    </li>
+                  </ul>
+                </section>
+
+                <div class="cal-after">
+                  <p class="cal-note">{f.notice}</p>
+                </div>
+              </div>
+
+              <aside class="fs-toc" aria-label="目录">
+                <div class="fs-toc-head">
+                  <span class="fs-toc-label">目录</span>
+                  <button class="fs-toc-toggle" type="button" aria-expanded="true" aria-label="收起目录">
+                    <svg class="fs-toc-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+                  </button>
+                </div>
+                <ol class="fs-toc-list">
+                  {f.sections.map((tsec: any) => (
+                    <li><a href={'#sec-' + tsec.id}>{tsec.title}</a></li>
+                  ))}
+                </ol>
+                <div class="fs-toc-progress">
+                  <svg class="fs-ring" width="36" height="36" viewBox="0 0 36 36" aria-hidden="true">
+                    <circle class="fs-ring-bg" cx="18" cy="18" r="15.5" />
+                    <circle class="fs-ring-fill" id="fsProgressRing" cx="18" cy="18" r="15.5" stroke-dasharray="97.4" stroke-dashoffset="97.4" />
+                  </svg>
+                  <span class="fs-toc-progress-text">已读 0%</span>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+
+        <button class="fs-toc-fab" type="button" aria-label="打开目录">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18M3 6h18M3 18h18" /></svg>
+          <span>目录</span>
+        </button>
+        <div class="fs-toc-overlay" />
+        <div class="fs-toc-sheet" role="dialog" aria-label="目录" aria-hidden="true">
+          <div class="fs-toc-sheet-head">
+            <span class="fs-toc-label">目录</span>
+            <button class="fs-toc-sheet-close" type="button" aria-label="关闭目录">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+            </button>
+          </div>
+          <ol class="fs-toc-list">
+            {f.sections.map((msec: any) => (
+              <li><a href={'#sec-' + msec.id}>{msec.title}</a></li>
+            ))}
+          </ol>
+        </div>
+
+        <script src="/js/festival.js" defer />
+      </>
+    )
+  }
+</BaseLayout>

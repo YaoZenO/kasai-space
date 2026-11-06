@@ -16,3 +16,8 @@ _multiconfig.yml
 
 # favicon 候选生成物（临时）：正式产物在 source/img/favicon-*.png 与 source/favicon.ico
 design/favicon-candidates/
+
+# Astro 迁移：构建期资源目录与产物（均从 source/ 与 themes/ 生成，不入库）
+static-public/
+dist/
+.astro/

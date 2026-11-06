@@ -1,0 +1,23 @@
+---
+// /games/<slug>/：游戏详情页（复刻 game.ejs，路由来自 module-pages.js）
+import GameDetail from '../../components/GameDetail.astro';
+import { getModuleItems, detailPath, slugOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  const items = getModuleItems('games');
+  return items.map((item, idx) => ({
+    // 同 projects：传原始 slug/标题，由 Astro 负责百分号编码。
+    params: { slug: item.slug || String(item.title) },
+    props: {
+      item,
+      prevItem: idx > 0 ? { title: items[idx - 1].title, path: detailPath('games', items[idx - 1]) } : null,
+      nextItem:
+        idx < items.length - 1 ? { title: items[idx + 1].title, path: detailPath('games', items[idx + 1]) } : null,
+    },
+  }));
+}
+
+const { item, prevItem, nextItem } = Astro.props;
+---
+
+<GameDetail item={item} prevItem={prevItem} nextItem={nextItem} />

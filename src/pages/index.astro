@@ -1,0 +1,275 @@
+---
+// 首页：复刻 index.ejs 的静态壳。
+// 原则：全部真实数据驱动，无数据不渲染空模块，不制造失效链接。
+
+import { createRequire } from 'node:module';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getData } from '../lib/data';
+import { getPosts } from '../lib/posts';
+import { excerptText } from '../lib/excerpt';
+import { siteConfig, themeConfig } from '../lib/site-config';
+import { urlFor } from '../lib/url';
+import { fmtItemDate, formatWithPattern } from '../lib/dates';
+
+const require = createRequire(process.cwd() + '/');
+// 精选池与现站共用同一份实现，避免两套规则漂移
+const { pickPool } = require(process.cwd() +
+  '/themes/fluid/scripts/helpers/curation-pool.js') as any;
+const { stripHTML } = require('hexo-util') as any;
+
+const data = getData();
+const posts = getPosts();
+const siteCfg = data.site || {};
+const postUrlTarget = String(themeConfig.index?.post_url_target || '_self');
+
+const identityIntro = siteCfg.intro || themeConfig.about?.intro || '';
+const identityAvatar = siteCfg.avatar || themeConfig.about?.avatar || '';
+const motto = siteCfg.motto || themeConfig.about?.motto || '';
+
+// 内容模块入口格：单一数据源 source/_data/modules.yml（缺失时回退内置默认）
+let moduleCfg: any[] = data.modules?.items || [];
+if (!moduleCfg.length) {
+  moduleCfg = [
+    { key: 'projects', title: '项目', accent: 'yellow', page: '/projects/' },
+    { key: 'games', title: '游戏', accent: 'orange', page: '/games/' },
+    { key: 'collections', title: '收藏', accent: '', page: '/collections/' },
+  ];
+}
+
+const wallModules = moduleCfg
+  .filter((m: any) => m && m.key)
+  .map((m: any) => {
+    const d = data[m.key as keyof typeof data];
+    const items = (d && Array.isArray(d.items) ? d.items : []).filter((it: any) => it && it.title);
+    if (!items.length) return null;
+    const cover = items.find((it: any) => it.cover)?.cover || '';
+    return {
+      key: m.key,
+      title: m.title || m.key,
+      accent: m.accent || '',
+      page: m.page || '',
+      count: items.length,
+      cover,
+      items,
+    };
+  })
+.filter(Boolean) as any[];
+
+// 跨类型精选池：主卡 + 精选内容 + 最新文字（规则见 curation-pool.js）
+const pool = pickPool(
+  { posts: { toArray: () => posts, length: posts.length } },
+  data,
+  { today: Date.now(), noLedger: true }
+);
+const hero = pool.hero as any;
+const picks = (pool.picks || []) as any[];
+const heroExcerpt = hero
+  ? hero.summary || (hero._raw ? excerptText(String(hero._raw.content || ''), 90) : '')
+  : '';
+
+// 「最新文字」：全站最新 3 篇有实质内容的文章（空壳除外）。
+// 判定与 index.ejs 的 postHasSubstance 一致：正文去标点后不能只剩标题。
+const PUNCT_RE = /[\s\u3000-\u303f\uff00-\uffef!-\/:-@\[-`{-~]/g;
+function bodyTextLength(html: string): number {
+  return String(stripHTML(html || '')).replace(PUNCT_RE, '').length;
+}
+function postHasSubstance(p: any): boolean {
+  const body = bodyTextLength(p.content);
+  const title = String(p.title || '').replace(PUNCT_RE, '');
+  const realLen = title && body === title.length ? 0 : body;
+  return realLen >= 1 || !!p.cover || !!p.featured;
+}
+const latestPosts = posts.slice(0, 3).filter(postHasSubstance);
+
+// 跨类型动态聚合：文章 + 各类型带 date 的条目
+type FeedRow = { type: string; title: string; link: string; date: number };
+const feed: FeedRow[] = [];
+const feedSeen: Record<string, 1> = {};
+for (const p of posts) {
+  const key = '文章|' + p.path;
+  if (feedSeen[key]) continue;
+  feedSeen[key] = 1;
+  feed.push({ type: '文章', title: p.title, link: p.href, date: p.date.valueOf() });
+}
+for (const m of wallModules) {
+  for (const it of m.items) {
+    if (!it.date) continue;
+    const key = m.title + '|' + it.title;
+    if (feedSeen[key]) continue;
+    feedSeen[key] = 1;
+    const detail = m.page ? '/' + m.key + '/' + (it.slug || encodeURIComponent(String(it.title))) + '/' : '';
+    feed.push({ type: m.title, title: it.title, link: detail || it.link || '', date: new Date(it.date).valueOf() });
+  }
+}
+feed.sort((a, b) => b.date - a.date);
+
+const feedTypes: Record<string, 1> = {};
+feed.forEach(f => { feedTypes[f.type] = 1; });
+const feedRows = Object.keys(feedTypes).length > 1 ? feed.slice(0, 6) : [];
+
+const libraryTopicCount = Array.isArray(data.library?.topics) ? data.library.topics.length : 0;
+const wallOverflow = wallModules.length + 1 > 4;
+
+// 页脚在没有 motto 时退回「SINCE <最早文章年份> · <站名>」（index.ejs 同款兜底）
+const sinceYear = posts.length
+  ? String(Math.min(...posts.map(p => p.date.getFullYear())))
+  : '';
+const endLine = motto
+  ? `—— ${motto}`
+  : sinceYear
+    ? `SINCE ${sinceYear} · ${String(siteConfig.title || '')}`
+    : '';
+---
+
+<BaseLayout isHome currentPath="/">
+  <div class="home" id="top">
+    <section class="home-hero home-wrap">
+      <div class="identity">
+        <div class="identity-avatar">
+          {identityAvatar ? (
+            <img class="identity-avatar-img" src={urlFor(identityAvatar)} alt={`${siteConfig.title} 头像`} />
+          ) : (
+            <span class="identity-avatar-fallback">{String(siteConfig.title || 'K').substring(0, 1)}</span>
+          )}
+        </div>
+        <h1 class="identity-name">{siteConfig.title}</h1>
+        {identityIntro && <p class="identity-tagline">{identityIntro}</p>}
+        <div class="identity-cta">
+          <a class="cta-solid" href={urlFor('/archives/')}>进入文字 →</a>
+          <a class="cta-link" href={urlFor('/about/')}>关于我 →</a>
+        </div>
+      </div>
+
+      <div class="wall">
+        {hero && (
+          <article class={`wall-feature${hero.cover ? ' has-cover' : ''}`}>
+            {hero.cover && (
+              <>
+                <img class="wall-feature-img" src={urlFor(hero.cover)} alt={hero.title} />
+                <div class="wall-feature-mask" />
+              </>
+            )}
+            <div class="wall-feature-body">
+              <p class="wall-feature-meta">
+                {hero.fallback ? 'LATEST' : hero.pin && hero.pin.active ? 'PINNED' : 'FEATURED'} · {hero.kindLabel}
+                {hero.date ? ` · ${fmtItemDate(hero.date)}` : ''}
+              </p>
+              <h2 class="wall-feature-title">
+                <a href={urlFor(hero.url)} target={postUrlTarget}>{hero.title}</a>
+              </h2>
+              {heroExcerpt && <p class="wall-feature-desc">{heroExcerpt}</p>}
+              <a class="wall-feature-more" href={urlFor(hero.url)} target={postUrlTarget}>查看详情 →</a>
+            </div>
+          </article>
+        )}
+        {wallModules.map((m: any) => {
+          const latestTitle = m.items.length ? m.items[0].title : '';
+          const Tag = m.page ? 'a' : 'div';
+          return (
+            <Tag class={`wall-cell cell-${m.accent || 'plain'}`} {...(m.page ? { href: urlFor(m.page) } : {})}>
+              {m.cover ? (
+                <>
+                  <img class="wall-cell-img" src={urlFor(m.cover)} alt={m.title} />
+                  <div class="wall-cell-mask" />
+                  <div class="wall-cell-body">
+                    {latestTitle ? (
+                      <span class="wall-cell-tag">最新 · {latestTitle}</span>
+                    ) : (
+                      <span class="wall-cell-tag"># {m.title}</span>
+                    )}
+                    <span class="wall-cell-name">{m.title} / {m.count} →</span>
+                  </div>
+                </>
+              ) : (
+                <div class="wall-cell-body">
+                  <span class="wall-cell-title">{m.title}<span class="wall-cell-count"> · {m.count}</span></span>
+                  {latestTitle && <span class="wall-cell-item">最新 · {latestTitle}</span>}
+                </div>
+              )}
+            </Tag>
+          );
+        })}
+
+        <a class={`wall-cell cell-plain${wallOverflow ? ' wall-cell-wide' : ''}`} href={urlFor('/library/')}>
+          <div class="wall-cell-body">
+            <span class="wall-cell-title">资料库<span class="wall-cell-count"> · {libraryTopicCount}</span></span>
+            <span class="wall-cell-item">按专题浏览</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <div class={`home-wrap home-cols cols-${picks.length ? 2 : 1}`}>
+      {picks.length > 0 && (
+        <section class="home-col">
+          <div class="col-head">
+            <h2 class="col-title">精选内容 <span class="col-count">/{picks.length}</span></h2>
+          </div>
+          <div class="pick-list">
+            {picks.map((it: any, idx: number) => (
+              <a class={`pick-row${idx === 0 ? ' is-lead' : ''}`} href={urlFor(it.url)}>
+                {it.cover && <img class="pick-img" src={urlFor(it.cover)} alt={it.title} />}
+                <div class="pick-main">
+                  <span class="pick-title">{it.title}<span class="pick-kind">{it.kindLabel}</span></span>
+                  {it.summary && <span class="pick-desc">{it.summary}</span>}
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section class="home-col">
+        <div class="col-head">
+          <h2 class="col-title">最新文字 <span class="col-count">/{latestPosts.length}</span></h2>
+          <a class="col-more" href={urlFor('/archives/')}>查看全部文字 →</a>
+        </div>
+        <ol class="post-list">
+          {latestPosts.map(p => (
+            <li class="post-row">
+              <div class="post-main">
+                <time class="post-time" datetime={formatWithPattern(p.date, 'YYYY-MM-DD HH:mm')} pubdate>
+                  {formatWithPattern(p.date, 'YYYY-MM-DD')}
+                </time>
+                <a class="post-title" href={p.href} target={postUrlTarget}>{p.title}</a>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+    </div>
+
+    {feedRows.length > 0 && (
+      <section class="ink-band">
+        <div class="home-wrap">
+          <div class="col-head">
+            <h2 class="col-title">最近更新 <span class="col-count">/{feedRows.length}</span></h2>
+          </div>
+          <div class="feed-grid">
+            {feedRows.map((f: FeedRow) => (
+              <div class="feed-row">
+                <span class="feed-type"># {f.type}</span>
+                {f.link ? (
+                  <a
+                    class="feed-title"
+                    href={f.link}
+                    target={f.link.indexOf('http') === 0 ? '_blank' : '_self'}
+                    rel="noopener"
+                  >{f.title}</a>
+                ) : (
+                  <span class="feed-title">{f.title}</span>
+                )}
+                <time class="feed-date" datetime={fmtItemDate(f.date)}>{fmtItemDate(f.date)}</time>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    <footer class="home-end">
+      <p class="end-line">{endLine}</p>
+      <a class="end-top" href="#top">TOP ↑</a>
+    </footer>
+  </div>
+</BaseLayout>

@@ -1,0 +1,13 @@
+---
+// /games/：模块列表页（封面墙），数据来自 source/_data/games.yml
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ModuleIndex from '../../components/ModuleIndex.astro';
+import { getData } from '../../lib/data';
+
+const items = (getData().games?.items || []).filter((it: any) => it && it.title);
+const title = '游戏';
+---
+
+<BaseLayout title={title} currentPath="/games/">
+  <ModuleIndex moduleKey="games" moduleTitle={title} items={items} />
+</BaseLayout>

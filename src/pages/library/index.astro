@@ -1,0 +1,89 @@
+---
+// 资料库页（/library/）：复刻 themes/fluid/layout/library.ejs 的专题卡片墙。
+//
+// 2026-11-04 改为「专题卡片墙」（PLAN-V3 §5）：旧版把五个专题的全部条目平铺成
+// 28 行目录，读者要找一个城市得先知道它属于哪个榜。现在这里只回答一个问题
+// ——「站上有哪几类资料」，每一类点进去有自己的列表页。
+//
+// 数据：source/_data/library.yml（新增专题只改数据，本文据此自动渲染）
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getData } from '../../lib/data';
+import { buildCityRanks } from '../../lib/cityrank-data';
+import { fmtItemDate } from '../../lib/dates';
+import { urlFor } from '../../lib/url';
+import { pageDates } from '../../lib/page-meta';
+
+const data = getData();
+const { published, modified } = pageDates('library/index.md');
+const lb = data.library || {};
+const topics: any[] = Array.isArray(lb.topics) ? lb.topics : [];
+const meta = lb.meta || {};
+
+/* 每个专题的「真实内容量」。数字一律从数据现算，不写死——城市从 431 涨到 500、
+   榜单从 145 变 150 时，这里一个字都不用改。cityrank 走 helper 现算
+   （榜数与名次都不落盘，CITY-RANK-PRD §5.1）。新增专题若不在这张表里，
+   退回用它在 library.yml 的 entries 条数。 */
+let crCache: any = null;
+
+function countOf(key: string, entries: any): number {
+  if (key === 'zodiac') return (data.zodiac?.animals || []).length;
+  if (key === 'holidays') return (data.holidays?.years || []).length;
+  if (key === 'festivals') return (data.festivals?.festivals || []).length;
+  if (key === 'city') return (data.cities?.cities || []).length;
+  if (key === 'cityrank') {
+    if (!crCache) crCache = buildCityRanks(data);
+    return crCache && !crCache.error ? crCache.rankCount : 0;
+  }
+  return (entries || []).length;
+}
+
+const UNITS: Record<string, string> = { zodiac: '个生肖', holidays: '年', festivals: '个节日', cityrank: '个榜单', city: '座城市' };
+function unitOf(key: string): string { return UNITS[key] || '条'; }
+---
+
+<BaseLayout title="资料库" currentPath="/library/" ogDate={published} ogUpdated={modified}>
+  {topics.length === 0 ? (
+    <div class="paper-page cal-page lb-page">
+      <div class="home-wrap">
+        <header class="page-head">
+          <p class="page-head-kicker">LIBRARY</p>
+          <h1 class="page-head-title">资料库</h1>
+        </header>
+        <p class="post-desc">资料库的专题还在整理中，上线后即可阅读，欢迎稍后再来看看。</p>
+      </div>
+    </div>
+  ) : (
+    <div class="paper-page cal-page lb-page">
+      <div class="home-wrap">
+        <header class="page-head">
+          <p class="page-head-kicker">LIBRARY</p>
+          <h1 class="page-head-title">资料库</h1>
+          <p class="cal-lede">{meta.intro || ''}</p>
+          <p class="archive-total">更新于 {fmtItemDate(meta.updated)} · {topics.length} 个专题 · 资料持续增补</p>
+        </header>
+
+        <div class="lb-cards">
+          {topics.map((tp: any) => {
+            const n = countOf(tp.key, tp.entries);
+            return (
+              <a class="lb-card" href={urlFor(tp.link || '/library/')}>
+                <span class="lb-card-kicker">{tp.kicker || ''}</span>
+                <span class="lb-card-title">{tp.title}</span>
+                <span class="lb-card-desc">{tp.desc || ''}</span>
+                <span class="lb-card-foot">
+                  <span class="lb-card-count">{n} <span class="lb-card-unit">{unitOf(tp.key)}</span></span>
+                  <span class="lb-card-go">{tp.linkText || '进入专题'} <span aria-hidden="true">→</span></span>
+                </span>
+              </a>
+            );
+          })}
+        </div>
+
+        <div class="cal-after">
+          <p class="cal-note">资料库收录本站整理的专题系列；各专题页面内的日期与历法数据依据公开资料，民俗与说法部分已注明口径。</p>
+        </div>
+      </div>
+    </div>
+  )}
+</BaseLayout>

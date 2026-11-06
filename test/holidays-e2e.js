@@ -22,7 +22,7 @@ const yaml = require('js-yaml');
 const { buildCalendar, tipPayload, toKey, weekdayOf, spanDays } = require('../themes/fluid/scripts/helpers/holiday-calendar.js');
 
 const ROOT = path.join(__dirname, '..');
-const PUBLIC = path.join(ROOT, 'public');
+const PUBLIC = path.join(ROOT, process.env.SITE_OUT || 'public');
 const PAGE = path.join(PUBLIC, 'holidays', 'index.html');
 // 默认页（/holidays/）现在固定显示「当前年」2026，所以凡是按 2027 写死的断言都改看
 // 2027 自己的年份页，不再依赖默认页翻到哪一年。

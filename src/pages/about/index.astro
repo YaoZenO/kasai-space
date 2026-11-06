@@ -1,0 +1,99 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getData } from '../../lib/data';
+import { themeConfig } from '../../lib/site-config';
+import { t } from '../../lib/i18n';
+import { urlFor } from '../../lib/url';
+import { excerptFromMarkdown } from '../../lib/excerpt';
+import { pageDates } from '../../lib/page-meta';
+
+const pages = await getCollection('pages');
+// Astro 的 glob loader 会把 index.md 的 id 收敛成目录名（about / now）
+const entry = pages.find(p => p.id === 'about');
+if (!entry) throw new Error('缺少 source/about/index.md: ' + pages.map(p => p.id).join(','));
+
+const { Content } = await render(entry);
+const description = excerptFromMarkdown(entry.body || '');
+const { published, modified } = pageDates('about/index.md');
+
+const siteData = getData().site || {};
+const aboutIntro = siteData.intro || themeConfig.about?.introduce || themeConfig.about?.intro || '';
+const aboutAvatar = siteData.avatar || themeConfig.about?.avatar || '';
+const aboutName = themeConfig.about?.name || '';
+
+// 图标三态：链接 / 复制 / 二维码
+const icons: any[] = themeConfig.about?.icons || [];
+const hasCopyIcon = icons.some((e: any) => e && e.class && !e.link && e.copy);
+
+function iconAttrs(each: any): Record<string, any> {
+  const isQr = Boolean(each.qrcode);
+  const isCopy = !isQr && !each.link && Boolean(each.copy);
+  const attrs: Record<string, any> = {
+    href: isCopy ? 'javascript:;' : isQr ? undefined : urlFor(each.link),
+    target: isQr || isCopy ? '_self' : '_blank',
+  };
+  const cls = [
+    isQr ? 'qr-trigger' : '',
+    isCopy ? 'about-icon-copy' : '',
+    !isQr && each.tip ? 'hint--bottom hint--rounded' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+  if (cls) attrs.class = cls;
+  if (isCopy) attrs['data-copy'] = each.copy;
+  if (!isQr && each.tip) attrs['aria-label'] = each.tip;
+  return attrs;
+}
+---
+
+<BaseLayout
+  title={themeConfig.about?.title || t('about').title}
+  description={description}
+  descriptionPreformatted={true}
+  ogDate={published}
+  ogUpdated={modified}
+>
+  <div class="paper-page">
+    <div class="home-wrap about-page">
+      <header class="about-head">
+        <div class="about-head-main">
+          <p class="page-head-kicker">ABOUT</p>
+          <h1 class="page-head-title">{aboutName}</h1>
+          {aboutIntro && <p class="about-head-intro" set:html={aboutIntro} />}
+          {
+            icons.length > 0 && (
+              <ul class="about-icons">
+                {icons.map((each: any) =>
+                  each.class ? (
+                    <a {...iconAttrs(each)}>
+                      <i class={each.class} aria-hidden="true" />
+                      {each.qrcode && (
+                        <img class="qr-img" src={urlFor(each.qrcode)} alt="qrcode" loading="lazy" />
+                      )}
+                    </a>
+                  ) : null
+                )}
+              </ul>
+            )
+          }
+        </div>
+        {
+          aboutAvatar && (
+            <div class="about-avatar-box">
+              <img src={urlFor(aboutAvatar)} alt="avatar" />
+            </div>
+          )
+        }
+      </header>
+
+      <article class="about-body">
+        <div class="markdown-body">
+          <Content />
+        </div>
+      </article>
+    </div>
+  </div>
+
+  {hasCopyIcon && <script defer src="/js/about.js" />}
+</BaseLayout>

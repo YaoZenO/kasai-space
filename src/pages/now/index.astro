@@ -1,0 +1,29 @@
+---
+import { getCollection, render } from 'astro:content';
+import PaperLayout from '../../layouts/PaperLayout.astro';
+import { excerptFromMarkdown } from '../../lib/excerpt';
+import { pageDates } from '../../lib/page-meta';
+
+const pages = await getCollection('pages');
+const entry = pages.find(p => p.id === 'now');
+if (!entry) throw new Error('缺少 source/now/index.md: ' + pages.map(p => p.id).join(','));
+
+const { Content } = await render(entry);
+const { title, kicker, show_updated } = entry.data as any;
+// article:* 用 front matter 的 show_updated，不用文件 mtime：
+// Vercel 每次全新 checkout，mtime 等于部署时刻，会让同一提交产出不同 head（E-028）。
+const { published, modified } = pageDates('now/index.md');
+const description = excerptFromMarkdown(entry.body || '');
+---
+
+<PaperLayout
+  title={title}
+  kicker={kicker}
+  updated={show_updated}
+  description={description}
+  descriptionPreformatted={true}
+  ogDate={published}
+  ogUpdated={modified}
+>
+  <Content />
+</PaperLayout>

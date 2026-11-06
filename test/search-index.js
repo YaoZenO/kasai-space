@@ -12,7 +12,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
-const PUBLIC = path.join(ROOT, 'public');
+const PUBLIC = path.join(ROOT, process.env.SITE_OUT || 'public');
 const INDEX = path.join(PUBLIC, 'search-index.json');
 
 let pass = 0;

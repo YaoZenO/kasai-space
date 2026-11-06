@@ -1,0 +1,202 @@
+---
+// 主导航（与 _partials/site/nav.ejs 输出 DOM 一致）
+// 结构：#navbar > .site-nav-inner > 品牌 / .site-nav-center（胶囊 + aux）/ .site-nav-actions
+// 另含移动端九宫格 #mobile-grid-menu。
+
+import { navbarMenu, navbarAuxMenu, themeConfig } from '../lib/site-config';
+import { urlFor } from '../lib/url';
+import { zhCN } from '../lib/i18n';
+
+interface Props {
+  currentPath: string;
+}
+
+const { currentPath } = Astro.props;
+
+// 菜单 key → 中文名（theme 语言包）
+function menuName(item: any): string {
+  if (item.name) return item.name;
+  switch (item.key) {
+    case 'home':
+      return zhCN.home.menu;
+    case 'archive':
+      return zhCN.archive.menu;
+    case 'about':
+      return zhCN.about.menu;
+    case 'links':
+      return zhCN.links.menu;
+    default:
+      return item.key || '';
+  }
+}
+
+// 当前项判定与 nav.ejs 一致：根路径精确匹配，其余按前缀匹配
+function isActive(link?: string): boolean {
+  if (!link) return false;
+  const href = urlFor(link);
+  if (href === '/') return currentPath === '/';
+  return currentPath.indexOf(href) === 0;
+}
+
+// 是否隐藏搜索按钮
+const showSearch = Boolean(themeConfig.search?.enable);
+const blogTitle: string = themeConfig.navbar?.blog_title || '';
+---
+
+<div class="header-inner" style="height: 0vh;">
+  <nav id="navbar" class="navbar fixed-top navbar-dark scrolling-navbar site-nav">
+    <div class="site-nav-inner">
+      <a class="navbar-brand site-brand" href="/">
+        <strong>{blogTitle}</strong>
+      </a>
+
+      <div class="site-nav-center">
+        <div class="site-nav-capsule">
+          <ul class="site-nav-list">
+            {
+              navbarMenu.map(item => (
+                <li class={`nav-item${item.submenu ? ' dropdown' : ''}${isActive(item.link) || (item.submenu && item.submenu.some((c: any) => isActive(c.link))) ? ' active' : ''}`}>
+                  {item.submenu ? (
+                    <>
+                      <a
+                        class="nav-link dropdown-toggle"
+                        target={item.target || '_self'}
+                        href="javascript:;"
+                        role="button"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                      >
+                        <span>{menuName(item)}</span>
+                      </a>
+                      <div class="dropdown-menu">
+                        {item.submenu.map((child: any) => (
+                          <a
+                            class={`dropdown-item${isActive(child.link) ? ' active' : ''}`}
+                            href={urlFor(child.link)}
+                            target={child.target || '_self'}
+                            aria-current={isActive(child.link) ? 'page' : undefined}
+                          >
+                            <span>{menuName(child)}</span>
+                          </a>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <a
+                      class="nav-link"
+                      href={urlFor(item.link)}
+                      target={item.target || '_self'}
+                      aria-current={isActive(item.link) ? 'page' : undefined}
+                    >
+                      {item.icon && <i class={item.icon} />}
+                      <span>{menuName(item)}</span>
+                    </a>
+                  )}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        {
+          navbarAuxMenu.length > 0 && (
+            <nav class="site-nav-aux" aria-label="资料与工具">
+              {navbarAuxMenu.map(item => (
+                <a
+                  class={`site-nav-aux-link${isActive(item.link) ? ' active' : ''}`}
+                  href={urlFor(item.link)}
+                  aria-current={isActive(item.link) ? 'page' : undefined}
+                >
+                  <span>{menuName(item)}</span>
+                </a>
+              ))}
+            </nav>
+          )
+        }
+      </div>
+
+      <div class="site-nav-actions">
+        {showSearch && (
+          <a id="search-btn" class="nav-link" target="_self" href="/search/" aria-label="搜索站内内容">
+            <i class="iconfont icon-search" />
+          </a>
+        )}
+        <button
+          id="navbar-toggler-btn"
+          class="navbar-toggler site-nav-toggle"
+          type="button"
+          aria-controls="mobile-grid-menu"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <div class="animated-icon"><span></span><span></span><span></span></div>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile grid menu overlay -->
+  <div id="mobile-grid-menu" class="site-mobile-menu">
+    <div class="mobile-grid-menu-inner">
+      <div class="container">
+        <div class="row">
+          {
+            navbarMenu.map(item =>
+              item.submenu ? (
+                <>
+                  <div class="col-12 mobile-grid-group-header">
+                    <span>{menuName(item)}</span>
+                  </div>
+                  {item.submenu.map((child: any) => (
+                    <div class="col-4 mobile-grid-cell">
+                      <a href={urlFor(child.link)} target={child.target || '_self'}>
+                        <div class="mobile-grid-item">
+                          <i class="iconfont icon-link-fill" />
+                          <span>{menuName(child)}</span>
+                        </div>
+                      </a>
+                    </div>
+                  ))}
+                </>
+              ) : (
+                <div class="col-4 mobile-grid-cell">
+                  <a href={urlFor(item.link)} target={item.target || '_self'}>
+                    <div class="mobile-grid-item">
+                      <i class={item.icon || 'iconfont icon-link-fill'} />
+                      <span>{menuName(item)}</span>
+                    </div>
+                  </a>
+                </div>
+              )
+            )
+          }
+
+          {showSearch && (
+            <div class="col-4 mobile-grid-cell" id="mobile-search-btn">
+              <a href="/search/" aria-label="搜索站内内容">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-search" />
+                  <span>搜索</span>
+                </div>
+              </a>
+            </div>
+          )}
+
+          {
+            navbarAuxMenu.map(item => (
+              <div class="col-4 mobile-grid-cell">
+                <a href={urlFor(item.link)}>
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill" />
+                    <span>{menuName(item)}</span>
+                  </div>
+                </a>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

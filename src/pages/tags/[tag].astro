@@ -1,0 +1,29 @@
+---
+// 标签详情页（复刻 layout/tag.ejs）
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArchiveList from '../../components/ArchiveList.astro';
+import { getTags } from '../../lib/posts';
+import { zhCN } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return getTags().map(tag => ({
+    params: { tag: tag.slug },
+    props: { name: tag.name, posts: tag.posts },
+  }));
+}
+
+const { name, posts } = Astro.props;
+---
+
+<BaseLayout title={`${zhCN.tag.title} - ${name}`} markdownPlugins={false}>
+  <div class="paper-page">
+    <div class="home-wrap">
+      <header class="page-head">
+        <p class="page-head-kicker">TAG</p>
+        <h1 class="page-head-title"># {name}</h1>
+      </header>
+      <ArchiveList posts={posts} total={posts.length} keyName="tag" />
+    </div>
+  </div>
+</BaseLayout>

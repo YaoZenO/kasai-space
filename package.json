@@ -1,5 +1,5 @@
 {
-  "name": "kasai-space",
+  "name": "hexo-site",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -7,6 +7,9 @@
     "clean": "hexo clean",
     "deploy": "hexo deploy",
     "server": "hexo server",
+    "astro:assets": "node tools/prepare-assets.mjs",
+    "astro:build": "node tools/prepare-assets.mjs && astro build && node tools/encode-module-paths.mjs && node tools/stamp-assets.mjs",
+    "astro:verify": "node tools/verify-urls.mjs --mode=exact",
     "test:admin": "node test/admin-smoke.js",
     "test:pages": "node test/module-pages-e2e.js",
     "test:tokens": "node test/css-tokens.js",
@@ -26,6 +29,9 @@
   "hexo": {
     "version": "8.1.1"
   },
+  "engines": {
+    "node": "22.x"
+  },
   "dependencies": {
     "hexo": "^8.0.0",
     "hexo-generator-archive": "^2.0.0",
@@ -39,5 +45,13 @@
     "hexo-renderer-stylus": "^3.0.1",
     "hexo-server": "^3.0.0",
     "hexo-theme-landscape": "^1.0.0"
+  },
+  "devDependencies": {
+    "astro": "^7.4.7",
+    "hexo-util": "4.0.0",
+    "js-yaml": "^4.3.2",
+    "marked": "15.0.12",
+    "rehype-slug": "^6.0.0",
+    "stylus": "^0.64.0"
   }
 }

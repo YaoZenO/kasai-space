@@ -1,0 +1,105 @@
+---
+// 城市排行榜索引页（/cityrank/）：复刻 themes/fluid/layout/cityrank.ejs 的榜单总览分支。
+// 排版沿用资料库页（/library/）的「左导读栏 + 右专题卡」结构，视觉走本站纸面体系。
+// 数据：source/_data/cityrank.yml（榜单定义）+ source/_data/cities.yml（城市数据）
+// 计算：src/lib/cityrank-data.ts（名次现算，不存名次）
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getData } from '../../lib/data';
+import { buildCityRanks } from '../../lib/cityrank-data';
+import { fmtItemDate } from '../../lib/dates';
+import { urlFor } from '../../lib/url';
+
+const data = getData();
+const CR = buildCityRanks(data);
+const title = CR.meta?.title || '城市排行榜';
+---
+
+<BaseLayout title={title} currentPath="/cityrank/">
+  <div class="paper-page cal-page cr-page">
+    <div class="home-wrap">
+      {CR.error ? (
+        <>
+          <header class="page-head">
+            <p class="page-head-kicker">CITY RANK</p>
+            <h1 class="page-head-title">城市排行榜</h1>
+          </header>
+          <p class="post-desc">城市榜的数据还在整理中，暂时无法展示。我们会尽快补齐，欢迎稍后再来看看。</p>
+        </>
+      ) : (
+        <>
+          <header class="page-head">
+            <nav class="cal-crumb" aria-label="面包屑">
+              <a href={urlFor('/library/')}>资料库</a><span aria-hidden="true">/</span><span class="cal-crumb-now">城市排行榜</span>
+            </nav>
+            <p class="page-head-kicker">CITY RANK</p>
+            <h1 class="page-head-title">城市排行榜</h1>
+            <p class="cal-lede">{CR.meta.intro || ''}</p>
+            <p class="archive-total">更新于 {fmtItemDate(CR.meta.updated)} · {CR.rankCount} 个榜单 · {CR.cityCount} 座城市 · 数据年份 {CR.cityMeta.dataYear || '2025'}</p>
+          </header>
+
+          <div class="lb-layout">
+            <aside class="lb-guide" aria-label="主题导航">
+              <div class="lb-guide-label">{CR.meta.guideLabel || '主题导航'}</div>
+              <ul class="lb-guide-list">
+                {CR.groups.map((gt: any) => (
+                  <li>
+                    <a href={`#group-${gt.key}`}>
+                      <span class="lb-guide-title">{gt.title}</span>
+                      <span class="lb-guide-count">{gt.ranks.length}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              {CR.meta.guideNote && (
+                <p class="lb-guide-note">{CR.meta.guideNote}</p>
+              )}
+            </aside>
+
+            <div class="lb-main">
+              {CR.groups.map((tp: any) => (
+                <section class="lb-topic" id={`group-${tp.key}`}>
+                  <div class="col-head">
+                    <div>
+                      <p class="page-head-kicker">{tp.kicker || ''}</p>
+                      <h2 class="col-title">{tp.title}</h2>
+                    </div>
+                    <span class="col-count">/ {tp.ranks.length}</span>
+                  </div>
+                  <p class="lb-topic-desc">{tp.desc || ''}</p>
+
+                  {tp.ranks.length === 0 ? (
+                    <p class="cr-empty">这一组还没有榜单。</p>
+                  ) : (
+                    <ul class="lb-entries">
+                      {tp.ranks.map((rk: any) => {
+                        const noteText = rk.kind === 'computed' && rk.items.length
+                          ? ''
+                          : (rk.lede || '');
+                        return (
+                          <li class="lb-entry">
+                            <a href={urlFor('/cityrank/' + rk.slug + '/')}>
+                              <span class="lb-entry-name">{rk.title}</span>
+                              {rk.kind === 'computed' && rk.items.length > 0
+                                ? rk.items.slice(0, 3).map((pit: any) => `${pit.rank} ${pit.name}`).join(' · ')
+                                : null}
+                              {noteText && <span class="lb-entry-note">{noteText}</span>}
+                            </a>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </section>
+              ))}
+
+              <div class="cal-after">
+                <p class="cal-note">本站计算的榜单，指标与权重都写在榜页上，名次由数据算出、可以复算；参考榜整理自公开榜单名次。</p>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  </div>
+</BaseLayout>

@@ -133,7 +133,7 @@ ok('模板不用 css()/js() helper 处理带版本号的自定义资源', () => 
 
 // 产物形态断言：public/ 由 test:pages 在本测试之前重建，通常存在；不存在则跳过并说明。
 {
-  const indexFile = path.join(ROOT, 'public/index.html');
+  const indexFile = path.join(ROOT, process.env.SITE_OUT || 'public', 'index.html');
   if (!fs.existsSync(indexFile)) {
     console.log('  SKIP 产物形态断言（public/index.html 不存在，先跑 npm run test:pages 或 npm run build）');
   } else {

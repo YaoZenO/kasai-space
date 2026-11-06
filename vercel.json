@@ -1,5 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run astro:build",
+  "outputDirectory": "dist",
+  "installCommand": "npm install --include=dev",
   "redirects": [
     {
       "source": "/uses",

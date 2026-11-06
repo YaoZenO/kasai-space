@@ -1,0 +1,35 @@
+---
+// 友链页：复刻 links.ejs。条目来自主题配置 theme.links.items（当前为空 → 诚实空态）。
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHead from '../../components/PageHead.astro';
+import { themeConfig } from '../../lib/site-config';
+import { t } from '../../lib/i18n';
+import { urlFor } from '../../lib/url';
+
+const links = (themeConfig.links && themeConfig.links.items) || [];
+const valid = links.filter((each: any) => each && each.title && each.link);
+const title = themeConfig.links?.title || t('links').title;
+---
+
+<BaseLayout title={title} currentPath="/links/">
+  <div class="paper-page">
+    <div class="home-wrap">
+      <PageHead kicker="LINKS" title={title} count={`共 ${valid.length} 个`} />
+
+      {valid.length ? (
+        <div class="module-grid">
+          {valid.map((each: any) => (
+            <a class="module-card" href={urlFor(each.link)} target="_blank" rel="noopener">
+              <span class="module-card-body">
+                <span class="module-card-title">{each.title}</span>
+                {each.intro && <span class="module-card-sum">{each.intro}</span>}
+              </span>
+            </a>
+          ))}
+        </div>
+      ) : (
+        <p class="post-desc">还没有添加友链。想交换的话，从站内任意一个社交图标找到我——发站点链接和一句话介绍就行。</p>
+      )}
+    </div>
+  </div>
+</BaseLayout>

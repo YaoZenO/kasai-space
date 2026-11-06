@@ -1,0 +1,44 @@
+---
+// 归档式文章列表：archive / category / tag 详情页共用（复刻 _partials/archive-list.ejs）
+
+import { formatWithPattern } from '../lib/dates';
+import { zhCN } from '../lib/i18n';
+import type { Post } from '../lib/posts';
+
+interface Props {
+  posts: Post[];
+  total: number;
+  keyName: 'archive' | 'category' | 'tag';
+}
+
+const { posts, total, keyName } = Astro.props;
+const totalText = zhCN[keyName].post_total.replace('%d', String(total));
+
+let dateCursor = '';
+const groups: { year: string; posts: Post[] }[] = [];
+for (const post of posts) {
+  const year = formatWithPattern(post.date, 'YYYY');
+  if (year !== dateCursor) {
+    dateCursor = year;
+    groups.push({ year, posts: [] });
+  }
+  groups[groups.length - 1].posts.push(post);
+}
+---
+
+<div class="archive-list">
+  <p class="archive-total">{totalText}</p>
+  {groups.map(group => (
+    <section class="archive-year">
+      <h2 class="archive-year-title">{group.year}</h2>
+      {group.posts.map(post => (
+        <a class="archive-row" href={post.href}>
+          <time class="archive-row-date" datetime={formatWithPattern(post.date, 'YYYY-MM-DD')}>
+            {formatWithPattern(post.date, 'MM-DD')}
+          </time>
+          <span class="archive-row-title">{post.title}</span>
+        </a>
+      ))}
+    </section>
+  ))}
+</div>

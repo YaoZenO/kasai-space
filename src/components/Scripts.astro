@@ -1,0 +1,33 @@
+---
+// 主题脚本顺序（与 _partials/scripts.ejs 完全一致），全部 defer。
+// typed 未启用（fun_features.typing.enable=false），不加载。
+
+import { themeConfig } from '../lib/site-config';
+
+const progress = themeConfig.fun_features?.progressbar;
+const progressOptions = JSON.stringify(progress?.options || { showSpinner: false, trickleSpeed: 100 });
+const progressInline = `document.addEventListener('DOMContentLoaded', function () {
+      NProgress.configure(${progressOptions});
+      NProgress.start();
+      window.addEventListener('load', function () {
+        NProgress.done();
+      });
+    });`;
+---
+
+{progress?.enable && (
+  <>
+    <script defer src="/lib/nprogress/0.2.0/nprogress.min.js"></script>
+    <link rel="stylesheet" href="/lib/nprogress/0.2.0/nprogress.min.css" />
+    <script is:inline set:html={progressInline} />
+  </>
+)}
+
+<script defer src="/lib/jquery/3.6.4/jquery.min.js"></script>
+<script defer src="/lib/bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script defer src="/js/events.js"></script>
+<script defer src="/js/plugins.js"></script>
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script defer src="/js/boot.js"></script>

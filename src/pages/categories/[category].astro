@@ -1,0 +1,29 @@
+---
+// 分类详情页（复刻 layout/category.ejs）
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArchiveList from '../../components/ArchiveList.astro';
+import { getCategories } from '../../lib/posts';
+import { zhCN } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return getCategories().map(cat => ({
+    params: { category: cat.slug },
+    props: { name: cat.name, posts: cat.posts },
+  }));
+}
+
+const { name, posts } = Astro.props;
+---
+
+<BaseLayout title={`${zhCN.category.title} - ${name}`} markdownPlugins={false}>
+  <div class="paper-page">
+    <div class="home-wrap">
+      <header class="page-head">
+        <p class="page-head-kicker">CATEGORY</p>
+        <h1 class="page-head-title">{name}</h1>
+      </header>
+      <ArchiveList posts={posts} total={posts.length} keyName="category" />
+    </div>
+  </div>
+</BaseLayout>

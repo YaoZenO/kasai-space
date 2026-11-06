@@ -182,7 +182,7 @@ const DATA_DIR = path.join(ROOT, 'source/_data');ok('source/_data/*.yml 全部�
   assert(!broken.length, `YAML 解析失败: ${broken.join(' | ')}`);
 });
 
-const PUBLIC = path.join(ROOT, 'public');
+const PUBLIC = path.join(ROOT, process.env.SITE_OUT || 'public');
 if (!fs.existsSync(PUBLIC)) {
   console.log('  SKIP  public/ 不存在（先 npm run build）');
 } else {

@@ -1,0 +1,282 @@
+---
+// 生肖页（/zodiac/<动物>/，12 页）：复刻 themes/fluid/layout/zodiac.ejs 的动物页分支。
+// 页头 + 生肖导航条 + 配图 + 两栏（左正文 / 右 sticky 目录），移动端为底部抽屉。
+// 数据：source/_data/zodiac.yml；计算：src/lib/zodiac-data.ts（buildAnimal）
+
+import fs from 'node:fs';
+import path from 'node:path';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getData } from '../../lib/data';
+import { buildAnimal, buildOverview } from '../../lib/zodiac-data';
+import { fmtItemDate } from '../../lib/dates';
+import { urlFor } from '../../lib/url';
+import { pageFrontMatter, pageDates } from '../../lib/page-meta';
+
+export function getStaticPaths() {
+  const root = path.join(process.cwd(), 'source', 'zodiac');
+  const keys = fs
+    .readdirSync(root)
+    .filter((name) => fs.existsSync(path.join(root, name, 'index.md')));
+
+  return keys.map((key) => {
+    const fm = pageFrontMatter(`zodiac/${key}/index.md`);
+    return { params: { animal: key }, props: { animal: key, fm } };
+  });
+}
+
+const { animal: animalKey, fm } = Astro.props;
+const data = getData();
+const z = buildAnimal(data.zodiac, animalKey);
+const ov = buildOverview(data.zodiac);
+const { published, modified } = pageDates(`zodiac/${animalKey}/index.md`);
+---
+
+<BaseLayout title={fm.title || '十二生肖'} currentPath={`/zodiac/${animalKey}/`} ogDate={published} ogUpdated={modified}>
+  {
+    !z || !ov ? (
+      <div class="paper-page cal-page z-page">
+        <div class="home-wrap">
+          <header class="page-head">
+            <p class="page-head-kicker">ZODIAC</p>
+            <h1 class="page-head-title">十二生肖</h1>
+          </header>
+          <p class="post-desc">生肖内容还在整理中，页面会随数据录入自动生成，欢迎稍后再来看看。</p>
+        </div>
+      </div>
+    ) : (
+      <>
+        <div class="paper-page cal-page z-page">
+          <div class="home-wrap">
+            <header class="page-head">
+              <nav class="cal-crumb" aria-label="面包屑">
+                <a href={urlFor('/zodiac/')}>十二生肖</a><span aria-hidden="true">/</span><span class="cal-crumb-now">{z.animal}</span>
+              </nav>
+              <p class="page-head-kicker">ZODIAC</p>
+              <h1 class="page-head-title">{z.title}</h1>
+              <p class="cal-lede"><Fragment set:html={z.lede} /></p>
+              <p class="archive-total">
+                更新于 {fmtItemDate(z.updated)} · {z.positionCn}位 · 地支「{z.branch}」 · 本轮 {z.featured}
+              </p>
+            </header>
+
+            <nav class="z-nav-strip" aria-label="按生肖查看">
+              <span class="z-nav-strip-label">按生肖查看</span>
+              <ul>
+                {ov.rows.map((na: any) => (
+                  <li>
+                    {na.key === z.key ? (
+                      <span class="z-nav-current" aria-current="page">{na.animal}</span>
+                    ) : (
+                      <a href={urlFor('/zodiac/' + na.key + '/')}>{na.animal}</a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            {z.image && (
+              <figure class="z-figure">
+                <img src={z.image.file} alt={z.image.alt} loading="lazy" decoding="async" />
+                <figcaption>
+                  图：<a href={z.image.page} target="_blank" rel="noopener">{z.image.author}</a> / {z.image.license}
+                </figcaption>
+              </figure>
+            )}
+
+            <div class="z-layout">
+              <div class="z-main">
+                {z.sections.map((sec: any) => (
+                  <section class="z-section" id={'sec-' + sec.id}>
+                    <h2 class="z-section-title">{sec.title}</h2>
+
+                    {sec.id === 'what' ? (
+                      <>
+                        <div class="markdown-body"><Fragment set:html={sec.body} /></div>
+                        {z.facts.length > 0 && (
+                          <div class="cal-table-wrap">
+                            <table class="cal-table z-facts">
+                              <tbody>
+                                {z.facts.map((fa: any) => (
+                                  <tr>
+                                    <th scope="row">{fa.k}</th>
+                                    <td><Fragment set:html={fa.v} /></td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                        <h3 class="z-sub-title">历年的{z.animal}年</h3>
+                        <div class="cal-table-wrap">
+                          <table class="cal-table z-years">
+                            <thead>
+                              <tr>
+                                <th scope="col">年份</th>
+                                <th scope="col">干支</th>
+                                <th scope="col">五行 · 阴阳</th>
+                                <th scope="col">称号</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {z.occurrences.map((oc: any) => (
+                                <tr class={oc.current ? 'is-hl' : undefined}>
+                                  <th scope="row"><span class="cal-name">{oc.year}</span></th>
+                                  <td>{oc.ganzhi}</td>
+                                  <td>{oc.element} · {oc.yinyang}</td>
+                                  <td>{oc.title}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                        <p class="z-note">
+                          生肖年从春节当天开始；1、2 月出生的人属相可能属于上一年，需核对出生当年的春节日期。起止日期与本站<a href={urlFor('/holidays/' + z.featured + '/')}>{z.featured} 年节假日页</a>一致。
+                        </p>
+                      </>
+                    ) : sec.id === 'relations' ? (
+                      <>
+                        <p>这些关系出自地支之间固定的组合，各参考书列法一致；但传统命理看整张命盘，不凭生肖一句定论。</p>
+                        <div class="cal-table-wrap">
+                          <table class="cal-table z-relations">
+                            <thead>
+                              <tr>
+                                <th scope="col">关系</th>
+                                <th scope="col">生肖</th>
+                                <th scope="col">传统解释</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {z.relations.map((rel: any) => (
+                                <tr>
+                                  <th scope="row"><span class="cal-name">{rel.name}</span></th>
+                                  <td>{rel.partners.join('、')}</td>
+                                  <td>{rel.note}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </>
+                    ) : sec.id === 'luck' ? (
+                      <>
+                        <div class="cal-table-wrap">
+                          <table class="cal-table z-luck">
+                            <tbody>
+                              {z.luck.map((lk: any) => (
+                                <tr>
+                                  <th scope="row">{lk.k}</th>
+                                  <td>{lk.v}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                        {z.luckNote ? (
+                          <p class="z-note">{z.luckNote}</p>
+                        ) : z.luck.length <= 1 ? (
+                          <p class="z-note">民间流行的幸运数字与颜色各来源互有出入，本站只列有传统依据的五行对应，不列相互矛盾的吉凶数。</p>
+                        ) : null}
+                      </>
+                    ) : sec.id === 'vocab' ? (
+                      <>
+                        <div class="markdown-body"><Fragment set:html={sec.body} /></div>
+                        <div class="cal-table-wrap">
+                          <table class="cal-table z-vocab">
+                            <thead>
+                              <tr>
+                                <th scope="col">中文</th>
+                                <th scope="col">拼音</th>
+                                <th scope="col">含义</th>
+                                <th scope="col">备注</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {z.vocab.map((vb: any) => (
+                                <tr>
+                                  <th scope="row"><span class="cal-name">{vb.t}</span></th>
+                                  <td class="cal-pinyin">{vb.p}</td>
+                                  <td>{vb.m}</td>
+                                  <td class="z-vocab-note">{vb.n}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </>
+                    ) : sec.id === 'faq' ? (
+                      z.faq.length > 0 && (
+                        <div class="z-faq">
+                          {z.faq.map((item: any) => (
+                            <details class="cal-faq-item">
+                              <summary>{item.q}</summary>
+                              <p>{item.a}</p>
+                            </details>
+                          ))}
+                        </div>
+                      )
+                    ) : sec.body ? (
+                      <div class="markdown-body"><Fragment set:html={sec.body} /></div>
+                    ) : null}
+                  </section>
+                ))}
+
+                <nav class="z-pager" aria-label="上下生肖">
+                  <a class="z-pager-prev" href={urlFor('/zodiac/' + z.prev.key + '/')}>← {z.prev.animal}年</a>
+                  <a class="z-pager-next" href={urlFor('/zodiac/' + z.next.key + '/')}>{z.next.animal}年 →</a>
+                </nav>
+
+                <div class="cal-after">
+                  <p class="cal-note">
+                    干支与农历日期依据公开历法资料整理，生肖年以农历正月初一为界（GB/T 33661-2017《农历的编算和颁行》）。性格与幸运物是民间流传的说法，各来源措辞相近但并无统一出处，当作文化话题看即可。
+                  </p>
+                </div>
+              </div>
+
+              <aside class="z-toc" aria-label="目录">
+                <div class="z-toc-head">
+                  <span class="z-toc-label">目录</span>
+                  <button class="z-toc-toggle" type="button" aria-expanded="true" aria-label="收起目录">
+                    <svg class="z-toc-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+                  </button>
+                </div>
+                <ol class="z-toc-list">
+                  {z.sections.map((tsec: any) => (
+                    <li><a href={'#sec-' + tsec.id}>{tsec.title}</a></li>
+                  ))}
+                </ol>
+                <div class="z-toc-progress">
+                  <svg class="z-ring" width="36" height="36" viewBox="0 0 36 36" aria-hidden="true">
+                    <circle class="z-ring-bg" cx="18" cy="18" r="15.5" />
+                    <circle class="z-ring-fill" id="zProgressRing" cx="18" cy="18" r="15.5" stroke-dasharray="97.4" stroke-dashoffset="97.4" />
+                  </svg>
+                  <span class="z-toc-progress-text">已读 0%</span>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+
+        <button class="z-toc-fab" type="button" aria-label="打开目录">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18M3 6h18M3 18h18" /></svg>
+          <span>目录</span>
+        </button>
+        <div class="z-toc-overlay" />
+        <div class="z-toc-sheet" role="dialog" aria-label="目录" aria-hidden="true">
+          <div class="z-toc-sheet-head">
+            <span class="z-toc-label">目录</span>
+            <button class="z-toc-sheet-close" type="button" aria-label="关闭目录">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+            </button>
+          </div>
+          <ol class="z-toc-list">
+            {z.sections.map((msec: any) => (
+              <li><a href={'#sec-' + msec.id}>{msec.title}</a></li>
+            ))}
+          </ol>
+        </div>
+
+        <script src="/js/zodiac.js" defer />
+      </>
+    )
+  }
+</BaseLayout>

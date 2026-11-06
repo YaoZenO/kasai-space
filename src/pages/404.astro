@@ -1,0 +1,39 @@
+---
+// 404 页：复刻 404.ejs。倒数 10 秒是「提醒 + 留下」方案（2026-10-21 复议），脚本逐字保留。
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+import { themeConfig } from '../lib/site-config';
+import { t } from '../lib/i18n';
+import { urlFor } from '../lib/url';
+
+const title = themeConfig.page404?.title || t('page404').title;
+const subtitle = themeConfig.page404?.subtitle || t('page404').subtitle;
+---
+
+<BaseLayout title={title} currentPath="/404.html">
+  <div class="paper-page">
+    <div class="home-wrap">
+      <PageHead kicker="404" title={title} subtitle={subtitle}>
+        <p class="archive-total" id="redirect-note">
+          <span id="redirect-count">10</span> 秒后自动返回首页，也可以点击下方按钮立即返回。
+        </p>
+      </PageHead>
+      <div class="identity-cta">
+        <a class="cta-solid" href={urlFor('/')}>返回首页</a>
+      </div>
+    </div>
+  </div>
+  <script is:inline>
+    // 倒数只是提醒；到 0 即跳转（2026-10-21 B10：保留自动跳转 + 明示）
+    (function () {
+      var left = 10;
+      var n = document.getElementById('redirect-count');
+      var t = setInterval(function () {
+        left -= 1;
+        if (left <= 0) { clearInterval(t); return; }
+        if (n) n.textContent = String(left);
+      }, 1000);
+      setTimeout(function () { window.location.href = '/'; }, 10000);
+    })();
+  </script>
+</BaseLayout>

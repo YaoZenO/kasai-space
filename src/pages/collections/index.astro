@@ -1,0 +1,13 @@
+---
+// /collections/：纯外链模块列表页，数据来自 source/_data/collections.yml
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ModuleIndex from '../../components/ModuleIndex.astro';
+import { getData } from '../../lib/data';
+
+const items = (getData().collections?.items || []).filter((it: any) => it && it.title);
+const title = '收藏';
+---
+
+<BaseLayout title={title} currentPath="/collections/">
+  <ModuleIndex moduleKey="collections" moduleTitle={title} items={items} />
+</BaseLayout>

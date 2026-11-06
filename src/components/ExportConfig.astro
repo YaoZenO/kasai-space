@@ -1,0 +1,47 @@
+---
+// 后台运行时配置（对应 export_config helper，_config.yml + 主题配置）。
+// 这一段必须在 utils.js / color-schema.js 之前输出。
+
+import fs from 'node:fs';
+import path from 'node:path';
+import { siteConfig, themeConfig } from '../lib/site-config';
+
+const ROOT = process.cwd();
+
+function themeVersion(): string {
+  try {
+    const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'themes', 'fluid', 'package.json'), 'utf8'));
+    return pkg.version || '';
+  } catch {
+    return '';
+  }
+}
+
+const { hostname } = new URL(siteConfig.url);
+const exportConfig = JSON.stringify({
+  hostname,
+  root: siteConfig.root || '/',
+  version: themeVersion(),
+  typing: themeConfig.fun_features?.typing,
+  anchorjs: themeConfig.fun_features?.anchorjs,
+  progressbar: themeConfig.fun_features?.progressbar,
+  code_language: themeConfig.code?.language,
+  copy_btn: themeConfig.code?.copy_btn,
+  image_caption: themeConfig.post?.image_caption,
+  image_zoom: themeConfig.post?.image_zoom,
+  toc: themeConfig.post?.toc,
+  lazyload: themeConfig.lazyload,
+  web_analytics: themeConfig.web_analytics,
+  search_path: '/local-search.xml',
+  include_content_in_search: themeConfig.search?.content,
+});
+---
+
+<script id="fluid-configs" is:inline set:html={`var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = ${exportConfig};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }`} />

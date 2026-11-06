@@ -1,0 +1,31 @@
+---
+// 页头组件：复刻 page-head（纸面档案）与 page-head-plain（模块列表）两种形态。
+// 日期一律经 fmtItemDate，禁止把 Date 直出（E-028）。
+
+import { fmtItemDate } from '../lib/dates';
+
+interface Props {
+  variant?: 'page' | 'plain';
+  kicker?: string;
+  title: string;
+  /** 「更新于 <日期>」优先于 subtitle（与 paper.ejs 一致） */
+  updated?: unknown;
+  subtitle?: string;
+  /** 计数行（如「共 N 个」） */
+  count?: string;
+}
+
+const { variant = 'page', kicker, title, updated, subtitle, count } = Astro.props;
+---
+
+<header class={variant === 'plain' ? 'page-head-plain' : 'page-head'}>
+  {kicker && <p class="page-head-kicker">{kicker}</p>}
+  <h1 class="page-head-title">{title}</h1>
+  {updated ? (
+    <p class="archive-total">更新于 {fmtItemDate(updated)}</p>
+  ) : subtitle ? (
+    <p class="archive-total">{subtitle}</p>
+  ) : null}
+  {count && <p class="list-count">{count}</p>}
+  <slot />
+</header>

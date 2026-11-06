@@ -1,0 +1,23 @@
+---
+// /projects/<slug>/：项目详情页（复刻 project.ejs，路由来自 module-pages.js）
+import ProjectDetail from '../../components/ProjectDetail.astro';
+import { getModuleItems, detailPath, slugOf } from '../../lib/modules';
+
+export function getStaticPaths() {
+  const items = getModuleItems('projects');
+  return items.map((item, idx) => ({
+    // Astro 用「原始参数」匹配静态路径（内部自行按需编码），因此传原始标题。
+    params: { slug: item.slug || String(item.title) },
+    props: {
+      item,
+      prevItem: idx > 0 ? { title: items[idx - 1].title, path: detailPath('projects', items[idx - 1]) } : null,
+      nextItem:
+        idx < items.length - 1 ? { title: items[idx + 1].title, path: detailPath('projects', items[idx + 1]) } : null,
+    },
+  }));
+}
+
+const { item, prevItem, nextItem } = Astro.props;
+---
+
+<ProjectDetail item={item} prevItem={prevItem} nextItem={nextItem} />

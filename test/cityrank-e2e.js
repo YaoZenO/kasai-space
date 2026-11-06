@@ -30,7 +30,7 @@ const {
 const CF = require('../themes/fluid/scripts/helpers/city-fields.js');
 
 const ROOT = path.join(__dirname, '..');
-const PUBLIC = path.join(ROOT, 'public');
+const PUBLIC = path.join(ROOT, process.env.SITE_OUT || 'public');
 
 let pass = 0;
 function ok(label, fn) {

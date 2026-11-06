@@ -1,0 +1,13 @@
+---
+// /projects/：模块列表页（行式卡片网格），数据来自 source/_data/projects.yml
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ModuleIndex from '../../components/ModuleIndex.astro';
+import { getData } from '../../lib/data';
+
+const items = (getData().projects?.items || []).filter((it: any) => it && it.title);
+const title = '项目';
+---
+
+<BaseLayout title={title} currentPath="/projects/">
+  <ModuleIndex moduleKey="projects" moduleTitle={title} items={items} />
+</BaseLayout>

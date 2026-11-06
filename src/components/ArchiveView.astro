@@ -1,0 +1,72 @@
+---
+// 归档页外壳：页头 + 精选摘录 + 归档列表（复刻 layout/archive.ejs）
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ArchiveList from './ArchiveList.astro';
+import { siteConfig, themeConfig } from '../lib/site-config';
+import { formatWithPattern } from '../lib/dates';
+import { excerptText } from '../lib/excerpt';
+import { getPosts, type Post } from '../lib/posts';
+import { zhCN } from '../lib/i18n';
+
+interface Props {
+  /** 当前页要列出的文章（年鉴/月鉴页为过滤后的子集） */
+  posts: Post[];
+  /** 「共计 N 篇文章」里的 N，Hexo 在归档页固定用全站文章数 */
+  total: number;
+}
+
+const { posts, total } = Astro.props;
+const allPosts = getPosts();
+
+const featured = ((themeConfig.archive && themeConfig.archive.featured) || []) as {
+  slug: string;
+  note?: string;
+}[];
+const seen = new Set<string>();
+const picks = featured
+  .map(cfg => {
+    const post = allPosts.find(p => p.slug === cfg.slug);
+    if (!post || seen.has(post.path)) return null;
+    seen.add(post.path);
+    return { post, note: cfg.note || '' };
+  })
+  .filter(Boolean) as { post: Post; note: string }[];
+---
+
+<BaseLayout title={themeConfig.archive?.title || zhCN.archive.title} markdownPlugins={false}>
+  <div class="paper-page">
+    <div class="home-wrap">
+      <header class="page-head">
+        <p class="page-head-kicker">ARCHIVE</p>
+        <h1 class="page-head-title">文字</h1>
+      </header>
+
+      {picks.length > 0 && (
+        <section class="archive-picks">
+          <p class="archive-picks-kicker">精选摘录</p>
+          <div class="pick-list">
+            {picks.map(({ post, note }) => {
+              const excerpt = excerptText(post.content, 110);
+              return (
+                <a class="pick-row is-lead" href={post.href}>
+                  {post.cover && <img class="pick-img" src={post.cover} alt={post.title} />}
+                  <div class="pick-main">
+                    <span class="pick-title">{post.title}</span>
+                    {excerpt && <span class="pick-desc">{excerpt}</span>}
+                    {note && <span class="pick-note">{note}</span>}
+                    <span class="pick-meta">
+                      <time class="mono">{formatWithPattern(post.date, 'YYYY-MM-DD')}</time>
+                    </span>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      <ArchiveList posts={posts} total={total} keyName="archive" />
+    </div>
+  </div>
+</BaseLayout>

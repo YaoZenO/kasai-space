@@ -1,0 +1,74 @@
+---
+// 项目详情页：复刻 themes/fluid/layout/project.ejs。
+// 铁律：只渲染有内容的 section；正文自带 <h2> 时不再加壳标题。
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { urlFor } from '../lib/url';
+import { fmtItemDate } from '../lib/dates';
+
+interface Props {
+  item: any;
+  prevItem: { title: string; path: string } | null;
+  nextItem: { title: string; path: string } | null;
+}
+
+const { item, prevItem, nextItem } = Astro.props;
+
+const startsWithH2 = (html: unknown) => html && /^\s*<h2[\s>]/.test(String(html));
+const sections = [
+  ['项目背景', item.background_html],
+  ['实现过程', item.process_html],
+  ['技术方案', item.tech_html],
+  ['成果', item.outcome_html],
+].filter((s): s is [string, string] => Boolean(s[1] && String(s[1]).trim()));
+---
+
+<BaseLayout title={item.title} currentPath={`/projects/${item.slug || encodeURIComponent(String(item.title))}/`}>
+  <div class="paper-page">
+    <div class="home-wrap module-detail">
+      <header class="about-head">
+        <div class="about-head-main">
+          <p class="page-head-kicker"><a href={urlFor('/projects/')}>PROJECTS · 项目</a></p>
+          <h1 class="page-head-title">{item.title}</h1>
+          {item.summary && <p class="about-head-intro">{item.summary}</p>}
+          <p class="detail-meta">
+            {item.date && (
+              <time class="mono" datetime={fmtItemDate(item.date, 'YYYY-MM-DD')}>{fmtItemDate(item.date)}</time>
+            )}
+            {item.status && <span class="detail-tag detail-tag-solid">{item.status}</span>}
+            {(item.tags || []).map((t: string) => <span class="detail-tag">#{t}</span>)}
+          </p>
+          {item.link && <a class="cta-solid" href={item.link} target="_blank" rel="noopener">访问项目 →</a>}
+        </div>
+        {
+          item.cover && (
+            <div class="about-avatar-box detail-cover">
+              <img src={urlFor(item.cover)} alt={item.title} />
+            </div>
+          )
+        }
+      </header>
+
+      <article class="about-body">
+        <div class="markdown-body">
+          {sections.map(([heading, html]) => (
+            <section class="rich-section">
+              {!startsWithH2(html) && <h2>{heading}</h2>}
+              <Fragment set:html={html} />
+            </section>
+          ))}
+          {sections.length === 0 && <p class="empty">详细介绍整理中。</p>}
+        </div>
+      </article>
+
+      <footer class="detail-foot">
+        {(prevItem || nextItem) && (
+          <nav class="detail-prevnext" aria-label="项目之间的前后导航">
+            {prevItem && <a class="detail-prev" href={urlFor(prevItem.path)}>← {prevItem.title}</a>}
+            {nextItem && <a class="detail-next" href={urlFor(nextItem.path)}>{nextItem.title} →</a>}
+          </nav>
+        )}
+        <a class="cta-link" href={urlFor('/projects/')}>← 返回项目列表</a>
+      </footer>
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,22 @@
+---
+// 节假日页（/holidays/，默认年 2026）：取数后交给 HolidaysPage 渲染。
+import HolidaysPage from '../../components/HolidaysPage.astro';
+import { getData } from '../../lib/data';
+import { holidayCalendar, tipPayload } from '../../lib/holiday-calendar';
+import { pageDates } from '../../lib/page-meta';
+
+const data = getData();
+const { published, modified } = pageDates('holidays/index.md');
+// 对应 source/holidays/index.md 的 year: 2026（不是年份总览）
+const cal = holidayCalendar(data.holidays || {}, 2026);
+const tipsJson = JSON.stringify(cal ? tipPayload(cal) : {}).replace(/</g, '\\u003c');
+---
+
+<HolidaysPage
+  cal={cal}
+  title="中国节假日"
+  currentPath="/holidays/"
+  published={published}
+  modified={modified}
+  tipsJson={tipsJson}
+/>

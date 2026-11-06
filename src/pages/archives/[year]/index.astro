@@ -1,0 +1,16 @@
+---
+import ArchiveView from '../../../components/ArchiveView.astro';
+import { getArchives, getPosts } from '../../../lib/posts';
+
+export function getStaticPaths() {
+  return getArchives().map(bucket => ({
+    params: { year: bucket.year },
+    props: { posts: bucket.posts },
+  }));
+}
+
+const { posts } = Astro.props;
+const total = getPosts().length;
+---
+
+<ArchiveView posts={posts} total={total} />

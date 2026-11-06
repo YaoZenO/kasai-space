@@ -1,0 +1,65 @@
+---
+// Markdown 正文所需的运行时插件（与 markdown-plugins.ejs 的输出一致）：
+// 代码复制按钮、标题锚点、图片灯箱、图片说明、图片懒加载。
+---
+
+<script defer src="/js/img-lazyload.js"></script>
+<script defer src="/lib/clipboard.js/2.0.11/clipboard.min.js"></script>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', function () {
+    Fluid.plugins.codeWidget();
+  });
+</script>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', function () {
+    Fluid.utils.createScript('/lib/anchor-js/5.0.0/anchor.min.js', function () {
+      window.anchors.options = {
+        placement: CONFIG.anchorjs.placement,
+        visible: CONFIG.anchorjs.visible,
+      };
+      if (CONFIG.anchorjs.icon) {
+        window.anchors.options.icon = CONFIG.anchorjs.icon;
+      }
+      var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+      var res = [];
+      for (var item of el) {
+        res.push('.markdown-body > ' + item.trim());
+      }
+      if (CONFIG.anchorjs.placement === 'left') {
+        window.anchors.options.class = 'anchorjs-link-left';
+      }
+      window.anchors.add(res.join(', '));
+
+      Fluid.events.registerRefreshCallback(function () {
+        if ('anchors' in window) {
+          anchors.removeAll();
+          var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+          var res = [];
+          for (var item of el) {
+            res.push('.markdown-body > ' + item.trim());
+          }
+          if (CONFIG.anchorjs.placement === 'left') {
+            anchors.options.class = 'anchorjs-link-left';
+          }
+          anchors.add(res.join(', '));
+        }
+      });
+    });
+  });
+</script>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', function () {
+    Fluid.utils.createScript('/lib/fancybox/3.5.7/jquery.fancybox.min.js', function () {
+      Fluid.plugins.fancyBox();
+    });
+  });
+</script>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', function () {
+    Fluid.plugins.imageCaption();
+  });
+</script>

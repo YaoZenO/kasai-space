@@ -1,0 +1,52 @@
+---
+// 搜索页（/search/）：复刻 themes/fluid/layout/search.ejs。
+// 骨架在服务端渲染，结果由 /js/site-search.js 读 /search-index.json 现查。
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { urlFor } from '../../lib/url';
+
+---
+<BaseLayout title="搜索" currentPath="/search/">
+  <div class="paper-page cal-page sr-page">
+    <div class="home-wrap">
+      <header class="page-head">
+        <p class="page-head-kicker">SEARCH</p>
+        <h1 class="page-head-title">搜索</h1>
+        <p class="cal-lede">站内全部内容：文章、城市档案、城市排行榜、十二生肖、节日文化与节假日安排。</p>
+      </header>
+
+      <div class="sr-box">
+        <label class="sr-label" for="sr-input">关键词</label>
+        <input id="sr-input" class="sr-input" type="search" autocomplete="off" spellcheck="false"
+               enterkeyhint="search" aria-describedby="sr-hint"
+               placeholder="城市名、生肖、节日、年份，或文章标题" />
+        <p class="sr-hint" id="sr-hint">支持拼音：输入 <code>shenzhen</code> 也能找到深圳。</p>
+      </div>
+
+      <div class="sr-chips" id="sr-chips" role="group" aria-label="按类型筛选">
+        <button class="sr-chip is-active" type="button" data-cat="all" aria-pressed="true">全部</button>
+        <button class="sr-chip" type="button" data-cat="post" aria-pressed="false">文章</button>
+        <button class="sr-chip" type="button" data-cat="city" aria-pressed="false">城市</button>
+        <button class="sr-chip" type="button" data-cat="rank" aria-pressed="false">榜单</button>
+        <button class="sr-chip" type="button" data-cat="zodiac" aria-pressed="false">生肖</button>
+        <button class="sr-chip" type="button" data-cat="festival" aria-pressed="false">节日</button>
+        <button class="sr-chip" type="button" data-cat="holiday" aria-pressed="false">节假日</button>
+        <button class="sr-chip" type="button" data-cat="topic" aria-pressed="false">资料库</button>
+      </div>
+
+      <p class="sr-meta" id="sr-meta" hidden></p>
+
+      <div class="sr-list" id="sr-list" aria-live="polite"></div>
+
+      <div class="sr-empty" id="sr-empty" hidden>
+        <p class="sr-empty-title">没有找到匹配的内容</p>
+        <p class="sr-empty-note">可以试试城市名（深圳）、生肖（龙）、节日（中秋）、年份（2026），或者文章的标题关键词。</p>
+      </div>
+
+      <div class="cal-after">
+        <p class="cal-note">索引覆盖全站已发布的文章与全部资料页；站内内容变动后，索引随构建一起重建。</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/site-search.js" defer></script>
+</BaseLayout>

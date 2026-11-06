@@ -1,0 +1,84 @@
+---
+// 基础布局：复刻 layout.ejs 的骨架（skip-link / header / main / footer / scripts / noscript）
+
+import Head from '../components/Head.astro';
+import SiteNav from '../components/SiteNav.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import Scripts from '../components/Scripts.astro';
+import { scrollTopEnable } from '../lib/site-config';
+import { zhCN } from '../lib/i18n';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** description 已由 excerptFromMarkdown 预转义，切勿二次转义 */
+  descriptionPreformatted?: boolean;
+  ogType?: 'website' | 'article';
+  ogImages?: string[];
+  ogKeywords?: string[];
+  ogDate?: Date | null;
+  ogUpdated?: Date | null;
+  isHome?: boolean;
+  currentPath?: string;
+  markdownPlugins?: boolean;
+}
+
+const {
+  title,
+  description,
+  descriptionPreformatted,
+  ogType,
+  ogImages,
+  ogKeywords,
+  ogDate,
+  ogUpdated,
+  isHome = false,
+  currentPath,
+  markdownPlugins = false,
+} = Astro.props;
+
+const path = currentPath ?? Astro.url.pathname;
+---
+
+<html lang="zh-CN">
+  <head>
+    <Head
+      title={title}
+      description={description}
+      descriptionPreformatted={descriptionPreformatted}
+      ogType={ogType}
+      ogImages={ogImages}
+      ogKeywords={ogKeywords}
+      ogDate={ogDate}
+      ogUpdated={ogUpdated}
+      canonicalPath={path}
+      markdownPlugins={markdownPlugins}
+    />
+  </head>
+
+  <body class={isHome ? 'is-home' : undefined}>
+    <a class="skip-link" href="#main-content">跳到主要内容</a>
+
+    <header>
+      <SiteNav currentPath={path} />
+    </header>
+
+    <main id="main-content" tabindex="-1">
+      <slot />
+
+      {scrollTopEnable && (
+        <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+          <i class="iconfont icon-arrowup" aria-hidden="true" />
+        </a>
+      )}
+    </main>
+
+    <SiteFooter />
+
+    <Scripts />
+
+    <noscript>
+      <div class="noscript-warning">{zhCN.noscript_warning}</div>
+    </noscript>
+  </body>
+</html>

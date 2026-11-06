@@ -1,0 +1,110 @@
+---
+// 游戏详情页：复刻 themes/fluid/layout/game.ejs。
+// 铁律：只渲染有内容的区块；正文自带 <h2> 时不再加壳标题。
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { urlFor } from '../lib/url';
+import { fmtItemDate } from '../lib/dates';
+
+interface Props {
+  item: any;
+  prevItem: { title: string; path: string } | null;
+  nextItem: { title: string; path: string } | null;
+}
+
+const { item, prevItem, nextItem } = Astro.props;
+
+const media: string[] = item.media || [];
+const links: any[] = item.links || [];
+const gameplayHasOwnH2 = /^\s*<h2[\s>]/.test(String(item.gameplay_html || ''));
+---
+
+<BaseLayout title={item.title} currentPath={`/games/${item.slug || encodeURIComponent(String(item.title))}/`}>
+  <div class="paper-page">
+    <div class="home-wrap module-detail">
+      <header class="about-head">
+        <div class="about-head-main">
+          <p class="page-head-kicker"><a href={urlFor('/games/')}>GAMES · 游戏</a></p>
+          <h1 class="page-head-title">{item.title}</h1>
+          {item.summary && <p class="about-head-intro">{item.summary}</p>}
+          <p class="detail-meta">
+            {item.date && (
+              <time class="mono" datetime={fmtItemDate(item.date, 'YYYY-MM-DD')}>{fmtItemDate(item.date)}</time>
+            )}
+            {item.genre && <span class="detail-tag detail-tag-solid">{item.genre}</span>}
+            {item.platform && <span class="detail-tag">{item.platform}</span>}
+            {item.status && <span class="detail-tag">{item.status}</span>}
+          </p>
+        </div>
+        {
+          item.cover && (
+            <div class="about-avatar-box detail-cover">
+              <img src={urlFor(item.cover)} alt={item.title} />
+            </div>
+          )
+        }
+      </header>
+
+      <article class="about-body">
+        <div class="markdown-body">
+          {
+            item.gameplay_html && (
+              <section class="rich-section">
+                {!gameplayHasOwnH2 && <h2>玩法介绍</h2>}
+                <Fragment set:html={item.gameplay_html} />
+              </section>
+            )
+          }
+
+          {
+            media.length > 0 && (
+              <section class="rich-section">
+                <h2>截图</h2>
+                <div class="media-wall">
+                  {media.map((m: string) => (
+                    <figure><img src={urlFor(m)} alt={`${item.title} 截图`} loading="lazy" /></figure>
+                  ))}
+                </div>
+              </section>
+            )
+          }
+
+          {
+            item.video && (
+              <section class="rich-section">
+                <h2>视频</h2>
+                <p><a class="cta-link" href={item.video} target="_blank" rel="noopener">观看视频 →</a></p>
+              </section>
+            )
+          }
+
+          {
+            links.length > 0 && (
+              <section class="rich-section">
+                <h2>下载 / 试玩</h2>
+                <ul class="detail-links">
+                  {links.map((l: any) => (
+                    <li><a href={l.url} target="_blank" rel="noopener">{l.label} →</a></li>
+                  ))}
+                </ul>
+              </section>
+            )
+          }
+
+          {!item.gameplay_html && media.length === 0 && !item.video && links.length === 0 && (
+            <p class="empty">详细介绍整理中。</p>
+          )}
+        </div>
+      </article>
+
+      <footer class="detail-foot">
+        {(prevItem || nextItem) && (
+          <nav class="detail-prevnext" aria-label="游戏之间的前后导航">
+            {prevItem && <a class="detail-prev" href={urlFor(prevItem.path)}>← {prevItem.title}</a>}
+            {nextItem && <a class="detail-next" href={urlFor(nextItem.path)}>{nextItem.title} →</a>}
+          </nav>
+        )}
+        <a class="cta-link" href={urlFor('/games/')}>← 返回游戏列表</a>
+      </footer>
+    </div>
+  </div>
+</BaseLayout>

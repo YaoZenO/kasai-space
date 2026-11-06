@@ -1,0 +1,11 @@
+---
+// 页脚（statistics / beian 均关闭，只输出自定义 content）
+
+import { footerContent } from '../lib/site-config';
+---
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-content" set:html={footerContent} />
+  </div>
+</footer>

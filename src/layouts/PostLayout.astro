@@ -1,0 +1,360 @@
+---
+// 文章详情页：复刻 themes/fluid/layout/post.ejs（纸面档案版式）。
+// 正文 HTML 由 src/lib/markdown.ts 用 Hexo 同款渲染器产出，直接 set:html 注入。
+
+import BaseLayout from './BaseLayout.astro';
+import MarkdownPlugins from '../components/MarkdownPlugins.astro';
+import { siteConfig, themeConfig } from '../lib/site-config';
+import { formatWithPattern } from '../lib/dates';
+import { getPrevNext, taxonomyHref, type Post } from '../lib/posts';
+import { zhCN } from '../lib/i18n';
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const cfg = themeConfig.post || {};
+const metaCfg = cfg.meta || {};
+const copyrightCfg = cfg.copyright || {};
+const tocCfg = cfg.toc || {};
+const { prev, next } = getPrevNext(post);
+
+/** moment 的 'LL' 在 zh-CN 下是「2026年4月18日」（月/日不补零） */
+function longDate(d: Date): string {
+  return `${formatWithPattern(d, 'YYYY')}年${Number(formatWithPattern(d, 'MM'))}月${Number(
+    formatWithPattern(d, 'DD')
+  )}日`;
+}
+
+const postUrl = `${siteConfig.url}${post.href}`;
+const license = String(copyrightCfg.license || 'BY').toUpperCase();
+const licenseItems = license.split('-');
+// Hexo 主题的 symbolsCount：>9999 → 11k，>999 → 1.1k
+function symbolsCount(count: number): string {
+  if (count > 9999) return Math.round(count / 1000) + 'k';
+  if (count > 999) return Math.round(count / 100) / 10 + 'k';
+  return String(count);
+}
+// 现站 meta-top.ejs 用 pageWordCount（字符串）与 50 比较；'2.6k' >= 50 为 false，
+// 所以字数超过 999 的文章不显示字数/阅读时长。这里照搬该行为以保持视觉一致。
+const pageWordCount = symbolsCount(post.wordcount);
+const showWordCount = metaCfg.wordcount?.enable !== false && Number(pageWordCount) >= 50;
+const showMin2Read = metaCfg.min2read?.enable !== false && Number(pageWordCount) >= 50;
+const showToc = tocCfg.enable !== false && tocCfg.placement !== 'left';
+---
+
+<BaseLayout
+  title={post.title}
+  description={post.excerpt}
+  descriptionPreformatted={true}
+  ogType="article"
+  ogDate={post.date}
+  ogUpdated={post.updated}
+  ogKeywords={post.tags}
+  markdownPlugins={true}
+>
+  <div class="paper-page">
+    <div class="post-wrap">
+      <div class="post-grid">
+        <div class="post-main-col" id="board-ctn">
+          <article class="post-content">
+            <header class="post-head">
+              <p class="post-head-kicker">POST</p>
+              <h1 class="post-head-title">{post.title}</h1>
+              <div class="post-head-meta">
+                <div class="mt-3">
+                  {metaCfg.date?.enable !== false && (
+                    <span class="post-meta">
+                      <i class="iconfont icon-date-fill" aria-hidden="true" />
+                      <time datetime={formatWithPattern(post.date, 'YYYY-MM-DD HH:mm')} pubdate>
+                        {formatWithPattern(post.date, String(metaCfg.date?.format || 'YYYY-MM-DD'))}
+                      </time>
+                    </span>
+                  )}
+                </div>
+                <div class="mt-1">
+                  {showWordCount && (
+                    <span class="post-meta mr-2">
+                      <i class="iconfont icon-chart" />
+                      {zhCN.post.meta.wordcount.replace('%s', pageWordCount)}
+                    </span>
+                  )}
+                  {showMin2Read && (
+                    <span class="post-meta mr-2">
+                      <i class="iconfont icon-clock-fill" />
+                      {zhCN.post.meta.min2read.replace('%s', String(post.min2read))}
+                    </span>
+                  )}
+                </div>
+                {post.categories.length > 0 && (
+                  <span class="post-head-cats">
+                    <span class="category-chains">
+                      {post.categories
+                        .slice()
+                        .sort((a, b) => a.localeCompare(b, 'zh-Hans-CN'))
+                        .map(name => (
+                          <span class="category-chain">
+                            <a href={taxonomyHref('categories', name)} class="category-chain-item">
+                              {name.trim()}
+                            </a>
+                          </span>
+                        ))}
+                    </span>
+                  </span>
+                )}
+                {post.tags.length > 0 && (
+                  <span class="post-head-tags">
+                    {post.tags.map(tag => (
+                      <>
+                        <a href={taxonomyHref('tags', tag)}>#{tag}</a>{' '}
+                      </>
+                    ))}
+                  </span>
+                )}
+              </div>
+            </header>
+
+            <div class="markdown-body" set:html={post.content} />
+
+            <hr />
+            <div class="post-foot">
+              <div class="post-metas my-3">
+                {post.categories.length > 0 && (
+                  <div class="post-meta mr-3 d-flex align-items-center">
+                    <i class="iconfont icon-category" />
+                    <span class="category-chains">
+                      {post.categories
+                        .slice()
+                        .sort((a, b) => a.localeCompare(b, 'zh-Hans-CN'))
+                        .map(name => (
+                          <span class="category-chain">
+                            <a href={taxonomyHref('categories', name)} class="category-chain-item">
+                              {name.trim()}
+                            </a>
+                          </span>
+                        ))}
+                    </span>
+                  </div>
+                )}
+                {post.tags.length > 0 && (
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags" />
+                    {post.tags.map(tag => (
+                      <>
+                        <a href={taxonomyHref('tags', tag)} class="print-no-link">#{tag}</a>{' '}
+                      </>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {copyrightCfg.enable && (
+                <div class="license-box my-3">
+                  <div class="license-title">
+                    <div>{post.title}</div>
+                    <div>{postUrl}</div>
+                  </div>
+                  <div class="license-meta">
+                    {copyrightCfg.author?.enable !== false && siteConfig.author && (
+                      <div class="license-meta-item">
+                        <div>{zhCN.post.copyright.author}</div>
+                        <div>{siteConfig.author}</div>
+                      </div>
+                    )}
+                    {copyrightCfg.post_date?.enable !== false && (
+                      <div class="license-meta-item license-meta-date">
+                        <div>{zhCN.post.copyright.posted}</div>
+                        <div>{longDate(post.date)}</div>
+                      </div>
+                    )}
+                    {license && (
+                      <div class="license-meta-item">
+                        <div>{zhCN.post.copyright.licensed}</div>
+                        <div>
+                          {['BY', 'BY-SA', 'BY-ND', 'BY-NC', 'BY-NC-SA', 'BY-NC-ND'].includes(license) ? (
+                            licenseItems.map(item => (
+                              <a
+                                class="print-no-link"
+                                target="_blank"
+                                href={`https://creativecommons.org/licenses/${license.toLowerCase()}/4.0/`}
+                                rel="noopener"
+                              >
+                                <span
+                                  class="hint--top hint--rounded"
+                                  aria-label={
+                                    zhCN.post.copyright[item as keyof typeof zhCN.post.copyright] || item
+                                  }
+                                >
+                                  <i class={`iconfont icon-cc-${item.toLowerCase()}`} />
+                                </span>
+                              </a>
+                            ))
+                          ) : license === 'ZERO' ? (
+                            <a
+                              class="print-no-link"
+                              target="_blank"
+                              href="https://creativecommons.org/publicdomain/zero/1.0/"
+                              rel="noopener"
+                            >
+                              <span class="hint--top hint--rounded" aria-label={zhCN.post.copyright.ZERO}>
+                                <i class="iconfont icon-cc-zero" />
+                              </span>
+                            </a>
+                          ) : (
+                            license
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div class="license-icon iconfont" />
+                </div>
+              )}
+
+              <div class="post-prevnext my-3">
+                <article class="post-prev col-6">
+                  {prev && (
+                    <a href={prev.href} title={prev.title}>
+                      <i class="iconfont icon-arrowleft" />
+                      <span class="hidden-mobile">{prev.title}</span>
+                      <span class="visible-mobile">{zhCN.post.prev_post}</span>
+                    </a>
+                  )}
+                </article>
+                <article class="post-next col-6">
+                  {next && (
+                    <a href={next.href} title={next.title}>
+                      <span class="hidden-mobile">{next.title}</span>
+                      <span class="visible-mobile">{zhCN.post.next_post}</span>
+                      <i class="iconfont icon-arrowright" />
+                    </a>
+                  )}
+                </article>
+              </div>
+
+              <p class="post-home-link"><a href="/">← 回到首页</a></p>
+            </div>
+          </article>
+        </div>
+
+        {showToc && (
+          <aside class="post-side post-side-right d-none d-lg-block">
+            <aside class="sidebar">
+              <div id="toc">
+                <p class="toc-header">
+                  <i class="iconfont icon-list" />
+                  <span>{zhCN.post.toc}</span>
+                </p>
+                <div class="toc-body" id="toc-body" />
+              </div>
+            </aside>
+          </aside>
+        )}
+      </div>
+    </div>
+  </div>
+
+  <MarkdownPlugins />
+
+  <script is:inline>
+    document.addEventListener('DOMContentLoaded', function () {
+      Fluid.utils.createScript('/lib/tocbot/4.20.1/tocbot.min.js', function () {
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !window.tocbot) { return; }
+        var boardCtn = jQuery('#board-ctn');
+        var boardTop = boardCtn.offset().top;
+
+        function isExpandAllEnabled() {
+          return CONFIG.toc && CONFIG.toc.expand_all === true;
+        }
+        function expandAllToc() {
+          if (!isExpandAllEnabled()) { return; }
+          jQuery('#toc-body .tocbot-is-collapsed').removeClass('tocbot-is-collapsed');
+        }
+        function updateTocToggle($li, $childList) {
+          var $toggle = $li.children('.toc-toggle');
+          if ($toggle.length === 0) { return; }
+          var collapsed = $childList.hasClass('tocbot-is-collapsed');
+          $toggle
+            .toggleClass('toc-toggle-collapsed', collapsed)
+            .toggleClass('toc-toggle-expanded', !collapsed);
+        }
+        function bindTocToggle() {
+          if (!isExpandAllEnabled()) { return; }
+          jQuery('#toc-body .toc-list-item').each(function () {
+            var $li = jQuery(this);
+            var $childList = $li.children('ol');
+            if ($childList.length === 0) {
+              if ($li.children('.toc-toggle').length === 0) {
+                $li.prepend('<span class="toc-toggle toc-toggle-placeholder" aria-hidden="true">›</span>');
+              }
+              return;
+            }
+            if ($li.children('.toc-toggle').length === 0) {
+              $li.prepend('<span class="toc-toggle toc-toggle-expanded" aria-hidden="true">›</span>');
+            }
+            updateTocToggle($li, $childList);
+          });
+          jQuery('#toc-body').off('click.tocToggle').on('click.tocToggle', '.toc-toggle', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var $li = jQuery(this).parent('.toc-list-item');
+            var $childList = $li.children('ol');
+            if ($childList.length === 0) { return; }
+            $childList.toggleClass('tocbot-is-collapsed');
+            updateTocToggle($li, $childList);
+          });
+          if (!window.__tocToggleObserver) {
+            window.__tocToggleObserver = new MutationObserver(function (mutations) {
+              mutations.forEach(function (mutation) {
+                if (mutation.type !== 'attributes' || mutation.attributeName !== 'class') { return; }
+                var $list = jQuery(mutation.target);
+                var $li = $list.parent('.toc-list-item');
+                if ($li.length === 0) { return; }
+                updateTocToggle($li, $list);
+              });
+            });
+            jQuery('#toc-body ol').each(function () {
+              window.__tocToggleObserver.observe(this, { attributes: true });
+            });
+          }
+        }
+        var cfg = Object.assign({
+          tocSelector     : '#toc-body',
+          contentSelector : '.markdown-body',
+          linkClass       : 'tocbot-link',
+          activeLinkClass : 'tocbot-active-link',
+          listClass       : 'tocbot-list',
+          isCollapsedClass: 'tocbot-is-collapsed',
+          collapsibleClass: 'tocbot-is-collapsible',
+          scrollSmooth    : true,
+          includeTitleTags: true,
+          headingsOffset  : -boardTop,
+        }, CONFIG.toc);
+        if (isExpandAllEnabled()) {
+          cfg.collapseDepth = 6;
+        }
+        window.tocbot.init(cfg);
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+        expandAllToc();
+        bindTocToggle();
+
+        Fluid.events.registerRefreshCallback(function () {
+          if ('tocbot' in window) {
+            tocbot.refresh();
+            var toc = jQuery('#toc');
+            if (toc.length === 0 || !tocbot) { return; }
+            if (toc.find('.toc-list-item').length > 0) {
+              toc.css('visibility', 'visible');
+            }
+            expandAllToc();
+            bindTocToggle();
+          }
+        });
+      });
+    });
+  </script>
+</BaseLayout>

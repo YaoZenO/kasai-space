@@ -1,0 +1,38 @@
+---
+// 节假日年份页（/holidays/<year>/，2021–2036 共 16 页）：取数后交给 HolidaysPage 渲染。
+// 路由年份来自 source/holidays/<year>/index.md 的 front matter（year 字段）。
+import fs from 'node:fs';
+import path from 'node:path';
+import HolidaysPage from '../../components/HolidaysPage.astro';
+import { getData } from '../../lib/data';
+import { holidayCalendar, tipPayload } from '../../lib/holiday-calendar';
+import { pageFrontMatter, pageDates } from '../../lib/page-meta';
+
+export function getStaticPaths() {
+  const root = path.join(process.cwd(), 'source', 'holidays');
+  const years = fs
+    .readdirSync(root)
+    .filter((name) => fs.existsSync(path.join(root, name, 'index.md')));
+
+  return years.map((year) => {
+    const fm = pageFrontMatter(`holidays/${year}/index.md`);
+    return { params: { year }, props: { year, fm } };
+  });
+}
+
+const { year, fm } = Astro.props;
+const data = getData();
+const cal = holidayCalendar(data.holidays || {}, fm.year ?? Number(year));
+const tipsJson = JSON.stringify(cal ? tipPayload(cal) : {}).replace(/</g, '\\u003c');
+const { published, modified } = pageDates(`holidays/${year}/index.md`);
+---
+
+<HolidaysPage
+  cal={cal}
+  title={fm.title || `${year} 年中国节假日`}
+  description={fm.description}
+  currentPath={`/holidays/${year}/`}
+  published={published}
+  modified={modified}
+  tipsJson={tipsJson}
+/>

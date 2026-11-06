@@ -1,0 +1,38 @@
+---
+// 主题 CSS 引入顺序（与 _partials/css.ejs 完全一致）
+// 版本号 ?v= 由 tools/stamp-assets.mjs 在构建后统一盖章，这里不写死。
+
+import { themeConfig } from '../lib/site-config';
+
+interface Props {
+  /** 页面正文含 Markdown 时，主题会额外注入这三个样式（顺序与现站一致） */
+  markdownPlugins?: boolean;
+}
+
+const { markdownPlugins = false } = Astro.props;
+const customCss: string = themeConfig.custom_css || '';
+---
+
+<link rel="stylesheet" href="/lib/bootstrap/4.6.1/css/bootstrap.min.css" />
+
+{markdownPlugins && (
+  <>
+    <link rel="stylesheet" href="/lib/github-markdown-css/4.0.0/github-markdown.min.css" />
+    <link rel="stylesheet" href="/lib/hint.css/2.7.0/hint.min.css" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="/lib/hint.css/2.7.0/hint.min.css" /></noscript>
+    <link rel="stylesheet" href="/lib/fancybox/3.5.7/jquery.fancybox.min.css" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="/lib/fancybox/3.5.7/jquery.fancybox.min.css" /></noscript>
+  </>
+)}
+
+<!-- 主题依赖的图标库（2026-10-15 起为自托管镜像 /lib/iconfont-theme.css，字体在 source/fonts/，勿单独删文件） -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="/lib/iconfont-theme.css" />
+<link rel="stylesheet" href="/lib/iconfont.css" />
+<link rel="stylesheet" href="/css/main.css" />
+
+<link id="highlight-css" rel="stylesheet" href="/css/highlight.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="/css/highlight.css"></noscript>
+
+{customCss && <link rel="stylesheet" href={customCss} />}
