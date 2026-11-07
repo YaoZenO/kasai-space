@@ -195,8 +195,24 @@
       （Node 22 不支持 CJS 具名导入，见 E-112）；`test/build-env.js` 串入 `npm test`
 - [x] mock 回归：`ADMIN_DEV_MOCK=1 node test/admin-smoke.js` → 100 项断言全部 PASS
 - [x] 后台资源缓存破坏：`index.html` 与 `admin.js` 的 `?v=` 版本一致（E-018 断言 PASS）
-- [ ] **未验证**：`api/` 与 Astro 静态产物在 **Vercel preview** 中共存
-      （本地无 Vercel 运行时；`api/` 依赖 Vercel Functions 目录约定，须部署后验证）
+- [x] **preview 已验证**（2026-11-07，`d056781`，部署 `my-hexo-blog-m2lhufldn-kasa1us-projects.vercel.app`，Ready / 29s）：
+      `api/` 与 Astro 静态产物共存成立。`GET /api/session-check` → `{"error":"SERVER_NOT_CONFIGURED"}`
+      （JSON，非 404 页面）；`POST` → `{"error":"METHOD_NOT_ALLOWED","hint":"仅支持 GET 请求"}`
+      → 说明 Vercel Functions 已被识别并路由。返回 `SERVER_NOT_CONFIGURED` 是因为 preview
+      未配置 GitHub token 等环境变量，属预期。
+- [x] preview 静态页全 200：`/`、`/about/`、`/now/`、`/projects/`、`/games/`、`/collections/`、
+      `/library/`、`/library/chunjie/`、`/zodiac/`、`/zodiac/rat/`、`/holidays/`、`/city/`、
+      `/city/beijing/`、`/cityrank/`、`/festivals/`、`/search/`、`/archives/`、`/tags/`、
+      `/categories/`、`/links/`、`/admin/`、`/404.html`
+- [x] preview 非 HTML 端点全 200：`/atom.xml`(84310B)、`/sitemap.xml`(13686B)、
+      `/search-index.json`(81559B)、`/robots.txt`、`/favicon.ico`
+- [x] preview 静态资源可访问：`/css/main.css?v=2b1fd995`(41360B，与现站逐字节一致)、
+      `/css/highlight.css`、`/lib/bootstrap/4.6.1/css/bootstrap.min.css`、`/admin/admin.css`、`/admin/admin.js`
+- [x] preview 重定向：`/uses` → `/now/`、`/city/province/beijing`(带/不带尾斜杠) → `/city/beijing/`，均 **308**
+- [x] 产物确定性：`/city/index.html`、`/atom.xml`、`/sitemap.xml`、`/search-index.json`
+      与本地 `dist` **逐字节相同**；`/index.html`、`/admin/index.html` 的差异来自工作区
+      **未提交**的 `_config.yml`（`个人博客`→`个人空间`）与 `source/admin/index.html`
+      （标题改动），属主人/其他会话在途改动，非迁移缺陷
 
 ### T11 说明
 
@@ -217,10 +233,9 @@
       （各带 / 不带尾斜杠）→ 目标正确，状态 **308**（Vercel `permanent:true` 实际返回 308），目标页均 200
 - [x] 像素验收（1440×900）：见 T10 表格；post / city 修复后 diff = 0
 - [x] 冷构建（清空 `dist/`、`static-public/`、`.astro/` 后重建）：708/708，0 字节 HTML = 0
-- [x] 构建配置已写进 `vercel.json`；Node 版本锁定 `22.x`
-- [x] 已推送 `astro-migration`（`44ae49c` + `a107c43`），**未合并 `main`**
-- [ ] **待验证（线上 preview）**：`/api/session-check`、`/api/content/list` 返回 401 而非 404；
-      首页源码为 Astro 产物（不是 Hexo 旧页）
+- [x] 构建配置已写进 `vercel.json`；Node 版本锁定 `24.x`（与 Vercel 项目设置一致，见 E-112）
+- [x] 已推送 `astro-migration`（`44ae49c` + `a107c43` + `d056781`），**未合并 `main`**
+- [x] preview 线上验证通过（见 T11 的 preview 清单）
 - [ ] **待主人确认**：preview 通过后再合并 `main`
 
 ## 停止点

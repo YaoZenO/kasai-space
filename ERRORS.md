@@ -148,6 +148,7 @@
 | E-110 | P1 | Astro JSX 重写：tocbot 路径 404、表达式间换行、漏掉空壳占位节点，导致「文字一致但版式错位」 | 已修复（像素对照逐页验证） |
 | E-111 | P2 | `postHasSubstance` 对 number 调 `.length`，首页「最新文字」误筛成 1 篇 | 已修复（字符数比较） |
 | E-112 | P0 | `hexo-util` 具名导入在 Node 22 下构建失败（本地 Node 24 看不出来），Vercel preview 整站构建退出 1 | 已修复（默认导入 + engines 对齐 + `test/build-env.js` 断言） |
+| E-113 | P2 | 从截图手抄 Vercel 团队名（`kasai-projects` ↔ `kasa1us-projects`），把 `DEPLOYMENT_NOT_FOUND` 误判成部署失败 | 已纠正（改用 `vercel ls` 取真实 URL 后再结论） |
 
 ---
 
@@ -2507,5 +2508,23 @@
   - 断言 `engines.node` 主版本与当前构建机一致，防止再次把部署环境降级。
 - **教训（同类通用）：** `engines` 不是「越保守越安全」——它决定部署机运行时；
   必须与线上项目设置和本地验证环境**对齐**。本地全绿只能证明本地那一个 Node 版本。
+
+### E-113 手抄截图里的 Vercel 团队名，把「域名不存在」误判成「部署失败」
+
+- **发生时间：** 2026-11-07 ｜ **发现方式：** 自己探测 preview 连续返回 `404 DEPLOYMENT_NOT_FOUND`
+- **现象：** 我按截图把团队 slug 读成 `kasai-projects`（实际 `kasa1us-projects`，`i` ↔ `1`），
+  访问 `...-kasai-projects.vercel.app` 得到 `DEPLOYMENT_NOT_FOUND`，据此向主人报告
+  「构建可能失败」，并让其反复取日志/截图，浪费了两轮往返。
+- **根因：** 视觉转写当成了事实；且看到 404 就跳到「部署失败」，没有区分
+  **域名不存在**（`DEPLOYMENT_NOT_FOUND`）与 **部署构建失败**（Build Logs 退出码非 0）。
+  另：preview 开了 Deployment Protection，未带 bypass 时一律 302 到 `vercel.com/sso-api`，
+  也不能当成站点故障。
+- **修法：** 改用 `npx vercel ls` 取真实部署 URL、`npx vercel curl <url>` 自带保护绕过，
+  一次拿到全部状态码。
+- **防复发（机制）：**
+  1. 部署结论只依据 **`vercel ls` / Build Logs** 这类一手来源，不依据截图转写；
+  2. 看到 `DEPLOYMENT_NOT_FOUND` 先判「URL 是否真实存在」，再判「构建是否失败」；
+  3. 看到 302 到 `vercel.com/sso-api` 一律先判「Deployment Protection」，改用
+     `vercel curl` 复测，不据此认定站点不可用。
 
 ---
