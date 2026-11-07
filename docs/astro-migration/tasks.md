@@ -234,9 +234,13 @@
 - [x] 像素验收（1440×900）：见 T10 表格；post / city 修复后 diff = 0
 - [x] 冷构建（清空 `dist/`、`static-public/`、`.astro/` 后重建）：708/708，0 字节 HTML = 0
 - [x] 构建配置已写进 `vercel.json`；Node 版本锁定 `24.x`（与 Vercel 项目设置一致，见 E-112）
-- [x] 已推送 `astro-migration`（`44ae49c` + `a107c43` + `d056781`），**未合并 `main`**
+- [x] 已推送并合并到 `main`（`44ae49c` + `a107c43` + `94a44c7` + `d056781` + `ec905e2` → `85fa96f..ec905e2`）
 - [x] preview 线上验证通过（见 T11 的 preview 清单）
-- [ ] **待主人确认**：preview 通过后再合并 `main`
+- [x] 已合并 `main`（fast-forward `85fa96f..ec905e2`），生产部署 `my-hexo-blog-578aa85rl` **Ready / 26s**
+- [x] 生产域名 `https://www.040925.xyz` 切到 Astro 版并逐条复验：
+      18 条页面/端点全 **200**；`/api/session-check` → **401** `{"error":"UNAUTHENTICATED"}`
+      （带环境变量后正常鉴权）；`/uses` → `/now/` **308**；
+      `/`、`/admin/index.html` 与本地 `dist` 仅差未提交的 `_config.yml` 关键词（4 字符），其余逐字节一致
 
 ## 停止点
 
