@@ -242,6 +242,48 @@
       （带环境变量后正常鉴权）；`/uses` → `/now/` **308**；
       `/`、`/admin/index.html` 与本地 `dist` 仅差未提交的 `_config.yml` 关键词（4 字符），其余逐字节一致
 
+## T13 遗留清理（**提醒：不要忘记，也不要提前做**）
+
+上线时间：2026-11-08（`a478d3b`）。Hexo 仍在仓库里承担两个角色：
+内容源（`source/_posts`、`source/_data`）与**测试对照基线**（`test/` 里多套断言跑 `hexo generate` 出 `public/` 做逐字节比对）。
+所以清理是一次**独立重构**，不在迁移范围内顺手做。
+
+### 什么时候做（满足任一即触发，先问主人再动手）
+
+| 触发条件 | 说明 |
+|---|---|
+| **2026-12-08 之后**，且线上连续两周无构建失败/回滚 | 时间闸门：给新栈留一个月的稳定观察期 |
+| 主人明确说「可以清 Hexo 了」 | 以主人指令为准，可早于时间闸门 |
+| `npm install` 明显变慢、或依赖告警成为困扰 | 工程体感触发 |
+
+> **每次会话开始时的自查**：若当前日期已晚于 `2026-12-08`，且本节清单仍未勾选，
+> 主动提醒主人一次「Astro 迁移的 Hexo 清理尚未执行」，不要自行开始。
+
+### 清单（按顺序做，每步都要能回退）
+
+- [ ] 备份：给 `main` 打 tag（如 `pre-hexo-cleanup`），确认可一键回到迁移后状态
+- [ ] 把 `test/` 的对照基线从「跑 `hexo generate` 比 `public/`」改为「比对冻结快照」
+      （否则删 Hexo 会让 5 套断言失效）
+- [ ] 确认 `themes/fluid/**/*.styl` 的编译产物已固化进 `tools/prepare-assets.mjs` 的输入，
+      不再依赖 Hexo 的渲染管线
+- [ ] 移除 `hexo*` 依赖与 `hexo-theme-landscape`
+- [ ] 移除 `themes/`、`scaffolds/`、`_config.landscape.yml`、`public/`、`db.json`
+- [ ] 处理 `_config.yml`：Astro 只读其中的部分字段，确定「保留 + 瘦身」还是「迁进 `src/lib/site-config.ts`」
+- [ ] `package.json` 改名（`hexo-site` → 实际站点名），同步 `package-lock.json`
+- [ ] `scripts` 里 `build`/`clean`/`deploy`/`server` 四条 Hexo 命令改为 Astro 语义或删除
+- [ ] 全量校验：`npm run astro:build` + `npm run astro:verify`（708/708）+ `npm test` 全绿
+- [ ] 提交推送，观察一次生产部署
+
+### 完成标准
+
+`grep -ri hexo package.json` 无命中；`npm test` 全绿；`verify-urls --mode=exact` 仍是 708/708；
+线上首页/文章页/`/admin/`/`/api/session-check` 全部正常。
+
+### 明确不做（避免误伤）
+
+- 不动 `api/**`（Vercel Functions 与 Hexo 无关）
+- 不动 `source/_posts`、`source/_data` 的内容（它们是长期内容源）
+
 ## 停止点
 
 以下情况必须停下来问主人，不得自行决定：
