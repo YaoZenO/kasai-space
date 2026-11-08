@@ -5172,99 +5172,129 @@ html:not(.js) .fs-years-toggle { display: none; }
   color: var(--sec-text-color);
 }
 
-.cr-board {
+.cr-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.2rem;
   margin: 0;
   padding: 0;
   list-style: none;
-  border-top: 1px solid var(--line-strong);
 }
 
-.cr-board-row > a {
-  display: grid;
-  grid-template-columns: 2.6rem minmax(0, 1fr) 7.4rem 13.2rem;
-  column-gap: 1rem;
-  align-items: baseline;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--line-color);
+.cr-tile > a {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--board-color, var(--cream));
+  border: 1px solid var(--line-color);
+  border-radius: 4px;
   text-decoration: none;
 }
 
-.cr-board-rank {
+.cr-tile-cover {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--board-color, var(--cream));
+  border-bottom: 1px solid var(--line-color);
+}
+
+.cr-tile-photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 45%;
+  transition: transform 0.35s ease;
+}
+
+.cr-tile > a:hover .cr-tile-photo { transform: scale(1.04); }
+
+.cr-tile-rank {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  padding: 0.1rem 0.45rem;
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-variant-numeric: tabular-nums;
+  color: var(--text-color);
+  background: var(--cream-on-dark);
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+}
+
+/* 没图的卡不放假图、不放灰块，只把城市名排进封面区（DESIGN §1「无数据不生成」） */
+.cr-tile-cover--none { display: flex; align-items: center; justify-content: center; }
+
+.cr-tile-cover-name {
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   color: var(--sec-text-color);
 }
 
-.cr-board-main {
+.cr-tile-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.8rem 0.9rem 0.9rem;
+}
+
+.cr-tile-head {
   display: flex;
   align-items: baseline;
-  gap: 0.6rem;
-  min-width: 0;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.5rem;
 }
 
-/* 行首缩略图（2026-11-06，PLAN-V3 §6）：
-   只有 cityphotos.yml 登记过、且 source/img/cities/<slug>.jpg 存在的城市才有这一格。
-   没图的行不预留空位、不放灰块——「无图不做占位」是硬规则，宁可少一块也不造假。
-   竖构图原图（1200×1799）裁成方图时把焦点抬高一点，让天际线落在中间而不是留白。 */
-.cr-board-photo {
-  flex: none;
-  align-self: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 3px;
-  object-fit: cover;
-  object-position: center 38%;
-  border: 1px solid var(--line-color);
-}
-
-.cr-board-name {
-  font-size: 0.98rem;
+.cr-tile-name {
+  font-size: 1.12rem;
   font-weight: 700;
   color: var(--text-color);
 }
 
-.cr-board-row > a:hover .cr-board-name { color: var(--accent); }
+.cr-tile > a:hover .cr-tile-name { color: var(--accent); }
 
-.cr-board-meta {
+.cr-tile-meta {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   color: var(--sec-text-color);
 }
 
-/* 排序键：数字 + 单位 + 横条。横条承担「谁更靠前」的直觉判断，
-   数字承担精度——两者都要，但不能让数字自己扛排序。 */
-.cr-board-mentions {
+/* 排序键放正文首行：大字 + 横条，不让读者把本节读成「GDP 前 30」 */
+.cr-tile-key {
   display: grid;
-  grid-template-columns: 1.7em auto minmax(2.6rem, 1fr);
-  column-gap: 0.3rem;
+  grid-template-columns: auto auto minmax(2rem, 1fr);
+  column-gap: 0.35rem;
   align-items: center;
 }
 
-.cr-board-mentions b {
+.cr-tile-key b {
   font-family: var(--font-mono);
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 1.05rem;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
-  text-align: right;
-  color: var(--text-color);
+  color: var(--accent);
 }
 
-.cr-board-mentions i {
+.cr-tile-key i {
   font-style: normal;
-  font-family: var(--font-mono);
   font-size: 0.75rem;
   color: var(--sec-text-color);
 }
 
-.cr-board-bar {
+.cr-tile-bar {
   position: relative;
-  height: 0.22rem;
+  height: 0.28rem;
   border-radius: 2px;
   background: var(--line-color);
 }
 
-.cr-board-bar > span {
+.cr-tile-bar > span {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -5273,21 +5303,23 @@ html:not(.js) .fs-years-toggle { display: none; }
   background: var(--accent);
 }
 
-.cr-board-nums {
+.cr-tile-nums {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  column-gap: 1rem;
+  column-gap: 0.6rem;
+  margin-top: auto;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--line-color);
 }
 
-.cr-board-num {
+.cr-tile-num {
   display: flex;
   align-items: baseline;
-  justify-content: flex-end;
   gap: 0.25rem;
   min-width: 0;
 }
 
-.cr-board-num b {
+.cr-tile-num b {
   font-family: var(--font-mono);
   font-size: 0.88rem;
   font-weight: 600;
@@ -5295,7 +5327,7 @@ html:not(.js) .fs-years-toggle { display: none; }
   color: var(--text-color);
 }
 
-.cr-board-num i {
+.cr-tile-num i {
   font-style: normal;
   font-family: var(--font-mono);
   font-size: 0.75rem;
@@ -5385,32 +5417,14 @@ html:not(.js) .fs-years-toggle { display: none; }
   color: var(--sec-text-color);
 }
 
-/* 窄屏：榜单行退成两段——上行「名次 城市 上榜次数」，下行「省·级别 …… GDP 人口」。
-   横条在这一档隐去，因为剩余宽度不足以让长度差读出来，反而挤掉数字。 */
-@media (max-width: 719.98px) {
-  .cr-board-row > a {
-    grid-template-columns: 2.1rem minmax(0, 1fr) auto;
-    grid-template-areas:
-      'rank main mentions'
-      'rank nums nums';
-    row-gap: 0.2rem;
-    column-gap: 0.7rem;
-    align-items: start;
-  }
+/* 大图卡断点：3 / 2 / 1 列都是 30 的约数，任何宽度下末行都排满。 */
+@media (max-width: 1000px) {
+  .cr-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 
-  .cr-board-rank { grid-area: rank; }
-  .cr-board-main { grid-area: main; flex-direction: column; align-items: flex-start; gap: 0.05rem; }
-  /* 缩略图在窄屏隐去（2026-11-06）：这一档 .cr-board-main 变成竖排，
-     44px 的方图会独占一行、把行高从 92 撑到 137，而它在 320–390 宽度下
-     也看不出内容，只剩一个深色方块。宁可窄屏不带图。 */
-  .cr-board-photo { display: none; }
-  .cr-board-mentions { grid-area: mentions; grid-template-columns: 1.7em auto; }
-  .cr-board-bar { display: none; }
-
-  .cr-board-nums {
-    grid-area: nums;
-    column-gap: 0.9rem;
-  }
+@media (max-width: 640px) {
+  .cr-tiles { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+  .cr-tile-cover { aspect-ratio: 16 / 8; }
 }
 
 @media (max-width: 575.98px) {

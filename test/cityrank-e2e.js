@@ -945,25 +945,57 @@ if (fs.existsSync(path.join(PUBLIC, 'city', 'index.html'))) {
     }
   });
 
-  // S23 榜单行（2026-11-06 二次改版）：初版的 3 列卡片把排序键「上榜次数」压在
-  // 右下角灰字里，读者会把这节读成「GDP 前 30」。这一节锁住三件事：
-  //   ① 前 30 座一行一座、名次 1..30 连续（缺号＝有城市被静默漏掉，E-047 同型）；
-  //   ② 排序键必须就位（横条按榜首满格，榜首是 100%）；
-  //   ③ 每城重复的「档案 N 项」不再出现——它是采集进度，不是城市属性。
-  ok('S23 榜单行：30 行、名次连续、排序键有横条、无「档案 N 项」残留', () => {
+  // S23 大图卡（2026-11-08 三次改版）：30 城配图到位后整页换成 16:9 封面卡。
+  // 11-06 的约束仍在，只是换了载体：名次做成封面角标、上榜次数做成正文首行
+  // 大字 + 横条，不能让读者的第一落点变成 GDP。这一节锁住四件事：
+  //   ① 前 30 座一城一卡、名次 1..30 连续（缺号＝有城市被静默漏掉，E-047 同型）；
+  //   ② 排序键就位（横条按榜首满格，榜首 100%）；
+  //   ③ 配图双闸：封面只认 cityphotos.yml 登记且文件存在的城市，没图的卡用文字兜底；
+  //   ④ 旧榜单行 / 旧卡片类名、以及「档案 N 项」不再出现。
+  ok('S23 大图卡：30 张、名次连续、封面按登记表出图、排序键就位', () => {
     const idx = fs.readFileSync(path.join(PUBLIC, 'city', 'index.html'), 'utf8');
-    const rows = [...idx.matchAll(/class="cr-board-row"/g)];
-    assert.strictEqual(rows.length, Math.min(30, cityProvinces(R).reduce((a, p) => a + p.total, 0)),
-      '榜单行数与城市总数不符：' + rows.length);
+    const tiles = [...idx.matchAll(/class="cr-tile"/g)];
+    assert.strictEqual(tiles.length, Math.min(30, cityProvinces(R).reduce((a, p) => a + p.total, 0)),
+      '卡片数与城市总数不符：' + tiles.length);
 
-    const ranks = [...idx.matchAll(/class="cr-board-rank">(\d+)</g)].map((m) => Number(m[1]));
-    assert.strictEqual(ranks.length, rows.length, '名次格与行数不一致');
-    ranks.forEach((n, i) => assert.strictEqual(n, i + 1, '名次不连续：第 ' + (i + 1) + ' 行是 ' + n));
+    const ranks = [...idx.matchAll(/class="cr-tile-rank">(\d+)</g)].map((m) => Number(m[1]));
+    assert.strictEqual(ranks.length, tiles.length, '名次角标与卡数不一致');
+    ranks.forEach((n, i) => assert.strictEqual(n, i + 1, '名次不连续：第 ' + (i + 1) + ' 张是 ' + n));
 
-    assert.ok(idx.indexOf('cr-board-bar') !== -1, '榜单缺排序键横条');
+    assert.ok(idx.indexOf('cr-tile-bar') !== -1, '缺排序键横条');
     assert.ok(idx.indexOf('style="width: 100%"') !== -1, '榜首横条不是满格');
     assert.strictEqual((idx.match(/档案 \d+ 项/g) || []).length, 0, '「档案 N 项」仍在渲染');
+    assert.strictEqual((idx.match(/cr-board/g) || []).length, 0, '旧榜单行类名仍在产物里');
     assert.strictEqual((idx.match(/cr-card/g) || []).length, 0, '旧卡片类名仍在产物里');
+
+    const photos = yaml.load(fs.readFileSync(path.join(ROOT, 'source', '_data', 'cityphotos.yml'), 'utf8')) || {};
+    const covers = (idx.match(/class="cr-tile-photo"/g) || []).length;
+    const imgSlugs = [...idx.matchAll(/\/img\/cities\/([a-z0-9-]+)\.jpg/g)].map((m) => m[1]);
+    assert.strictEqual(imgSlugs.length, covers, '封面图数量与 img 标签不一致');
+    for (const slug of imgSlugs) {
+      assert.ok(photos[slug], '未登记却出了封面：' + slug);
+      assert.ok(fs.existsSync(path.join(ROOT, 'source', 'img', 'cities', slug + '.jpg')),
+        '封面文件不存在：' + slug);
+    }
+    assert.ok(covers >= 29, '封面数异常偏少（登记表或双闸失效）：' + covers);
+    assert.strictEqual((idx.match(/cr-tile-cover--none/g) || []).length, tiles.length - covers,
+      '无图兜底卡数量与封面数不互补');
+  });
+
+  // S24：列数必须取 30 的约数（3 / 2 / 1），否则末行会留半排空格（P6 教训）。
+  // 同时锁住 E-116：--board-color 全库无定义，新样式里不得裸用。
+  ok('S24 大图卡样式：3/2/1 列断点、16:9 封面、不裸用未定义的 --board-color', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'source', 'css', 'site.css'), 'utf8');
+    assert.ok(/\.cr-tiles\s*\{[\s\S]*?grid-template-columns:\s*repeat\(3,/.test(css),
+      '桌面档不是 3 列');
+    assert.ok(/@media \(max-width: 1000px\)[\s\S]*?repeat\(2,/.test(css), '中档不是 2 列');
+    assert.ok(/@media \(max-width: 640px\)[\s\S]*?minmax\(0, 1fr\)/.test(css), '窄屏不是 1 列');
+    assert.ok(/\.cr-tile-cover\s*\{[\s\S]*?aspect-ratio:\s*16\s*\/\s*9/.test(css),
+      '封面不是 16:9');
+    const section = css.slice(css.indexOf('.cr-tiles {'), css.indexOf('.cr-folds {'));
+    assert.ok(section.length > 500, '大图卡样式区段定位失败');
+    assert.strictEqual((section.match(/var\(--board-color\)/g) || []).length, 0,
+      '大图卡样式裸用了从未定义的 --board-color（E-116）');
   });
 
   ok('S19 城市头图双闸：登记且有文件才渲染，未登记城市不得出现 /img/cities/ 引用（防无出处图与死链）', () => {

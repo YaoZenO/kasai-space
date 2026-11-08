@@ -131,32 +131,44 @@ provOrder.sort(function (a, b) {
     <section class="cr-sec-block">
       <h2 class="cr-sec-title">上榜最多的 <%= topRows.length %> 座</h2>
       <p class="cr-sec-note">按在本站榜单中出现的次数排序，次数相同按拼音次序。横条以榜首次数为满格；人口为常住人口。</p>
-      <ol class="cr-board">
+      <%#
+        2026-11-08 三次改版（主人选 C：整页换回大图卡）：30 城配图到位后，
+        榜单行里那张 44px 方图已没有存在意义，改成 16:9 封面的卡片网格。
+        11-06 那条「排序键不能压在灰字里」的约束保留：名次做成封面角标，
+        上榜次数做成正文第一行的大字 + 横条，GDP / 人口在下方、不再是第一落点。
+        30 张按 3 / 2 / 1 列排（都是 30 的约数），任何断点末行都不留空格。
+      %>
+      <ol class="cr-tiles">
         <% var photos = (site.data && site.data.cityphotos) || {} %>
         <% for (var t = 0; t < topRows.length; t += 1) { var tr = topRows[t]; var tc = tr.c %>
         <% var gdp = cardVal(tc, 'gdp'); var pop = cardVal(tc, 'pop') %>
-        <%#
-          行首缩略图（2026-11-06，PLAN-V3 §6「有图升级为图文卡」在榜单行结构下的落地）。
-          只有 cityphotos.yml 登记过、且 source/img/cities/<slug>.jpg 存在的城市才出图；
-          没登记的城市不预留空位、不放灰块（DESIGN §1「无数据不生成」）。
-          图少的时候只是个别行略高，不会把整张表撑乱；图补到十几张后自然形成节奏。
-        %>
+        <%# 只有 cityphotos.yml 登记过的城市才出图；没图的卡不放灰块、不放假图，
+            用城市名排进封面区兜底（DESIGN §1「无数据不生成」）。 %>
         <% var photo = photos[tc.slug] %>
-        <li class="cr-board-row">
+        <% var rankLabel = (t + 1) < 10 ? '0' + (t + 1) : String(t + 1) %>
+        <li class="cr-tile">
           <a href="<%= url_for('/city/' + tc.slug + '/') %>">
-            <span class="cr-board-rank"><%= t + 1 %></span>
-            <span class="cr-board-main">
-              <% if (photo) { %><img class="cr-board-photo" src="<%= url_for('/img/cities/' + tc.slug + '.jpg') %>" alt="" width="44" height="44" loading="lazy" decoding="async"><% } %>
-              <span class="cr-board-name"><%= tc.name %></span>
-              <span class="cr-board-meta"><%= tc.province || '' %><% if (tc.province && tc.level) { %> · <% } %><%= tc.level || '' %></span>
+            <span class="cr-tile-cover<% if (!photo) { %> cr-tile-cover--none<% } %>">
+              <% if (photo) { %>
+              <img class="cr-tile-photo" src="<%= url_for('/img/cities/' + tc.slug + '.jpg') %>" alt="<%= tc.name %>城市景观" width="1200" height="675" loading="lazy" decoding="async">
+              <% } else { %>
+              <span class="cr-tile-cover-name" aria-hidden="true"><%= tc.name %></span>
+              <% } %>
+              <span class="cr-tile-rank"><%= rankLabel %></span>
             </span>
-            <span class="cr-board-mentions">
-              <b><%= tr.n > 0 ? tr.n : '—' %></b><i>次</i>
-              <span class="cr-board-bar" aria-hidden="true"><span style="width: <%= barPct(tr.n) %>%"></span></span>
-            </span>
-            <span class="cr-board-nums">
-              <span class="cr-board-num"><b><%= gdp === null ? '—' : fmtCardNum(gdp) %></b><% if (gdp !== null) { %><i>亿元</i><% } %></span>
-              <span class="cr-board-num"><b><%= pop === null ? '—' : fmtCardNum(pop) %></b><% if (pop !== null) { %><i>万人</i><% } %></span>
+            <span class="cr-tile-body">
+              <span class="cr-tile-head">
+                <span class="cr-tile-name"><%= tc.name %></span>
+                <span class="cr-tile-meta"><%= tc.province || '' %><% if (tc.province && tc.level) { %> · <% } %><%= tc.level || '' %></span>
+              </span>
+              <span class="cr-tile-key">
+                <b><%= tr.n > 0 ? tr.n : '—' %></b><i>次上榜</i>
+                <span class="cr-tile-bar" aria-hidden="true"><span style="width: <%= barPct(tr.n) %>%"></span></span>
+              </span>
+              <span class="cr-tile-nums">
+                <span class="cr-tile-num"><b><%= gdp === null ? '—' : fmtCardNum(gdp) %></b><% if (gdp !== null) { %><i>亿元</i><% } %></span>
+                <span class="cr-tile-num"><b><%= pop === null ? '—' : fmtCardNum(pop) %></b><% if (pop !== null) { %><i>万人</i><% } %></span>
+              </span>
             </span>
           </a>
         </li>

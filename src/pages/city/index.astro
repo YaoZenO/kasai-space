@@ -132,30 +132,41 @@ const photos = data.cityphotos || {};
           <section class="cr-sec-block">
             <h2 class="cr-sec-title">上榜最多的 {topRows.length} 座</h2>
             <p class="cr-sec-note">按在本站榜单中出现的次数排序，次数相同按拼音次序。横条以榜首次数为满格；人口为常住人口。</p>
-            <ol class="cr-board">
+            {/* 2026-11-08 三次改版（主人选 C）：30 城配图到位，榜单行换成 16:9 大图卡。
+                11-06「排序键不能压在灰字里」的约束保留：名次做封面角标、
+                上榜次数做正文首行大字 + 横条；3 / 2 / 1 列都是 30 的约数，末行不空。 */}
+            <ol class="cr-tiles">
               {topRows.map((tr: any, t: number) => {
                 const tc = tr.c;
                 const gdp = cardVal(tc, 'gdp');
                 const pop = cardVal(tc, 'pop');
-                // 行首缩略图：只有 cityphotos.yml 登记过的城市才出图；
-                // 没登记的城市不预留空位、不放灰块（DESIGN §1「无数据不生成」）。
+                // 只有 cityphotos.yml 登记过的城市才出图；没图不放假图、不放灰块。
                 const photo = photos[tc.slug];
+                const rankLabel = String(t + 1).padStart(2, '0');
                 return (
-                  <li class="cr-board-row">
+                  <li class="cr-tile">
                     <a href={urlFor('/city/' + tc.slug + '/')}>
-                      <span class="cr-board-rank">{t + 1}</span>
-                      <span class="cr-board-main">
-                        {photo && <img class="cr-board-photo" src={urlFor('/img/cities/' + tc.slug + '.jpg')} alt="" width="44" height="44" loading="lazy" decoding="async" />}
-                        <span class="cr-board-name">{tc.name}</span>
-                        <span class="cr-board-meta">{tc.province || ''}{tc.province && tc.level ? ' · ' : ''}{tc.level || ''}</span>
+                      <span class={`cr-tile-cover${photo ? '' : ' cr-tile-cover--none'}`}>
+                        {photo ? (
+                          <img class="cr-tile-photo" src={urlFor('/img/cities/' + tc.slug + '.jpg')} alt={tc.name + '城市景观'} width="1200" height="675" loading="lazy" decoding="async" />
+                        ) : (
+                          <span class="cr-tile-cover-name" aria-hidden="true">{tc.name}</span>
+                        )}
+                        <span class="cr-tile-rank">{rankLabel}</span>
                       </span>
-                      <span class="cr-board-mentions">
-                        <b>{tr.n > 0 ? tr.n : '—'}</b><i>次</i>
-                        <span class="cr-board-bar" aria-hidden="true"><span style={`width: ${barPct(tr.n)}%`}></span></span>
-                      </span>
-                      <span class="cr-board-nums">
-                        <span class="cr-board-num"><b>{gdp === null ? '—' : fmtCardNum(gdp)}</b>{gdp !== null && <i>亿元</i>}</span>
-                        <span class="cr-board-num"><b>{pop === null ? '—' : fmtCardNum(pop)}</b>{pop !== null && <i>万人</i>}</span>
+                      <span class="cr-tile-body">
+                        <span class="cr-tile-head">
+                          <span class="cr-tile-name">{tc.name}</span>
+                          <span class="cr-tile-meta">{tc.province || ''}{tc.province && tc.level ? ' · ' : ''}{tc.level || ''}</span>
+                        </span>
+                        <span class="cr-tile-key">
+                          <b>{tr.n > 0 ? tr.n : '—'}</b><i>次上榜</i>
+                          <span class="cr-tile-bar" aria-hidden="true"><span style={`width: ${barPct(tr.n)}%`}></span></span>
+                        </span>
+                        <span class="cr-tile-nums">
+                          <span class="cr-tile-num"><b>{gdp === null ? '—' : fmtCardNum(gdp)}</b>{gdp !== null && <i>亿元</i>}</span>
+                          <span class="cr-tile-num"><b>{pop === null ? '—' : fmtCardNum(pop)}</b>{pop !== null && <i>万人</i>}</span>
+                        </span>
                       </span>
                     </a>
                   </li>
