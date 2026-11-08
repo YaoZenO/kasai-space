@@ -6059,7 +6059,7 @@ html:not(.js) .fs-years-toggle { display: none; }
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
   gap: clamp(20px, 3.5vw, 52px);
-  align-items: start;
+  align-items: center;
   margin-top: 0.9rem;
   padding-bottom: 1.6rem;
   border-bottom: 1px solid var(--line-color);
