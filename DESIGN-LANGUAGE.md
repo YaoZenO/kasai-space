@@ -544,6 +544,19 @@
 
 - **落地位置**：`src/pages/city/index.astro`（生产）、`themes/fluid/layout/cityindex.ejs`（Hexo 复刻）、`source/css/site.css` §4.16；断言 `test/cityrank-e2e.js` S23 / S24。
 - **实测**（1280 / 390，CDP）：3 列 / 1 列，卡片 353px / 316px 等高，封面 214px / 176px，横向溢出 0。
+- **案例配图**（2026-11-08 从生产产物 `dist/` 实测截取，存 `design/cases/`）：
+
+**桌面网格（前两行，1280px）**
+
+![城市大图卡网格前两行：封面、名次角标、排序键横条、次级数字](design/cases/city-tiles-desktop-2026-11-08.png)
+
+**单卡信息层级**
+
+![单卡：16:9 封面 → 名次角标 → 城市名 → 上榜次数大字与横条 → GDP 与人口](design/cases/city-tiles-card-2026-11-08.png)
+
+**移动端单列（390px）**
+
+![移动端单列：封面保留、卡片等高](design/cases/city-tiles-mobile-2026-11-08.png)
 
 ---
 
