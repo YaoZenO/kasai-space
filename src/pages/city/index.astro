@@ -7,12 +7,19 @@
 //   ① 上榜最多的 30 座 → 榜单行（名次 / 城市·省·级别 / 上榜次数+横条 / GDP / 人口）
 //   ② 其余按省份折叠 → 原生 <details>，不依赖 JS，无 JS 也能展开
 //
+// 2026-11-08 改版（PAGE-FORM-PLAN §4.0，主人从 A/B/C 三个样例里选 B「热力宫格」）：
+// 这一页此前仍是「文章壳 + 34 行省名 + 29 个折叠目录」，可见文本 6509 字，比一篇博客还长。
+// 现在改成：
+//   ① 首屏 = 结论 + 四格数字带 + 城市名搜索（纯 GET 表单，落到 /search/?q=，不依赖 JS）
+//      + 省份宫格（名称 / 在册城市数 / 相对最大省份的条形）
+//   ② 30 座大图卡不变（2026-11-08 三次改版已验收）
+//   ③ 其余城市由 <details> 折叠改三列索引，省名一行、城市名紧随其后
+//
 // 数据：source/_data/cities.yml + cityrank.yml；计算：src/lib/cityrank-data.ts
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getData } from '../../lib/data';
 import { buildCityRanks, cityMentionCount, cityProvinces } from '../../lib/cityrank-data';
-import { fmtItemDate } from '../../lib/dates';
 import { urlFor } from '../../lib/url';
 
 const data = getData();
@@ -53,7 +60,7 @@ if (!CR.error) {
 let withMentions = 0;
 for (let j = 0; j < list.length; j += 1) { if (list[j].n > 0) withMentions += 1; }
 
-// 前 30 座做成榜单行；其余按省折叠。城市不足 30 座时全部进榜，不产生空段。
+// 前 30 座做成榜单行；其余按省索引。城市不足 30 座时全部进榜，不产生空段。
 const TOP_N = 30;
 const topRows = list.slice(0, TOP_N);
 const restRows = list.slice(TOP_N);
@@ -76,7 +83,7 @@ for (let r = 0; r < restRows.length; r += 1) {
   }
   byProv[pvName].push(restRows[r]);
 }
-// 省份次序沿用 GB/T 2260 的列表（与上方省份导航一致），未知归属排末尾
+// 省份次序沿用 GB/T 2260 的列表（与首屏省份宫格一致），未知归属排末尾
 const provs = CR.error ? [] : cityProvinces(CR);
 const provNames: string[] = [];
 for (let pv = 0; pv < provs.length; pv += 1) { provNames.push(provs[pv].name); }
@@ -87,21 +94,38 @@ provOrder.sort((a, b) => {
   return String(a).localeCompare(String(b), 'zh');
 });
 
+/* 省份卡上的短名：北京市 → 北京、广西壮族自治区 → 广西、中国台湾地区 → 台湾。
+   四个字的全称在 4 列宫格里会折行，而省名折行后和数字挤在一起。 */
+function shortProvName(name: string): string {
+  return String(name || '')
+    .replace(/^中国/, '')
+    .replace(/(维吾尔|壮族|回族)自治区$/, '')
+    .replace(/自治区$/, '')
+    .replace(/特别行政区$/, '')
+    .replace(/地区$/, '')
+    .replace(/[省市]$/, '');
+}
+
+// 省份宫格的条形按「最省」为满格，读者不用读数字就能看出分布
+let maxProvTotal = 0;
+for (let pv2 = 0; pv2 < provs.length; pv2 += 1) {
+  if (provs[pv2].total > maxProvTotal) maxProvTotal = provs[pv2].total;
+}
+function provPct(n: number): number {
+  if (!maxProvTotal) return 0;
+  return Math.max(4, Math.round((n / maxProvTotal) * 100));
+}
+
+const dataYear = CR.cityMeta?.dataYear || '2025';
 const photos = data.cityphotos || {};
 ---
 
 <BaseLayout title="城市档案" currentPath="/city/">
   <div class="paper-page cal-page cr-page">
     <div class="home-wrap">
-      <header class="page-head">
-        <nav class="cal-crumb" aria-label="面包屑">
-          <a href={urlFor('/library/')}>资料库</a><span aria-hidden="true">/</span><span class="cal-crumb-now">城市档案</span>
-        </nav>
-        <p class="page-head-kicker">CITY</p>
-        <h1 class="page-head-title">城市档案</h1>
-        <p class="cal-lede">收录在本站榜单中出现过的城市。有权威来源的字段直接列出并标注来源与年份，尚未采集到权威来源的字段一律标 [待补]，不做估算填充。</p>
-        <p class="archive-total">更新于 {fmtItemDate(CR.meta?.updated)} · {list.length} 座城市 · {withMentions} 座有上榜记录 · 数据年份 {CR.cityMeta?.dataYear || '2025'}</p>
-      </header>
+      <nav class="cal-crumb" aria-label="面包屑">
+        <a href={urlFor('/library/')}>资料库</a><span aria-hidden="true">/</span><span class="cal-crumb-now">城市档案</span>
+      </nav>
 
       {CR.error ? (
         <>
@@ -110,24 +134,53 @@ const photos = data.cityphotos || {};
         </>
       ) : (
         <>
-          {provs.length > 0 && (
-            <section class="cr-provnav">
-              <h2 class="cr-sec-title">按省份浏览</h2>
-              <ul class="cr-provnav-list">
-                {provs.map((pv2: any) => {
-                  // 直辖市与特别行政区只有一座城市：中间的省级页只会再让人多按一次，
-                  // 直接链到那座城市的档案页（2026-11-06 主人指出「上海市还要再点一下上海」）。
-                  const pvHref = (pv2.total === 1 && pv2.pageCount === 1 && pv2.cities && pv2.cities.length)
-                    ? '/city/' + pv2.cities[0].slug + '/'
-                    : '/city/province/' + pv2.slug + '/';
-                  return (
-                    <li><a href={urlFor(pvHref)}>{pv2.name}<span class="cr-provnav-count">{pv2.total}</span></a></li>
-                  );
-                })}
-              </ul>
-              <p class="cr-profile-note">按 GB/T 2260 行政区划代码排序。行政归属尚未采集的城市不进省级聚合，仍可在下方名单中查看。</p>
-            </section>
-          )}
+          <section class="cr-index-hero">
+            <div class="cr-index-lead">
+              <h1 class="cr-index-title">城市档案</h1>
+              <p class="cr-index-lede">
+                收录在本站榜单中出现过的城市。有权威来源的字段直接列出并标注年份，尚未采集到的一律标 <b>[待补]</b>，不做估算填充。
+              </p>
+              <dl class="cr-stats">
+                <div class="cr-stat"><dt>城市档案</dt><dd>{list.length}</dd></div>
+                <div class="cr-stat"><dt>省级行政区</dt><dd>{provs.length}</dd></div>
+                <div class="cr-stat"><dt>有上榜记录</dt><dd>{withMentions}</dd></div>
+                <div class="cr-stat"><dt>数据年份</dt><dd>{dataYear}</dd></div>
+              </dl>
+              <form class="cr-search" action={urlFor('/search/')} method="get" role="search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+                <input type="search" name="q" placeholder="输入城市名，例如 苏州、成都" aria-label="搜索城市" />
+                <button type="submit">搜索</button>
+              </form>
+            </div>
+
+            {provs.length > 0 && (
+              <div class="cr-index-aside">
+                <div class="cr-sec-head">
+                  <h2 class="cr-sec-title">按省份浏览</h2>
+                  <p class="cr-sec-note">条形相对最大省份</p>
+                </div>
+                <div class="cr-provgrid">
+                  {provs.map((pv3: any) => {
+                    // 直辖市与特别行政区只有一座城市：中间的省级页只会再让人多按一次，
+                    // 直接链到那座城市的档案页（2026-11-06 主人指出「上海市还要再点一下上海」）。
+                    const pvHref = (pv3.total === 1 && pv3.pageCount === 1 && pv3.cities && pv3.cities.length)
+                      ? '/city/' + pv3.cities[0].slug + '/'
+                      : '/city/province/' + pv3.slug + '/';
+                    return (
+                      <a class="cr-provcard" href={urlFor(pvHref)}>
+                        <span class="cr-provcard-top">
+                          <span class="cr-provcard-name">{shortProvName(pv3.name)}</span>
+                          <span class="cr-provcard-n">{pv3.total}</span>
+                        </span>
+                        <span class="cr-provcard-bar" aria-hidden="true"><i style={`width: ${provPct(pv3.total)}%`}></i></span>
+                      </a>
+                    );
+                  })}
+                </div>
+                <p class="cr-profile-note">按 GB/T 2260 行政区划代码排序。行政归属尚未采集的城市不进省级聚合，仍可在下方索引中查看。</p>
+              </div>
+            )}
+          </section>
 
           <section class="cr-sec-block">
             <h2 class="cr-sec-title">上榜最多的 {topRows.length} 座</h2>
@@ -178,28 +231,17 @@ const photos = data.cityphotos || {};
           {restRows.length > 0 && (
             <section class="cr-sec-block">
               <h2 class="cr-sec-title">其余 {restRows.length} 座</h2>
-              <p class="cr-sec-note">按省级行政区折叠，点开即看。每行给出省份、级别与上榜次数，点城市名进档案。</p>
-              <div class="cr-folds">
+              <p class="cr-sec-note">按省级行政区排列，点城市名进档案。</p>
+              <div class="cr-index-cols">
                 {provOrder.map((pName: string) => {
                   const pRows = byProv[pName];
                   return (
-                    <details class="cr-fold">
-                      <summary class="cr-fold-head">
-                        <span class="cr-fold-name">{pName}</span>
-                        <span class="cr-fold-count">{pRows.length} 座</span>
-                      </summary>
-                      <ul class="cr-fold-list">
-                        {pRows.map((qr: any) => (
-                          <li class="cr-fold-item">
-                            <a href={urlFor('/city/' + qr.c.slug + '/')}>
-                              <span class="cr-fold-city">{qr.c.name}</span>
-                              <span class="cr-fold-meta">{qr.c.level || ''}</span>
-                              <span class="cr-fold-n">{qr.n > 0 ? qr.n + ' 次' : '—'}</span>
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    </details>
+                    <div class="cr-index-group">
+                      <span class="cr-index-pname">{pName} · {pRows.length}</span>
+                      {pRows.map((qr: any) => (
+                        <a href={urlFor('/city/' + qr.c.slug + '/')}>{qr.c.name}</a>
+                      ))}
+                    </div>
                   );
                 })}
               </div>

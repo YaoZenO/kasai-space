@@ -6050,6 +6050,237 @@ html:not(.js) .fs-years-toggle { display: none; }
   color: var(--sec-text-color);
 }
 
+/* 城市索引页改版（2026-11-08，PAGE-FORM-PLAN §4.0，主人从三个样例里选 B「热力宫格」）。
+   旧版是文章壳（kicker + 导语 + 更新于）+ 34 行省名 + 29 个折叠目录，可见文本 6509 字。
+   新版首屏 = 结论 + 四格数字带 + 搜索 + 省份宫格；底部 422 座改三列索引。
+   注意：.cr-provnav / .cr-folds 仍被 Hexo 旧模板 themes/fluid/layout/cityindex.ejs 使用，
+   T13 清理前不要删。 */
+.cr-index-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: clamp(20px, 3.5vw, 52px);
+  align-items: start;
+  margin-top: 0.9rem;
+  padding-bottom: 1.6rem;
+  border-bottom: 1px solid var(--line-color);
+}
+
+.cr-index-title {
+  margin: 0 0 0.55rem;
+  font-family: var(--font-serif-title);
+  font-weight: 600;
+  font-size: clamp(2.2rem, 4.2vw, 3.1rem);
+  line-height: 1.1;
+}
+
+.cr-index-lede {
+  margin: 0 0 1.1rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--sec-text-color);
+}
+
+.cr-index-lede b {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+/* 数字带：数字在上、标签在下。用 dl 保语义，靠 column-reverse 把 dd 提到前面，
+   不为了视觉顺序把 dt/dd 写反。 */
+.cr-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0 0 1.1rem;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.cr-stat {
+  display: flex;
+  flex-direction: column-reverse;
+  padding: 0.7rem 0.8rem 0.75rem;
+  border-left: 1px solid var(--line-color);
+}
+
+.cr-stat:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.cr-stat dd {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 2.1vw, 1.7rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.cr-stat dt {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+/* 搜索：GET 表单直落 /search/?q=，不依赖 JS；无 JS 也能用 */
+.cr-search {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.55rem 0.5rem 1rem;
+  border: 1px solid var(--line-color);
+  border-radius: 999px;
+  background: var(--cream);
+}
+
+.cr-search svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  color: var(--sec-text-color);
+}
+
+.cr-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--text-color);
+  outline: none;
+}
+
+.cr-search input::placeholder {
+  color: var(--sec-text-color);
+  opacity: 0.8;
+}
+
+.cr-search button {
+  flex: none;
+  padding: 0.35rem 0.9rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--on-ink);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.cr-search button:hover {
+  background: var(--accent-strong);
+}
+
+/* 省份宫格：省名 / 在册城市数 / 相对最大省份的条形。
+   省名折行会和数字挤在一起，故 nowrap + 省略号（全称已在 title 里）。 */
+.cr-sec-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.cr-sec-head .cr-sec-note {
+  margin: 0;
+}
+
+.cr-provgrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.cr-provcard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.55rem 0.7rem 0.6rem;
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-xs);
+  color: var(--text-color);
+  text-decoration: none;
+}
+
+.cr-provcard:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.cr-provcard-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.3rem;
+}
+
+.cr-provcard-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.86rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cr-provcard-n {
+  flex: none;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.cr-provcard-bar {
+  height: 3px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--line-color);
+}
+
+.cr-provcard-bar i {
+  display: block;
+  height: 100%;
+  background: var(--info-mark);
+}
+
+.cr-provcard:hover .cr-provcard-bar i {
+  background: var(--accent);
+}
+
+/* 其余城市：三列索引，省名一行、城市名紧随其后（旧版是 29 个 <details>） */
+.cr-index-cols {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem 1.2rem;
+  margin-top: 0.9rem;
+}
+
+.cr-index-group {
+  margin-bottom: 0.4rem;
+  break-inside: avoid;
+}
+
+.cr-index-pname {
+  display: block;
+  margin-bottom: 0.15rem;
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+
+.cr-index-group a {
+  margin-right: 0.55rem;
+  font-size: 0.82rem;
+  line-height: 1.9;
+  white-space: nowrap;
+  color: var(--sec-text-color);
+  text-decoration: none;
+}
+
+.cr-index-group a:hover {
+  color: var(--accent);
+}
+
 /* 省级聚合页（2026-11-01 方向四） */
 /* 未建页城市：与 .cr-citylist-item a 同构但不参与交互，明确「档案整理中」而非坏链 */
 .cr-citylist-plain {
@@ -6117,6 +6348,11 @@ html:not(.js) .fs-years-toggle { display: none; }
   .cr-glance { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .cr-glance-n1 { grid-template-columns: minmax(0, 1fr); }
   .cr-glance-item:nth-child(3) { padding-left: 0; border-left: 0; }
+
+  /* 城市索引页：首屏改单列（宫格落到文字下方），索引三列 → 两列 */
+  .cr-index-hero { grid-template-columns: minmax(0, 1fr); }
+  .cr-provgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .cr-index-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 /* 手机：右栏落到内容下方（真正的重排），排名表改为「名次 + 城市 + 指数」一行 + 说明折到第二行。
@@ -6141,6 +6377,18 @@ html:not(.js) .fs-years-toggle { display: none; }
   .cr-rail-map { order: 2; }
   .cr-mentions { order: 3; }
   .cr-city-name { font-size: clamp(2rem, 9vw, 2.6rem); }
+
+  /* 城市索引页：数字带 4 格 → 2 格，省份宫格 2 列，索引两列。
+     手机上一列排 401 个城市名会拉出 1.5 万像素，两列且字号收到 0.78rem 才收得住；
+     省卡压到单行高度（去内边距、条形 2px），33 个省不至于占满三屏。 */
+  .cr-index-title { font-size: 2rem; }
+  .cr-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cr-stat:nth-child(3) { padding-left: 0; border-left: 0; }
+  .cr-provgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cr-provcard { gap: 0.2rem; padding: 0.4rem 0.55rem 0.45rem; }
+  .cr-provcard-bar { height: 2px; }
+  .cr-index-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 0.8rem; }
+  .cr-index-group a { margin-right: 0.4rem; font-size: 0.78rem; }
   .cr-table,
   .cr-table tbody,
   .cr-table tr,
