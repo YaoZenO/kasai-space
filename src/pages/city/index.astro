@@ -116,6 +116,12 @@ function provPct(n: number): number {
   return Math.max(4, Math.round((n / maxProvTotal) * 100));
 }
 
+/* 宫格按「在册城市数」从多到少排（2026-11-08 主人：按区划码排「排序也莫名奇妙」）。
+   照 GB/T 2260 排时相邻格是 11 / 11 / 12 / 14 / 4 / 13——数字忽高忽低，
+   条形读不出任何趋势，热力宫格就只剩噪声。同数量的按区划码次序，保证稳定且地理相邻。
+   底部三列城市索引仍走区划码次序：那里是查地名，不是看分布。 */
+const provsByCount = provs.slice().sort((a: any, b: any) => (b.total - a.total) || (a.code - b.code));
+
 const dataYear = CR.cityMeta?.dataYear || '2025';
 const photos = data.cityphotos || {};
 ---
@@ -156,11 +162,11 @@ const photos = data.cityphotos || {};
             {provs.length > 0 && (
               <div class="cr-index-aside">
                 <div class="cr-sec-head">
-                  <h2 class="cr-sec-title">按省份浏览</h2>
-                  <p class="cr-sec-note">条形相对最大省份</p>
+                  <h2 class="cr-sec-title">按省级行政区</h2>
+                  <p class="cr-sec-note">条形相对最大省级行政区</p>
                 </div>
                 <div class="cr-provgrid">
-                  {provs.map((pv3: any) => {
+                  {provsByCount.map((pv3: any) => {
                     // 直辖市与特别行政区只有一座城市：中间的省级页只会再让人多按一次，
                     // 直接链到那座城市的档案页（2026-11-06 主人指出「上海市还要再点一下上海」）。
                     const pvHref = (pv3.total === 1 && pv3.pageCount === 1 && pv3.cities && pv3.cities.length)
@@ -177,7 +183,7 @@ const photos = data.cityphotos || {};
                     );
                   })}
                 </div>
-                <p class="cr-profile-note">按 GB/T 2260 行政区划代码排序。行政归属尚未采集的城市不进省级聚合，仍可在下方索引中查看。</p>
+                <p class="cr-profile-note">按在册城市数从多到少排列，数量相同按 GB/T 2260 行政区划代码次序。行政归属尚未采集的城市不进省级聚合，仍可在下方索引中查看。</p>
               </div>
             )}
           </section>

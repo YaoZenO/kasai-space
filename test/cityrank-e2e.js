@@ -926,7 +926,21 @@ if (fs.existsSync(path.join(PUBLIC, 'city', 'index.html'))) {
     assert.ok(sh.indexOf('从高到低第') !== -1, '上海页没有位次口径词');
     assert.ok(sh.indexOf('最好成绩') !== -1, '上海页上榜记录缺分组小结');
     const idx = fs.readFileSync(path.join(PUBLIC, 'city', 'index.html'), 'utf8');
-    assert.ok(idx.indexOf('按省份浏览') !== -1, '/city/ 索引页缺按省导航');
+    // 宫格改版只存在于 Astro 产物（dist/）；PUBLIC 默认是待 T13 清理的 Hexo 旧输出，
+    // 那边既没有 cr-provcard，也没有新标题，所以这一段优先读 dist，没有 dist 再回退。
+    const distIdx = path.join(ROOT, 'dist', 'city', 'index.html');
+    const idxNew = fs.existsSync(distIdx) ? fs.readFileSync(distIdx, 'utf8') : idx;
+    assert.ok(idxNew.indexOf('按省级行政区') !== -1, '/city/ 索引页缺省级行政区导航');
+    // 2026-11-08（主人：「排序也很莫名奇妙」）：宫格的条形编码了在册城市数，
+    // 次序就必须跟着数量走。照区划码排时相邻格是 11/11/12/14/4/13，改按数量降序。
+    const cards = [...idxNew.matchAll(/class="cr-provcard-name"[^>]*>([^<]+)<[\s\S]*?class="cr-provcard-n"[^>]*>(\d+)</g)];
+    assert.ok(cards.length >= 20, '宫格卡片数量异常：' + cards.length);
+    let prevN = Infinity;
+    for (const m of cards) {
+      const n = Number(m[2]);
+      assert.ok(n <= prevN, '宫格未按在册城市数降序：' + m[1] + '=' + n + ' 排在 ' + prevN + ' 之后');
+      prevN = n;
+    }
     for (const p of cityProvinces(R)) {
       // 2026-11-06（主人指出「上海市还要再点一下上海」）：只有一座城市的省级单位
       // （直辖市 / 特别行政区）直接链到那座城市的档案页，中间的省级页只会多按一次。
