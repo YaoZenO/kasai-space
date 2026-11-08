@@ -131,11 +131,11 @@ ok('模板不用 css()/js() helper 处理带版本号的自定义资源', () => 
   assert.ok(/url_for\(theme\.custom_css\)/.test(cssEjs), 'css.ejs 未用 url_for 输出自定义样式');
 });
 
-// 产物形态断言：public/ 由 test:pages 在本测试之前重建，通常存在；不存在则跳过并说明。
+// 产物形态断言：基线为 Astro 产物 dist/（npm test 前置 astro:build）；不存在则跳过并说明。
 {
-  const indexFile = path.join(ROOT, process.env.SITE_OUT || 'public', 'index.html');
+  const indexFile = path.join(ROOT, process.env.SITE_OUT || 'dist', 'index.html');
   if (!fs.existsSync(indexFile)) {
-    console.log('  SKIP 产物形态断言（public/index.html 不存在，先跑 npm run test:pages 或 npm run build）');
+    console.log('  SKIP 产物形态断言（dist/index.html 不存在，先跑 npm run astro:build）');
   } else {
     const html = fs.readFileSync(indexFile, 'utf8');
     ok('产物中 site.css 链接带 8 位 hash 且无多余后缀', () => {
@@ -220,71 +220,57 @@ ok('main.css 的 filter 注册在 after_generate 与 exit', () => {
     '未注册 exit 兜底');
 });
 
-ok('测试侧补写契约存在（E2E 的进程内调用不触发上述 filter）', () => {
-  // test/module-pages-e2e.js 的 rebuildClean() 用 hexo.call('generate') 进程内重建 public/，
-  // 实测不触发 after_generate / exit，因此那里必须显式调用 stampAll 补齐。
-  // 缺了这一句，测试跑完 public/ 里 main.css 的版本号会被清空 → 下面的产物断言红。
-  const e2e = fs.readFileSync(path.join(ROOT, 'test/module-pages-e2e.js'), 'utf8');
-  assert.ok(/stampAll\(PUBLIC\)/.test(e2e),
-    'rebuildClean() 里没有显式调用 stampAll —— E2E 跑完产物会丢 main.css 版本号');
+ok('构建链上真的执行了盖章（astro:build → tools/stamp-assets.mjs）', () => {
+  // 只测纯函数会漏掉「脚本没挂上」这种静默失效：生产路径（Vercel）跑的是
+  // npm run astro:build，这一串里必须包含 stamp-assets.mjs，否则全站拿不到版本号。
+  const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+  const build = String((pkg.scripts && pkg.scripts['astro:build']) || '');
+  assert.ok(/tools[\\/]stamp-assets\.mjs/.test(build),
+    'astro:build 里没有 stamp-assets.mjs —— 生产构建不会给资源盖 hash');
 });
 
 // ---------------------------------------------------------------------------
-// 2026-10-19 补：真·冷启动全量构建（Vercel 生产路径）的产物断言
+// 产物级断言（2026-11-09 起基线为 Astro 产物 dist/）
 //
-// 上一轮的「41/42 覆盖」是**假阳性**——那次跑的是增量构建，main.css 早就在盘上，
-// 于是 after_generate 有得盖。真实生产（Vercel 每次干净 checkout）是全量构建：
-// 实测 after_generate 与 generateAfter 触发时 public/css/main.css exists = false，
-// 而 Hexo 的 exit filter 在 CLI 下根本不触发 → 全站拿不到版本号，
-// main.css 的缓存破坏在生产上等于没做（正是 E-035 要治的那个病）。
-//
-// 判据只看结果、不看实现：删光 public/ 后跑一次真实 CLI 构建，产物必须带 hash。
+// npm test 会先跑 astro:build，dist/ 即生产的真实形态：main.css 由 stylus 编译后
+// 由 tools/stamp-assets.mjs 按内容算 hash 盖章，与 Vercel 干净构建同一条链路。
+// 判据只看结果：随便挑一页，它引用的 main.css 版本号必须等于盘的 hash；
+// 且除 admin/ 外每个 HTML 都要带版本号（漏一页就是那页永远用旧样式）。
 // ---------------------------------------------------------------------------
-console.log('\n冷启动全量构建（模拟 Vercel 干净 checkout）');
+console.log('\n产物级校验（dist/，npm test 前置 astro:build 的产物）');
 
 {
-  const PUBLIC = path.join(ROOT, 'public');
-  const { execSync } = require('node:child_process');
-  let out = '';
-  try {
-    fs.rmSync(PUBLIC, { recursive: true, force: true });
-    // E-091（2026-11-01）：只删 public/ 不删 db.json，陈旧增量缓存会让 Hexo
-    // 跳过重建、冷启动断言假红。与 E-087 同一修法：重建前无条件删 db.json。
-    fs.rmSync(path.join(ROOT, 'db.json'), { force: true });
-    out = execSync('npx hexo generate', { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
-  } catch (e) {
-    out = String((e && e.stdout) || '') + String((e && e.stderr) || '');
-  }
+  const OUT = path.join(ROOT, process.env.SITE_OUT || 'dist');
+  const indexFile = path.join(OUT, 'index.html');
 
-  ok('冷启动构建成功产出 public/index.html', () => {
-    assert.ok(fs.existsSync(path.join(PUBLIC, 'index.html')), `构建没有产出 index.html：${out.slice(-300)}`);
+  ok('dist/index.html 存在', () => {
+    assert.ok(fs.existsSync(indexFile), 'dist 未构建，先跑 npm run astro:build');
   });
 
-  if (fs.existsSync(path.join(PUBLIC, 'index.html'))) {
-    const html = fs.readFileSync(path.join(PUBLIC, 'index.html'), 'utf8');
-    const realHash = absHash(path.join(PUBLIC, 'css', 'main.css'));
+  if (fs.existsSync(indexFile)) {
+    const html = fs.readFileSync(indexFile, 'utf8');
+    const realHash = absHash(path.join(OUT, 'css', 'main.css'));
 
-    ok('全量构建也盖上版本号（此前只有增量构建能盖）', () => {
-      assert.ok(realHash, '构建后 public/css/main.css 不存在');
+    ok('产物的 main.css 版本号等于盘上内容 hash', () => {
+      assert.ok(realHash, 'dist/css/main.css 不存在');
       assert.ok(html.includes(`/css/main.css?v=${realHash}`),
-        `index.html 的 main.css 没带正确版本号（应为 ?v=${realHash}）——全量构建路径失效`);
+        `index.html 的 main.css 没带正确版本号（应为 ?v=${realHash}）`);
     });
 
     ok('全站覆盖：除 admin/ 外每个 HTML 都带版本号', () => {
-      // E-092（2026-11-02）：早先实现是「先 walk 收集全部路径，再逐个 readFileSync」。
-      // 遍历与读取之间若有进程在重建 public/（并行构建、编辑器索引、另一个会话跑测试），
-      // 会出现「目录在、文件没了」的 ENOENT 假红——实测 947 个文件里只缺 1 个，
-      // 紧接着单独构建该页却能正常产出。现在把遍历与读取合到同一轮，
-      // 遇到文件瞬时消失则整轮重来一次；两轮都读不到才算真缺失，不掩盖真实失败。
+      // E-092（2026-11-02）：遍历与读取之间若有进程在重建产物目录（并行构建、
+      // 编辑器索引、另一个会话跑测试），会出现「目录在、文件没了」的 ENOENT 假红。
+      // 现在把遍历与读取合到同一轮，遇到文件瞬时消失则整轮重来一次；
+      // 两轮都读不到才算真缺失，不掩盖真实失败。
       const collect = () => {
         const out = [];
         (function walk(dir) {
           for (const name of fs.readdirSync(dir)) {
             const abs = path.join(dir, name);
             if (fs.statSync(abs).isDirectory()) walk(abs);
-            else if (/\.html$/i.test(name)) out.push(path.relative(PUBLIC, abs).replace(/\\/g, '/'));
+            else if (/\.html$/i.test(name)) out.push(path.relative(OUT, abs).replace(/\\/g, '/'));
           }
-        })(PUBLIC);
+        })(OUT);
         return out.filter((n) => !n.startsWith('admin/'));
       };
 
@@ -295,7 +281,7 @@ console.log('\n冷启动全量构建（模拟 Vercel 干净 checkout）');
         vanished = null;
         for (const rel of collect()) {
           try {
-            if (!fs.readFileSync(path.join(PUBLIC, rel), 'utf8').includes('main.css?v=')) missing.push(rel);
+            if (!fs.readFileSync(path.join(OUT, rel), 'utf8').includes('main.css?v=')) missing.push(rel);
           } catch (e) {
             vanished = rel; // 遍历后文件被移除：整轮重来
             break;
@@ -305,7 +291,7 @@ console.log('\n冷启动全量构建（模拟 Vercel 干净 checkout）');
       }
 
       assert.strictEqual(vanished, null,
-        `页面在断言期间消失（两轮都读不到）：${vanished} —— 构建期间是否有其它进程在重建 public/？`);
+        `页面在断言期间消失（两轮都读不到）：${vanished} —— 构建期间是否有其它进程在重建 dist/？`);
       assert.strictEqual(missing.length, 0,
         `${missing.length} 个页面缺少 main.css 版本号：${missing.slice(0, 5).join(', ')}`);
     });

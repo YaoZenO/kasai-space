@@ -57,7 +57,7 @@ for (const name of ['bg', 'ink', 'muted', 'line', 'card', 'ok', 'warn', 'err']) 
 // （主题 `.markdown-body h2::before` 的 margin-top:-5rem + height:5rem 把文字推到盒内 78px 处）。
 // 两端是硬耦合：主题一动，竖标就错位 70 多像素，而且不报错、构建照常成功。
 // 这里把两端同时锁死：主题规则变了 → 报警要求重新实测校准；site.css 被按公式改小 → 报警。
-const mainCssPath = path.join(ROOT, 'public/css/main.css');
+const mainCssPath = path.join(ROOT, 'dist/css/main.css');
 
 if (fs.existsSync(mainCssPath)) {
   const mainCss = fs.readFileSync(mainCssPath, 'utf8');
@@ -87,7 +87,7 @@ if (fs.existsSync(mainCssPath)) {
       + '撤销归零规则时此处必须改回 5rem');
   });
 } else {
-  console.log('  SKIP 主题 hack 耦合检查（无 public/css/main.css，先跑 hexo generate）');
+  console.log('  SKIP 主题 hack 耦合检查（无 dist/css/main.css，先跑 npm run astro:build）');
 }
 
 // 方向 A：墨底整屏区块（2026-10-19 落地，R-1 豁免的唯一一处反相）
@@ -252,28 +252,28 @@ ok('--fs-hero 与 DESIGN-LANGUAGE 字阶表一致（E-041）', () => {
 });
 
 // --- E-071：首页 <body class="is-home"> 必须原样输出 ---
-// layout.ejs 用 `<%- %>` 拼 class；一旦写回 `<%= %>`，引号被转义成 &#34;，
+// 模板里用不转义的输出拼 class；一旦改成转义输出，引号被转成 &#34;，
 // 浏览器解析出的 class 名不是 is-home，`body.is-home footer` 永不命中，
 // 首页会同时出现 .home-end 与全局页脚——构建不报错、退出码 0，只有看产物能发现。
-const indexPath = path.join(ROOT, 'public/index.html');
+const indexPath = path.join(ROOT, 'dist/index.html');
 if (fs.existsSync(indexPath)) {
   const homeHtml = fs.readFileSync(indexPath, 'utf8');
   ok('首页产物 <body class="is-home"> 未被 HTML 转义（E-071）', () => {
     assert.match(homeHtml, /<body class="is-home"/,
-      'public/index.html 缺 <body class="is-home"> —— layout.ejs 可能又用回 <%= %>，'
+      'dist/index.html 缺 <body class="is-home"> —— BaseLayout 可能又用回会转义的输出，'
       + '引号转义后 body.is-home 永不命中，首页双页脚会回归');
     assert.ok(!/class=&#34;/.test(homeHtml),
-      '产物出现 class=&#34; —— EJS 转义输出吃掉了属性引号（E-071）');
+      '产物出现 class=&#34; —— 属性引号被转义输出吃掉（E-071）');
   });
   ok('非首页产物不得带 is-home 类', () => {
-    const aboutPath = path.join(ROOT, 'public/about/index.html');
+    const aboutPath = path.join(ROOT, 'dist/about/index.html');
     if (!fs.existsSync(aboutPath)) return;
     const html = fs.readFileSync(aboutPath, 'utf8');
     assert.ok(!/class="is-home"/.test(html),
       '非首页产物带了 is-home —— 全局页脚会被误藏（is_home() 判定或模板拼接出错）');
   });
 } else {
-  console.log('  SKIP 首页 is-home 产物断言（无 public/index.html，先跑 hexo generate）');
+  console.log('  SKIP 首页 is-home 产物断言（无 dist/index.html，先跑 npm run astro:build）');
 }
 
 ok('首页页脚收口规则存在：body.is-home footer 隐藏（E-071 另一半）', () => {

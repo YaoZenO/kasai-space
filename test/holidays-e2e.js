@@ -11,8 +11,11 @@
 //     ③ 产物落地：页面真的存在且非 0 字节（E-029 / E-038：Hexo 渲染失败也报成功）。
 //
 // 运行：node test/holidays-e2e.js
-// 前置：npm run build（产物断言依赖 public/）。public/ 不存在时产物段 SKIP，
-//       但 public/ 存在而页面缺失一律判 FAIL——那说明构建真的漏了这一页。
+// 前置：npm run astro:build（产物断言依赖 dist/）。
+//       本文件的产物断言分两段：
+//       ③ 旧 Hexo 结构基线（cal-*）——仍读 public/，供 Hexo 清理完成前做回归对照；
+//          public/ 被删除后整段 SKIP，自动退场。
+//       ⑤ Astro 年历改版基线（hy-*）——读 dist/，是当前生产的真实形态。
 
 const assert = require('node:assert');
 const fs = require('node:fs');
@@ -22,11 +25,14 @@ const yaml = require('js-yaml');
 const { buildCalendar, tipPayload, toKey, weekdayOf, spanDays } = require('../themes/fluid/scripts/helpers/holiday-calendar.js');
 
 const ROOT = path.join(__dirname, '..');
-const PUBLIC = path.join(ROOT, process.env.SITE_OUT || 'public');
+// 旧基线：Hexo 时代产物目录（清理完成后不存在 → ③ 段自动 SKIP）
+const PUBLIC = path.join(ROOT, 'public');
 const PAGE = path.join(PUBLIC, 'holidays', 'index.html');
 // 默认页（/holidays/）现在固定显示「当前年」2026，所以凡是按 2027 写死的断言都改看
 // 2027 自己的年份页，不再依赖默认页翻到哪一年。
 const PAGE27 = path.join(PUBLIC, 'holidays', '2027', 'index.html');
+// 新基线：Astro 产物目录（生产）
+const OUT = path.join(ROOT, process.env.SITE_OUT || 'dist');
 
 let pass = 0;
 function ok(label, fn) {
@@ -240,8 +246,10 @@ ok('不放假的日子也能说清「为什么」，普通工作日不占体积'
 
 // ---------- ③ 产物落地 ----------
 
-if (!fs.existsSync(PUBLIC)) {
-  console.log('  - SKIP 产物断言（没有 public/，先跑 npm run build）');
+if (!fs.existsSync(PAGE)) {
+  // 旧基线的入口页（public/holidays/index.html）不存在就整段跳过。
+  // 判据不能用「public/ 目录存在」：Hexo 增量构建被中断时目录会在但页面缺失。
+  console.log('  - SKIP 旧 Hexo 基线断言（public/holidays/index.html 不存在）');
 } else {
   ok('布局模板能独立编译（E-045：编译失败时 Hexo 会静默产出残页）', () => {
     // 判据只看结果：模板必须能被 ejs 编译。变异自检见下一节。
@@ -548,10 +556,10 @@ ok('§4.12 节假日样式段完整（E-052：整份覆盖站点样式时最容�
   assert.deepStrictEqual(missing, [], 'site.css 丢了这些节假日样式：' + missing.join('、'));
 });
 
-ok('字体产物已随构建落到 public/fonts/（public/ 存在时）', () => {
-  if (!fs.existsSync(PUBLIC)) return;
+ok('字体产物已随构建落到 dist/fonts/（astro:build 后）', () => {
+  if (!fs.existsSync(OUT)) return;
   ['fraunces-600-latin.woff2', 'nunito-sans-var-latin.woff2'].forEach((f) => {
-    assert.ok(fs.existsSync(path.join(PUBLIC, 'fonts', f)), 'public/fonts/ 缺少 ' + f);
+    assert.ok(fs.existsSync(path.join(OUT, 'fonts', f)), 'dist/fonts/ 缺少 ' + f);
   });
 });
 
@@ -620,7 +628,7 @@ ok('配图文件存在、确实是 JPEG、宽度足够', () => {
 // 这些不变量必须在 dist 上锁一遍：模板里少一个月、数据层过滤写错、图片署名丢了，
 // 页面照样能打开、构建照样退出 0（E-002），只有断言能抓到。
 
-const DIST_PAGE = path.join(ROOT, 'dist', 'holidays', '2026', 'index.html');
+const DIST_PAGE = path.join(OUT, 'holidays', '2026', 'index.html');
 const cal2026 = buildCalendar(raw, 2026);
 
 ok('Astro 产物：/holidays/2026/ 六块齐全，月卡 / 放假格 / 补班格 / 配图 / 节气 / FAQ 计数正确', () => {

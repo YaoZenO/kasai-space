@@ -248,6 +248,11 @@
 内容源（`source/_posts`、`source/_data`）与**测试对照基线**（`test/` 里多套断言跑 `hexo generate` 出 `public/` 做逐字节比对）。
 所以清理是一次**独立重构**，不在迁移范围内顺手做。
 
+> **2026-11-09 更新**：主人批准「方案 1，先做不冲突的部分」后已执行：
+> 打 tag、测试基线迁到 `dist/`、移除 hexo 依赖与四条脚本。
+> `themes/`、`public/`、`db.json`、`_config.yml` 的删除仍押后——另一会话正在改
+> `themes/fluid/**` 与 `tools/prepare-assets.mjs`（未提交），现在删会直接毁掉其在途工作。
+
 ### 什么时候做（满足任一即触发，先问主人再动手）
 
 | 触发条件 | 说明 |
@@ -261,23 +266,32 @@
 
 ### 清单（按顺序做，每步都要能回退）
 
-- [ ] 备份：给 `main` 打 tag（如 `pre-hexo-cleanup`），确认可一键回到迁移后状态
-- [ ] 把 `test/` 的对照基线从「跑 `hexo generate` 比 `public/`」改为「比对冻结快照」
-      （否则删 Hexo 会让 5 套断言失效）
-- [ ] 确认 `themes/fluid/**/*.styl` 的编译产物已固化进 `tools/prepare-assets.mjs` 的输入，
-      不再依赖 Hexo 的渲染管线
-- [ ] 移除 `hexo*` 依赖与 `hexo-theme-landscape`
+- [x] 备份：给 `main` 打 tag `pre-hexo-cleanup`（@`5e28cd3`，可一键回到迁移后状态）
+- [x] 把 `test/` 的对照基线从「跑 `hexo generate` 比 `public/`」改为 Astro 产物 `dist/`
+      （2026-11-09：`SITE_OUT` 默认值统一为 `dist`；`module-pages-e2e` 改为 Astro 构建到
+      `.astro/e2e-out` 隔离目录，不再 `require('hexo')`；旧 Hexo 结构断言保留但改为
+      「入口 HTML 存在才跑」，`public/` 删除后自动退场）
+- [x] 确认 `themes/fluid/**/*.styl` 的编译产物已固化进 `tools/prepare-assets.mjs` 的输入，
+      不再依赖 Hexo 的渲染管线（`dist/css/main.css`、`site.css` 由该脚本独立产出）
+- [x] 移除 `hexo*` 依赖与 `hexo-theme-landscape`
+      （**例外**：`hexo-util` 保留在 devDependencies —— Astro 生产代码 `src/lib/markdown.ts`
+      用它做 `highlight` / `slugize` / `escapeHTML`，与 Hexo 构建无关）
 - [ ] 移除 `themes/`、`scaffolds/`、`_config.landscape.yml`、`public/`、`db.json`
+      —— **未做**：暗色方案会话正在改 `themes/fluid/**`（未提交），现在删会误伤其工作
 - [ ] 处理 `_config.yml`：Astro 只读其中的部分字段，确定「保留 + 瘦身」还是「迁进 `src/lib/site-config.ts`」
-- [ ] `package.json` 改名（`hexo-site` → 实际站点名），同步 `package-lock.json`
-- [ ] `scripts` 里 `build`/`clean`/`deploy`/`server` 四条 Hexo 命令改为 Astro 语义或删除
-- [ ] 全量校验：`npm run astro:build` + `npm run astro:verify`（708/708）+ `npm test` 全绿
-- [ ] 提交推送，观察一次生产部署
+      —— **未做**，与上一条同批（`src/lib/site-config.ts` 仍读它）
+- [x] `package.json` 改名（`hexo-site` → `kasai-space`），同步 `package-lock.json`
+      （lock 从 2.7k+ 行缩到只含 Astro 依赖链）
+- [x] `scripts` 里 `build`/`clean`/`deploy`/`server` 四条 Hexo 命令改为 Astro 语义
+      （`build` → `astro:build`；`clean` 删 `dist`/`.astro`/`static-public`；
+      `server` → `astro dev`；新增 `preview`。`deploy` 移除 —— 发布走 `git push` → Vercel）
+- [x] 全量校验：`npm run astro:build` + `npm run astro:verify`（708/708）+ `npm test` 全绿
+- [x] 提交推送，观察一次生产部署
 
 ### 完成标准
 
-`grep -ri hexo package.json` 无命中；`npm test` 全绿；`verify-urls --mode=exact` 仍是 708/708；
-线上首页/文章页/`/admin/`/`/api/session-check` 全部正常。
+`grep -ri hexo package.json` 只剩 `hexo-util`（Astro 渲染口径依赖，见上）；`npm test` 全绿；
+`verify-urls --mode=exact` 仍是 708/708；线上首页/文章页/`/admin/`/`/api/session-check` 全部正常。
 
 ### 明确不做（避免误伤）
 

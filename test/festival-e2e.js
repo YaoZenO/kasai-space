@@ -35,7 +35,7 @@ const {
 } = require('../themes/fluid/scripts/helpers/festival-data.js');
 
 const ROOT = path.join(__dirname, '..');
-const PUBLIC = path.join(ROOT, process.env.SITE_OUT || 'public');
+const PUBLIC = path.join(ROOT, process.env.SITE_OUT || 'dist');
 
 let pass = 0;
 function ok(label, fn) {
@@ -507,9 +507,9 @@ if (!fs.existsSync(PUBLIC)) {
   // 从严：本站样式没有合法的加法 calc 用例，凡 calc 内出现加号一律 FAIL
   // （宽松正则曾漏掉 `calc(18% + 0.5%)`——`%` 不在 [\d.)] 里，变异自检抓出后收紧）
   const ADD_CALC = /calc\([^()]*\+[^()]*\)/;
-  ok('E-064 负向：site.css 源码与产物 public/css/site.css 均无加法 calc', () => {
+  ok('E-064 负向：site.css 源码与产物 dist/css/site.css 均无加法 calc', () => {
     assert.ok(!ADD_CALC.test(css), 'site.css 源码出现加法 calc——minifier 压缩后该声明会整体失效，改用常量/百分比等效写法');
-    assert.ok(!ADD_CALC.test(prodCss), '产物 public/css/site.css 出现加法 calc（无论源码是否干净，产物失效即页面错位）');
+    assert.ok(!ADD_CALC.test(prodCss), '产物 dist/css/site.css 出现加法 calc（无论源码是否干净，产物失效即页面错位）');
   });
 
   ok('§4.15 内无 animation（纹样绝对静止，DESIGN §6.6）', () => {

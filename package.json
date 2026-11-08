@@ -3,10 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "hexo generate",
-    "clean": "hexo clean",
-    "deploy": "hexo deploy",
-    "server": "hexo server",
+    "build": "npm run astro:build",
+    "clean": "node -e \"const fs=require('fs');for(const d of ['dist','.astro','static-public'])fs.rmSync(d,{recursive:true,force:true})\"",
+    "server": "astro dev",
+    "preview": "astro preview",
     "astro:assets": "node tools/prepare-assets.mjs",
     "astro:build": "node tools/prepare-assets.mjs && astro build && node tools/encode-module-paths.mjs && node tools/stamp-assets.mjs",
     "astro:verify": "node tools/verify-urls.mjs --mode=exact",
@@ -25,27 +25,11 @@
     "test:search": "node test/search-index.js",
     "test:a10-render": "node test/a10-avatar-render.js",
     "test:env": "node test/build-env.js",
-    "test": "npm run test:admin && npm run test:pages && npm run test:tokens && npm run test:claims && npm run test:blocks && npm run test:assets && npm run test:dates && npm run test:holidays && npm run test:zodiac && npm run test:festival && npm run test:cityrank && npm run test:curation && npm run test:search && npm run test:env"
-  },
-  "hexo": {
-    "version": "8.1.1"
+    "test:darkmode": "node test/darkmode-e2e.js",
+    "test": "npm run astro:build && npm run test:admin && npm run test:pages && npm run test:tokens && npm run test:claims && npm run test:blocks && npm run test:assets && npm run test:dates && npm run test:holidays && npm run test:zodiac && npm run test:festival && npm run test:cityrank && npm run test:curation && npm run test:search && npm run test:darkmode && npm run test:env"
   },
   "engines": {
     "node": "24.x"
-  },
-  "dependencies": {
-    "hexo": "^8.0.0",
-    "hexo-generator-archive": "^2.0.0",
-    "hexo-generator-category": "^2.0.0",
-    "hexo-generator-feed": "^4.0.0",
-    "hexo-generator-index": "^4.0.0",
-    "hexo-generator-sitemap": "^3.0.1",
-    "hexo-generator-tag": "^2.0.0",
-    "hexo-renderer-ejs": "^2.0.0",
-    "hexo-renderer-marked": "^7.0.0",
-    "hexo-renderer-stylus": "^3.0.1",
-    "hexo-server": "^3.0.0",
-    "hexo-theme-landscape": "^1.0.0"
   },
   "devDependencies": {
     "astro": "^7.4.7",

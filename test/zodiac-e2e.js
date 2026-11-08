@@ -27,7 +27,7 @@ const {
 } = require('../themes/fluid/scripts/helpers/zodiac-data.js');
 
 const ROOT = path.join(__dirname, '..');
-const PUBLIC = path.join(ROOT, process.env.SITE_OUT || 'public');
+const PUBLIC = path.join(ROOT, process.env.SITE_OUT || 'dist');
 
 let pass = 0;
 function ok(label, fn) {
@@ -532,7 +532,7 @@ if (!fs.existsSync(PUBLIC)) {
 
   ok('导航与页面互链存在（辅助导航含节假日 / 资料库入口）', () => {
     const index = path.join(PUBLIC, 'index.html');
-    assert.ok(fs.existsSync(index), 'public/index.html 不存在');
+    assert.ok(fs.existsSync(index), 'dist/index.html 不存在（先跑 npm run astro:build）');
     const home = fs.readFileSync(index, 'utf8');
     // 2026-10-25 起生肖入口改走资料库（/library/），导航里不再直接暴露 /zodiac/
     assert.ok(home.indexOf('href="/library/"') !== -1, '首页导航里没有 /library/ 入口');

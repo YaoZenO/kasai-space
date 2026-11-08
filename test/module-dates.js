@@ -6,7 +6,7 @@
 // 本测试锁死三件事：
 //   1. themes/fluid/scripts/helpers/fmt-item-date.js 里 fmtItemDate 的行为（含非法值、时区边界）；
 //   2. 模板里不得再出现直出的 new Date( / it.date 裸输出；
-//   3. 已构建的 public/ HTML 里不得出现机器串日期。
+//   3. 已构建的 dist/ HTML 里不得出现机器串日期。
 // 用法：node test/module-dates.js
 
 const fs = require('fs');
@@ -164,7 +164,7 @@ ok('themes/fluid/layout 下无任何模板把 Date 对象直出', () => {
   assert(!bad.length, `模板直出 Date: ${bad.join(' | ')}`);
 });
 
-console.log('\n[3] 构建产物回归（public/ 存在时）');
+console.log('\n[3] 构建产物回归（dist/ 存在时）');
 // E-030：数据文件 YAML 解析失败时 Hexo 只报一行 ERROR，仍打印「N files generated」、
 // 退出码 0，但对应模块的页面根本没生成。必须直接解析验证。
 const yaml = require('js-yaml');
@@ -182,9 +182,9 @@ const DATA_DIR = path.join(ROOT, 'source/_data');ok('source/_data/*.yml 全部�
   assert(!broken.length, `YAML 解析失败: ${broken.join(' | ')}`);
 });
 
-const PUBLIC = path.join(ROOT, process.env.SITE_OUT || 'public');
+const PUBLIC = path.join(ROOT, process.env.SITE_OUT || 'dist');
 if (!fs.existsSync(PUBLIC)) {
-  console.log('  SKIP  public/ 不存在（先 npm run build）');
+  console.log('  SKIP  dist/ 不存在（先 npm run astro:build）');
 } else {
   const RAW_RE = /GMT[+-]\d{4}|Coordinated Universal Time/;
   const bad = [];
@@ -203,12 +203,12 @@ if (!fs.existsSync(PUBLIC)) {
       if (raw.length) bad.push(`${path.relative(PUBLIC, p).replace(/\\/g, '/')} → ${raw[0].replace(/\s+/g, ' ').slice(0, 80)}`);
     }
   })(PUBLIC);
-  ok(`public/ 共 ${count} 个 HTML，<time> 标签无机器串日期`, () => {
+  ok(`dist/ 共 ${count} 个 HTML，<time> 标签无机器串日期`, () => {
     assert(!bad.length, `<time> 含机器串日期: ${bad.slice(0, 8).join(', ')}`);
   });
   // E-029：Hexo 渲染抛错会写入 0 字节 HTML，但构建仍报「N files generated」、退出码 0。
   // 只看构建输出与退出码会完全漏掉，必须直接量字节数。
-  ok('public/ 下无 0 字节 HTML（E-029：渲染失败静默产出空页面）', () => {
+  ok('dist/ 下无 0 字节 HTML（E-029：渲染失败静默产出空页面）', () => {
     const empties = [];
     (function walk(d) {
       for (const n of fs.readdirSync(d)) {

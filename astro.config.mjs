@@ -11,7 +11,8 @@ export default defineConfig({
   base: '/',
   output: 'static',
   publicDir: 'static-public',
-  outDir: 'dist',
+  // 测试可用 ASTRO_OUT_DIR 指定独立产物目录，避免污染 dist/（见 test/module-pages-e2e.js）
+  outDir: process.env.ASTRO_OUT_DIR || 'dist',
   build: {
     format: 'directory',
     inlineStylesheets: 'never',

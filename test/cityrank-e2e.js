@@ -30,7 +30,7 @@ const {
 const CF = require('../themes/fluid/scripts/helpers/city-fields.js');
 
 const ROOT = path.join(__dirname, '..');
-const PUBLIC = path.join(ROOT, process.env.SITE_OUT || 'public');
+const PUBLIC = path.join(ROOT, process.env.SITE_OUT || 'dist');
 
 let pass = 0;
 function ok(label, fn) {
@@ -385,16 +385,21 @@ if (!hasPublic) {
   });
 
   ok('S8 城市榜不含 UGC / 互动控件（站点未备案，C-6 红线）', () => {
-    // 注意：整页还有一个主题自带的站内搜索框（input#local-search-input），它是全站
-    // 通用组件，不是本站新增的交互，必须先摘掉再查——否则断言会被通用组件误报
+    // 站内搜索框是全站通用检索入口，不是本站新增的互动，必须先摘掉再查
     // （E-031 同型：按整页文本搜机器串会被无关内容命中）。
+    // 两种形态都要认：Hexo 版是 input#local-search-input，Astro 版是 form.cr-search
+    // （GET 到 /search/，只读检索，无投稿/评论能力）。
+    const stripSearch = (s) =>
+      s
+        .replace(/<form[^>]*action="\/search\/"[^>]*>[\s\S]*?<\/form>/gi, '')
+        .replace(/<input[^>]*id="local-search-input"[^>]*>/g, '');
     const files = [path.join(PUBLIC, 'cityrank/index.html')]
       .concat(computedRanks.map((d) => path.join(PUBLIC, 'cityrank', d.slug, 'index.html')));
     for (const f of files) {
       const raw = fs.readFileSync(f, 'utf8');
       const hits = raw.match(/<input[^>]*id="local-search-input"[^>]*>/g) || [];
       assert.ok(hits.length <= 1, '搜索框数量异常，摘除逻辑失效：' + f);
-      const html = raw.replace(/<input[^>]*id="local-search-input"[^>]*>/g, '');
+      const html = stripSearch(raw);
       assert.ok(!/<form[\s>]/i.test(html), '出现 form 表单：' + f);
       assert.ok(!/<input[\s>]/i.test(html), '出现非搜索框的 input 控件：' + f);
       assert.ok(!/<textarea[\s>]/i.test(html), '出现 textarea：' + f);

@@ -1,17 +1,19 @@
 /**
  * P1-9 前台模块页端到端验证 + IA-1 数据诚信防复发断言（D0-2）
  *
- * 目的：证明「后台富文本录入 → YAML 落盘 → Hexo 生成详情页/列表页」整条链路可用；
+ * 目的：证明「后台富文本录入 → YAML 落盘 → 前台生成详情页/列表页」整条链路可用；
  *       并断言生产数据（source/_data/*.yml）不得含 example.com 外链与「【测试】」标题条目。
  *
  * 做法（关键：不手工拼 YAML，避免构造出非法文件）：
  *   1. 备份 source/_data/{projects,games}.yml
  *   2. 走后台真实写入链路：validate.validateItem() → yaml.updateItems() 落盘
- *   3. 进程内调用 Hexo API 生成（不 fork 子进程，Windows/沙箱下 spawn 会 EBUSY）
- *   4. 断言 public/ 下页面与渲染结果（含「空 section 不渲染」）
- *   5. finally 中无条件还原原始数据文件，并用真实数据全量重建 public/（E-019）
+ *   3. 用 Astro 构建到独立产物目录（ASTRO_OUT_DIR=.astro/e2e-out），不碰 dist/
+ *   4. 断言该目录下页面与渲染结果（含「空 section 不渲染」）
+ *   5. finally 中无条件还原原始数据文件，并删除测试产物（E-019）
  *   6. 还原后做数据诚信扫描；扫描函数目录参数化，变异验证走临时目录坏样本
  *      （塞坏条目 → 断言 FAIL → 移除 → PASS），不碰真实数据文件
+ *
+ * 2026-11-09：Hexo 清理（T13）把对照基线从 `hexo generate` / public/ 换成 Astro 产物。
  *
  * 运行：node test/module-pages-e2e.js
  */
@@ -22,14 +24,15 @@ const assert = require('node:assert');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const Hexo = require('hexo');
+const { execFileSync } = require('node:child_process');
 
 const yaml = require('../api/_lib/yaml.js');
 const validate = require('../api/_lib/validate.js');
 
 const ROOT = path.join(__dirname, '..');
 const DATA_DIR = path.join(ROOT, 'source', '_data');
-const PUBLIC = path.join(ROOT, 'public');
+// 独立产物目录：与 dist/ 隔离，测试结束即删，不留 e2e-* 死链
+const PUBLIC = path.join(ROOT, '.astro', 'e2e-out');
 
 let pass = 0;
 function ok(label, fn) {
@@ -145,61 +148,24 @@ function writeModule(name, extraItem) {
   fs.writeFileSync(p, yaml.updateItems(text, items.concat([checked])), 'utf8');
 }
 
-// 清理本次测试生成的页面（public/projects、public/games 完全由模块页生成器产出，
-// 属本测试自有产物）。不清理的话，跑完测试直接起服务会看到 e2e-* 测试页。
-function cleanGenerated() {
-  for (const dir of ['projects', 'games']) {
-    try {
-      fs.rmSync(path.join(PUBLIC, dir), { recursive: true, force: true });
-    } catch (e) {
-      console.log('      （提示：' + dir + ' 测试页未能自动清理，运行 npm run build 即可覆盖）');
-    }
-  }
+// 用 Astro 构建到独立产物目录。测试只关心 module 页，产物隔离在 .astro/e2e-out，
+// 全程不碰 dist/，因此跑完不需要「用真实数据再重建一次」（E-019 的动机随 public/ 一起消失）。
+function buildSite() {
+  execFileSync(process.execPath, [path.join(ROOT, 'node_modules', 'astro', 'bin', 'astro.mjs'), 'build'], {
+    cwd: ROOT,
+    env: { ...process.env, ASTRO_OUT_DIR: PUBLIC },
+    stdio: 'pipe',
+    encoding: 'utf8',
+  });
 }
 
-// E-019 防复发：删掉整个 public/ 并用还原后的真实数据重新生成。
-// 少了这一步，跑完测试的 public/ 里会留着 /games/、/projects/e2e-rich/ 死链
-// （测试数据的 hexo.generate 是全量生成过的，只还原 yml 不够）。
-async function rebuildClean() {
+// 清理本次测试的产物目录（e2e-* 测试条目只存在于这里）
+function cleanGenerated() {
   try {
     fs.rmSync(PUBLIC, { recursive: true, force: true });
   } catch (e) {
-    // Windows 下若有进程的工作目录在 public/（如本地静态服务），整目录删除会被锁住；
-    // 某些环境还会对「单轮批量删除超过阈值」做拦截（E-066）——两者表现相同：删除失败。
-    console.log('      （提示：public/ 未能整体删除——' + (e && e.message) + '；已启用强制全量兜底）');
+    console.log('      （提示：测试产物目录未能删除——' + (e && e.message) + '；可直接删 .astro/e2e-out）');
   }
-  //
-  // 兜底（E-066 / E-087）：无论 public/ 是否删除成功，都要删 db.json。
-  // Hexo 用 db.json 的源 hash 判断「是否重新解析」：本测试把 yml 还原成原始内容后，
-  // hash 回到「未修改」状态，Hexo 于是沿用 db.json 里**测试数据**解析出的 site.data，
-  // 重建后的 public/projects/e2e-rich 死链又回来了（E-019 断言红）。
-  // db.json 是构建数据库且已在 .gitignore，删除安全（下次构建会自行重建）。
-  try {
-    fs.rmSync(path.join(ROOT, 'db.json'), { force: true });
-  } catch (e2) {
-    console.log('      （提示：db.json 未能删除，重建可能仍是增量——' + (e2 && e2.message) + '）');
-  }
-  try {
-    const fresh = new Hexo(ROOT, { silent: true });
-    await fresh.init();
-    await fresh.load();
-    await fresh.call('generate');
-  } catch (e) {
-    console.log('      （提示：public/ 重建失败，请手动 npm run build — ' + (e && e.message) + '）');
-  }
-  // 补齐 main.css 的产物 hash。
-  //
-  // 契约说明（2026-10-18）：asset-version.js 的 main.css 版本号注册在 after_generate 与 exit，
-  // 生产链路（`hexo generate`，含 Vercel）两条都会触发；但本测试用的
-  // `hexo.call('generate')` 是**进程内**调用，实测不触发这两个 filter，
-  // 于是测试跑完 public/ 里的 main.css 版本号是空的（test/asset-version.js 的产物断言会红）。
-  // 这里显式补一次，把契约写在测试侧而不是藏在过滤器里。
-  //
-  // 失败必须显式抛出，不能只打提示：曾经这里吞掉了一个 ReferenceError
-  // （filter 模块顶层直接用 hexo 全局，裸 require 时不存在），表现是「补写没生效」
-  // 但测试仍然绿，真正的红是 test/asset-version.js 里的产物断言，报错点离病因很远。
-  const { stampAll } = require('../themes/fluid/scripts/filters/asset-version.js');
-  stampAll(PUBLIC);
 }
 
 function readPage(rel) {
@@ -298,11 +264,8 @@ async function main() {
       assert.deepStrictEqual(savedG.links, RICH_GAME.links);
     });
 
-    console.log('\n[2] hexo generate');
-    const hexo = new Hexo(ROOT, { silent: true });
-    await hexo.init();
-    await hexo.load();
-    await hexo.call('generate');
+    console.log('\n[2] astro build（产物隔离到 .astro/e2e-out）');
+    buildSite();
 
     console.log('\n[3] 项目详情页');
     const projHtml = readPage(path.join('projects', 'e2e-rich', 'index.html'));
@@ -345,7 +308,9 @@ async function main() {
         const items = yaml.parseItems(text).filter((it) => it && it.title);
         assert.ok(items.length > 0, m.file + ' 解析出 0 条条目，本断言失去意义');
         for (const it of items) {
-          const slug = it.slug || encodeURIComponent(String(it.title));
+          // Astro 的 getStaticPaths 拿原始值，产物目录是标题原文；
+          // 生产构建后由 tools/encode-module-paths.mjs 改名为百分号编码（本测试不跑那一步）。
+          const slug = it.slug || String(it.title);
           const rel = path.join(m.key, slug, 'index.html');
           const p = path.join(PUBLIC, rel);
           assert.ok(fs.existsSync(p), '缺少详情页: ' + rel);
@@ -415,22 +380,25 @@ async function main() {
     ok('墨底区块与两栏容器平级（否则墨底通不了铺）', () => {
       // 2026-10-19 实测：ink-band 放进 .home-cols 里会变成两栏网格的第三个格子，
       // 只占第一列宽（@1440 只有 623px，右侧 697px 是纸面空白）。
-      // 断言模板结构：feedRows 守卫之前，home-cols 必须已经闭合。
-      const tpl = fs.readFileSync(path.join(ROOT, 'themes/fluid/layout/index.ejs'), 'utf8');
-      const colsStart = tpl.indexOf('<div class="home-wrap home-cols');
-      const bandGuard = tpl.indexOf('<% if (feedRows.length) { %>', colsStart);
-      assert.ok(colsStart !== -1 && bandGuard !== -1, '模板结构变化：找不到 home-cols 或 feedRows 守卫');
-      assert.ok(tpl.slice(colsStart, bandGuard).trimEnd().endsWith('</div>'),
+      // 判据看产物：home-cols 开标签与 ink-band 之间，<div> 与 </div> 数量必须持平
+      // （即容器已闭合，墨底是平级兄弟节点）。
+      const home = readPage('index.html');
+      const colsMark = home.indexOf('home-wrap home-cols');
+      // 从容器自己的 `<div` 开始算，否则它的开标签不被计数、只会多出一个 `</div>`
+      const colsStart = home.lastIndexOf('<div', colsMark);
+      const bandStart = home.indexOf('class="ink-band"', colsStart);
+      assert.ok(colsStart !== -1 && bandStart !== -1, '产物结构变化：找不到 home-cols 或 ink-band');
+      const between = home.slice(colsStart, bandStart);
+      const opens = (between.match(/<div\b/g) || []).length;
+      const closes = (between.match(/<\/div>/g) || []).length;
+      assert.strictEqual(opens, closes,
         'home-cols 在 ink-band 之前没有闭合 —— 墨底会变成两栏网格的第三个格子，只占第一列宽');
     });
   } finally {
     restore('projects');
     restore('games');
     cleanGenerated();
-    // E-019：本测试的 hexo.generate 是用测试数据全量生成过的，
-    // 只还原 yml 不够——index.html、新增标签页等产物仍留着测试条目。
-    await rebuildClean();
-    console.log('\n[8] 还原原始数据文件 + 全量重建 public/');
+    console.log('\n[8] 还原原始数据文件 + 删除测试产物目录');
   }
 
   ok('数据文件已完整还原', () => {
@@ -446,14 +414,10 @@ async function main() {
     );
   });
 
-  ok('public/ 无测试数据残留（E-019/E-021 防复发断言）', () => {
-    // 只校验测试自身产物被清掉，与仓库真实内容解耦（E-021：不能假设某模块永远为空，
-    // 主人有真实游戏/项目数据时 public/games、public/projects 合法存在）
-    assert.ok(!fs.existsSync(path.join(PUBLIC, 'projects', 'e2e-rich')), 'public/projects/e2e-rich 仍存在');
-    assert.ok(!fs.existsSync(path.join(PUBLIC, 'games', 'e2e-game')), 'public/games/e2e-game 仍存在');
-    const home = fs.readFileSync(path.join(PUBLIC, 'index.html'), 'utf8');
-    assert.ok(!home.includes('e2e-rich'), '首页仍含测试条目 e2e-rich');
-    assert.ok(!home.includes('e2e-game'), '首页仍含测试条目 e2e-game');
+  ok('测试产物目录已删除（E-019/E-021 防复发断言）', () => {
+    // 产物隔离在 .astro/e2e-out，跑完整体删除，因此不可能留 e2e-* 页面；
+    // 与仓库真实内容解耦（E-021：不能假设某模块永远为空）。
+    assert.ok(!fs.existsSync(PUBLIC), '.astro/e2e-out 未被删除，测试页会残留');
   });
 
   // ---------- [9] 数据诚信：变异验证 + 生产数据扫描（D0-2 / IA-1 防复发） ----------
@@ -497,25 +461,27 @@ async function main() {
   });
 
   // ---------- [10] 摘要 HTML 实体泄漏（E-085 防复发） ----------
-  // 摘要走 excerpt-text.js：stripHTML 只去标签、不解码实体，EJS 的 <%= %> 再把
-  // & 转义一次，页面就会出现字面的 `&#x2F;`。这里只看「摘要类元素」内部，
-  // 不扫全文——代码块里的实体写法是合法内容。
+  // 摘要走 excerpt 逻辑：stripHTML 只去标签、不解码实体，模板再把 & 转义一次，
+  // 页面就会出现字面的 `&#x2F;`。这里只看「摘要类元素」内部，不扫全文——
+  // 代码块里的实体写法是合法内容。
+  // 基线读真实产物（dist/，由 npm test 前置的 astro:build 产出）。
   console.log('\n[10] 摘要 HTML 实体泄漏断言');
   ok('首页 / 归档页摘要不出现未解码的 HTML 实体', () => {
+    const out = path.join(ROOT, process.env.SITE_OUT || 'dist');
     for (const rel of ['index.html', 'archives/index.html']) {
-      const file = path.join(PUBLIC, rel);
-      assert.ok(fs.existsSync(file), rel + ' 不存在（构建未产出，见 E-029 0 字节教训）');
+      const file = path.join(out, rel);
+      assert.ok(fs.existsSync(file), rel + ' 不存在（先跑 npm run astro:build）');
       const leaks = excerptLeaks(fs.readFileSync(file, 'utf8'));
       assert.deepStrictEqual(leaks, [], rel + ' 摘要里有未解码实体：' + JSON.stringify(leaks));
     }
   });
 
   console.log('\n' + pass + ' 项断言通过');
-  console.log('提示：public/ 已用真实数据全量重建，工作区可直接预览或部署。');
+  console.log('提示：测试产物已清理，dist/ 未被本测试改动。');
 }
 
 main()
-  // E-088：Hexo 实例会挂在事件循环上，不显式退出的话脚本打完汇总就退不下去——
+  // E-088：构建进程会挂在事件循环上，不显式退出的话脚本打完汇总就退不下去——
   // 进程一直活着并持有仓库文件，后续测试会看到「上一轮」留下的测试数据。
   .then(() => process.exit(process.exitCode || 0))
   .catch((e) => {
