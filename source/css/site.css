@@ -3052,6 +3052,733 @@ body.is-home footer {
   .cal-table tbody th { width: 4.8rem; }
 }
 
+/* ---- 4.12b 年历改版（2026-11-09，Astro 版 /holidays/<年份>/）----
+   结构来自主人 2026-11-09 拍板的整页示意稿（_preview/mock/holidays-2026-*.png）：
+   首屏 → 年份下拉 → 统计三格 → 筛选 chips → 12 月宫格 → 图例 → 月份明细
+   → 七个法定节假日图文卡 → 其他节日与纪念日 → 二十四节气 → 常见问题。
+   全部使用 hy- 前缀，与上面 4.12 的 cal-*（Hexo 版仍在跑）互不影响；
+   色值一律消费 .cal-page 作用域变量，本段不新造任何颜色（E-052 同型）。
+   所有网格子项显式 min-width:0 —— nowrap 的日期 / 标签在 390 下会撑破视口（E-123）。 */
+
+.hy-page { --hy-gap: clamp(12px, 1.4vw, 20px); padding-bottom: 1rem; }
+.hy-head { margin: 0 0 1.35rem; }
+
+.hy-crumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .4rem;
+  margin: 0 0 .75rem;
+  font-size: .85rem;
+  color: var(--sec-text-color);
+}
+
+.hy-crumb a {
+  color: var(--sec-text-color);
+  text-decoration: none;
+  border-bottom: 1px solid var(--site-chip-border);
+  padding-bottom: 1px;
+}
+
+.hy-crumb a:hover { color: var(--accent); border-color: var(--accent); }
+.hy-crumb-now { color: var(--text-color); font-weight: 700; }
+
+.hy-kicker {
+  margin: 0 0 .5rem;
+  font-family: var(--font-mono);
+  font-size: .76rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.hy-title {
+  margin: 0;
+  font-family: var(--font-serif-title);
+  font-size: var(--fs-hero);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -.02em;
+  color: var(--text-color);
+}
+
+.hy-lede {
+  margin: .9rem 0 0;
+  max-width: 66ch;
+  font-size: 1.02rem;
+  line-height: 1.75;
+  color: var(--sec-text-color);
+}
+
+/* 年份下拉：details 自绘，不依赖 JS */
+.hy-yearbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem 1rem;
+  margin: 0 0 var(--hy-gap);
+}
+
+.hy-yearpick { position: relative; }
+
+.hy-yearpick > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+  padding: .42rem .85rem;
+  border: 1px solid var(--site-chip-border);
+  border-radius: 999px;
+  background: var(--cream);
+  color: var(--text-color);
+  font-size: .85rem;
+}
+
+.hy-yearpick > summary::-webkit-details-marker { display: none; }
+
+.hy-yearpick > summary::after {
+  content: "▾";
+  font-size: .75rem;
+  color: var(--sec-text-color);
+  transition: transform .18s ease;
+}
+
+.hy-yearpick[open] > summary::after { transform: rotate(180deg); }
+.hy-yearpick-cur { font-family: var(--font-mono); font-weight: 700; color: var(--accent); }
+.hy-yearpick-hint { font-size: .8rem; color: var(--sec-text-color); }
+
+.hy-yearpick-panel {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + .45rem);
+  left: 0;
+  width: min(23rem, calc(100vw - 3rem));
+  padding: .85rem .9rem;
+  border: 1px solid var(--site-chip-border);
+  border-radius: var(--r-card);
+  background: var(--cream-on-dark);
+  box-shadow: var(--site-float-shadow);
+}
+
+.hy-yearpick-label {
+  margin: 0 0 .55rem;
+  font-family: var(--font-mono);
+  font-size: .75rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--sec-text-color);
+}
+
+.hy-years {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: .3rem;
+}
+
+.hy-years li { min-width: 0; }
+
+.hy-years a,
+.hy-years span {
+  display: block;
+  padding: .34rem 0;
+  text-align: center;
+  border-radius: var(--r-xs);
+  font-family: var(--font-mono);
+  font-size: .85rem;
+  line-height: 1.2;
+  color: var(--text-color);
+  text-decoration: none;
+}
+
+.hy-years a:hover { background: var(--accent-soft); color: var(--accent-strong); }
+.hy-years .is-cur { background: var(--accent); color: var(--on-ink); font-weight: 700; }
+.hy-note-seg { font-size: .8rem; color: var(--sec-text-color); }
+
+/* 统计三格：1px 描边的三段条，与宫格同一纸底 */
+.hy-stats {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0 0 var(--hy-gap);
+  padding: 0;
+  background: var(--site-chip-border);
+  border: 1px solid var(--site-chip-border);
+  border-radius: var(--r-card);
+  overflow: hidden;
+}
+
+.hy-stats li {
+  min-width: 0;
+  background: var(--cream-on-dark);
+  padding: clamp(.8rem, 1.3vw, 1.1rem);
+}
+
+.hy-stat-num {
+  font-family: var(--font-serif-title);
+  font-size: clamp(1.55rem, 2.5vw, 2.05rem);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.hy-stat-unit { margin-left: .12rem; font-size: .78rem; color: var(--sec-text-color); }
+
+.hy-stat-label {
+  display: block;
+  margin-top: .35rem;
+  font-size: .78rem;
+  letter-spacing: .05em;
+  color: var(--sec-text-color);
+}
+
+/* 筛选 chips */
+.hy-filters { display: flex; flex-wrap: wrap; gap: .45rem; margin: 0 0 var(--hy-gap); }
+
+.hy-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  border: 1px solid var(--site-chip-border);
+  border-radius: 999px;
+  background: var(--cream);
+  color: var(--text-color);
+  padding: .4rem .9rem;
+  font-family: var(--font-sans);
+  font-size: .87rem;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background .16s ease, color .16s ease, border-color .16s ease;
+}
+
+.hy-chip span { font-family: var(--font-mono); font-size: .75rem; font-weight: 400; color: var(--sec-text-color); }
+.hy-chip:hover { border-color: var(--accent); color: var(--accent-strong); }
+.hy-chip.is-active { background: var(--accent); border-color: var(--accent); color: var(--on-ink); }
+.hy-chip.is-active span { color: var(--on-ink-sec); }
+
+/* 12 月宫格 */
+.hy-months { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--hy-gap); }
+
+.hy-month {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
+  min-width: 0;
+  padding: clamp(10px, 1vw, 15px);
+  background: var(--cream);
+  border: 1px solid var(--site-chip-border);
+  border-radius: var(--r-card);
+  transition: border-color .16s ease, box-shadow .16s ease;
+}
+
+.hy-month--focus { border-color: var(--accent); background: var(--accent-soft); box-shadow: var(--site-float-shadow); }
+.hy-month-head { display: flex; align-items: center; gap: .45rem; min-width: 0; }
+.hy-month--focus .hy-month-head { padding-right: 2.9rem; }
+.hy-month-title { margin: 0; font-size: 1rem; font-weight: 600; line-height: 1.2; flex: 0 0 auto; }
+
+.hy-month-btn {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-family: var(--font-serif-title);
+  font-size: 1.02rem;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  line-height: 1.2;
+  color: var(--text-color);
+  border-bottom: 1px solid transparent;
+}
+
+.hy-month-btn:hover { color: var(--accent); border-bottom-color: var(--accent); }
+.hy-month-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.hy-month.is-current { border-color: var(--accent); }
+.hy-month.is-current .hy-month-btn { color: var(--accent); }
+
+.hy-montags {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .25rem;
+  margin-left: auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.hy-tag {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 7.2em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: .1rem .38rem;
+  border: 1px solid var(--site-chip-border);
+  border-radius: 999px;
+  background: var(--cream-on-dark);
+  font-size: .75rem;
+  line-height: 1.5;
+  color: var(--sec-text-color);
+}
+
+.hy-badge {
+  position: absolute;
+  top: .45rem;
+  right: .55rem;
+  padding: .1rem .45rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--on-ink);
+  font-family: var(--font-mono);
+  font-size: .75rem;
+  line-height: 1.5;
+  letter-spacing: .02em;
+}
+
+.hy-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; margin-top: .1rem; }
+
+.hy-week span {
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: .75rem;
+  letter-spacing: .03em;
+  color: var(--sec-text-color);
+}
+
+.hy-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; }
+
+.hy-day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-width: 0;
+  height: clamp(1.5rem, 2.05vw, 1.9rem);
+  font-family: var(--font-mono);
+  font-size: clamp(.72rem, .78vw, .76rem);
+  color: var(--text-color);
+}
+
+.hy-dn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.6em;
+  height: 1.6em;
+  padding: 0 .15em;
+  border-radius: var(--r-xs);
+  line-height: 1;
+}
+
+.hy-day--weekend .hy-dn { color: var(--sec-text-color); }
+.hy-day--holiday .hy-dn { background: var(--accent); color: var(--on-ink); font-weight: 700; }
+.hy-day--work .hy-dn { border: 1.5px solid var(--accent); color: var(--accent-strong); font-weight: 700; }
+
+.hy-fest {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 999px;
+  background: var(--info-mark);
+}
+
+/* 筛选只在视觉上降权，不隐藏内容（无脚本时四条 chip 也可读） */
+.hy-page[data-filter="holiday"] .hy-day--work .hy-dn { opacity: .2; }
+.hy-page[data-filter="holiday"] .hy-fest { opacity: .15; }
+.hy-page[data-filter="work"] .hy-day--holiday .hy-dn { opacity: .22; }
+.hy-page[data-filter="work"] .hy-fest { opacity: .15; }
+.hy-page[data-filter="fest"] .hy-day--holiday .hy-dn { opacity: .28; }
+.hy-page[data-filter="fest"] .hy-day--work .hy-dn { opacity: .18; }
+
+.hy-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .4rem 1.4rem;
+  margin: calc(var(--hy-gap) * .75) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: .8125rem;
+  color: var(--text-color);
+}
+
+.hy-legend > li { display: inline-flex; align-items: center; gap: .4rem; }
+
+.hy-lg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  border-radius: var(--r-xs);
+  font-size: .75rem;
+}
+
+.hy-lg--holiday { background: var(--accent); color: var(--on-ink); }
+.hy-lg--work { border: 1.5px solid var(--accent); }
+.hy-lg--fest { width: 4px; height: 4px; border-radius: 999px; background: var(--info-mark); }
+
+/* 月份明细 */
+.hy-detail {
+  margin: calc(var(--hy-gap) * .9) 0 0;
+  padding: clamp(.9rem, 1.5vw, 1.25rem);
+  background: var(--cream);
+  border: 1px solid var(--site-chip-border);
+  border-radius: var(--r-card);
+}
+
+.hy-detail-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .4rem 1rem;
+  margin: 0 0 .75rem;
+  padding-bottom: .55rem;
+  border-bottom: 1px solid var(--site-chip-border);
+}
+
+.hy-detail-head h2 {
+  margin: 0;
+  font-family: var(--font-serif-title);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.hy-detail-head span { font-family: var(--font-mono); font-size: .75rem; color: var(--sec-text-color); }
+.hy-rows { margin: 0; display: grid; gap: .5rem; }
+
+.hy-row {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+  gap: .75rem;
+  align-items: start;
+}
+
+.hy-row dt { font-size: .78rem; letter-spacing: .04em; color: var(--sec-text-color); padding-top: .1rem; }
+
+.hy-row dd {
+  margin: 0;
+  min-width: 0;
+  font-size: .94rem;
+  line-height: 1.65;
+  color: var(--text-color);
+}
+
+.hy-row dd strong { font-weight: 700; color: var(--text-color); }
+.hy-row dd .hy-muted { color: var(--sec-text-color); }
+
+.hy-noscript {
+  margin: 1.5rem 0 0;
+  padding: 1rem 0;
+  border-top: 1px dashed var(--site-chip-border);
+  border-bottom: 1px dashed var(--site-chip-border);
+}
+
+.hy-noscript h2 {
+  margin: 0 0 .5rem;
+  font-family: var(--font-serif-title);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.hy-noscript p { margin: .2rem 0; font-size: .88rem; line-height: 1.65; color: var(--sec-text-color); }
+.hy-noscript b { color: var(--text-color); font-weight: 700; }
+.hy-note { margin: 1.1rem 0 0; font-size: .76rem; color: var(--sec-text-color); }
+
+/* 七个法定节假日图文卡 */
+.hy-cards { margin-top: clamp(2.2rem, 4.5vh, 3.2rem); }
+
+.hy-sec-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .35rem 1rem;
+  margin: 0 0 1rem;
+  padding-bottom: .65rem;
+  border-bottom: 2px solid var(--rule);
+}
+
+.hy-sec-title {
+  margin: 0;
+  font-family: var(--font-serif-title);
+  font-size: 1.32rem;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  color: var(--text-color);
+}
+
+.hy-sec-sub { margin: 0 0 0 auto; font-size: .8rem; color: var(--sec-text-color); }
+.hy-card-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(12px, 1.3vw, 18px); }
+
+.hy-card {
+  display: grid;
+  grid-template-columns: minmax(0, .86fr) minmax(0, 1.14fr);
+  min-width: 0;
+  background: var(--cream);
+  border: 1px solid var(--site-chip-border);
+  border-radius: var(--r-card);
+  overflow: hidden;
+}
+
+.hy-card--wide { grid-column: 1 / -1; grid-template-columns: minmax(0, .68fr) minmax(0, 1fr); }
+.hy-card--wide .hy-card-body { justify-content: center; }
+.hy-card-media { display: flex; flex-direction: column; margin: 0; min-width: 0; background: var(--cream-on-dark); }
+.hy-card-photo { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: var(--accent-soft); }
+
+.hy-card-photo img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hy-credit {
+  margin: 0;
+  padding: .32rem .55rem;
+  border-top: 1px solid var(--site-chip-border);
+  color: var(--sec-text-color);
+  font-size: .75rem;
+  line-height: 1.45;
+}
+
+.hy-credit a { color: var(--text-color); text-decoration: underline; text-underline-offset: 2px; }
+.hy-credit a:hover { color: var(--accent); }
+
+.hy-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: .28rem;
+  min-width: 0;
+  padding: clamp(12px, 1.25vw, 17px);
+}
+
+.hy-card-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem; min-width: 0; }
+
+.hy-card-name {
+  margin: 0;
+  font-family: var(--font-serif-title);
+  font-size: 1.14rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-color);
+}
+
+.hy-pinyin { font-family: var(--font-mono); font-size: .75rem; letter-spacing: .04em; color: var(--sec-text-color); }
+
+.hy-card-lunar {
+  align-self: flex-start;
+  margin: .05rem 0 0;
+  padding: .08rem .45rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-size: .75rem;
+  line-height: 1.5;
+}
+
+.hy-card-range { margin: .1rem 0 0; font-size: .86rem; line-height: 1.55; color: var(--sec-text-color); }
+.hy-card-range strong { color: var(--text-color); font-weight: 700; }
+.hy-card-work { margin: 0; font-size: .79rem; line-height: 1.5; color: var(--accent-strong); }
+.hy-card-desc { margin: .2rem 0 0; font-size: .84rem; line-height: 1.65; color: var(--sec-text-color); }
+
+/* 下半部分三块：同一套卡片语言，章节间距与图文卡完全同值 */
+.hy-sec { margin-top: clamp(2.2rem, 4.5vh, 3.2rem); }
+
+.hy-sec-kicker {
+  flex: 0 0 100%;
+  margin: 0 0 .22rem;
+  font-family: var(--font-mono);
+  font-size: .75rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.hy-fest-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(8px, .9vw, 12px); }
+
+.hy-fest-item {
+  display: grid;
+  grid-template-columns: 5.3rem minmax(0, 1fr);
+  gap: .7rem;
+  align-items: start;
+  min-width: 0;
+  padding: clamp(10px, 1.05vw, 14px);
+  background: var(--cream);
+  border: 1px solid var(--site-chip-border);
+  border-radius: var(--r-sm);
+}
+
+.hy-fest-date {
+  display: flex;
+  flex-direction: column;
+  gap: .1rem;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: .75rem;
+  line-height: 1.45;
+  color: var(--sec-text-color);
+  white-space: nowrap;
+}
+
+.hy-fest-date b { font-size: .82rem; font-weight: 700; color: var(--text-color); }
+.hy-fest-body { min-width: 0; }
+.hy-fest-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: .35rem; min-width: 0; }
+
+.hy-fest-name {
+  margin: 0;
+  font-family: var(--font-serif-title);
+  font-size: .98rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--text-color);
+}
+
+.hy-kind {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding: .05rem .34rem;
+  border: 1px solid var(--site-chip-border);
+  border-radius: 999px;
+  background: var(--cream-on-dark);
+  font-size: .75rem;
+  line-height: 1.5;
+  color: var(--sec-text-color);
+  white-space: nowrap;
+}
+
+.hy-kind--accent { border-color: var(--accent); color: var(--accent-strong); }
+.hy-fest-note { margin: .18rem 0 0; font-size: .76rem; line-height: 1.55; color: var(--sec-text-color); }
+
+/* 二十四节气：四季年带，四列各六行，靠列顶线与行分隔线分组（不用表格） */
+.hy-season-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(12px, 1.4vw, 20px); }
+.hy-season { min-width: 0; padding-top: .55rem; border-top: 1px solid var(--site-chip-border); }
+.hy-season-head { display: flex; align-items: baseline; gap: .45rem; margin: 0 0 .35rem; }
+
+.hy-season-head h3 {
+  margin: 0;
+  font-family: var(--font-serif-title);
+  font-size: 1.08rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-color);
+}
+
+.hy-season-head span { font-family: var(--font-mono); font-size: .75rem; color: var(--sec-text-color); }
+.hy-terms { list-style: none; margin: 0; padding: 0; }
+
+.hy-terms li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .5rem;
+  min-width: 0;
+  padding: .23rem 0;
+  border-bottom: 1px dotted var(--site-chip-border);
+  font-size: .84rem;
+  color: var(--text-color);
+}
+
+.hy-terms li:last-child { border-bottom: 0; }
+.hy-term-name { white-space: nowrap; }
+.hy-term-date { font-family: var(--font-mono); font-size: .75rem; color: var(--sec-text-color); white-space: nowrap; }
+.hy-sec-note { margin: .9rem 0 0; font-size: .8125rem; color: var(--sec-text-color); }
+
+/* 常见问题：1px 细边框折叠卡片，右侧 +/− 指示 */
+.hy-faq-list { display: grid; gap: clamp(8px, .9vw, 12px); }
+
+.hy-faq-item {
+  background: var(--cream);
+  border: 1px solid var(--site-chip-border);
+  border-radius: var(--r-sm);
+  padding: 0 clamp(12px, 1.2vw, 16px);
+}
+
+.hy-faq-item > summary {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  list-style: none;
+  cursor: pointer;
+  padding: .7rem 0;
+  font-size: .9rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--text-color);
+}
+
+.hy-faq-item > summary::-webkit-details-marker { display: none; }
+
+.hy-faq-item > summary::after {
+  content: "+";
+  margin-left: auto;
+  flex: 0 0 auto;
+  font-family: var(--font-mono);
+  font-size: .95rem;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.hy-faq-item[open] > summary::after { content: "−"; }
+.hy-faq-item[open] > summary { padding-bottom: .45rem; }
+
+.hy-faq-a {
+  padding: .55rem 0 .8rem;
+  border-top: 1px solid var(--site-chip-border);
+  font-size: .86rem;
+  line-height: 1.7;
+  color: var(--sec-text-color);
+}
+
+.hy-faq-a p { margin: 0; }
+.hy-faq-a p + p { margin-top: .45rem; }
+
+@media (min-width: 901px) {
+  .hy-stats { margin-bottom: .3rem; }
+  .hy-filters { margin-bottom: .45rem; }
+}
+
+@media (max-width: 900px) {
+  .hy-months { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hy-month--focus .hy-month-head { padding-right: 2.6rem; }
+  .hy-card-grid { grid-template-columns: minmax(0, 1fr); }
+  .hy-card, .hy-card--wide { grid-template-columns: minmax(0, 1fr); grid-column: auto; }
+  .hy-fest-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  .hy-title { font-size: clamp(1.65rem, 7vw, 2.1rem); }
+  .hy-lede { font-size: .96rem; }
+  .hy-stats li { padding: .7rem .6rem; }
+  .hy-stat-num { font-size: 1.5rem; }
+  .hy-row { grid-template-columns: 1fr; gap: .1rem; }
+  .hy-row dt { font-size: .75rem; }
+  .hy-tag { max-width: 5.6em; }
+  .hy-month-head { gap: .35rem; }
+  .hy-month--focus .hy-month-head { padding-right: 2.4rem; }
+  .hy-yearpick-panel { width: calc(100vw - 3rem); }
+  .hy-season-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hy-fest-item { grid-template-columns: minmax(0, 1fr); gap: .3rem; }
+  .hy-fest-date { flex-direction: row; align-items: baseline; gap: .45rem; }
+  .hy-sec-sub { margin-left: 0; }
+}
+
 /* ===== 4.13 生肖页（/zodiac/，2026-10-25 重构为生肖主题页） ===== */
 
 /* 视觉作用域：根元素同时挂 cal-page z-page 两个类（见 zodiac.ejs），参考站视觉全族共用

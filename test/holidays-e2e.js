@@ -540,6 +540,9 @@ ok('§4.12 节假日样式段完整（E-052：整份覆盖站点样式时最容�
     '.cal-page {', '.cal-head-row', '.cal-years', '.cal-year-current',
     '.cal-table', '.cal-makeup', '.cal-fest-col', '.cal-fest-head', '.cal-terms',
     '.cal-prose', '.cal-faq', '.cal-panel {', '.cal-panel-credit', '.cal-after',
+    // 2026-11-09 年历改版（4.12b）：Astro 版页面用的 hy-* 段，整份覆盖同样会整段消失
+    '.hy-page {', '.hy-months', '.hy-month {', '.hy-day {', '.hy-card {',
+    '.hy-fest-grid', '.hy-season-grid', '.hy-faq-item {',
   ];
   const missing = must.filter((s) => css.indexOf(s) === -1);
   assert.deepStrictEqual(missing, [], 'site.css 丢了这些节假日样式：' + missing.join('、'));
@@ -607,6 +610,68 @@ ok('配图文件存在、确实是 JPEG、宽度足够', () => {
     assert.ok(size, id + '.jpg 不是可解析的 JPEG');
     assert.ok(size.w >= 800, id + '.jpg 只有 ' + size.w + 'px 宽，详情卡放大后会糊');
     assert.ok(buf.length > 50 * 1024, id + '.jpg 只有 ' + buf.length + ' 字节，像是压坏了');
+  });
+});
+
+// ---------- ⑤ Astro 产物（年历改版 2026-11-09） ----------
+//
+// public/ 是 Hexo 时代的产物，dist/ 是 astro:build 的产物。这次改版只落在 Astro 一侧，
+// 所以「12 个月 / 33 个放假格 / 6 个补班格 / 7 张带 alt 的图 / 24 个节气 / 5 条 FAQ」
+// 这些不变量必须在 dist 上锁一遍：模板里少一个月、数据层过滤写错、图片署名丢了，
+// 页面照样能打开、构建照样退出 0（E-002），只有断言能抓到。
+
+const DIST_PAGE = path.join(ROOT, 'dist', 'holidays', '2026', 'index.html');
+const cal2026 = buildCalendar(raw, 2026);
+
+ok('Astro 产物：/holidays/2026/ 六块齐全，月卡 / 放假格 / 补班格 / 配图 / 节气 / FAQ 计数正确', () => {
+  if (!fs.existsSync(DIST_PAGE)) return; // 没跑过 astro:build 就跳过，不假装通过
+  const html = fs.readFileSync(DIST_PAGE, 'utf8');
+  assert.ok(html.length > 50000, 'dist 页面只有 ' + html.length + ' 字节，像是渲染中断（E-029 同型）');
+
+  // 六块的结构锚点
+  ['hy-head', 'hy-months', 'hy-legend', 'hy-detail', 'hy-card-grid', 'hy-fest-grid', 'hy-season-grid', 'hy-faq-list']
+    .forEach((c) => assert.ok(html.indexOf(c) !== -1, '缺少结构块：' + c));
+
+  // 12 月宫格 + 计数
+  assert.strictEqual((html.match(/class="hy-month[ "]/g) || []).length, 12, '不是 12 个月卡');
+  assert.strictEqual((html.match(/hy-day--holiday/g) || []).length, cal2026.stats.holidayDays,
+    '放假格数与数据层算出的 ' + cal2026.stats.holidayDays + ' 天不符');
+  assert.strictEqual((html.match(/hy-day--work/g) || []).length, cal2026.stats.makeupDays,
+    '补班格数与数据层算出的 ' + cal2026.stats.makeupDays + ' 天不符');
+
+  // 七个法定节假日的图文卡：图片必须有非空 alt，署名行必须留在页面上
+  const imgs = html.match(/<img\b[^>]*>/g) || [];
+  assert.strictEqual(imgs.length, 7, '图文卡不是 7 张（实际 ' + imgs.length + '）');
+  imgs.forEach((tag) => {
+    assert.match(tag, /src="\/img\/holidays\/[a-z]+\.jpg(\?v=[0-9a-f]+)?"/, '配图路径不对：' + tag);
+    assert.match(tag, /alt="[^"]{4,}"/, '配图缺 alt：' + tag);
+  });
+  assert.strictEqual((html.match(/Wikimedia Commons/g) || []).length >= 7, true, '署名 / 许可 行丢失');
+
+  // 下半三块
+  assert.strictEqual((html.match(/class="hy-term-name"/g) || []).length, 24, '节气不是 24 条');
+  assert.strictEqual((html.match(/class="hy-fest-item"/g) || []).length,
+    cal2026.festivals.filter((f) => f.kind !== '节气').length, '其他节日条数不对');
+  assert.strictEqual((html.match(/class="hy-faq-item"/g) || []).length, cal2026.faq.length, 'FAQ 条数不对');
+
+  // 月份明细：12 个面板，默认只开一个（服务端就把 hidden 写死，不依赖脚本）
+  assert.strictEqual((html.match(/class="hy-panel"/g) || []).length, 12, '明细面板不是 12 个');
+  assert.strictEqual((html.match(/id="hy-detail-\d+"[^>]*hidden/g) || []).length, 11, '默认只应展开 1 个月');
+
+  // 无脚本兜底：7 段区间 + 补班清单 + 节日节气清单
+  const noscript = (html.match(/<noscript>([\s\S]*?)<\/noscript>/g) || []).join('');
+  assert.ok(noscript.indexOf('年放假安排') !== -1, 'noscript 里没有全年安排标题');
+  cal2026.holidays.forEach((h) => {
+    assert.ok(noscript.indexOf(h.name) !== -1, 'noscript 少了 ' + h.name);
+  });
+
+  // chip 无障碍：4 个按钮，只有「全部」默认 aria-pressed="true"
+  assert.strictEqual((html.match(/class="hy-chip/g) || []).length, 4, '筛选 chip 不是 4 个');
+  assert.strictEqual((html.match(/aria-pressed="true"/g) || []).length, 1, '默认应只有 1 个 chip 处于按下态');
+
+  // 旧结构不许在这种页面里复活（改版前是 cal-grid 12 格 + cal-fest 两列 + hover 卡 JSON）
+  ['cal-grid', 'cal-fest-col', 'cal-day-data'].forEach((old) => {
+    assert.strictEqual(html.indexOf(old), -1, '旧结构 ' + old + ' 又出现了');
   });
 });
 

@@ -511,6 +511,123 @@ function holidayCalendar(raw: any, year?: any): any {
   return buildCalendar(raw, year);
 }
 
+// ---- 页面视图派生（12 月宫格 / 按季分组的 24 节气 / 其他节日 / 月份明细）----
+// 这些是「页面怎么摆」的数据，不是节假日规则本身，所以单独一个函数：
+// buildCalendar 的返回契约被 EJS 模板与测试共用，不要往里塞版式细节。
+const SEASON_TERMS = [
+  { name: '春', range: '2–4 月', terms: ['立春', '雨水', '惊蛰', '春分', '清明', '谷雨'] },
+  { name: '夏', range: '5–7 月', terms: ['立夏', '小满', '芒种', '夏至', '小暑', '大暑'] },
+  { name: '秋', range: '8–10 月', terms: ['立秋', '处暑', '白露', '秋分', '寒露', '霜降'] },
+  { name: '冬', range: '11–1 月', terms: ['立冬', '小雪', '大雪', '冬至', '小寒', '大寒'] },
+];
+
+// 公历固定的三个节日 + 清明，卡片上不写农历
+const SOLAR_NOTE: Record<string, string> = {
+  yuandan: '公历 1 月 1 日',
+  qingming: '节气日',
+  laodong: '公历 5 月 1 日',
+  guoqing: '公历 10 月 1 日',
+};
+
+function calendarView(cal: any): any {
+  if (!cal) return null;
+  const monthOf = (key: string) => keyToParts(key).m;
+
+  // 24 节气按名称归季（不按日期）：冬季那一组跨年（11 月立冬 → 次年 1 月大寒），
+  // 按日期排会把「小寒 / 大寒」挤到四季的第一组去。
+  const termByName = new Map<string, any>();
+  cal.terms.forEach((t: any) => termByName.set(t.name, t));
+  const seasons = SEASON_TERMS.map((s) => ({
+    name: s.name,
+    range: s.range,
+    terms: s.terms
+      .map((n) => termByName.get(n))
+      .filter(Boolean)
+      .map((t: any) => ({ name: t.name, label: t.dateLabel })),
+  }));
+
+  // 其他节日：yml 的 festivals 里混着 4 个节气（春分 / 夏至 / 秋分 / 冬至），
+  // 它们已经在「二十四节气」块里出现过一次，这里剔除，避免同一页重复两遍。
+  const otherFestivals = cal.festivals.filter((f: any) => f.kind !== '节气');
+
+  // 焦点月 = 放假天数最多的那个月（2026 是 2 月，春节 9 天）。默认展开它的明细，
+  // 这样首屏滚到宫格时右下角已经有内容，不用等人去点。
+  let focusMonth = 1;
+  let bestDays = -1;
+  for (let m = 1; m <= 12; m += 1) {
+    const d = cal.holidays
+      .filter((h: any) => monthOf(h.start) === m)
+      .reduce((sum: number, h: any) => sum + h.days, 0);
+    if (d > bestDays) { bestDays = d; focusMonth = m; }
+  }
+
+  const monthTiles = cal.months.map((mo: any) => {
+    const m = mo.m;
+    const segs = cal.holidays.filter((h: any) => monthOf(h.start) === m);
+    const works = cal.holidays
+      .reduce((acc: string[], h: any) => acc.concat(h.makeup), [])
+      .filter((k: string) => monthOf(k) === m)
+      .sort();
+    const fests = otherFestivals
+      .filter((f: any) => monthOf(f.date) === m)
+      .concat(cal.terms.filter((t: any) => monthOf(t.date) === m))
+      .sort((a: any, b: any) => (a.date < b.date ? -1 : 1));
+
+    // 春节期间显示「除夕 / 春节」两个具体日子（示意稿里已确认的写法），
+    // 其余月份列出当月的其他节日与节气。
+    const chunjie = segs.find((h: any) => h.id === 'chunjie');
+    const festText = chunjie
+      ? '除夕 ' + mdCn(addDays(chunjie.date, -1)) + ' · 春节 ' + mdCn(chunjie.date)
+      : fests.map((f: any) => f.name + '（' + f.dateLabel + '）').join('、');
+
+    const segDays = segs.reduce((sum: number, h: any) => sum + h.days, 0);
+
+    return {
+      m: m,
+      pad: mo.cells.length ? mo.cells[0].w : 0,
+      cells: mo.cells,
+      tags: segs.map((h: any) => h.name),
+      badge: segDays > 0 ? segDays + ' 天' : '',
+      panel: {
+        segs: segs.map((h: any) => ({
+          label: h.startLabel + '–' + h.endLabel,
+          arrange: h.arrange,
+          days: h.days,
+          statutory: h.statutory,
+        })),
+        works: works.map((k: string) => mdCn(k)).join('、'),
+        fests: festText,
+      },
+    };
+  });
+
+  return {
+    seasons: seasons,
+    otherFestivals: otherFestivals,
+    focusMonth: focusMonth,
+    monthTiles: monthTiles,
+    // 图文卡左上那枚「日期性质」胶囊：公历固定的节日写公历，清明写节气日，
+    // 春节 / 端午 / 中秋才写农历。统一用 h.lunar 会给出「元旦 = 冬月十三」
+    // 这种看着像农历节日的错位信息。
+    cards: cal.holidays.map((h: any) => ({
+      ...h,
+      lunarNote: SOLAR_NOTE[h.id]
+        || ('农历 ' + ((h.lunar && h.lunar[h.date]) || h.dateLabel)),
+    })),
+    // 无脚本兜底要一份「全年的调休上班日」清单，这里一次算好（周一并到周日序里）
+    makeupLabels: cal.holidays
+      .reduce((acc: string[], h: any) => acc.concat(h.makeup), [])
+      .sort()
+      .map((k: string) => mdCn(k) + ' ' + WEEK_CN[weekdayOf(k)]),
+    chips: {
+      holidayCount: cal.stats.holidayCount,
+      holidayDays: cal.stats.holidayDays,
+      makeupDays: cal.stats.makeupDays,
+      termCount: cal.stats.termCount,
+    },
+  };
+}
+
 export {
   WEEK_CN,
   toKey,
@@ -521,4 +638,5 @@ export {
   buildCalendar,
   tipPayload,
   holidayCalendar,
+  calendarView,
 };

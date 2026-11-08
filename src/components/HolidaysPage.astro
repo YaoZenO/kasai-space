@@ -1,11 +1,16 @@
 ---
-// /holidays/ 与 /holidays/<year>/ 共用的页面主体（复刻 themes/fluid/layout/holidays.ejs）。
-// 页面级文件只负责取数与 head 元信息，视觉/结构全部在这里，保证 17 个页面完全一致。
+// /holidays/ 与 /holidays/<year>/ 共用的页面主体。
+// 结构以 2026-11-09 主人确认的整页示意（dist/_mock/holidays-2026.html）为准：
+//   首屏 → 年份下拉 → 统计三格 → 筛选 chips → 12 月宫格 → 图例 → 月份明细
+//   → 七个法定节假日图文卡 → 其他节日与纪念日 → 二十四节气 → 常见问题
+// 取数与派生全部在 src/lib/holiday-calendar.ts 里算完，模板只负责摆。
+// 无 JS 时：宫格、默认月份明细、七张卡、其他节日、节气、FAQ 都是服务端渲染好的；
+// 内联脚本只做「chip 筛选高亮 + 点月切换明细」。
 
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { fmtItemDate } from '../lib/dates';
 import { urlFor } from '../lib/url';
-
+import { calendarView } from '../lib/holiday-calendar';
 interface Props {
   cal: any;
   title: string;
@@ -13,255 +18,317 @@ interface Props {
   currentPath: string;
   published?: any;
   modified?: any;
-  tipsJson: string;
+  tipsJson?: string;
 }
 
-const { cal, title, description, currentPath, published, modified, tipsJson } = Astro.props;
-const ticks = [1, 5, 10, 15, 20, 25, 30];
-const half = cal ? Math.ceil(cal.festivals.length / 2) : 0;
+const { cal, title, description, currentPath, published, modified } = Astro.props;
+const view = cal ? calendarView(cal) : null;
+const WEEK = ['日', '一', '二', '三', '四', '五', '六'];
+
+const yearItems = cal ? cal.years : [];
+const zodiac = cal && cal.zodiac && cal.zodiac.ganzhi
+  ? `${cal.zodiac.ganzhi}${cal.zodiac.animal}年`
+  : '';
+
+// 无脚本时的兜底文案：节假日区间 + 调休清单 + 节日节气清单，全部由数据拼。
+const noscriptSegs = cal
+  ? cal.holidays.map((h: any) => `${h.name} ${h.startLabel} 至 ${h.endLabel}，连休 ${h.days} 天（法定 ${h.statutory} 天）`)
+  : [];
+const noscriptMakeup = view ? view.makeupLabels : [];
+const noscriptFests = cal
+  ? view.otherFestivals.concat(cal.terms)
+      .sort((a: any, b: any) => (a.date < b.date ? -1 : 1))
+      .map((f: any) => `${f.name} ${f.dateLabel}`)
+  : [];
+
+const pads = (n: number) => Array.from({ length: n }, (_, i) => i);
 ---
 
 <BaseLayout title={title} description={description} currentPath={currentPath} ogDate={published} ogUpdated={modified}>
-  <div class="paper-page cal-page pg-holidays">
+  <div class="paper-page cal-page pg-holidays hy-page" data-filter="all">
     <div class="home-wrap">
-      <header class="page-head">
-        {cal && (
-          <nav class="cal-crumb" aria-label="面包屑">
-            <a href={urlFor('/holidays/')}>中国节假日</a><span aria-hidden="true">/</span><span class="cal-crumb-now">{cal.year}</span>
-          </nav>
-        )}
-        <div class="cal-head-row">
-          <div>
-            <p class="page-head-kicker">CALENDAR</p>
-            <h1 class="page-head-title">{cal ? `${cal.year} 年中国节假日` : title}</h1>
-          </div>
-          {cal && cal.years.length > 1 && (
-            <nav class="cal-years" aria-label="按年份查看">
-              <span class="cal-years-label">按年份查看日历</span>
-              <ul>
-                {cal.years.map((yv: any) => (
-                  <li>
-                    {yv === cal.current ? (
-                      <span class="cal-year-current" aria-current="page">{yv}</span>
-                    ) : (
-                      <a href={urlFor('/holidays/' + yv + '/')}>{yv}</a>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          )}
-        </div>
-        {cal && (
-          <>
-            <p class="cal-lede"><Fragment set:html={cal.lede} /></p>
-            <p class="archive-total">
-              {cal.updated && <>更新于 {fmtItemDate(cal.updated)} · </>}{cal.label}安排 ·
-              {cal.stats.holidayCount} 个法定节假日 · 合计 {cal.stats.holidayDays} 天 · 法定假日 {cal.stats.statutoryDays} 天 ·
-              其他节日 {cal.stats.festivalCount} 个 · 节气 {cal.stats.termCount} 个
-            </p>
-          </>
-        )}
-      </header>
-
       {!cal ? (
         <p class="post-desc">这一年的节假日数据还在整理中，页面会随数据录入自动生成，欢迎稍后再来看看。</p>
       ) : (
         <>
-          <div class="cal-top">
-            <section class="cal-block">
-              <div class="col-head">
-                <h2 class="col-title">{cal.year} 年法定节假日</h2>
-                <span class="col-count">/ {cal.stats.holidayCount}</span>
-                <span class="cal-tag">{cal.label}</span>
-              </div>
+          <header class="hy-head">
+            <nav class="hy-crumb" aria-label="面包屑">
+              <a href={urlFor('/holidays/')}>中国节假日</a>
+              <span aria-hidden="true">/</span>
+              <span class="hy-crumb-now">{cal.year}</span>
+            </nav>
+            <p class="hy-kicker">{cal.year}{zodiac && <> · {zodiac}</>}</p>
+            <h1 class="hy-title">{cal.year} 年节假日</h1>
+            <p class="hy-lede"><Fragment set:html={cal.lede} /></p>
+          </header>
 
-              <div class="cal-table-wrap">
-                <table class="cal-table">
-                  <thead>
-                    <tr>
-                      <th scope="col">节日</th>
-                      <th scope="col">节日当天</th>
-                      <th scope="col">放假安排</th>
-                      {cal.official && <th scope="col">调休上班日</th>}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {cal.holidays.map((h: any) => (
-                      <tr id={h.anchor} data-h={h.id}>
-                        <th scope="row">
-                          <span class="cal-name">{h.name}</span>
-                          <span class="cal-pinyin">{h.pinyin}</span>
-                        </th>
-                        <td class="cal-when">
-                          <time datetime={h.date}>{h.dateMd}</time>
-                          <span class="cal-weekday">{h.wDate}</span>
-                        </td>
-                        <td class="cal-arrange">
-                          <span class="cal-range">
-                            <time datetime={h.start}>{h.startMd}</time>
-                            {h.startMd !== h.endMd && (
-                              <>
-                                <span class="cal-arrow" aria-label="至">→</span>
-                                <time datetime={h.end}>{h.endMd}</time>
-                              </>
-                            )}
-                          </span>
-                          <span class="cal-days">{h.days} 天</span>
-                          {h.arrange && <span class="cal-hint">{h.arrange}</span>}
-                        </td>
-                        {cal.official && (
-                          <td class="cal-makeup">
-                            {h.makeupLabel.length ? (
-                              h.makeupLabel.map((mk: string) => <span class="cal-makeup-day">{mk}</span>)
-                            ) : (
-                              <span class="cal-makeup-none">无</span>
-                            )}
-                          </td>
-                        )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+          <div class="hy-yearbar">
+            <details class="hy-yearpick">
+              <summary>
+                <span class="hy-yearpick-cur">{cal.year} 年</span>
+                <span class="hy-yearpick-hint">切换年份</span>
+              </summary>
+              <div class="hy-yearpick-panel">
+                <p class="hy-yearpick-label">{yearItems[0]} – {yearItems[yearItems.length - 1]}</p>
+                <ul class="hy-years">
+                  {yearItems.map((yv: number) => (
+                    <li>
+                      {yv === cal.current ? (
+                        <span class="is-cur" aria-current="page">{yv}</span>
+                      ) : (
+                        <a href={urlFor('/holidays/' + yv + '/')}>{yv}</a>
+                      )}
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </section>
+            </details>
+            <span class="hy-note-seg">
+              {cal.label}安排{cal.updated && <> · 更新于 {fmtItemDate(cal.updated)}</>}
+            </span>
+          </div>
 
-            <section class="cal-block cal-year">
-              <div class="col-head">
-                <h2 class="col-title">{cal.year} 年一览</h2>
-                <span class="col-count">/ {cal.stats.totalDays} 天</span>
-              </div>
+          <ul class="hy-stats">
+            <li>
+              <span class="hy-stat-num">{cal.stats.statutoryDays}</span><span class="hy-stat-unit">天</span>
+              <span class="hy-stat-label">法定假日</span>
+            </li>
+            <li>
+              <span class="hy-stat-num">{cal.stats.holidayDays}</span><span class="hy-stat-unit">天</span>
+              <span class="hy-stat-label">放假天数</span>
+            </li>
+            <li>
+              <span class="hy-stat-num">{cal.stats.makeupDays}</span><span class="hy-stat-unit">天</span>
+              <span class="hy-stat-label">调休补班</span>
+            </li>
+          </ul>
 
-              <div class="cal-grid-wrap">
-                <div class="cal-grid" data-cal-grid
-                     aria-label={`${cal.year} 年放假日历一览：图形总览，逐日说明见左方法定节假日表与下方节日列表`}>
-                  <div class="cal-row cal-ruler" aria-hidden="true">
-                    <span class="cal-month"></span>
-                    <div class="cal-cells">
-                      {Array.from({ length: 31 }, (_, i) => i + 1).map((d: number) => (
-                        <span class="cal-tick">{ticks.indexOf(d) !== -1 ? d : ''}</span>
-                      ))}
-                    </div>
-                  </div>
-                  {cal.months.map((mo: any) => (
-                    <div class="cal-row">
-                      <span class="cal-month">{mo.m}月</span>
-                      <div class="cal-cells">
-                        {mo.cells.map((c: any) => (
-                          <span class={`cal-cell is-${c.state}${c.dot ? ' has-dot' : ''}`}
-                                data-date={c.key} data-w={c.w} data-h={c.hid}
-                                title={c.tip}
-                                aria-hidden="true"></span>
-                        ))}
-                      </div>
+          <div class="hy-filters" role="group" aria-label="按类型筛选日历">
+            <button class="hy-chip is-active" type="button" data-filter="all" aria-pressed="true">全部 <span>{cal.stats.holidayCount} 段</span></button>
+            <button class="hy-chip" type="button" data-filter="holiday" aria-pressed="false">放假 <span>{cal.stats.holidayDays} 天</span></button>
+            <button class="hy-chip" type="button" data-filter="work" aria-pressed="false">补班 <span>{cal.stats.makeupDays} 天</span></button>
+            <button class="hy-chip" type="button" data-filter="fest" aria-pressed="false">节气 <span>{cal.stats.termCount} 个</span></button>
+          </div>
+
+          <div class="hy-months">
+            {view.monthTiles.map((tile: any) => (
+              <article class={`hy-month${tile.m === view.focusMonth ? ' hy-month--focus is-current' : ''}`} data-month={tile.m}>
+                <div class="hy-month-head">
+                  <h2 class="hy-month-title">
+                    <button class="hy-month-btn" type="button" data-month={tile.m} aria-controls={`hy-detail-${tile.m}`}>{tile.m} 月</button>
+                  </h2>
+                  <span class="hy-montags">
+                    {tile.tags.slice(0, 3).map((name: string) => <span class="hy-tag">{name}</span>)}
+                  </span>
+                  {tile.m === view.focusMonth && tile.badge && <span class="hy-badge">{tile.badge}</span>}
+                </div>
+                <div class="hy-week" aria-hidden="true">
+                  {WEEK.map((w: string) => <span>{w}</span>)}
+                </div>
+                <div class="hy-days">
+                  {pads(tile.pad).map(() => <div class="hy-day hy-day--pad" aria-hidden="true"></div>)}
+                  {tile.cells.map((c: any) => (
+                    <div
+                      class={`hy-day${c.state === 'holiday' ? ' hy-day--holiday' : ''}${c.state === 'makeup' ? ' hy-day--work' : ''}${c.w === 0 || c.w === 6 ? ' hy-day--weekend' : ''}`}
+                      title={c.tip}
+                    >
+                      <span class="hy-dn">{c.d}</span>
+                      {c.dot && <i class="hy-fest" aria-hidden="true"></i>}
                     </div>
                   ))}
                 </div>
-              </div>
-
-              <ul class="cal-legend">
-                <li><span class="cal-swatch is-holiday" aria-hidden="true"></span>{cal.label}放假</li>
-                <li><span class="cal-swatch is-weekend" aria-hidden="true"></span>周末</li>
-                <li><span class="cal-dot-mark" aria-hidden="true"></span>节日或纪念日</li>
-                {cal.stats.makeupDays > 0 && (
-                  <li><span class="cal-swatch is-makeup" aria-hidden="true"></span>调休上班</li>
-                )}
-              </ul>
-
-              <div class="cal-after">
-                <p class="cal-note">
-                  {cal.official ? (
-                    '以上为国务院办公厅公布的正式安排，节日当天的公历日期是确定的，'
-                  ) : (
-                    <>以上均为{cal.label}日期，根据农历和 2025 年起施行的放假规定推算得出。国务院办公厅将在前一年 11 月前后公布正式的放假调休安排，其中包括调休上班日。可以先按这些假期做规划，</>
-                  )}订票与出行前请务必再确认。
-                </p>
-                {cal.official && (
-                  <p class="cal-after-line"><strong>调休上班日</strong>是为了凑出连休而需要上班的周末。日历里把它标为「调休上班」，放假日标为「放假」。</p>
-                )}
-                {cal.source && (
-                  <p class="cal-after-line">来源：国务院办公厅<a href={cal.source.url} target="_blank" rel="noopener">{cal.source.dateLabel}的通知</a>（中文）。</p>
-                )}
-              </div>
-            </section>
+              </article>
+            ))}
           </div>
 
-          <section class="cal-fest">
-            <div class="col-head">
-              <h2 class="col-title">{cal.year} 年的其他节日和纪念日</h2>
-              <span class="col-count">/ {cal.stats.festivalCount}</span>
-            </div>
-            <p class="cal-fest-lead">这些是中国人会过的传统节日、纪念日与节气，大多数并不放假；个别日子只对某一部分人放半天，见备注。</p>
+          <ul class="hy-legend">
+            <li><span class="hy-lg hy-lg--holiday" aria-hidden="true"></span>{cal.label}放假</li>
+            <li><span class="hy-lg hy-lg--work" aria-hidden="true"></span>调休补班</li>
+            <li><span class="hy-lg hy-lg--fest" aria-hidden="true"></span>节日或节气</li>
+            <li>灰色数字是周末，其余为工作日</li>
+          </ul>
 
-            <div class="cal-fest-cols">
-              {[cal.festivals.slice(0, half), cal.festivals.slice(half)].map((group: any[]) => (
-                <div class="cal-fest-col">
-                  <div class="cal-fest-head" aria-hidden="true">
-                    <span class="cal-fest-date">日期</span>
-                    <span class="cal-fest-main">节日</span>
-                    <span class="cal-fest-note">备注</span>
+          <div class="hy-detail">
+            <div class="hy-detail-head">
+              <h2>月份明细</h2>
+              <span>点月份卡上的月份可切换</span>
+            </div>
+            {view.monthTiles.map((tile: any) => (
+              <div class="hy-panel" id={`hy-detail-${tile.m}`} data-month={tile.m} hidden={tile.m !== view.focusMonth}>
+                <dl class="hy-rows">
+                  <div class="hy-row">
+                    <dt>假期段</dt>
+                    <dd>
+                      {tile.panel.segs.length ? (
+                        tile.panel.segs.map((s: any, i: number) => (
+                          <>
+                            {i > 0 && <br />}
+                            <strong>{s.label}</strong>（{s.arrange}） · 连休 {s.days} 天，法定 {s.statutory} 天
+                          </>
+                        ))
+                      ) : (
+                        <span class="hy-muted">本月无法定假期段</span>
+                      )}
+                    </dd>
                   </div>
-                  <ul class="cal-fest-list">
-                    {group.map((f: any) => (
-                      <li class="cal-fest-row">
-                        <span class="cal-fest-date">
-                          <time datetime={f.date}>{f.dateMd}</time>
-                          <span class="cal-weekday">{f.wName}</span>
-                        </span>
-                        <span class="cal-fest-main">
-                          <span class="cal-fest-name">{f.name}</span>
-                          <span class="cal-pinyin">{f.pinyin}</span>
-                          <span class="cal-fest-kind">{f.kind}</span>
-                        </span>
-                        <span class="cal-fest-note">{f.note}</span>
-                      </li>
+                  <div class="hy-row">
+                    <dt>调休补班</dt>
+                    <dd>{tile.panel.works || <span class="hy-muted">本月无调休补班</span>}</dd>
+                  </div>
+                  <div class="hy-row">
+                    <dt>节气与传统节日</dt>
+                    <dd>{tile.panel.fests || <span class="hy-muted">本月无节气与传统节日</span>}</dd>
+                  </div>
+                </dl>
+              </div>
+            ))}
+          </div>
+
+          <noscript>
+            <div class="hy-noscript">
+              <h2>{cal.year} 年放假安排</h2>
+              {noscriptSegs.map((line: string) => <p>{line}。</p>)}
+              <p><b>调休上班日</b>：{noscriptMakeup.length ? noscriptMakeup.join('、') : '无'}。</p>
+              <p><b>其他节日与节气</b>：{noscriptFests.join('、')}。</p>
+            </div>
+          </noscript>
+
+          <section class="hy-sec hy-cards" id="holiday-cards" aria-labelledby="hy-cards-title">
+            <div class="hy-sec-head">
+              <h2 class="hy-sec-title" id="hy-cards-title">七个法定节假日</h2>
+              <p class="hy-sec-sub">{cal.stats.holidayCount} 段 · 共 {cal.stats.holidayDays} 天</p>
+            </div>
+            <div class="hy-card-grid">
+              {view.cards.map((h: any, i: number) => (
+                <article class={`hy-card${i === view.cards.length - 1 ? ' hy-card--wide' : ''}`} id={h.anchor}>
+                  <figure class="hy-card-media">
+                    <div class="hy-card-photo">
+                      <img src={h.img} alt={h.alt} loading="lazy" decoding="async" width="960" height="540" />
+                    </div>
+                    <figcaption class="hy-credit">
+                      <a href={h.creditUrl} target="_blank" rel="noopener">{h.credit} · {h.creditLicense} · Wikimedia Commons</a>
+                    </figcaption>
+                  </figure>
+                  <div class="hy-card-body">
+                    <div class="hy-card-top">
+                      <h3 class="hy-card-name">{h.name}</h3><span class="hy-pinyin">{h.pinyin}</span>
+                    </div>
+                    <p class="hy-card-lunar">{h.lunarNote} · {h.arrange}</p>
+                    <p class="hy-card-range"><strong>{h.startLabel}–{h.endLabel}</strong> · 连休 {h.days} 天，法定 {h.statutory} 天</p>
+                    <p class="hy-card-work">调休上班：{h.makeupLabel.length ? h.makeupLabel.join('、') : '无'}</p>
+                    <p class="hy-card-desc">{h.desc}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section class="hy-sec" id="other-festivals" aria-labelledby="hy-other-title">
+            <div class="hy-sec-head">
+              <p class="hy-sec-kicker">Festivals &amp; Days</p>
+              <h2 class="hy-sec-title" id="hy-other-title">其他节日与纪念日</h2>
+              <p class="hy-sec-sub">{view.otherFestivals.length} 个非法定节假日，按日期排列</p>
+            </div>
+            <div class="hy-fest-grid">
+              {view.otherFestivals.map((f: any) => (
+                <article class="hy-fest-item">
+                  <div class="hy-fest-date">
+                    <b>{f.dateLabel}</b><span>{f.wName}</span>
+                  </div>
+                  <div class="hy-fest-body">
+                    <div class="hy-fest-top">
+                      <h3 class="hy-fest-name">{f.name}</h3>
+                      <span class={`hy-kind${f.kind === '部分公民放假' ? ' hy-kind--accent' : ''}`}>{f.kind}</span>
+                    </div>
+                    <p class="hy-fest-note">{f.note}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section class="hy-sec" id="solar-terms" aria-labelledby="hy-terms-title">
+            <div class="hy-sec-head">
+              <p class="hy-sec-kicker">24 Solar Terms</p>
+              <h2 class="hy-sec-title" id="hy-terms-title">二十四节气</h2>
+              <p class="hy-sec-sub">四季 · 每季六个</p>
+            </div>
+            <div class="hy-season-grid">
+              {view.seasons.map((s: any) => (
+                <div class="hy-season">
+                  <div class="hy-season-head"><h3>{s.name}</h3><span>{s.range}</span></div>
+                  <ul class="hy-terms">
+                    {s.terms.map((t: any) => (
+                      <li><span class="hy-term-name">{t.name}</span><span class="hy-term-date">{t.label}</span></li>
                     ))}
                   </ul>
                 </div>
               ))}
             </div>
-
-            {cal.terms.length > 0 && (
-              <div class="cal-terms">
-                <h3 class="cal-terms-title">二十四节气</h3>
-                <p class="cal-terms-line">
-                  {cal.terms.map((t: any) => (
-                    <span class="cal-term"><span class="cal-term-name">{t.name}</span> <time datetime={t.date}>{t.dateMd}</time></span>
-                  ))}
-                </p>
-                <p class="cal-terms-note">节气按太阳黄经划分，公历日期每年只差一两天，此处为北京时间。</p>
-              </div>
-            )}
+            <p class="hy-sec-note">节气按太阳每运行 15° 一个，日期每年相差一两天。</p>
           </section>
 
-          <div class="cal-notes">
-            <article class="about-body cal-prose">
-              <div class="markdown-body">
-                <Fragment set:html={cal.prose} />
+          {cal.faq.length > 0 && (
+            <section class="hy-sec" id="faq" aria-labelledby="hy-faq-title">
+              <div class="hy-sec-head">
+                <p class="hy-sec-kicker">FAQ</p>
+                <h2 class="hy-sec-title" id="hy-faq-title">关于 {cal.year} 年节假日的常见问题</h2>
+                <p class="hy-sec-sub">{cal.faq.length} 条</p>
               </div>
-            </article>
-
-            {cal.faq.length > 0 && (
-              <aside class="cal-faq">
-                <h2 class="col-title">关于 {cal.year} 年节假日的常见问题</h2>
-                {cal.faq.map((item: any) => (
-                  <details class="cal-faq-item">
+              <div class="hy-faq-list">
+                {cal.faq.map((item: any, i: number) => (
+                  <details class="hy-faq-item" open={i === 0}>
                     <summary>{item.q}</summary>
-                    <p>{item.a}</p>
+                    <div class="hy-faq-a"><p>{item.a}</p></div>
                   </details>
                 ))}
-              </aside>
-            )}
-          </div>
+              </div>
+            </section>
+          )}
+
+          <p class="hy-note">
+            节日当天的公历日期是确定的；放假区间与调休上班日以国务院办公厅通知为准，出行前请再确认。
+            {cal.source && <> 来源：<a href={cal.source.url} target="_blank" rel="noopener">国务院办公厅 {cal.source.dateLabel}的通知</a>。</>}
+          </p>
+
+          <script is:inline>
+            (function () {
+              var root = document.querySelector('.hy-page');
+              if (!root) return;
+              var chips = Array.prototype.slice.call(root.querySelectorAll('.hy-chip'));
+              chips.forEach(function (chip) {
+                chip.addEventListener('click', function () {
+                  var value = chip.getAttribute('data-filter');
+                  root.setAttribute('data-filter', value);
+                  chips.forEach(function (c) {
+                    var on = c === chip;
+                    c.classList.toggle('is-active', on);
+                    c.setAttribute('aria-pressed', on ? 'true' : 'false');
+                  });
+                });
+              });
+
+              var cards = Array.prototype.slice.call(root.querySelectorAll('.hy-month'));
+              var panels = Array.prototype.slice.call(root.querySelectorAll('.hy-panel'));
+              function openMonth(m) {
+                panels.forEach(function (p) {
+                  p.hidden = p.getAttribute('data-month') !== m;
+                });
+                cards.forEach(function (c) {
+                  c.classList.toggle('is-current', c.getAttribute('data-month') === m);
+                });
+              }
+              cards.forEach(function (card) {
+                var btn = card.querySelector('.hy-month-btn');
+                if (!btn) return;
+                btn.addEventListener('click', function () {
+                  openMonth(btn.getAttribute('data-month'));
+                });
+              });
+            })();
+          </script>
         </>
       )}
     </div>
   </div>
-
-  {cal && (
-    <>
-      <script type="application/json" id="cal-day-data" is:inline set:html={tipsJson}></script>
-      <script src="/js/holidays.js" defer></script>
-    </>
-  )}
 </BaseLayout>
