@@ -6355,6 +6355,353 @@ html:not(.js) .fs-years-toggle { display: none; }
   text-align: right;
 }
 
+/* 榜单总览仪表盘（2026-11-08，PAGE-FORM-PLAN §4.2，主人从三个样例里选 A）。
+   旧版是文章壳（kicker + 导语 + 更新于）+ 左导航 + 9 组 145 行文字条目，可见文本 4027 字、
+   181 个链接、0 个图形。新版首屏 = 结论 + 三格数字带 + 搜索 + 主榜条形卡；
+   其下 9 个主题各 3 张榜卡，每组其余榜单折进原生 <details>（145 个榜全部可达，无 JS 可读）。
+   条形全部是 CSS 百分比，不引图表库；条长按该榜第一名等比（「跟榜首比」）。 */
+.crk-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.02fr);
+  gap: clamp(20px, 3.4vw, 52px);
+  align-items: center;
+  margin-top: 0.9rem;
+  padding-bottom: 1.6rem;
+  border-bottom: 1px solid var(--line-color);
+}
+
+.crk-title {
+  margin: 0 0 0.55rem;
+  font-family: var(--font-serif-title);
+  font-weight: 600;
+  font-size: clamp(2.2rem, 4.2vw, 3.1rem);
+  line-height: 1.1;
+}
+
+.crk-hero .cal-lede {
+  margin-bottom: 1.1rem;
+}
+
+/* 第一版城市索引页是四格，榜单只有三个数：三格等分。
+   选择器带两个类，抵掉 4.16 断点里 .cr-stats{2 格} 的后置覆盖。 */
+.cr-stats.crk-stats {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.crk-hero .cr-search {
+  max-width: 27rem;
+  margin-top: 1rem;
+}
+
+.crk-herocard {
+  padding: 1rem 1.1rem 0.9rem;
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-xs);
+  background: var(--cream);
+}
+
+.crk-hc-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.7rem;
+  margin-bottom: 0.7rem;
+}
+
+.crk-hc-kicker {
+  margin: 0 0 0.2rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: var(--sec-text-color);
+}
+
+.crk-hc-title {
+  margin: 0;
+  font-family: var(--font-serif-title);
+  font-weight: 600;
+  font-size: 1.16rem;
+  line-height: 1.3;
+}
+
+.crk-tag {
+  flex: none;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--line-color);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: var(--accent);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.crk-tag:hover {
+  border-color: var(--accent);
+}
+
+.crk-bars {
+  display: grid;
+  gap: 0.42rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.crk-bar {
+  display: grid;
+  grid-template-columns: 1.1rem 4.4rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.crk-bar-r {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+.crk-bar-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.crk-bar-track {
+  display: block;
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--line-color);
+}
+
+.crk-bar-track i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.crk-bar-v {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  color: var(--sec-text-color);
+  white-space: nowrap;
+}
+
+.crk-hc-foot {
+  margin: 0.7rem 0 0;
+  padding-top: 0.55rem;
+  border-top: 1px dashed var(--line-color);
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+/* 主题条：点一下跳到该组，代替旧版左栏 9 行导航 */
+.crk-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 1.1rem 0 0.2rem;
+}
+
+.crk-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.28rem 0.75rem;
+  border: 1px solid var(--line-color);
+  border-radius: 999px;
+  font-size: 0.86rem;
+  color: var(--text-color);
+  text-decoration: none;
+}
+
+.crk-chip:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.crk-chip span {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+.crk-section {
+  padding-top: 1.7rem;
+}
+
+.crk-section .col-head {
+  margin-bottom: 0.7rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.crk-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.crk-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0.55rem 0.8rem 0.6rem;
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-xs);
+  color: var(--text-color);
+  text-decoration: none;
+}
+
+.crk-card:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.crk-kind {
+  flex: none;
+  align-self: flex-start;
+  padding: 0.05rem 0.42rem;
+  border: 1px solid var(--line-color);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+  white-space: nowrap;
+}
+
+.crk-kind.is-computed {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.crk-card-title {
+  display: block;
+  margin: 0.3rem 0 0.5rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.42;
+}
+
+/* 前三名：条形铺在行底做背景，文字压在上面（比「名字 + 条 + 数值」三栏省一半宽度） */
+.crk-mini {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.crk-mini-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.2rem 0.3rem;
+  overflow: hidden;
+  border-radius: 3px;
+  font-size: 0.78rem;
+}
+
+/* 绝对定位必须写在 >span 的 relative 之后并提高选择器权重：
+   第一版把 >* 统一设成 relative，结果底色条变成 flex 项，把城市名挤成 0 宽度（E-122）。 */
+.crk-mini-row > span {
+  position: relative;
+}
+
+.crk-mini-row > .crk-mini-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--accent);
+  opacity: 0.13;
+}
+
+.crk-mini-r {
+  flex: none;
+  width: 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+.crk-mini-name {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.crk-mini-v {
+  flex: none;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+/* 每组其余榜单：原生折叠，无 JS 也能展开 */
+.crk-more {
+  margin-top: 0.55rem;
+}
+
+.crk-more summary {
+  font-size: 0.78rem;
+  color: var(--sec-text-color);
+  cursor: pointer;
+}
+
+.crk-more summary:hover {
+  color: var(--accent);
+}
+
+.crk-more-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.2rem 1.2rem;
+  margin: 0.6rem 0 0;
+  padding: 0.7rem 0 0;
+  border-top: 1px dashed var(--line-color);
+  list-style: none;
+}
+
+.crk-more-list li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.crk-more-list a {
+  min-width: 0;
+  font-size: 0.86rem;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.crk-more-list a:hover {
+  color: var(--accent);
+}
+
+@media (max-width: 1023px) {
+  .crk-hero { grid-template-columns: minmax(0, 1fr); }
+  .crk-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .crk-more-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 767px) {
+  .crk-title { font-size: 2rem; }
+  .crk-stats .cr-stat:nth-child(3) {
+    padding-left: 0.55rem;
+    border-left: 1px solid var(--line-color);
+  }
+  .crk-cards { grid-template-columns: minmax(0, 1fr); }
+  .crk-bar { grid-template-columns: 1rem 3.6rem minmax(0, 1fr) auto; gap: 0.35rem; font-size: 0.82rem; }
+  .crk-more-list { grid-template-columns: minmax(0, 1fr); }
+}
+
 /* ===== 4.16 断点：移动端真正的重排，不是等比缩小 ===== */
 
 /* 平板：右栏收窄 */

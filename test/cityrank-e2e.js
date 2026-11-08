@@ -1158,6 +1158,47 @@ if (fs.existsSync(path.join(PUBLIC, 'city', 'index.html'))) {
   });
 }
 
+// S25 榜单总览仪表盘（2026-11-08，PAGE-FORM-PLAN §4.2 方向 A 落地）：
+// 首屏从「文章壳 + 145 行条目」换成「结论 + 数字带 + 主榜条形 + 搜索」。
+// 这一节锁住三件事：① 首屏要件都在；② 145 个榜一个都没被折叠掉（都是可点链接）；
+// ③ 条形是百分比、首名满格、不越界（比例可手算复核）。
+ok('S25 产物：/cityrank/ 首屏是仪表盘，145 个榜仍全部可达', () => {
+  const distIdx = path.join(ROOT, 'dist', 'cityrank', 'index.html');
+  const html = fs.readFileSync(fs.existsSync(distIdx) ? distIdx : path.join(PUBLIC, 'cityrank', 'index.html'), 'utf8');
+
+  assert.ok(html.indexOf('crk-hero') !== -1, '首屏缺仪表盘容器（仍是文章壳）');
+  assert.ok(html.indexOf('crk-herocard') !== -1, '首屏缺主榜条形卡');
+  assert.ok(html.indexOf('class="cr-search"') !== -1, '首屏缺搜索（无 JS 也要能查）');
+  assert.ok(html.indexOf('crk-stats') !== -1, '首屏缺数字带');
+
+  const slugs = new Set([...html.matchAll(/href="\/cityrank\/([a-z0-9-]+)\/"/g)].map((m) => m[1]));
+  assert.ok(slugs.size >= R.rankCount, '有榜在页面上找不到入口：' + slugs.size + '/' + R.rankCount);
+
+  const widths = [...html.matchAll(/class="crk-bar-track"><i style="width:([\d.]+)%"/g)].map((m) => Number(m[1]));
+  assert.ok(widths.length >= 5, '主榜条形不足 5 行：' + widths.length);
+  assert.strictEqual(widths[0], 100, '主榜首名不是满格（' + widths[0] + '%）');
+  for (const w of widths) {
+    assert.ok(w >= 1 && w <= 100, '条形宽度越界：' + w + '%');
+    assert.ok(w <= (widths[0] || 100), '条形宽度超过榜首：' + w + '%');
+  }
+});
+
+// E-122 / E-123 的防复发断言：两个坑都只在「看起来对」时才暴露——
+// 底色条一旦不是绝对定位就变成 flex 项、把城市名挤成 0 宽；网格卡一旦没有
+// min-width:0，nowrap 文本会把 390 视口撑到 566。样式没有浏览器就无法验证，
+// 所以在这里锁死这两条声明本身。
+ok('S25 样式：底色条绝对定位、网格卡 min-width:0（E-122 / E-123）', () => {
+  const fill = css.match(/\.crk-mini-row > \.crk-mini-fill\s*\{[^}]*\}/);
+  assert.ok(fill, 'site.css 缺 .crk-mini-row > .crk-mini-fill 规则');
+  assert.ok(/position:\s*absolute/.test(fill[0]), '底色条不是绝对定位——会把城市名挤成 0 宽度（E-122）');
+
+  for (const sel of ['.crk-card', '.crk-more-list li', '.crk-more-list a']) {
+    const rule = css.match(new RegExp(sel.replace(/\./g, '\\.') + '\\s*\\{[^}]*\\}'));
+    assert.ok(rule, 'site.css 缺 ' + sel);
+    assert.ok(/min-width:\s*0/.test(rule[0]), sel + ' 缺 min-width:0——nowrap 文本会撑破移动端（E-123）');
+  }
+});
+
 ok('自检：镇域榜混入主序列必须被 S16 抓到（变异样本自造，不依赖真实待审组样本）', () => {
   const bad = R.groups.map((g) => ({
     key: g.key,

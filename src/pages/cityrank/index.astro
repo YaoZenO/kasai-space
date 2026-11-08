@@ -1,6 +1,7 @@
 ---
-// 城市排行榜索引页（/cityrank/）：复刻 themes/fluid/layout/cityrank.ejs 的榜单总览分支。
-// 排版沿用资料库页（/library/）的「左导读栏 + 右专题卡」结构，视觉走本站纸面体系。
+// 城市排行榜索引页（/cityrank/）—— 榜单仪表盘（PAGE-FORM-PLAN §4.2，2026-11-08 方向 A）。
+// 版式：首屏「结论 + 三格数字带 + 搜索 + 主榜条形卡」；其下 9 个主题各 3 张榜卡，
+// 每组其余榜单折进原生 <details>——145 个榜全部可达，不依赖 JS。
 // 数据：source/_data/cityrank.yml（榜单定义）+ source/_data/cities.yml（城市数据）
 // 计算：src/lib/cityrank-data.ts（名次现算，不存名次）
 
@@ -13,6 +14,62 @@ import { urlFor } from '../../lib/url';
 const data = getData();
 const CR = buildCityRanks(data);
 const title = CR.meta?.title || '城市排行榜';
+
+const groups: any[] = CR.error ? [] : CR.groups;
+const rankCount = CR.rankCount || 0;
+const cityCount = CR.cityCount || 0;
+const dataYear = CR.cityMeta?.dataYear || '2025';
+const computedCount = groups.reduce(
+  (s: number, g: any) => s + g.ranks.filter((r: any) => r.kind === 'computed').length,
+  0
+);
+
+// 权重最高的指标：卡片与主榜的条形都按它取值的
+function mainMetric(rk: any) {
+  if (!Array.isArray(rk.metrics) || !rk.metrics.length) return null;
+  return rk.metrics.slice().sort((a: any, b: any) => (b.weight || 0) - (a.weight || 0))[0];
+}
+
+function fmtNum(v: any) {
+  if (typeof v !== 'number' || !isFinite(v)) return '';
+  if (Math.abs(v) >= 1000) return Math.round(v).toLocaleString('en-US');
+  return String(Math.round(v * 10) / 10);
+}
+
+// 榜单前 n 行：值取主指标，条长按该榜第一名等比（不是按全池，读起来是「跟榜首比」）。
+// fact / pending 榜没有指标值，条形与数值留空，只出名次与城市名。
+function topRows(rk: any, n: number) {
+  const m = mainMetric(rk);
+  const items = (rk.items || []).slice(0, n);
+  const max = m && items[0] && items[0].values ? items[0].values[m.field] : 0;
+  return items.map((it: any) => {
+    const value = m && it.values ? it.values[m.field] : null;
+    const has = typeof value === 'number';
+    return {
+      rank: it.rank,
+      name: it.name,
+      text: has ? fmtNum(value) + (m.unit ? ' ' + m.unit : '') : '',
+      width: has && max > 0 ? Math.max(2, Math.round((value / max) * 1000) / 10) : 0
+    };
+  });
+}
+
+const allRanks: any[] = [];
+for (const g of groups) for (const r of g.ranks) allRanks.push(r);
+
+// 主榜：经济强市（首页门面榜）。数据缺失时退到第一个有结果的 computed 榜。
+const heroRank =
+  allRanks.find((r) => r.slug === 'jingji-qiangshi' && r.kind === 'computed' && r.items.length) ||
+  allRanks.find((r) => r.kind === 'computed' && r.items.length) ||
+  null;
+const heroMetric = heroRank ? mainMetric(heroRank) : null;
+const heroRows = heroRank ? topRows(heroRank, 5) : [];
+
+function kindLabel(kind: string) {
+  if (kind === 'computed') return '本站计算';
+  if (kind === 'fact') return '权威名次';
+  return '参考榜';
+}
 ---
 
 <BaseLayout title={title} currentPath="/cityrank/">
@@ -28,75 +85,116 @@ const title = CR.meta?.title || '城市排行榜';
         </>
       ) : (
         <>
-          <header class="page-head">
-            <nav class="cal-crumb" aria-label="面包屑">
-              <a href={urlFor('/library/')}>资料库</a><span aria-hidden="true">/</span><span class="cal-crumb-now">城市排行榜</span>
-            </nav>
-            <p class="page-head-kicker">CITY RANK</p>
-            <h1 class="page-head-title">城市排行榜</h1>
-            <p class="cal-lede">{CR.meta.intro || ''}</p>
-            <p class="archive-total">更新于 {fmtItemDate(CR.meta.updated)} · {CR.rankCount} 个榜单 · {CR.cityCount} 座城市 · 数据年份 {CR.cityMeta.dataYear || '2025'}</p>
-          </header>
-
-          <div class="lb-layout">
-            <aside class="lb-guide" aria-label="主题导航">
-              <div class="lb-guide-label">{CR.meta.guideLabel || '主题导航'}</div>
-              <ul class="lb-guide-list">
-                {CR.groups.map((gt: any) => (
-                  <li>
-                    <a href={`#group-${gt.key}`}>
-                      <span class="lb-guide-title">{gt.title}</span>
-                      <span class="lb-guide-count">{gt.ranks.length}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-              {CR.meta.guideNote && (
-                <p class="lb-guide-note">{CR.meta.guideNote}</p>
-              )}
-            </aside>
-
-            <div class="lb-main">
-              {CR.groups.map((tp: any) => (
-                <section class="lb-topic" id={`group-${tp.key}`}>
-                  <div class="col-head">
-                    <div>
-                      <p class="page-head-kicker">{tp.kicker || ''}</p>
-                      <h2 class="col-title">{tp.title}</h2>
-                    </div>
-                    <span class="col-count">/ {tp.ranks.length}</span>
-                  </div>
-                  <p class="lb-topic-desc">{tp.desc || ''}</p>
-
-                  {tp.ranks.length === 0 ? (
-                    <p class="cr-empty">这一组还没有榜单。</p>
-                  ) : (
-                    <ul class="lb-entries">
-                      {tp.ranks.map((rk: any) => {
-                        const noteText = rk.kind === 'computed' && rk.items.length
-                          ? ''
-                          : (rk.lede || '');
-                        return (
-                          <li class="lb-entry">
-                            <a href={urlFor('/cityrank/' + rk.slug + '/')}>
-                              <span class="lb-entry-name">{rk.title}</span>
-                              {rk.kind === 'computed' && rk.items.length > 0
-                                ? rk.items.slice(0, 3).map((pit: any) => `${pit.rank} ${pit.name}`).join(' · ')
-                                : null}
-                              {noteText && <span class="lb-entry-note">{noteText}</span>}
-                            </a>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  )}
-                </section>
-              ))}
-
-              <div class="cal-after">
-                <p class="cal-note">本站计算的榜单，指标与权重都写在榜页上，名次由数据算出、可以复算；参考榜整理自公开榜单名次。</p>
-              </div>
+          <section class="crk-hero">
+            <div class="crk-lead">
+              <nav class="cal-crumb" aria-label="面包屑">
+                <a href={urlFor('/library/')}>资料库</a><span aria-hidden="true">/</span><span class="cal-crumb-now">城市排行榜</span>
+              </nav>
+              <p class="page-head-kicker">CITY RANK</p>
+              <h1 class="crk-title">城市排行榜</h1>
+              <p class="cal-lede">
+                <b>{rankCount} 个榜单，{cityCount} 座城市。</b>名次不是写死的：{computedCount} 个榜由公开指标现算，指标与权重都写在榜页上，可以复算。
+              </p>
+              <dl class="cr-stats crk-stats">
+                <div class="cr-stat"><dt>榜单</dt><dd>{rankCount}</dd></div>
+                <div class="cr-stat"><dt>覆盖城市</dt><dd>{cityCount}</dd></div>
+                <div class="cr-stat"><dt>数据年份</dt><dd>{dataYear}</dd></div>
+              </dl>
+              <form class="cr-search" action={urlFor('/search/')} method="get" role="search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+                <input type="search" name="q" placeholder="输入城市名，查它在各榜的名次" aria-label="搜索城市" />
+                <button type="submit">搜索</button>
+              </form>
             </div>
+
+            {heroRank && (
+              <article class="crk-herocard">
+                <div class="crk-hc-head">
+                  <div>
+                    <p class="crk-hc-kicker">主榜 · 本站计算</p>
+                    <h2 class="crk-hc-title">{heroRank.title}</h2>
+                  </div>
+                  <a class="crk-tag" href={urlFor('/cityrank/' + heroRank.slug + '/')}>看完整榜 →</a>
+                </div>
+                <ol class="crk-bars">
+                  {heroRows.map((row: any) => (
+                    <li class="crk-bar">
+                      <span class="crk-bar-r">{row.rank}</span>
+                      <span class="crk-bar-name">{row.name}</span>
+                      <span class="crk-bar-track"><i style={`width:${row.width}%`}></i></span>
+                      <span class="crk-bar-v">{row.text}</span>
+                    </li>
+                  ))}
+                </ol>
+                <p class="crk-hc-foot">
+                  条长按{heroMetric ? heroMetric.label : '指标值'}等比，以榜首为满格 · 共 {heroRank.size} 名
+                </p>
+              </article>
+            )}
+          </section>
+
+          <nav class="crk-chips" aria-label="主题">
+            {groups.map((g: any) => (
+              <a class="crk-chip" href={`#group-${g.key}`}>
+                {g.title}<span>{g.ranks.length}</span>
+              </a>
+            ))}
+          </nav>
+
+          {groups.map((g: any) => {
+            const list = g.ranks.filter((r: any) => !heroRank || r.slug !== heroRank.slug);
+            const cards = list.slice(0, 3);
+            const rest = list.slice(3);
+            return (
+              <section class="crk-section" id={`group-${g.key}`}>
+                <div class="col-head">
+                  <div>
+                    <p class="page-head-kicker">{g.kicker || ''}</p>
+                    <h2 class="col-title">{g.title}</h2>
+                  </div>
+                  <span class="col-count">/ {g.ranks.length}</span>
+                </div>
+
+                <div class="crk-cards">
+                  {cards.map((rk: any) => (
+                    <a class="crk-card" href={urlFor('/cityrank/' + rk.slug + '/')}>
+                      <span class={rk.kind === 'computed' ? 'crk-kind is-computed' : 'crk-kind'}>{kindLabel(rk.kind)}</span>
+                      <span class="crk-card-title">{rk.title}</span>
+                      <ol class="crk-mini">
+                        {topRows(rk, 3).map((row: any) => (
+                          <li class={row.width ? 'crk-mini-row' : 'crk-mini-row is-plain'}>
+                            {row.width > 0 && <i class="crk-mini-fill" style={`width:${row.width}%`}></i>}
+                            <span class="crk-mini-r">{row.rank}</span>
+                            <span class="crk-mini-name">{row.name}</span>
+                            <span class="crk-mini-v">{row.text}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    </a>
+                  ))}
+                </div>
+
+                {rest.length > 0 && (
+                  <details class="crk-more">
+                    <summary>展开其余 {rest.length} 个榜</summary>
+                    <ul class="crk-more-list">
+                      {rest.map((rk: any) => (
+                        <li>
+                          <a href={urlFor('/cityrank/' + rk.slug + '/')}>{rk.title}</a>
+                          <span class={rk.kind === 'computed' ? 'crk-kind is-computed' : 'crk-kind'}>{kindLabel(rk.kind)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                )}
+              </section>
+            );
+          })}
+
+          <div class="cal-after">
+            <p class="cal-note">
+              更新于 {fmtItemDate(CR.meta.updated)} · 本站计算的榜，指标与权重都写在榜页上，名次由数据算出、可以复算；参考榜整理自公开榜单名次。
+            </p>
           </div>
         </>
       )}
