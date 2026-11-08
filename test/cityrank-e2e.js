@@ -977,14 +977,26 @@ if (fs.existsSync(path.join(PUBLIC, 'city', 'index.html'))) {
     assert.ok(sh.indexOf(credit) !== -1, '头图署名与登记表不一致，页面应出现：' + credit);
     assert.ok(fs.existsSync(path.join(PUBLIC, 'img', 'cities', 'shanghai.jpg')),
       '头图文件没进产物（source/img/cities/ 未被 Hexo 复制）');
-    // 未登记的城市不得出现任何 /img/cities/ 引用——生成器 cityPhoto 双闸的防死链面
+    // 双闸的防死链面，2026-11-08 改为按登记表动态核对（原来写死「除上海外都没登记」）：
+    //   已登记 → 页面必须引用该图、文件必须进产物、署名必须与登记表一致；
+    //   未登记 → 页面不得出现任何 /img/cities/ 引用。
     for (const c of cities.cities || []) {
-      if (!c.slug || c.slug === 'shanghai') continue;
+      if (!c.slug) continue;
       const f = path.join(PUBLIC, 'city', c.slug, 'index.html');
       if (!fs.existsSync(f)) continue;
       const html = fs.readFileSync(f, 'utf8');
-      assert.ok(html.indexOf('/img/cities/') === -1,
-        '未登记头图的城市页出现图片引用（死链风险）：' + c.slug);
+      const registered = photos[c.slug] && photos[c.slug].credit;
+      if (registered) {
+        assert.ok(html.indexOf('/img/cities/' + c.slug + '.jpg') !== -1,
+          '已登记头图却没渲染：' + c.slug);
+        assert.ok(fs.existsSync(path.join(PUBLIC, 'img', 'cities', c.slug + '.jpg')),
+          '登记了但文件没进产物：' + c.slug);
+        assert.ok(html.indexOf(registered) !== -1,
+          '头图署名与登记表不一致：' + c.slug);
+      } else {
+        assert.ok(html.indexOf('/img/cities/') === -1,
+          '未登记头图的城市页出现图片引用（死链风险）：' + c.slug);
+      }
     }
   });
 

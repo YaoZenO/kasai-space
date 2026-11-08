@@ -6,3 +6,42 @@
 # 列宽由 .cr-hero-fig 决定，高度随图走（见 site.css）。
 shanghai:
   credit: 图 / Pexels · Ted McDonnell
+
+# 2026-11-08 批量补图：以下 18 城取自 Wikimedia Commons 各城市维基条目主图，
+# 授权为 CC0 / CC BY / CC BY-SA，署名与许可写在 credit 里（CC BY 系列要求署名）。
+beijing:
+  credit: "图 / Wikimedia Commons · N509FZ · CC BY 4.0"
+chengdu:
+  credit: "图 / Wikimedia Commons · FISU · CC BY 3.0"
+wuhan:
+  credit: "图 / Wikimedia Commons · 螺钉 · CC BY-SA 4.0"
+xian:
+  credit: "图 / Wikimedia Commons · xiquinhosilva · CC BY 2.0"
+chongqing:
+  credit: "图 / Wikimedia Commons · Renek78 · CC0"
+sanya:
+  credit: "图 / Wikimedia Commons · Anna Frodesiak · CC0"
+dalian:
+  credit: "图 / Wikimedia Commons · Fumihiko Ueno · CC BY 3.0"
+changchun:
+  credit: "图 / Wikimedia Commons · N509FZ · CC BY-SA 4.0"
+yinchuan:
+  credit: "图 / Wikimedia Commons · xiquinhosilva · CC BY 2.0"
+zhuhai:
+  credit: "图 / Wikimedia Commons · Chinyen Lu · CC BY-SA 4.0"
+kunming:
+  credit: "图 / Wikimedia Commons · 瑞丽江的河水 · CC BY-SA 4.0"
+qingdao:
+  credit: "图 / Wikimedia Commons · xiquinhosilva · CC BY 2.0"
+shenyang:
+  credit: "图 / Wikimedia Commons · E2568 · CC0"
+jiaxing:
+  credit: "图 / Wikimedia Commons · 钉钉 · CC BY-SA 4.0"
+hangzhou:
+  credit: "图 / Wikimedia Commons · EditQ · CC BY-SA 4.0"
+guangzhou:
+  credit: "图 / Wikimedia Commons · Tim Wu · CC BY-SA 4.0"
+haerbin:
+  credit: "图 / Wikimedia Commons · xiquinhosilva · CC BY 2.0"
+guilin:
+  credit: "图 / Wikimedia Commons · xiquinhosilva · CC BY 2.0"
