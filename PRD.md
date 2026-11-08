@@ -8,9 +8,10 @@
 
 **项目仓库：** `YaoZenO/kasai-space`
 
-**本地项目：** `D:\02_Projects\D0202_Personal\myblog\kasai-space`
+**本地项目：** `D:\02_Projects\D0202_Personal\kasaispace\kasai-space`
 
-**当前技术栈：** Hexo 8.1.1 + Fluid 主题
+**当前技术栈：** Astro 静态站（`npm run astro:build`）+ Vercel Functions（`api/`）；
+Hexo 已于 2026-11-08 退出生产渲染，仅保留内容源与测试对照基线（见 `docs/astro-migration/tasks.md` T13）。
 
 ## 01. 项目概述
 
