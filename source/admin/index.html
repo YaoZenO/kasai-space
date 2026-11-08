@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="same-origin">
-<title>管理后台 · KASAI'S Blog</title>
+<title>管理后台 · KASAI</title>
 <!-- ASSET_V：后台静态资源缓存破坏版本号。改动 source/admin/ 下任何前端文件后，
      必须同步 bump 此处与 admin.js 动态 import 的 ?v=（由 test/admin-smoke.js 断言两处一致），
      否则浏览器会继续用本地缓存的旧副本，表现为「改了线上看不到」（2026-10-15 实际发生过）。 -->
-<link rel="stylesheet" href="/admin/admin.css?v=20261104">
+<link rel="stylesheet" href="/admin/admin.css?v=20261109">
 </head>
 <body>
 
@@ -20,7 +20,7 @@
 <!-- 登录视图 -->
 <section id="view-login" class="view" hidden>
   <div class="login-box">
-    <p class="login-brand">KASAI'S Blog</p>
+    <p class="login-brand">KASAI</p>
     <h1>管理后台</h1>
     <p class="login-hint">使用 GitHub 账号登录，仅站点管理员可用。</p>
     <button id="btn-login" class="btn btn-primary btn-block">使用 GitHub 登录</button>
@@ -59,10 +59,10 @@
       <div class="field-row two">
         <label class="field"><span>封面图片路径（可空；可双击从图库选择）</span><input id="post-cover" type="text" autocomplete="off" spellcheck="false" placeholder="/img/posts/xxx.jpg"></label>
         <label class="field field-check"><span>设为首页 FEATURED 代表作</span><input id="post-featured" type="checkbox"></label>
+      </div>
       <div class="field-row two">
         <label class="field field-check"><span>置顶首页（60 天自动到期）</span><input id="post-pinned" type="checkbox"></label>
         <label class="field"><span id="post-pinned-state" class="wordcount"></span></label>
-      </div>
       </div>
       <div class="editor-toolbar">
         <button class="btn btn-mini" id="btn-toggle-preview" type="button">预览</button>
@@ -294,6 +294,6 @@
 <div id="toast" class="toast" hidden></div>
 <!-- ES module：admin-core / admin-list 静态加载；编辑器等重模块在登录成功后动态 import，
      登录页不会下载这部分代码（P2-2） -->
-<script type="module" src="/admin/admin.js?v=20261104"></script>
+<script type="module" src="/admin/admin.js?v=20261109"></script>
 </body>
 </html>

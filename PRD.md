@@ -6,9 +6,9 @@
 
 **文档状态：** 待审阅，作为后续设计与开发的统一依据
 
-**项目仓库：** `YaoZenO/my-hexo-blog`
+**项目仓库：** `YaoZenO/kasai-space`
 
-**本地项目：** `D:\02_Projects\D0202_Personal\myblog\my_blog`
+**本地项目：** `D:\02_Projects\D0202_Personal\myblog\kasai-space`
 
 **当前技术栈：** Hexo 8.1.1 + Fluid 主题
 

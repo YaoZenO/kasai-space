@@ -2,7 +2,7 @@
 
 管理后台所需的服务端环境变量说明。**所有值只存放在 Vercel 项目环境变量中，严禁写入源码、提交进仓库或发送给任何对话。**
 
-- 配置位置：Vercel → 项目 `my-hexo-blog` → Settings → Environment Variables
+- 配置位置：Vercel → 项目 `kasai-space` → Settings → Environment Variables
 - 环境选择：全部勾选 **Production**
 - 修改任何变量后必须**重新部署**（push 到 main 或在 Deployments 页 Redeploy）才生效
 

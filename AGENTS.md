@@ -39,6 +39,13 @@ Without explicit authorization for **this** task, you MUST NOT:
 - Modify published content, permalinks, or production data on your own initiative.
 - Upgrade all dependencies, or install unnecessary third-party tooling.
 - Send credentials, private files, or unauthorized data to any external service.
+- **不私自提交非本次任务的改动。** `git push` 推的是整条分支，不是单个 commit。
+  push 前必须先 `git fetch`，再用 `git log origin/main..HEAD --oneline` 逐条确认
+  每个提交的归属；凡属本次任务之外的提交（其他会话已提交、尚未推送的），一律不得
+  随带——发现即停，列出清单，等主人决定。
+  反例 E-102：一次只含两篇文章相关文件的提交，push 时把其他会话三个未推送提交
+  （`712e073` / `1bb84df` / `083d54c`）一起带上了生产。
+  一句话原则：只提交自己改的文件，只推送自己该推的东西；范围不明就停。
 
 Authorization applies only to the actions and scope explicitly stated.
 If you make a mistake, report it immediately and fix it. Never silently repair and hide it.
@@ -150,12 +157,12 @@ request for authorization. Do not expand beyond the original scope.
 
 Verified on 2026-10-10. Re-verify if this section drifts from reality.
 
-**What it is:** a personal Hexo blog ("KASAI'S Bloger"), deployed to
+**What it is:** a personal Hexo site ("KASAI'S Personal Space"), deployed to
 <https://www.040925.xyz>. Chinese-language writing.
 
 | Item | Value |
 |---|---|
-| Branch | `main` (remote: `origin` → `https://github.com/YaoZenO/my-hexo-blog.git`) |
+| Branch | `main` (remote: `origin` → `https://github.com/YaoZenO/kasai-space.git`) |
 | Hexo | 8.1.1 |
 | Node / npm | v22.22.2 / 10.9.7 |
 | Permalink | `:year/:month/:day/:title/` |

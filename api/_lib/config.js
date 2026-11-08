@@ -2,7 +2,7 @@
 // 环境配置解析。所有敏感值只来自服务端环境变量，绝不写入代码或前端。
 
 const REPO_OWNER = process.env.GITHUB_REPO_OWNER || 'YaoZenO';
-const REPO_NAME = process.env.GITHUB_REPO_NAME || 'my-hexo-blog';
+const REPO_NAME = process.env.GITHUB_REPO_NAME || 'kasai-space';
 const BRANCH = process.env.GITHUB_BRANCH || 'main';
 
 // 本地 mock 模式：仅在显式设置 ADMIN_DEV_MOCK=1 且非 Vercel 生产环境时生效
