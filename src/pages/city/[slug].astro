@@ -1,9 +1,13 @@
 ---
-// 城市档案页（/city/<slug>/，按 cityHasPage 口径生成）：复刻 themes/fluid/layout/city.ejs。
+// 城市档案页（/city/<slug>/，按 cityHasPage 口径生成）：档案卡形态（2026-11-08 改版）。
+// 首屏回答「这是哪座城市、关键指标在全国什么位置」，再展开完整字段与上榜记录。
 // 数值档案 + 全国分位 + 上榜记录；缺值一律 [待补]，不填估算值。
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getData } from '../../lib/data';
-import { buildCityRanks, cityHasPage, findCity, cityMentions, cityMetricStandings } from '../../lib/cityrank-data';
+import {
+  buildCityRanks, cityHasPage, findCity, cityMentions, cityMetricStandings,
+  metricValue, cityProvinces,
+} from '../../lib/cityrank-data';
 import { label as cfLabel, groups as cfGroups } from '../../lib/city-fields';
 import { fileNameOf, aspectOf } from '../../lib/china-map';
 import { cityPhoto } from '../../lib/city-photo';
@@ -56,10 +60,17 @@ function fmtNum(v: any): string {
   return (neg ? '-' : '') + out + fp;
 }
 
+// 位次条：填充比例 = 该城在候选池里从后往前数的位置（第 1 名满格）。
+// 下限 4%，否则末位城市只剩一条 0 宽的 hairline，看不出「有位次」。
+function rankPct(st: any): number {
+  if (!st || !st.total) return 0;
+  return Math.max(4, Math.round(((st.total - st.rank + 1) / st.total) * 100));
+}
+
 const srcMap: Record<string, any> = {};
 for (const s of CR.citySources) srcMap[s.key] = s;
 
-// 档案导语与要点：全部由已核验字段现算，只陈述事实，不做综合评价。
+// 档案导语：全部由已核验字段现算，只陈述事实，不做综合评价。
 const measured: string[] = [];
 const mk = Object.keys(c?.metrics || {});
 for (const key of mk) {
@@ -85,14 +96,92 @@ const gdpSt = standings.gdp;
 
 const keys = Object.keys(c?.metrics || {});
 const glanceKeys = glance.map((g) => g.key);
-let specGroups = cfGroups(c?.metrics, glanceKeys);
-if (!specGroups.length && keys.length) {
-  specGroups = cfGroups(c?.metrics, []);
-  glance = [];
-}
+// 字段少于一屏四格时，四格条会空出半排；按实际数量定列数（见 .cr-glance-n*）。
+const glanceCount = glance.length;
+const specGroups = cfGroups(c?.metrics, glanceKeys);
 
 let mentionsAll = 0;
 for (const m of mentions) mentionsAll += m.hits.length;
+
+// 身份块：直辖市 / 特别行政区的 province 与城市同名（北京市 ↔ 北京），
+// 直说「北京位于北京市」是病句；这类单位改写成「是直辖市，位于华北」。
+const provBase = String(c?.province || '')
+  .replace(/(维吾尔|壮族|回族)?自治区$/, '')
+  .replace(/特别行政区$/, '')
+  .replace(/省$/, '')
+  .replace(/市$/, '');
+const selfAdmin = !!c && provBase === c.name;
+let idSentence = '';
+if (c) {
+  idSentence = selfAdmin
+    ? `${c.name}是${c.level || '省级行政区'}${c.region ? '，位于' + c.region : ''}。`
+    : `${c.name}位于${c.province || '中国'}${c.level ? '，是' + c.level : ''}。`;
+}
+const gdpSentence = gdpM && typeof gdpM.v === 'number'
+  ? `地区生产总值 ${fmtNum(gdpM.v)} ${gdpM.unit || ''}${gdpSt ? `，在 ${gdpSt.total} 座城市中列第 ${gdpSt.rank} 位` : ''}。`
+  : '';
+const cityLine = idSentence + gdpSentence;
+
+// 画像标签：只取数据里已有的区位字段，不写形容词。
+const tags: string[] = [];
+for (const tk of ['region', 'belt', 'zone', 'bohai']) {
+  const tv = (c as any)?.[tk];
+  if (tv && tags.indexOf(tv) === -1) tags.push(tv);
+}
+
+// 对比模块：同省可比的走省内；直辖市 / 特别行政区走同级；再退同区域、全国。
+// 单城市省级单位（北京市）如果没有同级可点，就退到区域对比，避免出现只有自己一项的空榜。
+const pageCities = CR.error ? [] : CR.cities.filter((x: any) => cityHasPage(CR, x));
+const cmpKey = c && c.metrics
+  ? (typeof c.metrics.gdp?.v === 'number' ? 'gdp' : (typeof c.metrics.pop?.v === 'number' ? 'pop' : ''))
+  : '';
+let peerPool: any[] = [];
+let peerLabel = '';
+if (c && cmpKey) {
+  const withV = pageCities.filter((x: any) => metricValue(x, cmpKey) !== null);
+  const sameProv = withV.filter((x: any) => x.province && x.province === c.province);
+  const MUNI = ['直辖市', '特别行政区'];
+  const sameLevel = withV.filter((x: any) => c.level && MUNI.indexOf(c.level) !== -1 && x.level === c.level);
+  const sameRegion = withV.filter((x: any) => c.region && x.region === c.region);
+  if (sameProv.length >= 2) {
+    peerPool = sameProv;
+    peerLabel = '省内对比';
+  } else if (sameLevel.length >= 2) {
+    peerPool = sameLevel;
+    peerLabel = `${c.level}对比`;
+  } else if (sameRegion.length >= 2) {
+    peerPool = sameRegion;
+    peerLabel = '同区域对比';
+  } else {
+    peerPool = withV;
+    peerLabel = '全国对比';
+  }
+}
+
+let peerRows: any[] = [];
+let peerTotal = 0;
+if (peerPool.length && cmpKey && c) {
+  const all = peerPool
+    .map((x: any) => ({ slug: x.slug, name: x.name, v: metricValue(x, cmpKey), self: x.slug === c.slug }))
+    .sort((a: any, b: any) => (b.v - a.v) || String(a.name).localeCompare(String(b.name)));
+  peerTotal = all.length;
+  peerRows = all.slice(0, 5);
+  // 当前城市若不在前五，挤掉第五名换成本城——这一栏必须能看见「我」在哪
+  if (!peerRows.some((r: any) => r.self)) {
+    const me = all.find((r: any) => r.self);
+    if (me) peerRows = peerRows.slice(0, 4).concat([me]);
+  }
+  const pmax = all.length && all[0].v > 0 ? all[0].v : 1;
+  for (const r of peerRows) {
+    r.pct = all.length && r.v > 0 ? Math.max(6, Math.round((r.v / pmax) * 100)) : 0;
+  }
+}
+const cmpLabel = cmpKey ? cfLabel(cmpKey) : '';
+const cmpUnit = cmpKey && c?.metrics?.[cmpKey] ? c.metrics[cmpKey].unit || '' : '';
+const provPage = c ? cityProvinces(CR).find((p: any) => p.name === c.province) : null;
+const peerMoreHref = provPage && !(provPage.total === 1 && provPage.pageCount === 1)
+  ? '/city/province/' + provPage.slug + '/'
+  : '/city/';
 ---
 
 <BaseLayout title={c ? c.name : '城市档案'} currentPath={`/city/${citySlug}/`}>
@@ -109,129 +198,165 @@ for (const m of mentions) mentionsAll += m.hits.length;
           </>
         ) : (
           <>
-            <header class="page-head">
-              <nav class="cal-crumb" aria-label="面包屑">
-                <a href={urlFor('/library/')}>资料库</a><span aria-hidden="true">/</span><a href={urlFor('/city/')}>城市档案</a><span aria-hidden="true">/</span><span class="cal-crumb-now">{c.name}</span>
-              </nav>
-              <div class="cr-head-row">
-                <div class="cr-head-text">
-                  <h1 class="page-head-title">{c.name}</h1>
-                  <p class="archive-total">
-                    {c.province || ''}{c.province && c.level ? ' · ' : ''}{c.level || ''}
-                    {!c.province && !c.level ? '行政归属待补' : ''} · 数据年份 {CR.cityMeta.dataYear || '2025'}
+            <nav class="cal-crumb" aria-label="面包屑">
+              <a href={urlFor('/library/')}>资料库</a><span aria-hidden="true">/</span><a href={urlFor('/city/')}>城市档案</a><span aria-hidden="true">/</span><span class="cal-crumb-now">{c.name}</span>
+            </nav>
+
+            <article class="cr-card">
+              <div class="cr-card-head">
+                <div class="cr-card-id">
+                  <p class="cr-card-kicker">
+                    {c.province || '行政归属待补'}{c.province && c.level ? ' · ' : ''}{c.level || ''} · 数据年份 {CR.cityMeta.dataYear || '2025'}
                   </p>
-
-                  <p class="cr-lede">本站为{c.name}建档 {measured.length} 项已核验的统计字段{poolCnt === measured.length && measured.length
-                      ? '，全部可放进全国候选池比较位次'
-                      : poolCnt
-                        ? `，其中 ${poolCnt} 项可放进全国候选池比较位次`
-                        : ''}{gdpM && typeof gdpM.v === 'number' ? <>；地区生产总值 {fmtNum(gdpM.v)} {gdpM.unit || ''}{gdpSt ? <>，在 {gdpSt.total} 座城市中列第 {gdpSt.rank} 位</> : null}</> : null}。</p>
-
-                  {glance.length > 0 && (
-                    <dl class="cr-glance">
-                      {glance.map((g: any) => (
-                        <div class="cr-glance-item">
-                          <dt>{g.label}</dt>
-                          <dd>{fmtNum(g.v)}{g.unit && <span class="cr-glance-sub">{g.unit}</span>}{g.st && <span class="cr-glance-sub">第 {g.st.rank} / {g.st.total}</span>}</dd>
-                        </div>
-                      ))}
-                    </dl>
+                  <h1 class="cr-city-name">{c.name}</h1>
+                  <p class="cr-city-line">{cityLine}</p>
+                  {tags.length > 0 && (
+                    <ul class="cr-tags">
+                      {tags.map((t: string) => <li>{t}</li>)}
+                    </ul>
                   )}
                 </div>
                 {photo && (
-                  <figure class="cr-hero-fig">
+                  <figure class="cr-card-photo">
                     <img src={urlFor(photo.src)} alt={`${c.name}城市景观照片`}
-                         width={photo.width ?? undefined} height={photo.height ?? undefined} loading="lazy" />
+                         width={photo.width ?? undefined} height={photo.height ?? undefined} loading="eager" />
                     <figcaption>{photo.credit}</figcaption>
                   </figure>
                 )}
               </div>
-            </header>
 
-            {map && (
-              <section class="cr-mapsec">
-                <h2 class="cr-sec-title">位置</h2>
-                <figure class="cr-map">
-                  <img src={urlFor(map.src)} alt={`${map.province}在中国的方位`} width={map.width} height={map.height} loading="lazy" />
-                  <figcaption>红色为 {map.province}；底图为公开省级边界数据的投影简版，含南海诸岛，边界未作改动。</figcaption>
-                </figure>
-              </section>
-            )}
-
-            {keys.length && specGroups.length > 0 ? (
-              <section class="cr-profile">
-                <h2 class="cr-sec-title">城市档案</h2>
-                <div class="cr-spec">
-                  {specGroups.map((sg: any) => (
-                    <section class="cr-spec-group">
-                      <h3 class="cr-spec-title">{sg.name}</h3>
-                      <dl class="cr-spec-list">
-                        {sg.items.map((it: any) => {
-                          const mv = it.metric;
-                          const hasV = mv && typeof mv.v === 'number';
-                          const st = standings[it.key];
-                          const tip: string[] = [];
-                          if (hasV && mv.asOf) tip.push(mv.asOf);
-                          if (srcMap[mv.source]) tip.push(srcMap[mv.source].name);
-                          if (st) tip.push('共 ' + st.total + ' 城参比 · 第 ' + st.rank + ' 位');
-                          return (
-                            <div class="cr-spec-item" title={tip.length ? tip.join(' · ') : undefined}>
-                              <dt>{it.label}</dt>
-                              <dd>
-                                {hasV ? (
-                                  <>
-                                    <span class="cr-pval">{fmtNum(mv.v)}</span>
-                                    {mv.unit && <span class="cr-punit">{mv.unit}</span>}
-                                    {st && <span class="cr-standing-badge">第 {st.rank} 位</span>}
-                                  </>
-                                ) : (
-                                  <span class="cr-pending">[待补]</span>
-                                )}
-                              </dd>
-                            </div>
-                          );
-                        })}
-                      </dl>
-                    </section>
+              {glance.length > 0 && (
+                <dl class={'cr-glance' + (glanceCount < 4 ? ' cr-glance-n' + glanceCount : '')} aria-label="关键指标">
+                  {glance.map((g: any) => (
+                    <div class="cr-glance-item">
+                      <dt>{g.label}</dt>
+                      <dd>
+                        <span class="cr-glance-val">{fmtNum(g.v)}{g.unit && <span class="cr-glance-unit">{g.unit}</span>}</span>
+                        <span class="cr-glance-rank">{g.st ? `全国第 ${g.st.rank} / ${g.st.total}` : '未参与位次比较'}</span>
+                        {g.st && <span class="cr-glance-meter" aria-hidden="true"><i style={'width:' + rankPct(g.st) + '%'}></i></span>}
+                      </dd>
+                    </div>
                   ))}
-                </div>
-              </section>
-            ) : !keys.length ? (
-              <p class="cr-empty">这座城市的统计字段还没有采集到权威来源，暂不列出——不填估算值。</p>
-            ) : null}
+                </dl>
+              )}
+            </article>
 
-            {mentions.length > 0 && (
-              <section class="cr-mentions">
-                <h2 class="cr-sec-title">上榜记录</h2>
-                <p class="cr-mentions-note">
-                  共上榜 <strong>{mentionsAll}</strong> 项，按 <strong>{mentions.length}</strong> 组归类；名次为该项榜单内的排位，综合指数见悬停。
-                </p>
-                <div class="cr-mention-cols">
-                  {mentions.map((mg: any) => {
-                    let best = mg.hits[0].rank;
-                    for (const h of mg.hits.slice(1)) if (h.rank < best) best = h.rank;
-                    return (
-                      <section class="cr-mention-group">
-                        <h3 class="cr-mention-group-title">
-                          {mg.group}<span class="cr-mention-sum">上榜 {mg.hits.length} 项 · 最好成绩第 {best} 名</span>
-                        </h3>
-                        <ul class="cr-mention-list">
-                          {mg.hits.map((ht: any) => (
-                            <li>
-                              <span class="cr-mention-rank">第 <b>{ht.rank}</b></span>
-                              <a href={urlFor('/cityrank/' + ht.slug + '/')}
-                                 title={ht.kind === 'computed' && typeof ht.score === 'number' ? `综合指数 ${ht.score}` : undefined}>
-                                {ht.title}
-                              </a>
-                            </li>
-                          ))}
-                        </ul>
-                      </section>
-                    );
-                  })}
-                </div>
-              </section>
-            )}
+            <div class="cr-body">
+              <div class="cr-main">
+                {keys.length && specGroups.length > 0 ? (
+                  <section class="cr-profile">
+                    <h2 class="cr-sec-title">全部档案</h2>
+                    <p class="cr-profile-lede">共 {measured.length} 项已核验字段{poolCnt ? `，其中 ${poolCnt} 项可计算全国位次` : ''}；悬停字段可看年份、来源与参比城市数。</p>
+                    <div class="cr-spec">
+                      {specGroups.map((sg: any) => (
+                        <section class="cr-spec-group">
+                          <h3 class="cr-spec-title">{sg.name}</h3>
+                          <dl class="cr-spec-list">
+                            {sg.items.map((it: any) => {
+                              const mv = it.metric;
+                              const hasV = mv && typeof mv.v === 'number';
+                              const st = standings[it.key];
+                              const tip: string[] = [];
+                              if (hasV && mv.asOf) tip.push(mv.asOf);
+                              if (srcMap[mv.source]) tip.push(srcMap[mv.source].name);
+                              if (st) tip.push('共 ' + st.total + ' 城参比 · 第 ' + st.rank + ' 位');
+                              return (
+                                <div class="cr-spec-item" title={tip.length ? tip.join(' · ') : undefined}>
+                                  <dt>{it.label}</dt>
+                                  <dd>
+                                    {hasV ? (
+                                      <>
+                                        <span class="cr-pval">{fmtNum(mv.v)}</span>
+                                        {mv.unit && <span class="cr-punit">{mv.unit}</span>}
+                                        {st && <span class="cr-standing-badge">第 {st.rank} 位</span>}
+                                      </>
+                                    ) : (
+                                      <span class="cr-pending">[待补]</span>
+                                    )}
+                                  </dd>
+                                </div>
+                              );
+                            })}
+                          </dl>
+                        </section>
+                      ))}
+                    </div>
+                  </section>
+                ) : !keys.length ? (
+                  <p class="cr-empty">这座城市的统计字段还没有采集到权威来源，暂不列出——不填估算值。</p>
+                ) : null}
+
+                {mentions.length > 0 && (
+                  <section class="cr-mentions">
+                    <h2 class="cr-sec-title">上榜记录</h2>
+                    <p class="cr-mentions-note">
+                      共上榜 <strong>{mentionsAll}</strong> 项，按 <strong>{mentions.length}</strong> 组归类；名次为该项榜单内的排位，综合指数见悬停。
+                    </p>
+                    <div class="cr-mention-cols">
+                      {mentions.map((mg: any) => {
+                        let best = mg.hits[0].rank;
+                        for (const h of mg.hits.slice(1)) if (h.rank < best) best = h.rank;
+                        return (
+                          <section class="cr-mention-group">
+                            <h3 class="cr-mention-group-title">
+                              {mg.group}<span class="cr-mention-sum">上榜 {mg.hits.length} 项 · 最好成绩第 {best} 名</span>
+                            </h3>
+                            <ul class="cr-mention-list">
+                              {mg.hits.map((ht: any) => (
+                                <li>
+                                  <span class="cr-mention-rank">第 <b>{ht.rank}</b></span>
+                                  <a href={urlFor('/cityrank/' + ht.slug + '/')}
+                                     title={ht.kind === 'computed' && typeof ht.score === 'number' ? `综合指数 ${ht.score}` : undefined}>
+                                    {ht.title}
+                                  </a>
+                                </li>
+                              ))}
+                            </ul>
+                          </section>
+                        );
+                      })}
+                    </div>
+                  </section>
+                )}
+              </div>
+
+              <aside class="cr-rail" aria-label="对比与位置">
+                {peerRows.length > 0 && (
+                  <section class="cr-rail-card cr-rail-peer">
+                    <h2 class="cr-rail-title">
+                      <span>{peerLabel}</span>
+                      <a href={urlFor(peerMoreHref)}>{peerTotal} 座 →</a>
+                    </h2>
+                    <ul class="cr-peers">
+                      {peerRows.map((r: any) => (
+                        <li class={'cr-peer' + (r.self ? ' is-current' : '')}>
+                          <span class="cr-peer-top">
+                            <span class="cr-peer-name">
+                              {r.self
+                                ? <span class="cr-peer-cur">{r.name}</span>
+                                : <a href={urlFor('/city/' + r.slug + '/')}>{r.name}</a>}
+                            </span>
+                            <span class="cr-peer-val">{fmtNum(r.v)}{cmpUnit && <span class="cr-peer-unit"> {cmpUnit}</span>}</span>
+                          </span>
+                          <span class="cr-peer-bar" aria-hidden="true"><i style={'width:' + r.pct + '%'}></i></span>
+                        </li>
+                      ))}
+                    </ul>
+                    <p class="cr-peer-note">按{cmpLabel}排序，条长为该项相对最高值的比例；点城市名进入对应档案。</p>
+                  </section>
+                )}
+
+                {map && (
+                  <section class="cr-rail-card cr-rail-map">
+                    <h2 class="cr-rail-title"><span>位置</span><span class="cr-rail-sub">{map.province}</span></h2>
+                    <figure class="cr-map">
+                      <img src={urlFor(map.src)} alt={`${map.province}在中国的方位`} width={map.width} height={map.height} loading="lazy" />
+                      <figcaption>红色为 {map.province}；底图为公开省级边界数据的投影简版，边界未作改动。</figcaption>
+                    </figure>
+                  </section>
+                )}
+              </aside>
+            </div>
 
             {(() => {
               const usedSources: string[] = [];

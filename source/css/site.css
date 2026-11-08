@@ -5172,6 +5172,9 @@ html:not(.js) .fs-years-toggle { display: none; }
   color: var(--sec-text-color);
 }
 
+/* 大图卡网格（2026-11-08，方案 C）：30 城配图到位后，44px 行首缩略图升级为
+   16:9 封面。列数取 30 的约数（3 / 2 / 1），每个断点末行都排满——
+   auto-fill 只会尽量多塞，不会替你平均分配（P6 教训）。 */
 .cr-tiles {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -5437,88 +5440,148 @@ html:not(.js) .fs-years-toggle { display: none; }
   color: var(--sec-text-color);
 }
 
-/* 城市档案页（2026-11-01 可读性改版：
-   条目限宽 46rem——1200px 版心下 dt/dd 两端对齐会把视线拉出大半屏空白；
-   dt 降档退灰、数值升档，让「值」成为每行唯一主角；
-   分位升为徽标，来源注记收进行悬停与页尾清单，不再逐条平铺 12px 小字；
-   整页收为 50rem 居中窄栏（cr-citypage 只作用本页，省页/榜页等共用 .cr-page 不动）——
-   只收列表不收外壳会让内容整体贴左、右侧空出半屏 */
+/* 城市档案页（2026-11-08 档案卡改版）：从「50rem 单栏文章」改成
+   「身份卡 + 指标条 + 主/侧两栏」。版心放到 72rem 才装得下右侧对比栏；
+   主栏仍保留 46rem 上限，长表不会被拉成一条横线。
+   cr-citypage 只作用本页，省页 / 榜页共用 .cr-page 不动。 */
 .cr-citypage .home-wrap {
-  width: min(50rem, 100% - clamp(36px, 8vw, 96px));
+  width: min(72rem, 100% - clamp(36px, 8vw, 96px));
 }
 
-/* 头图（2026-11-01 图文改版 P3 照片支）：页头文字左、照片右，移动端照片上提整幅。
-   图源与署名由 cityphotos.yml 登记 + 生成器文件检测双闸下发，模板零判断。
-   2026-11-02：改为**按原比例完整显示·不裁切**——竖幅航拍塞进固定高度横条只保住一条天际线，
-   画面信息全丢；现在列宽决定尺寸，高度随原图比例走（height:auto）。
-   2026-11-04：文字列改为与图版等高的纵列（align-items: stretch + 要点表贴底）。
-   竖幅照片 400×600，左侧按原来的 1.75 行高排完只有 350px 高，图底下空出 250px 白——
-   空白的解法不是拉长间距硬凑，而是先把行距放到能读的高度，残余的空隙交给
-   .cr-glance 的 margin-top: auto，让要点表压在图的下沿，空白变成两段文字之间的呼吸。 */
-.cr-head-row {
-  display: flex;
-  align-items: stretch;
-  justify-content: space-between;
-  gap: 2.4rem;
+/* 身份卡（2026-11-08）：左身份块 + 右照片。照片仍按原比例完整显示、不裁切
+   （2026-11-02 定下的规矩：竖幅航拍裁成横条只剩一条天际线）。 */
+.cr-card {
+  margin-top: 1.1rem;
+  padding-top: 1.4rem;
+  border-top: 2px solid var(--line-strong);
 }
 
-.cr-head-text {
-  flex: 1;
+.cr-card-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(220px, 32%, 340px);
+  gap: clamp(1.6rem, 3vw, 2.8rem);
+  align-items: center;
+}
+
+.cr-card-id {
   min-width: 0;
-  display: flex;
-  flex-direction: column;
 }
 
-/* 档案导语（2026-11-02，2026-11-04 放松）：与右侧图版对等的文字量，只陈述字段数与位次事实。
-   限宽 30em——中文单行过长会让视线回扫吃力。行高 1.75 → 1.95：这一列实际宽度只有
-   360px 上下，一行 21 字左右，密排时五行挤成一块砖；放到 1.95 才读得出段落。 */
-.cr-lede {
-  margin: 1.3rem 0 0;
-  max-width: 30em;
+.cr-card-kicker {
+  margin: 0 0 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+}
+
+.cr-city-name {
+  margin: 0;
+  font-family: var(--font-serif-title);
+  font-size: clamp(2.3rem, 5vw, 3.2rem);
+  font-weight: 600;
+  line-height: 1.08;
+  color: var(--text-color);
+}
+
+/* 身份行：两句事实（区位 + 一个头条指标），限宽 34em 保证视线不用回扫。 */
+.cr-city-line {
+  margin: 0.9rem 0 0;
+  max-width: 34em;
   font-size: 1rem;
-  line-height: 2;
+  line-height: 1.95;
+  color: var(--text-color);
+}
+
+.cr-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cr-tags li {
+  padding: 0.14rem 0.6rem;
+  border: 1px solid var(--line-color);
+  border-radius: 999px;
+  font-size: 0.75rem;
   color: var(--sec-text-color);
 }
 
-/* 档案要点：图版左侧的「一眼看全」小表，与下方完整档案表同一视觉语言（hairline 分隔）。
-   数值用等宽轨与档案表一致；位次用小字跟在数值后，不另设徽标——徽标留给档案表。
-   margin-top: auto —— 文字列被图版拉到同等高度时，剩余的空白全部落在导语与表格之间，
-   表格下沿因此与图片下沿齐平，而不是悬在半空。 */
+/* 关键指标条（2026-11-08）：四格同宽、数值升到 1.9rem，位次做成长度条——
+   不点开档案表就能看出这座城市的指标在全国池子里站在哪一档。 */
 .cr-glance {
-  margin: auto 0 0;
-  max-width: 26rem;
-  border-top: 1px solid var(--line-color);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 1.9rem 0 0;
+  border-top: 1px solid var(--line-strong);
 }
 
 .cr-glance-item {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.8rem 0;
+  min-width: 0;
+  padding: 0.9rem 1.1rem 0.95rem 0;
   border-bottom: 1px solid var(--line-color);
 }
 
+.cr-glance-item + .cr-glance-item {
+  padding-left: 1.1rem;
+  border-left: 1px solid var(--line-color);
+}
+
+/* 字段不足四格的城市（如只有 GDP 与人口的县级市）：按实际数量定列，不留半排空格 */
+.cr-glance-n1 { grid-template-columns: minmax(0, 1fr); }
+.cr-glance-n2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cr-glance-n3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
 .cr-glance-item dt {
-  font-size: 0.9rem;
+  font-size: 0.78rem;
   color: var(--sec-text-color);
 }
 
 .cr-glance-item dd {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text-color);
-  white-space: nowrap;
+  margin: 0.3rem 0 0;
 }
 
-.cr-glance-sub {
-  margin-left: 0.35rem;
-  font-family: inherit;
+.cr-glance-val {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: clamp(1.35rem, 2.3vw, 1.85rem);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--text-color);
+}
+
+.cr-glance-unit {
+  margin-left: 0.22rem;
   font-size: 0.75rem;
   font-weight: 400;
   color: var(--sec-text-color);
+}
+
+.cr-glance-rank {
+  display: block;
+  margin-top: 0.22rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+.cr-glance-meter {
+  display: block;
+  height: 3px;
+  margin-top: 0.5rem;
+  border-radius: 999px;
+  background: var(--line-color);
+  overflow: hidden;
+}
+
+.cr-glance-meter i {
+  display: block;
+  height: 100%;
+  background: var(--info-mark);
 }
 
 /* 位置图（2026-11-02，2026-11-04 改回单幅）：本城所在省级行政区在中国地图上的位置。
@@ -5550,12 +5613,11 @@ html:not(.js) .fs-years-toggle { display: none; }
   color: var(--sec-text-color);
 }
 
-.cr-hero-fig {
+.cr-card-photo {
   margin: 0;
-  flex: 0 0 clamp(260px, 44%, 400px);
 }
 
-.cr-hero-fig img {
+.cr-card-photo img {
   display: block;
   width: 100%;
   height: auto;
@@ -5563,17 +5625,164 @@ html:not(.js) .fs-years-toggle { display: none; }
   border: 0.5px solid var(--site-chip-border);
 }
 
-.cr-hero-fig figcaption {
+.cr-card-photo figcaption {
   margin-top: 0.5rem;
   font-size: 0.75rem;
-  line-height: 1.7;
+  line-height: 1.6;
   color: var(--sec-text-color);
-  text-align: left;
 }
 
 @media (max-width: 719px) {
-  .cr-head-row { flex-direction: column; align-items: stretch; gap: 1.2rem; }
-  .cr-hero-fig { flex: none; order: -1; max-width: min(320px, 82%); margin: 0 auto; }
+  /* 手机上四格指标条要落进首屏：照片收到 280px、卡头与指标条的上下间距各让 0.5rem */
+  .cr-card { margin-top: 0.6rem; padding-top: 0.9rem; }
+  .cr-card-head { grid-template-columns: minmax(0, 1fr); gap: 1.1rem; }
+  .cr-card-photo { order: -1; max-width: min(280px, 74%); margin: 0 auto; }
+  .cr-glance { margin-top: 1.4rem; }
+}
+
+/* 主栏 + 对比侧栏（2026-11-08）：完整档案与上榜记录留在主栏，
+   省内/同类对比与位置图收进右侧常驻栏——「我和谁比、我在哪」是首屏之后的第二问题。 */
+.cr-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 18rem;
+  gap: clamp(2rem, 4vw, 3.4rem);
+  align-items: start;
+  margin-top: 2.4rem;
+}
+
+.cr-main {
+  min-width: 0;
+}
+
+.cr-rail {
+  position: sticky;
+  top: 5.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
+}
+
+.cr-rail-card {
+  min-width: 0;
+}
+
+.cr-rail-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin: 0 0 0.7rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--line-strong);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--sec-text-color);
+}
+
+.cr-rail-title a {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.cr-rail-sub {
+  font-weight: 400;
+  color: var(--sec-text-color);
+  letter-spacing: 0;
+}
+
+/* 对比条：城市名与数值同排，条长按该项相对最高值的比例。
+   当前城市用 accent 条 + 「当前」角标，其余用中性墨阶——颜色只区分「我 / 别人」，不表达高低。 */
+.cr-peers {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cr-peer {
+  padding: 0.5rem 0 0.6rem;
+  border-bottom: 1px solid var(--line-color);
+}
+
+.cr-peer-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.cr-peer-name {
+  min-width: 0;
+  font-size: 0.92rem;
+  color: var(--text-color);
+}
+
+.cr-peer-name a {
+  color: var(--text-color);
+}
+
+.cr-peer-name a:hover {
+  color: var(--accent);
+}
+
+.cr-peer-cur {
+  font-weight: 700;
+}
+
+.cr-peer-cur::after {
+  content: '当前';
+  margin-left: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--accent);
+}
+
+.cr-peer-val {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--sec-text-color);
+  white-space: nowrap;
+}
+
+.cr-peer-unit {
+  font-size: 0.75rem;
+}
+
+.cr-peer-bar {
+  display: block;
+  height: 4px;
+  margin-top: 0.35rem;
+  border-radius: 999px;
+  background: var(--line-color);
+  overflow: hidden;
+}
+
+.cr-peer-bar i {
+  display: block;
+  height: 100%;
+  background: var(--info-mark);
+}
+
+.cr-peer.is-current .cr-peer-bar i {
+  background: var(--accent);
+}
+
+.cr-peer-note {
+  margin: 0.75rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.7;
+  color: var(--sec-text-color);
+}
+
+.cr-rail .cr-map figcaption {
+  max-width: none;
+  font-size: 0.75rem;
 }
 
 .cr-sec-title {
@@ -5582,6 +5791,20 @@ html:not(.js) .fs-years-toggle { display: none; }
   font-family: var(--font-serif-title);
   font-weight: 600;
   color: var(--text-color);
+}
+
+.cr-main > .cr-profile:first-child .cr-sec-title,
+.cr-main > :first-child .cr-sec-title {
+  margin-top: 0;
+}
+
+/* 档案节导语：只交代字段规模与位次口径，一句收住，不再铺段落。 */
+.cr-profile-lede {
+  margin: -0.3rem 0 0.9rem;
+  max-width: 46rem;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: var(--sec-text-color);
 }
 
 /* 城市档案（2026-11-04 结构改版）：原先是 21 行横贯全宽的 dt/dd 同构横条，
@@ -5888,6 +6111,12 @@ html:not(.js) .fs-years-toggle { display: none; }
   .cr-val,
   .cr-reason { font-size: 0.88rem; }
   .cr-rank-num { font-size: 1.45rem; min-width: 2rem; }
+
+  /* 城市档案卡：对比栏收窄，指标条 4 格 → 2 格（4 格在 15rem 左右会挤成两行数字） */
+  .cr-body { grid-template-columns: minmax(0, 1fr) 14rem; }
+  .cr-glance { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cr-glance-n1 { grid-template-columns: minmax(0, 1fr); }
+  .cr-glance-item:nth-child(3) { padding-left: 0; border-left: 0; }
 }
 
 /* 手机：右栏落到内容下方（真正的重排），排名表改为「名次 + 城市 + 指数」一行 + 说明折到第二行。
@@ -5900,6 +6129,18 @@ html:not(.js) .fs-years-toggle { display: none; }
     overflow-y: visible;
     margin-top: 2.4rem;
   }
+
+  /* 城市档案卡（2026-11-08）：单列后把「省内对比」提到档案表之前——
+     手机上读者更想知道「我跟同省谁比」，而不是先读 20 行字段；地图退到档案表之后。
+     用 display: contents 拆掉两层包裹，才能让两张侧栏卡插进主栏内容之间。 */
+  .cr-body { display: flex; flex-direction: column; gap: 1.4rem; }
+  .cr-main,
+  .cr-rail { display: contents; }
+  .cr-rail-peer { order: 0; }
+  .cr-profile { order: 1; }
+  .cr-rail-map { order: 2; }
+  .cr-mentions { order: 3; }
+  .cr-city-name { font-size: clamp(2rem, 9vw, 2.6rem); }
   .cr-table,
   .cr-table tbody,
   .cr-table tr,
