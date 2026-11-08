@@ -941,6 +941,16 @@ if (fs.existsSync(path.join(PUBLIC, 'city', 'index.html'))) {
       assert.ok(n <= prevN, '宫格未按在册城市数降序：' + m[1] + '=' + n + ' 排在 ' + prevN + ' 之后');
       prevN = n;
     }
+    // 2026-11-08（主人：直辖市「最多也就一」，不该和省混排）：京津沪渝港澳单列成组，
+    // 不再占着省与自治区的格子。分组标题与卡片位置一起锁住。
+    const cut = idxNew.indexOf('cr-subhead');
+    assert.ok(cut > 0, '/city/ 宫格缺直辖市与特别行政区分组标题');
+    assert.ok(idxNew.indexOf('直辖市与特别行政区') !== -1, '直辖市分组标题措辞被改');
+    const mainPart = idxNew.slice(0, cut);
+    for (const name of ['北京', '天津', '上海', '重庆', '香港', '澳门']) {
+      assert.ok(mainPart.indexOf('cr-provcard-name">' + name + '<') === -1,
+        '直辖市 / 特别行政区仍混在省级宫格里：' + name);
+    }
     for (const p of cityProvinces(R)) {
       // 2026-11-06（主人指出「上海市还要再点一下上海」）：只有一座城市的省级单位
       // （直辖市 / 特别行政区）直接链到那座城市的档案页，中间的省级页只会多按一次。

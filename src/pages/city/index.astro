@@ -122,6 +122,22 @@ function provPct(n: number): number {
    底部三列城市索引仍走区划码次序：那里是查地名，不是看分布。 */
 const provsByCount = provs.slice().sort((a: any, b: any) => (b.total - a.total) || (a.code - b.code));
 
+/* 直辖市与特别行政区单列（2026-11-08 主人：北上重港「最多也就一」，不该和省混在一张图上）。
+   它们在册城市只有 1~2 座，放进 21 / 18 / 16 的省里，条形全是最短的一截，
+   占着四列却读不出任何量级。
+   按名称前缀判断而不是按区划码：港澳在数据里用的是合规全称「中国香港 / 中国澳门」，
+   provinceNameCode() 认不出这两个名字，会整组落到 999。 */
+const MUNI_NAMES = ['北京', '天津', '上海', '重庆', '香港', '澳门'];
+function isMunicipality(p: any): boolean {
+  const base = String(p && p.name || '').replace(/^中国/, '');
+  for (let m = 0; m < MUNI_NAMES.length; m += 1) {
+    if (base.indexOf(MUNI_NAMES[m]) === 0) return true;
+  }
+  return false;
+}
+const provsMain = provsByCount.filter((p: any) => !isMunicipality(p));
+const provsMuni = provsByCount.filter((p: any) => isMunicipality(p));
+
 const dataYear = CR.cityMeta?.dataYear || '2025';
 const photos = data.cityphotos || {};
 ---
@@ -166,8 +182,8 @@ const photos = data.cityphotos || {};
                   <p class="cr-sec-note">条形相对最大省级行政区</p>
                 </div>
                 <div class="cr-provgrid">
-                  {provsByCount.map((pv3: any) => {
-                    // 直辖市与特别行政区只有一座城市：中间的省级页只会再让人多按一次，
+                  {provsMain.map((pv3: any) => {
+                    // 只有一座城市的省级单位：中间的省级页只会再让人多按一次，
                     // 直接链到那座城市的档案页（2026-11-06 主人指出「上海市还要再点一下上海」）。
                     const pvHref = (pv3.total === 1 && pv3.pageCount === 1 && pv3.cities && pv3.cities.length)
                       ? '/city/' + pv3.cities[0].slug + '/'
@@ -183,7 +199,28 @@ const photos = data.cityphotos || {};
                     );
                   })}
                 </div>
-                <p class="cr-profile-note">按在册城市数从多到少排列，数量相同按 GB/T 2260 行政区划代码次序。行政归属尚未采集的城市不进省级聚合，仍可在下方索引中查看。</p>
+                {provsMuni.length > 0 && (
+                  <>
+                    <h3 class="cr-subhead">直辖市与特别行政区</h3>
+                    <div class="cr-provgrid cr-provgrid--flat">
+                      {provsMuni.map((pv4: any) => {
+                        // 这一组全是 1~2 座城市，条形没有可比对象，只留名字与数字。
+                        const pvHref = (pv4.total === 1 && pv4.pageCount === 1 && pv4.cities && pv4.cities.length)
+                          ? '/city/' + pv4.cities[0].slug + '/'
+                          : '/city/province/' + pv4.slug + '/';
+                        return (
+                          <a class="cr-provcard" href={urlFor(pvHref)}>
+                            <span class="cr-provcard-top">
+                              <span class="cr-provcard-name">{shortProvName(pv4.name)}</span>
+                              <span class="cr-provcard-n">{pv4.total}</span>
+                            </span>
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+                <p class="cr-profile-note">按在册城市数从多到少排列，数量相同按 GB/T 2260 行政区划代码次序。直辖市与特别行政区城市极少，单独列出，不与省、自治区同尺度比较。行政归属尚未采集的城市不进省级聚合，仍可在下方索引中查看。</p>
               </div>
             )}
           </section>

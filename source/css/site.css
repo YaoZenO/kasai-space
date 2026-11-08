@@ -6192,6 +6192,27 @@ html:not(.js) .fs-years-toggle { display: none; }
   gap: 0.45rem;
 }
 
+/* 直辖市与特别行政区（2026-11-08 主人：这条最多也就一，别和省混排）。
+   它们在册城市只有 1~2 座，放进 21 / 18 / 16 的省里条形全是最短桩，
+   占着四列却读不出量级；单列后去掉条形，只留名字与数字，桌面一行放得下五个。 */
+.cr-subhead {
+  margin: 1.05rem 0 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--sec-text-color);
+}
+
+.cr-provgrid--flat .cr-provcard-bar {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .cr-provgrid--flat {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
 .cr-provcard {
   display: flex;
   flex-direction: column;
@@ -6385,6 +6406,8 @@ html:not(.js) .fs-years-toggle { display: none; }
   .cr-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .cr-stat:nth-child(3) { padding-left: 0; border-left: 0; }
   .cr-provgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* 直辖市与特别行政区正好 5 个：窄屏用三列排成 3+2，不留孤零零的一个 */
+  .cr-provgrid--flat { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .cr-provcard { gap: 0.2rem; padding: 0.4rem 0.55rem 0.45rem; }
   .cr-provcard-bar { height: 2px; }
   .cr-index-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 0.8rem; }
