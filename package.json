@@ -17,6 +17,7 @@
     "test:blocks": "node test/md-blocks.js",
     "test:assets": "node test/asset-version.js",
     "test:dates": "node test/module-dates.js",
+    "test:deps": "node test/deps.js",
     "test:holidays": "node test/holidays-e2e.js",
     "test:zodiac": "node test/zodiac-e2e.js",
     "test:festival": "node test/festival-e2e.js",
@@ -26,16 +27,20 @@
     "test:a10-render": "node test/a10-avatar-render.js",
     "test:env": "node test/build-env.js",
     "test:darkmode": "node test/darkmode-e2e.js",
-    "test": "npm run astro:build && npm run test:admin && npm run test:pages && npm run test:tokens && npm run test:claims && npm run test:blocks && npm run test:assets && npm run test:dates && npm run test:holidays && npm run test:zodiac && npm run test:festival && npm run test:cityrank && npm run test:curation && npm run test:search && npm run test:darkmode && npm run test:env"
+    "test": "npm run test:deps && npm run astro:build && npm run test:admin && npm run test:pages && npm run test:tokens && npm run test:claims && npm run test:blocks && npm run test:assets && npm run test:dates && npm run test:holidays && npm run test:zodiac && npm run test:festival && npm run test:cityrank && npm run test:curation && npm run test:search && npm run test:darkmode && npm run test:env"
   },
   "engines": {
     "node": "24.x"
   },
   "devDependencies": {
     "astro": "^7.4.7",
+    "ejs": "3.1.10",
+    "feedsmith": "2.9.0",
     "hexo-util": "4.0.0",
     "js-yaml": "^4.3.2",
     "marked": "15.0.12",
+    "moment-timezone": "0.6.6",
+    "nib": "1.2.0",
     "rehype-slug": "^6.0.0",
     "stylus": "^0.64.0"
   }

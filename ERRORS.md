@@ -163,6 +163,7 @@
 | E-129 | P2 | 两态状态机被写成隐性三态：切回默认值即清空 LS、初始化把系统偏好固化进 DOM 属性 | 已修复（属性不存在=跟随 + matchMedia change 守卫 + 静态不变量断言） |
 | E-130 | P2 | 节假日 FAQ 断言拿旧 Hexo helper 的条数当基准，与 Astro 实现的轮换题库分叉后当场变红 | 已修复（条数只锁产物区间 + 相邻年份重复度断言） |
 | E-131 | P2 | 只跑 `npx astro build` 验证 CSS，误以为样式没生效——该命令不经过 `prepare-assets`，`dist/css` 仍是旧副本 | 已记录（CSS 验证必须走完整 `npm run astro:build`） |
+| E-132 | P1 | 删掉 Hexo 依赖后 `feedsmith` / `nib` / `ejs` / `moment-timezone` 变成幽灵依赖：本地靠残留 node_modules 构建通过，CI 走 `npm ci` 直接崩 | 已修复（四包精确声明 + 锁文件补齐 + `test/deps.js` 声明与锁双断言接入 `npm test`） |
 
 ---
 
@@ -2817,5 +2818,40 @@
   `current === getDefaultColorSchema()`；必须出现 `removeAttribute(userColorSchemaAttributeName)`、
   `systemPrefersDark() ? 'dark' : 'light'`、`hasAttribute(...) return` 守卫、两个分支的 `addEventListener('click'`。
   任何把第三态或时间兜底写回来的改动都会被 `npm test` 当场拦下。
+
+---
+
+### E-132 删掉 Hexo 依赖后，三个包变成幽灵依赖：本地构建绿、CI 一装就崩
+
+- **发生时间：** 2026-11-09 ｜ **发现方式：** 主人反馈部署失败（连续四个提交同一错误）
+- **现象：** Vercel 构建在 `astro build` 阶段报
+  `Rolldown failed to resolve import "feedsmith" from "src/pages/atom.xml.ts"`，
+  约 300ms 退出码 1。`724fc3f`、`3433e45`、`61ac60a`、`635fe1f` 四次构建全部同一错误。
+  本地 `npm run astro:build` 却是绿的，`npm ls feedsmith` 显示 `feedsmith@2.9.0 extraneous`。
+- **根因：** 三层叠加。① 代码实际依赖的是「别人装进来的包」：`feedsmith` 原本是
+  `hexo-generator-feed` 的传递依赖，被 npm 提升到顶层 `node_modules`，于是
+  `import { generateAtomFeed } from 'feedsmith'` 能解析；② `package-lock.json` 从未记录它，
+  CI 走 `npm ci` 严格按 lock 安装，顶层没有这个目录，解析当场失败；③ 本地 `node_modules`
+  是 Hexo 时代的残留，没人跑过 `npm ci`，于是「本地绿、线上红」。
+  同一机制下还有三处同类：`nib`（`tools/prepare-assets.mjs` 顶层 `require`，
+  `astro:build` 的第一步就要它）、`ejs`（三个 e2e 测试用）、
+  `moment-timezone`（`themes/fluid/scripts/helpers/fmt-item-date.js` 用，`test:dates` 通过 vm 加载该文件）。
+- **修法：** `package.json` 按已安装版本精确声明 `feedsmith 2.9.0`、`nib 1.2.0`、
+  `ejs 3.1.10`、`moment-timezone 0.6.6`；`npm install --package-lock-only` 补锁
+  （核对：无包被移除、无既有版本变更，仅新增这几个包的传递闭包）；`npm ci` 重装后
+  `npm run astro:build` 通过（702 页），`dist/atom.xml` 84,310 字节 / 7 条 entry。
+  需要留痕的一步：`moment-timezone` 是跑完 `npm ci` 之后才暴露的——
+  它被清掉后 `test:dates` 的 `helper 未注册为 fmtItemDate` 当场变红，
+  说明「清干净残留」本身会把这类依赖一起带走，声明补齐后 `npm test` 恢复。
+- **防复发（机制）：** 新增 `test/deps.js` 并在 `npm test` 最前面执行，锁两条不变量：
+  ① 扫描 `src/`、`tools/`、`test/` 与 `astro.config.mjs` 的 `import`／`require`，
+  凡外部包必须出现在 `package.json` 的四类依赖声明中；
+  ② 每个声明的依赖必须在 `package-lock.json` 里有对应 `node_modules` 条目，否则 `npm ci` 装不出来。
+  断言做了变异验证：临时从 `package.json` 删掉 `feedsmith`，检查立刻失败并精确指向
+  `src/pages/atom.xml.ts`；按备份还原后校验和一致、检查恢复通过。
+  边界说明：该检查**不扫 `themes/fluid/scripts/`**——那是 Hexo 时代整套主题脚本
+  （`hexo`、`moment`、`nunjucks`、`hexo-pagination` 等），Astro 构建只用它的
+  `source/` 样式源，把整套 Hexo 生态声明进来属本末倒置；该目录的退役需由主人另行决定。
+  配套约定：本地判定「构建通过」前必须先 `npm ci`，不得用残留 `node_modules` 的结果当证据。
 
 ---
