@@ -650,6 +650,17 @@ ok('Astro 产物：/holidays/2026/ 六块齐全，月卡 / 放假格 / 补班格
   assert.strictEqual((html.match(/hy-day--work/g) || []).length, cal2026.stats.makeupDays,
     '补班格数与数据层算出的 ' + cal2026.stats.makeupDays + ' 天不符');
 
+  // 图例的可读性（E-134）：周末格里曾印着一个孤零零的「6」（其余格都没有数字），
+  // 旁边的「（未标注的数字为工作日）」也与事实相反——每个日子都有数字。
+  assert.ok(html.indexOf('未标注') === -1, '图例里还留着「未标注的数字为工作日」');
+  assert.ok(html.indexOf('aria-hidden="true">6</span>周末') === -1, '周末图例格里还印着数字 6');
+  // 「全年假期最集中的月份」与「调休补班」曾都是 1rem 细红圈，肉眼分不开；
+  // 现在前者加宽成实心浅红块。这里按样式锁死，避免被改回同形。
+  const siteCss = fs.readFileSync(path.join(ROOT, 'source', 'css', 'site.css'), 'utf8');
+  const focusRule = (siteCss.match(/\.hy-lg--focus\s*\{[^}]*\}/) || [''])[0];
+  assert.match(focusRule, /width:\s*1\.7rem/, '集中月份图例没加宽，会和调休补班的空心环混淆');
+  assert.match(focusRule, /background:\s*color-mix/, '集中月份图例没有实心填充');
+
   // 七个法定节假日的图文卡：图片必须有非空 alt，署名行必须留在页面上
   const imgs = html.match(/<img\b[^>]*>/g) || [];
   assert.strictEqual(imgs.length, 7, '图文卡不是 7 张（实际 ' + imgs.length + '）');
