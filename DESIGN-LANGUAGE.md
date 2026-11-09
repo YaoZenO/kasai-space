@@ -118,7 +118,7 @@
 | `#1a202c` | 冷黑 | 文章页标题（`--post-heading-color`，主题段 L185） | 仍存在，VD-1 |
 | `#ff4500` | orangered | 搜索命中词高亮（main.css 编译输出 `.search-word`） | 仍存在，VD-3 |
 | `#0d47a1` | 深蓝 | 搜索结果标题 3px 左边框（main.css 编译输出） | 仍存在，VD-3 |
-| `#181c27` `#1f3144` `#252d38` `#435266` `#1589e9` `#30a9de` `#364151` `#46647e` | Fluid 原厂暗色冷蓝组 | `_config.yml` 各 `*_dark` 配置项 | 潜在（dark_mode 关闭中），C-7 |
+| `#181c27` `#1f3144` `#252d38` `#435266` `#1589e9` `#30a9de` `#364151` `#46647e` | Fluid 原厂暗色冷蓝组 | 曾位于 `_config.yml` 各 `*_dark` 配置项 | **已清除**（2026-11-09 全量校准，见 §2.5），C-7 |
 | `#BBBBEE` → `#337ab7` | 标签云冷蓝渐变 | `_config.yml` L1026-1027（`tags.ejs` 读取但未使用，当前为死配置） | 潜在（本规范新发现，附录 B-7）：恢复字号渐变时不得同时恢复渐变色 |
 | `#f8f9fa` / `#f2f3f5` | 主题默认冷灰 hover 底 | `_config.yml` L200 / L223（`link_hover_bg_color` / `button_hover_bg_color`） | 观察项（本规范新发现，附录 B-8）：纸面组件一旦回退主题 hover 态即露出冷灰，按缺陷处理 |
 | `#c4c6c9` / `#a6a6a6` | 滚动条中性灰 | `_config.yml` L210 / L214 | 观察项：不属本轮整改范围，维持现状；不得扩散到滚动条以外 |
@@ -140,17 +140,75 @@
 
 ### 2.5 暗色模式规则
 
-1. **禁止启用**：`dark_mode.enable: false` 是现行正确状态，必须保持。配置中须带**「未校准，勿启用」标注**（C-7：任何人某天顺手开启，会得到一个蓝黑站点，人格在某次「顺手」里分裂）。
-2. **若启用必须全量校准**：Fluid 原厂 `_dark` 值（§2.3 冷蓝组）**一个都不能用**。纸面延伸校准值 **【建议值 · 待主人确认】**（C-7 + 本规范复算）：
+> **2026-11-09 主人确认启用，全量校准完成。** `dark_mode.enable: true`、`default: auto`；
+> 唯一对齐基准 `DESIGN-DARKMODE-PROPOSAL-2026-11-09.md`（D1–D13 整组采纳）。
+> 状态机是**两态 + 默认跟随系统**：`localStorage 手动值 > prefers-color-scheme > 浅色`；
+> 存储键 `Fluid_Color_Scheme` 只写 `light` / `dark`，没有 `auto`、没有第三态、不按本地时间兜底。
+> 暗态是「暖纸 + 轻玻璃 V6.5」的同一色域反相延伸，不是新皮肤；全部不透明色值 `R > G > B`。
 
-| 用途 | 校准值 | 对比度（对 `#1a1814`） |
-|---|---|---|
-| body 底 | `#1a1814` | — |
-| 次级文字 | `#a7a9ad` | 7.53:1 ✓ |
-| 正文文字 | `#c4c6c9` | 10.36:1 ✓ |
-| **accent（必须单独提亮）** | `#d9724a` | **5.45:1** ✓（现值 `#b0482a` 对 `#181c27` 仅 3.08:1，C-7 记 3.21:1，均 ✗） |
+1. **Fluid 原厂 `_dark` 冷蓝组一个都不能用**（§2.3 的 8 值，以及 `#c4c6c9` / `#a7a9ad` /
+   `#d0d0d0` / `#687582` / `#9da8b3` 等冷灰）。C-7 的「顺手开启得到蓝黑站点」风险已由
+   `test/darkmode-e2e.js` 的冷色断言锁死，不再靠注释提醒。
+2. **主题段 19 个暗值**（`themes/fluid/_config.yml` color 段 17 项 +
+   `themes/fluid/source/css/_variables/base.styl` 的 `$highlight-bg-color-dark` /
+   `$inlinecode-bg-color-dark` 2 项）：
 
-3. 未完成全量校准前，任何「试试暗色」的提案不予实施。
+| 语义键 | 暗值 | 语义键 | 暗值 |
+|---|---|---|---|
+| `body_bg_color_dark` | `#1a1814` | `board_color_dark` | `#242019` |
+| `text_color_dark` | `#e5ded2` | `sec_text_color_dark` | `#b3aa9c` |
+| `post_text_color_dark` | `#e5ded2` | `post_heading_color_dark` | `#e5ded2` |
+| `post_link_color_dark` | `#d97757` | `link_hover_color_dark` | `#eea883` |
+| `link_hover_bg_color_dark` | `rgba(217,119,87,.12)` | `line_color_dark` | `#413a30` |
+| `navbar_bg_color_dark` | `rgba(36,32,25,.62)` | `navbar_text_color_dark` | `#e5ded2` |
+| `subtitle_color_dark` | `#b3aa9c` | `scrollbar_color_dark` | `#4a4238` |
+| `scrollbar_hover_color_dark` | `#6b6255` | `button_bg_color_dark` | `transparent` |
+| `button_hover_bg_color_dark` | `rgba(229,222,210,.06)` | `highlight_bg_color_dark` | `#242019` |
+| `inlinecode_bg_color_dark` | `rgba(229,222,210,.10)` | | |
+
+   `color-schema.styl` 的 `dark-colors()` 中 `img` 压暗降为 `brightness(.97)`（照片格已有 mask，
+   .9 是二次压暗）；`.license-box` 底由冷蓝灰改 `rgba(36,32,25,.35)`。
+
+3. **`site.css` 层暗值**（§15 成对双分支：`:root:not([data-user-color-scheme])` 走 `@media
+   (prefers-color-scheme: dark)`，`[data-user-color-scheme="dark"]` 走 `@media not print`）：
+
+| token | 暗值 | token | 暗值 |
+|---|---|---|---|
+| `--accent` | `#d97757` | `--accent-strong` | `#eea883` |
+| `--info-mark` | `#8f877a` | `--accent-soft` | `rgba(217,119,87,.12)` |
+| `--cream` | `rgba(36,32,25,.62)` | `--site-chip-border` | `rgba(229,222,210,.10)` |
+| `--site-float-shadow` | `0 12px 32px -14px rgba(8,6,4,.65)` | `--line-strong` / `--rule` | `rgba(229,222,210,.22)` |
+| `--block-yellow` | `rgba(217,119,87,.16)` | `--block-orange` | `#d97757` |
+| `--surface-ink` | `#e5ded2` | `--on-ink` | `#1b1712` |
+| `--on-ink-sec` | `rgba(27,23,18,.72)` | `--on-ink-line` | `rgba(27,23,18,.16)` |
+| `::selection` 底 | `rgba(229,222,210,.18)` | `html` 底 | `#1a1814` |
+
+   `--cream-on-dark: #fdfaf4` 与 `--ink-warm: #1b1712` **两态保持不动**；两档不透明纸色只有
+   `#1a1814`（body）与 `#242019`（面板）。`.ink-band` 暗态反相为亮纸块 + 墨字；`.cell-orange` /
+   `.cta-solid` / 活动分页 / 复制 toast / 二维码浮层一律亮纸底墨字。
+   `.cal-page` 作用域内 5 个变量与 `.cal-pinyin` **必须同步覆盖**（否则节假日 / 生肖 / 节日详情页
+   全族失效）；12 个 `--fs-fig-*` 纹样主色一个不改、只许出现在 `.fs-figure--css` 规则内。
+   光场四色透明度压到 `.07–.10`、渐变底 `#1a1814 → #1c1916 → #1f1b17`；照片 mask 渐变结构
+   保持不削弱。字体 / 字阶 / 间距 / 圆角 / `aspect-ratio` 暗色零改动；过渡只给颜色类属性 ≤200ms。
+
+4. **单源与后台**：浅色 `:root` 的 `--accent: #a8482c` 保持原值与首个定义位置，
+   `test/css-tokens.js` 不受影响；`source/admin/` 本次不改（D13）、不 bump 版本号；
+   前台缓存破坏由内容 hash 自动生成。
+5. **配置源与上线链路（架构约束：主题目录仍是 Astro 输入源，不得误删）**：
+   `dark_mode.enable` 的定义位置仍是 `themes/fluid/_config.yml`；消费方是
+   `src/lib/site-config.ts` l. 33（取出 `darkModeEnable`，供 Astro 页面条件渲染）与
+   `tools/prepare-assets.mjs` l. 61（把该配置喂给 `hexo-config()` 的 styl 编译上下文，并从
+   `themes/fluid/source/` 复制 `main.styl` / `highlight*.styl` / `color-schema.js` 等静态资源）。
+   线上一直走 Astro：`vercel.json` 的 `buildCommand: npm run astro:build`、
+   `outputDirectory: dist`；验收产物口径是 `dist/` 与 `static-public/`。
+   提交 `724fc3f` 下线的是 **Hexo CLI 与页面生成器**，不是主题目录——`themes/fluid/` 仍是 Astro 的
+   配置源、styl 源与静态资源源，**不得因「Hexo 已下线」而整块删除**；旧 Hexo CLI 产物目录只作源码
+   可编译性检查，不再是暗色模式的验收对象。
+   4 个 EJS 模板（`layout.ejs` / `head.ejs` / `css.ejs` / `nav.ejs`）
+   降级为兼容层、不再验收，但同样保留。
+   防复发：`test/darkmode-e2e.js` 的「配置源存活」断言锁死 `_config.yml` 的
+   `dark_mode.enable === true`、19 个暗值齐全、`src/lib/site-config.ts` 对 `themes/fluid/_config.yml`
+   的引用、`tools/prepare-assets.mjs` 的 `THEME` 常量，以及 6 个构建输入文件存在；任一被删即 FAIL。
 
 ### 2.6 第三纸色消除规则
 

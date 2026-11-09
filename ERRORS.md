@@ -156,6 +156,11 @@
 | E-122 | P2 | 卡片底色条的绝对定位被 `>*` 规则覆盖成 relative，底色条变成 flex 项，前三名城市名全被挤成 0 宽 | 已修复（选择器提权 + S25 样式断言） |
 | E-123 | P2 | 榜单墙卡片缺 `min-width:0`，nowrap 城市名把 390 视口撑到 566，移动端整页横向溢出 | 已修复（网格项归零 + S25 样式断言） |
 | E-124 | P2 | Hexo 清理时把测试基线 `SITE_OUT` 默认值从 `public` 改成 `dist`，同时「唤醒」了 12 条只认旧 Hexo 结构的休眠断言 | 已修复（旧基线按入口 HTML 存在性守卫 + S8 纳入站内搜索框） |
+| E-125 | P1 | `highlight-dark.css` 常年 0 字节：`prepare-assets.mjs` 写死「dark_mode 关闭所以 dark 为 false」 | 已修复（dark 改真实文件对象 + 产物非 0 字节断言） |
+| E-126 | P2 | 桌面日夜切换按钮没有 `id="color-toggle-btn"`，JS 的 click 绑定落空 | 已修复（补 id 改 `<button>` + 两侧模板各恰好 1 处断言） |
+| E-127 | P1 | `color-schema.js` 是 defer，已存 dark 的访客首屏先渲染一帧浅色再跳暗（FOUC） | 已修复（head 内联同步脚本 + 位置早于首个 CSS link 断言） |
+| E-128 | P1 | 并行会话 4.12b 年历段用了 `top: calc(100% + .45rem)`，minifier 压掉加号空格后整条声明静默失效 | 已修复（`top:100%` + `margin-top` 等价改写 + E-064 双侧断言）；归属并行年历段，非暗色功能本体 |
+| E-129 | P2 | 两态状态机被写成隐性三态：切回默认值即清空 LS、初始化把系统偏好固化进 DOM 属性 | 已修复（属性不存在=跟随 + matchMedia change 守卫 + 静态不变量断言） |
 
 ---
 
@@ -2718,5 +2723,97 @@
   测试里凡「按目录存在性判断产物是否可用」的守卫，一律改成按**入口文件**判断
   （目录可能因中断的构建残留）。`npm test` 的 SKIP 行要求打印具体缺失路径，
   不允许静默通过。
+
+---
+
+### E-125 `highlight-dark.css` 常年 0 字节：构建脚本里的一句「dark_mode 关闭」假设
+
+- **发生时间：** 2026-11-09 ｜ **发现方式：** Phase 4A 接线检查，产物 `static-public/css/highlight-dark.css`
+  / `dist/css/highlight-dark.css` 均为 0 字节
+- **现象：** `css.ejs` / `Styles.astro` 都会输出 `id="highlight-css-dark"` link，`color-schema.js` 也会在
+  暗态把 `disabled` 摘掉，但切过去等于没切——链接指向的是空文件。不报错、不 404，代码高亮在暗态
+  始终用浅色配色。
+- **根因：** `tools/prepare-assets.mjs` 里写死 `themeConfig.code.highlight.highlightjs.dark = false`，
+  配套注释「dark_mode 关闭，所以 dark 为 false（highlight-dark.styl 因此编译为空）」。`highlight-dark.styl`
+  的 `if hexo-config("code.highlight.highlightjs.dark.file")` 因此不命中，编译结果为空串。
+  这句假设随 2026-11-09 启用暗色模式一起失效，却没有任何测试会检查文件大小。
+- **修法：** `dark` 改成真实文件对象（指向 `highlight.js/styles/dark.css` + `backgroundColor: #242019`），
+  注释换成「已启用，dark 必须是真实文件对象」；`$highlight-bg-color-dark` / `$inlinecode-bg-color-dark`
+  在 `base.styl` 固定为暖调值，不再从 highlightjs 样式表回读冷蓝灰。
+- **防复发（机制）：** `test/darkmode-e2e.js` 断言源码里不得再出现 `highlightjs.dark = false` 与旧注释，
+  并断言 `dist/css/highlight-dark.css` 字节数 > 0；同时 `test:darkmode` 已串进 `npm test`，
+  每次构建后自动验。产物文件大小用断言锁，不靠肉眼看 `ls -l`。
+
+### E-126 桌面日夜切换按钮缺 `id="color-toggle-btn"`，点击绑定落空
+
+- **发生时间：** 2026-11-09 ｜ **发现方式：** 对齐 `color-schema.js` 的 `colorToggleButtonSelector` 与模板
+- **现象：** `themes/fluid/layout/_partials/site/nav.ejs` 的桌面切换入口是
+  `<a class="nav-link d-none d-lg-flex" href="javascript:;" aria-label="Color Toggle">`，全仓只有 JS 里
+  出现 `#color-toggle-btn`。`document.querySelector('#color-toggle-btn')` 返回 null，
+  `addEventListener` 整段被跳过，桌面按钮看得见点不动。
+- **根因：** 模板沿用了 Fluid 原厂的 `<a href="javascript:;">` 且没补 id；JS 侧则按原厂另一套 DOM 契约
+  绑定 id。两侧从未在同一处对齐，且 dark_mode 关闭期间按钮根本不渲染，缺陷一直休眠。
+- **修法：** 桌面入口改 `<button type="button" id="color-toggle-btn" ... aria-pressed="false">`，
+  位置移到 `#search-btn` 之后、`#navbar-toggler-btn` 之前；Astro `SiteNav.astro` 同步同结构同 id，
+  移动端 `#mobile-color-toggle-btn` 一格同样改原生 button。
+- **防复发（机制）：** `test/darkmode-e2e.js` §10-12 对两个模板与两份产物各断言
+  `id="color-toggle-btn"` / `id="mobile-color-toggle-btn"` **恰好 1 处**，并断言 `color-schema.js`
+  里两个 selector 常量与 `addEventListener('click'` 绑定同时存在；缺 id、重复 id、绑错元素任一情况即 FAIL。
+
+### E-127 `color-schema.js` 是 defer，已存 dark 的访客首屏闪一帧浅色
+
+- **发生时间：** 2026-11-09 ｜ **发现方式：** 方案 §7.1 / §10-15 逐条核对首屏渲染时序
+- **现象：** `head.ejs` / `Head.astro` 把 `utils.js` 与 `color-schema.js` 都改成 `defer` 以移出关键路径。
+  但 `defer` 在 HTML 解析完成后才执行，而首屏 CSS 在解析期就已应用；`localStorage` 里存了 dark 的访客
+  会先以浅色渲染一帧，脚本跑完才跳暗（FOUC）。
+- **根因：** 「模式判定」被放在了与「图标 / 代码高亮切换」同一个延迟脚本里。防 FOUC 的判定必须是
+  `<head>` 内联、同步、阻塞、且在首个 CSS link 之前；把两者合并成一条 defer 脚本必然晚于样式。
+- **修法：** `head.ejs` 与 `Head.astro` 各加一段内联同步脚本，只做一件事：读
+  `localStorage['Fluid_Color_Scheme']`，值为 `light` / `dark` 才写 `data-user-color-scheme`；
+  LS 为空什么都不写（属性不存在 = 跟随系统）。原 `defer` 的 `color-schema.js` 保留，负责按钮、
+  aria、meta theme-color、代码高亮等非首屏职责。
+- **防复发（机制）：** `test/darkmode-e2e.js` §10-15 同时验源码与产物：内联脚本必须存在、
+  `html.indexOf('Fluid_Color_Scheme')` 必须小于首个 `<link rel="stylesheet">` 的下标、
+  脚本正文必须只认 `light|dark` 两态；`v` 写进属性后 CSS 在首帧就命中，任何把判定挪回 defer
+  或挪到 CSS 之后的改动都会让这条断言 FAIL。
+
+### E-128 并行会话 4.12b 年历段用了加法 `calc`，minifier 压掉加号空格后声明静默失效
+
+- **归属说明：** 本条属于并行会话的「节假日 2026 年历页」（4.12b / `hy-*` 段），**不属于暗色功能本体**；
+  主理人已在交付口径中明确该行的提交归属，提交信息需单独注明。
+- **发生时间：** 2026-11-09 ｜ **发现方式：** 实施前基线 `npm test`，`test:festival` 的 E-064 断言变红
+- **现象：** `source/css/site.css` 的 `.hy-yearpick-panel` 写了
+  `top: calc(100% + .45rem);`。构建 minifier 把 `calc` 加号两侧空格压掉后，浏览器丢弃整条 `top`
+  声明，年份下拉面板贴回触发元素而非下移 0.45rem。源码与产物两侧都不报错。
+- **根因：** E-064 的既有结论「本站禁加法 calc」只锁在测试里，没有拦住新写进来的 CSS；
+  并行新增的 4.12b 年历段在编写时复用了这行写法。
+- **修法：** 等价改写为 `top: 100%; margin-top: .45rem;`，布局量与视觉效果不变，源码与产物都不再
+  出现加法 `calc`。只改这一行，不碰 4.12b 段的其余业务样式；`HolidaysPage.astro` /
+  `holiday-calendar.ts` 未改动。
+- **防复发（机制）：** `test/festival-e2e.js` 的 E-064 断言对源码与产物 `dist/css/site.css` 双侧
+  用 `/calc\([^()]*\+[^()]*\)/` 拦截；新增 CSS 段落必须过这条断言，不允许用注释说明替代。
+
+### E-129 两态状态机被写成隐性三态：切回默认值清空 LS、初始化固化系统偏好
+
+- **发生时间：** 2026-11-09 ｜ **发现方式：** 按主人决策「两态 + 默认跟随系统」逐行核对
+  `color-schema.js` 的 `getDefaultColorSchema()` / `applyCustomColorSchemaSettings()` / `resetSchemaAttributeAndLS()`
+- **现象：** 原实现有三处与决策相反：① `auto` 除 `prefers-color-scheme` 外还按本地时间
+  18:00–6:00 兜底；② 手动切到的模式若恰好等于默认值，就 `resetSchemaAttributeAndLS()` 清空 LS
+  回到自动；③ 初始化无条件 `setAttribute('data-user-color-scheme', getDefaultColorSchema())`，
+  把系统偏好固化进 DOM，`:root:not([data-user-color-scheme])` 的 CSS 跟随分支从此永不命中。
+  结果是「系统深色时手动切浅再切回深」会静默丢掉手动选择，与「手动后不再随系统变」相反。
+- **根因：** Fluid 原厂把 `auto` 当成可持久化的第三种模式，并靠「等于默认就回到自动」来省存储；
+  本站决策是「`auto` 只是未选择时的取值来源」，DOM 属性存在与否才是唯一的手动标记。两套语义
+  混在同一个函数里，没有任何测试表达「属性不存在 = 跟随系统」这条不变式。
+- **修法：** 删时间兜底与「等于默认即清空」分支；`resetSchemaAttributeAndLS()` 改为
+  **移除**属性而非写值；`applyCustomColorSchemaSettings()` 只在 LS 有手动值（或本次点击产生新值）时
+  写属性，否则移除；补 `matchMedia('(prefers-color-scheme: dark)').change` 监听，
+  但先判断 `hasAttribute` 才同步 UI；`meta[name="theme-color"]` 改用 `getComputedStyle` 取
+  `--navbar-bg-color`，跟随态与手动态都更新。存储键只写 `light` / `dark`。
+- **防复发（机制）：** `test/darkmode-e2e.js` §10-13/14 用静态不变量锁死：
+  `color-schema.js` 的注释剥离后不得出现 `getHours` / `new Date` / `18:00` / `6:00` / `'auto'` 字面量 /
+  `current === getDefaultColorSchema()`；必须出现 `removeAttribute(userColorSchemaAttributeName)`、
+  `systemPrefersDark() ? 'dark' : 'light'`、`hasAttribute(...) return` 守卫、两个分支的 `addEventListener('click'`。
+  任何把第三态或时间兜底写回来的改动都会被 `npm test` 当场拦下。
 
 ---
