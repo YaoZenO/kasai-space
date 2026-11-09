@@ -5,7 +5,7 @@ import Head from '../components/Head.astro';
 import SiteNav from '../components/SiteNav.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import Scripts from '../components/Scripts.astro';
-import { scrollTopEnable } from '../lib/site-config';
+import { scrollTopEnable, darkModeEnable } from '../lib/site-config';
 import { zhCN } from '../lib/i18n';
 
 interface Props {
@@ -40,7 +40,7 @@ const {
 const path = currentPath ?? Astro.url.pathname;
 ---
 
-<html lang="zh-CN">
+<html lang="zh-CN" data-default-color-scheme={darkModeEnable ? 'auto' : undefined}>
   <head>
     <Head
       title={title}

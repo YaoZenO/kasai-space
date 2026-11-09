@@ -2,16 +2,25 @@
 
 /**
  * Modified from https://blog.skk.moe/post/hello-darkmode-my-old-friend/
+ *
+ * 2026-11-09（暗色模式启用）：状态机改为「两态 + 默认跟随系统」。
+ *   · 只有 light / dark 两态，存储键 Fluid_Color_Scheme 只写这两个值，没有 auto / 第三态；
+ *   · DOM 上 data-user-color-scheme 属性存在 = 访客已手动选择；属性不存在 = 跟随系统；
+ *   · 系统深色则暗、系统浅色或未表态则浅；不按本地时间 18:00–6:00 兜底；
+ *   · 手动选择后 LS 永久保留，不再随系统偏好变化回退到自动；
+ *   · 未手动选择时 matchMedia().change 只同步按钮/图标/aria/theme-color/代码高亮，不写属性。
  */
 (function(window, document) {
   var rootElement = document.documentElement;
   var colorSchemaStorageKey = 'Fluid_Color_Scheme';
-  var colorSchemaMediaQueryKey = '--color-mode';
   var userColorSchemaAttributeName = 'data-user-color-scheme';
   var defaultColorSchemaAttributeName = 'data-default-color-scheme';
   var colorToggleButtonSelector = '#color-toggle-btn';
   var colorToggleIconSelector = '#color-toggle-icon';
+  var mobileColorToggleButtonSelector = '#mobile-color-toggle-btn';
+  var mobileColorToggleControlSelector = '#mobile-color-toggle-btn button.mobile-grid-item';
   var iframeSelector = 'iframe';
+  var darkMediaQuery = '(prefers-color-scheme: dark)';
 
   function setLS(k, v) {
     try {
@@ -41,18 +50,14 @@
     return null;
   }
 
-  function getSchemaFromCSSMediaQuery() {
-    var res = getComputedStyle(rootElement).getPropertyValue(
-      colorSchemaMediaQueryKey
-    );
-    if (typeof res === 'string') {
-      return res.replace(/["'\s]/g, '');
-    }
-    return null;
+  function systemPrefersDark() {
+    return !!(window.matchMedia && window.matchMedia(darkMediaQuery).matches);
   }
 
+  // LS 为空 / 非法时移除属性，让 :root:not([data-user-color-scheme]) 的 CSS 分支接管跟随系统。
+  // 注意：绝不能把系统偏好固化写成 data-user-color-scheme，否则 CSS 自动跟随分支会失效。
   function resetSchemaAttributeAndLS() {
-    rootElement.setAttribute(userColorSchemaAttributeName, getDefaultColorSchema());
+    rootElement.removeAttribute(userColorSchemaAttributeName);
     removeLS(colorSchemaStorageKey);
   }
 
@@ -62,44 +67,34 @@
   };
 
   function getDefaultColorSchema() {
-    // 取默认字段的值
+    // 取默认字段的值；default: auto 不是有效态，继续按系统偏好判断
     var schema = getSchemaFromHTML();
-    // 如果明确指定了 schema 则返回
     if (validColorSchemaKeys[schema]) {
       return schema;
     }
-    // 默认优先按 prefers-color-scheme
-    schema = getSchemaFromCSSMediaQuery();
-    if (validColorSchemaKeys[schema]) {
-      return schema;
-    }
-    // 否则按本地时间是否大于 18 点或凌晨 0 ~ 6 点
-    var hours = new Date().getHours();
-    if (hours >= 18 || (hours >= 0 && hours <= 6)) {
-      return 'dark';
-    }
-    return 'light';
+    // 默认 auto：只走 prefers-color-scheme，未表态一律浅色；不按本地时间兜底
+    return systemPrefersDark() ? 'dark' : 'light';
   }
 
   function applyCustomColorSchemaSettings(schema) {
-    // 接受从「开关」处传来的模式，或者从 localStorage 读取，否则按默认设置值
-    var current = schema || getLS(colorSchemaStorageKey) || getDefaultColorSchema();
+    // 优先级：本次点击传入的新态 > localStorage 手动值 > 系统偏好 / 浅色
+    var stored = getLS(colorSchemaStorageKey);
+    var hasManual = !!(stored && validColorSchemaKeys[stored]);
+    var current = schema || (hasManual ? stored : getDefaultColorSchema());
 
-    if (current === getDefaultColorSchema()) {
-      // 当用户切换的显示模式和默认模式相同时，则恢复为自动模式
+    if (!validColorSchemaKeys[current]) {
+      // 非法值兜底：清 LS、移除属性，回到跟随系统
       resetSchemaAttributeAndLS();
-    } else if (validColorSchemaKeys[current]) {
-      rootElement.setAttribute(
-        userColorSchemaAttributeName,
-        current
-      );
+      current = getDefaultColorSchema();
+    } else if (hasManual || schema) {
+      // 访客已手动选择：写属性，屏蔽 :root:not([data-user-color-scheme]) 的自动跟随分支
+      rootElement.setAttribute(userColorSchemaAttributeName, current);
     } else {
-      // 特殊情况重置
-      resetSchemaAttributeAndLS();
-      return;
+      // 未手动选择：属性必须不存在，纯 CSS @media 自动跟随
+      rootElement.removeAttribute(userColorSchemaAttributeName);
     }
 
-    // 根据当前模式设置图标
+    // 根据当前模式设置图标 / aria / 移动端标签 / meta theme-color
     setButtonIcon(current);
 
     // 设置代码高亮
@@ -124,69 +119,78 @@
     if (validColorSchemaKeys[currentSetting]) {
       // 从 localStorage 中读取模式，并取相反的模式
       currentSetting = invertColorSchemaObj[currentSetting];
-    } else if (currentSetting === null) {
-      // 当 localStorage 中没有相关值，或者 localStorage 抛了 Error
-      // 先按照按钮的状态进行切换
+    } else {
+      // LS 为空或非法：先按按钮的状态进行切换，再按当前生效态取反
+      if (currentSetting !== null) removeLS(colorSchemaStorageKey);
       var iconElement = document.querySelector(colorToggleIconSelector);
       if (iconElement) {
         currentSetting = iconElement.getAttribute('data');
       }
       if (!iconElement || !validColorSchemaKeys[currentSetting]) {
-        // 当 localStorage 中没有相关值，或者 localStorage 抛了 Error，则读取默认值并切换到相反的模式
-        currentSetting = invertColorSchemaObj[getSchemaFromCSSMediaQuery()];
+        currentSetting = invertColorSchemaObj[getDefaultColorSchema()];
       }
-    } else {
-      return;
     }
-    // 将相反的模式写入 localStorage
+    // 只写 light / dark，绝不写 auto
     setLS(colorSchemaStorageKey, currentSetting);
 
     return currentSetting;
   }
 
+  // 跟随系统态也要与当前生效底色一致：从 getComputedStyle 取 token，不新增硬编码色值。
+  function syncThemeColor() {
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (!meta) return;
+    var color = getComputedStyle(rootElement).getPropertyValue('--navbar-bg-color').trim();
+    if (color) meta.setAttribute('content', color);
+  }
+
   function setButtonIcon(schema) {
-    if (validColorSchemaKeys[schema]) {
-      // 切换图标
-      var icon = getIconClass('dark');
-      if (schema) {
-        icon = getIconClass(schema);
-      }
-      var iconElement = document.querySelector(colorToggleIconSelector);
-      if (iconElement) {
-        iconElement.setAttribute('class', 'iconfont ' + icon);
-        iconElement.setAttribute('data', invertColorSchemaObj[schema]);
-      } else {
-        Fluid.utils.waitElementLoaded(colorToggleIconSelector, function() {
-          var iconElement = document.querySelector(colorToggleIconSelector);
-          if (iconElement) {
-            iconElement.setAttribute('class', 'iconfont ' + icon);
-            iconElement.setAttribute('data', invertColorSchemaObj[schema]);
-          }
-        });
-      }
+    if (!validColorSchemaKeys[schema]) return;
 
-      // 同步更新移动端按钮文字：light 状态显示"关灯"，dark 状态显示"开灯"
-      var mobileBtn = document.querySelector('#mobile-color-toggle-btn');
-      if (mobileBtn) {
-        var label = document.querySelector('#mobile-color-toggle-label');
-        if (label) {
-          // schema 是当前模式：light→显示 dark 标签（关灯），dark→显示 light 标签（开灯）
-          label.textContent = schema === 'dark'
-            ? (mobileBtn.getAttribute('data-label-light') || '')
-            : (mobileBtn.getAttribute('data-label-dark') || '');
+    // 切换图标（沿用 Fluid 原厂双图标 + hover 预览逻辑）
+    var icon = getIconClass(schema);
+    var iconElement = document.querySelector(colorToggleIconSelector);
+    if (iconElement) {
+      iconElement.setAttribute('class', 'iconfont ' + icon);
+      iconElement.setAttribute('data', invertColorSchemaObj[schema]);
+    } else {
+      Fluid.utils.waitElementLoaded(colorToggleIconSelector, function() {
+        var iconElement = document.querySelector(colorToggleIconSelector);
+        if (iconElement) {
+          iconElement.setAttribute('class', 'iconfont ' + icon);
+          iconElement.setAttribute('data', invertColorSchemaObj[schema]);
         }
-        // 同步图标
-        var mobileIcon = document.querySelector('#mobile-color-toggle-icon');
-        if (mobileIcon) {
-          mobileIcon.setAttribute('class', 'iconfont ' + icon);
-        }
-      }
+      });
+    }
 
-      if (document.documentElement.getAttribute('data-user-color-scheme')) {
-        var color = getComputedStyle(document.documentElement).getPropertyValue('--navbar-bg-color').trim();
-        document.querySelector('meta[name="theme-color"]').setAttribute('content', color);
+    // 功能性文案：图标 + 可见文字 + aria-pressed 三重编码，不单靠颜色表达状态
+    var target = invertColorSchemaObj[schema];
+    var label = target === 'dark' ? '切换到深色模式' : '切换到浅色模式';
+    var pressed = schema === 'dark' ? 'true' : 'false';
+    [colorToggleButtonSelector, mobileColorToggleControlSelector].forEach(function(selector) {
+      var btn = document.querySelector(selector);
+      if (!btn) return;
+      btn.setAttribute('aria-label', label);
+      btn.setAttribute('aria-pressed', pressed);
+    });
+
+    // 同步移动端按钮文字：schema 是当前模式，标签显示「点击后将切到的模式」
+    var mobileBtn = document.querySelector(mobileColorToggleButtonSelector);
+    if (mobileBtn) {
+      var labelEl = document.querySelector('#mobile-color-toggle-label');
+      if (labelEl) {
+        labelEl.textContent = schema === 'dark'
+          ? (mobileBtn.getAttribute('data-label-light') || '')
+          : (mobileBtn.getAttribute('data-label-dark') || '');
+      }
+      // 同步图标
+      var mobileIcon = document.querySelector('#mobile-color-toggle-icon');
+      if (mobileIcon) {
+        mobileIcon.setAttribute('class', 'iconfont ' + icon);
       }
     }
+
+    syncThemeColor();
   }
 
   function setHighlightCSS(schema) {
@@ -258,8 +262,27 @@
     }
   }
 
+  // 系统偏好中途切换：仅在「属性不存在」（未手动选择）时同步 UI，手动选择后不再随系统变。
+  function bindSystemPreferenceChange() {
+    if (!window.matchMedia) return;
+    var mq = window.matchMedia(darkMediaQuery);
+    var onChange = function() {
+      if (rootElement.hasAttribute(userColorSchemaAttributeName)) return;
+      var schema = getDefaultColorSchema();
+      setButtonIcon(schema);
+      setHighlightCSS(schema);
+      setApplications(schema);
+    };
+    if (mq.addEventListener) {
+      mq.addEventListener('change', onChange);
+    } else if (mq.addListener) {
+      mq.addListener(onChange);
+    }
+  }
+
   // 当页面加载时，将显示模式设置为 localStorage 中自定义的值（如果有的话）
   applyCustomColorSchemaSettings();
+  bindSystemPreferenceChange();
 
   Fluid.utils.waitElementLoaded(colorToggleIconSelector, function() {
     applyCustomColorSchemaSettings();
@@ -284,7 +307,7 @@
     }
 
     // 绑定移动端菜单按钮的事件
-    var mobileButton = document.querySelector('#mobile-color-toggle-btn');
+    var mobileButton = document.querySelector(mobileColorToggleButtonSelector);
     if (mobileButton) {
       mobileButton.addEventListener('click', function() {
         applyCustomColorSchemaSettings(toggleCustomColorSchema());

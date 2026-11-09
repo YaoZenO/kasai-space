@@ -63,9 +63,11 @@ $scrollbar-hover-color-dark = theme-config("color.scrollbar_hover_color_dark", "
 
 // code
 $highlight-bg-color = hexo-config("code.highlight.highlightjs.light.backgroundColor") && hexo-config("code.highlight.highlightjs.light.backgroundColor") != "#fff" ? unquote(hexo-config("code.highlight.highlightjs.light.backgroundColor")):#f6f8fa
-$highlight-bg-color-dark = hexo-config("code.highlight.highlightjs.dark.backgroundColor") && hexo-config("code.highlight.highlightjs.dark.backgroundColor") != "#fff" ? unquote(hexo-config("code.highlight.highlightjs.dark.backgroundColor")):#2d333b
+// 2026-11-09：暗态代码块底 / 行内 code 底按暗色方案 §2.1 #18/#19 固定为暖调值，
+// 不再从 highlightjs dark 样式表回读（那会带回 Fluid 原厂冷蓝灰默认底）。
+$highlight-bg-color-dark = #242019
 $inlinecode-bg-color = rgba(175, 184, 193, .2)
-$inlinecode-bg-color-dark = rgba(99, 110, 123, .4)
+$inlinecode-bg-color-dark = rgba(229, 222, 210, .10)
 
 // shadow
 $img-shadow = 0 5px 11px 0 rgba(0, 0, 0, .18), 0 4px 15px 0 rgba(0, 0, 0, .15)

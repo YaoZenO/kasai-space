@@ -64,17 +64,23 @@ const themeConfig = readYaml(path.join(THEME, '_config.yml'));
 // 否则 stylus 的 `for $x in hexo-config("injects.variable")` 会拿到空串而报错。
 themeConfig.injects = themeConfig.injects || { variable: [], mixin: [], style: [], script: [] };
 
-// Hexo 侧由主题脚本 scripts/events/lib/highlight.js 在构建前把 highlight.js 的样式文件
+// Hexo 侧由主题脚本 themes/fluid/scripts/events/lib/highlight.js 在构建前把 highlight.js 的样式文件
 // 解析进 theme.config（highlight.styl 靠它 @require）。这里做等价解析：
 // 当前配置 lib=highlightjs、style="github gist" → github-gist.css 不存在，回退 github.css；
-// dark_mode 关闭，所以 dark 为 false（highlight-dark.styl 因此编译为空）。
+// style_dark="dark" → dark.css。
+// 2026-11-09：dark_mode 已启用，dark 必须是真实文件对象，不能是 false——
+// 否则 highlight-dark.styl 的 `if hexo-config("code.highlight.highlightjs.dark.file")` 不命中，
+// highlight-dark.css 会编译成 0 字节，暗态代码高亮切过去等于没切。
 if (themeConfig.code && themeConfig.code.highlight && themeConfig.code.highlight.enable
   && themeConfig.code.highlight.lib === 'highlightjs') {
   themeConfig.code.highlight.highlightjs = themeConfig.code.highlight.highlightjs || {};
   themeConfig.code.highlight.highlightjs.light = {
     file: path.join(ROOT, 'node_modules', 'highlight.js', 'styles', 'github.css'),
   };
-  themeConfig.code.highlight.highlightjs.dark = false;
+  themeConfig.code.highlight.highlightjs.dark = {
+    file: path.join(ROOT, 'node_modules', 'highlight.js', 'styles', 'dark.css'),
+    backgroundColor: '#242019',
+  };
 }
 
 const nib = require('nib');

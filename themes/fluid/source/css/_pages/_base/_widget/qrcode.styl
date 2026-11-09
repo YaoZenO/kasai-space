@@ -15,3 +15,20 @@
   border-radius .2rem
   background-color transparent
   box-shadow 0 0 20px -5px hsla(0, 0%, 62%, .2)
+
+// 2026-11-09 暗态：二维码图源是白底 PNG，在暖墨页上做明确的「纸片浮层」，
+// 浅纸底 + padding + 圆角 + 全站暗态阴影；二维码本体白底不动，不加发光边。
+// 与 color-schema.styl 同构成对双分支：跟随系统 / 手动选择各一套。
+@media (prefers-color-scheme: dark)
+  :root:not([data-user-color-scheme]) .qr-img
+    background-color #fdfaf4
+    padding .5rem
+    border-radius var(--r-xs)
+    box-shadow var(--site-float-shadow)
+
+@media not print
+  [data-user-color-scheme="dark"] .qr-img
+    background-color #fdfaf4
+    padding .5rem
+    border-radius var(--r-xs)
+    box-shadow var(--site-float-shadow)

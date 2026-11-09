@@ -3,7 +3,7 @@
 // 结构：#navbar > .site-nav-inner > 品牌 / .site-nav-center（胶囊 + aux）/ .site-nav-actions
 // 另含移动端九宫格 #mobile-grid-menu。
 
-import { navbarMenu, navbarAuxMenu, themeConfig } from '../lib/site-config';
+import { navbarMenu, navbarAuxMenu, themeConfig, darkModeEnable } from '../lib/site-config';
 import { urlFor } from '../lib/url';
 import { zhCN } from '../lib/i18n';
 
@@ -122,6 +122,19 @@ const blogTitle: string = themeConfig.navbar?.blog_title || '';
             <i class="iconfont icon-search" />
           </a>
         )}
+        {/* 2026-11-09：桌面切换按钮在搜索之后、汉堡之前；id 必须与 nav.ejs 完全一致，
+            color-schema.js 绑定 #color-toggle-btn。aria 由 color-schema.js 同步。 */}
+        {darkModeEnable && (
+          <button
+            type="button"
+            id="color-toggle-btn"
+            class="nav-link d-none d-lg-flex"
+            aria-label="切换到深色模式"
+            aria-pressed="false"
+          >
+            <i class="iconfont icon-dark" id="color-toggle-icon" />
+          </button>
+        )}
         <button
           id="navbar-toggler-btn"
           class="navbar-toggler site-nav-toggle"
@@ -195,6 +208,27 @@ const blogTitle: string = themeConfig.navbar?.blog_title || '';
               </div>
             ))
           }
+
+          {/* 2026-11-09：九宫格最后一格；结构 / id / aria 与 nav.ejs 完全一致。
+              可见文字标签与 aria-label 同源，只用功能性中文「深色 / 浅色」。 */}
+          {darkModeEnable && (
+            <div
+              class="col-4 mobile-grid-cell"
+              id="mobile-color-toggle-btn"
+              data-label-light={zhCN.darkmode.light}
+              data-label-dark={zhCN.darkmode.dark}
+            >
+              <button
+                type="button"
+                class="mobile-grid-item"
+                aria-label="切换到深色模式"
+                aria-pressed="false"
+              >
+                <i class="iconfont icon-dark" id="mobile-color-toggle-icon" />
+                <span id="mobile-color-toggle-label">{zhCN.darkmode.dark}</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -466,6 +466,14 @@ button:focus-visible,
   color: var(--accent);
 }
 
+/* 2026-11-09：切换按钮是 <button>，抹掉浏览器默认底色/边框；不产生尺寸与定位变化。 */
+#navbar .site-nav-actions button.nav-link {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
 /* 说明：品牌/搜索/汉堡曾为磨砂 chip（横幅时代深色 Banner 下保可读性）。
    2026-10-15：全站横幅已清零（含 404/links 最后两页），按导航栏效果图.png
    方案 C 改回裸文字/裸图标；中间菜单胶囊保留（方案 C 的核心形态）。 */
@@ -517,6 +525,14 @@ button:focus-visible,
 #mobile-grid-menu .mobile-grid-item {
   background-color: rgba(27, 23, 18, 0.045);
   border: 1px solid var(--line-color);
+}
+
+/* 2026-11-09：九宫格切换格改用原生 button，补默认样式复位（不改尺寸/圆角）。 */
+#mobile-grid-menu button.mobile-grid-item {
+  width: 100%;
+  font: inherit;
+  color: var(--text-color);
+  cursor: pointer;
 }
 
 #mobile-grid-menu .mobile-grid-item:hover,
@@ -3152,7 +3168,10 @@ body.is-home footer {
 .hy-yearpick-panel {
   position: absolute;
   z-index: 30;
-  top: calc(100% + .45rem);
+  /* E-064：minifier 会压掉 calc 加号空格，整条 top 声明被浏览器静默丢弃。
+     等价改写为 top + margin-top，布局量不变、无加法 calc。 */
+  top: 100%;
+  margin-top: .45rem;
   left: 0;
   width: min(23rem, calc(100vw - 3rem));
   padding: .85rem .9rem;
@@ -7634,7 +7653,8 @@ html:not(.js) .fs-years-toggle { display: none; }
 /* 7.1 选中文字不再发红（规范 §6.2 配套）：砖红只留给交互与强调，
    选中是阅读行为不是交互行为，用墨色 12% 淡底 */
 ::selection {
-  background: rgba(27, 23, 18, 0.12);
+  /* 2026-11-09：暗态由 §15 覆盖 --selection-bg；浅态回退值与原值逐字相同。 */
+  background: var(--selection-bg, rgba(27, 23, 18, 0.12));
   color: var(--text-color);
 }
 
@@ -7834,3 +7854,659 @@ a:hover {
     font-size: 1rem;
   }
 }
+
+
+/* ===== 15. 暗色模式（2026-11-09，本任务） ===== */
+/* ==========================================================================
+   与 themes/fluid/source/css/_pages/_base/color-schema.styl 的 dark-colors() 同构，
+   成对双分支：① 跟随系统（属性不存在）② 手动选择（属性 = dark）。
+   只覆盖颜色 / 阴影 / filter；字体、字阶、间距、圆角、aspect-ratio 一律不改。
+   浅色 :root 的 --accent: #a8482c 保持原值与首个定义位置（test/css-tokens.js 锁定）；
+   --cream-on-dark: #fdfaf4 与 --ink-warm: #1b1712 两态共用，不重定义。
+   全部暗态不透明色值 R > G > B；两档纸色只有 #1a1814（body）与 #242019（面板）。
+   本段只覆盖本任务既有作用域；新增页面族的暗态适配由各自任务处理。
+   产物口径：dist/ 与 static-public/（Astro 构建链）。
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-user-color-scheme]) {
+    --accent: #d97757;
+    --accent-strong: #eea883;
+    --info-mark: #8f877a;
+    --accent-soft: rgba(217,119,87,.12);
+    --cream: rgba(36,32,25,.62);
+    --site-chip-border: rgba(229,222,210,.10);
+    --site-float-shadow: 0 12px 32px -14px rgba(8,6,4,.65);
+    --line-strong: rgba(229,222,210,.22);
+    --rule: rgba(229,222,210,.22);
+    --block-yellow: rgba(217,119,87,.16);
+    --block-orange: #d97757;
+    --surface-ink: #e5ded2;
+    --on-ink: #1b1712;
+    --on-ink-sec: rgba(27,23,18,.72);
+    --on-ink-line: rgba(27,23,18,.16);
+    --selection-bg: rgba(229,222,210,.18);
+    --glass-border: rgba(229,222,210,.10);
+    --glass-inset: rgba(229,222,210,.06);
+    --glass-bg: rgba(36,32,25,.72);
+    --paper-float: #242019;
+    --ink-tint: rgba(229,222,210,.06);
+    --ink-tint-2: rgba(229,222,210,.13);
+    background-color: #1a1814;
+  }
+
+  /* 年历页暗态修补：--cream-on-dark 是两态共用的「照片上纸片」变量，
+     被年历页误用作大面积面板底。以下只在暗态分支覆盖，不改年历页原段任何一行。
+     大面积面板走暗面板底 + 亮纸字；小纸片保留浅纸底但字色改墨，逐项 ≥4.5:1。 */
+  :root:not([data-user-color-scheme]) .hy-yearpick-panel {
+    background: #242019;
+    color: var(--text-color);
+  }
+  :root:not([data-user-color-scheme]) .hy-stats li {
+    background: #242019;
+    color: var(--text-color);
+  }
+  :root:not([data-user-color-scheme]) .hy-card-media {
+    background: #242019;
+    color: var(--text-color);
+  }
+  :root:not([data-user-color-scheme]) .hy-tag {
+    background: #fdfaf4;
+    color: #1b1712;
+    border-color: rgba(27,23,18,.22);
+  }
+  :root:not([data-user-color-scheme]) .hy-kind {
+    background: #fdfaf4;
+    color: #1b1712;
+    border-color: rgba(27,23,18,.22);
+  }
+  :root:not([data-user-color-scheme]) .hy-kind--accent {
+    background: #fdfaf4;
+    color: #1b1712;
+    border-color: rgba(27,23,18,.22);
+  }
+
+  :root:not([data-user-color-scheme]) body::before {
+    background:
+      radial-gradient(46vw 46vw at 82% 6%, rgba(217,119,87,.10), transparent 68%),
+      radial-gradient(42vw 42vw at 10% 82%, rgba(176,146,96,.08), transparent 68%),
+      radial-gradient(34vw 34vw at 4% 42%, rgba(200,120,96,.09), transparent 68%),
+      radial-gradient(30vw 30vw at 72% 90%, rgba(126,142,106,.07), transparent 68%),
+      linear-gradient(180deg, #1a1814 0%, #1c1916 55%, #1f1b17 100%);
+  }
+
+  :root:not([data-user-color-scheme]) #navbar .site-nav-capsule,
+  :root:not([data-user-color-scheme]) #navbar .site-nav-aux,
+  :root:not([data-user-color-scheme]) #navbar .site-nav-list .dropdown-menu,
+  :root:not([data-user-color-scheme]) #modalSearch .modal-content,
+  :root:not([data-user-color-scheme]) .cal-table-wrap,
+  :root:not([data-user-color-scheme]) .z-nav-strip,
+  :root:not([data-user-color-scheme]) .fs-nav-strip,
+  :root:not([data-user-color-scheme]) .cal-panel {
+    border-color: var(--glass-border);
+    box-shadow: var(--site-float-shadow), inset 0 1px 0 var(--glass-inset);
+  }
+
+  :root:not([data-user-color-scheme]) #navbar .site-nav-list .dropdown-menu,
+  :root:not([data-user-color-scheme]) #modalSearch .modal-content,
+  :root:not([data-user-color-scheme]) .cal-table-wrap {
+    background-color: var(--glass-bg);
+  }
+
+  :root:not([data-user-color-scheme]) #navbar .site-nav-list .dropdown-menu .dropdown-item:hover,
+  :root:not([data-user-color-scheme]) #navbar .site-nav-list .dropdown-menu .dropdown-item:focus-visible,
+  :root:not([data-user-color-scheme]) #navbar .site-nav-list .nav-link:hover,
+  :root:not([data-user-color-scheme]) #navbar .site-nav-list .nav-link:focus-visible,
+  :root:not([data-user-color-scheme]) #navbar .site-nav-aux-link:hover,
+  :root:not([data-user-color-scheme]) #navbar .site-nav-aux-link:focus-visible {
+    background-color: var(--button-hover-bg-color);
+  }
+
+  :root:not([data-user-color-scheme]) #navbar .site-nav-list .nav-item.active .nav-link,
+  :root:not([data-user-color-scheme]) #navbar .site-nav-list .nav-item.active .nav-link:hover,
+  :root:not([data-user-color-scheme]) #navbar .site-nav-aux-link.active,
+  :root:not([data-user-color-scheme]) #navbar .site-nav-aux-link.active:hover {
+    color: var(--on-ink);
+    background-color: var(--surface-ink);
+  }
+
+  :root:not([data-user-color-scheme]) #navbar .site-nav-actions #color-toggle-btn:hover,
+  :root:not([data-user-color-scheme]) #navbar .site-nav-actions #color-toggle-btn:focus-visible {
+    background-color: var(--button-hover-bg-color);
+    color: var(--accent);
+  }
+
+  :root:not([data-user-color-scheme]) #navbar .site-nav-actions #color-toggle-btn:active {
+    background-color: var(--accent-soft);
+  }
+
+  :root:not([data-user-color-scheme]) #mobile-grid-menu {
+    background-color: rgba(36,32,25,.85);
+  }
+
+  :root:not([data-user-color-scheme]) #mobile-grid-menu .mobile-grid-item {
+    background-color: rgba(229,222,210,.06);
+    border-color: var(--glass-border);
+  }
+
+  :root:not([data-user-color-scheme]) #mobile-grid-menu .mobile-grid-item:hover,
+  :root:not([data-user-color-scheme]) #mobile-grid-menu .mobile-grid-item:active {
+    background-color: rgba(229,222,210,.10);
+  }
+
+  :root:not([data-user-color-scheme]) .cta-solid {
+    background-color: var(--surface-ink);
+    color: var(--on-ink);
+  }
+
+  :root:not([data-user-color-scheme]) .cta-solid:hover {
+    background-color: var(--block-orange);
+    color: var(--on-ink);
+  }
+
+  :root:not([data-user-color-scheme]) #pagination .page-item.active .page-link {
+    background-color: var(--surface-ink);
+    border-color: var(--surface-ink);
+    color: var(--on-ink);
+  }
+
+  :root:not([data-user-color-scheme]) .cell-yellow,
+  :root:not([data-user-color-scheme]) .cell-yellow .wall-cell-item {
+    color: var(--text-color);
+  }
+
+  :root:not([data-user-color-scheme]) .cell-orange,
+  :root:not([data-user-color-scheme]) .cell-orange .wall-cell-item {
+    color: var(--on-ink);
+  }
+
+  :root:not([data-user-color-scheme]) a.cell-plain:hover {
+    background-color: rgba(217,119,87,.20);
+  }
+
+  :root:not([data-user-color-scheme]) .wall-feature-mask {
+    background:
+      linear-gradient(180deg, rgba(27,23,18,.06) 30%, rgba(27,23,18,.82) 100%),
+      rgba(217,119,87,.10);
+  }
+
+  :root:not([data-user-color-scheme]) .wall-cell-mask {
+    background:
+      linear-gradient(180deg, rgba(27,23,18,.16) 0%, rgba(27,23,18,.82) 100%),
+      rgba(217,119,87,.10);
+  }
+
+  :root:not([data-user-color-scheme]) .about-copy-toast {
+    background-color: var(--surface-ink);
+    color: var(--on-ink);
+  }
+
+  :root:not([data-user-color-scheme]) .about-avatar-box {
+    background-color: rgba(229,222,210,.06);
+  }
+
+  :root:not([data-user-color-scheme]) .games-tile-cap {
+    background: var(--surface-ink);
+    color: var(--on-ink);
+  }
+
+  :root:not([data-user-color-scheme]) .games-tile-title,
+  :root:not([data-user-color-scheme]) .games-tile-sum {
+    color: var(--on-ink);
+  }
+
+  :root:not([data-user-color-scheme]) .games-tile-meta {
+    color: var(--on-ink-sec);
+  }
+
+  :root:not([data-user-color-scheme]) .cr-tile > a,
+  :root:not([data-user-color-scheme]) .cr-tile-cover {
+    background-color: var(--paper-float);
+  }
+
+  :root:not([data-user-color-scheme]) .cr-tile-rank {
+    color: #1b1712;
+    border-color: rgba(27,23,18,.22);
+  }
+
+  :root:not([data-user-color-scheme]) .fs-figure--css[data-slug="qixi"],
+  :root:not([data-user-color-scheme]) .fs-figure--css[data-slug="laba"] {
+    background: #e5ded2;
+  }
+
+  :root:not([data-user-color-scheme]) .z-toc-fab,
+  :root:not([data-user-color-scheme]).js .fs-toc-fab {
+    background: var(--glass-bg);
+    color: var(--text-color);
+    border-color: var(--glass-border);
+  }
+
+  :root:not([data-user-color-scheme]) .z-toc-overlay,
+  :root:not([data-user-color-scheme]) .fs-toc-overlay {
+    background: rgba(8,6,4,.55);
+  }
+
+  :root:not([data-user-color-scheme]) .z-toc-sheet,
+  :root:not([data-user-color-scheme]) .fs-toc-sheet {
+    background: var(--paper-float);
+    box-shadow: var(--site-float-shadow);
+  }
+
+  :root:not([data-user-color-scheme]) .cal-page {
+    --accent: #d97757;
+    --text-color: #e5ded2;
+    --sec-text-color: #b3aa9c;
+    --info-mark: #8f877a;
+    --z-link: #eea883;
+  }
+
+  :root:not([data-user-color-scheme]) .cal-page .cal-pinyin,
+  :root:not([data-user-color-scheme]) .cal-tick {
+    color: var(--sec-text-color);
+  }
+
+  :root:not([data-user-color-scheme]) .pg-holidays {
+    --accent: #d97757;
+    --accent-strong: #eea883;
+  }
+
+  :root:not([data-user-color-scheme]) .cal-panel {
+    background: var(--paper-float);
+    color: var(--text-color);
+  }
+
+  :root:not([data-user-color-scheme]) .cal-panel-close {
+    background: rgba(229,222,210,.22);
+    color: var(--text-color);
+  }
+
+  :root:not([data-user-color-scheme]) .cal-panel-close:hover {
+    background: rgba(229,222,210,.32);
+  }
+
+  :root:not([data-user-color-scheme]) .cal-panel-date,
+  :root:not([data-user-color-scheme]) .cal-panel-lunar,
+  :root:not([data-user-color-scheme]) .cal-panel-pinyin,
+  :root:not([data-user-color-scheme]) .cal-panel-extra,
+  :root:not([data-user-color-scheme]) .cal-panel-stat,
+  :root:not([data-user-color-scheme]) .cal-panel-credit {
+    color: var(--sec-text-color);
+  }
+
+  :root:not([data-user-color-scheme]) .cal-panel-dayno,
+  :root:not([data-user-color-scheme]) .cal-panel-desc,
+  :root:not([data-user-color-scheme]) .cal-panel-arrange {
+    color: var(--text-color);
+  }
+
+  :root:not([data-user-color-scheme]) .cal-panel-foot {
+    border-top-color: var(--glass-border);
+  }
+
+  :root:not([data-user-color-scheme]) .cal-cell.is-tip {
+    box-shadow: 0 0 0 2px var(--paper-float), 0 0 0 3.5px var(--text-color);
+  }
+
+  :root:not([data-user-color-scheme]) .cal-cell,
+  :root:not([data-user-color-scheme]) .cal-table tbody tr.is-hl {
+    background-color: var(--ink-tint);
+  }
+
+  :root:not([data-user-color-scheme]) .cal-cell.is-weekend,
+  :root:not([data-user-color-scheme]) .cal-cell.is-makeup,
+  :root:not([data-user-color-scheme]) .cal-swatch.is-weekend,
+  :root:not([data-user-color-scheme]) .cal-swatch.is-makeup {
+    background-color: var(--ink-tint-2);
+  }
+
+  :root:not([data-user-color-scheme]) .cal-table thead th {
+    border-bottom-color: var(--glass-border);
+  }
+
+  :root:not([data-user-color-scheme]) .cal-crumb [aria-hidden='true'] {
+    color: rgba(229,222,210,.22);
+  }
+
+  :root:not([data-user-color-scheme]) .cal-hint::before {
+    color: rgba(229,222,210,.30);
+  }
+
+  :root:not([data-user-color-scheme]) .markdown-body .hljs,
+  :root:not([data-user-color-scheme]) .markdown-body .highlight pre,
+  :root:not([data-user-color-scheme]) .markdown-body .code-wrapper pre,
+  :root:not([data-user-color-scheme]) .markdown-body figure.highlight td.gutter {
+    background-color: var(--highlight-bg-color);
+  }
+
+  :root:not([data-user-color-scheme]) .markdown-body code {
+    background-color: var(--inlinecode-bg-color);
+  }
+}
+
+@media not print {
+  [data-user-color-scheme="dark"] {
+    --accent: #d97757;
+    --accent-strong: #eea883;
+    --info-mark: #8f877a;
+    --accent-soft: rgba(217,119,87,.12);
+    --cream: rgba(36,32,25,.62);
+    --site-chip-border: rgba(229,222,210,.10);
+    --site-float-shadow: 0 12px 32px -14px rgba(8,6,4,.65);
+    --line-strong: rgba(229,222,210,.22);
+    --rule: rgba(229,222,210,.22);
+    --block-yellow: rgba(217,119,87,.16);
+    --block-orange: #d97757;
+    --surface-ink: #e5ded2;
+    --on-ink: #1b1712;
+    --on-ink-sec: rgba(27,23,18,.72);
+    --on-ink-line: rgba(27,23,18,.16);
+    --selection-bg: rgba(229,222,210,.18);
+    --glass-border: rgba(229,222,210,.10);
+    --glass-inset: rgba(229,222,210,.06);
+    --glass-bg: rgba(36,32,25,.72);
+    --paper-float: #242019;
+    --ink-tint: rgba(229,222,210,.06);
+    --ink-tint-2: rgba(229,222,210,.13);
+    background-color: #1a1814;
+  }
+
+  /* 年历页暗态修补（手动选择分支）：与跟随系统分支逐字同值，成对双分支不漂移。 */
+  [data-user-color-scheme="dark"] .hy-yearpick-panel {
+    background: #242019;
+    color: var(--text-color);
+  }
+  [data-user-color-scheme="dark"] .hy-stats li {
+    background: #242019;
+    color: var(--text-color);
+  }
+  [data-user-color-scheme="dark"] .hy-card-media {
+    background: #242019;
+    color: var(--text-color);
+  }
+  [data-user-color-scheme="dark"] .hy-tag {
+    background: #fdfaf4;
+    color: #1b1712;
+    border-color: rgba(27,23,18,.22);
+  }
+  [data-user-color-scheme="dark"] .hy-kind {
+    background: #fdfaf4;
+    color: #1b1712;
+    border-color: rgba(27,23,18,.22);
+  }
+  [data-user-color-scheme="dark"] .hy-kind--accent {
+    background: #fdfaf4;
+    color: #1b1712;
+    border-color: rgba(27,23,18,.22);
+  }
+
+  [data-user-color-scheme="dark"] body::before {
+    background:
+      radial-gradient(46vw 46vw at 82% 6%, rgba(217,119,87,.10), transparent 68%),
+      radial-gradient(42vw 42vw at 10% 82%, rgba(176,146,96,.08), transparent 68%),
+      radial-gradient(34vw 34vw at 4% 42%, rgba(200,120,96,.09), transparent 68%),
+      radial-gradient(30vw 30vw at 72% 90%, rgba(126,142,106,.07), transparent 68%),
+      linear-gradient(180deg, #1a1814 0%, #1c1916 55%, #1f1b17 100%);
+  }
+
+  [data-user-color-scheme="dark"] #navbar .site-nav-capsule,
+  [data-user-color-scheme="dark"] #navbar .site-nav-aux,
+  [data-user-color-scheme="dark"] #navbar .site-nav-list .dropdown-menu,
+  [data-user-color-scheme="dark"] #modalSearch .modal-content,
+  [data-user-color-scheme="dark"] .cal-table-wrap,
+  [data-user-color-scheme="dark"] .z-nav-strip,
+  [data-user-color-scheme="dark"] .fs-nav-strip,
+  [data-user-color-scheme="dark"] .cal-panel {
+    border-color: var(--glass-border);
+    box-shadow: var(--site-float-shadow), inset 0 1px 0 var(--glass-inset);
+  }
+
+  [data-user-color-scheme="dark"] #navbar .site-nav-list .dropdown-menu,
+  [data-user-color-scheme="dark"] #modalSearch .modal-content,
+  [data-user-color-scheme="dark"] .cal-table-wrap {
+    background-color: var(--glass-bg);
+  }
+
+  [data-user-color-scheme="dark"] #navbar .site-nav-list .dropdown-menu .dropdown-item:hover,
+  [data-user-color-scheme="dark"] #navbar .site-nav-list .dropdown-menu .dropdown-item:focus-visible,
+  [data-user-color-scheme="dark"] #navbar .site-nav-list .nav-link:hover,
+  [data-user-color-scheme="dark"] #navbar .site-nav-list .nav-link:focus-visible,
+  [data-user-color-scheme="dark"] #navbar .site-nav-aux-link:hover,
+  [data-user-color-scheme="dark"] #navbar .site-nav-aux-link:focus-visible {
+    background-color: var(--button-hover-bg-color);
+  }
+
+  [data-user-color-scheme="dark"] #navbar .site-nav-list .nav-item.active .nav-link,
+  [data-user-color-scheme="dark"] #navbar .site-nav-list .nav-item.active .nav-link:hover,
+  [data-user-color-scheme="dark"] #navbar .site-nav-aux-link.active,
+  [data-user-color-scheme="dark"] #navbar .site-nav-aux-link.active:hover {
+    color: var(--on-ink);
+    background-color: var(--surface-ink);
+  }
+
+  [data-user-color-scheme="dark"] #navbar .site-nav-actions #color-toggle-btn:hover,
+  [data-user-color-scheme="dark"] #navbar .site-nav-actions #color-toggle-btn:focus-visible {
+    background-color: var(--button-hover-bg-color);
+    color: var(--accent);
+  }
+
+  [data-user-color-scheme="dark"] #navbar .site-nav-actions #color-toggle-btn:active {
+    background-color: var(--accent-soft);
+  }
+
+  [data-user-color-scheme="dark"] #mobile-grid-menu {
+    background-color: rgba(36,32,25,.85);
+  }
+
+  [data-user-color-scheme="dark"] #mobile-grid-menu .mobile-grid-item {
+    background-color: rgba(229,222,210,.06);
+    border-color: var(--glass-border);
+  }
+
+  [data-user-color-scheme="dark"] #mobile-grid-menu .mobile-grid-item:hover,
+  [data-user-color-scheme="dark"] #mobile-grid-menu .mobile-grid-item:active {
+    background-color: rgba(229,222,210,.10);
+  }
+
+  [data-user-color-scheme="dark"] .cta-solid {
+    background-color: var(--surface-ink);
+    color: var(--on-ink);
+  }
+
+  [data-user-color-scheme="dark"] .cta-solid:hover {
+    background-color: var(--block-orange);
+    color: var(--on-ink);
+  }
+
+  [data-user-color-scheme="dark"] #pagination .page-item.active .page-link {
+    background-color: var(--surface-ink);
+    border-color: var(--surface-ink);
+    color: var(--on-ink);
+  }
+
+  [data-user-color-scheme="dark"] .cell-yellow,
+  [data-user-color-scheme="dark"] .cell-yellow .wall-cell-item {
+    color: var(--text-color);
+  }
+
+  [data-user-color-scheme="dark"] .cell-orange,
+  [data-user-color-scheme="dark"] .cell-orange .wall-cell-item {
+    color: var(--on-ink);
+  }
+
+  [data-user-color-scheme="dark"] a.cell-plain:hover {
+    background-color: rgba(217,119,87,.20);
+  }
+
+  [data-user-color-scheme="dark"] .wall-feature-mask {
+    background:
+      linear-gradient(180deg, rgba(27,23,18,.06) 30%, rgba(27,23,18,.82) 100%),
+      rgba(217,119,87,.10);
+  }
+
+  [data-user-color-scheme="dark"] .wall-cell-mask {
+    background:
+      linear-gradient(180deg, rgba(27,23,18,.16) 0%, rgba(27,23,18,.82) 100%),
+      rgba(217,119,87,.10);
+  }
+
+  [data-user-color-scheme="dark"] .about-copy-toast {
+    background-color: var(--surface-ink);
+    color: var(--on-ink);
+  }
+
+  [data-user-color-scheme="dark"] .about-avatar-box {
+    background-color: rgba(229,222,210,.06);
+  }
+
+  [data-user-color-scheme="dark"] .games-tile-cap {
+    background: var(--surface-ink);
+    color: var(--on-ink);
+  }
+
+  [data-user-color-scheme="dark"] .games-tile-title,
+  [data-user-color-scheme="dark"] .games-tile-sum {
+    color: var(--on-ink);
+  }
+
+  [data-user-color-scheme="dark"] .games-tile-meta {
+    color: var(--on-ink-sec);
+  }
+
+  [data-user-color-scheme="dark"] .cr-tile > a,
+  [data-user-color-scheme="dark"] .cr-tile-cover {
+    background-color: var(--paper-float);
+  }
+
+  [data-user-color-scheme="dark"] .cr-tile-rank {
+    color: #1b1712;
+    border-color: rgba(27,23,18,.22);
+  }
+
+  [data-user-color-scheme="dark"] .fs-figure--css[data-slug="qixi"],
+  [data-user-color-scheme="dark"] .fs-figure--css[data-slug="laba"] {
+    background: #e5ded2;
+  }
+
+  [data-user-color-scheme="dark"] .z-toc-fab,
+  [data-user-color-scheme="dark"].js .fs-toc-fab {
+    background: var(--glass-bg);
+    color: var(--text-color);
+    border-color: var(--glass-border);
+  }
+
+  [data-user-color-scheme="dark"] .z-toc-overlay,
+  [data-user-color-scheme="dark"] .fs-toc-overlay {
+    background: rgba(8,6,4,.55);
+  }
+
+  [data-user-color-scheme="dark"] .z-toc-sheet,
+  [data-user-color-scheme="dark"] .fs-toc-sheet {
+    background: var(--paper-float);
+    box-shadow: var(--site-float-shadow);
+  }
+
+  [data-user-color-scheme="dark"] .cal-page {
+    --accent: #d97757;
+    --text-color: #e5ded2;
+    --sec-text-color: #b3aa9c;
+    --info-mark: #8f877a;
+    --z-link: #eea883;
+  }
+
+  [data-user-color-scheme="dark"] .cal-page .cal-pinyin,
+  [data-user-color-scheme="dark"] .cal-tick {
+    color: var(--sec-text-color);
+  }
+
+  [data-user-color-scheme="dark"] .pg-holidays {
+    --accent: #d97757;
+    --accent-strong: #eea883;
+  }
+
+  [data-user-color-scheme="dark"] .cal-panel {
+    background: var(--paper-float);
+    color: var(--text-color);
+  }
+
+  [data-user-color-scheme="dark"] .cal-panel-close {
+    background: rgba(229,222,210,.22);
+    color: var(--text-color);
+  }
+
+  [data-user-color-scheme="dark"] .cal-panel-close:hover {
+    background: rgba(229,222,210,.32);
+  }
+
+  [data-user-color-scheme="dark"] .cal-panel-date,
+  [data-user-color-scheme="dark"] .cal-panel-lunar,
+  [data-user-color-scheme="dark"] .cal-panel-pinyin,
+  [data-user-color-scheme="dark"] .cal-panel-extra,
+  [data-user-color-scheme="dark"] .cal-panel-stat,
+  [data-user-color-scheme="dark"] .cal-panel-credit {
+    color: var(--sec-text-color);
+  }
+
+  [data-user-color-scheme="dark"] .cal-panel-dayno,
+  [data-user-color-scheme="dark"] .cal-panel-desc,
+  [data-user-color-scheme="dark"] .cal-panel-arrange {
+    color: var(--text-color);
+  }
+
+  [data-user-color-scheme="dark"] .cal-panel-foot {
+    border-top-color: var(--glass-border);
+  }
+
+  [data-user-color-scheme="dark"] .cal-cell.is-tip {
+    box-shadow: 0 0 0 2px var(--paper-float), 0 0 0 3.5px var(--text-color);
+  }
+
+  [data-user-color-scheme="dark"] .cal-cell,
+  [data-user-color-scheme="dark"] .cal-table tbody tr.is-hl {
+    background-color: var(--ink-tint);
+  }
+
+  [data-user-color-scheme="dark"] .cal-cell.is-weekend,
+  [data-user-color-scheme="dark"] .cal-cell.is-makeup,
+  [data-user-color-scheme="dark"] .cal-swatch.is-weekend,
+  [data-user-color-scheme="dark"] .cal-swatch.is-makeup {
+    background-color: var(--ink-tint-2);
+  }
+
+  [data-user-color-scheme="dark"] .cal-table thead th {
+    border-bottom-color: var(--glass-border);
+  }
+
+  [data-user-color-scheme="dark"] .cal-crumb [aria-hidden='true'] {
+    color: rgba(229,222,210,.22);
+  }
+
+  [data-user-color-scheme="dark"] .cal-hint::before {
+    color: rgba(229,222,210,.30);
+  }
+
+  [data-user-color-scheme="dark"] .markdown-body .hljs,
+  [data-user-color-scheme="dark"] .markdown-body .highlight pre,
+  [data-user-color-scheme="dark"] .markdown-body .code-wrapper pre,
+  [data-user-color-scheme="dark"] .markdown-body figure.highlight td.gutter {
+    background-color: var(--highlight-bg-color);
+  }
+
+  [data-user-color-scheme="dark"] .markdown-body code {
+    background-color: var(--inlinecode-bg-color);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html, body,
+  #navbar .site-nav-capsule, #navbar .site-nav-aux,
+  #navbar .site-nav-list .dropdown-menu, #modalSearch .modal-content,
+  .cal-table-wrap, .z-nav-strip, .fs-nav-strip,
+  .cr-tile > a, .cta-solid, #pagination .page-item .page-link,
+  .markdown-body code {
+    transition: background-color .18s ease, color .18s ease,
+      border-color .18s ease, filter .18s ease;
+  }
+}
+
+/* ===== /15. 暗色模式（本任务结束） ===== */
+

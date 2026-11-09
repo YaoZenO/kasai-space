@@ -32,6 +32,18 @@ const keywords: string = Array.isArray(siteConfig.keywords)
 
 const themeColor: string = themeConfig.color?.navbar_bg_color || '';
 
+// 2026-11-09 防首屏 FOUC：内联、同步、阻塞，位置在首个 CSS link（Styles.astro）之前。
+// /js/color-schema.js 是 defer，解析完成后才执行，已存 dark 的访客会先闪一帧浅色。
+// 只认 light / dark 两个值；LS 为空则什么都不写，属性不存在 = 跟随系统。
+const darkModeBootScript = `(function () {
+  try {
+    var v = localStorage.getItem('Fluid_Color_Scheme');
+    if (v === 'light' || v === 'dark') {
+      document.documentElement.setAttribute('data-user-color-scheme', v);
+    }
+  } catch (e) {}
+})();`;
+
 const ogHtml = openGraphEnable
   ? openGraphTags({
       title: title || siteConfig.title,
@@ -68,6 +80,8 @@ const ogHtml = openGraphEnable
 {openGraphEnable && <Fragment set:html={ogHtml} />}
 
 <title>{fullTitle}</title>
+
+{darkModeEnable && <script is:inline set:html={darkModeBootScript} />}
 
 <Styles markdownPlugins={markdownPlugins} />
 

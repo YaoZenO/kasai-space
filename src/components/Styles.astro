@@ -2,7 +2,7 @@
 // 主题 CSS 引入顺序（与 _partials/css.ejs 完全一致）
 // 版本号 ?v= 由 tools/stamp-assets.mjs 在构建后统一盖章，这里不写死。
 
-import { themeConfig } from '../lib/site-config';
+import { themeConfig, darkModeEnable } from '../lib/site-config';
 
 interface Props {
   /** 页面正文含 Markdown 时，主题会额外注入这三个样式（顺序与现站一致） */
@@ -34,5 +34,10 @@ const customCss: string = themeConfig.custom_css || '';
 
 <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="/css/highlight.css"></noscript>
+
+{/* 2026-11-09：与 _partials/css.ejs 同条件，暗态代码高亮由 color-schema.js 切 disabled */}
+{darkModeEnable && (
+  <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" media="print" onload="this.media='all'">
+)}
 
 {customCss && <link rel="stylesheet" href={customCss} />}

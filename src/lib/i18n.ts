@@ -8,7 +8,9 @@ export const zhCN = {
   page404: { menu: '页面不存在', title: '页面不存在', subtitle: '页面不存在' },
   search: { title: '搜索', keyword: '关键词' },
   noscript_warning: '博客在允许 JavaScript 运行的环境下浏览效果更佳',
-  darkmode: { light: '开灯', dark: '关灯' },
+  // 2026-11-09：与 themes/fluid/languages/zh-CN.yml 同源，只用功能性文案「浅色 / 深色」。
+  // light = 点击后切到浅色（当前深色时显示）；dark = 点击后切到深色（当前浅色时显示）。
+  darkmode: { light: '浅色', dark: '深色' },
   about: { menu: '关于', title: '关于', subtitle: '关于' },
   links: { menu: '友链', title: '友链', subtitle: '友情链接' },
   post: {

@@ -69,6 +69,8 @@ search:
 
 noscript_warning: '博客在允许 JavaScript 运行的环境下浏览效果更佳'
 
+# 2026-11-09：切换按钮只用功能性文案「浅色 / 深色」，不写口号、不新增品牌位。
+# light = 点击后切到浅色（当前深色时显示）；dark = 点击后切到深色（当前浅色时显示）。
 darkmode:
-  light: '开灯'
-  dark: '关灯'
+  light: '浅色'
+  dark: '深色'

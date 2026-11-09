@@ -20,6 +20,22 @@ var ogConfig = Object.assign({
 <head>
   <meta charset="UTF-8">
 
+  <%# 2026-11-09 防首屏 FOUC：必须在首个 CSS link 之前、内联同步阻塞执行。
+      color-schema.js 是 defer，解析完成后才跑，已存 dark 的访客会先闪一帧浅色。
+      只认 light / dark 两个值；LS 为空则什么都不写，属性不存在 = 跟随系统。 %>
+  <% if (theme.dark_mode && theme.dark_mode.enable) { %>
+  <script>
+    (function () {
+      try {
+        var v = localStorage.getItem('Fluid_Color_Scheme');
+        if (v === 'light' || v === 'dark') {
+          document.documentElement.setAttribute('data-user-color-scheme', v);
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <% } %>
+
   <link rel="apple-touch-icon" sizes="180x180" href="<%= url_for(theme.apple_touch_icon) %>">
   <link rel="icon" type="image/png" sizes="32x32" href="<%= url_for(theme.favicon) %>">
   <link rel="icon" type="image/png" sizes="16x16" href="<%= url_for(theme.favicon_16 || theme.favicon) %>">

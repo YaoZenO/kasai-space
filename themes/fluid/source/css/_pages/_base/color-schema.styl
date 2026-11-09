@@ -45,17 +45,19 @@ dark-colors()
   --fold-title-color $text-color-dark
   --fold-border-color $line-color-dark
 
+  // 2026-11-09：照片格已有 mask 兜底，再叠 .9 是二次压暗；降到 .97 只保留极轻的暗态收敛。
   img
-    -webkit-filter brightness(.9)
-    filter brightness(.9)
+    -webkit-filter brightness(.97)
+    filter brightness(.97)
     transition filter .2s ease-in-out
 
   .navbar .dropdown-collapse, .top-nav-collapse, .navbar-col-show
     if $navbar-glass-enable
       ground-glass($navbar-glass-px, $navbar-bg-color-dark, $navbar-glass-alpha)
 
+  // 2026-11-09：去 Fluid 原厂冷蓝灰，与暗态面板 #242019 同色域。
   .license-box
-    background-color rgba(#3e4b5e, .35)
+    background-color rgba(36, 32, 25, .35)
     transition background-color .2s ease-in-out
 
   .gt-comment-admin .gt-comment-content

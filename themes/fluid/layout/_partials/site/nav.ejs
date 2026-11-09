@@ -87,15 +87,19 @@ var currentPath = ('/' + (page.path || '')).replace(/index\.html$/, '')
           <i class="iconfont icon-search"></i>
         </a>
       <% } %>
+      <%# 2026-11-09：桌面切换按钮在搜索之后、汉堡之前（Tab 顺序 = DOM 顺序 = 视觉顺序）。
+          必须是 button 且必须带 #color-toggle-btn —— color-schema.js 绑定这个 id，
+          原模板只有 <a href="javascript:;"> 无 id，点击会落空。aria 由 color-schema.js 同步。 %>
+      <% if (theme.dark_mode && theme.dark_mode.enable) { %>
+        <button type="button" id="color-toggle-btn" class="nav-link d-none d-lg-flex"
+                aria-label="切换到深色模式" aria-pressed="false">
+          <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+        </button>
+      <% } %>
       <button id="navbar-toggler-btn" class="navbar-toggler site-nav-toggle" type="button"
               aria-controls="mobile-grid-menu" aria-expanded="false" aria-label="Toggle navigation">
         <div class="animated-icon"><span></span><span></span><span></span></div>
       </button>
-      <% if (theme.dark_mode && theme.dark_mode.enable) { %>
-        <a class="nav-link d-none d-lg-flex" target="_self" href="javascript:;" aria-label="Color Toggle">
-          <i class="iconfont icon-dark" id="color-toggle-icon"></i>
-        </a>
-      <% } %>
     </div>
   </div>
 </nav>
@@ -164,16 +168,17 @@ var currentPath = ('/' + (page.path || '')).replace(/index\.html$/, '')
             </a>
           </div>
         <% } %>
+        <%# 2026-11-09：最后一格沿用 col-4 mobile-grid-cell；按钮改用原生 button，
+            可见文字标签与 aria-label 同源，都是功能性中文「深色 / 浅色」，不写口号。 %>
         <% if (theme.dark_mode && theme.dark_mode.enable) { %>
           <div class="col-4 mobile-grid-cell" id="mobile-color-toggle-btn"
                data-label-light="<%= __('darkmode.light') %>"
                data-label-dark="<%= __('darkmode.dark') %>">
-            <a href="javascript:;" aria-label="Color Toggle">
-              <div class="mobile-grid-item">
-                <i class="iconfont icon-dark" id="mobile-color-toggle-icon"></i>
-                <span id="mobile-color-toggle-label"><%= __('darkmode.dark') %></span>
-              </div>
-            </a>
+            <button type="button" class="mobile-grid-item"
+                    aria-label="切换到深色模式" aria-pressed="false">
+              <i class="iconfont icon-dark" id="mobile-color-toggle-icon"></i>
+              <span id="mobile-color-toggle-label"><%= __('darkmode.dark') %></span>
+            </button>
           </div>
         <% } %>
       </div>

@@ -19,3 +19,5 @@ for $inject_style in hexo-config("injects.style")
   @import $inject_style;
 
 // 2026-10-18：VD-1 文章页三色回归纸面体系（颜色源自 theme.color，见 _config.yml）
+// 2026-11-09：dark_mode 启用 + color 段暖调校准。改动本注释是为了让 Hexo 增量构建
+// 命中 Stylus 源文件变更、强制重编译 main.css（只改 _config.yml 会命中缓存不重编译）。
