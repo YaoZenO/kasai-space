@@ -637,7 +637,10 @@ ok('Astro 产物：/holidays/2026/ 六块齐全，月卡 / 放假格 / 补班格
   assert.ok(html.length > 50000, 'dist 页面只有 ' + html.length + ' 字节，像是渲染中断（E-029 同型）');
 
   // 六块的结构锚点
-  ['hy-head', 'hy-months', 'hy-legend', 'hy-detail', 'hy-card-grid', 'hy-fest-grid', 'hy-season-grid', 'hy-faq-list']
+  ['hy-head', 'hy-months', 'hy-legend', 'hy-detail', 'hy-card-grid', 'hy-fest-grid', 'hy-season-grid', 'hy-faq-list',
+    // 2026-11-09：图例必须解释「灰框 = 周末」「红框 = 假期最集中的月份」，
+    // 否则宫格里这两种视觉标记没有出处（主人原话：「没注意到哪里说明」）。
+    'hy-lg--weekend', 'hy-lg--focus']
     .forEach((c) => assert.ok(html.indexOf(c) !== -1, '缺少结构块：' + c));
 
   // 12 月宫格 + 计数
@@ -681,6 +684,24 @@ ok('Astro 产物：/holidays/2026/ 六块齐全，月卡 / 放假格 / 补班格
   ['cal-grid', 'cal-fest-col', 'cal-day-data'].forEach((old) => {
     assert.strictEqual(html.indexOf(old), -1, '旧结构 ' + old + ' 又出现了');
   });
+});
+
+ok('Astro 产物：FAQ 按当年生成，不串年份（2026-11-09 修订）', () => {
+  const p26 = path.join(OUT, 'holidays', '2026', 'index.html');
+  const p27 = path.join(OUT, 'holidays', '2027', 'index.html');
+  if (!fs.existsSync(p27)) return;
+  // 只截 FAQ 那一块，别把页脚来源行里的其它年份算进来
+  const faqOf = (file) => {
+    const html = fs.readFileSync(file, 'utf8');
+    const from = html.indexOf('hy-faq-list');
+    return html.slice(from, html.indexOf('</section>', from));
+  };
+  const f26 = faqOf(p26);
+  const f27 = faqOf(p27);
+  assert.ok(f26.indexOf('2026 年春节') !== -1, '2026 页 FAQ 没讲 2026 年春节');
+  assert.strictEqual(f26.indexOf('2027'), -1, '2026 页 FAQ 里出现了 2027 的内容（串年份）');
+  assert.ok(f27.indexOf('2027 年春节') !== -1, '2027 页 FAQ 没讲 2027 年春节');
+  assert.strictEqual(f27.indexOf('2026 年'), -1, '2027 页 FAQ 里出现了 2026 年的内容');
 });
 
 // ---------- ④ 断言自检 ----------

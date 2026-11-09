@@ -416,13 +416,52 @@ function buildCalendar(raw: any, wantYear?: any): any {
     lede = parts.join('');
   }
 
+  // ---- 常见问题（按年份现算）----
+  // 2026-11-09 主人反馈：底部 FAQ 不管打开哪一年都在讲 2027。
+  // 原因是以前直接取 yml 的 meta.faq，而那份文案是照着 2027 写的。
+  // 现在只保留与年份无关的通用问题，其余用当年数据现算，避免十六个年份互相串台。
+  const genericFaq = (data.meta && Array.isArray(data.meta.faq) ? data.meta.faq : [])
+    .filter((item: any) => !/\d{4}\s*年/.test(String((item && item.q) || '')));
+  const answerOf = (h: any) => h.startLabel + '（' + WEEK_CN[weekdayOf(h.start)] + '）至 '
+    + h.endLabel + '（' + WEEK_CN[weekdayOf(h.end)] + '）放假，连休 ' + h.days
+    + ' 天，其中法定假日 ' + h.statutory + ' 天。';
+  const faq: any[] = [];
+  faq.push(official
+    ? {
+      q: year + ' 年的放假安排是什么？',
+      a: '全年放假 ' + stats.holidayDays + ' 天（含调休），其中法定假日 ' + stats.statutoryDays
+        + ' 天，调休补班 ' + stats.makeupDays + ' 天。具体区间见上方日历与月份明细。',
+    }
+    : {
+      q: year + ' 年的放假安排官方公布了吗？',
+      a: '还没有。国务院办公厅通常在前一年 11 月前后发布次年通知。本页 ' + year
+        + ' 年的放假区间是按《全国年节及纪念日放假办法》与近年调休惯例推算的预期值，'
+        + '节日当天的公历日期本身是确定的。',
+    });
+  if (cj) {
+    faq.push({
+      q: year + ' 年春节是哪一天？',
+      a: mdCn(cj.date) + '，' + WEEK_FULL[weekdayOf(cj.date)] + '，'
+        + (cj.lunarNote ? cj.lunarNote + '。' : '') + answerOf(cj),
+    });
+  }
+  if (gq) faq.push({ q: year + ' 年国庆放几天？', a: answerOf(gq) });
+  const zq = byId('zhongqiu');
+  if (zq) {
+    faq.push({
+      q: year + ' 年中秋是哪一天？',
+      a: mdCn(zq.date) + '，' + WEEK_FULL[weekdayOf(zq.date)] + '。' + answerOf(zq),
+    });
+  }
+  faq.push(...genericFaq);
+
   return {
     year: year,
     lede: lede,
     years: years.map((y: any) => y.year),
     current: Number(src.year),
     prose: (data.meta && data.meta.prose) || '',
-    faq: (data.meta && Array.isArray(data.meta.faq) ? data.meta.faq : []),
+    faq: faq,
     label: label,
     official: official,
     zodiac: src.zodiac || '',

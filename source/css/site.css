@@ -3379,7 +3379,18 @@ body.is-home footer {
   line-height: 1;
 }
 
-.hy-day--weekend .hy-dn { color: var(--sec-text-color); }
+/* 周末：灰字 + 灰框灰底。
+   2026-11-09 主人反馈「灰色数字和黑色工作日完全看不出区别」——只改文字色不够，
+   必须给格子本身一个可辨识的轮廓。颜色由 --text-color 派生，亮/暗主题各自适配
+   （暗色下 --text-color 变浅，框与底随之变亮）。第二行 color-mix 是新语法，
+   不支持时回退到上一行的固定墨色。 */
+.hy-day--weekend .hy-dn {
+  color: var(--sec-text-color);
+  background: rgba(27, 23, 18, .06);
+  background: color-mix(in srgb, var(--text-color) 8%, transparent);
+  box-shadow: 0 0 0 1px rgba(27, 23, 18, .2);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text-color) 28%, transparent);
+}
 .hy-day--holiday .hy-dn { background: var(--accent); color: var(--on-ink); font-weight: 700; }
 .hy-day--work .hy-dn { border: 1.5px solid var(--accent); color: var(--accent-strong); font-weight: 700; }
 
@@ -3429,6 +3440,16 @@ body.is-home footer {
 .hy-lg--holiday { background: var(--accent); color: var(--on-ink); }
 .hy-lg--work { border: 1.5px solid var(--accent); }
 .hy-lg--fest { width: 4px; height: 4px; border-radius: 999px; background: var(--info-mark); }
+/* 图例：周末格（与 .hy-day--weekend .hy-dn 同款灰框灰底） */
+.hy-lg--weekend {
+  color: var(--sec-text-color);
+  background: rgba(27, 23, 18, .06);
+  background: color-mix(in srgb, var(--text-color) 8%, transparent);
+  box-shadow: 0 0 0 1px rgba(27, 23, 18, .2);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text-color) 28%, transparent);
+}
+/* 图例：全年假期最集中的月份（宫格里 .hy-month--focus 的红框红底） */
+.hy-lg--focus { border: 1px solid var(--accent); background: var(--accent-soft); }
 
 /* 月份明细 */
 .hy-detail {
