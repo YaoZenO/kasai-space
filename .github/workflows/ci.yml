@@ -19,14 +19,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          # 与 package.json engines（24.x）和 Vercel 生产构建保持一致（E-133）。
-          # 这里原先写 22：Hexo 8 支持 Node 22，但 Astro 7 要求 >=22.23.4，
-          # setup-node 的 "22" 解析到的补丁版本低于该要求，构建在 Astro 的
-          # Node 版本检查处直接退出，表现为 verify 在 20 多秒内失败。
+          # 与 package.json engines（24.x）和 Vercel 生产构建对齐（E-112 同族）。
+          # 注意：这不是 verify 变红的原因——那次红是步骤顺序问题，见 E-133。
           node-version: 24
           cache: npm
       - run: npm ci
-      # 0. 构建环境门禁：engines 主版本 = 当前 Node = ci.yml 的 node-version（E-112 / E-133）
+      # 0. 构建环境门禁：engines 主版本 = 当前 Node = ci.yml 的 node-version（E-112）
       - name: Build env
         run: npm run test:env
       # 1. 语法门禁：api 函数 + 后台前端 + 测试脚本
@@ -39,18 +37,19 @@ jobs:
       # 2. 后台服务端冒烟（mock 模式，零依赖零密钥）
       - name: Admin smoke
         run: npm run test:admin
-      # 3. 前台模块页端到端（后台写入链路 → YAML 落盘 → Hexo 生成 → HTML 断言；结束后自动还原数据文件）
-      - name: Module pages E2E
-        run: npm run test:pages
-      # 3.5 前台/后台 CSS token 一致性（防止 --accent 两处漂移）
-      - name: CSS tokens
-        run: npm run test:tokens
-      # 3.6 账本引用可核对性（防止凭空引用 PRD 条款，见 E-015）
-      - name: Doc claims
-        run: npm run test:claims
-      # 3.7 文章发布器 Markdown⇄块 往返幂等性（见 E-017）
-      - name: Composer blocks roundtrip
-        run: npm run test:blocks
-      # 4. 前台构建门禁
+      # 3. 前台构建门禁。必须排在 test:pages 之前：该测试第 [10] 组断言直接读
+      #    真实 dist/index.html（E-133：顺序颠倒时 CI 必红，而本地 npm test 先构建，不复现）。
       - name: Astro build
         run: npm run build
+      # 4. 前台模块页端到端（后台写入链路 → YAML 落盘 → Astro 生成 → HTML 断言；结束后自动还原数据文件）
+      - name: Module pages E2E
+        run: npm run test:pages
+      # 5. 前台/后台 CSS token 一致性（防止 --accent 两处漂移）
+      - name: CSS tokens
+        run: npm run test:tokens
+      # 6. 账本引用可核对性（防止凭空引用 PRD 条款，见 E-015）
+      - name: Doc claims
+        run: npm run test:claims
+      # 7. 文章发布器 Markdown⇄块 往返幂等性（见 E-017）
+      - name: Composer blocks roundtrip
+        run: npm run test:blocks
