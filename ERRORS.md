@@ -164,6 +164,7 @@
 | E-130 | P2 | 节假日 FAQ 断言拿旧 Hexo helper 的条数当基准，与 Astro 实现的轮换题库分叉后当场变红 | 已修复（条数只锁产物区间 + 相邻年份重复度断言） |
 | E-131 | P2 | 只跑 `npx astro build` 验证 CSS，误以为样式没生效——该命令不经过 `prepare-assets`，`dist/css` 仍是旧副本 | 已记录（CSS 验证必须走完整 `npm run astro:build`） |
 | E-132 | P1 | 删掉 Hexo 依赖后 `feedsmith` / `nib` / `ejs` / `moment-timezone` 变成幽灵依赖：本地靠残留 node_modules 构建通过，CI 走 `npm ci` 直接崩 | 已修复（四包精确声明 + 锁文件补齐 + `test/deps.js` 声明与锁双断言接入 `npm test`） |
+| E-133 | P1 | CI 写死 Node 22、engines 却是 24.x，Astro 版本检查直接退出，verify 20 多秒必红 | 已修复（CI 改 Node 24，与 engines / Vercel 拉齐） |
 
 ---
 
@@ -2853,5 +2854,27 @@
   （`hexo`、`moment`、`nunjucks`、`hexo-pagination` 等），Astro 构建只用它的
   `source/` 样式源，把整套 Hexo 生态声明进来属本末倒置；该目录的退役需由主人另行决定。
   配套约定：本地判定「构建通过」前必须先 `npm ci`，不得用残留 `node_modules` 的结果当证据。
+
+---
+
+### E-133 CI 写死 Node 22，而项目 engines 声明 24.x
+
+- **发生时间：** 2026-11-09 ｜ **发现方式：** 主人反馈同一提交「Vercel 生产绿、GitHub CI 红」
+- **现象：** GitHub Actions 的 `verify` job 在 20–30 秒内失败，带 3 条 annotation；
+  同一提交的 Vercel 生产构建与本地 `npm run astro:build` 都是绿的。
+- **根因：** `package.json` 的 `engines.node` 是 `24.x`——Vercel 据此选 Node 24，
+  本地也是 24；而 `.github/workflows/ci.yml` 写死 `node-version: 22`。
+  Astro 7.4.7 要求 `>=22.23.4`，`setup-node` 的 `"22"` 取到的补丁版本低于该值，
+  构建在 Astro 启动时的 Node 版本检查处直接退出。失败点在 `npm ci` 之后的第一个
+  构建动作，而不是某条测试断言——这正是「本地绿、生产绿、只有 CI 红」的来源。
+  说明：本仓库私有，本机无 `gh` 与 `GITHUB_TOKEN`，Actions 日志无法在此环境读取；
+  该结论由「三处环境唯一差异 + 失败耗时」推断，以 CI 实际转绿为最终确认。
+- **修法：** CI 的 `node-version` 改为 `24`，与 engines 和 Vercel 拉齐；
+  顺手把残留的步骤名 `Hexo generate` 改为 `Astro build`。
+- **防复发（机制）：** `test/build-env.js` 增加一条断言——直接解析 `ci.yml` 的
+  `node-version`，与 `package.json` 的 `engines.node` 主版本比对，不一致即 FAIL；
+  `ci.yml` 也新增 `Build env` 步骤（`npm run test:env`）在 `npm ci` 之后先跑它。
+  只比对「当前构建机」不够：本地是 Node 24 时，ci.yml 写 22 也照样 PASS，
+  这正是这个问题能一直藏到 push 之后才暴露的原因。
 
 ---

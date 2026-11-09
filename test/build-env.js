@@ -55,5 +55,22 @@ if (enginesNode === `${currentMajor}.x`) {
   fail(`engines.node = "${enginesNode}"，与当前构建机 Node ${currentMajor}.x 不一致（会改变部署环境）`);
 }
 
+// 3. CI 的 node-version 主版本必须与 engines 一致（E-133）。
+// 只比对「当前构建机」不够：本地是 Node 24 时，ci.yml 里写着 22 也照样 PASS，
+// 「本地绿、CI 红」就一直藏到下一次 push。这里直接读 ci.yml 把两处钉在一起。
+const ciFile = path.join(ROOT, '.github', 'workflows', 'ci.yml');
+if (fs.existsSync(ciFile)) {
+  const matched = fs.readFileSync(ciFile, 'utf8').match(/node-version:\s*['"]?(\d+)['"]?/);
+  if (!matched) {
+    fail('ci.yml 里找不到 node-version');
+  } else if (`${matched[1]}.x` === enginesNode) {
+    pass(`ci.yml 的 node-version ${matched[1]} 与 engines.node ${enginesNode} 一致`);
+  } else {
+    fail(`ci.yml 的 node-version ${matched[1]} 与 engines.node ${enginesNode} 不一致（CI 会拿更低的 Node 构建）`);
+  }
+} else {
+  fail('.github/workflows/ci.yml 不存在');
+}
+
 console.log(`\nRESULTS: ${failed === 0 ? '全部通过' : failed + ' 项失败'}`);
 process.exit(failed === 0 ? 0 : 1);
