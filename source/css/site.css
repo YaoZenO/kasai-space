@@ -3405,10 +3405,10 @@ body.is-home footer {
    不支持时回退到上一行的固定墨色。 */
 .hy-day--weekend .hy-dn {
   color: var(--sec-text-color);
-  background: rgba(27, 23, 18, .06);
-  background: color-mix(in srgb, var(--text-color) 8%, transparent);
-  box-shadow: 0 0 0 1px rgba(27, 23, 18, .2);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text-color) 28%, transparent);
+  background: rgba(27, 23, 18, .09);
+  background: color-mix(in srgb, var(--text-color) 12%, transparent);
+  box-shadow: 0 0 0 1px rgba(27, 23, 18, .34);
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--text-color) 45%, transparent);
 }
 .hy-day--holiday .hy-dn { background: var(--accent); color: var(--on-ink); font-weight: 700; }
 .hy-day--work .hy-dn { border: 1.5px solid var(--accent); color: var(--accent-strong); font-weight: 700; }
@@ -3462,10 +3462,10 @@ body.is-home footer {
 /* 图例：周末格（与 .hy-day--weekend .hy-dn 同款灰框灰底） */
 .hy-lg--weekend {
   color: var(--sec-text-color);
-  background: rgba(27, 23, 18, .06);
-  background: color-mix(in srgb, var(--text-color) 8%, transparent);
-  box-shadow: 0 0 0 1px rgba(27, 23, 18, .2);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text-color) 28%, transparent);
+  background: rgba(27, 23, 18, .09);
+  background: color-mix(in srgb, var(--text-color) 12%, transparent);
+  box-shadow: 0 0 0 1px rgba(27, 23, 18, .34);
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--text-color) 45%, transparent);
 }
 /* 图例：全年假期最集中的月份（宫格里 .hy-month--focus 的红框红底） */
 .hy-lg--focus { border: 1px solid var(--accent); background: var(--accent-soft); }

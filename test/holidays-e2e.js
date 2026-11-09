@@ -663,7 +663,10 @@ ok('Astro 产物：/holidays/2026/ 六块齐全，月卡 / 放假格 / 补班格
   assert.strictEqual((html.match(/class="hy-term-name"/g) || []).length, 24, '节气不是 24 条');
   assert.strictEqual((html.match(/class="hy-fest-item"/g) || []).length,
     cal2026.festivals.filter((f) => f.kind !== '节气').length, '其他节日条数不对');
-  assert.strictEqual((html.match(/class="hy-faq-item"/g) || []).length, cal2026.faq.length, 'FAQ 条数不对');
+  // FAQ 条数不再与旧 helper 的 faq 数组比：那一份是 Hexo 时代的实现，未跟随
+  // src/lib/holiday-calendar.ts 的「按年份轮换题库」更新。这里只锁产物本身的区间。
+  const faqCount = (html.match(/class="hy-faq-item"/g) || []).length;
+  assert.ok(faqCount >= 5 && faqCount <= 8, 'FAQ 条数异常：' + faqCount + '（总览 + 春节 + 轮换 4 条 + 通用问题）');
 
   // 月份明细：12 个面板，默认只开一个（服务端就把 hidden 写死，不依赖脚本）
   assert.strictEqual((html.match(/class="hy-panel"/g) || []).length, 12, '明细面板不是 12 个');
@@ -702,6 +705,15 @@ ok('Astro 产物：FAQ 按当年生成，不串年份（2026-11-09 修订）', (
   assert.strictEqual(f26.indexOf('2027'), -1, '2026 页 FAQ 里出现了 2027 的内容（串年份）');
   assert.ok(f27.indexOf('2027 年春节') !== -1, '2027 页 FAQ 没讲 2027 年春节');
   assert.strictEqual(f27.indexOf('2026 年'), -1, '2027 页 FAQ 里出现了 2026 年的内容');
+
+  // 2026-11-09 主人第二次反馈：年份不串了，但每年仍是同样四个问题，太死板。
+  // 题库按年份轮换后，把年份数字抹掉再比，相邻两年最多只能有 2 条同型问题
+  // （固定保留的总览、春节 + 与年份无关的通用问题）。
+  const questionsOf = (s) => (s.match(/<summary>([^<]*)<\/summary>/g) || []).map((x) => x.replace(/<\/?summary>/g, ''));
+  const norm = (s) => questionsOf(s).map((q) => q.replace(/\d{4}\s*年/g, 'X 年'));
+  const shared = norm(f26).filter((q) => norm(f27).indexOf(q) !== -1);
+  assert.ok(shared.length <= 2,
+    '2026 与 2027 的 FAQ 问题几乎一样（重复 ' + shared.length + ' 条）：' + shared.join('、'));
 });
 
 // ---------- ④ 断言自检 ----------

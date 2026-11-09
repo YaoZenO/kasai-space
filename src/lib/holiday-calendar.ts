@@ -416,15 +416,20 @@ function buildCalendar(raw: any, wantYear?: any): any {
     lede = parts.join('');
   }
 
-  // ---- 常见问题（按年份现算）----
-  // 2026-11-09 主人反馈：底部 FAQ 不管打开哪一年都在讲 2027。
-  // 原因是以前直接取 yml 的 meta.faq，而那份文案是照着 2027 写的。
-  // 现在只保留与年份无关的通用问题，其余用当年数据现算，避免十六个年份互相串台。
+  // ---- 常见问题（按年份现算 + 按年份轮换）----
+  // 2026-11-09 主人两次反馈：①以前直接取 yml 的 meta.faq，那份文案是照 2027 写的，
+  // 于是十六个年份的底部问题全在讲 2027；②改成当年现算之后，每年仍是同样四个问题，太死板。
+  // 现在：总览 + 春节固定，其余从「只有当年数据才能回答」的题库里按年份轮换取四条，
+  // 相邻年份的问题组合不同；与年份无关的通用问题（meta.faq 中不含年份的）保留在末尾。
   const genericFaq = (data.meta && Array.isArray(data.meta.faq) ? data.meta.faq : [])
     .filter((item: any) => !/\d{4}\s*年/.test(String((item && item.q) || '')));
   const answerOf = (h: any) => h.startLabel + '（' + WEEK_CN[weekdayOf(h.start)] + '）至 '
     + h.endLabel + '（' + WEEK_CN[weekdayOf(h.end)] + '）放假，连休 ' + h.days
     + ' 天，其中法定假日 ' + h.statutory + ' 天。';
+  const dayOf = (h: any) => mdCn(h.date) + '，' + WEEK_FULL[weekdayOf(h.date)];
+  const makeupNote = (h: any) => (h.makeup && h.makeup.length
+    ? '补班安排在 ' + h.makeup.map((m: string) => mdCn(m)).join('、') + '。'
+    : '');
   const faq: any[] = [];
   faq.push(official
     ? {
@@ -441,17 +446,64 @@ function buildCalendar(raw: any, wantYear?: any): any {
   if (cj) {
     faq.push({
       q: year + ' 年春节是哪一天？',
-      a: mdCn(cj.date) + '，' + WEEK_FULL[weekdayOf(cj.date)] + '，'
+      a: dayOf(cj) + '，'
         + (cj.lunarNote ? cj.lunarNote + '。' : '') + answerOf(cj),
     });
   }
-  if (gq) faq.push({ q: year + ' 年国庆放几天？', a: answerOf(gq) });
-  const zq = byId('zhongqiu');
-  if (zq) {
-    faq.push({
-      q: year + ' 年中秋是哪一天？',
-      a: mdCn(zq.date) + '，' + WEEK_FULL[weekdayOf(zq.date)] + '。' + answerOf(zq),
+
+  // 题库：每条问题的答案都只来自本年数据，换一年问法与答法都会变。
+  const faqPool: any[] = [];
+  const pushPool = (id: string, build: (h: any) => any) => {
+    const h = byId(id);
+    if (h) faqPool.push(build(h));
+  };
+  pushPool('guoqing', (h) => ({
+    q: year + ' 年国庆节放几天？',
+    a: dayOf(h) + ' 是国庆节。' + answerOf(h) + makeupNote(h),
+  }));
+  pushPool('zhongqiu', (h) => ({
+    q: year + ' 年中秋节是哪一天？',
+    a: dayOf(h) + '。' + answerOf(h) + makeupNote(h),
+  }));
+  pushPool('yuandan', (h) => ({
+    q: year + ' 年元旦怎么放？',
+    a: dayOf(h) + ' 是元旦。' + answerOf(h),
+  }));
+  pushPool('qingming', (h) => ({
+    q: year + ' 年清明节是哪一天？',
+    a: dayOf(h) + ' 是清明节。' + answerOf(h),
+  }));
+  pushPool('laodong', (h) => ({
+    q: year + ' 年五一劳动节放几天？',
+    a: answerOf(h) + makeupNote(h),
+  }));
+  pushPool('duanwu', (h) => ({
+    q: year + ' 年端午节是哪一天？',
+    a: dayOf(h) + '。' + answerOf(h),
+  }));
+  {
+    const allMakeup = holidays.reduce((acc: string[], h: any) => acc.concat(h.makeup || []), []).sort();
+    faqPool.push({
+      q: year + ' 年要补几天班？分别是哪几天？',
+      a: allMakeup.length
+        ? '共 ' + allMakeup.length + ' 天调休补班：' + allMakeup.map((m: string) => mdCn(m)).join('、') + '。'
+        : '这一年没有调休补班，所有假期都不需要额外上班抵扣。',
     });
+    const longest = holidays.slice().sort((a: any, b: any) => b.days - a.days)[0];
+    faqPool.push({
+      q: year + ' 年最长的假期是哪个？',
+      a: '是' + longest.name + '，' + answerOf(longest),
+    });
+    faqPool.push({
+      q: year + ' 年的 ' + stats.statutoryDays + ' 天法定假日怎么分？',
+      a: holidays.map((h: any) => h.name + ' ' + h.statutory + ' 天').join('、') + '。',
+    });
+  }
+  // 以年份为种子轮换：步长 5 与题库长度 9 互质，相邻年份取到的四条完全不重叠；
+  // 同一年份每次构建结果一致，不会出现「刷新一次问题就变」。
+  const poolStart = (year * 5) % faqPool.length;
+  for (let i = 0; i < 4 && i < faqPool.length; i += 1) {
+    faq.push(faqPool[(poolStart + i) % faqPool.length]);
   }
   faq.push(...genericFaq);
 

@@ -161,6 +161,8 @@
 | E-127 | P1 | `color-schema.js` 是 defer，已存 dark 的访客首屏先渲染一帧浅色再跳暗（FOUC） | 已修复（head 内联同步脚本 + 位置早于首个 CSS link 断言） |
 | E-128 | P1 | 并行会话 4.12b 年历段用了 `top: calc(100% + .45rem)`，minifier 压掉加号空格后整条声明静默失效 | 已修复（`top:100%` + `margin-top` 等价改写 + E-064 双侧断言）；归属并行年历段，非暗色功能本体 |
 | E-129 | P2 | 两态状态机被写成隐性三态：切回默认值即清空 LS、初始化把系统偏好固化进 DOM 属性 | 已修复（属性不存在=跟随 + matchMedia change 守卫 + 静态不变量断言） |
+| E-130 | P2 | 节假日 FAQ 断言拿旧 Hexo helper 的条数当基准，与 Astro 实现的轮换题库分叉后当场变红 | 已修复（条数只锁产物区间 + 相邻年份重复度断言） |
+| E-131 | P2 | 只跑 `npx astro build` 验证 CSS，误以为样式没生效——该命令不经过 `prepare-assets`，`dist/css` 仍是旧副本 | 已记录（CSS 验证必须走完整 `npm run astro:build`） |
 
 ---
 
