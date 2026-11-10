@@ -17,8 +17,7 @@
   var defaultColorSchemaAttributeName = 'data-default-color-scheme';
   var colorToggleButtonSelector = '#color-toggle-btn';
   var colorToggleIconSelector = '#color-toggle-icon';
-  var mobileColorToggleButtonSelector = '#mobile-color-toggle-btn';
-  var mobileColorToggleControlSelector = '#mobile-color-toggle-btn button.mobile-grid-item';
+  // 2026-11-11 修订：全站只保留顶栏一个切换按钮，九宫格格位与移动端专用选择器/绑定已移除。
   var iframeSelector = 'iframe';
   var darkMediaQuery = '(prefers-color-scheme: dark)';
 
@@ -94,7 +93,7 @@
       rootElement.removeAttribute(userColorSchemaAttributeName);
     }
 
-    // 根据当前模式设置图标 / aria / 移动端标签 / meta theme-color
+    // 根据当前模式设置图标 / aria / meta theme-color
     setButtonIcon(current);
 
     // 设置代码高亮
@@ -163,31 +162,15 @@
       });
     }
 
-    // 功能性文案：图标 + 可见文字 + aria-pressed 三重编码，不单靠颜色表达状态
+    // 功能性文案：图标 + aria-pressed 三重编码，不单靠颜色表达状态
+    // 2026-11-11 修订：全站只保留顶栏一个按钮，aria-label / aria-pressed 只同步这一个。
     var target = invertColorSchemaObj[schema];
     var label = target === 'dark' ? '切换到深色模式' : '切换到浅色模式';
     var pressed = schema === 'dark' ? 'true' : 'false';
-    [colorToggleButtonSelector, mobileColorToggleControlSelector].forEach(function(selector) {
-      var btn = document.querySelector(selector);
-      if (!btn) return;
+    var btn = document.querySelector(colorToggleButtonSelector);
+    if (btn) {
       btn.setAttribute('aria-label', label);
       btn.setAttribute('aria-pressed', pressed);
-    });
-
-    // 同步移动端按钮文字：schema 是当前模式，标签显示「点击后将切到的模式」
-    var mobileBtn = document.querySelector(mobileColorToggleButtonSelector);
-    if (mobileBtn) {
-      var labelEl = document.querySelector('#mobile-color-toggle-label');
-      if (labelEl) {
-        labelEl.textContent = schema === 'dark'
-          ? (mobileBtn.getAttribute('data-label-light') || '')
-          : (mobileBtn.getAttribute('data-label-dark') || '');
-      }
-      // 同步图标
-      var mobileIcon = document.querySelector('#mobile-color-toggle-icon');
-      if (mobileIcon) {
-        mobileIcon.setAttribute('class', 'iconfont ' + icon);
-      }
     }
 
     syncThemeColor();
@@ -305,14 +288,7 @@
         });
       }
     }
-
-    // 绑定移动端菜单按钮的事件
-    var mobileButton = document.querySelector(mobileColorToggleButtonSelector);
-    if (mobileButton) {
-      mobileButton.addEventListener('click', function() {
-        applyCustomColorSchemaSettings(toggleCustomColorSchema());
-      });
-    }
+    // 2026-11-11 修订：不再有第二个按钮需要绑定，click / hover 预览全部由上面这一个按钮承担。
   });
 
   Fluid.utils.waitElementLoaded(iframeSelector, function() {

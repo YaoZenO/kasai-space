@@ -87,11 +87,13 @@ var currentPath = ('/' + (page.path || '')).replace(/index\.html$/, '')
           <i class="iconfont icon-search"></i>
         </a>
       <% } %>
-      <%# 2026-11-09：桌面切换按钮在搜索之后、汉堡之前（Tab 顺序 = DOM 顺序 = 视觉顺序）。
-          必须是 button 且必须带 #color-toggle-btn —— color-schema.js 绑定这个 id，
-          原模板只有 <a href="javascript:;"> 无 id，点击会落空。aria 由 color-schema.js 同步。 %>
+      <%# 2026-11-11 修订：主人指出九宫格切换格被读成「更多」分组的子项，手机端要先展开
+          汉堡才能切换。按钮统一收进顶栏 .site-nav-actions，与搜索、汉堡并排，所有视口
+          直接可见；九宫格那一格已移除，全站只保留这一个按钮（不再有窄屏隐藏类）。
+          原接线事实仍成立（2026-11-09）：必须是 button 且必须带 #color-toggle-btn，
+          color-schema.js 绑定这个 id；aria 由 color-schema.js 同步。 %>
       <% if (theme.dark_mode && theme.dark_mode.enable) { %>
-        <button type="button" id="color-toggle-btn" class="nav-link d-none d-lg-flex"
+        <button type="button" id="color-toggle-btn" class="nav-link"
                 aria-label="切换到深色模式" aria-pressed="false">
           <i class="iconfont icon-dark" id="color-toggle-icon"></i>
         </button>
@@ -168,19 +170,9 @@ var currentPath = ('/' + (page.path || '')).replace(/index\.html$/, '')
             </a>
           </div>
         <% } %>
-        <%# 2026-11-09：最后一格沿用 col-4 mobile-grid-cell；按钮改用原生 button，
-            可见文字标签与 aria-label 同源，都是功能性中文「深色 / 浅色」，不写口号。 %>
-        <% if (theme.dark_mode && theme.dark_mode.enable) { %>
-          <div class="col-4 mobile-grid-cell" id="mobile-color-toggle-btn"
-               data-label-light="<%= __('darkmode.light') %>"
-               data-label-dark="<%= __('darkmode.dark') %>">
-            <button type="button" class="mobile-grid-item"
-                    aria-label="切换到深色模式" aria-pressed="false">
-              <i class="iconfont icon-dark" id="mobile-color-toggle-icon"></i>
-              <span id="mobile-color-toggle-label"><%= __('darkmode.dark') %></span>
-            </button>
-          </div>
-        <% } %>
+        <%# 2026-11-11 修订：此处原有的九宫格切换格已整格移除——它紧跟「更多」分组之后，
+            视觉上被读成「更多」的子项，手机端须先展开汉堡才能切换。
+            切换按钮统一到顶栏 .site-nav-actions，全站只保留一个按钮；九宫格其余格子不动。 %>
       </div>
     </div>
   </div>

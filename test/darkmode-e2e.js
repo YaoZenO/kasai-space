@@ -1,6 +1,10 @@
 'use strict';
 // 暗色模式端到端断言（2026-11-09，方案 §10 的 24 条验收口径里可自动化的部分）。
 //
+// 2026-11-11 修订：主人指出手机端切换按钮被塞进九宫格「更多」分组，改为顶栏
+// .site-nav-actions 内唯一一个按钮（所有视口可见）。§10-12 两个断言与产物计数断言
+// 已按新口径改写，并新增「防复发 1/4–4/4」四条断言锁死按钮位置与单按钮约束。
+//
 // 运行：node test/darkmode-e2e.js
 // 依赖构建产物：先跑 `npx hexo clean && npm run build` 与 `npm run astro:build`；
 // 产物不存在时相关断言标 SKIP（与其余 e2e 套件同一约定），源码层断言始终执行。
@@ -277,13 +281,13 @@ ok('§10-11：prepare-assets.mjs 已去掉「dark_mode 关闭所以 dark 为 fal
   assert.match(prepareAssets, /compileStyl\('css\/highlight-dark\.styl'/);
 });
 
-ok('§10-12：桌面 / 移动切换按钮各恰好 1 处，且为 button + aria', () => {
+ok('§10-12：顶栏切换按钮恰好 1 处、九宫格切换按钮 0 处，且为 button + aria（2026-11-11 修订）', () => {
   [['nav.ejs', navEjs], ['SiteNav.astro', siteNavAstro]].forEach(([name, src]) => {
     const desktop = (src.match(/id="color-toggle-btn"/g) || []).length;
     const mobile = (src.match(/id="mobile-color-toggle-btn"/g) || []).length;
-    assert.strictEqual(desktop, 1, name + ' 桌面 #color-toggle-btn 不是 1 处');
-    assert.strictEqual(mobile, 1, name + ' 移动 #mobile-color-toggle-btn 不是 1 处');
-    assert.match(src, /<button[^>]*id="color-toggle-btn"/, name + ' 桌面不是 button');
+    assert.strictEqual(desktop, 1, name + ' 顶栏 #color-toggle-btn 不是 1 处');
+    assert.strictEqual(mobile, 0, name + ' 九宫格仍残留 #mobile-color-toggle-btn（应为 0）');
+    assert.match(src, /<button[^>]*id="color-toggle-btn"/, name + ' 顶栏不是 button');
     assert.match(src, /aria-pressed="false"/, name + ' 缺 aria-pressed');
     assert.match(src, /aria-label="切换到深色模式"/, name + ' 缺功能性 aria-label');
   });
@@ -299,15 +303,103 @@ ok('§10-12：桌面 / 移动切换按钮各恰好 1 处，且为 button + aria'
   });
 });
 
-ok('§10-12：两个按钮都绑定 click，写入值只含 light / dark', () => {
+// 2026-11-11 防复发判据：顶栏唯一按钮必须在 .site-nav-actions 内、不带窄屏隐藏类，
+// 且不得出现在九宫格 / 下拉 / 主列表内。源码与构建产物共用同一套判据。
+function toggleOpenTag(src) {
+  const btnAt = src.indexOf('id="color-toggle-btn"');
+  assert.ok(btnAt > -1, '缺 #color-toggle-btn');
+  const openStart = src.lastIndexOf('<button', btnAt);
+  const openEnd = src.indexOf('>', btnAt);
+  return src.slice(openStart, openEnd + 1);
+}
+
+function checkToggleInActions(name, src) {
+  const btnAt = src.indexOf('id="color-toggle-btn"');
+  assert.ok(btnAt > -1, name + ' 缺 #color-toggle-btn');
+  // class 不得含任何 Bootstrap 窄屏隐藏 / 显示类
+  const cls = (toggleOpenTag(src).match(/class="([^"]*)"/) || [])[1] || '';
+  assert.ok(!/d-none|d-lg-|d-md-|d-sm-|d-xl-/.test(cls),
+    name + ' #color-toggle-btn 仍带窄屏隐藏类：' + cls);
+  // 必须落在 .site-nav-actions 容器内（该 div 在 navbar 的 </nav> 之前闭合）
+  const actionsAt = src.indexOf('class="site-nav-actions"');
+  assert.ok(actionsAt > -1 && btnAt > actionsAt, name + ' #color-toggle-btn 不在 .site-nav-actions 内');
+  const navClose = src.indexOf('</nav>', actionsAt);
+  assert.ok(navClose > btnAt, name + ' #color-toggle-btn 落在 .site-nav-actions 之外');
+}
+
+function checkToggleNotInMenus(name, src) {
+  // 九宫格：#mobile-grid-menu 起点之后不得再出现该按钮
+  const gridAt = src.indexOf('id="mobile-grid-menu"');
+  assert.ok(gridAt === -1 || src.indexOf('id="color-toggle-btn"', gridAt) === -1,
+    name + ' #color-toggle-btn 出现在 #mobile-grid-menu 内');
+  // 中心区（含 .site-nav-list 与所有 .dropdown-menu）整体不得出现该按钮
+  const centerAt = src.indexOf('class="site-nav-center"');
+  const actionsAt = src.indexOf('class="site-nav-actions"');
+  assert.ok(centerAt > -1 && actionsAt > centerAt,
+    name + ' 结构顺序异常：.site-nav-center 应在 .site-nav-actions 之前');
+  assert.ok(!src.slice(centerAt, actionsAt).includes('id="color-toggle-btn"'),
+    name + ' #color-toggle-btn 出现在 .site-nav-list / .dropdown-menu 所在的中心区内');
+  // 逐个 .dropdown-menu / .site-nav-list 块再核一次，防止结构重排绕过整体判据
+  [['dropdown-menu', /class="dropdown-menu"/g, '</div>'],
+    ['site-nav-list', /class="site-nav-list"/g, '</ul>']].forEach(([label, re, close]) => {
+    re.lastIndex = 0;
+    let m;
+    while ((m = re.exec(src)) !== null) {
+      const end = src.indexOf(close, m.index);
+      const block = src.slice(m.index, end === -1 ? m.index + 800 : end + close.length);
+      assert.ok(!block.includes('id="color-toggle-btn"'),
+        name + ' #color-toggle-btn 出现在 .' + label + ' 内');
+    }
+  });
+}
+
+const TOGGLE_SOURCES = [
+  ['nav.ejs', navEjs],
+  ['SiteNav.astro', siteNavAstro],
+  ['dist/index.html', exists('dist/index.html') ? read('dist/index.html') : ''],
+];
+
+ok('§10-12：唯一切换按钮绑定 click，写入值只含 light / dark（2026-11-11 修订）', () => {
   assert.match(colorSchemaJsCode, /colorToggleButtonSelector\s*=\s*'#color-toggle-btn'/);
-  assert.match(colorSchemaJsCode, /mobileColorToggleButtonSelector\s*=\s*'#mobile-color-toggle-btn'/);
+  assert.ok(!/mobileColorToggle(Button|Control)Selector/.test(colorSchemaJsCode),
+    'color-schema.js 仍残留移动端切换选择器常量');
   assert.match(colorSchemaJsCode, /button\.addEventListener\('click'/);
-  assert.match(colorSchemaJsCode, /mobileButton\.addEventListener\('click'/);
+  assert.ok(!/mobileButton\.addEventListener\('click'/.test(colorSchemaJsCode),
+    'color-schema.js 仍给第二个按钮绑定 click');
   assert.match(colorSchemaJsCode, /setLS\(colorSchemaStorageKey, currentSetting\)/);
   assert.ok(!/setLS\([^)]*['"]auto['"]/.test(colorSchemaJsCode), '写入了 auto');
   assert.ok(!/setAttribute\([^)]*['"]auto['"]/.test(colorSchemaJsCode), '把 auto 写进了属性');
   assert.match(colorSchemaJsCode, /var validColorSchemaKeys\s*=\s*\{\s*dark\s*:\s*true,\s*light\s*:\s*true\s*\}/);
+});
+
+ok('防复发 1/4（2026-11-11）：源码两侧与产物，切换按钮在 .site-nav-actions 内且不含窄屏隐藏类', () => {
+  TOGGLE_SOURCES.forEach(([name, src]) => {
+    assert.ok(src, name + ' 内容为空，判据失效');
+    checkToggleInActions(name, src);
+  });
+});
+
+ok('防复发 2/4（2026-11-11）：源码两侧与产物，切换按钮不在 #mobile-grid-menu / .dropdown-menu / .site-nav-list 内', () => {
+  TOGGLE_SOURCES.forEach(([name, src]) => {
+    assert.ok(src, name + ' 内容为空，判据失效');
+    checkToggleNotInMenus(name, src);
+  });
+});
+
+ok('防复发 3/4（2026-11-11）：color-schema.js / nav.ejs / SiteNav.astro 均不含 mobile-color-toggle 字面量', () => {
+  [['color-schema.js', colorSchemaJs], ['nav.ejs', navEjs], ['SiteNav.astro', siteNavAstro]]
+    .forEach(([name, src]) => {
+      assert.ok(!/mobile-color-toggle/.test(src), name + ' 仍残留 mobile-color-toggle 字面量');
+    });
+});
+
+ok('防复发 4/4（2026-11-11）：产物 dist/index.html 中 mobile-color-toggle-btn / icon / label 均 0 处', () => {
+  const html = exists('dist/index.html') ? read('dist/index.html') : '';
+  assert.ok(html, 'dist/index.html 不存在，产物判据失效');
+  ['mobile-color-toggle-btn', 'mobile-color-toggle-icon', 'mobile-color-toggle-label'].forEach((lit) => {
+    assert.strictEqual((html.match(new RegExp(lit, 'g')) || []).length, 0,
+      '产物仍残留 ' + lit);
+  });
 });
 
 ok('§10-13：无时间兜底、无「等于默认值即清空」、LS 空时移除属性', () => {
@@ -691,9 +783,9 @@ for (const [name, rel] of ASTRO_HTML) {
   ok(name + '：data-default-color-scheme 存在', () => {
     assert.match(html, /data-default-color-scheme="auto"/);
   });
-  ok(name + '：桌面 / 移动切换按钮各恰好 1 处', () => {
+  ok(name + '：顶栏切换按钮恰好 1 处、九宫格切换按钮 0 处（2026-11-11 修订）', () => {
     assert.strictEqual((html.match(/id="color-toggle-btn"/g) || []).length, 1);
-    assert.strictEqual((html.match(/id="mobile-color-toggle-btn"/g) || []).length, 1);
+    assert.strictEqual((html.match(/id="mobile-color-toggle-btn"/g) || []).length, 0);
   });
   ok(name + '：highlight-css-dark link 存在', () => {
     assert.match(html, /id="highlight-css-dark"/);
