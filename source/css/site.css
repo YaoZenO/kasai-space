@@ -4317,6 +4317,15 @@ body.is-home footer {
 
 .zd-figure { margin: 0; }
 
+/* 档案卡配图统一 3:2：LACMA 套组里虎俑是竖构图，若按原比例会让卡片忽高忽低；
+   固定画幅 + cover 后 12 页首屏高度一致，竖图保留头部与上身。 */
+.zd-figure img {
+  aspect-ratio: 3 / 2;
+  height: auto;
+  object-fit: cover;
+  object-position: 50% 30%;
+}
+
 /* 历年：11 个年份排成可扫视的格子，本轮单独标出 */
 .zd-block { margin-top: clamp(1.8rem, 3.5vw, 2.6rem); }
 

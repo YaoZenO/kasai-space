@@ -76,9 +76,8 @@ meta:
   # 配图：Wikimedia Commons 自由授权图，键为生肖 slug（模板按动物取用）。
   # 三要素（作者 / 授权 / 原文件页）任何一样缺失，测试直接判失败——
   # 那是 CC 授权的前提条件，少了图就成了无授权使用。
-  # 11 张元代生肖陶俑为洛杉矶县立艺术博物馆（LACMA）藏品照片，公有领域；
-  # 虎为圆明园虎首复制品照片，CC BY 3.0，作者 Peter Potrowl
-  # （其授权条款要求在图旁标注「© Peter Potrowl」，author 字段照办）。
+  # 12 张均为洛杉矶县立艺术博物馆（LACMA）藏元代陶俑「十二生肖俑」套组
+  # （M.90.80a-l）的藏品照片，公有领域。整套同源，视觉才统一。
   images:
     rat:
       file: "/img/zodiac/rat.jpg"
@@ -94,10 +93,10 @@ meta:
       page: "https://commons.wikimedia.org/wiki/File:Funerary_Sculpture_of_the_Animals_of_the_Twelve-Year_Chinese_Zodiac_(Shengxiao)_LACMA_M.90.80a-l_(8_of_12).jpg"
     tiger:
       file: "/img/zodiac/tiger.jpg"
-      alt: "圆明园虎首铜像"
-      author: "© Peter Potrowl"
-      license: "CC BY 3.0"
-      page: "https://commons.wikimedia.org/wiki/File:Beijing_-_Tiger_head_of_the_old_summer_palace_-_reproduction.jpg"
+      alt: "元代陶虎俑（LACMA 藏）"
+      author: "LACMA"
+      license: "Public domain"
+      page: "https://commons.wikimedia.org/wiki/File:Funerary_Sculpture_of_the_Animals_of_the_Twelve-Year_Chinese_Zodiac_(Shengxiao)_LACMA_M.90.80a-l_(9_of_12).jpg"
     rabbit:
       file: "/img/zodiac/rabbit.jpg"
       alt: "元代陶兔俑（LACMA 藏）"
