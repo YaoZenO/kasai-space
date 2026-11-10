@@ -170,6 +170,8 @@
 | E-136 | P2 | 单榜页指标切换用了 `<input type="radio">`，触碰站点未备案的 C-6 红线（禁止非搜索框输入控件） | 已修复（改 `<button type="button" aria-pressed>` + S8 当场判红兜底） |
 | E-137 | P1 | 暗态测试把已批准的 4.12b calc 改写当成「工作区未提交改动」，该改写提交后断言恒等失败，`npm test` 必红 | 已修复（直接与 HEAD 逐字比对 + 保留改写存在性断言） |
 | E-138 | P2 | 手机端日夜切换按钮排在九宫格「更多」分组之后，须先展开汉堡才能切换，视觉上被读成「更多」子项 | 已修复（按钮统一到顶栏 `.site-nav-actions` + 4 条位置防复发断言） |
+| E-143 | P2 | OAuth 回调的 HTML 错误页把 `login` / `Error.message` 直接拼进模板字符串，实测反射未转义标签（issue #10） | 已修复（全量转义 + catch 固定文案 + 2 条 HTTP 行为断言） |
+| E-144 | P2 | CI 语法检查的手写 glob 漏掉 `api/_lib/domains/` 5 个实现文件与 `source/admin/` 另外 10 个 .js（issue #11） | 已修复（`find api` 递归 + 动态枚举目录的覆盖断言） |
 | E-139 | P0 | 两个 E2E 实例并发，「原始备份」互相覆盖，真实数据文件被留下测试条目（本地工作区） | 已修复（从 HEAD 逐字节还原 + E2E 进程锁 + PID 判活回收） |
 | E-140 | P2 | 生肖 12 页配图只有虎年不是 LACMA 套组，整套视觉不同源；测试只查授权合规，抓不到 | 已修复（换回套组 9_of_12 + 同源与套组编号断言） |
 | E-141 | P2 | 新增的生肖正文配图产物断言用 `class="z-aside"` 作正文区结束标记，实际模板只有裸 `<aside>`，取样区间恒为空、46 项里直接判红 | 已修复（改为定位第一个 `<aside`，并保留取样非空断言） |
@@ -3041,4 +3043,22 @@
 - **防复发（机制）：** `test/zodiac-e2e.js` 对每条 `figures` 断言文件体积 ≤120KB，
   并把数据里的 `width` / `height` 与 JPEG 真实尺寸逐一比对——换图不减压、或尺寸写错，
   测试直接判红。
+
+
+### E-143 OAuth 回调的 HTML 错误页缺少输出编码（issue #10）
+
+- **发生时间：** 2026-11-11 ｜ **发现方式：** 主人要求核实 GitHub Issue #10；在 mock 模式下对 `store` 打桩，用真实 HTTP 调用 `api/auth-callback` 复现
+- **现象：** 500 分支把 `Error.message` 原样写进 `<p>`，实测响应含 `<img src=x onerror=alert(1)>`；403 分支把 `login` 原样写入，实测响应含 `<script>`。两处都未经 HTML 转义。
+- **根因：** `api/auth-callback.js` 的 `html()` 把 `title` / `msg` 直接插进模板字符串。`login` 来自 `github.js` 的 `getLogin()`（GitHub `/user`），catch 分支的 `msg` 来自 `String(e.message)`；`exchangeCode()` 会把上游 OAuth 返回的 `error_description` 拼进该异常消息。JSON API 已由 `http.js` 的 `respondError` 统一不回传内部细节，HTML 错误页绕开了这条防线。
+- **修法：** `html()` 新增 `escapeHtml()`，对 `title` / `msg` 全量转义；catch 分支改为 `console.error` 记服务端日志 + 页面返回固定文案「登录过程出错，请返回重试。」；403 分支保留账号名提示，但走转义通道。
+- **防复发（机制）：** `test/admin-smoke.js` 新增 2 条断言：对 `exchangeCode` / `getLogin` 打桩注入标签，断言 500 分支不出现上游错误描述与未转义 `img/script`、403 分支输出 `&lt;script&gt;` 实体；打桩在 `finally` 无条件还原。变异自检把文件换回 `git show HEAD:` 的旧版本，两条断言均按预期判红。
+
+### E-144 CI 语法检查漏掉 `api/_lib/domains/*.js`（issue #11）
+
+- **发生时间：** 2026-11-11 ｜ **发现方式：** 主人要求核实 GitHub Issue #11；展开 `ci.yml` 的 glob 与实际目录比对
+- **现象：** Syntax check 的 glob 展开为 44 个文件（`api/*.js`、`api/_lib/*.js`、`source/admin/admin.js`、`test/*.js`），`api/_lib/domains/` 下 5 个实现文件（posts/data/site/images/trash）全部不在集合内；`source/admin/` 下另外 10 个 .js 同样未覆盖。
+- **根因：** 内容域拆到子目录后，CI 的手写 glob 没有同步更新；`npm test` 只通过 `test:admin` 间接 require 到部分域文件，语法错误有机会在 CI 里静默通过。
+- **修法：** `ci.yml` 的 Syntax check 改为 `find api -type f -name '*.js' -print0` 递归检查，并统计文件数，为 0 直接判失败；`source/admin/*.js` 与 `test/*.js` 各自循环检查。实测覆盖 api 29 个 / admin 11 个 / test 19 个，全部语法通过。
+- **防复发（机制）：** `test/build-env.js` 动态枚举 `api/**/*.js` 的实际所在目录，要求 Syntax check 用 `find api` 递归、或把每个含 .js 的子目录都显式写进 glob；`api/` 下没有子目录 .js 时直接判失败，避免断言空转。变异自检把 `ci.yml` 换回 HEAD 旧版本，该断言判「漏掉 api/_lib/domains」并退出 1。
+
 
