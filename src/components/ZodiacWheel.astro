@@ -1,0 +1,107 @@
+---
+// 十二地支环（生肖页「是什么」章节开头，12 页共用）。
+// 目的：把「三合 / 六合 / 六冲」从一行文字变成一眼能看懂的空间关系——
+// 三合本来就是一个三角形，六冲本来就是圆上的对径。
+// 纯构建期计算 + 内联 SVG：无图片请求、无运行时 JS、颜色全走 site.css §4.13b 的 token。
+//
+// 用法：<ZodiacWheel branch={z.branch} relations={z.relations} />
+// branch 是地支单字（子/丑/…/亥），relations 是 buildAnimal() 算出的关系数组。
+
+import { ANIMALS, BRANCHES } from '../lib/zodiac-data';
+
+interface Props {
+  branch: string;
+  relations: any[];
+}
+
+const { branch, relations } = Astro.props;
+
+// 12 个节点：从正上方（-90°）起，顺时针每 30° 一个，与地支顺序一致。
+const CX = 170;
+const CY = 170;
+const R_NODE = 120;
+const R_LABEL = 146;
+
+function pointAt(i: number): { x: number; y: number } {
+  const rad = ((-90 + i * 30) * Math.PI) / 180;
+  return { x: CX + R_NODE * Math.cos(rad), y: CY + R_NODE * Math.sin(rad) };
+}
+
+function labelAt(i: number): { x: number; y: number } {
+  const rad = ((-90 + i * 30) * Math.PI) / 180;
+  return { x: CX + R_LABEL * Math.cos(rad), y: CY + R_LABEL * Math.sin(rad) };
+}
+
+const current = BRANCHES.indexOf(branch);
+
+// 关系伙伴（动物字）→ 地支序号。数据里给出的是动物名，不是地支字。
+function branchesOf(name: string): number[] {
+  const rel = (relations || []).find((r: any) => r && r.name === name);
+  if (!rel || !Array.isArray(rel.partners)) return [];
+  return rel.partners
+    .map((p: string) => ANIMALS.indexOf(p))
+    .filter((i: number) => i >= 0);
+}
+
+const sanhe = branchesOf('三合');
+const liuhe = branchesOf('六合');
+const chong = branchesOf('六冲');
+
+// 文案（图注与读屏共用一份，避免两处措辞漂移）
+const names = (list: number[]): string => list.map((i) => BRANCHES[i]).join('、');
+const relWords: string[] = [];
+if (sanhe.length) relWords.push('三合 ' + names(sanhe));
+if (liuhe.length) relWords.push('六合 ' + names(liuhe));
+if (chong.length) relWords.push('六冲 ' + names(chong));
+const altText = '十二地支环：本页地支「' + branch + '」高亮' + (relWords.length ? '；' + relWords.join('，') : '') + '。';
+const titleId = 'zw-title-' + branch;
+
+const nodes = BRANCHES.map((b, i) => ({ b, animal: ANIMALS[i], i, ...pointAt(i), label: labelAt(i) }));
+const lineTargets = new Set([...sanhe, ...liuhe, ...chong]);
+---
+
+<figure class="z-wheel">
+  <svg viewBox="0 0 340 340" role="img" aria-labelledby={titleId}>
+    <title id={titleId}>{altText}</title>
+
+    {/* 外环：把 12 个节点连成一圈 */}
+    <circle class="zw-ring" cx={CX} cy={CY} r={R_NODE} />
+
+    {/* 三合：虚线三角形（三条边，含本页地支） */}
+    {sanhe.length === 2 && (
+      <polygon
+        class="zw-sanhe"
+        points={[current, ...sanhe].map((i) => {
+          const p = pointAt(i);
+          return p.x.toFixed(1) + ',' + p.y.toFixed(1);
+        }).join(' ')}
+      />
+    )}
+
+    {/* 六合：细虚线 */}
+    {liuhe.map((i) => {
+      const a = pointAt(current);
+      const b = pointAt(i);
+      return <line class="zw-liuhe" x1={a.x} y1={a.y} x2={b.x} y2={b.y} />;
+    })}
+
+    {/* 六冲：实线对径 */}
+    {chong.map((i) => {
+      const a = pointAt(current);
+      const b = pointAt(i);
+      return <line class="zw-chong" x1={a.x} y1={a.y} x2={b.x} y2={b.y} />;
+    })}
+
+    {/* 节点：地支字在圆内，生肖字在圆外 */}
+    {nodes.map((n) => (
+      <g class={n.i === current ? 'zw-node is-current' : lineTargets.has(n.i) ? 'zw-node is-related' : 'zw-node'}>
+        <circle class="zw-dot" cx={n.x} cy={n.y} r="14" />
+        <text class="zw-branch" x={n.x} y={n.y + 4.5}>{n.b}</text>
+        <text class="zw-animal" x={n.label.x} y={n.label.y + 3}>{n.animal}</text>
+      </g>
+    ))}
+  </svg>
+  <figcaption class="z-wheel-cap">
+    地支环：本页「{branch}」高亮；虚线三角为三合，实线对径为六冲，细虚线为六合。
+  </figcaption>
+</figure>

@@ -4067,8 +4067,9 @@ body.is-home footer {
 .z-card {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
-  padding: 0.9rem 1rem 0.85rem;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
   border: 1px solid var(--line-color);
   border-radius: var(--r-card);
   background: var(--board-color);
@@ -4079,6 +4080,30 @@ body.is-home footer {
 .z-card:hover {
   transform: translateY(-2px);
   border-color: var(--line-strong);
+}
+
+/* 索引页缩略图（2026-11-11）：12 张套组照片的 320px 版本，4:3 裁切、卡面通栏。
+   图片是纯展示，不承接点击——整张卡本来就是链接，避免嵌套交互。 */
+.z-card-thumb {
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: rgba(27, 23, 18, 0.05);
+}
+
+.z-card-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 32%;
+}
+
+.z-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.85rem 1rem 0.85rem;
 }
 
 .z-card-head {
@@ -4555,6 +4580,163 @@ body.is-home footer {
   .z-toc-sheet .z-toc-list a { font-size: 0.95rem; padding: 0.45rem 0.5rem; }
   .z-nav-strip ul { gap: 0.3rem 0.85rem; }
   .z-pager { flex-direction: column; gap: 0.6rem; }
+}
+
+/* ===== 4.13b 生肖正文配图（2026-11-11，方案 A 的 P1 / P2 / P4）=====
+   三个视觉单元，三种节奏：地支环（通栏 SVG）→ 章节内联图（桌面右浮 42%）
+   → 图集带（双图并排 16:10）。颜色全部走 token，无新增字面色值。 */
+
+/* ---- 地支环：纯构建期内联 SVG，不额外请求 ---- */
+.z-wheel {
+  margin: 0.2rem 0 1.5rem;
+}
+
+.z-wheel svg {
+  display: block;
+  width: 100%;
+  max-width: 22rem;
+  height: auto;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.zw-ring {
+  fill: none;
+  stroke: var(--line-color);
+  stroke-width: 1;
+}
+
+.zw-sanhe {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+  stroke-linejoin: round;
+  opacity: 0.8;
+}
+
+.zw-liuhe {
+  stroke: var(--sec-text-color);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+  opacity: 0.55;
+}
+
+.zw-chong {
+  stroke: var(--accent);
+  stroke-width: 2;
+  opacity: 0.85;
+}
+
+.zw-dot {
+  fill: var(--cream);
+  stroke: var(--line-color);
+  stroke-width: 1;
+}
+
+.zw-node.is-related .zw-dot {
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+
+.zw-node.is-current .zw-dot {
+  fill: var(--accent);
+  stroke: var(--accent);
+}
+
+.zw-branch {
+  font-size: 14px;
+  font-weight: 600;
+  text-anchor: middle;
+  fill: var(--text-color);
+}
+
+.zw-node.is-current .zw-branch { fill: var(--cream); }
+
+.zw-animal {
+  font-size: 12px;
+  text-anchor: middle;
+  fill: var(--sec-text-color);
+}
+
+.z-wheel-cap {
+  margin-top: 0.4rem;
+  font-size: 0.75rem;
+  line-height: 1.7;
+  text-align: center;
+  color: var(--sec-text-color);
+}
+
+/* ---- 章节内联图：桌面右浮，正文绕排；窄屏通栏，不挤压文字 ---- */
+/* 每节清浮动：图只和本节的正文发生绕排，不越到下一节去 */
+.z-section { clear: both; }
+
+.zf-inline {
+  margin: 0.2rem 0 1rem 1.5rem;
+  float: right;
+  width: 42%;
+}
+
+.zf-band {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 0.9rem;
+  margin: 1.2rem 0 0;
+}
+
+.zf-band-fig { margin: 0; }
+
+.zf-inline img,
+.zf-band-fig img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  background: rgba(27, 23, 18, 0.05);
+}
+
+.zf-inline img {
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: 50% 35%;
+}
+
+.zf-band-fig img {
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  object-position: 50% 40%;
+}
+
+.zf-inline figcaption,
+.zf-band-fig figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: var(--sec-text-color);
+}
+
+.zf-cap { display: block; }
+
+.zf-credit {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.75rem;
+}
+
+.zf-credit a {
+  color: var(--text-color);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.zf-credit a:hover { color: var(--accent); }
+
+@media (max-width: 900px) {
+  .zf-inline {
+    float: none;
+    width: 100%;
+    margin: 1.1rem 0 0;
+  }
 }
 
 /* ===== 4.14 资料库页（/library/，2026-10-25 新增） ===== */

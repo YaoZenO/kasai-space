@@ -326,6 +326,7 @@ function buildAnimal(raw, wantKey) {
     sections: ordered,
     vocab: Array.isArray(src.vocab) ? src.vocab : [],
     faq: Array.isArray(src.faq) ? src.faq : [],
+    figures: Array.isArray(src.figures) ? src.figures : [],
     image: images[src.key] || null,
     prev: { key: prevKey, animal: ANIMALS[mod(idx - 1, 12)] },
     next: { key: nextKey, animal: ANIMALS[mod(idx + 1, 12)] },
@@ -363,7 +364,9 @@ function buildOverview(raw) {
       element: g.element,
       title: g.title,
       span: span,
-      birthYears: years
+      birthYears: years,
+      thumb: '/img/zodiac/thumbs/' + a.key + '.jpg',
+      image: (data.meta && data.meta.images && data.meta.images[a.key]) || null
     };
   });
 

@@ -236,6 +236,23 @@ ok('词汇表每行四项齐全', () => {
 const IMG_DIR = path.join(ROOT, 'source/img/zodiac');
 const META_IMAGES = (raw.meta && raw.meta.images) || {};
 
+// 读 JPEG 的宽高（SOF 段），用来核对数据里的 width/height 与文件一致。
+// 不引 sharp：测试是同步跑完的，sharp 的 metadata() 是 Promise。
+function jpegSize(buf) {
+  let i = 2;
+  while (i < buf.length) {
+    if (buf[i] !== 0xFF) { i += 1; continue; }
+    const marker = buf[i + 1];
+    const len = buf.readUInt16BE(i + 2);
+    // SOF0/SOF1/SOF2 等帧头：宽高在段内偏移 5/7
+    if (marker >= 0xC0 && marker <= 0xCF && marker !== 0xC4 && marker !== 0xC8 && marker !== 0xCC) {
+      return { height: buf.readUInt16BE(i + 5), width: buf.readUInt16BE(i + 7) };
+    }
+    i += 2 + len;
+  }
+  return null;
+}
+
 ok('十二张配图授权三要素齐全（CC 授权的使用条件）', () => {
   PAGES.forEach((k) => {
     const m = META_IMAGES[k];
@@ -276,6 +293,55 @@ ok('十二张配图同源：同一套 LACMA 藏品、编号 1-12 不重不漏（
   });
   const uniq = Array.from(new Set(nums)).sort((a, b) => a - b);
   assert.deepStrictEqual(uniq, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], '套组编号有重复或缺失：' + nums.join(','));
+});
+
+// ---------- ①b 正文配图 figures（2026-11-11 方案 A，P2 先锁鼠/马/龙三页样板） ----------
+// 纪律见 zodiac.yml 文件头：section 必须命中章节 id、layout 只有 inline/band、
+// 三要素与 alt/caption 缺一不可。这些约束构建期不报错，只能由这里兜底。
+ok('正文配图：仅鼠/马/龙三页样板有 figures，每页 2 张（1 inline + 1 band）', () => {
+  PAGES.forEach((k) => {
+    const a = buildAnimal(raw, k);
+    const figs = a.figures || [];
+    if (['rat', 'horse', 'dragon'].indexOf(k) !== -1) {
+      assert.strictEqual(figs.length, 2, k + ' 的 figures 不是 2 张（实际 ' + figs.length + '）');
+      const layouts = figs.map((f) => f.layout).sort();
+      assert.deepStrictEqual(layouts, ['band', 'inline'], k + ' 的 layout 组合不对：' + layouts.join(','));
+    } else {
+      assert.strictEqual(figs.length, 0, k + ' 还不是样板页，不应有 figures（P3 补齐时再放开这条）');
+    }
+  });
+});
+
+ok('正文配图：每条字段齐全、section 命中章节 id、layout 白名单、授权合规', () => {
+  PAGES.forEach((k) => {
+    const a = buildAnimal(raw, k);
+    const secIds = a.sections.map((s) => s.id);
+    (a.figures || []).forEach((f, i) => {
+      const tag = k + ' 第 ' + (i + 1) + ' 张图';
+      ['section', 'layout', 'file', 'width', 'height', 'alt', 'caption', 'author', 'license', 'page'].forEach((fld) => {
+        assert.ok(f[fld], tag + ' 缺字段 ' + fld);
+      });
+      assert.ok(secIds.indexOf(f.section) !== -1, tag + ' 挂在不存在的章节：' + f.section);
+      assert.ok(['inline', 'band'].indexOf(f.layout) !== -1, tag + ' 的 layout 不合法：' + f.layout);
+      assert.match(f.file, /^\/img\/zodiac\/[a-z-]+\.jpg$/, tag + ' 的 file 路径不对：' + f.file);
+      assert.match(f.license, /^(CC0|CC BY|CC BY-SA|公有领域|Public domain)/, tag + ' 的授权不在白名单：' + f.license);
+      assert.match(f.page, /^https:\/\/commons\.wikimedia\.org\/wiki\/File:/, tag + ' 的原文件页不是 Commons 链接');
+      assert.ok(!/src=""/.test(f.file), tag + ' 出现空 src');
+      // 图必须是真实存在的 JPEG 且体积足够（防 2KB 坏文件，E-140 同型）
+      const abs = path.join(ROOT, 'source', f.file.replace(/^\//, ''));
+      assert.ok(fs.existsSync(abs), tag + ' 的文件不存在：' + f.file);
+      const buf = fs.readFileSync(abs);
+      assert.strictEqual(buf[0], 0xFF, tag + ' 不是 JPEG（首字节不是 FF）');
+      assert.strictEqual(buf[1], 0xD8, tag + ' 不是 JPEG（第二字节不是 D8）');
+      assert.ok(buf.length > 50 * 1024, tag + ' 只有 ' + buf.length + ' 字节，像是下载被截断');
+      assert.ok(buf.length <= 120 * 1024, tag + ' 超过 120KB 传输预算：' + buf.length + ' 字节');
+      // 数据里的 width/height 必须与真实文件一致，否则 aspect-ratio 预留的框是错的
+      const dim = jpegSize(buf);
+      assert.ok(dim, tag + ' 读不出 JPEG 宽高');
+      assert.strictEqual(f.width, dim.width, tag + ' 的 width 与文件不一致：' + f.width + ' vs ' + dim.width);
+      assert.strictEqual(f.height, dim.height, tag + ' 的 height 与文件不一致：' + f.height + ' vs ' + dim.height);
+    });
+  });
 });
 
 ok('配图文件存在、确实是 JPEG、体积足够', () => {
@@ -491,6 +557,96 @@ if (!fs.existsSync(PUBLIC)) {
     });
   });
 
+  // 地支环：12 页固定在「是什么」章节开头，纯 SVG、无图片请求、无 JS 依赖。
+  ok('地支环：每页一个、12 个节点、本页高亮唯一、关系线齐全、带读屏标题', () => {
+    PAGES.forEach((k) => {
+      const h = fs.readFileSync(path.join(PUBLIC, 'zodiac', k, 'index.html'), 'utf8');
+      const a = buildAnimal(raw, k);
+      const wheels = (h.match(/class="z-wheel"/g) || []).length;
+      assert.strictEqual(wheels, 1, k + ' 页地支环不是恰好 1 个（实际 ' + wheels + '）');
+      const at = h.indexOf('class="z-wheel"');
+      const seg = h.slice(at, h.indexOf('</figure>', at));
+      assert.ok(/<svg[^>]*role="img"/.test(seg), k + ' 页地支环 svg 缺 role="img"');
+      assert.ok(/<title id="zw-title-/.test(seg), k + ' 页地支环缺 <title>（读屏无内容）');
+      assert.strictEqual((seg.match(/zw-dot/g) || []).length, 12, k + ' 页地支环不是 12 个节点');
+      assert.strictEqual((seg.match(/zw-node is-current/g) || []).length, 1, k + ' 页高亮节点不是恰好 1 个');
+      assert.ok(seg.indexOf('zw-title-' + a.branch) !== -1, k + ' 页地支环标题没绑本页地支');
+      // 关系线：三合虚线三角 1 条、六冲对径 1 条、六合细线 1 条
+      assert.strictEqual((seg.match(/class="zw-sanhe"/g) || []).length, 1, k + ' 页缺三合虚线三角');
+      assert.strictEqual((seg.match(/class="zw-chong"/g) || []).length, 1, k + ' 页缺六冲对径');
+      assert.strictEqual((seg.match(/class="zw-liuhe"/g) || []).length, 1, k + ' 页缺六合细线');
+      // 地支环必须在「是什么」章节内
+      const whatAt = h.indexOf('id="sec-what"');
+      const whatEnd = h.indexOf('id="sec-word"', whatAt);
+      assert.ok(whatAt !== -1 && at > whatAt && (whatEnd === -1 || at < whatEnd), k + ' 页地支环不在「是什么」章节里');
+    });
+  });
+
+  // 正文配图产物层：.z-main 内 img 数 = figures 数；band 收进同一容器；三要素齐全。
+  ok('正文配图：鼠/马/龙三页正文落地，band 收进同一容器，三要素齐全', () => {
+    ['rat', 'horse', 'dragon'].forEach((k) => {
+      const h = fs.readFileSync(path.join(PUBLIC, 'zodiac', k, 'index.html'), 'utf8');
+      const a = buildAnimal(raw, k);
+      const mainAt = h.indexOf('class="z-main"');
+      // 右栏目录是 <aside>，不一定带 z-aside 类；用第一个 <aside> 作为正文区结束标记。
+      const mainEnd = h.indexOf('<aside', mainAt);
+      assert.ok(mainAt !== -1 && mainEnd > mainAt, k + ' 页找不到 .z-main 区间');
+      const main = h.slice(mainAt, mainEnd);
+      const figs = a.figures || [];
+      assert.strictEqual(figs.length, 2, k + ' 的 figures 数变了，这里要同步');
+      // 正文区 img 数 = figures 数（档案卡主图在 z-main 外，不计入）
+      const imgCount = (main.match(/<img /g) || []).length;
+      assert.strictEqual(imgCount, figs.length, k + ' 正文区 img 数（' + imgCount + '）≠ figures（' + figs.length + '）');
+      figs.forEach((f) => {
+        assert.ok(main.indexOf('src="' + f.file) !== -1, k + ' 正文缺图 ' + f.file);
+        assert.ok(main.indexOf('alt="' + f.alt) !== -1, k + ' 缺 alt：' + f.alt.slice(0, 12));
+        assert.ok(main.indexOf(f.caption.slice(0, 12)) !== -1, k + ' 缺图注：' + f.caption.slice(0, 12));
+        assert.ok(main.indexOf(f.author) !== -1, k + ' 缺署名：' + f.author);
+        assert.ok(main.indexOf(f.license) !== -1, k + ' 缺授权：' + f.license);
+        assert.ok(main.indexOf(f.page) !== -1, k + ' 缺原文件页链接');
+      });
+      assert.ok(main.indexOf('src=""') === -1, k + ' 出现空 src');
+      // band 图必须收进 .zf-band 容器（同一章节的 band 共用一个容器）
+      const bandFigs = figs.filter((f) => f.layout === 'band');
+      if (bandFigs.length) {
+        const bandAt = main.indexOf('class="zf-band"');
+        assert.ok(bandAt !== -1, k + ' 有 band 图但没有 .zf-band 容器');
+        const bandSeg = main.slice(bandAt, main.indexOf('</div>', bandAt));
+        bandFigs.forEach((f) => {
+          assert.ok(bandSeg.indexOf('src="' + f.file) !== -1, k + ' 的 band 图没进容器：' + f.file);
+        });
+      }
+      // inline 图挂在「寓意」章节内（在章节标题之后、下一章节标题之前）
+      const inlineFigs = figs.filter((f) => f.layout === 'inline');
+      inlineFigs.forEach((f) => {
+        const secAt = h.indexOf('id="sec-' + f.section + '"');
+        assert.ok(secAt !== -1, k + ' 找不到章节 sec-' + f.section);
+        const nextAt = h.indexOf('id="sec-', secAt + 10);
+        const figAt = h.indexOf('src="' + f.file, secAt);
+        assert.ok(figAt !== -1 && (nextAt === -1 || figAt < nextAt), k + ' 的 inline 图不在 sec-' + f.section + ' 章节内');
+      });
+    });
+  });
+
+  // P4：索引页 12 张套组缩略图（零新图源，离线生成 320px 版本）。
+  ok('索引页 12 张生肖卡都带缩略图，缩略文件真实存在且足够小', () => {
+    const h = fs.readFileSync(path.join(PUBLIC, 'zodiac', 'index.html'), 'utf8');
+    const thumbs = (h.match(/class="z-card-thumb"/g) || []).length;
+    assert.strictEqual(thumbs, 12, '索引页缩略图块不是 12 个（实际 ' + thumbs + '）');
+    PAGES.forEach((k) => {
+      assert.ok(h.indexOf('src="/img/zodiac/thumbs/' + k + '.jpg') !== -1, '索引页缺 ' + k + ' 的缩略图');
+      assert.ok(h.indexOf('width="320"') !== -1 && h.indexOf('height="240"') !== -1, '索引页缩略图缺宽高属性（防布局抖动）');
+      const abs = path.join(IMG_DIR, 'thumbs', k + '.jpg');
+      assert.ok(fs.existsSync(abs), '缺缩略图文件：thumbs/' + k + '.jpg');
+      const buf = fs.readFileSync(abs);
+      assert.strictEqual(buf[0], 0xFF, k + ' 缩略图不是 JPEG');
+      assert.ok(buf.length < 20 * 1024, k + ' 缩略图过大：' + buf.length + ' 字节（应 <20KB）');
+      // alt 与详情页档案卡同一份（同一套图，描述不另写）
+      const img = META_IMAGES[k];
+      assert.ok(h.indexOf('alt="' + img.alt + '"') !== -1, '索引页 ' + k + ' 的缩略图 alt 与档案卡不一致');
+    });
+  });
+
   ok('索引页：生肖卡 12 张 + 出生年份表 + 五行表 + 三合相冲表', () => {
     const h = fs.readFileSync(path.join(PUBLIC, 'zodiac', 'index.html'), 'utf8');
     // 2026-11-06（PLAN-V3 §7 P6）：七列「一览表」换成 12 张生肖卡。
@@ -545,6 +701,10 @@ if (!fs.existsSync(PUBLIC)) {
       '.zd-dossier', '.zd-name', '.zd-stats', '.zd-stat--wide', '.zd-relbar', '.zd-chip',
       '.zd-years', '.zd-year.is-current', '.zd-relations', '.zd-relation-note',
       '.lb-layout', '.lb-guide', '.lb-entries', '.lb-topic-more',
+      // 2026-11-11 §4.13b：地支环 + 正文配图 + 索引页缩略图
+      '.z-wheel', '.zw-ring', '.zw-dot', '.zw-sanhe', '.zw-liuhe', '.zw-chong',
+      '.zf-inline', '.zf-band', '.zf-band-fig', '.zf-cap', '.zf-credit',
+      '.z-card-thumb', '.z-card-body',
     ];
     const missing = must.filter((s) => css.indexOf(s) === -1);
     assert.deepStrictEqual(missing, [], 'site.css 丢了这些样式：' + missing.join('、'));
@@ -689,6 +849,24 @@ ok('自检：作用域断言的取样逻辑有效（E-031 同型防空转）', (
   const at = broken.indexOf('.cal-page {');
   const scoped = broken.slice(at, broken.indexOf('}', at));
   assert.ok(scoped.indexOf('--accent: #a8482c') === -1, '变异样本应当不命中 V6.5 陶土深调，否则断言空转');
+});
+
+// 反空转：figures 挂到不存在的章节 id 时，模板按 section 过滤会静默丢图——
+// 这就是产物层「.z-main 内 img 数 = figures 数」断言存在的理由。这里证明前提成立：
+// 挂错章节的图确实不会出现在任何章节的过滤结果里，断言才可能抓到它。
+ok('自检：figures 挂错章节 id 时必然丢图（产物层断言非空转的前提）', () => {
+  const bad = JSON.parse(JSON.stringify(raw));
+  const rat = bad.animals.find((a) => a.key === 'rat');
+  rat.figures[0].section = 'no-such-section';
+  const a = buildAnimal(bad, 'rat');
+  const secIds = a.sections.map((s) => s.id);
+  assert.ok(secIds.indexOf('no-such-section') === -1, '变异没生效——自检空转');
+  const rendered = secIds.some((id) => a.figures.filter((f) => f.section === id).length > 0
+    && a.figures.some((f) => f.section === 'no-such-section') === false);
+  // 模板按 sec.id 过滤：挂错的图一个章节都进不去
+  const hits = secIds.reduce((n, id) => n + a.figures.filter((f) => f.section === id).length, 0);
+  assert.strictEqual(hits, a.figures.length - 1, '挂错章节的图居然还能被某个章节渲染——断言会空转');
+  assert.ok(!rendered, '渲染判定逻辑自相矛盾');
 });
 
 ok('自检：拼音列写成 block / inline 必须被抓到（底边线错位防复发）', () => {

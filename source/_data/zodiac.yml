@@ -17,6 +17,12 @@
 #      并显示「各来源说法不一」的说明——不为了填满版面编数据。
 #   6. 配图授权走 Wikimedia Commons（作者 / 授权 / 原文件页三要素齐全，与节假日页同律），
 #      测试锁死；源站图片是其自有上传，不复制。
+#
+# 正文配图 figures（2026-11-11 新增，见 ZODIAC-IMAGERY-PLAN-2026-11-11.md）：
+#   1. figures 与 sections 平级，挂在 animals[] 下；每条必须带 section/layout/file/alt/caption/author/license/page。
+#   2. section 必须是该页 sections[].id 之一——写错构建不报错、图不出现，由测试兜底。
+#   3. layout 只允许 inline（章节内右浮）/ band（章节后图集带）两个值，其它值测试判红。
+#   4. author/license/page 与 alt/caption 缺一不可，与 meta.images 同律；file 一律 /img/zodiac/<slug>.jpg。
 
 meta:
   updated: "2026-10-25"
@@ -195,6 +201,27 @@ animals:
       - id: "end"
         title: "结语"
         body: '<p>鼠年不只是日历上的一位。它连着干支纪年的规矩、汉语里层次分明的用词、一批带刺的成语，还有一个送了上千年嫁女的民俗题材。下一个鼠年从 2032 年 2 月 11 日开始——到时候又轮到属鼠的人过本命年。</p>'
+    figures:
+      - section: "meaning"
+        layout: "inline"
+        file: "/img/zodiac/rat-stone.jpg"
+        width: 960
+        height: 703
+        alt: "明宣宗朱瞻基《鼠石图》，老鼠立于石畔，旁有瓜叶"
+        caption: "明宣宗朱瞻基《鼠石图》：老鼠、石与瓜叶同框——与民间「鼠配瓜」的多子祈盼同属明代鼠画题材。"
+        author: "朱瞻基（明宣宗）"
+        license: "Public domain"
+        page: "https://commons.wikimedia.org/wiki/File:Zhu_Zhanji-Mouse_and_Stone.jpg"
+      - section: "tales"
+        layout: "band"
+        file: "/img/zodiac/rat-priest.jpg"
+        width: 948
+        height: 1400
+        alt: "清代道教生肖神图，鼠首人身的鼠神立像"
+        caption: "清代道教生肖神图中的鼠神：生肖后来进入道教星神体系，十二属相各配一位神将，大都会艺术博物馆藏。"
+        author: "佚名（清代）"
+        license: "CC0"
+        page: "https://commons.wikimedia.org/wiki/File:Daoist_Priest_with_Zodiac_Animal,_Rat_MET_DP-18670-001.jpg"
     vocab:
       - { t: "鼠", p: "shǔ", m: "老鼠；生肖鼠", n: "也指松鼠、仓鼠等" }
       - { t: "老鼠", p: "lǎoshǔ", m: "老鼠（日常说法）", n: "「老」是前缀，不是年老" }
@@ -473,6 +500,27 @@ animals:
       - id: "end"
         title: "结语"
         body: '<p>龙年是十二生肖里最热闹的一个：唯一的神话动物、唯一的生育高峰、唯一的四海龙王神话。下一个龙年从 2036 年 1 月 28 日开始。</p>'
+    figures:
+      - section: "meaning"
+        layout: "inline"
+        file: "/img/zodiac/dragon-jade.jpg"
+        width: 933
+        height: 1400
+        alt: "红山文化玉猪龙，蜷体玉龙"
+        caption: "红山文化玉猪龙：五千多年前的蜷体玉龙，被认为是中华龙形象的源头之一，中国国家博物馆藏。"
+        author: "MarginalCost（摄）"
+        license: "CC0"
+        page: "https://commons.wikimedia.org/wiki/File:Hongshan_Jade_Pig-dragon.jpg"
+      - section: "tales"
+        layout: "band"
+        file: "/img/zodiac/dragon-parade.jpg"
+        width: 1200
+        height: 919
+        alt: "约 1900 年海外华埠的舞龙游行老照片"
+        caption: "约 1900 年的舞龙队：正月舞龙灯的民俗随华侨漂洋过海，这张百年前的照片记录了海外游龙的样子。"
+        author: "C. C. Pierce"
+        license: "Public domain"
+        page: "https://commons.wikimedia.org/wiki/File:Chinese_dragon_in_a_parade,_ca.1900_(CHS-1687).jpg"
     vocab:
       - { t: "龙", p: "lóng", m: "龙", n: "十二生肖中唯一的神话动物" }
       - { t: "龙年", p: "lóngnián", m: "龙年", n: "" }
@@ -606,6 +654,27 @@ animals:
       - id: "end"
         title: "结语"
         body: '<p>马年讲的是行动：从甲骨文里的马形，到「马到成功」的祝愿，再到本命年的一袭红。下一个马年从 2038 年 2 月 4 日开始。</p>'
+    figures:
+      - section: "meaning"
+        layout: "inline"
+        file: "/img/zodiac/horse-night.jpg"
+        width: 1200
+        height: 603
+        alt: "唐韩幹《照夜白图》，唐玄宗名马奋蹄昂首"
+        caption: "唐韩幹《照夜白图》：唐玄宗的名马照夜白奋蹄欲脱——马与自由、速度的联系，从此有了最著名的一个形象，大都会艺术博物馆藏。"
+        author: "韩幹（唐）"
+        license: "CC0"
+        page: "https://commons.wikimedia.org/wiki/File:唐_韓幹_照夜白圖_卷-Night-Shining_White_MET_DP153679.jpg"
+      - section: "tales"
+        layout: "band"
+        file: "/img/zodiac/horse-steeds.jpg"
+        width: 1400
+        height: 933
+        alt: "昭陵六骏浮雕之一，战马与牵马的武士"
+        caption: "昭陵六骏浮雕：唐太宗的六匹战马，每一匹对应一场开国战役，现藏西安碑林博物馆（两件在海外）。"
+        author: "Gary Todd"
+        license: "CC0"
+        page: "https://commons.wikimedia.org/wiki/File:Six_Steeds_of_Zhao_Mausoleum_(9913066396).jpg"
     vocab:
       - { t: "生肖", p: "shēngxiào", m: "生肖", n: "十二种动物的纪年体系" }
       - { t: "火马", p: "huǒ mǎ", m: "火马", n: "2026 年的生肖" }

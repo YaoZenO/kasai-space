@@ -44,12 +44,24 @@ const { published, modified } = pageDates('zodiac/index.md');
             <div class="z-cards">
               {ov.rows.map((zr: any) => (
                 <a class="z-card" href={urlFor('/zodiac/' + zr.key + '/')}>
-                  <span class="z-card-head">
-                    <span class="z-card-name">{zr.animal}</span>
-                    <span class="z-card-pos">第 {zr.position} 位</span>
+                  <span class="z-card-thumb">
+                    <img
+                      src={zr.thumb}
+                      alt={zr.image ? zr.image.alt : zr.animal + '生肖配图'}
+                      width="320"
+                      height="240"
+                      loading="lazy"
+                      decoding="async"
+                    />
                   </span>
-                  <span class="z-card-line">地支「{zr.branch}」· 五行 {zr.element}</span>
-                  <span class="z-card-year">本轮 {zr.featured} · {zr.ganzhi}</span>
+                  <span class="z-card-body">
+                    <span class="z-card-head">
+                      <span class="z-card-name">{zr.animal}</span>
+                      <span class="z-card-pos">第 {zr.position} 位</span>
+                    </span>
+                    <span class="z-card-line">地支「{zr.branch}」· 五行 {zr.element}</span>
+                    <span class="z-card-year">本轮 {zr.featured} · {zr.ganzhi}</span>
+                  </span>
                 </a>
               ))}
             </div>

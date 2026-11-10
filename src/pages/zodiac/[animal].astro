@@ -7,6 +7,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import ZodiacWheel from '../../components/ZodiacWheel.astro';
 import { getData } from '../../lib/data';
 import { ANIMAL_SLUG, buildAnimal, buildOverview } from '../../lib/zodiac-data';
 import { fmtItemDate } from '../../lib/dates';
@@ -162,9 +163,27 @@ const { published, modified } = pageDates(`zodiac/${animalKey}/index.md`);
 
             <div class="z-layout">
               <div class="z-main">
-                {z.sections.map((sec: any) => (
+                {z.sections.map((sec: any) => {
+                  const secFigs = (z.figures || []).filter((f: any) => f.section === sec.id);
+                  const inlineFigs = secFigs.filter((f: any) => f.layout === 'inline');
+                  const bandFigs = secFigs.filter((f: any) => f.layout === 'band');
+                  return (
                   <section class="z-section" id={'sec-' + sec.id}>
                     <h2 class="z-section-title">{sec.title}</h2>
+
+                    {/* 地支环：12 页固定在「是什么」章节开头，位置不变、内容随本页地支变 */}
+                    {sec.id === 'what' && <ZodiacWheel branch={z.branch} relations={z.relations} />}
+
+                    {/* 章节内联图：桌面右浮 42%，移动端退化为通栏，正文绕排 */}
+                    {inlineFigs.map((f: any) => (
+                      <figure class="zf-inline">
+                        <img src={f.file} alt={f.alt} width={f.width} height={f.height} loading="lazy" decoding="async" />
+                        <figcaption>
+                          <span class="zf-cap">{f.caption}</span>
+                          <span class="zf-credit">图：<a href={f.page} target="_blank" rel="noopener">{f.author}</a> / {f.license}</span>
+                        </figcaption>
+                      </figure>
+                    ))}
 
                     {sec.id === 'relations' ? (
                       <>
@@ -246,8 +265,24 @@ const { published, modified } = pageDates(`zodiac/${animalKey}/index.md`);
                     ) : sec.body ? (
                       <div class="markdown-body"><Fragment set:html={sec.body} /></div>
                     ) : null}
+
+                    {/* 图集带：同一章节的 band 图收进一个容器，双图并排、390 下单列 */}
+                    {bandFigs.length > 0 && (
+                      <div class="zf-band">
+                        {bandFigs.map((f: any) => (
+                          <figure class="zf-band-fig">
+                            <img src={f.file} alt={f.alt} width={f.width} height={f.height} loading="lazy" decoding="async" />
+                            <figcaption>
+                              <span class="zf-cap">{f.caption}</span>
+                              <span class="zf-credit">图：<a href={f.page} target="_blank" rel="noopener">{f.author}</a> / {f.license}</span>
+                            </figcaption>
+                          </figure>
+                        ))}
+                      </div>
+                    )}
                   </section>
-                ))}
+                  );
+                })}
 
                 <nav class="z-pager" aria-label="上下生肖">
                   <a class="z-pager-prev" href={urlFor('/zodiac/' + z.prev.key + '/')}>← {z.prev.animal}年</a>

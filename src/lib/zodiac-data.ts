@@ -331,6 +331,8 @@ function buildAnimal(raw: any, wantKey: string): any {
     sections: ordered,
     vocab: Array.isArray(src.vocab) ? src.vocab : [],
     faq: Array.isArray(src.faq) ? src.faq : [],
+    // 正文配图：挂在章节上的图（按 section 过滤），模板不做二次分组计算。
+    figures: Array.isArray(src.figures) ? src.figures : [],
     image: images[src.key] || null,
     prev: { key: prevKey, animal: ANIMALS[mod(idx - 1, 12)] },
     next: { key: nextKey, animal: ANIMALS[mod(idx + 1, 12)] },
@@ -368,7 +370,10 @@ function buildOverview(raw: any): any {
       element: g.element,
       title: g.title,
       span: span,
-      birthYears: years
+      birthYears: years,
+      // 索引页缩略图：与详情页档案卡同一张套组照片，320px 版本由离线脚本生成。
+      thumb: '/img/zodiac/thumbs/' + a.key + '.jpg',
+      image: (data.meta && data.meta.images && data.meta.images[a.key]) || null
     };
   });
 
