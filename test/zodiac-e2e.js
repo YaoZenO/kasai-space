@@ -252,6 +252,32 @@ ok('十二张配图授权三要素齐全（CC 授权的使用条件）', () => {
   });
 });
 
+// E-140 防复发：12 页配图必须同源（同一套藏品、同一批照片）。
+// 主人 2026-11-11 指出「只有虎年不是 LACMA 的图」，起因是套组第 9 张当时直链下载
+// 拿到 2KB 坏文件、临时换成了圆明园虎首。只比对「授权合规」抓不到这种不同源——
+// 单张图各自都合规，放在一起却不像一套。这里锁死套组前缀与套组编号。
+ok('十二张配图同源：同一套 LACMA 藏品、编号 1-12 不重不漏（E-140 防复发）', () => {
+  const SET_PREFIX = 'https://commons.wikimedia.org/wiki/File:Funerary_Sculpture_of_the_Animals_of_the_Twelve-Year_Chinese_Zodiac_(Shengxiao)_LACMA_M.90.80a-l_(';
+  const nums = [];
+  PAGES.forEach((k) => {
+    const m = META_IMAGES[k] || {};
+    assert.ok(
+      String(m.page || '').startsWith(SET_PREFIX),
+      k + ' 的配图不在 LACMA 十二生肖俑套组里：' + m.page,
+    );
+    const hit = String(m.page).match(/_\((\d+)_of_12\)\.jpg$/);
+    assert.ok(hit, k + ' 的套组编号读不出来：' + m.page);
+    const n = Number(hit[1]);
+    assert.ok(n >= 1 && n <= 12, k + ' 的套组编号越界：' + n);
+    nums.push(n);
+    // 同一套照片，作者与授权必须一致（否则说明混进了别的来源）
+    assert.strictEqual(m.author, META_IMAGES.rat.author, k + ' 的署名与套组不一致：' + m.author);
+    assert.strictEqual(m.license, META_IMAGES.rat.license, k + ' 的授权与套组不一致：' + m.license);
+  });
+  const uniq = Array.from(new Set(nums)).sort((a, b) => a - b);
+  assert.deepStrictEqual(uniq, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], '套组编号有重复或缺失：' + nums.join(','));
+});
+
 ok('配图文件存在、确实是 JPEG、体积足够', () => {
   PAGES.forEach((k) => {
     const f = path.join(IMG_DIR, k + '.jpg');
