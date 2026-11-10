@@ -4038,12 +4038,8 @@ body.is-home footer {
   font-variant-numeric: tabular-nums;
 }
 
-/* ---- 表格：基本信息 / 年份 / 配对 / 幸运 / 词汇 ---- */
-.z-facts tbody th,
+/* ---- 表格：幸运 / 词汇（基本信息与年份已改档案卡，见下方 zd-*） ---- */
 .z-luck tbody th { width: 7.5rem; }
-
-.z-years tbody th { width: 5rem; }
-.z-relations tbody th { width: 5.5rem; }
 
 .z-vocab th:nth-child(2) { width: 7rem; }
 .z-vocab th:nth-child(4) { width: 11rem; }
@@ -4180,6 +4176,253 @@ body.is-home footer {
 }
 
 .z-pager a:hover { color: var(--accent); }
+
+/* ---- 属相档案（PAGE-FORM-PLAN §4.4，2026-11-11）----
+   详情页原来是文章壳（kicker + 大标题 + 导语 + 更新时间 + 表格），
+   读者要滚两屏才知道属相配什么地支五行。现在首屏是一张档案卡：
+   左身份域（名 / 拼音英文 / 地支五行阴阳干支 / 本命年 / 相冲相合），右配图；
+   其下是历年列表，长文退到第二屏。色值全部走 token，暗态自动跟随。 */
+.zd-dossier {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 22rem);
+  align-items: start;
+  gap: clamp(1.2rem, 3vw, 2.4rem);
+  margin-top: 0.6rem;
+  padding: clamp(1.1rem, 2.6vw, 1.8rem);
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-card);
+  background: var(--cream);
+}
+
+.zd-kicker {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--sec-text-color);
+}
+
+.zd-name {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-serif-title);
+  font-size: clamp(2.1rem, 5vw, 3rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--text-color);
+}
+
+.zd-roman {
+  margin: 0.3rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--sec-text-color);
+}
+
+.zd-lede {
+  margin: 0.85rem 0 0;
+  font-size: 0.98rem;
+  line-height: 1.8;
+  color: var(--text-color);
+}
+
+/* 关键属性：每格一个字段，不再是一张要横向扫视的基本信息表 */
+.zd-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
+  gap: 0.7rem 1rem;
+  margin: 1.1rem 0 0;
+  padding-top: 0.95rem;
+  border-top: 1px solid var(--line-color);
+}
+
+.zd-stat--wide { grid-column: 1 / -1; }
+
+.zd-stat dt {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: var(--sec-text-color);
+}
+
+.zd-stat dd {
+  margin: 0.15rem 0 0;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--text-color);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 相冲相合：档案卡里的摘要，详细解释留在「传统配对」章节 */
+.zd-relbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.45rem 0.75rem;
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line-color);
+}
+
+.zd-relbar-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: var(--sec-text-color);
+}
+
+.zd-relbar ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.zd-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  padding: 0.16rem 0.55rem;
+  border: 1px solid var(--line-color);
+  border-radius: 999px;
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.zd-chip-name {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+.zd-chip-part {
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.zd-chip-part a { color: var(--text-color); }
+.zd-chip-part a:hover { color: var(--accent); }
+
+.zd-sep { margin: 0 0.2rem; color: var(--sec-text-color); }
+
+.zd-updated {
+  margin: 0.9rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+.zd-figure { margin: 0; }
+
+/* 历年：11 个年份排成可扫视的格子，本轮单独标出 */
+.zd-block { margin-top: clamp(1.8rem, 3.5vw, 2.6rem); }
+
+.zd-years {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.zd-year {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-sm);
+  background: var(--cream);
+  font-variant-numeric: tabular-nums;
+}
+
+.zd-year.is-current {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.zd-year-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.zd-year-num {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.zd-year-now {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--accent);
+}
+
+.zd-year-gz {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-color);
+}
+
+.zd-year-el {
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+/* 「传统配对」章节：配对表改成关系卡，和档案卡同一套语言 */
+.zd-relations {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 0.7rem;
+  margin-top: 0.9rem;
+}
+
+.zd-relation {
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-sm);
+  background: var(--cream);
+}
+
+.zd-relation-name {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: var(--sec-text-color);
+}
+
+.zd-relation-partners {
+  margin: 0.25rem 0 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.zd-relation-partners a { color: var(--text-color); }
+.zd-relation-partners a:hover { color: var(--accent); }
+
+.zd-relation-note {
+  margin: 0.2rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--sec-text-color);
+}
+
+@media (max-width: 991.98px) {
+  .zd-dossier { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 575.98px) {
+  .zd-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .zd-years { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 
 /* 生肖年术语链（火马年 / 丙午马年 / 正文里的蛇年、羊年……）：蓝色标注，可跳转。
    只挂在 .cal-page 作用域内的 a.z-link 上——蓝色是参考站视觉的一部分，

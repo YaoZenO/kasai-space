@@ -2,6 +2,9 @@
 // 生肖页（/zodiac/、/zodiac/<动物>/）端到端验证。
 // 2026-10-25 重构为「生肖主题页」后同步更新：
 //   —— 标题只写生肖名、删性格板块、章节化内容、右栏目录 + 进度环 + 移动抽屉。
+// 2026-11-11（PAGE-FORM-PLAN §4.4）详情页改「属相档案卡」：
+//   —— 首屏是档案卡（地支/五行/阴阳/干支/本命年/相冲相合），其下历年列表，
+//      原来的基本信息表与年份表不再渲染；本文件同步加了档案卡结构断言。
 //
 // 为什么要有这一套（与 holidays-e2e.js 同一理由）：
 //   这一族页面由一个数据文件（zodiac.yml）+ 一个 helper 算出来，模板里没有一句
@@ -383,6 +386,64 @@ if (!fs.existsSync(PUBLIC)) {
     });
   });
 
+  ok('属相档案卡：首屏是档案卡，属性与 helper 逐项一致（PAGE-FORM-PLAN §4.4）', () => {
+    PAGES.forEach((k) => {
+      const h = fs.readFileSync(path.join(PUBLIC, 'zodiac', k, 'index.html'), 'utf8');
+      const a = buildAnimal(raw, k);
+      const at = h.indexOf('class="zd-dossier"');
+      assert.ok(at !== -1, k + ' 页没有档案卡容器 zd-dossier');
+      const card = h.slice(at, h.indexOf('</article>', at));
+      // 身份域：标题仍只写生肖名（不绑年份）
+      assert.ok(card.indexOf('>' + a.title + '</h1>') !== -1, k + ' 档案卡缺 h1「' + a.title + '」');
+      assert.ok(card.indexOf(a.pinyin) !== -1, k + ' 档案卡缺拼音');
+      assert.ok(card.indexOf(a.english) !== -1, k + ' 档案卡缺英文名');
+      // 关键字段：地支 / 五行 / 阴阳 / 干支 与 helper 同值
+      [a.branch, a.element, a.yinyang, a.ganzhi].forEach((v) => {
+        assert.ok(card.indexOf('>' + v + '<') !== -1, k + ' 档案卡缺字段值「' + v + '」');
+      });
+      // 本命年起止（纯日期 <time>，E-028）
+      assert.ok(card.indexOf('datetime="' + a.span.start + '"') !== -1, k + ' 档案卡缺本命年起点');
+      assert.ok(card.indexOf('datetime="' + a.span.end + '"') !== -1, k + ' 档案卡缺本命年终点');
+      // 关键字段格数固定 6 格（4 + 2 个整行宽的字段）
+      const stats = (card.match(/class="zd-stat(?: zd-stat--wide)?"/g) || []).length;
+      assert.strictEqual(stats, 6, k + ' 档案卡关键字段不是 6 格（实际 ' + stats + '）');
+      // 相冲相合摘要：条数与 helper 的关系数一致，伙伴链到对应生肖页
+      const chips = (card.match(/class="zd-chip"/g) || []).length;
+      assert.strictEqual(chips, a.relations.length, k + ' 档案卡相冲相合条数与数据不符');
+      a.relations.forEach((rel) => {
+        assert.ok(card.indexOf('>' + rel.name + '</span>') !== -1, k + ' 档案卡缺「' + rel.name + '」');
+        rel.partners.forEach((p) => {
+          assert.ok(card.indexOf('href="/zodiac/' + ANIMAL_SLUG[p] + '/"') !== -1,
+            k + ' 档案卡里「' + rel.name + '」的伙伴「' + p + '」没链到生肖页');
+        });
+      });
+      // 旧文章壳必须撤干净：页头标题块、基本信息表、年份表都不该再出现
+      assert.ok(card.indexOf('page-head-title') === -1, k + ' 档案卡里还留着 page-head 标题');
+      assert.ok(h.indexOf('z-facts') === -1, k + ' 页还在渲染基本信息表 z-facts');
+      assert.ok(h.indexOf('z-years') === -1, k + ' 页还在渲染年份表 z-years');
+      // C-6 红线：站点未备案，除站内搜索外不允许任何输入控件
+      assert.ok(h.indexOf('<input') === -1, k + ' 页出现了 <input>（C-6 红线）');
+    });
+  });
+
+  ok('历年列表：条数与 helper 一致，本轮只标一次，每个年份都在', () => {
+    PAGES.forEach((k) => {
+      const h = fs.readFileSync(path.join(PUBLIC, 'zodiac', k, 'index.html'), 'utf8');
+      const a = buildAnimal(raw, k);
+      const at = h.indexOf('class="zd-years"');
+      assert.ok(at !== -1, k + ' 页缺历年列表 zd-years');
+      const seg = h.slice(at, h.indexOf('</ol>', at));
+      const items = (seg.match(/class="zd-year(?: is-current)?"/g) || []).length;
+      assert.strictEqual(items, a.occurrences.length,
+        k + ' 历年条数 ' + items + ' ≠ 数据 ' + a.occurrences.length);
+      assert.strictEqual((seg.match(/zd-year is-current/g) || []).length, 1,
+        k + ' 历年列表里本轮不是恰好 1 条');
+      a.occurrences.forEach((oc) => {
+        assert.ok(seg.indexOf('>' + oc.year + '<') !== -1, k + ' 历年列表缺 ' + oc.year);
+      });
+    });
+  });
+
   ok('蓝色术语链：鼠年页链到猪年，节假日页链到生肖页', () => {
     const rat = fs.readFileSync(path.join(PUBLIC, 'zodiac', 'rat', 'index.html'), 'utf8');
     assert.ok(rat.indexOf('class="z-link" href="/zodiac/pig/"') !== -1, '鼠年页缺到猪年的蓝色术语链');
@@ -453,12 +514,20 @@ if (!fs.existsSync(PUBLIC)) {
     const must = [
       '.z-nav-strip', '.z-nav-current', '.z-figure', '.z-layout', '.z-section-title',
       '.z-toc {', '.z-toc-list', '.z-toc-toggle', '.z-ring-fill', '.z-toc-progress-text',
-      '.z-toc-fab', '.z-toc-sheet', '.z-toc-overlay', '.z-facts', '.z-luck', '.z-vocab',
-      '.z-relations', '.z-pager', '.z-pos', '.z-animal-link', '.cal-page a.z-link {',
+      '.z-toc-fab', '.z-toc-sheet', '.z-toc-overlay', '.z-luck', '.z-vocab',
+      '.z-pager', '.z-pos', '.z-animal-link', '.cal-page a.z-link {',
+      '.zd-dossier', '.zd-name', '.zd-stats', '.zd-stat--wide', '.zd-relbar', '.zd-chip',
+      '.zd-years', '.zd-year.is-current', '.zd-relations', '.zd-relation-note',
       '.lb-layout', '.lb-guide', '.lb-entries', '.lb-topic-more',
     ];
     const missing = must.filter((s) => css.indexOf(s) === -1);
     assert.deepStrictEqual(missing, [], 'site.css 丢了这些样式：' + missing.join('、'));
+    // 档案卡上线后，旧的「基本信息表 / 年份表 / 配对表」样式不得留着两套并存。
+    // 按选择器开头匹配，避免注释里「与 .z-facts 解耦」这类说明被误判。
+    ['.z-facts', '.z-years', '.z-relations'].forEach((s) => {
+      const re = new RegExp('(^|[\\n,}])' + s.replace('.', '\\.') + '[\\s,{]');
+      assert.ok(!re.test(css), 'site.css 还留着已撤用的表格样式 ' + s);
+    });
   });
 
   ok('拼音列保持 table-cell（整行底边线才接得上，主人 2026-10-26 指出）', () => {

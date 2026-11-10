@@ -101,6 +101,55 @@ const norm = (s) => String(s).replace(/\n+$/, '');
 
 const BACKUP = {};
 
+// E-139 防复发：两个实例并发跑时，A 的 restore 与 B 的 updateItems 交叉写，
+// 「数据文件已完整还原」是与本进程 BACKUP 比对的自证式断言，拦不住另一个实例的写入，
+// 结果真实数据文件被留下 E2E 条目（2026-11-11 实测 games.yml / projects.yml 各多出 16 行）。
+// 用进程锁把「同一时刻只有一个实例改真实数据文件」变成机制；被杀进程留下的锁按 PID 判活回收。
+const LOCK_FILE = path.join(os.tmpdir(), 'kasai-module-pages-e2e.lock');
+
+function acquireLock() {
+  const mine = process.pid + ' ' + new Date().toISOString();
+  try {
+    fs.writeFileSync(LOCK_FILE, mine, { flag: 'wx' });
+    return;
+  } catch {
+    let holder = '';
+    try {
+      holder = fs.readFileSync(LOCK_FILE, 'utf8').trim();
+    } catch {
+      /* 锁刚好被释放，按下行重新抢占 */
+    }
+    const pid = Number(holder.split(/\s+/)[0]);
+    let alive = false;
+    if (pid) {
+      try {
+        process.kill(pid, 0);
+        alive = true;
+      } catch {
+        alive = false;
+      }
+    }
+    if (alive) {
+      console.error(
+        '\n✗ 另一个 test/module-pages-e2e.js 正在运行（PID ' + pid + '）。\n' +
+          '  两个实例会交叉改写 source/_data/{projects,games}.yml，备份/还原断言会失效（E-139）。\n' +
+          '  等它结束再跑，或先停掉那个进程。\n'
+      );
+      process.exit(1);
+    }
+    fs.writeFileSync(LOCK_FILE, mine);
+  }
+}
+
+function releaseLock() {
+  try {
+    const holder = fs.readFileSync(LOCK_FILE, 'utf8').trim();
+    if (Number(holder.split(/\s+/)[0]) === process.pid) fs.unlinkSync(LOCK_FILE);
+  } catch {
+    /* 锁已被回收或本进程从未拿到 */
+  }
+}
+
 // E-083 防复发：上一轮跑一半被中断（构建卡住 / 进程被杀）时，E2E 条目会留在数据文件里。
 // 下一轮直接 backup()，就会把「已污染的内容」当成原始基线，
 // 于是 restore() 原样写回污染内容，而「数据文件已完整还原」是与 BACKUP 比对的
@@ -224,6 +273,7 @@ function scanDataIntegrity(dir) {
 async function main() {
   console.log('P1-9 前台模块页 E2E');
 
+  acquireLock();
   backup('projects');
   backup('games');
 
@@ -398,6 +448,7 @@ async function main() {
     restore('projects');
     restore('games');
     cleanGenerated();
+    releaseLock();
     console.log('\n[8] 还原原始数据文件 + 删除测试产物目录');
   }
 
@@ -485,6 +536,7 @@ main()
   // 进程一直活着并持有仓库文件，后续测试会看到「上一轮」留下的测试数据。
   .then(() => process.exit(process.exitCode || 0))
   .catch((e) => {
+    releaseLock();
     console.error('\nE2E 执行失败：', e && e.message ? e.message : e);
     process.exit(1);
   });
