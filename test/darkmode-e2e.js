@@ -644,11 +644,13 @@ ok('年历页修补 4/4：4.12b 原段零改动（HEAD 逐字比对 + git diff -
     return s.slice(a, b);
   };
   const headSeg = grab(head);
-  let curSeg = grab(siteCss);
-  // 主理人已批准保留的唯一一处 4.12b 改动：calc 等价改写（归属并行年历段，非本次修补）
+  const curSeg = grab(siteCss);
+  // 主理人已批准保留的唯一一处 4.12b 改动：calc 等价改写（归属并行年历段，非本次修补）。
+  // 该改动已在 4bef1e8 随节假日图例一并提交，HEAD 里同样是改写后的形态——
+  // 原来「把 cur 改回 calc 再和 HEAD 比」的写法只适用于它还在工作区的时候，
+  // 提交后会恒等失败（E-137）。现在直接逐字比对，并单独确认改写没被删掉。
   const APPROVED = /  \/\* E-064：[\s\S]*?无加法 calc。 \*\/\n  top: 100%;\n  margin-top: \.45rem;\n/;
   assert.match(curSeg, APPROVED, '4.12b 里已批准的 calc 等价改写被改掉或删除');
-  curSeg = curSeg.replace(APPROVED, '  top: calc(100% + .45rem);\n');
   assert.strictEqual(curSeg, headSeg,
     '4.12b 段出现了本任务新增的改动——暗态修补必须只写在 §15');
 

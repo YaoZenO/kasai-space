@@ -1204,6 +1204,78 @@ ok('S25 样式：底色条绝对定位、网格卡 min-width:0（E-122 / E-123�
   }
 });
 
+// S26 单榜页排名条形（2026-11-10，PAGE-FORM-PLAN §3 落地）：
+// computed 榜把排名表换成横向条形；条长 = 该指标归一化分值 ÷ 本榜该指标最高分值。
+// 这里独立复算每个指标的条长并与产物逐行比对——分母若写成「榜首那一行」，
+// 多指标榜会算出 >100%（被 .crr-track 的 overflow 静默截断，肉眼看不出来）。
+ok('S26 产物：computed 榜条形与独立复算一致，fact/pending 不画条形', () => {
+  const base = path.join(PUBLIC, 'cityrank');
+
+  for (const def of computedRanks) {
+    const pageFile = path.join(base, def.slug, 'index.html');
+    assert.ok(fs.existsSync(pageFile), '缺页面：/cityrank/' + def.slug + '/');
+    const html = fs.readFileSync(pageFile, 'utf8');
+    assert.ok(html.indexOf('class="crr"') !== -1, def.slug + ' 没有排名条形（computed 榜仍是一张表）');
+    assert.ok(html.indexOf('cr-table') === -1, def.slug + ' 表格与条形并存（两套版式语言）');
+
+    const got = findRank(R, def.slug).rank;
+    let cands = (cities.cities || []).filter((c) =>
+      def.metrics.every((m) => c.metrics && c.metrics[m.field] && typeof c.metrics[m.field].v === 'number'));
+    if (def.filter && typeof def.filter === 'object') {
+      for (const k of Object.keys(def.filter)) {
+        cands = cands.filter((c) => String(c[k] === undefined ? '' : c[k]) === String(def.filter[k]));
+      }
+    }
+    const bySlug = {};
+    for (const c of cands) bySlug[c.slug] = c;
+
+    def.metrics.forEach((m, mi) => {
+      const vs = cands.map((c) => c.metrics[m.field].v);
+      const min = Math.min.apply(null, vs);
+      const max = Math.max.apply(null, vs);
+      const norms = got.items.map((it) => {
+        const c = bySlug[it.slug];
+        assert.ok(c, def.slug + ' 的条目 ' + it.slug + ' 不在候选池里');
+        return normalize(c.metrics[m.field].v, min, max, m.dir === 'down' ? 'down' : 'up', m.scale);
+      });
+      const peak = Math.max.apply(null, norms);
+      const expect = norms.map((n) => Math.max(2, Math.round((n / peak) * 1000) / 10));
+
+      const gotWidths = [...html.matchAll(new RegExp('class="crr-fill crr-fill-' + mi + '" style="width:([\\d.]+)%', 'g'))].map((x) => Number(x[1]));
+      assert.strictEqual(gotWidths.length, got.items.length, def.slug + ' 第 ' + (mi + 1) + ' 项指标的条形行数不符');
+      for (let i = 0; i < expect.length; i += 1) {
+        assert.ok(gotWidths[i] <= 100, def.slug + ' 条长超过 100%（overflow 会静默截断）：' + gotWidths[i] + '%');
+        assert.ok(Math.abs(gotWidths[i] - expect[i]) <= 0.11,
+          def.slug + ' 第 ' + (i + 1) + ' 行 / 指标 ' + (mi + 1) + '：产物 ' + gotWidths[i] + '%，复算 ' + expect[i] + '%');
+      }
+    });
+
+    if (def.metrics.length > 1) {
+      assert.strictEqual((html.match(/class="crr-chip"/g) || []).length, def.metrics.length,
+        def.slug + ' 指标切换控件数与指标数不符');
+      assert.ok(/class="crr" data-metric="\d"/.test(html), def.slug + ' 缺 data-metric 容器');
+    }
+  }
+
+  for (const def of allRanks.filter((r) => r.kind && r.kind !== 'computed')) {
+    const pageFile = path.join(base, def.slug, 'index.html');
+    if (!fs.existsSync(pageFile)) continue;
+    assert.strictEqual(fs.readFileSync(pageFile, 'utf8').indexOf('crr-track'), -1,
+      def.slug + ' 是 ' + def.kind + ' 榜、没有可核验数值，不应画条形');
+  }
+});
+
+ok('S26 样式：条形只显示所选指标，无 JS 也有服务端默认', () => {
+  const fill = css.match(/\.crr-val,\s*\.crr-fill\s*\{[^}]*\}/);
+  assert.ok(fill, 'site.css 缺 .crr-val / .crr-fill 的默认隐藏规则');
+  assert.ok(/display:\s*none/.test(fill[0]), '未选中的指标条没有隐藏——会多条叠画');
+  for (let i = 0; i < 2; i += 1) {
+    assert.ok(css.indexOf('.crr[data-metric="' + i + '"] .crr-fill-' + i) !== -1, 'site.css 缺 data-metric=' + i + ' 的显示规则');
+  }
+  const track = css.match(/\.crr-track\s*\{[^}]*\}/);
+  assert.ok(track && /overflow:\s*hidden/.test(track[0]), '.crr-track 缺 overflow:hidden');
+});
+
 ok('自检：镇域榜混入主序列必须被 S16 抓到（变异样本自造，不依赖真实待审组样本）', () => {
   const bad = R.groups.map((g) => ({
     key: g.key,

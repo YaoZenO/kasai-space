@@ -205,11 +205,15 @@ function computeRank(rank: any, cities: any[]): { items: any[]; candidateCount: 
 
   const scored = candidates.map((c) => {
     const values: Record<string, any> = {};
+    // norms：每项指标在候选池内归一化到 0–100 后的分值（已按 dir 换算方向，越大越好）。
+    // 页面画条形图用——直接拿原始值画会在「越小越好」的指标上把长短画反（如 7 月平均气温）。
+    const norms: Record<string, number> = {};
     let acc = 0;
     for (const m of metrics) {
       const v = metricValue(c, m.field)!;
       values[m.field] = v;
       const s = normalize(v, stats[m.field].min, stats[m.field].max, m.dir === 'down' ? 'down' : 'up', m.scale);
+      norms[m.field] = s;
       acc += s * (typeof m.weight === 'number' ? m.weight : 0);
     }
     return {
@@ -220,6 +224,7 @@ function computeRank(rank: any, cities: any[]): { items: any[]; candidateCount: 
       score: round1(acc / wsum),
       raw: acc / wsum,
       values: values,
+      norms: norms,
       reason: reasonOf(metrics, values),
       gdp: metricValue(c, 'gdp')
     };

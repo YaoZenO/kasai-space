@@ -33,6 +33,43 @@ const hasReason = items.some((it) => it.reason);
 const hasProv = items.some((it) => it.province);
 const hasLog = !!(r && r.metrics && r.metrics.some((m: any) => m.scale === 'log'));
 
+// 排名可视化（PAGE-FORM-PLAN §3：单榜页改横向条图 + 指标切换）。
+// 只有 computed 榜带可核验的指标值；fact / pending 没有数值，继续用表格，不画无数据支撑的条形。
+const metrics: any[] = Array.isArray(r?.metrics) ? r.metrics : [];
+const mainMetric = metrics.length
+  ? metrics.slice().sort((a: any, b: any) => (b.weight || 0) - (a.weight || 0))[0]
+  : null;
+const mainIdx = mainMetric ? metrics.indexOf(mainMetric) : 0;
+const hasViz = !!(r && r.kind === 'computed' && metrics.length && items.length && items[0].norms);
+
+function fmtVal(it: any, m: any) {
+  const v = it.values ? it.values[m.field] : null;
+  if (typeof v !== 'number' || !isFinite(v)) return '—';
+  const s = Math.abs(v) >= 1000 ? Math.round(v).toLocaleString('en-US') : String(Math.round(v * 10) / 10);
+  return s + (m.unit ? ' ' + m.unit : '');
+}
+
+// 条长 = 该指标在候选池里归一化后的分值 ÷ 本榜该指标的最高分值（最高者满格）。
+// norms 已按 dir 换算方向，所以「越小越好」的指标（如 7 月平均气温）同样是越长越好。
+// 不能拿榜首那行的分值当分母：多指标榜里榜首是按加权后的综合指数排的，
+// 它在某一单项上未必是最高的，用它会算出超过 100% 的条长（被 overflow 静默截断）。
+const normMax: Record<string, number> = {};
+for (const m of metrics) {
+  let mx = 0;
+  for (const it of items) {
+    const n = it.norms ? it.norms[m.field] : null;
+    if (typeof n === 'number' && n > mx) mx = n;
+  }
+  normMax[m.field] = mx;
+}
+
+function widthOf(it: any, m: any) {
+  const max = normMax[m.field] || 0;
+  const n = it.norms ? it.norms[m.field] : null;
+  if (typeof n !== 'number' || !(max > 0)) return 0;
+  return Math.max(2, Math.round((n / max) * 1000) / 10);
+}
+
 const navItems: any[] = [];
 const seenT: Record<string, boolean> = {};
 if (r) {
@@ -77,7 +114,67 @@ if (r) {
 
             <div class="cr-layout">
               <div class="cr-main">
-                {items.length > 0 ? (
+                {hasViz ? (
+                  <section class="crr" data-metric={mainIdx} aria-label={`${r.title} 排名条形图`}>
+                    {metrics.length > 1 && (
+                      <div class="crr-chips" role="group" aria-label="选择指标">
+                        {metrics.map((m: any, i: number) => (
+                          <button class="crr-chip" type="button" data-metric={i} aria-pressed={i === mainIdx ? 'true' : 'false'}>
+                            {m.label || m.field}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    <ol class="crr-list">
+                      {items.map((it: any) => (
+                        <li class={'crr-row' + (it.rank <= 3 ? ' is-top' : '')}>
+                          <span class="crr-rank">{it.rank < 10 ? '0' + it.rank : String(it.rank)}</span>
+                          <span class="crr-head">
+                            <a class="crr-name" href={urlFor('/city/' + it.slug + '/')}>{it.name}</a>
+                            {it.province && <span class="crr-prov">{it.province}</span>}
+                            {metrics.map((m: any, i: number) => (
+                              <span class={'crr-val crr-val-' + i}>{fmtVal(it, m)}</span>
+                            ))}
+                          </span>
+                          <span class="crr-track" aria-hidden="true">
+                            {metrics.map((m: any, i: number) => (
+                              <i class={'crr-fill crr-fill-' + i} style={`width:${widthOf(it, m)}%`}></i>
+                            ))}
+                          </span>
+                          <span class="crr-sub">综合指数 {it.score}</span>
+                        </li>
+                      ))}
+                    </ol>
+                    <p class="crr-note">
+                      {metrics.length > 1 ? (
+                        <>条长为所选指标在本榜 {r.candidateCount} 座候选城市中的相对水平（已按「越大越好 / 越小越好」换算方向），以<strong>本榜该指标最高者为满格</strong>；名次按综合指数排列，切换指标只改条长、不改名次。</>
+                      ) : (
+                        <>条长按{mainMetric?.label || mainMetric?.field}取值，以<strong>本榜最高者为满格</strong>；名次即该项排序。</>
+                      )}
+                      指标权重与算法见下方评分口径。
+                    </p>
+                    {metrics.length > 1 && (
+                      <>
+                        <noscript><style>{'.crr-chips{display:none}'}</style></noscript>
+                        <script is:inline>
+                          (function () {
+                            var root = document.querySelector('.crr');
+                            if (!root) return;
+                            var chips = Array.prototype.slice.call(root.querySelectorAll('.crr-chip'));
+                            chips.forEach(function (chip) {
+                              chip.addEventListener('click', function () {
+                                root.setAttribute('data-metric', chip.getAttribute('data-metric'));
+                                chips.forEach(function (c) {
+                                  c.setAttribute('aria-pressed', c === chip ? 'true' : 'false');
+                                });
+                              });
+                            });
+                          })();
+                        </script>
+                      </>
+                    )}
+                  </section>
+                ) : items.length > 0 ? (
                   <div class="cal-table-wrap">
                     <table class="cr-table">
                       <caption class="cr-caption">{r.title}（按{r.kind === 'computed' ? '综合指数' : '名次'}排列）</caption>

@@ -7458,6 +7458,157 @@ html:not(.js) .fs-years-toggle { display: none; }
   color: var(--accent);
 }
 
+/* 单榜页排名条形（PAGE-FORM-PLAN §3，2026-11-10）：computed 榜由排名表改为
+   「名次 + 城市 + 条长 + 指标值」的横向条形列表；fact / pending 没有指标值，仍用表格。
+   条长是 CSS 宽度百分比，零依赖；多指标榜的切换只改容器 data-metric，
+   无 JS 时服务端默认指标照常可读，<noscript> 里把切换控件藏掉（不留点了没反应的假控件）。 */
+.crr {
+  margin-top: 1.2rem;
+}
+
+.crr-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.crr-chip {
+  appearance: none;
+  padding: 0.22rem 0.7rem;
+  border: 1px solid var(--line-color);
+  border-radius: 999px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.8rem;
+  color: var(--sec-text-color);
+  cursor: pointer;
+}
+
+.crr-chip[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.crr-chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.crr-list {
+  display: grid;
+  gap: 0.95rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.crr-row {
+  display: grid;
+  grid-template-columns: 1.9rem minmax(0, 1fr);
+  align-items: center;
+  column-gap: 0.55rem;
+  row-gap: 0.24rem;
+}
+
+.crr-rank {
+  grid-row: 1 / span 3;
+  align-self: start;
+  padding-top: 0.1rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--sec-text-color);
+}
+
+.crr-row.is-top .crr-rank {
+  color: var(--text-color);
+}
+
+.crr-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.crr-name {
+  min-width: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.crr-name:hover {
+  color: var(--accent);
+}
+
+.crr-prov {
+  font-size: 0.76rem;
+  color: var(--sec-text-color);
+  white-space: nowrap;
+}
+
+/* 指标值与填充条：默认全部隐藏，由容器 data-metric 决定显示哪一项。
+   这样无 JS 时服务端渲染的默认指标照常显示，脚本只负责改 data-metric。 */
+.crr-val,
+.crr-fill {
+  display: none;
+}
+
+.crr[data-metric="0"] .crr-val-0,
+.crr[data-metric="1"] .crr-val-1,
+.crr[data-metric="2"] .crr-val-2,
+.crr[data-metric="3"] .crr-val-3 {
+  display: inline;
+}
+
+.crr[data-metric="0"] .crr-fill-0,
+.crr[data-metric="1"] .crr-fill-1,
+.crr[data-metric="2"] .crr-fill-2,
+.crr[data-metric="3"] .crr-fill-3 {
+  display: block;
+}
+
+.crr-val {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--sec-text-color);
+  white-space: nowrap;
+}
+
+.crr-track {
+  display: block;
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--line-color);
+}
+
+.crr-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.crr-sub {
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+.crr-note {
+  margin: 1rem 0 0;
+  padding-top: 0.55rem;
+  border-top: 1px dashed var(--line-color);
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
 @media (max-width: 1023px) {
   .crk-hero { grid-template-columns: minmax(0, 1fr); }
   .crk-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
