@@ -11,10 +11,23 @@ const { requestBaseUrl, parseCookies, setCookie, respondError } = require('./_li
 
 const STATE_COOKIE = config.mockMode ? 'kasai_oauth_dev' : '__Host-kasai_oauth';
 
+// 错误页的所有动态字段都要过输出编码（issue #10）：login 来自 GitHub /user，
+// 异常信息可能携带上游 OAuth 的 error_description，二者都不能直接拼进 HTML。
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function html(res, status, title, msg) {
   res.statusCode = status;
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.end(`<!doctype html><meta charset="utf-8"><title>${title}</title><body style="font-family:system-ui;max-width:32rem;margin:15vh auto;padding:0 1rem;text-align:center"><h1>${title}</h1><p>${msg}</p><p><a href="/admin/">返回管理后台</a></p></body>`);
+  const safeTitle = escapeHtml(title);
+  const safeMsg = escapeHtml(msg);
+  res.end(`<!doctype html><meta charset="utf-8"><title>${safeTitle}</title><body style="font-family:system-ui;max-width:32rem;margin:15vh auto;padding:0 1rem;text-align:center"><h1>${safeTitle}</h1><p>${safeMsg}</p><p><a href="/admin/">返回管理后台</a></p></body>`);
 }
 
 module.exports = async (req, res) => {
@@ -41,6 +54,8 @@ module.exports = async (req, res) => {
     res.setHeader('Location', '/admin/');
     return res.end();
   } catch (e) {
-    return html(res, 500, '登录失败', String((e && e.message) || e));
+    // 与 api/_lib/http.js 的 respondError 同口径：细节只进服务端日志，页面给固定文案。
+    console.error('[auth-callback]', e);
+    return html(res, 500, '登录失败', '登录过程出错，请返回重试。');
   }
 };

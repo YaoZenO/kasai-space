@@ -83,6 +83,28 @@ if (fs.existsSync(ciFile)) {
   } else {
     fail('ci.yml 把 Astro build 排在了 test:pages 之后：test:pages 第 [10] 组读 dist/ 会直接失败');
   }
+
+  // 5. CI 语法检查必须覆盖 api/ 下的每一个 .js（issue #11）。
+  // 只查「domains」字样不够：将来再拆一层目录照样漏。这里动态枚举
+  // api/**/*.js 的实际所在目录，要求 Syntax check 用 find api 递归，
+  // 或把每个含 .js 的子目录都显式写进 glob；少一层就 FAIL。
+  const syntaxBlock = (ciText.match(/- name:\s*Syntax check[\s\S]*?(?=\n\s*- name:|$)/) || [''])[0];
+  const apiDir = path.join(ROOT, 'api');
+  const apiJs = fs.existsSync(apiDir)
+    ? walk(apiDir).filter((f) => f.endsWith('.js')).map((f) => path.relative(ROOT, f).replace(/\\/g, '/'))
+    : [];
+  const apiSubdirs = [...new Set(apiJs.map((f) => path.posix.dirname(f)))].filter((d) => d !== 'api');
+  if (apiJs.length === 0 || apiSubdirs.length === 0) {
+    fail('api/ 下没有子目录 .js，语法覆盖断言会空转');
+  } else {
+    const usesFind = /find\s+api\s/.test(syntaxBlock) && /-name\s+['"]?\*\.js/.test(syntaxBlock);
+    const missing = usesFind ? [] : apiSubdirs.filter((d) => !syntaxBlock.includes(`${d}/*.js`));
+    if (missing.length === 0) {
+      pass(`ci.yml 的 Syntax check 覆盖 api/ 全部 ${apiJs.length} 个 .js（含 ${apiSubdirs.length} 个子目录）`);
+    } else {
+      fail(`ci.yml 的 Syntax check 漏掉子目录：${missing.join(', ')}（改用 find api 递归，见 issue #11）`);
+    }
+  }
 } else {
   fail('.github/workflows/ci.yml 不存在');
 }

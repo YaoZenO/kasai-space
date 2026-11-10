@@ -705,6 +705,39 @@ const PNG_1X1 = Buffer.from(
     assert.strictEqual(h1.status, 400);
   });
 
+  // --- issue #10：HTML 错误页输出编码（反射型 XSS 防复发） ---
+  // 打桩的是 store 对象的属性，handler 通过 store.xxx() 动态取，改动即刻生效；
+  // finally 无条件还原，避免污染后面的登录链路断言。
+  {
+    const origExchange = store.exchangeCode;
+    const origGetLogin = store.getLogin;
+    const payloadA = '<img src=x onerror=alert(1)>';
+    const payloadB = 'attacker<script>alert(1)</script>';
+    try {
+      store.exchangeCode = async () => { throw new Error(`OAUTH_DENIED: bad_verification_code - ${payloadA}`); };
+      let x = await call('GET', '/api/auth-callback?state=st-xss&code=probe', null, { cookie: 'kasai_oauth_dev=st-xss' });
+      ok('auth-callback: 异常详情不写进 HTML 错误页（issue #10）', () => {
+        assert.strictEqual(x.status, 500);
+        assert.ok(!String(x.body).includes(payloadA), '上游错误描述不得出现在页面里');
+        assert.ok(!/<(img|script)\b/i.test(String(x.body)), '错误页不得出现未转义的 img/script 标签');
+        assert.ok(String(x.body).includes('登录过程出错，请返回重试'), '应返回固定文案');
+      });
+
+      store.exchangeCode = async () => 'probe-token';
+      store.getLogin = async () => payloadB;
+      x = await call('GET', '/api/auth-callback?state=st-xss&code=probe', null, { cookie: 'kasai_oauth_dev=st-xss' });
+      ok('auth-callback: 非管理员账号名经 HTML 转义后展示（issue #10）', () => {
+        assert.strictEqual(x.status, 403);
+        assert.ok(!String(x.body).includes('<script>'), '账号名不得作为标签注入');
+        assert.ok(String(x.body).includes('&lt;script&gt;'), '应输出转义后的实体');
+        assert.ok(String(x.body).includes('不是本站管理员'), '原有提示文案保留');
+      });
+    } finally {
+      store.exchangeCode = origExchange;
+      store.getLogin = origGetLogin;
+    }
+  }
+
   // 链路闭环：callback 下发的 session cookie 能直接通过 session-check
   const cb = await call('GET', '/api/auth-callback?state=st-tok&code=mock', null, { cookie: 'kasai_oauth_dev=st-tok' });
   const sessCookie = (cb.headers['set-cookie'] || []).map((c) => c.split(';')[0]).join('; ');

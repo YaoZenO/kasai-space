@@ -27,12 +27,22 @@ jobs:
       # 0. 构建环境门禁：engines 主版本 = 当前 Node = ci.yml 的 node-version（E-112）
       - name: Build env
         run: npm run test:env
-      # 1. 语法门禁：api 函数 + 后台前端 + 测试脚本
+      # 1. 语法门禁：api 全部子目录 + 后台前端 + 测试脚本（issue #11）
+      #    用 find api 递归，避免内容域再拆一层子目录时又漏检；
+      #    test/build-env.js 会动态枚举 api/**/*.js 反向校验本步骤的覆盖方式。
       - name: Syntax check
         run: |
-          for f in api/*.js api/_lib/*.js source/admin/admin.js test/*.js; do
-            node --check "$f" || exit 1
+          set -euo pipefail
+          for f in source/admin/*.js test/*.js; do
+            [ -f "$f" ] || continue
+            node --check "$f"
           done
+          count=0
+          while IFS= read -r -d '' f; do
+            node --check "$f"
+            count=$((count + 1))
+          done < <(find api -type f -name '*.js' -print0)
+          [ "$count" -gt 0 ] || { echo "api/ 下没有 .js，语法门禁空转"; exit 1; }
           echo "syntax ok"
       # 2. 后台服务端冒烟（mock 模式，零依赖零密钥）
       - name: Admin smoke
