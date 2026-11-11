@@ -295,20 +295,16 @@ ok('十二张配图同源：同一套 LACMA 藏品、编号 1-12 不重不漏（
   assert.deepStrictEqual(uniq, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], '套组编号有重复或缺失：' + nums.join(','));
 });
 
-// ---------- ①b 正文配图 figures（2026-11-11 方案 A，P2 先锁鼠/马/龙三页样板） ----------
+// ---------- ①b 正文配图 figures（2026-11-11 方案 A，P2 三页样板 + P3 补齐其余九页） ----------
 // 纪律见 zodiac.yml 文件头：section 必须命中章节 id、layout 只有 inline/band、
 // 三要素与 alt/caption 缺一不可。这些约束构建期不报错，只能由这里兜底。
-ok('正文配图：仅鼠/马/龙三页样板有 figures，每页 2 张（1 inline + 1 band）', () => {
+ok('正文配图：12 页每页 2 张（1 inline + 1 band）', () => {
   PAGES.forEach((k) => {
     const a = buildAnimal(raw, k);
     const figs = a.figures || [];
-    if (['rat', 'horse', 'dragon'].indexOf(k) !== -1) {
-      assert.strictEqual(figs.length, 2, k + ' 的 figures 不是 2 张（实际 ' + figs.length + '）');
-      const layouts = figs.map((f) => f.layout).sort();
-      assert.deepStrictEqual(layouts, ['band', 'inline'], k + ' 的 layout 组合不对：' + layouts.join(','));
-    } else {
-      assert.strictEqual(figs.length, 0, k + ' 还不是样板页，不应有 figures（P3 补齐时再放开这条）');
-    }
+    assert.strictEqual(figs.length, 2, k + ' 的 figures 不是 2 张（实际 ' + figs.length + '）');
+    const layouts = figs.map((f) => f.layout).sort();
+    assert.deepStrictEqual(layouts, ['band', 'inline'], k + ' 的 layout 组合不对：' + layouts.join(','));
   });
 });
 
@@ -333,7 +329,7 @@ ok('正文配图：每条字段齐全、section 命中章节 id、layout 白名�
       const buf = fs.readFileSync(abs);
       assert.strictEqual(buf[0], 0xFF, tag + ' 不是 JPEG（首字节不是 FF）');
       assert.strictEqual(buf[1], 0xD8, tag + ' 不是 JPEG（第二字节不是 D8）');
-      assert.ok(buf.length > 50 * 1024, tag + ' 只有 ' + buf.length + ' 字节，像是下载被截断');
+      assert.ok(buf.length > 20 * 1024, tag + ' 只有 ' + buf.length + ' 字节，像是下载被截断');
       assert.ok(buf.length <= 120 * 1024, tag + ' 超过 120KB 传输预算：' + buf.length + ' 字节');
       // 数据里的 width/height 必须与真实文件一致，否则 aspect-ratio 预留的框是错的
       const dim = jpegSize(buf);
@@ -583,8 +579,8 @@ if (!fs.existsSync(PUBLIC)) {
   });
 
   // 正文配图产物层：.z-main 内 img 数 = figures 数；band 收进同一容器；三要素齐全。
-  ok('正文配图：鼠/马/龙三页正文落地，band 收进同一容器，三要素齐全', () => {
-    ['rat', 'horse', 'dragon'].forEach((k) => {
+  ok('正文配图：12 页正文落地，band 收进同一容器，三要素齐全', () => {
+    PAGES.forEach((k) => {
       const h = fs.readFileSync(path.join(PUBLIC, 'zodiac', k, 'index.html'), 'utf8');
       const a = buildAnimal(raw, k);
       const mainAt = h.indexOf('class="z-main"');

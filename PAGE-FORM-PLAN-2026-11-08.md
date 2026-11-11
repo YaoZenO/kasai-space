@@ -219,19 +219,22 @@ kicker（CALENDAR / CITY RANK）＋ 大标题 ＋ 一段导语 ＋ 「更新于�
 **4.4c 生肖页正文视觉层：地支环 + 题材图 + 索引页缩略图（2026-11-11 落地）**
 
 - **依据**：`ZODIAC-IMAGERY-PLAN-2026-11-11.md` 方案 A。主人定「一次做到 P2」，
-  并确认索引页 `/zodiac/` 并入作 P4。P1 / P2 / P4 已落地，P3（其余 9 页）未做。
+  并确认索引页 `/zodiac/` 并入作 P4。P1 / P2 / P3 / P4 已全部落地。
 - **P1 地支环**：新建 `src/components/ZodiacWheel.astro`，12 页「是什么」章节开头各插一枚内联
   SVG——12 个地支节点、本页高亮、三合虚线三角、六冲对径实线、六合细虚线，`<title>` 供读屏，
   零 JS、零新路由。
 - **P2 正文配图**：`zodiac.yml` 的 `animals[]` 新增 `figures`（`section` / `layout` /
   `file` / `alt` / `caption` / `author` / `license` / `page` / `width` / `height`）。
   `layout` 只有两种：`inline`（章节内右浮 42%，≤900px 通栏）与 `band`（章节后图集带）。
-  先做鼠 / 马 / 龙三页样板，每页 1 张 inline + 1 张 band，共 6 张新图（PD / CC0，均 ≤120KB）。
+  先用鼠 / 马 / 龙三页做样板；**P3 已补齐其余 9 页**，现为 12 页 × 2 张 = 24 张
+  （全部 PD / CC0，单张 ≤120KB）。图片入库前按显示比例预裁（inline 4:3、band 16:10），
+  使 `object-fit: cover` 不再二次裁切，所见即取景。
 - **P4 索引页**：12 张生肖卡顶部加 4:3 缩略图（复用 LACMA 套组照片，另存 320×240，
   共 101KB，零新授权），卡片体分区为 `.z-card-thumb` + `.z-card-body`。
 - **验收**：`test/zodiac-e2e.js` 扩到 46 项——数据三要素与白名单、文件真实性、JPEG 实际
-  宽高与数据一致、单张 ≤120KB、产物层地支环与正文配图落地、索引页 12 张缩略图存在且 <20KB，
-  并加「figures 挂错章节必然丢图」的反空转自检；`astro:verify` 708/708；`test:tokens` 30 项通过。
+  宽高与数据一致、单张 ≤120KB、「12 页每页 2 张且 layout 为 inline+band」、产物层地支环与
+  正文配图在 12 页全部落地、索引页 12 张缩略图存在且 <20KB，并加「figures 挂错章节必然丢图」
+  的反空转自检；`astro:verify` 708/708；`test:tokens` 30 项通过。
 
 ### 4.5 首页（P2）—— 个人主页 Bento
 

@@ -318,6 +318,28 @@ animals:
       - q: "属牛的人传统上被形容成什么样？"
         a: "可靠、勤勉、诚实、有耐心，也可能被形容固执、不愿改变。这类说法属民间流传，当作文化话题看即可。"
 
+    figures:
+      - section: "meaning"
+        layout: "inline"
+        file: "/img/zodiac/ox-inline.jpg"
+        width: 828
+        height: 621
+        alt: "唐韩滉《五牛图》局部，一头黄牛侧身回望"
+        caption: "唐 韩滉《五牛图》局部（故宫博物院藏）：五牛各具姿态，这一头侧身回望。它是现存最早的纸本中国画之一，画中的牛正是农耕社会里最重要的畜力。"
+        author: "韩滉（唐）"
+        license: "Public domain"
+        page: "https://commons.wikimedia.org/wiki/File:%D0%A5%D0%B0%D0%BD%D1%8C_%D0%A5%D1%83%D0%B0%D0%BD._%D0%9F%D1%8F%D1%82%D1%8C_%D0%B1%D1%8B%D0%BA%D0%BE%D0%B2._%D0%93%D1%83%D0%B3%D1%83%D0%BD,_%D0%9F%D0%B5%D0%BA%D0%B8%D0%BD.1.jpg"
+      - section: "tales"
+        layout: "band"
+        file: "/img/zodiac/ox-band.jpg"
+        width: 1200
+        height: 750
+        alt: "战国滇国青铜贮贝器，器盖中央立一头牛，四周环列数牛"
+        caption: "战国 滇国青铜贮贝器（局部）：器盖中央隆起，一头牛立其上，四周环列数牛。贮贝器是古滇国贵族储存海贝的礼器，牛在这类器物上同样是财富与祭祀的重器。"
+        author: "Gary Todd"
+        license: "CC0"
+        page: "https://commons.wikimedia.org/wiki/File:Warring_States_Dian_Bronze_Cowrie_Container_(9965321356).jpg"
+
   # ============ 3 虎 ============
   - key: "tiger"
     animal: "虎"
@@ -387,6 +409,28 @@ animals:
       - q: "属虎的幸运数字和颜色有什么说法？"
         a: "民间说法里 1、3、4 为吉数，6、7、8 宜避；蓝、灰、橙为幸运色，棕色宜避。这类说法各来源不一，只作参考。"
 
+    figures:
+      - section: "meaning"
+        layout: "inline"
+        file: "/img/zodiac/tiger-inline.jpg"
+        width: 1200
+        height: 900
+        alt: "清方士庶《畅虎图轴》，虎伏身草丛、张口回顾"
+        caption: "清 方士庶《畅虎图轴》：虎自草丛中伏身探出，张口回顾，画幅上方为题跋与钤印。旧时道观壁画也常画虎镇邪，用的是同一套威势。"
+        author: "方士庶（清）"
+        license: "Public domain"
+        page: "https://commons.wikimedia.org/wiki/File:%E6%B8%85%E6%96%B9%E5%A3%AB%E5%BA%B6%E7%95%85%E8%99%8E%E5%9B%BE%E8%BD%B4.png"
+      - section: "tales"
+        layout: "band"
+        file: "/img/zodiac/tiger-band.jpg"
+        width: 1200
+        height: 750
+        alt: "商代伏鸟双尾青铜虎，虎背上立一只小鸟"
+        caption: "商代 伏鸟双尾青铜虎（江西省博物馆藏）：虎背伏一鸟、虎身有双尾。商代青铜器把虎的凶猛直接铸成器形，江南的吴城文化尤多此类。"
+        author: "Gary Todd"
+        license: "CC0"
+        page: "https://commons.wikimedia.org/wiki/File:Shang_Bronze_2-Tail_Tiger_(31604454555).jpg"
+
   # ============ 4 兔 ============
   - key: "rabbit"
     animal: "兔"
@@ -454,6 +498,28 @@ animals:
         a: "源自玉兔的传说：玉兔在月宫桂树下捣制仙药，陪伴嫦娥。中秋的兔儿爷、兔子灯都从这个意象来。"
       - q: "兔年出生的宝宝取名有什么讲究？"
         a: "民间常挑带「艹」「彡」「口」部首的字，分别取草木丰足、毛色漂亮、有安身之所的意思。"
+
+    figures:
+      - section: "meaning"
+        layout: "inline"
+        file: "/img/zodiac/rabbit-inline.jpg"
+        width: 1200
+        height: 900
+        alt: "唐代月宫玉兔纹铜镜，镜背有桂树、嫦娥与捣药的玉兔"
+        caption: "唐 月宫玉兔纹铜镜（哈佛艺术博物馆藏）：镜背以桂树为中轴，一侧是嫦娥，一侧是捣药的玉兔。人们望月看到的景象，被铸在了日常用的镜子上。"
+        author: "Hiart"
+        license: "CC0"
+        page: "https://commons.wikimedia.org/wiki/File:Tang_dynasty_bronze_mirror_with_moon_goddess_and_rabbit_design,_HAA.JPG"
+      - section: "tales"
+        layout: "band"
+        file: "/img/zodiac/rabbit-band.jpg"
+        width: 1200
+        height: 750
+        alt: "明朱瞻基《御临黄筌花鸟卷》局部，坡石花草间的兔子"
+        caption: "明 朱瞻基《御临黄筌花鸟卷》（局部）：坡石花草间画兔，是宣宗临摹五代黄筌一路的工笔花鸟。兔在宫廷绘画里，通常只是这幅「花鸟」里的一员。"
+        author: "朱瞻基（明宣宗）"
+        license: "Public domain"
+        page: "https://commons.wikimedia.org/wiki/File:%E6%98%8E_%E6%9C%B1%E7%9E%BB%E5%9F%BA_%E5%BE%A1%E4%B8%B4%E9%BB%84%E7%AD%8C%E8%8A%B1%E9%B8%9F%E5%8D%B7.jpg"
 
   # ============ 5 龙 ============
   - key: "dragon"
@@ -612,6 +678,28 @@ animals:
       - q: "蛇为什么又叫「小龙」？"
         a: "传统艺术和民间传说常把蛇视为「小龙」，不少研究者认为想象中的龙以蛇为原型。"
 
+    figures:
+      - section: "meaning"
+        layout: "inline"
+        file: "/img/zodiac/snake-inline.jpg"
+        width: 1200
+        height: 900
+        alt: "唐代伏羲女娲绢画局部，两人人首蛇身、上身相依"
+        caption: "唐 伏羲女娲绢画（局部）：两人人首蛇身、上身相依，头顶绘日月。蛇身在这里不是妖异，而是创世神明的形体。"
+        author: "佚名（唐）"
+        license: "Public domain"
+        page: "https://commons.wikimedia.org/wiki/File:Anonymous-Fuxi_and_N%C3%BCwa2.jpg"
+      - section: "tales"
+        layout: "band"
+        file: "/img/zodiac/snake-band.jpg"
+        width: 547
+        height: 342
+        alt: "颐和园长廊彩画《白蛇传》，水边亭台与人物"
+        caption: "颐和园长廊彩画《白蛇传》：长廊的梁枋上画满戏曲故事，这一幅是《白蛇传》里的一幕——蛇精的故事被画在了皇家园林的廊下。"
+        author: "佚名（清）"
+        license: "Public domain"
+        page: "https://commons.wikimedia.org/wiki/File:Legend_white_snake1.jpg"
+
   # ============ 7 马 ============
   - key: "horse"
     animal: "马"
@@ -769,6 +857,28 @@ animals:
       - q: "羊为什么和吉祥联系在一起？"
         a: "「羊」与「祥」古音相近，「美」「善」等含美好义的字也从「羊」得义。广州别称「羊城」，源自五羊衔谷而来的传说。"
 
+    figures:
+      - section: "meaning"
+        layout: "inline"
+        file: "/img/zodiac/goat-inline.jpg"
+        width: 1200
+        height: 900
+        alt: "商代晚期四羊方尊的羊首特写，卷角与器身浑然一体"
+        caption: "商代晚期 四羊方尊的羊首（中国国家博物馆藏）：尊的四角各铸一卷角羊首，羊角与器身浑铸一体，是商代青铜铸造的代表作。"
+        author: "Gary Todd"
+        license: "CC0"
+        page: "https://commons.wikimedia.org/wiki/File:Late_Shang_Bronze_Zun_ram%27s_head.jpg"
+      - section: "tales"
+        layout: "band"
+        file: "/img/zodiac/goat-band.jpg"
+        width: 1200
+        height: 750
+        alt: "四羊方尊肩部细部，羊首之间探出龙首"
+        caption: "四羊方尊肩部：羊首之间探出龙首，四羊四龙同铸一器。羊与龙在同一件礼器上并存——「祥」的取义，从来不只是某种动物的事。"
+        author: "Gary Todd"
+        license: "CC0"
+        page: "https://commons.wikimedia.org/wiki/File:Late_Shang_Bronze_Zun_(9830324505).jpg"
+
   # ============ 9 猴 ============
   - key: "monkey"
     animal: "猴"
@@ -834,6 +944,28 @@ animals:
         a: "常见版本里，鸡找来木筏，羊和猴把木筏抬下水并清理障碍，猴因此得了第九名。故事体现的是合作与机灵。"
       - q: "属猴的人传统上被形容成什么样？"
         a: "聪明、机智、好奇、善交际、适应力强，也可能被形容冲动或固执。"
+
+    figures:
+      - section: "meaning"
+        layout: "inline"
+        file: "/img/zodiac/monkey-inline.jpg"
+        width: 1200
+        height: 900
+        alt: "南宋佚名《三元得禄》团扇页，猿猴攀枝掏鹭巢"
+        caption: "南宋 佚名《三元得禄》团扇页（大都会艺术博物馆藏）：「猿」谐「元」、「鹭」谐「禄」，猿猴掏鹭巢的画面被读成科举连中三元的吉兆。"
+        author: "佚名（南宋）"
+        license: "CC0"
+        page: "https://commons.wikimedia.org/wiki/File:%E5%8D%97%E5%AE%8B_%E4%BD%9A%E5%90%8D_%E2%80%9C%E4%B8%89%E5%85%83%E5%BE%97%E7%A5%BF%E2%80%9D%E5%9C%96%E6%89%87%E9%A0%81-Gibbons_Raiding_an_Egret%27s_Nest_MET_DP153503.jpg"
+      - section: "tales"
+        layout: "band"
+        file: "/img/zodiac/monkey-band.jpg"
+        width: 1200
+        height: 750
+        alt: "南宋佚名《猿鹿图》册页，猿在松间、鹿在坡下"
+        caption: "南宋 佚名《猿鹿图》册页（大都会艺术博物馆藏）：猿在松间、鹿在坡下，「猿」谐「元」、「鹿」谐「禄」——吉祥话不必写出来，画里全是。"
+        author: "佚名（南宋）"
+        license: "CC0"
+        page: "https://commons.wikimedia.org/wiki/File:%E5%8D%97%E5%AE%8B_%E4%BD%9A%E5%90%8D_%E7%8C%BF%E9%B9%BF%E5%9C%96_%E5%86%8A%E9%A0%81-Gibbons_and_Deer_MET_DP153510.jpg"
 
   # ============ 10 鸡 ============
   - key: "rooster"
@@ -901,6 +1033,28 @@ animals:
       - q: "鸡和仕途有什么关系？"
         a: "鸡「冠」与官「官」谐音，因此鸡被寄托了事业有成、步步高升的寓意，传统剪纸里的公鸡多取这个意思。"
 
+    figures:
+      - section: "meaning"
+        layout: "inline"
+        file: "/img/zodiac/rooster-inline.jpg"
+        width: 1200
+        height: 900
+        alt: "明代斗彩鸡纹碗，碗外壁绘公鸡、母鸡与雏鸡"
+        caption: "明 斗彩鸡纹碗（台北故宫博物院藏）：碗外壁绘公鸡、母鸡与雏鸡，是成化「鸡缸杯」一脉的子母鸡题材；鸡鸣报晓，正合「司晨」的本分。"
+        author: "Gary Todd"
+        license: "CC0"
+        page: "https://commons.wikimedia.org/wiki/File:Ming_Porcelain_(38983393921).jpg"
+      - section: "tales"
+        layout: "band"
+        file: "/img/zodiac/rooster-band.jpg"
+        width: 1200
+        height: 750
+        alt: "明代斗彩鸡纹碗另一件，俯视碗口可见外壁鸡纹"
+        caption: "明 斗彩鸡纹碗（另一件）：俯看碗口，外壁的鸡纹一直画到近足处。鸡「冠」谐「官」，这类纹样讨的就是步步高升的口彩。"
+        author: "Gary Todd"
+        license: "CC0"
+        page: "https://commons.wikimedia.org/wiki/File:Ming_Porcelain_(38983403631).jpg"
+
   # ============ 11 狗 ============
   - key: "dog"
     animal: "狗"
@@ -964,6 +1118,28 @@ animals:
         a: "渡河比赛的传说里，狗在路上先去河里洗了个澡，赶到时已经有十种动物先到，于是排第十一。"
       - q: "属狗的人传统上被形容成什么样？"
         a: "忠诚、诚实、有保护欲、可靠，也可能被形容爱评判他人或悲观。"
+
+    figures:
+      - section: "meaning"
+        layout: "inline"
+        file: "/img/zodiac/dog-inline.jpg"
+        width: 1200
+        height: 900
+        alt: "汉代陶狗，项上塑项圈，竖耳卷尾"
+        caption: "汉 陶狗：项上塑项圈，竖耳卷尾，四肢粗壮。汉墓随葬陶俑里，狗是最常见的家畜之一——看家护院的本分，被原样带进了墓里。"
+        author: "Gary Todd"
+        license: "CC0"
+        page: "https://commons.wikimedia.org/wiki/File:Han_Pottery_Dog_05.jpg"
+      - section: "tales"
+        layout: "band"
+        file: "/img/zodiac/dog-band.jpg"
+        width: 1200
+        height: 750
+        alt: "另一件汉代陶狗，张口露齿，颈戴项圈"
+        caption: "汉 陶狗（另一件）：张口露齿、颈戴项圈，塑的是守门的姿态。民俗里借狗镇宅，靠的正是这幅样子。"
+        author: "Gary Todd"
+        license: "CC0"
+        page: "https://commons.wikimedia.org/wiki/File:Han_Pottery_Dog_06.jpg"
 
   # ============ 12 猪 ============
   - key: "pig"
@@ -1032,3 +1208,24 @@ animals:
         a: "不是。2007 年是丁亥，按天干属火、按纳音属土。真正的金猪年是 1911、1971 和 2031 年。当年预测的「金猪宝宝潮」也没有出现——大陆出生人数只增长 0.6%，属正常波动。"
       - q: "猪为什么代表富足？"
         a: "猪是最早被驯化的家畜之一，家里有猪意味着有余粮，考古证据可追溯到约九千年前。汉语里「猪」字本身不是骂人的话，贬义只出现在少数复合词里。"
+    figures:
+      - section: "meaning"
+        layout: "inline"
+        file: "/img/zodiac/pig-inline.jpg"
+        width: 1200
+        height: 900
+        alt: "汉代玉猪，长条形，以简练刀法刻出猪形"
+        caption: "汉 玉猪（洛杉矶县立艺术博物馆藏）：长条形、寥寥数刀刻出猪形，是汉墓里握在死者手中的「玉握」——「家」字里的那口猪，跟着人进了墓。"
+        author: "LACMA"
+        license: "Public domain"
+        page: "https://commons.wikimedia.org/wiki/File:Pig_LACMA_M.89.156.7.jpg"
+      - section: "tales"
+        layout: "band"
+        file: "/img/zodiac/pig-band.jpg"
+        width: 1200
+        height: 750
+        alt: "东汉陶猪，出自侯北营汉墓"
+        caption: "东汉 陶猪（侯北营汉墓出土）：泥塑粗略而体态分明，与陶狗、陶鸡同出——家畜俑是汉墓随葬的常见组合，猪代表的是日子里的余粮。"
+        author: "Furius"
+        license: "CC0"
+        page: "https://commons.wikimedia.org/wiki/File:Houbeiying,_Pottery_pig,_Eastern_Han,_Tomb_M28,_M224,_M214.jpg"
