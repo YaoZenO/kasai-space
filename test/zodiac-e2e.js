@@ -336,6 +336,10 @@ ok('正文配图：每条字段齐全、section 命中章节 id、layout 白名�
       assert.ok(dim, tag + ' 读不出 JPEG 宽高');
       assert.strictEqual(f.width, dim.width, tag + ' 的 width 与文件不一致：' + f.width + ' vs ' + dim.width);
       assert.strictEqual(f.height, dim.height, tag + ' 的 height 与文件不一致：' + f.height + ' vs ' + dim.height);
+      // 图集带按内容列全宽显示（约 960px），源图比这还窄就是被放大，必发虚（E-148）
+      if (f.layout === 'band') {
+        assert.ok(dim.width >= 900, tag + ' 作为图集带源图只有 ' + dim.width + 'px 宽，全宽显示会被放大');
+      }
     });
   });
 });

@@ -692,13 +692,13 @@ animals:
       - section: "tales"
         layout: "band"
         file: "/img/zodiac/snake-band.jpg"
-        width: 547
-        height: 342
-        alt: "颐和园长廊彩画《白蛇传》，水边亭台与人物"
-        caption: "颐和园长廊彩画《白蛇传》：长廊的梁枋上画满戏曲故事，这一幅是《白蛇传》里的一幕——蛇精的故事被画在了皇家园林的廊下。"
+        width: 1150
+        height: 719
+        alt: "清乾隆粉彩瓷板《白蛇传》，白素贞与侍女立于水边，露台上三人观望"
+        caption: "清乾隆 粉彩瓷板《白蛇传》（约 1770—1775，荷兰国立博物馆藏）：白素贞与侍女小青在水边施法，要把困住许仙的寺庙淹没——「水漫金山」的一幕。这块外销瓷板把中国故事带去了欧洲。"
         author: "佚名（清）"
-        license: "Public domain"
-        page: "https://commons.wikimedia.org/wiki/File:Legend_white_snake1.jpg"
+        license: "CC0"
+        page: "https://commons.wikimedia.org/wiki/File:Plaque_met_personen_bij_een_paviljoen_in_een_rivierlandschap,_AK-NM-6612-A.jpg"
 
   # ============ 7 马 ============
   - key: "horse"
