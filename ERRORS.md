@@ -181,6 +181,7 @@
 | E-147 | P3 | Commons 密集请求触发 429 抓到 XML 错误页；raw 缓存键只含槽位导致换图后复用旧文件 | 已修复（限速 + 标题 md5 入键 + content-type 校验）+ 体积/尺寸断言兜底 |
 | E-148 | P1 | 时间层明暗已生效但按钮 UI 停在系统态：`applyCustomColorSchemaSettings()` 的 current 漏读 `data-sun-scheme`，`waitElementLoaded` 异步重跑把同步好的 UI 覆盖回去 | 已修复（current 优先读独立标记）+ 异步覆盖时序回归断言与变异自检 |
 | E-149 | P2 | 蛇页图集带用 547px 源图全宽放大 1.75 倍，发虚；当时以降体积下限代替换图 | 已修复（换 Rijksmuseum 粉彩瓷板《白蛇传》1150×719）+ band 源图宽度 ≥900px 断言 |
+| E-153 | P2 | 首页主卡短标题时顶部空出一大片；墨底卡选中文字变墨字压墨底、整块消失 | 已修复（三段式布局 + 墨底 ::selection 换纸色 + 压缩器保留后代空格）+ 三条 token 断言 |
 
 ---
 
@@ -3110,4 +3111,11 @@
 - **修法：** 从源头统一 `current` 计算（只改 `applyCustomColorSchemaSettings()` 一处，覆盖所有调用点）：`var sunScheme = rootElement.getAttribute('data-sun-scheme');` + `var current = schema || (hasManual ? stored : (validColorSchemaKeys[sunScheme] ? sunScheme : getDefaultColorSchema()));`。手动态走 `stored`、时间态走 `sun`、系统兜底态回落 `getDefaultColorSchema()`、点击时 `schema` 参数优先，其余分支一字不动。`getDefaultColorSchema()` 的 `return systemPrefersDark() ? 'dark' : 'light'` 原句保留；读一个 DOM 标记不算时间计算，判定仍在独立模块（R-B）；不写 `data-user-color-scheme`（A2/A3）。
 - **防复发（机制）：** `test/darkmode-e2e.js` 新增 `E-148 防复发（异步覆盖时序）` 断言 —— vm harness 增加 `deferWaitCallbacks`，把 `waitElementLoaded` 回调挂起，在 `kasai:sun-scheme` 事件派发**之后**用 `fireWaitCallbacks()` 触发异步重跑，断言 `aria-pressed` / `aria-label` / `icon class` / `highlight-css-dark.disabled` 与 `data-sun-scheme` 一致；两个相反方向都跑（`time-dark / 系统浅`、`time-light / 系统深`）。另加 `E-148 变异自检` 断言，把 `current` 改回原句后同一时序必然撕裂，证明检测有效。变异自检实测：回退 l.82 → `FAIL E-148 防复发（异步覆盖时序）… time-dark / 系统浅 aria-pressed 与底色撕裂`、`RESULT: 89 项断言通过，存在失败`、exit 1；恢复 → `RESULT: 90 项断言通过`、exit 0。顺带补严过关建议改 #1 的断言盲区：对 `source/css/site.css` 全文、两份 `.styl` 全文、`static-public/css/*.css` 全文加 `:is(` 零命中断言。
 
+### E-153 首页主卡顶部大片空白 + 墨底卡选中态文字消失（主人验收时指出）
+
+- **发生时间：** 2026-11-14 ｜ **发现方式：** 主人反馈「首页这个卡片上面空了很多看着很不适应」「这个卡片如果是选中状态会变黑什么都看不到」
+- **现象：** ① 精选池轮换到「C++ 求职向学习路线」（标题 2 行、摘要 2 行）后，主卡 `.wall-feature` 内约 100px 空白全部堆在卡顶，元信息悬在卡高中部；换成长标题文章时看不出问题，说明是布局对内容的鲁棒性问题，不是某篇文章的问题。② 在卡内拖选文字，选中的字符整体消失（只剩未被选中的碎片），整卡看起来像被切碎。③ 第一轮修正把空白改成「元信息贴顶 + 其余压底」后，空白聚成中间一条黑带，主人再次否掉。
+- **根因：** ① 主卡高度由内容墙固定（桌面 `grid-auto-rows: 196px` × 2 + 14 gap = 406px），内容体是 `justify-content: flex-end` 的单列 flex；内容（标题 2 行时约 238px）比卡矮时差值全部落在卡顶。② 全局 `::selection` 取 `background: var(--selection-bg)` + `color: var(--text-color)`；浅态 `--text-color` 是墨色 `#1b1712`，墨底卡背景也是 `#1b1712`，选中即「墨字压墨底」。同一缺陷命中 `.ink-band`（浅态墨底）与带封面的压图入口格。③ 新增的 `.wall-feature ::selection` 后代选择器被 `minify-css` 正则 `\s*([{};:,>+~])\s*` 压成 `.wall-feature::selection`——「后代」变「自身」，卡内文字仍走全局墨字规则，构建成功但线上选中照样消失（P1 静默失效）。
+- **修法：** ① 无封面主卡改三段式：内容体 `flex: 1` 撑满卡高、元信息 `margin-bottom: auto` 贴顶、CTA `margin-top: auto` 贴底（与右侧入口格上下边对齐），标题组落在中间，剩余高度拆成两段呼吸量；有封面主卡不动（压图渐隐要求文字落在图下缘）。省下的高度换成正文：无封面卡标题上限 3 行、摘要上限 4 行（3×51.6 + 4×27.8 + 79 ≈ 345px < 358px 内容高，不会把元信息顶出卡顶），主卡摘要从 `excerptText(raw, 90)` 放宽到 150 字。② 为 `.wall-feature`、`.wall-cell-mask ~ .wall-cell-body`、`.ink-band` 增加 `::selection` 覆盖：纸色字 `#fdfaf4` + 纸色 30% 淡底；暗态同样是纸字压深底，无需再分支。③ `tools/lib/minify-css.mjs` 与 `themes/fluid/scripts/filters/minify-css.js` 的空白收边正则去掉 `:`（声明里 `color: red` 保留一个空格完全合法），不再改写选择器语义。
+- **防复发（机制）：** `test/css-tokens.js` 新增四条断言——「首页无封面主卡：元信息贴顶（E-153）」锁死 `flex: 1` / `margin-bottom: auto` / 标题 3 行 / 摘要 4 行；「首页主卡最坏情况仍在卡高内（E-153）」把排版预算写成算术（`--fs-hero` 上限 × 1.12 × 3 + 0.94rem × 1.85 × 4 + 元信息/边距/CTA ≤ 2×行高+gap−2×padding），任何一次调字号、行高、行数上限或行高都会当场判红；「墨底容器选中态改用纸色（E-153）」锁死纸色字/底并要求三类墨底容器同时出现在覆盖选择器里；「CSS 压缩器保留伪元素前的后代空格（E-153）」直接调用 `minifyCss()`，断言 `.card ::selection`、`.card:hover`、`.ink-band .feed-title:hover` 压缩后语义不变。E-090 的定位方式同步改为「行首整条选择器」，避免被新的覆盖规则抢先命中。另用 Edge headless（CDP）做内容压力测试：注入 3 行标题 + 4 行正文、以及 1 行标题 + 2 行正文两种极端，前者元信息 24–45 / 标题 51–206 / 摘要 224–336 / CTA 359–382，无裁切；后者三段式仍成立，只是留白变大，不会退回「整块压底」的旧样子。
 

@@ -55,7 +55,10 @@ export function minifyCss(css) {
 
   out = out.replace(/\s+/g, ' ');
   out = out
-    .replace(/\s*([{};:,>+~])\s*/g, '$1')
+    // 2026-11-14（E-153）：不要收 `:` 两侧的空格。CSS 选择器里的 `.a ::selection`
+    // 是「后代」，压成 `.a::selection` 就变成「自身」，规则会静默失效。
+    // 声明里的 `color: red` 保留一个空格完全合法，压缩收益远小于语义风险。
+    .replace(/\s*([{};,>+~])\s*/g, '$1')
     .replace(/;}/g, '}')
     .replace(/^\s+|\s+$/g, '');
 

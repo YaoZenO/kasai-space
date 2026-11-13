@@ -111,7 +111,9 @@ ok('墨底区块样式存在，且区块内不引入交互色', () => {
 // 内容一旦比卡片高，溢出方向是上边，FEATURED 元信息与标题顶部会被静默裁掉。
 // 只有标题/摘要各自设上限，内容高度才是常量。
 ok('首页主卡标题与摘要都有行数上限（E-090）', () => {
-  const rule = (sel) => siteCss.match(new RegExp(`${sel}\\s*\\{[^}]*\\}`));
+  // 2026-11-14：必须按「行首整条选择器」定位。无封面主卡新增了
+  // `.wall-feature:not(.has-cover) .wall-feature-title` 覆盖，子串匹配会先命中它。
+  const rule = (sel) => siteCss.match(new RegExp(`^\\s*${sel}\\s*\\{[^}]*\\}`, 'm'));
   const feature = rule('.wall-feature');
   const title = rule('.wall-feature-title');
   const desc = rule('.wall-feature-desc');
@@ -123,6 +125,77 @@ ok('首页主卡标题与摘要都有行数上限（E-090）', () => {
   assert.ok(desc, 'site.css 缺少 .wall-feature-desc 规则');
   assert.match(desc[0], /-webkit-line-clamp:\s*2/, '主卡摘要没有 2 行上限：'
     + '90 字摘要约 4 行，会把元信息顶出卡片');
+});
+
+// 2026-11-14（E-153）：主卡高度固定，短标题只有两行时内容约 280px，
+// 原 justify-content: flex-end 会把 100px+ 空白全留在卡顶。无封面主卡必须
+// 「元信息贴顶 + 标题组贴底」，否则空白会重新堆回顶部。
+ok('首页无封面主卡：元信息贴顶（E-153）', () => {
+  const body = siteCss.match(/\.wall-feature:not\(\.has-cover\)\s+\.wall-feature-body\s*\{[^}]*\}/);
+  assert.ok(body, 'site.css 缺少 .wall-feature:not(.has-cover) .wall-feature-body 规则');
+  assert.match(body[0], /flex:\s*1/, '无封面主卡内容体没有撑满卡高');
+  const meta = siteCss.match(/\.wall-feature:not\(\.has-cover\)\s+\.wall-feature-meta\s*\{[^}]*\}/);
+  assert.ok(meta, 'site.css 缺少 .wall-feature:not(.has-cover) .wall-feature-meta 规则');
+  assert.match(meta[0], /margin-bottom:\s*auto/,
+    '无封面主卡的元信息没有贴顶：短标题时卡顶会重新空出一大片');
+  // 2026-11-14：空白改由正文填充。无封面卡标题 3 行 + 摘要 4 行是安全上限，
+  // 两者之和仍小于内容高；若谁把行数调大，元信息会被顶出卡顶（E-090）。
+  const titleNo = siteCss.match(/\.wall-feature:not\(\.has-cover\)\s+\.wall-feature-title\s*\{[^}]*\}/);
+  assert.ok(titleNo, 'site.css 缺少无封面主卡标题的 3 行上限');
+  assert.match(titleNo[0], /-webkit-line-clamp:\s*3/,
+    '无封面主卡标题不是 3 行上限：与 4 行摘要叠加会溢出');
+  const descNo = siteCss.match(/\.wall-feature:not\(\.has-cover\)\s+\.wall-feature-desc\s*\{[^}]*\}/);
+  assert.ok(descNo, 'site.css 缺少无封面主卡摘要的 4 行上限');
+  assert.match(descNo[0], /-webkit-line-clamp:\s*4/,
+    '无封面主卡摘要不是 4 行：主卡会重新空掉下半张');
+});
+
+// 2026-11-14（E-153）：主卡是所有文章的固定容器，精选文章会轮换。最坏情况
+// （标题顶满 3 行 + 摘要顶满 4 行）必须仍小于内容高，否则元信息会被卡顶裁掉。
+// 把排版预算写成算术断言：任何一次调 --fs-hero / 行数上限 / 行高 / 行高 / padding，
+// 都会在这里被拦下，不会等下一篇文章轮换到才发现。
+ok('首页主卡最坏情况仍在卡高内（E-153）', () => {
+  const px = (rem) => parseFloat(rem) * 16;
+  const clampMax = siteCss.match(/--fs-hero:\s*clamp\([^)]*?([\d.]+)rem\)/);
+  assert.ok(clampMax, '读不到 --fs-hero 的 clamp 上限');
+  const heroFs = px(clampMax[1]);
+  const wall = siteCss.match(/^\.wall\s*\{[^}]*\}/m)[0];
+  const rows = parseFloat(wall.match(/grid-auto-rows:\s*(\d+)px/)[1]);
+  const gap = parseFloat(wall.match(/gap:\s*(\d+)px/)[1]);
+  const inner = rows * 2 + gap - 24 * 2;
+  const title3 = heroFs * 1.12 * 3;
+  const desc4 = px(0.94) * 1.85 * 4;
+  // 元信息 / CTA 用继承行高 1.7 估算；标题与摘要的下边距按 1.15rem / 1.05rem。
+  const fixed = px(0.76) * 1.7 + px(1.15) + title3 + px(1.05) + desc4 + px(0.85) * 1.7;
+  assert.ok(fixed <= inner,
+    `最坏情况内容高 ${fixed.toFixed(1)}px 超过卡内高 ${inner}px —— 下一篇文章轮换就会裁掉元信息`);
+  assert.ok(inner - fixed >= 5,
+    `最坏情况只剩 ${(inner - fixed).toFixed(1)}px 余量，排版一改就会溢出`);
+});
+
+// 2026-11-14（E-153）：全局 ::selection 用 --text-color（浅态是墨色），
+// 落在墨底主卡 / 墨底带 / 压图文字上就是墨字压墨底——选中后文字整体消失。
+ok('墨底容器选中态改用纸色（E-153）', () => {
+  const rule = siteCss.match(/\.wall-feature::selection[^{]*\{[^}]*\}/);
+  assert.ok(rule, 'site.css 缺少墨底主卡的 ::selection 覆盖');
+  assert.match(rule[0], /color:\s*#fdfaf4/, '墨底主卡选中文字不是纸色，选中后不可读');
+  assert.match(rule[0], /background:\s*rgba\(253,\s*250,\s*244/,
+    '墨底主卡选中底不是纸色淡底，与墨底混在一起');
+  assert.match(rule[0], /\.ink-band\s+::selection/, '墨底「最近更新」带未纳入选中态覆盖');
+  assert.match(rule[0], /\.wall-cell-mask\s*~\s*\.wall-cell-body/,
+    '压图入口格未纳入选中态覆盖');
+});
+
+// 2026-11-14（E-153 根因）：压缩器原正则 `\s*([{};:,>+~])\s*` 会把
+// `.wall-feature ::selection` 压成 `.wall-feature::selection`——「后代」变「自身」，
+// 卡内文字拿不到纸色选中样式，线上仍然墨字压墨底。这里锁死压缩语义。
+ok('CSS 压缩器保留伪元素前的后代空格（E-153）', () => {
+  const { minifyCss } = require(path.join(ROOT, 'themes/fluid/scripts/filters/minify-css.js'));
+  const out = minifyCss('.card ::selection{color:#fdfaf4}');
+  assert.match(out, /\.card ::selection/, '压缩后后代组合符被吃掉：' + out);
+  assert.match(minifyCss('.card:hover{color:red}'), /\.card:hover/,
+    '压缩后伪类前的选择器被改写');
+  assert.match(minifyCss('.ink-band .feed-title:hover{color:red}'), /\.ink-band \.feed-title:hover/);
 });
 
 // 前台中文字号 ≥12px（VD-4 / T1-4）。中文小字低于 12px 在纸底上不可读，

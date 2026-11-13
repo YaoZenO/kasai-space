@@ -64,7 +64,7 @@ const pool = pickPool(
 const hero = pool.hero as any;
 const picks = (pool.picks || []) as any[];
 const heroExcerpt = hero
-  ? hero.summary || (hero._raw ? excerptText(String(hero._raw.content || ''), 90) : '')
+  ? hero.summary || (hero._raw ? excerptText(String(hero._raw.content || ''), 150) : '')
   : '';
 
 // 「最新文字」：全站最新 3 篇有实质内容的文章（空壳除外）。
