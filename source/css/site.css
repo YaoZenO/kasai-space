@@ -4857,22 +4857,85 @@ body.is-home footer {
 
 .lb-topic-more:hover { color: var(--accent); }
 
-/* 资料库专题卡片墙（2026-11-04，PLAN-V3 §5）。
-   旧版是「左导读 + 右 28 行目录」，现在每张卡只回答三件事：
-   这一专题是什么、有多少内容、点去哪。无封面分支——五个专题里只有两个有图，
-   混着排会一高一低；统一走排版卡，靠 kicker 与信息密度区分。 */
-.lb-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.2rem;
-  margin: 2rem 0 0;
+/* 资料库封面书架（2026-11-14，PAGE-FORM-PLAN §4.4）。
+   上一版是文章壳 + 纯文字卡片墙：首屏只有 kicker、大标题、导语与「更新于」，
+   读者滚下去才知道有哪几个专题。现在首屏先给结论与数字带，其下每张卡以封面
+   为主导——标题、一句说明、条目数、覆盖范围，其余留给专题页。
+   封面按显示比例预裁 760×475（16:10），object-fit 只兜底、不做二次裁切。 */
+.lb-hero {
+  margin-top: 0.9rem;
+  padding-bottom: 1.6rem;
+  border-bottom: 1px solid var(--line-color);
 }
 
-.lb-card {
+.lb-title {
+  margin: 0 0 0.55rem;
+  font-family: var(--font-serif-title);
+  font-weight: 600;
+  font-size: clamp(2.2rem, 4.2vw, 3.1rem);
+  line-height: 1.1;
+}
+
+.lb-lede {
+  margin: 0 0 1.1rem;
+  max-width: 46rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--sec-text-color);
+}
+
+/* 数字带：数字在上、标签在下。与 /cityrank/ /city/ 的 .cr-stats 同一套读法，
+   只是这里五项（专题 / 生肖 / 节假日 / 榜单 / 城市档案）。 */
+.lb-stats {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin: 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.lb-stat {
+  display: flex;
+  flex-direction: column-reverse;
+  padding: 0.7rem 0.8rem 0.75rem;
+  border-left: 1px solid var(--line-color);
+}
+
+.lb-stat:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.lb-stat dd {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 2.1vw, 1.7rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.lb-stat dt {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+.lb-shelf-block {
+  margin-top: 2rem;
+}
+
+.lb-shelf {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.4rem;
+  margin: 1.1rem 0 0;
+}
+
+.lb-shelf-card {
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
-  padding: 1.25rem 1.3rem 1.1rem;
+  overflow: hidden;
   border: 1px solid var(--line-color);
   border-radius: var(--r-card);
   background: var(--board-color);
@@ -4880,79 +4943,126 @@ body.is-home footer {
   transition: transform 0.18s ease, border-color 0.18s ease;
 }
 
-.lb-card:hover {
+.lb-shelf-card:hover {
   transform: translateY(-2px);
   border-color: var(--line-strong);
 }
 
-.lb-card-kicker {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  color: var(--accent);
+.lb-shelf-cover {
+  display: block;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: rgba(27, 23, 18, 0.05);
 }
 
-.lb-card-title {
-  font-size: 1.15rem;
+.lb-shelf-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 50%;
+}
+
+.lb-shelf-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.95rem 1.1rem 0.85rem;
+}
+
+.lb-shelf-title {
+  font-size: 1.25rem;
   font-weight: 700;
-  line-height: 1.4;
+  line-height: 1.35;
   color: var(--text-color);
 }
 
-.lb-card:hover .lb-card-title {
+.lb-shelf-card:hover .lb-shelf-title {
   color: var(--accent);
 }
 
-.lb-card-desc {
-  font-size: 0.86rem;
-  line-height: 1.75;
+.lb-shelf-desc {
+  font-size: 0.85rem;
+  line-height: 1.7;
   color: var(--sec-text-color);
-  /* 描述长短不一（12 字到 70 字），截到 4 行让五张卡的高度更接近；
-     foot 有 margin-top:auto 兜底，最后一行仍会贴底对齐。 */
+  /* 描述长短不一（12 字到 90 字），截到 4 行让五张卡高度接近；
+     foot 有 margin-top:auto 兜底，计数行仍贴底对齐。 */
   display: -webkit-box;
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.lb-card-foot {
+.lb-shelf-foot {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
   margin-top: auto;
-  padding-top: 0.9rem;
+  padding-top: 0.75rem;
   border-top: 1px solid var(--line-color);
 }
 
-.lb-card-count {
+.lb-shelf-count {
   font-family: var(--font-mono);
-  font-size: 1.05rem;
+  font-size: 1.02rem;
   color: var(--text-color);
 }
 
-.lb-card-unit {
+.lb-shelf-unit {
   font-size: 0.75rem;
   color: var(--sec-text-color);
 }
 
-.lb-card-go {
-  font-size: 0.8rem;
+.lb-shelf-range {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+  white-space: nowrap;
+}
+
+/* 封面出处：CC 授权要求署名，字号压到最小但不省略 */
+.lb-shelf-credit {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
   color: var(--sec-text-color);
 }
 
-.lb-card:hover .lb-card-go {
-  color: var(--accent);
+@media (max-width: 767.98px) {
+  .lb-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .lb-stat {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .lb-stat:nth-child(n + 3) {
+    border-top: 1px solid var(--line-color);
+  }
+
+  .lb-stat:nth-child(even) {
+    padding-left: 0.9rem;
+    border-left: 1px solid var(--line-color);
+  }
+
+  .lb-stat:last-child {
+    grid-column: 1 / -1;
+    padding-left: 0;
+    border-left: 0;
+  }
 }
 
 @media (max-width: 575.98px) {
-  .lb-cards {
+  .lb-shelf {
     grid-template-columns: 1fr;
     gap: 0.9rem;
   }
 
-  .lb-card {
-    padding: 1.05rem 1.1rem 0.9rem;
+  .lb-shelf-body {
+    padding: 0.85rem 1rem 0.8rem;
   }
 }
 

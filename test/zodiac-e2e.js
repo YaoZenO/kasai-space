@@ -748,7 +748,7 @@ if (!fs.existsSync(PUBLIC)) {
     });
   });
 
-  ok('资料库页生成：专题卡片墙（卡片数 = 专题数，计数按数据现算）', () => {
+  ok('资料库页生成：专题封面书架（卡片数 = 专题数，计数按数据现算）', () => {
     const idx = path.join(PUBLIC, 'library', 'index.html');
     assert.ok(fs.existsSync(idx), 'public/library/index.html 不存在 —— 构建漏了资料库页');
     assert.ok(fs.statSync(idx).size > 5000, '资料库页内容过少');
@@ -757,11 +757,12 @@ if (!fs.existsSync(PUBLIC)) {
 
     // 2026-11-04（PLAN-V3 §5）：本页从「平铺全部条目」改为「专题卡片墙」，
     // 旧断言数的是 lb-entry 行数，改版后必然假红，这里改成数卡片。
+    // 2026-11-14（PAGE-FORM-PLAN §4.4）：卡片墙再改为封面书架，类名前缀随之改。
     const libData = yaml.load(fs.readFileSync(path.join(ROOT, 'source/_data/library.yml'), 'utf8'));
     const topics = (libData && libData.topics) || [];
     assert.ok(topics.length >= 5, 'library.yml 专题数少于 5（生肖/节假日/节日文化/城市榜/城市档案）');
 
-    const cards = (h.match(/class="lb-card"/g) || []).length;
+    const cards = (h.match(/class="lb-shelf-card"/g) || []).length;
     assert.strictEqual(cards, topics.length,
       '卡片数不对（页面 ' + cards + '，library.yml ' + topics.length + '）—— 新增专题时这里会自动纳入');
 
@@ -772,16 +773,27 @@ if (!fs.existsSync(PUBLIC)) {
       assert.ok(h.indexOf(t.title) !== -1, '缺专题卡标题：' + t.title);
     }
 
-    // 导读栏与条目列表已随改版撤除，重新出现说明改回去了
+    // 封面书架：每个专题都要有封面文件、alt 与署名（CC 授权的前提），且产物里真的渲染出来
+    for (const t of topics) {
+      assert.ok(t.cover, '专题 ' + t.key + ' 缺 cover（书架卡片会退化成无图卡）');
+      assert.ok(t.coverAlt, '专题 ' + t.key + ' 缺 coverAlt（图片必须是有效描述）');
+      assert.ok(t.coverCredit, '专题 ' + t.key + ' 缺 coverCredit（授权要求署名）');
+      const imgPath = path.join(ROOT, 'source', t.cover.replace(/^\//, ''));
+      assert.ok(fs.existsSync(imgPath), '封面文件不存在：' + t.cover);
+      assert.ok(h.indexOf('src="' + t.cover) !== -1, '资料库页没有渲染封面：' + t.cover);
+    }
+
+    // 导读栏与条目列表已随改版撤除，重新出现说明改回去了（首屏不应再有文章壳的 kicker）
     assert.ok(h.indexOf('lb-guide') === -1, '导读栏已撤，页面不应再出现 lb-guide');
     assert.ok(h.indexOf('lb-entry') === -1, '条目列表已撤，页面不应再出现 lb-entry');
+    assert.ok(h.indexOf('page-head-kicker') === -1, '首屏已去文章壳，不应再出现 page-head-kicker');
 
     // 计数必须来自数据（写死过两次：2026-10-27 两次加专题都是 14→26→28，E-020/E-021）
     const zodiacCount = ((yaml.load(fs.readFileSync(path.join(ROOT, 'source/_data/zodiac.yml'), 'utf8')) || {}).animals || []).length;
     const cityCount = ((yaml.load(fs.readFileSync(path.join(ROOT, 'source/_data/cities.yml'), 'utf8')) || {}).cities || []).length;
-    assert.ok(h.indexOf('lb-card-count">' + zodiacCount + ' <span class="lb-card-unit">个生肖') !== -1,
+    assert.ok(h.indexOf('lb-shelf-count">' + zodiacCount + ' <span class="lb-shelf-unit">个生肖') !== -1,
       '生肖卡计数与 zodiac.yml 不一致');
-    assert.ok(h.indexOf('lb-card-count">' + cityCount + ' <span class="lb-card-unit">座城市') !== -1,
+    assert.ok(h.indexOf('lb-shelf-count">' + cityCount + ' <span class="lb-shelf-unit">座城市') !== -1,
       '城市卡计数与 cities.yml 不一致');
   });
 

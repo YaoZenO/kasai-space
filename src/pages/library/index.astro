@@ -1,15 +1,23 @@
 ---
-// 资料库页（/library/）：复刻 themes/fluid/layout/library.ejs 的专题卡片墙。
+// 资料库页（/library/）：专题书架。
 //
 // 2026-11-04 改为「专题卡片墙」（PLAN-V3 §5）：旧版把五个专题的全部条目平铺成
 // 28 行目录，读者要找一个城市得先知道它属于哪个榜。现在这里只回答一个问题
 // ——「站上有哪几类资料」，每一类点进去有自己的列表页。
 //
-// 数据：source/_data/library.yml（新增专题只改数据，本文据此自动渲染）
+// 2026-11-14 按 PAGE-FORM-PLAN §4.4 改为「封面书架」：卡片墙仍是文章壳
+// （kicker + 大标题 + 导语 + 更新于 + 纯文字卡），一眼看过去像目录不像书架。
+// 现在首屏先给结论与数字带，其下每张专题卡以封面为主导，只保留标题、一句说明、
+// 条目数与覆盖范围；封面出处写在卡内小字（CC 授权要求署名）。
+//
+// 数据：source/_data/library.yml（封面 cover/coverAlt/coverCredit 与专题同处一文件；
+//       cover 是字符串路径，与 modules.yml 等处的 cover 字段同型，curation-pool 可直接取用）
+// 封面：source/img/library/*.jpg，760×475（16:10），单张 ≤70KB，按显示比例预裁
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getData } from '../../lib/data';
 import { buildCityRanks } from '../../lib/cityrank-data';
+import { buildOverview } from '../../lib/zodiac-data';
 import { fmtItemDate } from '../../lib/dates';
 import { urlFor } from '../../lib/url';
 import { pageDates } from '../../lib/page-meta';
@@ -25,6 +33,7 @@ const meta = lb.meta || {};
    （榜数与名次都不落盘，CITY-RANK-PRD §5.1）。新增专题若不在这张表里，
    退回用它在 library.yml 的 entries 条数。 */
 let crCache: any = null;
+let zodiacCache: any = null;
 
 function countOf(key: string, entries: any): number {
   if (key === 'zodiac') return (data.zodiac?.animals || []).length;
@@ -40,6 +49,40 @@ function countOf(key: string, entries: any): number {
 
 const UNITS: Record<string, string> = { zodiac: '个生肖', holidays: '年', festivals: '个节日', cityrank: '个榜单', city: '座城市' };
 function unitOf(key: string): string { return UNITS[key] || '条'; }
+
+/* 卡片右下角的「覆盖范围」：只写数据里查得到的事实，不写「最近更新」——
+   library.yml 的 meta.updated 是整页维护时间，各专题的数据文件另有自己的日期，
+   混用会把「上次改页面」当成「上次改内容」。 */
+function rangeOf(key: string): string {
+  if (key === 'zodiac') {
+    if (!zodiacCache) zodiacCache = buildOverview(data.zodiac);
+    return zodiacCache ? `本轮 ${zodiacCache.cycle.from}–${zodiacCache.cycle.to}` : '';
+  }
+  if (key === 'holidays') {
+    const years = (data.holidays?.years || []).map((y: any) => Number(y.year)).filter((y: number) => y > 0);
+    return years.length ? `${Math.min(...years)}–${Math.max(...years)}` : '';
+  }
+  if (key === 'festivals') {
+    const all: any[] = data.festivals?.festivals || [];
+    const legal = all.filter((f: any) => f && f.kind === 'legal').length;
+    return all.length ? `法定 ${legal} · 传统 ${all.length - legal}` : '';
+  }
+  if (key === 'cityrank' || key === 'city') {
+    if (!crCache) crCache = buildCityRanks(data);
+    const y = crCache && !crCache.error ? crCache.cityMeta?.dataYear : '';
+    return y ? `数据年份 ${y}` : '';
+  }
+  return '';
+}
+
+// 首屏数字带：专题数与四个专题的内容量，全部现算
+const stats = topics.length === 0 ? [] : [
+  { label: '专题', value: topics.length },
+  { label: '生肖', value: countOf('zodiac', []) },
+  { label: '节假日', value: countOf('holidays', []) },
+  { label: '榜单', value: countOf('cityrank', []) },
+  { label: '城市档案', value: countOf('city', []) },
+];
 ---
 
 <BaseLayout title="资料库" currentPath="/library/" ogDate={published} ogUpdated={modified}>
@@ -56,32 +99,56 @@ function unitOf(key: string): string { return UNITS[key] || '条'; }
   ) : (
     <div class="paper-page cal-page lb-page">
       <div class="home-wrap">
-        <header class="page-head">
-          <p class="page-head-kicker">LIBRARY</p>
-          <h1 class="page-head-title">资料库</h1>
-          <p class="cal-lede">{meta.intro || ''}</p>
-          <p class="archive-total">更新于 {fmtItemDate(meta.updated)} · {topics.length} 个专题 · 资料持续增补</p>
-        </header>
+        <section class="lb-hero">
+          <h1 class="lb-title">资料库</h1>
+          <p class="lb-lede"><Fragment set:html={meta.intro || ''} /></p>
+          <dl class="lb-stats">
+            {stats.map((st: any) => (
+              <div class="lb-stat"><dt>{st.label}</dt><dd>{st.value}</dd></div>
+            ))}
+          </dl>
+        </section>
 
-        <div class="lb-cards">
-          {topics.map((tp: any) => {
-            const n = countOf(tp.key, tp.entries);
-            return (
-              <a class="lb-card" href={urlFor(tp.link || '/library/')}>
-                <span class="lb-card-kicker">{tp.kicker || ''}</span>
-                <span class="lb-card-title">{tp.title}</span>
-                <span class="lb-card-desc">{tp.desc || ''}</span>
-                <span class="lb-card-foot">
-                  <span class="lb-card-count">{n} <span class="lb-card-unit">{unitOf(tp.key)}</span></span>
-                  <span class="lb-card-go">{tp.linkText || '进入专题'} <span aria-hidden="true">→</span></span>
-                </span>
-              </a>
-            );
-          })}
-        </div>
+        <section class="lb-shelf-block">
+          <div class="col-head">
+            <h2 class="col-title">全部专题</h2>
+            <span class="col-count">/ {topics.length}</span>
+          </div>
+          <div class="lb-shelf">
+            {topics.map((tp: any) => {
+              const n = countOf(tp.key, tp.entries);
+              const range = rangeOf(tp.key);
+              return (
+                <a class="lb-shelf-card" href={urlFor(tp.link || '/library/')}>
+                  <span class="lb-shelf-cover">
+                    {tp.cover && (
+                      <img
+                        src={tp.cover}
+                        alt={tp.coverAlt || tp.title + ' 封面'}
+                        width="760"
+                        height="475"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    )}
+                  </span>
+                  <span class="lb-shelf-body">
+                    <span class="lb-shelf-title">{tp.title}</span>
+                    <span class="lb-shelf-desc">{tp.desc || ''}</span>
+                    <span class="lb-shelf-foot">
+                      <span class="lb-shelf-count">{n} <span class="lb-shelf-unit">{unitOf(tp.key)}</span></span>
+                      {range && <span class="lb-shelf-range">{range}</span>}
+                    </span>
+                    {tp.coverCredit && <span class="lb-shelf-credit">{tp.coverCredit}</span>}
+                  </span>
+                </a>
+              );
+            })}
+          </div>
+        </section>
 
         <div class="cal-after">
-          <p class="cal-note">资料库收录本站整理的专题系列；各专题页面内的日期与历法数据依据公开资料，民俗与说法部分已注明口径。</p>
+          <p class="cal-note">资料库收录本站整理的专题系列；各专题页面内的日期与历法数据依据公开资料，民俗与说法部分已注明口径。更新于 {fmtItemDate(meta.updated)}。</p>
         </div>
       </div>
     </div>

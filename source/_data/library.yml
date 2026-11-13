@@ -21,6 +21,9 @@ topics:
     desc: "十二种动物与农历年份的对应体系：每个生肖的位次与地支、汉字与用词、寓意、各地传统与传说、相关词汇与常见问题。"
     link: "/zodiac/"
     linkText: "进入十二生肖总览"
+    cover: "/img/library/zodiac.jpg"
+    coverAlt: "元代陶马俑，LACMA 藏十二生肖俑套组之一"
+    coverCredit: "图 / LACMA · Public domain"
     entries:
       - { name: "鼠年", note: "第一位 · 地支「子」· 为什么鼠排第一", link: "/zodiac/rat/" }
       - { name: "牛年", note: "第二位 · 地支「丑」· 农耕与「你很牛」", link: "/zodiac/ox/" }
@@ -42,6 +45,9 @@ topics:
     desc: "2021–2036 年的放假安排：七个法定节假日的放假区间与调休上班日、其他节日与纪念日、二十四节气，以及农历标签。想深入了解某个节日怎么来的、有什么习俗，看「节日文化」专题。"
     link: "/holidays/"
     linkText: "进入节假日总览"
+    cover: "/img/library/holidays.jpg"
+    coverAlt: "成串亮起的红灯笼"
+    coverCredit: "图 / Dileep Kaluaratchie · CC BY-SA 4.0"
     entries:
       - { name: "2026 年节假日", note: "当前年份 · 官方安排 · 春节 2 月 17 日起", link: "/holidays/2026/" }
       - { name: "2021–2036 年一览", note: "十六年放假安排、其他节日与节气", link: "/holidays/" }
@@ -55,6 +61,9 @@ topics:
     desc: "十二个节日的逐页长文：来历与传说、习俗与食物、词汇与常见问题，以及从本站节假日数据现算的逐年日期。"
     link: "/festivals/"
     linkText: "进入节日文化"
+    cover: "/img/library/festivals.jpg"
+    coverAlt: "摆着月饼与茶具的中秋餐桌"
+    coverCredit: "图 / Nowforever · CC BY-SA 4.0"
     entries:
       - { name: "元旦", note: "公历1月1日 · 跨年 · 法定1天", link: "/library/yuandan/" }
       - { name: "春节", note: "正月初一 · 守岁与红包 · 法定4天", link: "/library/chunjie/" }
@@ -78,6 +87,9 @@ topics:
     desc: "城市榜单：本站计算的榜单指标与权重写在榜页上，名次由公开统计数据算出，可以自己复算；暂无权威标准的榜单列为参考榜。"
     link: "/cityrank/"
     linkText: "进入城市排行榜"
+    cover: "/img/library/cityrank.jpg"
+    coverAlt: "深圳福田中心区天际线"
+    coverCredit: "图 / Wikimedia Commons · Charlie fong · CC BY-SA 4.0"
     entries:
       - { name: "中国十大经济强市", note: "按 2025 年地区生产总值计算", link: "/cityrank/jingji-qiangshi/" }
       - { name: "中国人口大市", note: "按 2025 年末常住人口计算", link: "/cityrank/renkou-dashi/" }
@@ -92,6 +104,9 @@ topics:
     desc: "城市基础数据档案：GDP、人口、财政、气候、面积等字段逐项标注来源与年份；查不到权威来源的字段一律写「待补」，不做估算填充。"
     link: "/city/"
     linkText: "进入城市档案"
+    cover: "/img/library/city.jpg"
+    coverAlt: "北京国贸一带的城市天际线"
+    coverCredit: "图 / Wikimedia Commons · N509FZ · CC BY 4.0"
     entries:
       - { name: "上海", note: "直辖市", link: "/city/shanghai/" }
       - { name: "北京", note: "直辖市", link: "/city/beijing/" }
