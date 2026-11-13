@@ -20,14 +20,15 @@
 // 浅纸底 + padding + 圆角 + 全站暗态阴影；二维码本体白底不动，不加发光边。
 // 与 color-schema.styl 同构成对双分支：跟随系统 / 手动选择各一套。
 @media (prefers-color-scheme: dark)
-  :root:not([data-user-color-scheme]) .qr-img
+  :root:not([data-user-color-scheme]):not([data-sun-scheme]) .qr-img
     background-color #fdfaf4
     padding .5rem
     border-radius var(--r-xs)
     box-shadow var(--site-float-shadow)
 
 @media not print
-  [data-user-color-scheme="dark"] .qr-img
+  [data-user-color-scheme="dark"] .qr-img,
+  [data-sun-scheme="dark"]:not([data-user-color-scheme]) .qr-img
     background-color #fdfaf4
     padding .5rem
     border-radius var(--r-xs)

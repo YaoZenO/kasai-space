@@ -22,15 +22,34 @@ var ogConfig = Object.assign({
 
   <%# 2026-11-09 防首屏 FOUC：必须在首个 CSS link 之前、内联同步阻塞执行。
       color-schema.js 是 defer，解析完成后才跑，已存 dark 的访客会先闪一帧浅色。
-      只认 light / dark 两个值；LS 为空则什么都不写，属性不存在 = 跟随系统。 %>
+      2026-11-11 Phase 4A：三层优先级「手动 > 时间层 > 系统层兜底」的首屏定态。
+      ① 读手动值，合法则写 data-user-color-scheme 并立即结束（不读时间缓存）；
+      ② 否则读当日天文时刻缓存，命中且有效则按同一 UTC 基准比较，写独立标记
+         data-sun-scheme（绝不写手动属性，否则系统兜底分支会被屏蔽）；
+      ③ 缓存缺失 / 失效 / 损坏则什么都不写，让 CSS 跟随系统分支接管。
+      全程同步返回、早于首次绘制；不做任何网络等待、不新增元素、不估算时刻。
+      与 src/components/Head.astro 的 darkModeBootScript 逐行同源，两处须同步扩展。 %>
   <% if (theme.dark_mode && theme.dark_mode.enable) { %>
   <script>
     (function () {
       try {
+        var r = document.documentElement;
         var v = localStorage.getItem('Fluid_Color_Scheme');
         if (v === 'light' || v === 'dark') {
-          document.documentElement.setAttribute('data-user-color-scheme', v);
+          r.setAttribute('data-user-color-scheme', v);
+          return;
         }
+        var raw = localStorage.getItem('Fluid_Sun_Scheme');
+        if (!raw) return;
+        var c = JSON.parse(raw);
+        if (!c || typeof c.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(c.date)
+            || typeof c.sunrise !== 'number' || typeof c.sunset !== 'number'
+            || typeof c.fp !== 'string' || !/^[0-9a-f]{8}$/.test(c.fp)
+            || !(c.sunrise > 0) || !(c.sunset > c.sunrise)
+            || (c.sunset - c.sunrise) > 86400000) return;
+        var now = Date.now();
+        if (now < c.sunrise - 86400000 || now >= c.sunrise + 86400000) return;
+        r.setAttribute('data-sun-scheme', (now >= c.sunrise && now < c.sunset) ? 'light' : 'dark');
       } catch (e) {}
     })();
   </script>
@@ -86,6 +105,7 @@ var ogConfig = Object.assign({
   %>
   <%- js_ex(theme.static_prefix.internal_js, 'utils.js', 'defer') %>
   <%- js_ex(theme.static_prefix.internal_js, 'color-schema.js', 'defer') %>
+  <%- js_ex(theme.static_prefix.internal_js, 'sun-scheme.js', 'defer') %>
   <%- partial('_partials/plugins/analytics.ejs') %>
 
   <%#

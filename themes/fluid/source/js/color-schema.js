@@ -79,7 +79,13 @@
     // 优先级：本次点击传入的新态 > localStorage 手动值 > 系统偏好 / 浅色
     var stored = getLS(colorSchemaStorageKey);
     var hasManual = !!(stored && validColorSchemaKeys[stored]);
-    var current = schema || (hasManual ? stored : getDefaultColorSchema());
+    // 2026-11-11 E-148：current 必须是「当前真实生效态」。时间层用独立标记
+    // data-sun-scheme 施加明暗，本函数在初始化 / waitElementLoaded 异步回调 /
+    // iframe loaded / 系统偏好 change 等处会被反复重跑；若只取系统偏好，异步重跑
+    // 会把已经同步好的图标 / aria / theme-color / 代码高亮覆盖成系统态（§2.6 撕裂）。
+    // 读一个 DOM 标记不算时间计算，判定全部仍在独立模块完成（R-B）。
+    var sunScheme = rootElement.getAttribute('data-sun-scheme');
+    var current = schema || (hasManual ? stored : (validColorSchemaKeys[sunScheme] ? sunScheme : getDefaultColorSchema()));
 
     if (!validColorSchemaKeys[current]) {
       // 非法值兜底：清 LS、移除属性，回到跟随系统
@@ -119,14 +125,20 @@
       // 从 localStorage 中读取模式，并取相反的模式
       currentSetting = invertColorSchemaObj[currentSetting];
     } else {
-      // LS 为空或非法：先按按钮的状态进行切换，再按当前生效态取反
+      // LS 为空或非法：优先读时间层当前生效态（独立 DOM 标记）取反，再按按钮图标状态，
+      // 最后才回落到系统偏好兜底。getDefaultColorSchema() 本身语义不变。
       if (currentSetting !== null) removeLS(colorSchemaStorageKey);
-      var iconElement = document.querySelector(colorToggleIconSelector);
-      if (iconElement) {
-        currentSetting = iconElement.getAttribute('data');
-      }
-      if (!iconElement || !validColorSchemaKeys[currentSetting]) {
-        currentSetting = invertColorSchemaObj[getDefaultColorSchema()];
+      var sunScheme = rootElement.getAttribute('data-sun-scheme');
+      if (validColorSchemaKeys[sunScheme]) {
+        currentSetting = invertColorSchemaObj[sunScheme];
+      } else {
+        var iconElement = document.querySelector(colorToggleIconSelector);
+        if (iconElement) {
+          currentSetting = iconElement.getAttribute('data');
+        }
+        if (!iconElement || !validColorSchemaKeys[currentSetting]) {
+          currentSetting = invertColorSchemaObj[getDefaultColorSchema()];
+        }
       }
     }
     // 只写 light / dark，绝不写 auto
@@ -251,6 +263,8 @@
     var mq = window.matchMedia(darkMediaQuery);
     var onChange = function() {
       if (rootElement.hasAttribute(userColorSchemaAttributeName)) return;
+      // 时间标记存在时（时间层生效），系统偏好中途变化不得改写 UI（§2.6 压制）。
+      if (rootElement.hasAttribute('data-sun-scheme')) return;
       var schema = getDefaultColorSchema();
       setButtonIcon(schema);
       setHighlightCSS(schema);
@@ -262,6 +276,27 @@
       mq.addListener(onChange);
     }
   }
+
+  // 统一 UI 同步入口（Phase 4A）：时间层改变生效态后派发自定义事件，复用本 IIFE 内
+  // 既有的四个同步函数，杜绝「底色已变、图标 / aria / theme-color 仍是旧语义」的撕裂。
+  // 不在本 IIFE 内维护任何时间状态，判定全部在独立模块完成（R-B）。
+  // manual=true（时间层退到手动态）时不覆盖 UI，由 applyCustomColorSchemaSettings() 负责。
+  document.addEventListener('kasai:sun-scheme', function(e) {
+    var d = e && e.detail;
+    var s = d && d.scheme;
+    if (d && d.manual) return;
+    var ui = (s === 'light' || s === 'dark') ? s : getDefaultColorSchema();
+    setButtonIcon(ui);
+    setHighlightCSS(ui);
+    setApplications(ui);
+  });
+
+  // 状态机 #8：手动值被清空后立刻回落，无需刷新。
+  // 手动属性仍由本 IIFE 的 applyCustomColorSchemaSettings() 统一清除，时间层不碰该属性。
+  window.addEventListener('storage', function(e) {
+    if (e && e.key && e.key !== colorSchemaStorageKey) return;
+    if (!getLS(colorSchemaStorageKey)) applyCustomColorSchemaSettings();
+  });
 
   // 当页面加载时，将显示模式设置为 localStorage 中自定义的值（如果有的话）
   applyCustomColorSchemaSettings();

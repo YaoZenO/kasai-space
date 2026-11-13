@@ -69,11 +69,16 @@ if (hexo-config("dark_mode.enable"))
     :root
       --color-mode "dark"
 
-    :root:not([data-user-color-scheme])
+    // 2026-11-11 Phase 4A：时间层选择器条件层扩展（声明块 dark-colors() 逐字不动）。
+    // 追加 :not([data-sun-scheme]) —— 时间层生效时系统偏好分支完全不参与。
+    :root:not([data-user-color-scheme]):not([data-sun-scheme])
       dark-colors()
 
   @media not print
-    [data-user-color-scheme="dark"]
+    // 并列选择器：时间态 dark 复用同一份 dark-colors()，零复制、不引入新伪类。
+    // :not 守卫由 CSS 保证手动优先，JS 层另做清除双保险。
+    [data-user-color-scheme="dark"],
+    [data-sun-scheme="dark"]:not([data-user-color-scheme])
       dark-colors()
 
   @media print
