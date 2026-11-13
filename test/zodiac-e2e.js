@@ -28,6 +28,7 @@ const {
   buildAnimal, buildOverview, ganzhiOf, relationsOf, yearSpan,
   toKey, weekdayOf, spanDays, addDays, ANIMALS, ANIMAL_SLUG
 } = require('../themes/fluid/scripts/helpers/zodiac-data.js');
+const { buildCityRanks } = require('../themes/fluid/scripts/helpers/cityrank-data.js');
 
 const ROOT = path.join(__dirname, '..');
 const PUBLIC = path.join(ROOT, process.env.SITE_OUT || 'dist');
@@ -701,6 +702,7 @@ if (!fs.existsSync(PUBLIC)) {
       '.zd-dossier', '.zd-name', '.zd-stats', '.zd-stat--wide', '.zd-relbar', '.zd-chip',
       '.zd-years', '.zd-year.is-current', '.zd-relations', '.zd-relation-note',
       '.lb-layout', '.lb-guide', '.lb-entries', '.lb-topic-more',
+      '.lb-stats', '.lb-cover-grid', '.lb-cover-bars', '.lb-cover-dots',
       // 2026-11-11 §4.13b：地支环 + 正文配图 + 索引页缩略图
       '.z-wheel', '.zw-ring', '.zw-dot', '.zw-sanhe', '.zw-liuhe', '.zw-chong',
       '.zf-inline', '.zf-band', '.zf-band-fig', '.zf-cap', '.zf-credit',
@@ -773,15 +775,76 @@ if (!fs.existsSync(PUBLIC)) {
       assert.ok(h.indexOf(t.title) !== -1, '缺专题卡标题：' + t.title);
     }
 
-    // 封面书架：每个专题都要有封面文件、alt 与署名（CC 授权的前提），且产物里真的渲染出来
-    for (const t of topics) {
-      assert.ok(t.cover, '专题 ' + t.key + ' 缺 cover（书架卡片会退化成无图卡）');
-      assert.ok(t.coverAlt, '专题 ' + t.key + ' 缺 coverAlt（图片必须是有效描述）');
-      assert.ok(t.coverCredit, '专题 ' + t.key + ' 缺 coverCredit（授权要求署名）');
-      const imgPath = path.join(ROOT, 'source', t.cover.replace(/^\//, ''));
-      assert.ok(fs.existsSync(imgPath), '封面文件不存在：' + t.cover);
-      assert.ok(h.indexOf('src="' + t.cover) !== -1, '资料库页没有渲染封面：' + t.cover);
+    // 2026-11-14 主人在 A/B/C 效果图里选 A：封面改为各专题数据现算的信息图形。
+    // 不再要求照片 / alt / 署名；格数、年数、节日数、榜单行数、城市点数都必须与数据一致。
+    const zodiacData = yaml.load(fs.readFileSync(path.join(ROOT, 'source/_data/zodiac.yml'), 'utf8')) || {};
+    const holidaysData = yaml.load(fs.readFileSync(path.join(ROOT, 'source/_data/holidays.yml'), 'utf8')) || {};
+    const festivalsData = yaml.load(fs.readFileSync(path.join(ROOT, 'source/_data/festivals.yml'), 'utf8')) || {};
+    const citiesData = yaml.load(fs.readFileSync(path.join(ROOT, 'source/_data/cities.yml'), 'utf8')) || {};
+    const cityrankData = yaml.load(fs.readFileSync(path.join(ROOT, 'source/_data/cityrank.yml'), 'utf8')) || {};
+    const zodiacCount = (zodiacData.animals || []).length;
+    const holidayCount = (holidaysData.years || []).length;
+    const festivalCount = (festivalsData.festivals || []).length;
+    const cityCount = (citiesData.cities || []).length;
+
+    function coverOf(key) {
+      const start = h.indexOf('lb-shelf-cover lb-cover lb-cover-' + key + '"');
+      assert.ok(start !== -1, '缺信息图形封面：' + key);
+      const end = h.indexOf('<span class="lb-shelf-body">', start);
+      assert.ok(end > start, key + ' 封面缺少结束边界');
+      const cover = h.slice(start, end);
+      assert.ok(cover.indexOf('aria-hidden="true"') !== -1, key + ' 装饰封面未隐藏重复读屏内容');
+      return cover;
     }
+
+    for (const t of topics) {
+      assert.ok(!t.cover && !t.coverAlt && !t.coverCredit, '专题 ' + t.key + ' 还留着旧照片字段');
+      coverOf(t.key);
+    }
+    assert.ok(h.indexOf('/img/library/') === -1, '页面还在引用已撤除的照片封面');
+
+    const zodiacCover = coverOf('zodiac');
+    assert.strictEqual((zodiacCover.match(/class="lb-cell"/g) || []).length, zodiacCount,
+      '生肖封面格数与 zodiac.yml 不一致');
+
+    const holidayCover = coverOf('holidays');
+    assert.strictEqual((holidayCover.match(/class="lb-cell lb-cell-year(?: is-now)?"/g) || []).length, holidayCount,
+      '节假日封面年份格数与 holidays.yml 不一致');
+
+    const festivalCover = coverOf('festivals');
+    assert.strictEqual((festivalCover.match(/class="lb-cell lb-cell-fest(?: is-legal)?"/g) || []).length, festivalCount,
+      '节日封面格数与 festivals.yml 不一致');
+    const legalCount = (festivalsData.festivals || []).filter((f) => f && f.kind === 'legal').length;
+    assert.strictEqual((festivalCover.match(/class="lb-cell lb-cell-fest is-legal"/g) || []).length, legalCount,
+      '法定节日高亮数与 festivals.yml 不一致');
+
+    const CR = buildCityRanks({ cities: citiesData, cityrank: cityrankData });
+    assert.ok(CR && !CR.error, '城市榜数据无法计算：' + (CR && CR.error));
+    const allRanks = [];
+    for (const g of CR.groups || []) for (const r of g.ranks) allRanks.push(r);
+    const heroRank = allRanks.find((r) => r.slug === 'jingji-qiangshi' && r.kind === 'computed' && r.items.length) ||
+      allRanks.find((r) => r.kind === 'computed' && r.items.length);
+    assert.ok(heroRank, '榜单封面找不到有结果的主榜');
+    const expectedBars = heroRank.items.slice(0, 8);
+    const rankCover = coverOf('cityrank');
+    assert.strictEqual((rankCover.match(/class="lb-bar-row"/g) || []).length, expectedBars.length,
+      '榜单封面条形数与主榜前八名不一致');
+    for (const it of expectedBars) {
+      assert.ok(rankCover.indexOf('<u>' + it.name + '</u>') !== -1, '榜单封面缺主榜城市：' + it.name);
+    }
+    const widths = Array.from(rankCover.matchAll(/class="lb-bar" style="width:([\d.]+)%"/g), (m) => Number(m[1]));
+    assert.strictEqual(widths.length, expectedBars.length, '榜单封面有条形缺少宽度');
+    assert.ok(widths.every((w) => w > 0 && w <= 100), '榜单条形宽度必须在 0–100% 之间');
+    assert.strictEqual(widths[0], 100, '主榜榜首条形应为满格');
+
+    const cityCover = coverOf('city');
+    assert.strictEqual((cityCover.match(/<i><\/i>/g) || []).length, cityCount,
+      '城市封面点数与 cities.yml 不一致');
+
+    const statCount = (h.match(/<div class="lb-stat">/g) || []).length;
+    assert.strictEqual(statCount, 6, '首屏数字带应为专题 + 五类内容共六项');
+    assert.ok(h.indexOf('<dt>节日</dt><dd>' + festivalCount + '</dd>') !== -1,
+      '首屏数字带漏了节日文化或与 festivals.yml 不一致');
 
     // 导读栏与条目列表已随改版撤除，重新出现说明改回去了（首屏不应再有文章壳的 kicker）
     assert.ok(h.indexOf('lb-guide') === -1, '导读栏已撤，页面不应再出现 lb-guide');
@@ -789,8 +852,6 @@ if (!fs.existsSync(PUBLIC)) {
     assert.ok(h.indexOf('page-head-kicker') === -1, '首屏已去文章壳，不应再出现 page-head-kicker');
 
     // 计数必须来自数据（写死过两次：2026-10-27 两次加专题都是 14→26→28，E-020/E-021）
-    const zodiacCount = ((yaml.load(fs.readFileSync(path.join(ROOT, 'source/_data/zodiac.yml'), 'utf8')) || {}).animals || []).length;
-    const cityCount = ((yaml.load(fs.readFileSync(path.join(ROOT, 'source/_data/cities.yml'), 'utf8')) || {}).cities || []).length;
     assert.ok(h.indexOf('lb-shelf-count">' + zodiacCount + ' <span class="lb-shelf-unit">个生肖') !== -1,
       '生肖卡计数与 zodiac.yml 不一致');
     assert.ok(h.indexOf('lb-shelf-count">' + cityCount + ' <span class="lb-shelf-unit">座城市') !== -1,

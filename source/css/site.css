@@ -4890,7 +4890,7 @@ body.is-home footer {
    上一版是文章壳 + 纯文字卡片墙：首屏只有 kicker、大标题、导语与「更新于」，
    读者滚下去才知道有哪几个专题。现在首屏先给结论与数字带，其下每张卡以封面
    为主导——标题、一句说明、条目数、覆盖范围，其余留给专题页。
-   封面按显示比例预裁 760×475（16:10），object-fit 只兜底、不做二次裁切。 */
+   封面是各专题数据现算的信息图形，不用单张照片代替整个专题。 */
 .lb-hero {
   margin-top: 0.9rem;
   padding-bottom: 1.6rem;
@@ -4914,10 +4914,10 @@ body.is-home footer {
 }
 
 /* 数字带：数字在上、标签在下。与 /cityrank/ /city/ 的 .cr-stats 同一套读法，
-   只是这里五项（专题 / 生肖 / 节假日 / 榜单 / 城市档案）。 */
+   这里六项（专题 / 生肖 / 节假日 / 节日 / 榜单 / 城市档案）。 */
 .lb-stats {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   margin: 0;
   border-top: 1px solid var(--rule);
   border-bottom: 1px solid var(--rule);
@@ -4984,12 +4984,139 @@ body.is-home footer {
   background: rgba(27, 23, 18, 0.05);
 }
 
-.lb-shelf-cover img {
-  display: block;
+/* 图形化封面（2026-11-14，主人在 A/B/C 三版效果图里选 A）：
+   不用照片——单个对象代表不了一类内容。每个专题用自己的信息图形，
+   格子数、年份、节日名、条形、点数全部由数据现算，随数据一起变。 */
+.lb-cover-grid {
+  display: grid;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: 50% 50%;
+  grid-auto-rows: 1fr;
+}
+
+.lb-cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.lb-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.lb-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  border-right: 1px solid var(--line-color);
+  border-bottom: 1px solid var(--line-color);
+}
+
+.lb-cols-4 > .lb-cell:nth-child(4n),
+.lb-cols-3 > .lb-cell:nth-child(3n) {
+  border-right: 0;
+}
+
+.lb-cols-4 > .lb-cell:nth-last-child(-n + 4),
+.lb-cols-3 > .lb-cell:nth-last-child(-n + 3) {
+  border-bottom: 0;
+}
+
+.lb-cell b {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-color);
+}
+
+.lb-cell i {
+  font-style: normal;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: var(--sec-text-color);
+}
+
+.lb-cell-year b,
+.lb-cell-fest b {
+  font-size: 0.95rem;
+}
+
+.lb-cell-year b {
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+.lb-cell-year.is-now b {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.lb-cell-fest.is-legal b {
+  color: var(--accent);
+}
+
+.lb-cover-bars {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.55rem;
+  height: 100%;
+  padding: 0.9rem 1.2rem;
+}
+
+.lb-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.lb-bar-row em {
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+  width: 1.1rem;
+  flex: none;
+}
+
+.lb-bar-row u {
+  text-decoration: none;
+  font-size: 0.75rem;
+  color: var(--text-color);
+  width: 3rem;
+  flex: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lb-bar {
+  display: block;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 2px;
+  opacity: 0.5;
+}
+
+.lb-bar-row:first-child .lb-bar {
+  opacity: 0.9;
+}
+
+.lb-cover-dots {
+  display: grid;
+  grid-template-columns: repeat(24, minmax(0, 1fr));
+  gap: 3px;
+  align-content: center;
+  height: 100%;
+  padding: 1rem 1.2rem;
+}
+
+.lb-cover-dots i {
+  display: block;
+  aspect-ratio: 1;
+  background: var(--sec-text-color);
+  opacity: 0.45;
+  border-radius: 1px;
 }
 
 .lb-shelf-body {
@@ -5050,14 +5177,6 @@ body.is-home footer {
   white-space: nowrap;
 }
 
-/* 封面出处：CC 授权要求署名，字号压到最小但不省略 */
-.lb-shelf-credit {
-  font-size: 0.75rem;
-  line-height: 1.5;
-  letter-spacing: 0.01em;
-  color: var(--sec-text-color);
-}
-
 @media (max-width: 767.98px) {
   .lb-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -5075,12 +5194,6 @@ body.is-home footer {
   .lb-stat:nth-child(even) {
     padding-left: 0.9rem;
     border-left: 1px solid var(--line-color);
-  }
-
-  .lb-stat:last-child {
-    grid-column: 1 / -1;
-    padding-left: 0;
-    border-left: 0;
   }
 }
 

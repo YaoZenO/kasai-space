@@ -5,14 +5,15 @@
 // 28 行目录，读者要找一个城市得先知道它属于哪个榜。现在这里只回答一个问题
 // ——「站上有哪几类资料」，每一类点进去有自己的列表页。
 //
-// 2026-11-14 按 PAGE-FORM-PLAN §4.4 改为「封面书架」：卡片墙仍是文章壳
-// （kicker + 大标题 + 导语 + 更新于 + 纯文字卡），一眼看过去像目录不像书架。
-// 现在首屏先给结论与数字带，其下每张专题卡以封面为主导，只保留标题、一句说明、
-// 条目数与覆盖范围；封面出处写在卡内小字（CC 授权要求署名）。
+// 2026-11-14 按 PAGE-FORM-PLAN §4.4 改为「封面书架」：首屏先给结论与数字带，
+// 其下每张专题卡以封面为主导。
 //
-// 数据：source/_data/library.yml（封面 cover/coverAlt/coverCredit 与专题同处一文件；
-//       cover 是字符串路径，与 modules.yml 等处的 cover 字段同型，curation-pool 可直接取用）
-// 封面：source/img/library/*.jpg，760×475（16:10），单张 ≤70KB，按显示比例预裁
+// 2026-11-14 封面改「图形化」（主人在 A/B/C 三版效果图里选 A）：
+// 照片封面总会用单个对象代表一类内容——一张马俑代表十二生肖、一张中秋餐桌代表
+// 十二个节日、一张北京天际线代表 431 座城市，都不成立。现在封面改用专题自身的
+// 信息图形，全部由数据现算，不再引用图片、不需要授权署名：
+//   生肖 = 12 格生肖名＋地支；节假日 = 16 个数据年份；节日 = 12 个节日名；
+//   榜单 = 主榜前 8 名条形（与 /cityrank/ 同一口径）；城市 = 431 个点，一点一城。
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getData } from '../../lib/data';
@@ -75,14 +76,61 @@ function rangeOf(key: string): string {
   return '';
 }
 
-// 首屏数字带：专题数与四个专题的内容量，全部现算
+// 首屏数字带：专题数与五个专题各自的内容量，全部现算
 const stats = topics.length === 0 ? [] : [
   { label: '专题', value: topics.length },
   { label: '生肖', value: countOf('zodiac', []) },
   { label: '节假日', value: countOf('holidays', []) },
+  { label: '节日', value: countOf('festivals', []) },
   { label: '榜单', value: countOf('cityrank', []) },
   { label: '城市档案', value: countOf('city', []) },
 ];
+
+/* ---- 图形化封面的数据 ---- */
+
+// 生肖：12 格生肖名＋地支，地支按生肖序固定对应
+const BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+const zodiacCells = (data.zodiac?.animals || []).map((a: any, i: number) => ({
+  name: a.animal, branch: BRANCHES[i] || ''
+}));
+
+// 节假日：16 个数据年份，当前年高亮
+const nowYear = new Date().getFullYear();
+const holidayYears = (data.holidays?.years || []).map((y: any) => Number(y.year));
+
+// 节日：12 个节日名，法定节日加重
+const festivalCells = (data.festivals?.festivals || []).map((f: any) => ({
+  name: f.name, legal: f.kind === 'legal'
+}));
+
+// 榜单：主榜（经济强市）前 8 名，条长按该榜第一名等比，与 /cityrank/ 同一口径
+function mainMetric(rk: any) {
+  if (!Array.isArray(rk?.metrics) || !rk.metrics.length) return null;
+  return rk.metrics.slice().sort((a: any, b: any) => (b.weight || 0) - (a.weight || 0))[0];
+}
+const allRanks: any[] = [];
+if (!crCache) crCache = buildCityRanks(data);
+if (crCache && !crCache.error) for (const g of crCache.groups || []) for (const r of g.ranks) allRanks.push(r);
+const heroRank =
+  allRanks.find((r) => r.slug === 'jingji-qiangshi' && r.kind === 'computed' && r.items.length) ||
+  allRanks.find((r) => r.kind === 'computed' && r.items.length) || null;
+const heroMetric = heroRank ? mainMetric(heroRank) : null;
+const rankBars = (() => {
+  if (!heroRank || !heroMetric) return [];
+  const items = heroRank.items.slice(0, 8);
+  const max = items[0]?.values?.[heroMetric.field] || 0;
+  return items.map((it: any) => {
+    const v = it.values ? it.values[heroMetric.field] : null;
+    return {
+      rank: it.rank,
+      name: it.name,
+      width: typeof v === 'number' && max > 0 ? Math.max(2, Math.round((v / max) * 1000) / 10) : 0
+    };
+  });
+})();
+
+// 城市：一点一城
+const cityDotCount = (data.cities?.cities || []).length;
 ---
 
 <BaseLayout title="资料库" currentPath="/library/" ogDate={published} ogUpdated={modified}>
@@ -120,16 +168,44 @@ const stats = topics.length === 0 ? [] : [
               const range = rangeOf(tp.key);
               return (
                 <a class="lb-shelf-card" href={urlFor(tp.link || '/library/')}>
-                  <span class="lb-shelf-cover">
-                    {tp.cover && (
-                      <img
-                        src={tp.cover}
-                        alt={tp.coverAlt || tp.title + ' 封面'}
-                        width="760"
-                        height="475"
-                        loading="lazy"
-                        decoding="async"
-                      />
+                  {/* 封面是装饰性信息图形，内容与标题、计数重复，读屏不必再念一遍 */}
+                  <span class={`lb-shelf-cover lb-cover lb-cover-${tp.key}`} aria-hidden="true">
+                    {tp.key === 'zodiac' && (
+                      <span class="lb-cover-grid lb-cols-4">
+                        {zodiacCells.map((c: any) => (
+                          <span class="lb-cell"><b>{c.name}</b><i>{c.branch}</i></span>
+                        ))}
+                      </span>
+                    )}
+                    {tp.key === 'holidays' && (
+                      <span class="lb-cover-grid lb-cols-4">
+                        {holidayYears.map((y: number) => (
+                          <span class={`lb-cell lb-cell-year${y === nowYear ? ' is-now' : ''}`}><b>{y}</b></span>
+                        ))}
+                      </span>
+                    )}
+                    {tp.key === 'festivals' && (
+                      <span class="lb-cover-grid lb-cols-3">
+                        {festivalCells.map((f: any) => (
+                          <span class={`lb-cell lb-cell-fest${f.legal ? ' is-legal' : ''}`}><b>{f.name}</b></span>
+                        ))}
+                      </span>
+                    )}
+                    {tp.key === 'cityrank' && (
+                      <span class="lb-cover-bars">
+                        {rankBars.map((b: any) => (
+                          <span class="lb-bar-row">
+                            <em>{String(b.rank).padStart(2, '0')}</em>
+                            <u>{b.name}</u>
+                            <span class="lb-bar" style={`width:${b.width}%`} />
+                          </span>
+                        ))}
+                      </span>
+                    )}
+                    {tp.key === 'city' && (
+                      <span class="lb-cover-dots">
+                        {Array.from({ length: cityDotCount }).map(() => <i />)}
+                      </span>
                     )}
                   </span>
                   <span class="lb-shelf-body">
@@ -139,7 +215,6 @@ const stats = topics.length === 0 ? [] : [
                       <span class="lb-shelf-count">{n} <span class="lb-shelf-unit">{unitOf(tp.key)}</span></span>
                       {range && <span class="lb-shelf-range">{range}</span>}
                     </span>
-                    {tp.coverCredit && <span class="lb-shelf-credit">{tp.coverCredit}</span>}
                   </span>
                 </a>
               );
