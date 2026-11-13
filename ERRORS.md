@@ -179,6 +179,7 @@
 | E-145 | P2 | 配图压缩脚本把 `extract()` 后的 `metadata()` 当裁切后尺寸，五牛图被拉伸成 1400×208 | 已修复（自算 srcW/srcH）+ 测试用 JPEG SOF 核宽高 |
 | E-146 | P2 | P3 选图取景失当：日本象牙兔入选题、虎/蛇/鹿被裁掉头身、画册双拼取两格 | 已修复（换图 + 调焦点 + 预裁单格），入库前按显示比例出对照图目检 |
 | E-147 | P3 | Commons 密集请求触发 429 抓到 XML 错误页；raw 缓存键只含槽位导致换图后复用旧文件 | 已修复（限速 + 标题 md5 入键 + content-type 校验）+ 体积/尺寸断言兜底 |
+| E-148 | P1 | 时间层明暗已生效但按钮 UI 停在系统态：`applyCustomColorSchemaSettings()` 的 current 漏读 `data-sun-scheme`，`waitElementLoaded` 异步重跑把同步好的 UI 覆盖回去 | 已修复（current 优先读独立标记）+ 异步覆盖时序回归断言与变异自检 |
 
 ---
 
@@ -3086,5 +3087,13 @@
 - **根因：** 没遵守 Wikimedia 的速率要求；缓存键只含槽位、不含内容。
 - **修法：** API 间隔 4–6s、下载间隔 1.2–1.5s 重跑；缓存键加入标题 md5 前 8 位；落盘前校验 `content-type` 为图片。
 - **防复发（机制）：** 体积断言保留上限 120KB 并改用 JPEG SOF 解析校验真实尺寸——错误页/截断文件过不了 SOF 解析。另登记一处已知例外：蛇 band 源图仅 600×342，成品 547×342 / 33.1KB，是全站唯一低于 50KB 的配图，故测试下限设为 20KB，避免日后被当成异常或被误判为「下载截断」。
+
+### E-148 时间层明暗已生效但按钮 UI 停在系统态（§2.6 统一 UI 同步撕裂）
+
+- **发生时间：** 2026-11-11 ｜ **发现方式：** 严过关 Phase 5 独立验收，系统 Edge headless + CDP `Emulation.setEmulatedMedia` + `document_start` 注入 stub，稳定复现并判「不可以上线」
+- **现象：** ① `time-dark + 系统浅`：底色 `#1a1814` / `--accent #d97757` / `data-sun-scheme="dark"` / `data-user-color-scheme=null`，`kasai:sun-scheme` 事件确实派发 2 次 `{scheme:'dark',active:true,manual:false}`，但 `aria-label="切换到深色模式"`、`aria-pressed="false"`、`icon-light`、`highlight-css-dark.disabled=true`，等 1.6s 不变；点击按钮 → LS 写入 `light`、底色变浅，即按钮写「切换到深色模式」结果却变浅。② `time-light + 系统深`：底色浅、事件 2 次 `{scheme:'light'}`，UI 却是 `aria-pressed="true"` / `icon-dark` / 暗高亮启用，点击反而变暗。③ B1 真值表 14 组里这两行、B2 跨日出 `beforeAria="false"`（应为 true）同源。违反 Phase 3 行为不变式 §2.6：任何一层改变生效态后，图标 / `aria-label` / `aria-pressed` / `meta[name=theme-color]` / 代码高亮必须与当前底色一致。
+- **根因：** ① `themes/fluid/source/js/color-schema.js` `applyCustomColorSchemaSettings()` 的 `current` 在**无手动值时只取 `getDefaultColorSchema()`**（= 系统偏好），完全不读独立标记 `data-sun-scheme`；只要这个函数被调用，UI 就被设成系统态。② `themes/fluid/source/js/utils.js` 的 `waitElementLoaded` 用 MutationObserver 异步回调，在 `sun-scheme.js` 派发 `kasai:sun-scheme` **之后**重跑 `applyCustomColorSchemaSettings()`（初始化、图标就绪回调、iframe loaded 回调三处），把事件监听器本身正确的同步结果覆盖掉。③ 因此「只在监听器里同步 UI」不够，任何后续重跑都会再覆盖一遍。④ 漏检原因：当时 87 条 e2e 断言里的 vm stub 把 `waitElementLoaded` 做成同步立即执行，回调发生在事件**之前**，没有覆盖真实异步时序。
+- **修法：** 从源头统一 `current` 计算（只改 `applyCustomColorSchemaSettings()` 一处，覆盖所有调用点）：`var sunScheme = rootElement.getAttribute('data-sun-scheme');` + `var current = schema || (hasManual ? stored : (validColorSchemaKeys[sunScheme] ? sunScheme : getDefaultColorSchema()));`。手动态走 `stored`、时间态走 `sun`、系统兜底态回落 `getDefaultColorSchema()`、点击时 `schema` 参数优先，其余分支一字不动。`getDefaultColorSchema()` 的 `return systemPrefersDark() ? 'dark' : 'light'` 原句保留；读一个 DOM 标记不算时间计算，判定仍在独立模块（R-B）；不写 `data-user-color-scheme`（A2/A3）。
+- **防复发（机制）：** `test/darkmode-e2e.js` 新增 `E-148 防复发（异步覆盖时序）` 断言 —— vm harness 增加 `deferWaitCallbacks`，把 `waitElementLoaded` 回调挂起，在 `kasai:sun-scheme` 事件派发**之后**用 `fireWaitCallbacks()` 触发异步重跑，断言 `aria-pressed` / `aria-label` / `icon class` / `highlight-css-dark.disabled` 与 `data-sun-scheme` 一致；两个相反方向都跑（`time-dark / 系统浅`、`time-light / 系统深`）。另加 `E-148 变异自检` 断言，把 `current` 改回原句后同一时序必然撕裂，证明检测有效。变异自检实测：回退 l.82 → `FAIL E-148 防复发（异步覆盖时序）… time-dark / 系统浅 aria-pressed 与底色撕裂`、`RESULT: 89 项断言通过，存在失败`、exit 1；恢复 → `RESULT: 90 项断言通过`、exit 0。顺带补严过关建议改 #1 的断言盲区：对 `source/css/site.css` 全文、两份 `.styl` 全文、`static-public/css/*.css` 全文加 `:is(` 零命中断言。
 
 

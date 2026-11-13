@@ -142,8 +142,13 @@
 
 > **2026-11-09 主人确认启用，全量校准完成。** `dark_mode.enable: true`、`default: auto`；
 > 唯一对齐基准 `DESIGN-DARKMODE-PROPOSAL-2026-11-09.md`（D1–D13 整组采纳）。
-> 状态机是**两态 + 默认跟随系统**：`localStorage 手动值 > prefers-color-scheme > 浅色`；
-> 存储键 `Fluid_Color_Scheme` 只写 `light` / `dark`，没有 `auto`、没有第三态、不按本地时间兜底。
+> 状态机是**两态 + 三层决策**（2026-11-11 Phase 4A 修订）：`手动值 > 当地日出日落 > 系统偏好`；
+> 仍是 light / dark 两态，系统偏好保留为最后兜底，不新增第三态切换器、不新增任何 UI。
+> 存储键 `Fluid_Color_Scheme` 只写 `light` / `dark`，没有 `auto`、没有第三态、不按设备本地钟点兜底；
+> 时间层用独立 DOM 标记 `data-sun-scheme` 施加明暗，绝不写 `data-user-color-scheme`
+> （写它会屏蔽 `:root:not([data-user-color-scheme])` 分支，让系统兜底彻底失效）。
+> 时间层的判定在独立模块 `themes/fluid/source/js/sun-scheme.js`，端点 `/api/sun-times` 只读派生结果，
+> 缓存只写 `date` / `sunrise` / `sunset` / 坐标指纹四个字段；视觉与过渡口径沿用下文本节全部条款。
 > 暗态是「暖纸 + 轻玻璃 V6.5」的同一色域反相延伸，不是新皮肤；全部不透明色值 `R > G > B`。
 
 1. **Fluid 原厂 `_dark` 冷蓝组一个都不能用**（§2.3 的 8 值，以及 `#c4c6c9` / `#a7a9ad` /
