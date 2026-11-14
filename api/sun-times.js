@@ -131,6 +131,21 @@ function header(req, name) {
   return typeof v === 'string' ? v.trim() : '';
 }
 
+// 浏览器只上报一个整数：设备当前 UTC 偏移（分钟）。不下发时区名、IP、坐标或任何身份字段。
+// 仅用于「网络出口时区与设备时区明显不一致（代理 / VPN / 漫游 / CDN 出口跨区）」时修正经度。
+// 缺失或非法一律返回 null，保持原有「只读平台地理头」行为，向后兼容旧客户端。
+function deviceTzOffset(req) {
+  try {
+    const raw = new URL(req && req.url ? req.url : '/', 'http://local').searchParams.get('tzoff');
+    if (raw === null || !/^-?\d{1,4}$/.test(raw)) return null;
+    const v = Number(raw);
+    if (!Number.isInteger(v) || v < -720 || v > 840) return null;
+    return v;
+  } catch (err) {
+    return null;
+  }
+}
+
 module.exports = route(({ req }) => {
   const latRaw = header(req, 'x-vercel-ip-latitude');
   const lonRaw = header(req, 'x-vercel-ip-longitude');
@@ -145,14 +160,23 @@ module.exports = route(({ req }) => {
 
   const now = Date.now();
   const off = tzOffsetMinutes(now, tz);
-  const date = localDate(now, tz);
-  const times = date ? sunTimesUTC(date, lat, lon) : null;
+  const devOff = deviceTzOffset(req);
+  // 出口 IP 时区与设备时区相差 > 90 分钟：平台地理头定位到的是代理出口，不是访客所在地。
+  // 以设备时区中央经线（4 分钟 / 度）反推经度，纬度仍取平台头；当地日期一并按设备时区算。
+  // 判定始终由端点返回 UTC 绝对时刻后与 Date.now() 比较，不拿设备本地钟点裸比。
+  const mismatched = devOff !== null && off !== null && Math.abs(devOff - off) > 90;
+  const effLon = mismatched ? devOff / 4 : lon;
+  let date = localDate(now, tz);
+  if (mismatched) date = new Date(now + devOff * 60000).toISOString().slice(0, 10);
+  const times = date ? sunTimesUTC(date, lat, effLon) : null;
   if (off === null || !date || !times) return { available: false };
 
   // 坐标/时区指纹：取整派生值哈希，仅用于判断「是否换地区」；不下发原始值。
+  // 校正生效时把 corrected 偏移计入指纹，避免同一地区在两种定位源间复用旧缓存。
   const quant = (v) => Math.round(v * 10) / 10;
+  const fpOffset = mismatched ? devOff : off;
   const fp = crypto.createHash('sha1')
-    .update(`${quant(lat)},${quant(lon)},${off}`)
+    .update(`${quant(lat)},${quant(effLon)},${fpOffset}`)
     .digest('hex').slice(0, 8);
 
   return {

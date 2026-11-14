@@ -30,6 +30,23 @@
   var TIME_ATTR = 'data-sun-scheme';
   var EVENT = 'kasai:sun-scheme';
   var API = '/api/sun-times';
+
+  // 2026-11-14：访客经代理 / VPN / 漫游访问时，平台地理头定位到的是网络出口而非访客所在地，
+  // 会出现「当地已是深夜、站点仍按出口所在地白天显示浅色」。这里只上报一个整数——设备
+  // 当前 UTC 偏移分钟数——供端点校正经度；不下发时区名、坐标、IP 或任何身份 / 行踪字段。
+  // 明暗比较仍由端点返回 UTC 绝对时刻后统一进行，不拿设备本地钟点裸比异地日出日落。
+  function deviceUtcOffset() {
+    try {
+      var v = -new Date().getTimezoneOffset();
+      return (typeof v === 'number' && isFinite(v)) ? Math.round(v) : null;
+    } catch (e) {
+      return null; // 环境不提供时区 API（含测试沙箱）时保持原有请求形态
+    }
+  }
+  function apiUrl() {
+    var off = deviceUtcOffset();
+    return off === null ? API : API + '?tzoff=' + off;
+  }
   var DAY_MS = 86400000;
   var FETCH_TIMEOUT_MS = 5000;
 
@@ -168,7 +185,7 @@
       onUnavailable();
     }, FETCH_TIMEOUT_MS);
     try {
-      fetch(API, opts).then(function (res) {
+      fetch(apiUrl(), opts).then(function (res) {
         if (!res || !res.ok) throw new Error('sun-times-unavailable');
         return res.json();
       }).then(function (data) {

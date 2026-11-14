@@ -1767,6 +1767,96 @@ async function okAsync(label, fn) {
       '主断言逻辑抓不到该缺陷，防复发失效');
   });
 
+  // ===== 2026-11-14 主人反馈三项修补（E-150 / E-151 / E-152） =====
+  const vercelJson = read('vercel.json');
+  const sunTimesJs = read('api/sun-times.js');
+  // sunSchemeJs 已在文件顶部定义（l.67），此处复用，勿重复声明（会造成 TDZ）。
+
+  ok('E-152 防复发 1/2：首页与 .html 响应头禁止留存旧副本', () => {
+    const v = JSON.parse(vercelJson);
+    const cc = (src) => {
+      const block = v.headers.find((h) => h.source === src);
+      assert.ok(block, `vercel.json 缺少 ${src} 的 headers 段`);
+      const h = block.headers.find((x) => x.key.toLowerCase() === 'cache-control');
+      assert.ok(h, `${src} 缺少 Cache-Control`);
+      return h.value;
+    };
+    assert.match(cc('/'), /no-store/, '根路径 HTML 未设 no-store');
+    assert.match(cc('/(.*).html'), /no-store/, '.html 路径未设 no-store');
+    assert.ok(!/max-age=[1-9]/.test(cc('/')), '根路径仍允许长缓存');
+  });
+
+  ok('E-152 防复发 2/2：首页产物按钮在顶栏、九宫格零切换格', () => {
+    const html = read('dist/index.html');
+    assert.ok(html.includes('id="color-toggle-btn"'), '首页产物缺切换按钮');
+    assert.ok(!html.includes('mobile-color-toggle-btn'), '首页产物仍有九宫格切换格');
+    assert.ok(html.indexOf('id="color-toggle-btn"') < html.indexOf('id="mobile-grid-menu"'),
+      '切换按钮未排在九宫格之前（不在顶栏）');
+  });
+
+  ok('E-150 源码：端点读设备 UTC 偏移校正出口时区，前端只上报一个整数', () => {
+    assert.ok(sunTimesJs.includes('deviceTzOffset'), '端点缺少 tzoff 解析');
+    assert.ok(sunTimesJs.includes('mismatched') && sunTimesJs.includes('effLon'), '端点缺少经度校正');
+    assert.ok(sunSchemeJs.includes('function apiUrl()') && sunSchemeJs.includes('fetch(apiUrl(), opts)'),
+      '前端未把 tzoff 带上请求');
+    assert.ok(!sunSchemeJs.includes('resolvedOptions') && !sunSchemeJs.includes('timeZone'),
+      '前端不得下发时区名或 IANA 标识符');
+  });
+
+  await okAsync('E-150 运行时：设备 UTC+8 + 出口 America/Chicago 时按东经重算；时区一致时不校正', async () => {
+    const handler = require(path.join(ROOT, 'api/sun-times.js'));
+    const call = async (url) => {
+      let out = null;
+      const res = { statusCode: 0, setHeader() {}, end(b) { out = JSON.parse(b); } };
+      await handler({
+        method: 'GET', url,
+        headers: {
+          'x-vercel-ip-latitude': '41.8',
+          'x-vercel-ip-longitude': '-87.6',
+          'x-vercel-ip-timezone': 'America/Chicago',
+        },
+      }, res);
+      return out;
+    };
+    const raw = await call('/api/sun-times');
+    const fixed = await call('/api/sun-times?tzoff=480');
+    assert.strictEqual(raw.available, true);
+    assert.strictEqual(fixed.available, true);
+    assert.deepStrictEqual(Object.keys(fixed).sort(), ['available', 'date', 'fp', 'sunrise', 'sunset'],
+      '端点返回字段集合不得变化');
+    assert.notStrictEqual(fixed.fp, raw.fp, '设备时区与出口时区不一致时未触发校正');
+    const sunriseCST = new Date(fixed.sunrise + 8 * 3600000).getUTCHours();
+    const sunsetCST = new Date(fixed.sunset + 8 * 3600000).getUTCHours();
+    assert.ok(sunriseCST >= 4 && sunriseCST <= 10, `校正后日出不在北京白天窗口：${sunriseCST} 时`);
+    assert.ok(sunsetCST >= 15 && sunsetCST <= 21, `校正后日落不在北京傍晚窗口：${sunsetCST} 时`);
+    assert.strictEqual(fixed.date, new Date(Date.now() + 480 * 60000).toISOString().slice(0, 10),
+      '校正后当地日期未按设备时区计算');
+    const same = await call('/api/sun-times?tzoff=-360');
+    assert.strictEqual(same.fp, raw.fp, '设备时区与出口时区一致时不应触发校正');
+    assert.strictEqual(same.sunrise, raw.sunrise, '时区一致时日出时刻不应变化');
+  });
+
+  ok('E-151 防复发：首页「最近更新」暗态覆盖成对且落在既有 §15 两分支内', () => {
+    const start = siteCss.indexOf('/* ===== 15. 暗色模式');
+    const end = siteCss.indexOf('@media (prefers-reduced-motion: no-preference)', start);
+    assert.ok(start > 0 && end > start, '§15 段取样失效');
+    const seg = siteCss.slice(start, end);
+    assert.strictEqual((seg.match(/@media \(prefers-color-scheme: dark\)/g) || []).length, 1,
+      '不得新增系统偏好分支');
+    assert.strictEqual((seg.match(/@media not print/g) || []).length, 1,
+      '不得新增手动分支');
+    assert.match(seg, /:root:not\(\[data-user-color-scheme\]\):not\(\[data-sun-scheme\]\) \.ink-band/,
+      '缺少跟随系统暗态分支');
+    assert.match(seg, /\[data-sun-scheme="dark"\]:not\(\[data-user-color-scheme\]\) \.ink-band/,
+      '缺少时间层暗态分支');
+    for (const cls of ['.col-title', '.feed-title', '.feed-date', '.feed-row']) {
+      assert.ok(seg.includes(cls), `§15b 缺少 ${cls} 暗态覆盖`);
+    }
+    assert.ok(seg.includes('var(--board-bg-color)') && seg.includes('var(--text-color)'),
+      '§15b 未改用暗面板 + 亮纸字');
+    assert.ok(!seg.includes(':is('), '§15b 不得引入 :is()');
+  });
+
   console.log(`\nRESULT: ${passed} 项断言通过${skipped ? `，${skipped} 项 SKIP` : ''}${process.exitCode ? '，存在失败' : ''}`);
   process.exit(process.exitCode || 0);
 })();
