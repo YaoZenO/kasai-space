@@ -1,8 +1,9 @@
 ---
+// 文字索引（/archives/）：h1 + 一句结论 + 年份轨道 + 三行精选 + 年份分组列表。
 import ArchiveView from '../../components/ArchiveView.astro';
 import { getPosts } from '../../lib/posts';
 
 const posts = getPosts();
 ---
 
-<ArchiveView posts={posts} total={posts.length} />
+<ArchiveView posts={posts} heading="文字" showPicks showTrack />

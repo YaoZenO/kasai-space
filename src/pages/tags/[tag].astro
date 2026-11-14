@@ -1,8 +1,6 @@
 ---
-// 标签详情页（复刻 layout/tag.ejs）
-
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import ArchiveList from '../../components/ArchiveList.astro';
+// 关键词详情页（/tags/<tag>/）：名称 + N 篇 + 跨度，列表语言与文字索引页一致。
+import ArchiveView from '../../components/ArchiveView.astro';
 import { getTags } from '../../lib/posts';
 import { zhCN } from '../../lib/i18n';
 
@@ -16,14 +14,4 @@ export function getStaticPaths() {
 const { name, posts } = Astro.props;
 ---
 
-<BaseLayout title={`${zhCN.tag.title} - ${name}`} markdownPlugins={false}>
-  <div class="paper-page">
-    <div class="home-wrap">
-      <header class="page-head">
-        <p class="page-head-kicker">TAG</p>
-        <h1 class="page-head-title"># {name}</h1>
-      </header>
-      <ArchiveList posts={posts} total={posts.length} keyName="tag" />
-    </div>
-  </div>
-</BaseLayout>
+<ArchiveView posts={posts} heading={`# ${name}`} pageTitle={`${zhCN.tag.title} - ${name}`} />

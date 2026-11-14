@@ -8860,6 +8860,342 @@ html:not(.js) .fs-years-toggle { display: none; }
   .cr-sec-head .cr-sec-note { flex: 1 0 100%; margin-top: 0.2rem; }
 }
 
+/* ===== 4.21 文字族（/archives/ 三级、/tags/、/categories/，2026-11-14 S1）=====
+   索引型页头：h1 + 一句结论（N 篇 · 跨度）；/archives/ 另有年份轨道与三行精选。
+   列表是「日期 + 标题 + 最多两个关键词」三列。类名统一 ar-（§4.6.10 第 4 条），
+   旧的 archive-* / cat-* / tag-* 规则本轮不删，留 §4.6.11 的 S5 统一清理。 */
+.ar-head {
+  margin: 0 0 2.2rem;
+}
+
+.ar-title {
+  margin: 0;
+  font-family: var(--font-serif-title);
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.ar-lead {
+  margin: 0.55rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--sec-text-color);
+}
+
+/* 年份轨道：数字 + 篇数 + 按最大年份归一化的横条。格子定宽，年份多时自动换行，
+   不随年份数量把两格拉成半屏宽。 */
+.ar-track {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin: 0 0 2.6rem;
+}
+
+.ar-track-year {
+  flex: 0 0 8.5rem;
+  padding: 0.8rem 0.9rem 0.75rem;
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-xs);
+  background: var(--cream);
+}
+
+.ar-track-year:hover {
+  border-color: var(--accent);
+}
+
+.ar-track-num {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.ar-track-count {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+.ar-track-bar {
+  display: block;
+  height: 3px;
+  margin-top: 0.55rem;
+  background: var(--accent-soft);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.ar-track-bar i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+/* 精选三行：标题 / 日期 / 一句 note，不再输出正文摘要 */
+.ar-picks {
+  margin: 0 0 2.6rem;
+}
+
+.ar-picks-label {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  color: var(--sec-text-color);
+}
+
+.ar-pick {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.25rem 1.2rem;
+  padding: 0.85rem 0;
+  border-top: 2px solid var(--rule);
+}
+
+.ar-pick + .ar-pick {
+  border-top: 1px solid var(--line-color);
+}
+
+.ar-pick-title {
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.ar-pick:hover .ar-pick-title {
+  color: var(--accent);
+}
+
+.ar-pick-note {
+  grid-column: 1;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--sec-text-color);
+}
+
+.ar-pick-date {
+  grid-column: 2;
+  grid-row: 1;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+.ar-group {
+  margin: 0 0 2.2rem;
+}
+
+.ar-group-title {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.ar-group-title::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 2px;
+  margin-top: 0.55rem;
+  background: var(--text-color);
+}
+
+.ar-row {
+  display: grid;
+  grid-template-columns: 4.2rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.4rem 1.2rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--line-color);
+}
+
+.ar-row-date {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--sec-text-color);
+}
+
+.ar-row-title {
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--text-color);
+}
+
+.ar-row-title:hover {
+  color: var(--accent);
+}
+
+.ar-row-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  font-size: 0.78rem;
+}
+
+.ar-row-tag {
+  color: var(--info-mark);
+}
+
+.ar-row-tag:hover {
+  color: var(--accent);
+}
+
+/* 主题索引条：名称 / 篇数 / 最近日期，折叠展开文章 */
+.ar-catlist {
+  border-top: 2px solid var(--rule-strong);
+}
+
+.ar-cat-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  padding: 1.05rem 0;
+  border-bottom: 1px solid var(--line-color);
+}
+
+.ar-cat-name {
+  font-size: 1.12rem;
+  font-weight: 800;
+  line-height: 1.4;
+  color: var(--text-color);
+}
+
+.ar-cat-name:hover {
+  color: var(--accent);
+}
+
+.ar-cat-count,
+.ar-cat-date {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--info-mark);
+}
+
+.ar-cat-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: var(--sec-text-color);
+}
+
+.ar-cat-toggle i {
+  transition: transform 0.2s ease;
+}
+
+.ar-cat-toggle.collapsed i {
+  transform: rotate(90deg);
+}
+
+.ar-cat-posts {
+  margin: 0 0 0.6rem 1px;
+  padding: 0.2rem 0 0.5rem 1.3rem;
+  border-left: 1px solid var(--line-color);
+}
+
+.ar-cat-post {
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
+
+.ar-cat-post-date {
+  flex: 0 0 3.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--sec-text-color);
+}
+
+.ar-cat-post-title {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.ar-cat-post-title:hover {
+  color: var(--accent);
+}
+
+/* 关键词 chip 云：尺寸是唯一视觉编码（1 篇小 / 2–3 篇中 / ≥4 篇大） */
+.ar-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ar-tag {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.45rem 0.95rem;
+  border: 1px solid var(--line-color);
+  border-radius: 999px;
+}
+
+.ar-tag:hover {
+  border-color: var(--accent);
+}
+
+.ar-tag-name {
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.ar-tag:hover .ar-tag-name {
+  color: var(--accent);
+}
+
+.ar-tag-count {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--info-mark);
+}
+
+.ar-tag--s .ar-tag-name {
+  font-size: 0.86rem;
+}
+
+.ar-tag--m .ar-tag-name {
+  font-size: 1rem;
+}
+
+.ar-tag--l .ar-tag-name {
+  font-size: 1.18rem;
+}
+
+@media (max-width: 575.98px) {
+  .ar-row {
+    grid-template-columns: 3.4rem minmax(0, 1fr);
+  }
+
+  .ar-row-tags {
+    grid-column: 2;
+  }
+
+  .ar-cat-date {
+    display: none;
+  }
+
+  .ar-pick {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ar-pick-date {
+    grid-column: 1;
+    grid-row: 2;
+  }
+}
+
 /* ===== 5. 第三方组件纸面化（site.css 在 main.css 之后加载，覆盖即生效） ===== */
 
 /* 5.1 nprogress 顶部进度条（VD-2）：主题 L124 的 color 配置是死配置，

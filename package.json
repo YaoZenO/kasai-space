@@ -12,6 +12,7 @@
     "astro:verify": "node tools/verify-urls.mjs --mode=exact",
     "test:admin": "node test/admin-smoke.js",
     "test:pages": "node test/module-pages-e2e.js",
+    "test:form": "node test/form-e2e.js",
     "test:tokens": "node test/css-tokens.js",
     "test:claims": "node test/docs-claims.js",
     "test:blocks": "node test/md-blocks.js",
@@ -27,7 +28,7 @@
     "test:a10-render": "node test/a10-avatar-render.js",
     "test:env": "node test/build-env.js",
     "test:darkmode": "node test/darkmode-e2e.js",
-    "test": "npm run test:deps && npm run astro:build && npm run test:admin && npm run test:pages && npm run test:tokens && npm run test:claims && npm run test:blocks && npm run test:assets && npm run test:dates && npm run test:holidays && npm run test:zodiac && npm run test:festival && npm run test:cityrank && npm run test:curation && npm run test:search && npm run test:darkmode && npm run test:env"
+    "test": "npm run test:deps && npm run astro:build && npm run test:admin && npm run test:pages && npm run test:form && npm run test:tokens && npm run test:claims && npm run test:blocks && npm run test:assets && npm run test:dates && npm run test:holidays && npm run test:zodiac && npm run test:festival && npm run test:cityrank && npm run test:curation && npm run test:search && npm run test:darkmode && npm run test:env"
   },
   "engines": {
     "node": "24.x"

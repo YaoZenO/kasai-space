@@ -3,8 +3,8 @@
 export const zhCN = {
   home: { menu: '首页', title: '首页' },
   archive: { menu: '归档', title: '归档', subtitle: '归档', post_total: '共计 %d 篇文章' },
-  category: { menu: '分类', title: '分类', subtitle: '分类', post_total: '共计 %d 篇文章', more: 'More...' },
-  tag: { menu: '标签', title: '标签', subtitle: '标签', post_total: '共计 %d 篇文章' },
+  category: { menu: '主题', title: '主题', subtitle: '主题', post_total: '共计 %d 篇文章', more: 'More...' },
+  tag: { menu: '关键词', title: '关键词', subtitle: '关键词', post_total: '共计 %d 篇文章' },
   page404: { menu: '页面不存在', title: '页面不存在', subtitle: '页面不存在' },
   search: { title: '搜索', keyword: '关键词' },
   noscript_warning: '博客在允许 JavaScript 运行的环境下浏览效果更佳',

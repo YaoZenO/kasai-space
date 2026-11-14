@@ -1,18 +1,22 @@
 ---
+// 月份页（/archives/<year>/<month>/）：名称 + N 篇 + 跨度。
 import ArchiveView from '../../../../components/ArchiveView.astro';
-import { getArchives, getPosts } from '../../../../lib/posts';
+import { getArchives } from '../../../../lib/posts';
 
 export function getStaticPaths() {
   return getArchives().flatMap(bucket =>
     bucket.months.map(month => ({
       params: { year: bucket.year, month: month.month },
-      props: { posts: month.posts },
+      props: { year: bucket.year, month: month.month, posts: month.posts },
     }))
   );
 }
 
-const { posts } = Astro.props;
-const total = getPosts().length;
+const { year, month, posts } = Astro.props;
 ---
 
-<ArchiveView posts={posts} total={total} />
+<ArchiveView
+  posts={posts}
+  heading={`${year} 年 ${Number(month)} 月`}
+  pageTitle={`${year} 年 ${Number(month)} 月 - 文字`}
+/>

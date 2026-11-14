@@ -1,67 +1,61 @@
 ---
-// 分类总览页：复刻 categories.ejs + _partials/category-list.ejs（本站分类为扁平结构）
-
-import crypto from 'node:crypto';
+// 主题总览（/categories/）：一句结论 + 索引条（名称 / 篇数 / 最近日期），
+// 折叠展开文章。主题与文章目前 1:1，不画条形。
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import PageHead from '../../components/PageHead.astro';
 import { getCategories } from '../../lib/posts';
 import { formatWithPattern } from '../../lib/dates';
-import { themeConfig } from '../../lib/site-config';
-import { t } from '../../lib/i18n';
+import { zhCN } from '../../lib/i18n';
 
-const title = t('category').title;
 const categories = getCategories();
-const postLimit = Number(themeConfig.category?.post_limit || 10);
-const md5 = (s: string) => crypto.createHash('md5').update(s).digest('hex');
+const covered = new Set<string>();
+for (const cat of categories) {
+  for (const post of cat.posts) covered.add(post.path);
+}
 ---
 
-<BaseLayout title={title} currentPath="/categories/" markdownPlugins={false}>
+<BaseLayout title={zhCN.category.title} markdownPlugins={false}>
   <div class="paper-page">
     <div class="home-wrap">
-      <PageHead kicker="CATEGORIES" title="分类" />
+      <header class="ar-head">
+        <h1 class="ar-title">主题</h1>
+        <p class="ar-lead">{categories.length} 个主题 · 覆盖 {covered.size} 篇</p>
+      </header>
 
-      {categories.length > 0 && (
-        <div class="category-list">
-          {categories.map(cat => (
-            <div class="cat-group">
-              <div class="cat-row">
-                <a class="cat-name" href={cat.href} title={cat.name.trim()}>
-                  {cat.name.trim()}
-                </a>
-                <span class="cat-count">{cat.posts.length}</span>
-                <a
-                  class="cat-toggle collapsed"
-                  role="button"
-                  data-toggle="collapse"
-                  href={`#cat-collapse-${md5(cat.name)}`}
-                  aria-expanded="false"
-                  aria-controls={`cat-collapse-${md5(cat.name)}`}
-                  aria-label={`展开 ${cat.name.trim()} 下的文章`}
-                >
-                  <span>文章</span>
-                  <i class="iconfont icon-arrowright" />
-                </a>
-              </div>
-              <div class="cat-collapse collapse" id={`cat-collapse-${md5(cat.name)}`} aria-expanded="false">
-                <div class="cat-post-list">
-                  {cat.posts.map((post, idx) =>
-                    postLimit && idx >= postLimit ? (
-                      <a href={cat.href} class="cat-post cat-post-more">
-                        <span>More...</span>
-                      </a>
-                    ) : (
-                      <a href={post.href} title={post.title} class="cat-post">
-                        <time class="cat-post-date">{formatWithPattern(post.date, 'MM-DD')}</time>
-                        <span class="cat-post-title">{post.title}</span>
-                      </a>
-                    )
-                  )}
-                </div>
+      <div class="ar-catlist">
+        {categories.map((cat, i) => (
+          <div class="ar-cat-group">
+            <div class="ar-cat-row">
+              <a class="ar-cat-name" href={cat.href}>{cat.name}</a>
+              <span class="ar-cat-count">{cat.posts.length} 篇</span>
+              <time class="ar-cat-date" datetime={formatWithPattern(cat.posts[0].date, 'YYYY-MM-DD')}>
+                {formatWithPattern(cat.posts[0].date, 'YYYY-MM-DD')}
+              </time>
+              <a
+                class="ar-cat-toggle collapsed"
+                role="button"
+                data-toggle="collapse"
+                href={`#ar-cat-${i}`}
+                aria-expanded="false"
+                aria-controls={`ar-cat-${i}`}
+              >
+                文章<i class="iconfont icon-arrowright" />
+              </a>
+            </div>
+            <div class="collapse" id={`ar-cat-${i}`}>
+              <div class="ar-cat-posts">
+                {cat.posts.map(post => (
+                  <div class="ar-cat-post">
+                    <time class="ar-cat-post-date" datetime={formatWithPattern(post.date, 'YYYY-MM-DD')}>
+                      {formatWithPattern(post.date, 'MM-DD')}
+                    </time>
+                    <a class="ar-cat-post-title" href={post.href}>{post.title}</a>
+                  </div>
+                ))}
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        ))}
+      </div>
     </div>
   </div>
 </BaseLayout>

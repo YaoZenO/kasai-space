@@ -1,32 +1,44 @@
 ---
-// 标签总览页：复刻 tags.ejs（真实标签与真实计数）
-
+// 关键词总览（/tags/）：一句结论 + chip 云。
+// 尺寸是唯一视觉编码（1 篇小 / 2–3 篇中 / ≥4 篇大），不按热度排序。
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import PageHead from '../../components/PageHead.astro';
 import { getTags } from '../../lib/posts';
-import { t } from '../../lib/i18n';
+import { zhCN } from '../../lib/i18n';
 
-const title = t('tag').title;
-const tags = getTags();
+const tags = getTags()
+  .slice()
+  .sort((a, b) => a.name.localeCompare(b.name, 'zh-Hans-CN'));
+
+const covered = new Set<string>();
+for (const tag of tags) {
+  for (const post of tag.posts) covered.add(post.path);
+}
+
+function tier(n: number): string {
+  if (n >= 4) return 'l';
+  if (n >= 2) return 'm';
+  return 's';
+}
 ---
 
-<BaseLayout title={title} currentPath="/tags/" markdownPlugins={false}>
+<BaseLayout title={zhCN.tag.title} markdownPlugins={false}>
   <div class="paper-page">
     <div class="home-wrap">
-      <PageHead kicker="TAGS" title="标签" />
+      <header class="ar-head">
+        <h1 class="ar-title">关键词</h1>
+        <p class="ar-lead">{tags.length} 个关键词 · 覆盖 {covered.size} 篇</p>
+      </header>
 
-      {tags.length > 0 && (
-        <ul class="tag-cloud">
-          {tags.map(tag => (
-            <li class="tag-chip">
-              <a class="tag-chip-name" href={tag.href}>
-                # {tag.name}
-              </a>
-              <span class="tag-chip-count">{tag.posts.length}</span>
-            </li>
-          ))}
-        </ul>
-      )}
+      <ul class="ar-cloud">
+        {tags.map(tag => (
+          <li>
+            <a class:list={['ar-tag', `ar-tag--${tier(tag.posts.length)}`]} href={tag.href}>
+              <span class="ar-tag-name">#{tag.name}</span>
+              <span class="ar-tag-count">{tag.posts.length}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   </div>
 </BaseLayout>

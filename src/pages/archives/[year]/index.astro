@@ -1,16 +1,16 @@
 ---
+// 年份页（/archives/<year>/）：名称 + N 篇 + 跨度，列表语言与索引页一致。
 import ArchiveView from '../../../components/ArchiveView.astro';
-import { getArchives, getPosts } from '../../../lib/posts';
+import { getArchives } from '../../../lib/posts';
 
 export function getStaticPaths() {
   return getArchives().map(bucket => ({
     params: { year: bucket.year },
-    props: { posts: bucket.posts },
+    props: { year: bucket.year, posts: bucket.posts },
   }));
 }
 
-const { posts } = Astro.props;
-const total = getPosts().length;
+const { year, posts } = Astro.props;
 ---
 
-<ArchiveView posts={posts} total={total} />
+<ArchiveView posts={posts} heading={`${year} 年`} pageTitle={`${year} 年 - 文字`} />

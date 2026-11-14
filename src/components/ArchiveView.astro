@@ -1,24 +1,55 @@
 ---
-// 归档页外壳：页头 + 精选摘录 + 归档列表（复刻 layout/archive.ejs）
+// 文字族外壳（PAGE-FORM-PLAN §4.6.2，2026-11-14 S1 重写）：
+// /archives/ 三级 + 关键词 / 主题详情共用。
+// 页头 = h1 + 一句结论（N 篇 · 跨度）；索引页另有年份轨道与三行精选。
+// 列表 = 「日期 + 标题 + 最多两个关键词」，纯链接，零 JS。
+// 类名统一 ar-（§4.6.10 第 4 条），不再往 archive-* / post-* 上挂新用途。
 
 import BaseLayout from '../layouts/BaseLayout.astro';
-import ArchiveList from './ArchiveList.astro';
-import { siteConfig, themeConfig } from '../lib/site-config';
+import { themeConfig } from '../lib/site-config';
 import { formatWithPattern } from '../lib/dates';
-import { excerptText } from '../lib/excerpt';
-import { getPosts, type Post } from '../lib/posts';
+import { getPosts, getArchives, taxonomyHref, type Post } from '../lib/posts';
 import { zhCN } from '../lib/i18n';
 
 interface Props {
-  /** 当前页要列出的文章（年鉴/月鉴页为过滤后的子集） */
+  /** 当前页要列出的文章（年份 / 月份 / 关键词 / 主题为过滤后的子集） */
   posts: Post[];
-  /** 「共计 N 篇文章」里的 N，Hexo 在归档页固定用全站文章数 */
-  total: number;
+  /** 页面 h1 */
+  heading: string;
+  /** <title>；省略时沿用归档页标题 */
+  pageTitle?: string;
+  /** 首屏三行精选（仅 /archives/） */
+  showPicks?: boolean;
+  /** 年份轨道（仅 /archives/） */
+  showTrack?: boolean;
 }
 
-const { posts, total } = Astro.props;
+const { posts, heading, pageTitle, showPicks = false, showTrack = false } = Astro.props;
 const allPosts = getPosts();
+const total = posts.length;
 
+const oldest = posts[posts.length - 1];
+const newest = posts[0];
+
+/* 跨度：跨年写「2023→2026」，同年跨月写「2026-03-12 → 11-04」，同月写「10-18 → 10-21」 */
+function spanText(): string {
+  if (!oldest || !newest) return '';
+  const fy = formatWithPattern(oldest.date, 'YYYY');
+  const ly = formatWithPattern(newest.date, 'YYYY');
+  if (fy !== ly) return `${fy}→${ly}`;
+  const fm = formatWithPattern(oldest.date, 'MM');
+  const lm = formatWithPattern(newest.date, 'MM');
+  if (fm !== lm) {
+    return `${formatWithPattern(oldest.date, 'YYYY-MM-DD')} → ${formatWithPattern(newest.date, 'MM-DD')}`;
+  }
+  return `${formatWithPattern(oldest.date, 'MM-DD')} → ${formatWithPattern(newest.date, 'MM-DD')}`;
+}
+
+const lead = total
+  ? `${total} 篇 · ${spanText()}${showTrack ? ` · 最近更新 ${formatWithPattern(newest.date, 'YYYY-MM-DD')}` : ''}`
+  : '还没有文章';
+
+/* 精选三行：只留标题 / 一句 note / 日期，不再输出正文摘要——摘要会把这页拉回文章流。 */
 const featured = ((themeConfig.archive && themeConfig.archive.featured) || []) as {
   slug: string;
   note?: string;
@@ -32,41 +63,79 @@ const picks = featured
     return { post, note: cfg.note || '' };
   })
   .filter(Boolean) as { post: Post; note: string }[];
+
+const archives = getArchives();
+const maxCount = archives.reduce((m, a) => Math.max(m, a.posts.length), 0) || 1;
+
+const groups: { year: string; posts: Post[] }[] = [];
+let cursor = '';
+for (const post of posts) {
+  const year = formatWithPattern(post.date, 'YYYY');
+  if (year !== cursor) {
+    cursor = year;
+    groups.push({ year, posts: [] });
+  }
+  groups[groups.length - 1].posts.push(post);
+}
 ---
 
-<BaseLayout title={themeConfig.archive?.title || zhCN.archive.title} markdownPlugins={false}>
+<BaseLayout title={pageTitle || themeConfig.archive?.title || zhCN.archive.title} markdownPlugins={false}>
   <div class="paper-page">
     <div class="home-wrap">
-      <header class="page-head">
-        <p class="page-head-kicker">ARCHIVE</p>
-        <h1 class="page-head-title">文字</h1>
+      <header class="ar-head">
+        <h1 class="ar-title">{heading}</h1>
+        <p class="ar-lead">{lead}</p>
       </header>
 
-      {picks.length > 0 && (
-        <section class="archive-picks">
-          <p class="archive-picks-kicker">精选摘录</p>
-          <div class="pick-list">
-            {picks.map(({ post, note }) => {
-              const excerpt = excerptText(post.content, 110);
-              return (
-                <a class="pick-row is-lead" href={post.href}>
-                  {post.cover && <img class="pick-img" src={post.cover} alt={post.title} />}
-                  <div class="pick-main">
-                    <span class="pick-title">{post.title}</span>
-                    {excerpt && <span class="pick-desc">{excerpt}</span>}
-                    {note && <span class="pick-note">{note}</span>}
-                    <span class="pick-meta">
-                      <time class="mono">{formatWithPattern(post.date, 'YYYY-MM-DD')}</time>
-                    </span>
-                  </div>
-                </a>
-              );
-            })}
-          </div>
+      {showTrack && (
+        <nav class="ar-track" aria-label="按年份查看">
+          {archives.map(a => (
+            <a class="ar-track-year" href={`/archives/${a.year}/`}>
+              <span class="ar-track-num">{a.year}</span>
+              <span class="ar-track-count">{a.posts.length} 篇</span>
+              <span class="ar-track-bar">
+                <i style={`width:${Math.max(4, Math.round((a.posts.length / maxCount) * 100))}%`} />
+              </span>
+            </a>
+          ))}
+        </nav>
+      )}
+
+      {showPicks && picks.length > 0 && (
+        <section class="ar-picks">
+          <p class="ar-picks-label">精选摘录</p>
+          {picks.map(({ post, note }) => (
+            <a class="ar-pick" href={post.href}>
+              <span class="ar-pick-title">{post.title}</span>
+              <time class="ar-pick-date" datetime={formatWithPattern(post.date, 'YYYY-MM-DD')}>
+                {formatWithPattern(post.date, 'YYYY-MM-DD')}
+              </time>
+              {note && <span class="ar-pick-note">{note}</span>}
+            </a>
+          ))}
         </section>
       )}
 
-      <ArchiveList posts={posts} total={total} keyName="archive" />
+      {groups.map(group => (
+        <section class="ar-group" id={`year-${group.year}`}>
+          <h2 class="ar-group-title">{group.year}</h2>
+          {group.posts.map(post => (
+            <div class="ar-row">
+              <time class="ar-row-date" datetime={formatWithPattern(post.date, 'YYYY-MM-DD')}>
+                {formatWithPattern(post.date, 'MM-DD')}
+              </time>
+              <a class="ar-row-title" href={post.href}>{post.title}</a>
+              {post.tags.length > 0 && (
+                <span class="ar-row-tags">
+                  {post.tags.slice(0, 2).map(tag => (
+                    <a class="ar-row-tag" href={taxonomyHref('tags', tag)}>#{tag}</a>
+                  ))}
+                </span>
+              )}
+            </div>
+          ))}
+        </section>
+      ))}
     </div>
   </div>
 </BaseLayout>
