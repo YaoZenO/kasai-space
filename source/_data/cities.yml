@@ -1121,6 +1121,7 @@ cities:
   - name: 东莞
     slug: dongguan
     province: 广东省
+    desc: "东莞是著名的游泳之乡。"
     level: 地级市
     region: 华南
     belt: 东部
@@ -1281,6 +1282,7 @@ cities:
   - name: 伊犁
     slug: yili
     province: 新疆维吾尔自治区
+    desc: "伊犁有塞外江南之称。"
     level: 自治州
     region: 西北
     belt: 西部
@@ -1405,6 +1407,8 @@ cities:
       gdp: { v: 2301.4, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 漠河
     slug: mohe
+    province: 黑龙江省
+    desc: "漠河有中国地图最北端之称。"
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 南通
@@ -1425,6 +1429,7 @@ cities:
       gdp: { v: 12801.5, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 三沙
     slug: sansha
+    province: 海南省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       area_km2: { v: 20, unit: "平方公里", asOf: "2025", source: "areaPub" }
@@ -1480,6 +1485,7 @@ cities:
   - name: 湛江
     slug: zhanjiang
     province: 广东省
+    desc: "湛江是著名的跳水之乡。"
     level: 地级市
     region: 华南
     belt: 东部
@@ -1503,6 +1509,7 @@ cities:
   - name: 阿勒泰
     slug: aleitai
     province: 新疆维吾尔自治区
+    desc: "阿勒泰有北疆水塔之称。"
     level: 地区
     region: 西北
     belt: 西部
@@ -2001,8 +2008,10 @@ cities:
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1365.3, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 酒泉市·敦煌
+  - name: 敦煌
     slug: jiuquanshidunhuang
+    province: 甘肃省
+    desc: "敦煌由甘肃省酒泉市代管。"
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 喀什
@@ -2162,6 +2171,7 @@ cities:
       metro_km: { v: 10.7, unit: "公里", asOf: "2025", source: "metro2025" }
   - name: 西昌
     slug: xichang
+    province: 四川省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 信阳
@@ -2240,6 +2250,7 @@ cities:
   - name: 益阳
     slug: yiyang
     province: 湖南省
+    desc: "益阳是著名的羽毛球之乡。"
     level: 地级市
     region: 华中
     belt: 中部
@@ -2274,6 +2285,7 @@ cities:
   - name: 玉林
     slug: yulin
     province: 广西壮族自治区
+    desc: "玉林是著名的田径之乡。"
     level: 地级市
     region: 华南
     belt: 东部
@@ -2334,6 +2346,7 @@ cities:
       gdp: { v: 601.19, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 阿尔山
     slug: aershan
+    province: 内蒙古自治区
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 阿克苏
@@ -2356,10 +2369,6 @@ cities:
     metrics:
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 418.8, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 阿勒泰/布尔津·北疆水塔
-    slug: aleitaibuerjinbeijiangshuita
-    metrics:
-      scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 阿里地区
     slug: ali
     province: 西藏自治区
@@ -2372,6 +2381,7 @@ cities:
       gdp: { v: 114.21, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 安海镇
     slug: anhaizhen
+    province: 福建省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 安康
@@ -2509,6 +2519,7 @@ cities:
       gdp: { v: 2637.67, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 常熟
     slug: changshu
+    province: 江苏省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 潮州
@@ -2523,10 +2534,12 @@ cities:
       gdp: { v: 1452.17, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 陈埭镇
     slug: chendaizhen
+    province: 福建省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 池店镇
     slug: chidianzhen
+    province: 福建省
     metrics:
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 楚雄
@@ -2551,14 +2564,18 @@ cities:
       gdp: { v: 4221.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 磁灶镇
     slug: cizaozhen
+    province: 福建省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
-  - name: 大连市·长海
+  - name: 长海
     slug: dalianshizhanghai
+    province: 辽宁省
+    desc: "长海县由辽宁省大连市管辖。"
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 儋州
     slug: danzhou
+    province: 海南省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 大庆
@@ -2613,10 +2630,13 @@ cities:
       gdp: { v: 793.9, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 东石镇
     slug: dongshizhen
+    province: 福建省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
-  - name: 东兴市·北部湾畔边陲明珠
+  - name: 东兴
     slug: dongxingshibeibuwanpanbianchuimingzhu
+    province: 广西壮族自治区
+    desc: "东兴有北部湾畔边陲明珠之称。"
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 鄂州
@@ -2642,6 +2662,7 @@ cities:
       gdp: { v: 1201.26, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 佛山南海
     slug: foshannanhai
+    province: 广东省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 抚顺
@@ -2656,10 +2677,12 @@ cities:
       gdp: { v: 1003.78, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 富硒茶
     slug: fuxicha
+    province: 湖北省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 富硒蛋
     slug: fuxidan
+    province: 湖北省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 阜新
@@ -2674,10 +2697,12 @@ cities:
       gdp: { v: 651.8, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 富硒蔬菜
     slug: fuxishucai
+    province: 湖北省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 富硒水果
     slug: fuxishuiguo
+    province: 湖北省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 阜阳
@@ -2690,12 +2715,15 @@ cities:
     metrics:
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 3777.6, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 抚远·华夏东极
+  - name: 抚远
     slug: fuyuanhuaxiadongji
+    province: 黑龙江省
+    desc: "抚远有华夏东极之称。"
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 平潭
     slug: pingtan
+    province: 福建省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 甘南
@@ -2710,6 +2738,7 @@ cities:
       gdp: { v: 275.62, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 甘肃夏河县
     slug: gansuxiahe
+    province: 甘肃省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 赣州
@@ -2752,6 +2781,7 @@ cities:
       gdp: { v: 2317.47, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 广西阳朔县
     slug: guangxiyangshuo
+    province: 广西壮族自治区
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 贵港
@@ -2766,6 +2796,7 @@ cities:
       gdp: { v: 1628.44, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 贵州荔波县
     slug: guizhoulibo
+    province: 贵州省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 果洛州
@@ -2850,10 +2881,12 @@ cities:
       gdp: { v: 392.23, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 河南汝州
     slug: henanruzhou
+    province: 河南省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 河南修武县
     slug: henanxiuwu
+    province: 河南省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 衡水
@@ -2909,10 +2942,12 @@ cities:
       gdp: { v: 2430.28, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 湖南凤凰县
     slug: hunanfenghuang
+    province: 湖南省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 湖南醴陵
     slug: hunanliling
+    province: 湖南省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 佳木斯
@@ -2947,6 +2982,7 @@ cities:
       gdp: { v: 1189.6, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 江阴
     slug: jiangyin
+    province: 江苏省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 揭阳
@@ -2980,12 +3016,15 @@ cities:
     metrics:
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 2602.26, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 靖西·小昆明
+  - name: 靖西
     slug: jingxixiaokunming
+    province: 广西壮族自治区
+    desc: "靖西有小昆明之称。"
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 靖宇县
     slug: jingyu
+    province: 吉林省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 荆州
@@ -3000,6 +3039,7 @@ cities:
       gdp: { v: 3712.34, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 金井镇
     slug: jinjingzhen
+    province: 福建省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 鸡西
@@ -3012,16 +3052,20 @@ cities:
     metrics:
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 648.49, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 举重之乡：广东省石龙镇
+  - name: 石龙镇
     slug: juzhongzhixiangguangdongshengshilongzhen
+    province: 广东省
+    desc: "石龙镇是著名的举重之乡。"
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 凯里
     slug: kaili
+    province: 贵州省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 库尔勒
     slug: kuerlei
+    province: 新疆维吾尔自治区
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 聊城
@@ -3057,10 +3101,12 @@ cities:
       gdp: { v: 3096.91, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 里约热内卢
     slug: liyuereneilu
+    province: 海外
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 龙湖镇
     slug: longhuzhen
+    province: 福建省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 陇南
@@ -3085,6 +3131,7 @@ cities:
       gdp: { v: 2407.3, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 洛杉矶
     slug: luoshanji
+    province: 海外
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 泸州
@@ -3119,18 +3166,18 @@ cities:
       gdp: { v: 2920.9, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 芒市
     slug: mang
+    province: 云南省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
-  - name: 满洲里·东亚之窗
+  - name: 满洲里
     slug: manzhoulidongyazhichuang
+    province: 内蒙古自治区
+    desc: "满洲里有东亚之窗之称。"
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 蒙自
     slug: mengzi
-    metrics:
-      scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
-  - name: 漠河县·中国地图最北端
-    slug: mohexianzhongguodituzuibeiduan
+    province: 云南省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 南充
@@ -3165,10 +3212,13 @@ cities:
       gdp: { v: 2050.66, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 内坑镇
     slug: neikengzhen
+    province: 福建省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
-  - name: 排球之乡：广东省台山
+  - name: 台山
     slug: paiqiuzhixiangguangdongshengtaishan
+    province: 广东省
+    desc: "台山是著名的排球之乡。"
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 盘锦
@@ -3276,50 +3326,62 @@ cities:
       gdp: { v: 13778.34, unit: "亿元", asOf: "2025", source: "gdp2025" }
   - name: 泉州十大博物馆纪念馆
     slug: quanzhoushidabowuguanjinianguan
+    province: 福建省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 泉州十大公园·园林
     slug: quanzhoushidagongyuanyuanlin
+    province: 福建省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 泉州十大海滩沙滩
     slug: quanzhoushidahaitanshatan
+    province: 福建省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 泉州十大街巷广场古镇
     slug: quanzhoushidajiexiangguangchangguzhen
+    province: 福建省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 泉州十大乐园亲子景点
     slug: quanzhoushidaleyuanqinzijingdian
+    province: 福建省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 泉州十大历史古迹·古桥
     slug: quanzhoushidalishigujiguqiao
+    province: 福建省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 泉州十大庙宇
     slug: quanzhoushidamiaoyu
+    province: 福建省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 泉州十大名山·峡谷
     slug: quanzhoushidamingshanxiagu
+    province: 福建省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 泉州十大寺院
     slug: quanzhoushidasiyuan
+    province: 福建省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 泉州五大岛屿
     slug: quanzhouwudadaoyu
+    province: 福建省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 曲阜
     slug: qufu
+    province: 山东省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 山东蓬莱
     slug: shandongpenglai
+    province: 山东省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 商洛
@@ -3345,6 +3407,7 @@ cities:
       gdp: { v: 3475.38, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 尚志
     slug: shangzhi
+    province: 黑龙江省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 山南
@@ -3370,6 +3433,7 @@ cities:
       gdp: { v: 3023.83, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 汕头南澳
     slug: shantounanao
+    province: 广东省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 汕尾
@@ -3394,6 +3458,7 @@ cities:
       gdp: { v: 1705.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 深沪镇
     slug: shenhuzhen
+    province: 福建省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 十堰
@@ -3418,10 +3483,7 @@ cities:
       gdp: { v: 579.84, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 首尔
     slug: shouer
-    metrics:
-      scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
-  - name: 摔跤之乡：山西省忻州
-    slug: shuaijiaozhixiangshanxishengxinzhou
+    province: 海外
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 双鸭山
@@ -3446,10 +3508,12 @@ cities:
       gdp: { v: 1303.7, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 四川稻城县
     slug: sichuandaocheng
+    province: 四川省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 四川黑水县
     slug: sichuanheishui
+    province: 四川省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 绥化
@@ -3464,24 +3528,24 @@ cities:
       gdp: { v: 1285.14, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 台南
     slug: tainan
+    province: 中国台湾地区
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 台中
     slug: taizhong
+    province: 中国台湾地区
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 桃园
     slug: taoyuan
+    province: 中国台湾地区
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 腾冲
     slug: tengchong
+    province: 云南省
     metrics:
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
-  - name: 田径之乡：广西玉林
-    slug: tianjingzhixiangguangxiyulin
-    metrics:
-      scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 天水
     slug: tianshui
     province: 甘肃省
@@ -3492,14 +3556,6 @@ cities:
     metrics:
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 980.88, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 跳水之乡：广东省湛江
-    slug: tiaoshuizhixiangguangdongshengzhanjiang
-    metrics:
-      scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
-  - name: 体操之乡：湖北省仙桃
-    slug: ticaozhixianghubeishengxiantao
-    metrics:
-      scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 铜川
     slug: tongchuan
     province: 陕西省
@@ -3540,8 +3596,10 @@ cities:
     metrics:
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 668.1, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 网球之乡：湖北省京山
+  - name: 京山
     slug: wangqiuzhixianghubeishengjingshan
+    province: 湖北省
+    desc: "京山是著名的网球之乡。"
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 渭南
@@ -3600,6 +3658,7 @@ cities:
       gdp: { v: 1260.3, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 吴起县
     slug: wuqi
+    province: 陕西省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 武威
@@ -3614,6 +3673,7 @@ cities:
       gdp: { v: 802.27, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 无锡宜兴
     slug: wuxiyixing
+    province: 江苏省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 梧州
@@ -3628,6 +3688,7 @@ cities:
       gdp: { v: 1719.79, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 厦门·湖里·思明
     slug: xiamenhulisiming
+    province: 福建省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 湘潭
@@ -3673,6 +3734,7 @@ cities:
       gdp: { v: 1289.8, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 新北
     slug: xinbei
+    province: 中国台湾地区
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 兴安盟
@@ -3698,14 +3760,17 @@ cities:
       gdp: { v: 2800.8, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 兴义
     slug: xingyi
+    province: 贵州省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 新疆布尔津
     slug: xinjiangbuerjin
+    province: 新疆维吾尔自治区
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 新加坡
     slug: xinjiapo
+    province: 海外
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 新乡
@@ -3731,6 +3796,7 @@ cities:
   - name: 忻州
     slug: xinzhou
     province: 山西省
+    desc: "忻州是著名的摔跤之乡。"
     level: 地级市
     region: 华北
     belt: 中部
@@ -3740,18 +3806,22 @@ cities:
       gdp: { v: 1330.4, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 新竹
     slug: xinzhu
+    province: 中国台湾地区
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 西雅图
     slug: xiyatu
+    province: 海外
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 西藏江孜县
     slug: xizangjiangzi
+    province: 西藏自治区
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 炎陵县
     slug: yanling
+    province: 湖南省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 宜宾
@@ -3764,12 +3834,9 @@ cities:
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 4134.73, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 伊犁/昭苏·塞外江南
-    slug: yilizhaosusaiwaijiangnan
-    metrics:
-      scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 英林镇
     slug: yinglinzhen
+    province: 福建省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 鹰潭
@@ -3782,14 +3849,6 @@ cities:
     metrics:
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1459.4, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 游泳之乡：广东省东莞
-    slug: youyongzhixiangguangdongshengdongguan
-    metrics:
-      scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
-  - name: 羽毛球之乡：湖南省益阳
-    slug: yumaoqiuzhixianghunanshengyiyang
-    metrics:
-      scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 运城
     slug: yuncheng
     province: 山西省
@@ -3812,10 +3871,12 @@ cities:
       gdp: { v: 97.43, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 禹州
     slug: yuzhou
+    province: 河南省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 长岛
     slug: zhangdao
+    province: 山东省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 长治
@@ -3858,16 +3919,22 @@ cities:
     metrics:
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 633.38, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 舟山市·岱山
+  - name: 岱山
     slug: zhoushanshidaishan
+    province: 浙江省
+    desc: "岱山由浙江省舟山市管辖。"
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
-  - name: 舟山市·普陀
+  - name: 普陀
     slug: zhoushanshiputuo
+    province: 浙江省
+    desc: "普陀由浙江省舟山市管辖。"
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
-  - name: 舟山市·嵊泗
+  - name: 嵊泗
     slug: zhoushanshishengsi
+    province: 浙江省
+    desc: "嵊泗由浙江省舟山市管辖。"
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 株洲
@@ -3914,6 +3981,7 @@ cities:
       gdp: { v: 5206.12, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
   - name: 左权县
     slug: zuoquan
+    province: 山西省
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 张家口
@@ -4035,6 +4103,7 @@ cities:
   - name: 仙桃
     slug: xiantao
     province: 湖北省
+    desc: "仙桃是著名的体操之乡。"
     level: 县级市
     region: 华中
     belt: 中部
