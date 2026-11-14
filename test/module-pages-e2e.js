@@ -424,25 +424,31 @@ async function main() {
       assert.ok(!home.includes('href="/tags/"'), '首页仍有 /tags/ 入口格链接 —— 标签应降级为详情页检索');
       assert.ok(fs.existsSync(path.join(PUBLIC, 'tags', 'index.html')),
         '/tags/ 页面不存在 —— 方案 A 要求保留标签页与所有标签 URL');
-      const cells = (home.match(/class="wall-cell[ "]/g) || []).length;
-      assert.ok(cells >= 3, `首页入口格数量异常：${cells}`);
+      // 2026-11-14 首页改为「图带 + 近期动态 + 去处」，入口不再用 Bento 的 .wall-cell，
+      // 但「每个模块都有入口」这条不变量不变，改为直接认「去处」里的四条链接。
+      for (const href of ['/projects/', '/games/', '/collections/', '/library/']) {
+        assert.ok(home.includes(`href="${href}"`), `首页缺少 ${href} 入口 —— 「去处」应保留模块入口`);
+      }
+      assert.ok(home.includes('class="j2-links"'), '首页缺少「去处」导航');
     });
-    ok('墨底区块与两栏容器平级（否则墨底通不了铺）', () => {
-      // 2026-10-19 实测：ink-band 放进 .home-cols 里会变成两栏网格的第三个格子，
-      // 只占第一列宽（@1440 只有 623px，右侧 697px 是纸面空白）。
-      // 判据看产物：home-cols 开标签与 ink-band 之间，<div> 与 </div> 数量必须持平
-      // （即容器已闭合，墨底是平级兄弟节点）。
-      const home = readPage('index.html');
-      const colsMark = home.indexOf('home-wrap home-cols');
-      // 从容器自己的 `<div` 开始算，否则它的开标签不被计数、只会多出一个 `</div>`
-      const colsStart = home.lastIndexOf('<div', colsMark);
-      const bandStart = home.indexOf('class="ink-band"', colsStart);
-      assert.ok(colsStart !== -1 && bandStart !== -1, '产物结构变化：找不到 home-cols 或 ink-band');
-      const between = home.slice(colsStart, bandStart);
-      const opens = (between.match(/<div\b/g) || []).length;
-      const closes = (between.match(/<\/div>/g) || []).length;
-      assert.strictEqual(opens, closes,
-        'home-cols 在 ink-band 之前没有闭合 —— 墨底会变成两栏网格的第三个格子，只占第一列宽');
+    ok('首页「近期动态」结构自洽：时间线在「去处」之前，且每条标题都有可点落点', () => {
+      // 原断言锁的是「墨底区块不能被两栏网格当第三个格子吞掉」的版面层级问题；
+      // 新结构没有网格容器，同样的失效场景换成：时间线被挪到别处 / 生成死链。
+      const tlStart = home.indexOf('class="j2-tl"');
+      const linksStart = home.indexOf('class="j2-links"');
+      assert.ok(tlStart !== -1 && linksStart > tlStart,
+        '产物结构变化：找不到 j2-tl，或「去处」不在时间线之后');
+      const list = home.slice(tlStart, linksStart);
+      const rows = (list.match(/class="j2-row"/g) || []).length;
+      assert.ok(rows >= 1, '「近期动态」没有渲染任何行');
+      const hrefs = [...list.matchAll(/class="j2-title"[^>]*href="([^"]*)"/g)].map((m) => m[1]);
+      assert.ok(hrefs.length >= 1, '「近期动态」没有可点标题');
+      for (const href of hrefs) {
+        assert.ok(href && href !== '#', '「近期动态」出现空链接');
+        // collections 没有 [slug] 详情路由，只能落列表页
+        assert.ok(!/^\/collections\/[^/]+\/$/.test(href),
+          `collections 详情页不存在，首页出现死链：${href}`);
+      }
     });
   } finally {
     restore('projects');

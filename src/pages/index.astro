@@ -1,318 +1,569 @@
 ---
-// 首页：个人主页 Bento（PAGE-FORM-PLAN §4.5，2026-11-14）。
-// 首屏是一块大小不等的拼版：「我是谁」大格 + 主推内容大格 + 「现在在做」中格 +
-// 四个模块入口小格；其下保留精选内容 / 最新文字两栏，「最近更新」压成一条时间线。
-// 原则：全部真实数据驱动，无数据不渲染空模块，不制造失效链接。
+// 首页：图带 + 近期动态（2026-11-14 主人选定 J2 方案）。
+// 首屏是全幅城市照片带，压站点身份与「距次年元旦」天数；其下只有一条跨类型动态时间线，
+// 末尾一行「去处」导航。原则：全部真实数据驱动，无数据不渲染空块，不制造失效链接。
 
-import fs from 'node:fs';
-import path from 'node:path';
-import { createRequire } from 'node:module';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getData } from '../lib/data';
 import { getPosts } from '../lib/posts';
-import { excerptText } from '../lib/excerpt';
 import { siteConfig, themeConfig } from '../lib/site-config';
 import { urlFor } from '../lib/url';
-import { fmtItemDate, formatWithPattern } from '../lib/dates';
-
-const require = createRequire(process.cwd() + '/');
-// 精选池与现站共用同一份实现，避免两套规则漂移
-const { pickPool } = require(process.cwd() +
-  '/themes/fluid/scripts/helpers/curation-pool.js') as any;
-const { stripHTML } = require('hexo-util') as any;
+import { fmtItemDate } from '../lib/dates';
+import { detailPath, type ModuleKey } from '../lib/modules';
 
 const data = getData();
 const posts = getPosts();
 const siteCfg = data.site || {};
-const postUrlTarget = String(themeConfig.index?.post_url_target || '_self');
 
-const identityIntro = siteCfg.intro || themeConfig.about?.intro || '';
 const identityAvatar = siteCfg.avatar || themeConfig.about?.avatar || '';
-const motto = siteCfg.motto || themeConfig.about?.motto || '';
+const identityIntro = siteCfg.intro || themeConfig.about?.intro || '';
 
-// 内容模块入口格：单一数据源 source/_data/modules.yml（缺失时回退内置默认）
+const HERO_IMAGE = '/img/cities/hangzhou.jpg';
+
+// 内容模块：单一数据源 source/_data/modules.yml（缺失时回退内置默认）
 let moduleCfg: any[] = data.modules?.items || [];
 if (!moduleCfg.length) {
   moduleCfg = [
-    { key: 'projects', title: '项目', accent: 'yellow', page: '/projects/' },
-    { key: 'games', title: '游戏', accent: 'orange', page: '/games/' },
-    { key: 'collections', title: '收藏', accent: '', page: '/collections/' },
+    { key: 'projects', title: '项目', page: '/projects/' },
+    { key: 'games', title: '游戏', page: '/games/' },
+    { key: 'collections', title: '收藏', page: '/collections/' },
   ];
 }
 
-const wallModules = moduleCfg
+// 只有 project / game 有详情页；collections 没有 [slug] 路由，落到列表页，避免死链
+const DETAIL_ROUTE: Record<string, 1> = { projects: 1, games: 1 };
+
+type FeedRow = {
+  type: string;
+  glyph: string;
+  title: string;
+  link: string;
+  date: number;
+  cover: string;
+};
+
+// 各内容模块取最新一条（同日期保持数据文件中的先后顺序）
+const moduleRows: FeedRow[] = moduleCfg
   .filter((m: any) => m && m.key)
   .map((m: any) => {
-    const d = data[m.key as keyof typeof data];
-    const items = (d && Array.isArray(d.items) ? d.items : []).filter((it: any) => it && it.title);
+    const items: any[] = (data[m.key as keyof typeof data]?.items || [])
+      .filter((it: any) => it && it.title && it.date);
     if (!items.length) return null;
-    const cover = items.find((it: any) => it.cover)?.cover || '';
+    const latest = items
+      .slice()
+      .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+    const link = DETAIL_ROUTE[m.key] ? detailPath(m.key as ModuleKey, latest) : m.page || latest.link || '';
     return {
-      key: m.key,
-      title: m.title || m.key,
-      accent: m.accent || '',
-      page: m.page || '',
-      count: items.length,
-      cover,
-      items,
+      type: String(m.title || m.key),
+      glyph: String(m.title || m.key).slice(0, 1),
+      title: String(latest.title),
+      link,
+      date: new Date(latest.date).getTime(),
+      cover: latest.cover ? String(latest.cover) : '',
     };
   })
-.filter(Boolean) as any[];
+  .filter(Boolean) as FeedRow[];
 
-// 跨类型精选池：主卡 + 精选内容 + 最新文字（规则见 curation-pool.js）
-const pool = pickPool(
-  { posts: { toArray: () => posts, length: posts.length } },
-  data,
-  { today: Date.now(), noLedger: true }
-);
-const hero = pool.hero as any;
-const picks = (pool.picks || []) as any[];
-const heroExcerpt = hero
-  ? hero.summary || (hero._raw ? excerptText(String(hero._raw.content || ''), 150) : '')
-  : '';
+const postRows: FeedRow[] = posts.slice(0, 3).map(p => ({
+  type: '文章',
+  glyph: '文',
+  title: p.title,
+  link: p.href,
+  date: p.date.valueOf(),
+  cover: p.cover || '',
+}));
 
-// 「最新文字」：全站最新 3 篇有实质内容的文章（空壳除外）。
-// 判定与 index.ejs 的 postHasSubstance 一致：正文去标点后不能只剩标题。
-const PUNCT_RE = /[\s\u3000-\u303f\uff00-\uffef!-\/:-@\[-`{-~]/g;
-function bodyTextLength(html: string): number {
-  return String(stripHTML(html || '')).replace(PUNCT_RE, '').length;
+// 跨类型时间线：最新 3 篇文章 + 每类内容最新 1 条，按日期倒序
+const feedRows = postRows.concat(moduleRows).sort((a, b) => b.date - a.date).slice(0, 6);
+
+// 距次年元旦天数：按 Asia/Shanghai 的口径算「日期差」，避免时区让结果差一天
+const DAY_MS = 86400000;
+const SHANGHAI_OFFSET = 8 * 3600000;
+function daysToNewYear(now: number): { year: number; days: number } {
+  const shifted = now + SHANGHAI_OFFSET;
+  const year = new Date(shifted).getUTCFullYear() + 1;
+  return { year, days: Date.UTC(year, 0, 1) / DAY_MS - Math.floor(shifted / DAY_MS) };
 }
-function postHasSubstance(p: any): boolean {
-  const body = bodyTextLength(p.content);
-  const title = String(p.title || '').replace(PUNCT_RE, '');
-  const realLen = title && body === title.length ? 0 : body;
-  return realLen >= 1 || !!p.cover || !!p.featured;
-}
-const latestPosts = posts.slice(0, 3).filter(postHasSubstance);
+const countdown = daysToNewYear(Date.now());
 
-// 跨类型动态聚合：文章 + 各类型带 date 的条目
-type FeedRow = { type: string; title: string; link: string; date: number };
-const feed: FeedRow[] = [];
-const feedSeen: Record<string, 1> = {};
-for (const p of posts) {
-  const key = '文章|' + p.path;
-  if (feedSeen[key]) continue;
-  feedSeen[key] = 1;
-  feed.push({ type: '文章', title: p.title, link: p.href, date: p.date.valueOf() });
-}
-for (const m of wallModules) {
-  for (const it of m.items) {
-    if (!it.date) continue;
-    const key = m.title + '|' + it.title;
-    if (feedSeen[key]) continue;
-    feedSeen[key] = 1;
-    const detail = m.page ? '/' + m.key + '/' + (it.slug || encodeURIComponent(String(it.title))) + '/' : '';
-    feed.push({ type: m.title, title: it.title, link: detail || it.link || '', date: new Date(it.date).valueOf() });
-  }
-}
-feed.sort((a, b) => b.date - a.date);
-
-const feedTypes: Record<string, 1> = {};
-feed.forEach(f => { feedTypes[f.type] = 1; });
-const feedRows = Object.keys(feedTypes).length > 1 ? feed.slice(0, 6) : [];
-
-const libraryTopicCount = Array.isArray(data.library?.topics) ? data.library.topics.length : 0;
-
-// 「现在在做」：直接取 source/now/index.md 的「在做」小节，保持单一数据源。
-// 只做行内链接转换，不引 Markdown 渲染器——这一格是三两条短句，不是正文。
-function nowDoing(): string[] {
-  const file = path.join(process.cwd(), 'source', 'now', 'index.md');
-  if (!fs.existsSync(file)) return [];
-  const lines = fs
-    .readFileSync(file, 'utf8')
-    .replace(/^---[\s\S]*?\n---\s*\n/, '')
-    .split(/\r?\n/);
-  const start = lines.findIndex((l) => /^##\s*在做\s*$/.test(l.trim()));
-  if (start === -1) return [];
-
-  const out: string[] = [];
-  for (let i = start + 1; i < lines.length; i++) {
-    if (/^#{1,6}\s/.test(lines[i])) break;
-    const m = lines[i].match(/^\s*[-*]\s+(.+)$/);
-    if (m) out.push(m[1].trim().replace(/[；;]$/, ''));
-  }
-  return out;
-}
-
-const escHtml = (s: string) =>
-  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-const nowItems = nowDoing().map((line) =>
-  escHtml(line).replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
-);
-
-// 页脚在没有 motto 时退回「SINCE <最早文章年份> · <站名>」（index.ejs 同款兜底）
+// 图带上「PERSONAL SPACE · SINCE <年份>」的年份取最早一篇文章
 const sinceYear = posts.length
   ? String(Math.min(...posts.map(p => p.date.getFullYear())))
   : '';
-const endLine = motto
-  ? `—— ${motto}`
-  : sinceYear
-    ? `SINCE ${sinceYear} · ${String(siteConfig.title || '')}`
-    : '';
 ---
 
 <BaseLayout isHome currentPath="/">
-  <div class="home" id="top">
-    <section class="home-hero home-wrap">
-      <div class="wall">
-        <div class="identity wall-identity">
-          <div class="identity-avatar">
-            {identityAvatar ? (
-              <img class="identity-avatar-img" src={urlFor(identityAvatar)} alt={`${siteConfig.title} 头像`} />
-            ) : (
-              <span class="identity-avatar-fallback">{String(siteConfig.title || 'K').substring(0, 1)}</span>
-            )}
-          </div>
-          <h1 class="identity-name">{siteConfig.title}</h1>
-          {identityIntro && <p class="identity-tagline">{identityIntro}</p>}
-          <div class="identity-cta">
-            <a class="cta-solid" href={urlFor('/archives/')}>进入文字 →</a>
-            <a class="cta-link" href={urlFor('/about/')}>关于我 →</a>
+  <div class="home home-j2" id="top">
+    <section class="j2-band" aria-label="站点封面">
+      <img class="j2-band-img" src={urlFor(HERO_IMAGE)} alt="" />
+      <div class="j2-band-in">
+        <div class="j2-id">
+          {identityAvatar ? (
+            <img class="j2-avatar" src={urlFor(identityAvatar)} alt={`${siteConfig.title} 头像`} />
+          ) : (
+            <span class="j2-avatar j2-avatar-fallback" aria-hidden="true">
+              {String(siteConfig.title || 'K').slice(0, 1)}
+            </span>
+          )}
+          <div class="j2-id-text">
+            <p class="j2-kicker">PERSONAL SPACE{sinceYear ? ` · SINCE ${sinceYear}` : ''}</p>
+            <h1 class="j2-name">{siteConfig.title}</h1>
+            {identityIntro && <p class="j2-tag">{identityIntro}</p>}
           </div>
         </div>
-
-        {hero && (
-          <article class={`wall-feature${hero.cover ? ' has-cover' : ''}`}>
-            {hero.cover && (
-              <>
-                <img class="wall-feature-img" src={urlFor(hero.cover)} alt={hero.title} />
-                <div class="wall-feature-mask" />
-              </>
-            )}
-            <div class="wall-feature-body">
-              <p class="wall-feature-meta">
-                {hero.fallback ? 'LATEST' : hero.pin && hero.pin.active ? 'PINNED' : 'FEATURED'} · {hero.kindLabel}
-                {hero.date ? ` · ${fmtItemDate(hero.date)}` : ''}
-              </p>
-              <h2 class="wall-feature-title">
-                <a href={urlFor(hero.url)} target={postUrlTarget}>{hero.title}</a>
-              </h2>
-              {heroExcerpt && <p class="wall-feature-desc">{heroExcerpt}</p>}
-              <a class="wall-feature-more" href={urlFor(hero.url)} target={postUrlTarget}>查看详情 →</a>
-            </div>
-          </article>
-        )}
-
-        {nowItems.length > 0 && (
-          <section class="wall-cell wall-now" aria-label="现在在做">
-            <div class="wall-cell-body">
-              <p class="now-kicker">现在在做</p>
-              <ul class="now-list">
-                {nowItems.map((html: string) => <li set:html={html} />)}
-              </ul>
-              <a class="now-more" href={urlFor('/now/')}>看「现在」→</a>
-            </div>
-          </section>
-        )}
-
-        {wallModules.map((m: any) => {
-          const latestTitle = m.items.length ? m.items[0].title : '';
-          const Tag = m.page ? 'a' : 'div';
-          return (
-            <Tag class={`wall-cell cell-${m.accent || 'plain'}`} {...(m.page ? { href: urlFor(m.page) } : {})}>
-              {m.cover ? (
-                <>
-                  <img class="wall-cell-img" src={urlFor(m.cover)} alt={m.title} />
-                  <div class="wall-cell-mask" />
-                  <div class="wall-cell-body">
-                    {latestTitle ? (
-                      <span class="wall-cell-tag">最新 · {latestTitle}</span>
-                    ) : (
-                      <span class="wall-cell-tag"># {m.title}</span>
-                    )}
-                    <span class="wall-cell-name">{m.title} / {m.count} →</span>
-                  </div>
-                </>
-              ) : (
-                <div class="wall-cell-body">
-                  <span class="wall-cell-title">{m.title}<span class="wall-cell-count"> · {m.count}</span></span>
-                  {latestTitle && <span class="wall-cell-item">最新 · {latestTitle}</span>}
-                </div>
-              )}
-            </Tag>
-          );
-        })}
-
-        <a class="wall-cell cell-plain" href={urlFor('/library/')}>
-          <div class="wall-cell-body">
-            <span class="wall-cell-title">资料库<span class="wall-cell-count"> · {libraryTopicCount}</span></span>
-            <span class="wall-cell-item">按专题浏览</span>
-          </div>
-        </a>
+        <p class="j2-count">
+          <span class="j2-count-label" data-newyear-label>距 {countdown.year} 元旦</span>
+          <b class="j2-count-days" data-newyear-days>{countdown.days}</b>
+          <span class="j2-count-unit">天</span>
+        </p>
       </div>
     </section>
 
-    <div class={`home-wrap home-cols cols-${picks.length ? 2 : 1}`}>
-      {picks.length > 0 && (
-        <section class="home-col">
-          <div class="col-head">
-            <h2 class="col-title">精选内容 <span class="col-count">/{picks.length}</span></h2>
-          </div>
-          <div class="pick-list">
-            {picks.map((it: any, idx: number) => (
-              <a class={`pick-row${idx === 0 ? ' is-lead' : ''}`} href={urlFor(it.url)}>
-                {it.cover && <img class="pick-img" src={urlFor(it.cover)} alt={it.title} />}
-                <div class="pick-main">
-                  <span class="pick-title">{it.title}<span class="pick-kind">{it.kindLabel}</span></span>
-                  {it.summary && <span class="pick-desc">{it.summary}</span>}
-                </div>
-              </a>
-            ))}
-          </div>
-        </section>
-      )}
+    <section class="j2-wrap" aria-labelledby="recent-title">
+      <div class="j2-head">
+        <h2 class="j2-head-title" id="recent-title">近期动态</h2>
+        <nav class="j2-head-nav" aria-label="内容入口">
+          <a href={urlFor('/projects/')}>项目 →</a>
+          <a href={urlFor('/archives/')}>文字 →</a>
+        </nav>
+      </div>
+      <ol class="j2-tl">
+        {feedRows.map(f => (
+          <li class="j2-row">
+            <time class="j2-date" datetime={fmtItemDate(f.date)}>{fmtItemDate(f.date)}</time>
+            <span class="j2-thumb" aria-hidden="true">
+              {f.cover ? (
+                <img src={urlFor(f.cover)} alt="" loading="lazy" />
+              ) : (
+                <em>{f.glyph}</em>
+              )}
+            </span>
+            <span class="j2-main">
+              <span class="j2-type">{f.type}</span>
+              {f.link ? (
+                <a class="j2-title" href={urlFor(f.link)}>{f.title}</a>
+              ) : (
+                <span class="j2-title">{f.title}</span>
+              )}
+            </span>
+            <span class="j2-arrow" aria-hidden="true">→</span>
+          </li>
+        ))}
+      </ol>
+    </section>
 
-      <section class="home-col">
-        <div class="col-head">
-          <h2 class="col-title">最新文字 <span class="col-count">/{latestPosts.length}</span></h2>
-          <a class="col-more" href={urlFor('/archives/')}>查看全部文字 →</a>
-        </div>
-        <ol class="post-list">
-          {latestPosts.map(p => (
-            <li class="post-row">
-              <div class="post-main">
-                <time class="post-time" datetime={formatWithPattern(p.date, 'YYYY-MM-DD HH:mm')} pubdate>
-                  {formatWithPattern(p.date, 'YYYY-MM-DD')}
-                </time>
-                <a class="post-title" href={p.href} target={postUrlTarget}>{p.title}</a>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </section>
-    </div>
-
-    {feedRows.length > 0 && (
-      <section class="ink-band">
-        <div class="home-wrap">
-          <div class="col-head">
-            <h2 class="col-title">最近更新 <span class="col-count">/{feedRows.length}</span></h2>
-          </div>
-          <div class="feed-grid">
-            {feedRows.map((f: FeedRow) => (
-              <div class="feed-row">
-                <span class="feed-type"># {f.type}</span>
-                {f.link ? (
-                  <a
-                    class="feed-title"
-                    href={f.link}
-                    target={f.link.indexOf('http') === 0 ? '_blank' : '_self'}
-                    rel="noopener"
-                  >{f.title}</a>
-                ) : (
-                  <span class="feed-title">{f.title}</span>
-                )}
-                <time class="feed-date" datetime={fmtItemDate(f.date)}>{fmtItemDate(f.date)}</time>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    )}
-
-    <footer class="home-end">
-      <p class="end-line">{endLine}</p>
-      <a class="end-top" href="#top">TOP ↑</a>
-    </footer>
+    <nav class="j2-links" aria-label="去处">
+      <span class="j2-links-label">去处</span>
+      <a href={urlFor('/cityrank/')}>城市榜单</a>
+      <a href={urlFor('/holidays/')}>节假日</a>
+      <a href={urlFor('/zodiac/')}>生肖</a>
+      <a href={urlFor('/games/')}>游戏</a>
+      <a href={urlFor('/collections/')}>收藏</a>
+      <a href={urlFor('/library/')}>资料库</a>
+    </nav>
   </div>
+
+  <script is:inline>
+    // 静态构建会把天数固化在构建日；这里按 Asia/Shanghai 当场重算一次，避免跨天后仍是旧数字
+    (function () {
+      var DAY = 86400000, OFFSET = 8 * 3600000;
+      var shifted = Date.now() + OFFSET;
+      var year = new Date(shifted).getUTCFullYear() + 1;
+      var days = Date.UTC(year, 0, 1) / DAY - Math.floor(shifted / DAY);
+      var label = document.querySelector('[data-newyear-label]');
+      var num = document.querySelector('[data-newyear-days]');
+      if (label) label.textContent = '距 ' + year + ' 元旦';
+      if (num) num.textContent = String(days);
+    })();
+  </script>
 </BaseLayout>
+
+<style>
+  /* 图带整幅通铺到视口两侧；.home 的页顶内边距保留，给悬浮导航留出纸面 */
+  .home-j2 {
+    overflow-x: clip;
+  }
+
+  /* --- 首屏图带 --- */
+
+  .j2-band {
+    position: relative;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    height: clamp(300px, 42vh, 430px);
+    overflow: hidden;
+    background: #14110c;
+  }
+
+  .j2-band-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 58%;
+  }
+
+  .j2-band::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(70% 90% at 14% 100%, rgba(15, 12, 9, 0.44), transparent 70%),
+      radial-gradient(48% 92% at 94% 86%, rgba(15, 12, 9, 0.46), transparent 74%),
+      linear-gradient(180deg, rgba(15, 12, 9, 0.1) 0%, rgba(15, 12, 9, 0.18) 46%, rgba(15, 12, 9, 0.74) 100%);
+  }
+
+  .j2-band-in {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    width: min(1200px, 100% - clamp(36px, 8vw, 96px));
+    margin: 0 auto;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: clamp(26px, 5vh, 46px);
+    color: #fdfaf4;
+  }
+
+  .j2-id {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+  }
+
+  .j2-avatar {
+    width: 56px;
+    height: 56px;
+    flex: none;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(253, 250, 244, 0.55);
+  }
+
+  .j2-avatar-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(253, 250, 244, 0.9);
+    color: #1b1712;
+    font-family: var(--font-serif-title);
+    font-size: 1.5rem;
+  }
+
+  .j2-id-text {
+    min-width: 0;
+  }
+
+  .j2-kicker {
+    margin: 0 0 9px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.17em;
+    color: rgba(253, 250, 244, 0.86);
+    text-shadow: 0 1px 10px rgba(15, 12, 9, 0.6);
+  }
+
+  .j2-name {
+    margin: 0;
+    font-family: var(--font-serif-title);
+    font-weight: 600;
+    font-size: clamp(2rem, 3.7vw, 3.4rem);
+    line-height: 1.04;
+    letter-spacing: -0.015em;
+    color: #fdfaf4;
+  }
+
+  .j2-tag {
+    margin: 10px 0 0;
+    font-size: 0.92rem;
+    color: rgba(253, 250, 244, 0.88);
+    text-shadow: 0 1px 10px rgba(15, 12, 9, 0.6);
+  }
+
+  .j2-count {
+    flex: none;
+    margin: 0;
+    padding-bottom: 4px;
+    text-align: right;
+    color: rgba(253, 250, 244, 0.9);
+  }
+
+  .j2-count-label,
+  .j2-count-unit {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+  }
+
+  .j2-count-days {
+    display: block;
+    margin: 6px 0 4px;
+    font-family: var(--font-serif-title);
+    font-weight: 600;
+    font-size: 2.5rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: #fdfaf4;
+  }
+
+  /* --- 近期动态 --- */
+
+  .j2-wrap,
+  .j2-links {
+    width: min(880px, 100% - clamp(36px, 8vw, 96px));
+    margin: 0 auto;
+  }
+
+  .j2-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: clamp(34px, 6vh, 56px);
+    padding-bottom: 13px;
+    border-bottom: 1px solid var(--line-strong);
+  }
+
+  .j2-head-title {
+    margin: 0;
+    font-family: var(--font-serif-title);
+    font-weight: 600;
+    font-size: 1.3rem;
+    letter-spacing: 0.01em;
+    color: var(--text-color);
+  }
+
+  .j2-head-nav {
+    display: flex;
+    gap: 18px;
+  }
+
+  .j2-head-nav a {
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    color: var(--sec-text-color);
+    transition: color 0.2s;
+  }
+
+  .j2-head-nav a:hover {
+    color: var(--accent);
+  }
+
+  .j2-tl {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .j2-row {
+    display: grid;
+    grid-template-columns: 96px 84px 1fr 20px;
+    align-items: center;
+    gap: 22px;
+    padding: 14px 0;
+    border-top: 1px solid var(--line-strong);
+  }
+
+  .j2-row:first-child {
+    border-top: 0;
+  }
+
+  .j2-row:last-child {
+    border-bottom: 1px solid var(--line-strong);
+  }
+
+  .j2-date {
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.06em;
+    color: var(--sec-text-color);
+  }
+
+  .j2-thumb {
+    width: 84px;
+    height: 58px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--block-yellow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .j2-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .j2-thumb em {
+    font-style: normal;
+    font-family: var(--font-serif-title);
+    font-size: 1.3rem;
+    color: var(--text-color);
+  }
+
+  .j2-main {
+    min-width: 0;
+  }
+
+  .j2-type {
+    display: block;
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    color: var(--sec-text-color);
+  }
+
+  .j2-title {
+    display: block;
+    margin-top: 5px;
+    font-family: var(--font-serif-title);
+    font-weight: 600;
+    font-size: 1.1rem;
+    line-height: 1.4;
+    color: var(--text-color);
+    transition: color 0.2s;
+  }
+
+  .j2-row:hover .j2-title {
+    color: var(--accent);
+  }
+
+  .j2-arrow {
+    text-align: right;
+    color: var(--sec-text-color);
+  }
+
+  /* --- 去处 --- */
+
+  .j2-links {
+    margin-top: clamp(40px, 7vh, 64px);
+    padding: 16px 0 28px;
+    border-top: 1px solid var(--line-strong);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px 22px;
+  }
+
+  .j2-links-label {
+    margin-right: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.16em;
+    color: var(--sec-text-color);
+  }
+
+  .j2-links a {
+    font-size: 0.88rem;
+    color: var(--text-color);
+    transition: color 0.2s;
+  }
+
+  .j2-links a:hover {
+    color: var(--accent);
+  }
+
+  @media (max-width: 720px) {
+    .j2-band {
+      height: 46vh;
+      min-height: 300px;
+    }
+
+    /* 窄屏文字更靠近天空，加一段中段压暗，保证小字不糊在亮云上 */
+    .j2-band::after {
+      background: linear-gradient(
+        180deg,
+        rgba(15, 12, 9, 0.05) 0%,
+        rgba(15, 12, 9, 0.3) 42%,
+        rgba(15, 12, 9, 0.86) 100%
+      );
+    }
+
+    .j2-band-in {
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-end;
+      gap: 16px;
+      padding-bottom: 22px;
+    }
+
+    .j2-avatar {
+      width: 44px;
+      height: 44px;
+    }
+
+    .j2-kicker {
+      margin-bottom: 7px;
+    }
+
+    .j2-name {
+      font-size: 1.95rem;
+    }
+
+    .j2-tag {
+      margin-top: 7px;
+      font-size: 0.84rem;
+    }
+
+    .j2-count {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      padding-bottom: 0;
+      text-align: left;
+    }
+
+    .j2-count-days {
+      display: inline;
+      margin: 0;
+      font-size: 1.5rem;
+    }
+
+    .j2-head {
+      margin-top: 26px;
+    }
+
+    .j2-row {
+      grid-template-columns: 64px 1fr 18px;
+      grid-template-rows: auto auto;
+      column-gap: 12px;
+      row-gap: 4px;
+      padding: 12px 0;
+    }
+
+    .j2-thumb {
+      grid-column: 1;
+      grid-row: 1 / 3;
+      align-self: start;
+      width: 64px;
+      height: 64px;
+    }
+
+    .j2-date {
+      grid-column: 2;
+      grid-row: 1;
+      font-size: 0.75rem;
+    }
+
+    .j2-main {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    .j2-arrow {
+      grid-column: 3;
+      grid-row: 1 / 3;
+      align-self: center;
+    }
+
+    .j2-title {
+      font-size: 1rem;
+    }
+  }
+</style>
