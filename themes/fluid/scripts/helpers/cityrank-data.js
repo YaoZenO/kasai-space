@@ -445,12 +445,14 @@ function provinceSlug(name) {
   // 合规全称（C-4：中国台湾地区 / 中国香港 / 中国澳门）不参与后缀剥离，直接整名映射
   const FULL = { 中国台湾地区: 'taiwan', 中国香港: 'xianggang', 中国澳门: 'aomen' };
   if (FULL[raw]) return FULL[raw];
+  if (raw === '海外') return 'haiwai'; // 非中国行政区，作为省级聚合末组（E-154 后续：5 个外籍城市 province=海外）
   const base = provinceBaseName(raw);
   return PROVINCE_PINYIN[base] || '';
 }
 
 function provinceNameCode(name) {
   const base = provinceBaseName(name);
+  if (base === '海外') return 999; // 非标准省码，排在省级聚合末位
   return PROVINCE_CODE[base] === undefined ? 999 : PROVINCE_CODE[base];
 }
 
