@@ -5621,7 +5621,12 @@ body.is-home footer {
   color: var(--sec-text-color);
 }
 
-.fs-axis-note a { color: var(--text-color); }
+.fs-axis-note a {
+  display: block;
+  width: max-content;
+  margin-top: 0.35rem;
+  color: var(--text-color);
+}
 
 @media (max-width: 1199.98px) {
   .fs-axis {
