@@ -1,7 +1,11 @@
 ---
-// 首页：复刻 index.ejs 的静态壳。
+// 首页：个人主页 Bento（PAGE-FORM-PLAN §4.5，2026-11-14）。
+// 首屏是一块大小不等的拼版：「我是谁」大格 + 主推内容大格 + 「现在在做」中格 +
+// 四个模块入口小格；其下保留精选内容 / 最新文字两栏，「最近更新」压成一条时间线。
 // 原则：全部真实数据驱动，无数据不渲染空模块，不制造失效链接。
 
+import fs from 'node:fs';
+import path from 'node:path';
 import { createRequire } from 'node:module';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getData } from '../lib/data';
@@ -108,7 +112,33 @@ feed.forEach(f => { feedTypes[f.type] = 1; });
 const feedRows = Object.keys(feedTypes).length > 1 ? feed.slice(0, 6) : [];
 
 const libraryTopicCount = Array.isArray(data.library?.topics) ? data.library.topics.length : 0;
-const wallOverflow = wallModules.length + 1 > 4;
+
+// 「现在在做」：直接取 source/now/index.md 的「在做」小节，保持单一数据源。
+// 只做行内链接转换，不引 Markdown 渲染器——这一格是三两条短句，不是正文。
+function nowDoing(): string[] {
+  const file = path.join(process.cwd(), 'source', 'now', 'index.md');
+  if (!fs.existsSync(file)) return [];
+  const lines = fs
+    .readFileSync(file, 'utf8')
+    .replace(/^---[\s\S]*?\n---\s*\n/, '')
+    .split(/\r?\n/);
+  const start = lines.findIndex((l) => /^##\s*在做\s*$/.test(l.trim()));
+  if (start === -1) return [];
+
+  const out: string[] = [];
+  for (let i = start + 1; i < lines.length; i++) {
+    if (/^#{1,6}\s/.test(lines[i])) break;
+    const m = lines[i].match(/^\s*[-*]\s+(.+)$/);
+    if (m) out.push(m[1].trim().replace(/[；;]$/, ''));
+  }
+  return out;
+}
+
+const escHtml = (s: string) =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const nowItems = nowDoing().map((line) =>
+  escHtml(line).replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+);
 
 // 页脚在没有 motto 时退回「SINCE <最早文章年份> · <站名>」（index.ejs 同款兜底）
 const sinceYear = posts.length
@@ -124,23 +154,23 @@ const endLine = motto
 <BaseLayout isHome currentPath="/">
   <div class="home" id="top">
     <section class="home-hero home-wrap">
-      <div class="identity">
-        <div class="identity-avatar">
-          {identityAvatar ? (
-            <img class="identity-avatar-img" src={urlFor(identityAvatar)} alt={`${siteConfig.title} 头像`} />
-          ) : (
-            <span class="identity-avatar-fallback">{String(siteConfig.title || 'K').substring(0, 1)}</span>
-          )}
-        </div>
-        <h1 class="identity-name">{siteConfig.title}</h1>
-        {identityIntro && <p class="identity-tagline">{identityIntro}</p>}
-        <div class="identity-cta">
-          <a class="cta-solid" href={urlFor('/archives/')}>进入文字 →</a>
-          <a class="cta-link" href={urlFor('/about/')}>关于我 →</a>
-        </div>
-      </div>
-
       <div class="wall">
+        <div class="identity wall-identity">
+          <div class="identity-avatar">
+            {identityAvatar ? (
+              <img class="identity-avatar-img" src={urlFor(identityAvatar)} alt={`${siteConfig.title} 头像`} />
+            ) : (
+              <span class="identity-avatar-fallback">{String(siteConfig.title || 'K').substring(0, 1)}</span>
+            )}
+          </div>
+          <h1 class="identity-name">{siteConfig.title}</h1>
+          {identityIntro && <p class="identity-tagline">{identityIntro}</p>}
+          <div class="identity-cta">
+            <a class="cta-solid" href={urlFor('/archives/')}>进入文字 →</a>
+            <a class="cta-link" href={urlFor('/about/')}>关于我 →</a>
+          </div>
+        </div>
+
         {hero && (
           <article class={`wall-feature${hero.cover ? ' has-cover' : ''}`}>
             {hero.cover && (
@@ -162,6 +192,19 @@ const endLine = motto
             </div>
           </article>
         )}
+
+        {nowItems.length > 0 && (
+          <section class="wall-cell wall-now" aria-label="现在在做">
+            <div class="wall-cell-body">
+              <p class="now-kicker">现在在做</p>
+              <ul class="now-list">
+                {nowItems.map((html: string) => <li set:html={html} />)}
+              </ul>
+              <a class="now-more" href={urlFor('/now/')}>看「现在」→</a>
+            </div>
+          </section>
+        )}
+
         {wallModules.map((m: any) => {
           const latestTitle = m.items.length ? m.items[0].title : '';
           const Tag = m.page ? 'a' : 'div';
@@ -190,7 +233,7 @@ const endLine = motto
           );
         })}
 
-        <a class={`wall-cell cell-plain${wallOverflow ? ' wall-cell-wide' : ''}`} href={urlFor('/library/')}>
+        <a class="wall-cell cell-plain" href={urlFor('/library/')}>
           <div class="wall-cell-body">
             <span class="wall-cell-title">资料库<span class="wall-cell-count"> · {libraryTopicCount}</span></span>
             <span class="wall-cell-item">按专题浏览</span>

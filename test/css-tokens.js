@@ -300,6 +300,24 @@ ok('站名不得词中断行：.identity-name 禁用 overflow-wrap:anywhere（E-
     + '超长单词保护用 break-word，不参与 min-content 塌陷');
 });
 
+// --- E-156：Bento 首屏三格必须同占两行（2026-11-14）---
+// 只写 grid-column、漏 grid-row: span 2 时，「现在在做」缩成 196px，
+// 入口格回填到首屏第二行，拼版整块错位；构建、既有断言与截图目测都不报错。
+ok('Bento 首屏：现在在做与主卡同占两行、入口格各 3 列（E-156）', () => {
+  const wall = siteCss.match(/^\.wall\s*\{[^}]*\}/m);
+  assert.ok(wall, 'site.css 缺少 .wall 规则');
+  assert.match(wall[0], /grid-template-columns:\s*repeat\(12,/,
+    '首屏不是 12 列 Bento 网格');
+  const now = siteCss.match(/^\.wall-now\s*\{[^}]*\}/m);
+  assert.ok(now, 'site.css 缺少 .wall-now 规则');
+  assert.match(now[0], /grid-row:\s*span 2/,
+    '「现在在做」没有跨 2 行 —— 它会缩成 196px，入口格回填进首屏第二行');
+  const cell = siteCss.match(/^\.wall-cell\s*\{[^}]*\}/m);
+  assert.ok(cell, 'site.css 缺少 .wall-cell 规则');
+  assert.match(cell[0], /grid-column:\s*span 3/,
+    '入口格没有占 3 列 —— 四个模块格铺不满一行');
+});
+
 ok('A9 身份词铭牌样式不得回归（2026-10-21 主人撤回）', () => {
   assert.ok(!/\.identity-words/.test(siteCss),
     'site.css 出现了 .identity-words 规则 —— A9 铭牌已被主人整块撤回'

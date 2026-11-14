@@ -562,13 +562,11 @@ button:focus-visible,
   margin: 0 auto;
 }
 
-/* ===== 首屏：左身份域 + 右内容墙（V4：4:8，身份收窄、内容成为主体） ===== */
+/* ===== 首屏：Bento 拼版（2026-11-14，PAGE-FORM-PLAN §4.5）=====
+   身份域、主推内容、现在在做、模块入口全部进同一块 12 列网格，尺寸分级靠跨列数，
+   不再用「左 4 右 8」两栏。身份域仍占 4 列 × 2 行（386×406），与主卡同高。 */
 
 .home-hero {
-  display: grid;
-  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
-  gap: clamp(2rem, 4.5vw, 5rem);
-  align-items: stretch;
   animation: hero-rise 420ms cubic-bezier(.22, .61, .36, 1) both;
 }
 
@@ -704,7 +702,8 @@ button:focus-visible,
 
 .wall {
   display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(0, 1.25fr) minmax(0, 1.25fr);
+  /* 12 列是 Bento 的基本单位：身份域 4 + 主卡 5 + 现在在做 3 = 首屏一行，入口格 3 列起。 */
+  grid-template-columns: repeat(12, minmax(0, 1fr));
   /* V4：内容墙改固定行高（原 minmax(158px, auto) 让每行被内容撑高，行基线不齐，D-4）
      行高保持 196 不动（E-090 期间试过 206/216，会把入口格一起拉高、主卡顶部
      空出一大片，弃用）。真正要保证的是主卡内容不再溢出：
@@ -715,8 +714,16 @@ button:focus-visible,
   gap: 14px;
 }
 
+/* 身份域进网格后仍占 4 列 × 2 行（与主卡同高 406px），只换容器不改排版。 */
+.wall-identity {
+  grid-column: span 4;
+  grid-row: span 2;
+  min-width: 0;
+}
+
 .wall-feature {
   grid-row: span 2;
+  grid-column: span 5;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -863,6 +870,8 @@ button:focus-visible,
 .wall-cell {
   position: relative;
   display: flex;
+  /* Bento：入口格统一 3 列（四个模块格正好铺满一行）。 */
+  grid-column: span 3;
   border-radius: var(--r-tile);
   overflow: hidden;
   min-height: 158px;
@@ -996,6 +1005,70 @@ a.cell-plain:hover {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* 「现在在做」格（Bento 中格，2026-11-14）：内容取自 source/now/index.md 的「在做」小节。
+   与照片格相反——它从顶上开始排（标题 → 三两条短句 → 底部入口），
+   上下留白靠 margin-top:auto 吸收，不与照片格的「压底」语言混用。 */
+.wall-now {
+  /* 与身份域、主卡同占 2 行（406px），三个中格在首屏顶边对齐。 */
+  grid-row: span 2;
+  background-color: var(--block-yellow);
+  color: var(--text-color);
+}
+
+.wall-now .wall-cell-body {
+  justify-content: flex-start;
+  gap: 0.7rem;
+}
+
+.now-kicker {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--info-mark);
+}
+
+.now-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+  font-size: 0.86rem;
+  line-height: 1.75;
+  color: var(--text-color);
+}
+
+/* 每条文案最多 4 行：这一格是索引不是正文，超出说明 now 页该收短了。 */
+.now-list li {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.now-list a {
+  color: var(--text-color);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.now-list a:hover {
+  color: var(--accent);
+}
+
+.now-more {
+  margin-top: auto;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.now-more:hover {
+  color: var(--accent);
 }
 
 /* ===== 下半部：C 精选内容 | D 最新文字 | E 近期动态 ===== */
@@ -1314,13 +1387,15 @@ body.is-home footer {
 /* ===== 首页响应式（桌面优先还原原图，窄屏堆叠） ===== */
 
 @media (max-width: 991.98px) {
-  .home-hero {
-    grid-template-columns: 1fr;
+  .wall {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 170px;
   }
 
-  .wall {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-auto-rows: 170px;
+  /* 身份域、主卡、现在在做一律通栏：12 列拆成 2 列后，原来的跨列数会溢出。 */
+  .wall-identity {
+    grid-column: 1 / -1;
+    grid-row: span 2;
   }
 
   .wall-feature {
@@ -1329,6 +1404,17 @@ body.is-home footer {
        原来写 auto 只占一行 170px，300px 的内容溢出到第二行，被自动排布的小格盖住。 */
     grid-row: span 2;
     min-height: 300px;
+  }
+
+  .wall-cell {
+    grid-column: span 1;
+  }
+
+  /* 必须声明在 .wall-cell 之后：同为单类选择器，靠顺序压过 span 1。
+     行高固定 170px，「现在在做」两行 354px 才装得下三两条短句 + 底部入口。 */
+  .wall-now {
+    grid-column: 1 / -1;
+    grid-row: span 2;
   }
 
   .home-cols.cols-3,
@@ -1341,6 +1427,12 @@ body.is-home footer {
   .wall {
     grid-template-columns: minmax(0, 1fr);
     grid-auto-rows: minmax(150px, auto);
+  }
+
+  /* 单列时行高改为可撑开，身份域与「现在在做」按内容定高，不再跨行。 */
+  .wall-identity,
+  .wall-now {
+    grid-row: auto;
   }
 
   .home-end {
@@ -1563,16 +1655,6 @@ body.is-home footer {
   .post-content {
     padding-left: 0;
     padding-right: 0;
-  }
-}
-
-/* 墙格收口（RL-1）：主卡占 col1 两行，前两行留给入口格的空位是 4 个。
-   入口格 ≤4 时正好铺满、无第三行；超过 4 个时末格（分类格）跨 2 列兜住，
-   由 index.ejs 的 wallOverflow 条件挂上本类。3 列与 2 列布局均适用；
-   1 列布局（≤575.98px）不跨列。 */
-@media (min-width: 576px) {
-  .wall-cell-wide {
-    grid-column: span 2;
   }
 }
 
@@ -2324,12 +2406,13 @@ body.is-home footer {
 /* --- 4.11 墨底整屏区块（方向 A：深色反相分节，2026-10-19）---
    首页「最近更新」从三栏提为 full-width 墨底区块，是全站唯一一处反相。
    它是节奏锚点：纸面 → 墨底的明暗交替，不新增任何色相。
-   条目为「类型 + 标题 + 日期」三件套，横排多列比原来的竖列更适合整屏宽度。 */
+   2026-11-14（Bento）：多列密排改单列——一屏一条时间线，日期在右形成统一轨道，
+   多列会把时间感冲淡成「一堆链接」。 */
 .ink-band { background: var(--surface-ink); color: var(--on-ink); padding: 3rem 0 3.4rem; }
 .ink-band .col-head { margin-bottom: 1.4rem; }
 .ink-band .col-title { color: var(--on-ink); }
 .ink-band .col-count { color: var(--on-ink-sec); }
-.ink-band .feed-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 0 2.6rem; }
+.ink-band .feed-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; }
 .ink-band .feed-row {
   display: flex; align-items: baseline; gap: .6rem;
   padding: .66rem 0;
@@ -9376,6 +9459,29 @@ a:hover {
   :root:not([data-user-color-scheme]):not([data-sun-scheme]) .markdown-body code {
     background-color: var(--inlinecode-bg-color);
   }
+  /* --- 15b 首页「最近更新」暗态适配（2026-11-14，主人指出）· 跟随系统暗态分支 ---
+     浅态 .ink-band 是「墨底 + 纸字」的节奏锚点；暗态原本按 D5 整块反相为亮纸，
+     在整页暖墨底上形成一大片浅色。此处改为暗面板 + 亮纸字，只靠 1px hairline 分层。 */
+  :root:not([data-user-color-scheme]):not([data-sun-scheme]) .ink-band {
+    background-color: var(--board-bg-color);
+    color: var(--text-color);
+  }
+  :root:not([data-user-color-scheme]):not([data-sun-scheme]) .ink-band .col-title,
+  :root:not([data-user-color-scheme]):not([data-sun-scheme]) .ink-band .feed-title {
+    color: var(--text-color);
+  }
+  :root:not([data-user-color-scheme]):not([data-sun-scheme]) .ink-band .col-count,
+  :root:not([data-user-color-scheme]):not([data-sun-scheme]) .ink-band .feed-type,
+  :root:not([data-user-color-scheme]):not([data-sun-scheme]) .ink-band .feed-date {
+    color: var(--sec-text-color);
+  }
+  :root:not([data-user-color-scheme]):not([data-sun-scheme]) .ink-band .feed-row {
+    border-top-color: var(--line-color);
+    border-bottom-color: var(--line-color);
+  }
+  :root:not([data-user-color-scheme]):not([data-sun-scheme]) .ink-band .feed-title:hover {
+    color: var(--text-color);
+  }
 }
 
 @media not print {
@@ -9783,6 +9889,35 @@ a:hover {
   [data-user-color-scheme="dark"] .markdown-body code,
   [data-sun-scheme="dark"]:not([data-user-color-scheme]) .markdown-body code {
     background-color: var(--inlinecode-bg-color);
+  }
+  /* --- 15b 首页「最近更新」暗态适配 · 手动 dark / 时间层 dark 分支 --- */
+  [data-user-color-scheme="dark"] .ink-band,
+  [data-sun-scheme="dark"]:not([data-user-color-scheme]) .ink-band {
+    background-color: var(--board-bg-color);
+    color: var(--text-color);
+  }
+  [data-user-color-scheme="dark"] .ink-band .col-title,
+  [data-user-color-scheme="dark"] .ink-band .feed-title,
+  [data-sun-scheme="dark"]:not([data-user-color-scheme]) .ink-band .col-title,
+  [data-sun-scheme="dark"]:not([data-user-color-scheme]) .ink-band .feed-title {
+    color: var(--text-color);
+  }
+  [data-user-color-scheme="dark"] .ink-band .col-count,
+  [data-user-color-scheme="dark"] .ink-band .feed-type,
+  [data-user-color-scheme="dark"] .ink-band .feed-date,
+  [data-sun-scheme="dark"]:not([data-user-color-scheme]) .ink-band .col-count,
+  [data-sun-scheme="dark"]:not([data-user-color-scheme]) .ink-band .feed-type,
+  [data-sun-scheme="dark"]:not([data-user-color-scheme]) .ink-band .feed-date {
+    color: var(--sec-text-color);
+  }
+  [data-user-color-scheme="dark"] .ink-band .feed-row,
+  [data-sun-scheme="dark"]:not([data-user-color-scheme]) .ink-band .feed-row {
+    border-top-color: var(--line-color);
+    border-bottom-color: var(--line-color);
+  }
+  [data-user-color-scheme="dark"] .ink-band .feed-title:hover,
+  [data-sun-scheme="dark"]:not([data-user-color-scheme]) .ink-band .feed-title:hover {
+    color: var(--text-color);
   }
 }
 
