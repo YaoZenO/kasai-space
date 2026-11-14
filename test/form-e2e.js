@@ -278,5 +278,94 @@ if (linkItems.length === 0) {
   }
 }
 
+// ---- S4：节日详情 12 页（PAGE-FORM-PLAN §4.6.8）----
+// 只换页头：无 kicker / 无 page-head，面包屑 + 标题 + 一句导语 + 属性条 + 四格日期带；
+// 正文两栏、目录、进度环、12 节日导航条保持原样。四格逐格与数据文件现算比对。
+const festYml = yaml.load(fs.readFileSync(path.join(ROOT, 'source', '_data', 'festivals.yml'), 'utf8')) || {};
+const holYml = yaml.load(fs.readFileSync(path.join(ROOT, 'source', '_data', 'holidays.yml'), 'utf8')) || {};
+
+const FEST_MAP = {
+  yuandan: ['holidays', 'yuandan'],
+  chunjie: ['holidays', 'chunjie'],
+  qingming: ['holidays', 'qingming'],
+  duanwu: ['holidays', 'duanwu'],
+  zhongqiu: ['holidays', 'zhongqiu'],
+  guoqing: ['holidays', 'guoqing'],
+  yuanxiao: ['festivals', '元宵节'],
+  qixi: ['festivals', '七夕节'],
+  zhongyuan: ['festivals', '中元节'],
+  chongyang: ['festivals', '重阳节'],
+  dongzhi: ['festivals', '冬至'],
+  laba: ['festivals', '腊八节'],
+};
+
+const pad2 = (n) => (n < 10 ? '0' + n : String(n));
+function keyOf(v) {
+  if (v instanceof Date) {
+    return `${v.getUTCFullYear()}-${pad2(v.getUTCMonth() + 1)}-${pad2(v.getUTCDate())}`;
+  }
+  const m = String(v == null ? '' : v).trim().match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  return m ? `${m[1]}-${pad2(Number(m[2]))}-${pad2(Number(m[3]))}` : '';
+}
+const WEEK_CN = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+function weekdayOf(key) {
+  const [y, m, d] = key.split('-').map(Number);
+  return WEEK_CN[new Date(Date.UTC(y, m - 1, d)).getUTCDay()];
+}
+
+const festivalYears = (holYml.years || []).filter((y) => y && y.official === true);
+const fsCur = Math.max(...festivalYears.map((y) => y.year));
+const fsCurEntry = (holYml.years || []).find((y) => y && y.year === fsCur);
+const fsRowCount = (holYml.years || []).filter((y) => y && y.year >= fsCur).length;
+const festNames = {};
+(festYml.festivals || []).forEach((it) => {
+  if (it && it.key) festNames[it.key] = it.name || '';
+});
+
+Object.keys(FEST_MAP).forEach((s) => {
+  const rel = `library/${s}/`;
+  const h = read(rel + 'index.html');
+  ok(h.length > 0, `缺少 ${rel} 产物`);
+  if (!h) return;
+
+  ok(!h.includes('page-head'), `${rel} 仍是文章壳（page-head）`);
+  ok(h.includes('class="fc-head"'), `${rel} 缺节日档案头`);
+  ok(h.includes('class="fc-title"'), `${rel} 缺档案头标题`);
+  ok(h.includes(festNames[s]), `${rel} 标题不是数据里的「${festNames[s]}」`);
+  ok(h.includes('class="cal-crumb"'), `${rel} 缺面包屑`);
+  ok(h.includes('class="fc-meta"'), `${rel} 缺属性条`);
+  ok(!/<input\b/i.test(h), `${rel} 出现输入控件`);
+
+  const bandAt = h.indexOf('fc-stats');
+  const band = bandAt === -1 ? '' : h.slice(bandAt, h.indexOf('</dl>', bandAt));
+  const cells = Array.from(band.matchAll(/<dt>(.*?)<\/dt><dd>(.*?)<\/dd>/g)).map((m) => [m[1], m[2]]);
+  ok(cells.length === 4, `${rel} 日期带不是四格（实际 ${cells.length}）`);
+
+  const [src, lookup] = FEST_MAP[s];
+  const rec = src === 'holidays'
+    ? (fsCurEntry.holidays || []).find((r) => r && r.id === lookup)
+    : (fsCurEntry.festivals || []).find((r) => r && r.name === lookup);
+  ok(!!rec, `${rel} 在 ${fsCur} 年数据里取不到「${lookup}」`);
+  if (rec) {
+    const key = keyOf(rec.date);
+    const [, mm, dd] = key.split('-').map(Number);
+    const expect = [
+      [`${fsCur} 年（${weekdayOf(key)}）`, `${mm} 月 ${dd} 日`],
+      ['农历', (fsCurEntry.lunar && fsCurEntry.lunar[key]) || '—'],
+      ['放假', src === 'holidays' ? `${Number(rec.days) || 0} 天` : '不放假'],
+      ['收录年份', `${fsRowCount} 年`],
+    ];
+    expect.forEach(([label, value], i) => {
+      ok(cells[i] && cells[i][0] === label && cells[i][1] === value,
+        `${rel} 第 ${i + 1} 格应为「${label} / ${value}」，实际「${(cells[i] || []).join(' / ')}」`);
+    });
+  }
+
+  ok(h.includes('class="fs-toc"') && h.includes('class="fs-nav-strip"'),
+    `${rel} 目录 / 12 节日导航条回归`);
+  ok(/<section class="fs-section" id="sec-/.test(h), `${rel} 正文章节回归`);
+  ok(h.includes('fsProgressRing') && /festival\.js\?v=/.test(h), `${rel} 进度环 / 脚本回归`);
+});
+
 console.log(`\nRESULT: ${pass} 项断言通过${fail ? '，存在失败' : ''}`);
 process.exit(fail ? 1 : 0);

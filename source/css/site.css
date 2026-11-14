@@ -9926,6 +9926,46 @@ html:not(.js) .fs-years-toggle { display: none; }
   }
 }
 
+/* ===== 4.24 节日详情档案头（/library/<slug>/，2026-11-14 S4）=====
+   PAGE-FORM-PLAN §4.6.8：只换页头——面包屑 + 标题 + 一句导语 + 属性条 + 四格日期带；
+   正文两栏 / 目录 / 进度环 / 年份表 / 12 节日导航条与脚本保持原样。
+   类名前缀 fc-；字号下限 0.75rem，颜色全走 token。 */
+
+.fc-head {
+  margin: 0;
+}
+
+.fc-title {
+  margin: 0;
+  font-family: var(--font-serif-title);
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+/* 属性条：更新于 / 拼音 / 法定状态并作一行，不再单占「更新于」一行 */
+.fc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 0.55rem;
+  margin: 0.7rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: var(--sec-text-color);
+}
+
+.fc-meta-sep {
+  color: var(--line-strong);
+}
+
+/* 数字带收口：下方间距交给节日导航条自己的 margin-top */
+.fc-stats {
+  margin: 1.1rem 0 0;
+}
+
 /* ===== 5. 第三方组件纸面化（site.css 在 main.css 之后加载，覆盖即生效） ===== */
 
 /* 5.1 nprogress 顶部进度条（VD-2）：主题 L124 的 color 配置是死配置，
