@@ -702,7 +702,7 @@ if (!fs.existsSync(PUBLIC)) {
       '.zd-dossier', '.zd-name', '.zd-stats', '.zd-stat--wide', '.zd-relbar', '.zd-chip',
       '.zd-years', '.zd-year.is-current', '.zd-relations', '.zd-relation-note',
       '.lb-layout', '.lb-guide', '.lb-entries', '.lb-topic-more',
-      '.lb-stats', '.lb-cover-grid', '.lb-cover-bars', '.lb-cover-dots',
+      '.lb-stats', '.lb-cover-grid', '.lb-cover-bars', '.lb-cover-fields',
       // 2026-11-11 §4.13b：地支环 + 正文配图 + 索引页缩略图
       '.z-wheel', '.zw-ring', '.zw-dot', '.zw-sanhe', '.zw-liuhe', '.zw-chong',
       '.zf-inline', '.zf-band', '.zf-band-fig', '.zf-cap', '.zf-credit',
@@ -837,9 +837,26 @@ if (!fs.existsSync(PUBLIC)) {
     assert.ok(widths.every((w) => w > 0 && w <= 100), '榜单条形宽度必须在 0–100% 之间');
     assert.strictEqual(widths[0], 100, '主榜榜首条形应为满格');
 
+    // 2026-11-14 主人反馈「431 个小方块看不出是什么」：城市封面改为字段覆盖表。
+    // 每行是一个字段，数字必须是 cities.yml 里真有该指标的城市数——写死或算错都会在这里红。
     const cityCover = coverOf('city');
-    assert.strictEqual((cityCover.match(/<i><\/i>/g) || []).length, cityCount,
-      '城市封面点数与 cities.yml 不一致');
+    assert.ok(cityCover.indexOf('lb-cover-dots') === -1, '城市封面又回到点阵了');
+    const cityCities = (citiesData.cities || []);
+    const fieldCount = (field) => cityCities.filter((c) => {
+      const m = c && c.metrics && c.metrics[field];
+      return m && typeof m === 'object' && typeof m.v === 'number' && isFinite(m.v);
+    }).length;
+    const cityRows = (cityCover.match(/class="lb-field-row"/g) || []).length;
+    assert.ok(cityRows >= 4, '城市封面字段行过少：' + cityRows);
+    [['地区生产总值', 'gdp'], ['常住人口', 'pop'], ['行政面积', 'area_km2']].forEach(([label, field]) => {
+      const expected = fieldCount(field);
+      assert.ok(expected > 0, field + ' 在 cities.yml 里一个都没有');
+      assert.ok(cityCover.indexOf('<em>' + label + '</em>') !== -1, '城市封面缺字段：' + label);
+      assert.ok(cityCover.indexOf('<b>' + expected + '</b>') !== -1,
+        '城市封面「' + label + '」的座数与 cities.yml 不一致（应为 ' + expected + '）');
+    });
+    assert.ok(cityCover.indexOf(cityCount + ' 座城市中已收录的座数') !== -1,
+      '城市封面缺少口径说明（数字是座数，不是百分比）');
 
     const statCount = (h.match(/<div class="lb-stat">/g) || []).length;
     assert.strictEqual(statCount, 6, '首屏数字带应为专题 + 五类内容共六项');

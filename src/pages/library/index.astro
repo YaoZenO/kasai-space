@@ -13,7 +13,10 @@
 // 十二个节日、一张北京天际线代表 431 座城市，都不成立。现在封面改用专题自身的
 // 信息图形，全部由数据现算，不再引用图片、不需要授权署名：
 //   生肖 = 12 格生肖名＋地支；节假日 = 16 个数据年份；节日 = 12 个节日名；
-//   榜单 = 主榜前 8 名条形（与 /cityrank/ 同一口径）；城市 = 431 个点，一点一城。
+//   榜单 = 主榜前 8 名条形（与 /cityrank/ 同一口径）；城市 = 字段覆盖表。
+//
+// 2026-11-14（主人反馈）：城市封面原来铺 431 个点，「看不出来是啥」，改为字段覆盖表——
+// 每行一个字段名，右侧是 431 座城市里已收录该字段的座数，一眼看出档案里有什么。
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getData } from '../../lib/data';
@@ -129,8 +132,25 @@ const rankBars = (() => {
   });
 })();
 
-// 城市：一点一城
-const cityDotCount = (data.cities?.cities || []).length;
+// 城市：字段覆盖。名目与 /city/<slug>/ 档案页同一批字段，只数「有值」的城市
+// （指标必须是 { v, unit, asOf, source } 四元组且 v 为数值，缺一即视为待补），
+// 与档案页「查不到就写待补、不填估算值」的口径一致。
+const CITY_FIELDS = [
+  { field: 'gdp', label: '地区生产总值' },
+  { field: 'area_km2', label: '行政面积' },
+  { field: 'express_handle', label: '快递处理量' },
+  { field: 'metro_km', label: '轨道交通' },
+  { field: 'pop', label: '常住人口' },
+  { field: 'temp_jan', label: '气候数据' },
+];
+const cityList: any[] = data.cities?.cities || [];
+const cityFieldRows = CITY_FIELDS.map((f) => ({
+  label: f.label,
+  count: cityList.filter((c: any) => {
+    const m = c?.metrics?.[f.field];
+    return m && typeof m === 'object' && typeof m.v === 'number' && isFinite(m.v);
+  }).length
+})).filter((f) => f.count > 0);
 ---
 
 <BaseLayout title="资料库" currentPath="/library/" ogDate={published} ogUpdated={modified}>
@@ -203,8 +223,15 @@ const cityDotCount = (data.cities?.cities || []).length;
                       </span>
                     )}
                     {tp.key === 'city' && (
-                      <span class="lb-cover-dots">
-                        {Array.from({ length: cityDotCount }).map(() => <i />)}
+                      <span class="lb-cover-fields">
+                        {cityFieldRows.map((f: any) => (
+                          <span class="lb-field-row">
+                            <em>{f.label}</em>
+                            <span class="lb-field-rule" />
+                            <b>{f.count}</b>
+                          </span>
+                        ))}
+                        <span class="lb-field-note">{cityList.length} 座城市中已收录的座数</span>
                       </span>
                     )}
                   </span>

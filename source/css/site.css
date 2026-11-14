@@ -5022,8 +5022,12 @@ body.is-home footer {
   border-bottom: 0;
 }
 
+/* 封面文字（2026-11-14 主人反馈「字体不好看」后收口到站内两条轨）：
+   中文名走标题轨（与页标题同源的宋体），数字走展示轨（与首屏数字带同一张脸），
+   等宽体只留给条目标签这类真正的元信息，不混进封面。 */
 .lb-cell b {
-  font-size: 1.25rem;
+  font-family: var(--font-serif-title);
+  font-size: 1.15rem;
   font-weight: 600;
   line-height: 1.2;
   color: var(--text-color);
@@ -5031,19 +5035,21 @@ body.is-home footer {
 
 .lb-cell i {
   font-style: normal;
-  font-size: 0.75rem;
-  letter-spacing: 0.2em;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
   color: var(--sec-text-color);
 }
 
 .lb-cell-year b,
 .lb-cell-fest b {
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 
 .lb-cell-year b {
-  font-family: var(--font-mono);
-  font-weight: 500;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
 }
 
 .lb-cell-year.is-now b {
@@ -5071,9 +5077,10 @@ body.is-home footer {
 }
 
 .lb-bar-row em {
-  font-family: var(--font-mono);
+  font-family: var(--font-display);
   font-style: normal;
   font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
   color: var(--sec-text-color);
   width: 1.1rem;
   flex: none;
@@ -5102,21 +5109,50 @@ body.is-home footer {
   opacity: 0.9;
 }
 
-.lb-cover-dots {
-  display: grid;
-  grid-template-columns: repeat(24, minmax(0, 1fr));
-  gap: 3px;
-  align-content: center;
+/* 城市档案封面（2026-11-14 主人反馈「全是不知所谓的小方块」）：
+   改成档案目录——字段名 + 细引线 + 座数，读者一眼知道这批城市有哪些数据。
+   数字是「431 座城市里已收录该字段的座数」，不是覆盖率百分比，无需换算。 */
+.lb-cover-fields {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5rem;
   height: 100%;
-  padding: 1rem 1.2rem;
+  padding: 0.9rem 1.15rem;
 }
 
-.lb-cover-dots i {
-  display: block;
-  aspect-ratio: 1;
-  background: var(--sec-text-color);
-  opacity: 0.45;
-  border-radius: 1px;
+.lb-field-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.lb-field-row em {
+  font-style: normal;
+  font-family: var(--font-serif-title);
+  font-size: 0.88rem;
+  color: var(--text-color);
+  white-space: nowrap;
+}
+
+.lb-field-rule {
+  flex: 1;
+  height: 1px;
+  background: var(--line-color);
+}
+
+.lb-field-row b {
+  font-family: var(--font-display);
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-color);
+}
+
+.lb-field-note {
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  color: var(--sec-text-color);
 }
 
 .lb-shelf-body {
@@ -5138,8 +5174,9 @@ body.is-home footer {
 }
 
 .lb-shelf-desc {
-  font-size: 0.85rem;
-  line-height: 1.7;
+  font-size: 0.9rem;
+  line-height: 1.85;
+  letter-spacing: 0.01em;
   color: var(--sec-text-color);
   /* 描述长短不一（12 字到 90 字），截到 4 行让五张卡高度接近；
      foot 有 margin-top:auto 兜底，计数行仍贴底对齐。 */
@@ -5160,19 +5197,20 @@ body.is-home footer {
 }
 
 .lb-shelf-count {
-  font-family: var(--font-mono);
-  font-size: 1.02rem;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
   color: var(--text-color);
 }
 
 .lb-shelf-unit {
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   color: var(--sec-text-color);
 }
 
 .lb-shelf-range {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
   color: var(--sec-text-color);
   white-space: nowrap;
 }
