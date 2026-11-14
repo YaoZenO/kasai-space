@@ -25,7 +25,7 @@ const yaml = require('js-yaml');
 
 const {
   buildCityRanks, findRank, findCity, normalize, sortRanks, provinceCode,
-  cityHasPage, cityMetricStandings, cityProvinces, provinceSlug
+  cityHasPage, cityMetricStandings, cityProvinces, cityMentionCount, provinceSlug
 } = require('../themes/fluid/scripts/helpers/cityrank-data.js');
 const CF = require('../themes/fluid/scripts/helpers/city-fields.js');
 
@@ -506,6 +506,12 @@ ok('S11 榜单条目的 slug 必须指向同名城市档案（防 slug 撞车错
         if (a === b || a.replace(/州$/, '') === b.replace(/州$/, '') || a.indexOf(b) !== -1 || b.indexOf(a) !== -1) {
           continue;
         }
+        // 2026-11-14（主人拍板「县/县级市/镇并入上级市」）：下级区划已并入上级市档案，
+        // 榜单条目保留原县镇名、slug 指向上级市。判据补一条——条目名必须出现在该市
+        // 档案的 desc「下辖…」记录里，否则仍判为指错档案（防无凭据的乱指）。
+        if (String(c.desc || '').indexOf(String(it.name || '')) !== -1) {
+          continue;
+        }
         bad.push(r.slug + ' → 条目「' + it.name + '」(' + it.slug + ') 指向档案「' + c.name + '」');
       }
     }
@@ -896,6 +902,125 @@ if (fs.existsSync(path.join(PUBLIC, 'city', 'index.html'))) {
     }
     assert.ok(checked >= 20, '受检省级页只有 ' + checked + ' 个——断言可能空转');
     assert.ok(skipped >= 1, '单城市省级单位一个都没识别到——直连口径可能失效');
+  });
+
+  // S18b 省级页档案化（2026-11-14，PAGE-FORM-PLAN §4.3b）。
+  // 旧版是文章壳（kicker CITY + 「建档城市…数据年份」一行 + ul.cr-citylist 平铺 + 两段纯文字榜行）。
+  // 这一节锁四件事：① 文章壳不再出现、首屏有数字带；② 城市卡数=建档城市数、
+  // 数字=该城上榜次数；③ 战绩行的榜单集合与数据一致（漏一行＝有榜被静默吞掉，E-047 同型）；
+  // ④ 只在有可核验数值的榜画条，且条长与独立复算一致、不出现 >100%。
+  ok('S18b 省级页档案化：数字带、城市卡、战绩行与条长逐省复算一致', () => {
+    const mainMetricOf = (r) => {
+      const ms = (Array.isArray(r.metrics) ? r.metrics : []).slice()
+        .sort((a, b) => (b.weight || 0) - (a.weight || 0));
+      return ms[0] || null;
+    };
+    // 与页面同口径：条长 = 本省最好成绩的归一化分值 ÷ 本榜该指标最高分值。
+    // 归一化不能用 helper 产物的 norms（JS 产物不带），照 S26 从 yml 原始值独立复算。
+    const expectedBar = (r, items) => {
+      if (r.kind !== 'computed') return null;
+      const m = mainMetricOf(r);
+      if (!m) return null;
+      let cands = (cities.cities || []).filter((c) =>
+        c.metrics && c.metrics[m.field] && typeof c.metrics[m.field].v === 'number');
+      if (r.filter && typeof r.filter === 'object') {
+        for (const k of Object.keys(r.filter)) {
+          cands = cands.filter((c) => String(c[k] === undefined ? '' : c[k]) === String(r.filter[k]));
+        }
+      }
+      if (!cands.length) return null;
+      const vs = cands.map((c) => c.metrics[m.field].v);
+      const min = Math.min.apply(null, vs);
+      const max = Math.max.apply(null, vs);
+      const normOf = (slug) => {
+        const c = cands.find((x) => x.slug === slug);
+        if (!c) return 0;
+        return normalize(c.metrics[m.field].v, min, max, m.dir === 'down' ? 'down' : 'up', m.scale);
+      };
+      let peak = 0;
+      for (const it of r.items || []) peak = Math.max(peak, normOf(it.slug));
+      let best = 0;
+      for (const it of items) best = Math.max(best, normOf(it.slug));
+      if (!(peak > 0) || !(best > 0)) return null;
+      return Math.max(2, Math.round((best / peak) * 1000) / 10);
+    };
+
+    let checked = 0;
+    let withBar = 0;
+    for (const p of cityProvinces(R)) {
+      if (p.total === 1 && p.pageCount === 1) continue;
+      const file = path.join(PUBLIC, 'city', 'province', p.slug, 'index.html');
+      if (!fs.existsSync(file)) continue;
+      const html = fs.readFileSync(file, 'utf8');
+
+      // ① 文章壳退场，数字带就位
+      assert.strictEqual((html.match(/page-head-kicker/g) || []).length, 0,
+        '省级页仍有文章壳 kicker：' + p.slug);
+      assert.ok(html.indexOf('cr-prov-head') !== -1, '省级页缺档案头：' + p.slug);
+      assert.strictEqual((html.match(/<div class="cr-stat">/g) || []).length, 4,
+        '省级页数字带不是四格：' + p.slug);
+      assert.strictEqual((html.match(/<input/g) || []).length, 0,
+        '省级页出现了输入控件（C-6 红线）：' + p.slug);
+
+      // ② 城市卡：一城一卡；有档案的链到城市页，没有的标「档案整理中」
+      assert.ok(html.indexOf('cr-stats') !== -1, '省级页缺数字带容器：' + p.slug);
+      const gridStart = html.indexOf('<div class="cr-citygrid">');
+      const gridEnd = html.indexOf('cr-prov-records');
+      assert.ok(gridStart > 0 && gridEnd > gridStart, '省级页缺城市宫格：' + p.slug);
+      const grid = html.slice(gridStart, gridEnd);
+      const cards = [...grid.matchAll(/class="cr-provcard-name">([^<]+)<\/span>\s*<span class="cr-provcard-n">([^<]+)</g)];
+      assert.strictEqual(cards.length, p.total, p.slug + ' 城市卡数与建档城市数不符');
+      const nameToCount = {};
+      for (const m of cards) nameToCount[m[1]] = m[2] === '—' ? 0 : Number(m[2]);
+      for (const c of p.cities) {
+        assert.strictEqual(nameToCount[c.name], cityMentionCount(R, c.slug),
+          p.slug + ' 的 ' + c.name + ' 上榜次数与数据不符');
+      }
+      assert.strictEqual((grid.match(/档案整理中/g) || []).length,
+        p.total - p.pageCount, p.slug + ' 未建页城市数量不符');
+
+      // ③ 战绩行：省内榜在前、全国榜在后，集合与数据一致
+      const rows = html.split('<li class="cr-prov-rec">').slice(1)
+        .map((chunk) => chunk.split('</li>')[0]);
+      const got = rows.map((row) => {
+        const t = row.match(/class="cr-prov-rec-title" href="\/cityrank\/([a-z0-9-]+)\/"/);
+        return t ? t[1] : '';
+      });
+      const want = [];
+      const wantBars = [];
+      const provRows = [];
+      const natRows = [];
+      for (const g of R.groups) {
+        for (const r of g.ranks) {
+          const provinceScoped = !!(r.filter && r.filter.province === p.name);
+          const hits = (r.items || []).filter((it) => p.cities.some((c) => c.slug === it.slug));
+          if (provinceScoped) provRows.push({ rank: r });
+          else if (hits.length) natRows.push({ rank: r, bar: expectedBar(r, hits) });
+        }
+      }
+      for (const rec of provRows.concat(natRows)) {
+        want.push(rec.rank.slug);
+        wantBars.push(rec.bar === undefined ? null : rec.bar);
+      }
+      assert.deepStrictEqual(got, want, p.slug + ' 的战绩行与数据不一致（少行＝有榜被吞）');
+
+      // ④ 条长：有数值的榜必须有条且与复算一致；省内榜与 fact/pending 不画条
+      for (let i = 0; i < rows.length; i += 1) {
+        const m = rows[i].match(/cr-prov-rec-track[^>]*><i style="width: ([\d.]+)%"/);
+        const has = !!m;
+        const bar = wantBars[i];
+        assert.strictEqual(has, bar !== null,
+          p.slug + ' 的榜 ' + got[i] + ' 条长有无与数据不符');
+        if (has) {
+          assert.strictEqual(Number(m[1]), bar, p.slug + ' 的榜 ' + got[i] + ' 条长与复算不符');
+          assert.ok(Number(m[1]) <= 100, p.slug + ' 的榜 ' + got[i] + ' 条长超过 100%');
+          withBar += 1;
+        }
+      }
+      checked += 1;
+    }
+    assert.ok(checked >= 20, '受检省级页只有 ' + checked + ' 个——断言可能空转');
+    assert.ok(withBar >= 20, '带条长的战绩行只有 ' + withBar + ' 行——条形可能整体消失');
   });
 
   // 2026-11-04 结构改版：档案从「一列 21 行平铺」改成「组名左列 + 字段两列」，

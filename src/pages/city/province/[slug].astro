@@ -2,6 +2,15 @@
 // 省级聚合页（/city/province/<slug>/）：复刻 themes/fluid/layout/province.ejs。
 // 省内城市 + 省内各榜 + 省内城市在全国榜的表现，全部由数据现算。
 // 只有一座城市的省级单位（直辖市 / 特别行政区）不生成省页（与 cityrank-pages.js 一致）。
+//
+// 2026-11-14 档案化（PAGE-FORM-PLAN §4.3b）：
+// 旧版是文章壳——kicker CITY + 「建档城市…数据年份」一行 + ul.cr-citylist 平铺
+// + 两段纯文字榜行，0 条形、0 数字带、首屏没有结论。现在：
+//   ① 首屏 = 省名 + 一句导览 + 四格数字带（建档城市 / 有档案页 / 省内榜 / 全国榜上榜次数）
+//   ② 省内城市改宫格卡（城市名 / 行政级别 / 上榜次数 + 条形），沿用 /city/ 的宫格语言
+//   ③ 省内各榜与全国榜名次合并为「省内战绩」，一榜一行；全国榜带横条
+// 数据仍由 cityProvinces() / cityMentionCount() / buildCityRanks() 现算，不新增数据文件、
+// 不新增输入控件（C-6 红线）、URL 不变。
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getData } from '../../../lib/data';
 import { buildCityRanks, cityProvinces, cityHasPage, cityMentionCount } from '../../../lib/cityrank-data';
@@ -21,30 +30,84 @@ const CR = buildCityRanks(getData());
 const provs = CR.error ? [] : cityProvinces(CR);
 const p = provs.find((x: any) => x.slug === provinceSlug) || null;
 
-// 省内各榜：filter.province 指到本省的榜（由本站现算的省级榜）
-const provRanks: any[] = [];
-// 省内城市在全国 / 跨省区域榜的上榜记录：一榜一行，行内列省内城市名次
-const natRows: any[] = [];
+// 榜单里的「本省记录」：一榜一条，只收本省城市出现的榜。
+// 省内榜（filter.province 指到本省）在前，省内城市进全国榜的记录在后；
+// 两类各自保持 buildCityRanks() 的主题次序与组内次序。
+const provRecords: any[] = [];
+const natRecords: any[] = [];
+
+function mainMetricOf(r: any): any {
+  const ms: any[] = Array.isArray(r && r.metrics) ? r.metrics : [];
+  if (!ms.length) return null;
+  return ms.slice().sort((a: any, b: any) => (b.weight || 0) - (a.weight || 0))[0];
+}
+
+// 条长 = 本省最好成绩的归一化分值 ÷ 本榜该指标最高分值，与 /cityrank/<slug>/ 的 §4.2b 同口径。
+// 分母不能取「榜首那一行」：多指标榜的榜首按加权综合指数排出，单项上未必最高（会算过 100%）。
+// fact / pending 榜没有可核验数值，不画条。
+function barOf(r: any, hits: any[]): number | null {
+  if (!r || r.kind !== 'computed') return null;
+  const m = mainMetricOf(r);
+  if (!m) return null;
+  let max = 0;
+  for (const it of r.items || []) {
+    const n = it.norms ? it.norms[m.field] : null;
+    if (typeof n === 'number' && n > max) max = n;
+  }
+  if (!(max > 0)) return null;
+  let best = 0;
+  for (const h of hits) {
+    const n = h.norms ? h.norms[m.field] : null;
+    if (typeof n === 'number' && n > best) best = n;
+  }
+  if (!(best > 0)) return null;
+  return Math.max(2, Math.round((best / max) * 1000) / 10);
+}
+
 if (p) {
   for (const g of CR.groups) {
     for (const r of g.ranks) {
-      const isProv = r.filter && r.filter.province === p.name;
+      const provinceScoped = !!(r.filter && r.filter.province === p.name);
       const hits: any[] = [];
       for (const it of r.items || []) {
         for (const cc of p.cities) {
           if (cc.slug === it.slug) {
-            hits.push({ name: it.name, rank: it.rank, score: it.score, hasPage: cityHasPage(CR, cc) });
+            hits.push({ name: it.name, rank: it.rank, score: it.score, norms: it.norms });
             break;
           }
         }
       }
-      if (isProv) {
-        provRanks.push({ group: g, rank: r });
-      } else if (hits.length) {
-        natRows.push({ group: g, rank: r, hits });
-      }
+      // 省内榜的榜首就是本省第一，满格条不承载信息，所以只列名次、不画条。
+      if (provinceScoped) provRecords.push({ rank: r, hits, bar: null });
+      else if (hits.length) natRecords.push({ rank: r, hits, bar: barOf(r, hits) });
     }
   }
+}
+
+const records = provRecords.concat(natRecords);
+
+// 省内城市卡：上榜次数以本省最多者为满格（与 /city/ 前 30 座的分母口径一致）。
+const cityRows = p
+  ? p.cities.map((cc: any) => ({ cc, n: cityMentionCount(CR, cc.slug), linked: cityHasPage(CR, cc) }))
+  : [];
+let maxMentions = 0;
+for (const row of cityRows) if (row.n > maxMentions) maxMentions = row.n;
+function cityPct(n: number): number {
+  if (!maxMentions) return 0;
+  return Math.max(4, Math.round((n / maxMentions) * 100));
+}
+
+const provRankCount = provRecords.length;
+const natHitCount = natRecords.reduce((sum: number, rec: any) => sum + rec.hits.length, 0);
+const cityTotal = p ? p.total : 0;
+const cityWithPage = p ? p.pageCount : 0;
+const dataYear = (CR.cityMeta && CR.cityMeta.dataYear) || '2025';
+
+// 榜内名次最多列 3 座，其余给总数——一榜十几座城市全列会把行撑成一段文字。
+function hitsText(hits: any[]): string {
+  const shown = hits.slice(0, 3).map((h: any) => `${h.name} 第 ${h.rank}`);
+  const rest = hits.length - shown.length;
+  return shown.join(' · ') + (rest > 0 ? ` · 共 ${hits.length} 座` : '');
 }
 ---
 
@@ -54,92 +117,84 @@ if (p) {
       {
         !p ? (
           <>
-            <header class="page-head">
-              <p class="page-head-kicker">CITY</p>
-              <h1 class="page-head-title">省级聚合</h1>
-            </header>
+            <h1 class="cr-index-title">省级聚合</h1>
             <p class="post-desc">这个省份的聚合页还在整理中，暂时无法展示，欢迎稍后再来看看。</p>
             <Fragment set:html={`<!-- dev: slug=${provinceSlug || '未知省份'}; ${CR.error || '数据里没有该省的建档城市'} -->`} />
           </>
         ) : (
           <>
-            <header class="page-head">
-              <nav class="cal-crumb" aria-label="面包屑">
-                <a href={urlFor('/library/')}>资料库</a><span aria-hidden="true">/</span><a href={urlFor('/city/')}>城市档案</a><span aria-hidden="true">/</span><span class="cal-crumb-now">{p.name}</span>
-              </nav>
-              <p class="page-head-kicker">CITY</p>
-              <h1 class="page-head-title">{p.name}</h1>
-              <p class="archive-total">
-                建档城市 {p.total} 座 · 其中有档案页的 {p.pageCount} 座 · 数据年份 {CR.cityMeta.dataYear || '2025'}
+            <nav class="cal-crumb" aria-label="面包屑">
+              <a href={urlFor('/library/')}>资料库</a><span aria-hidden="true">/</span><a href={urlFor('/city/')}>城市档案</a><span aria-hidden="true">/</span><span class="cal-crumb-now">{p.name}</span>
+            </nav>
+
+            <header class="cr-prov-head">
+              <h1 class="cr-index-title">{p.name}</h1>
+              <p class="cr-index-lede">
+                这里列出{p.name}的建档城市、它们在省内榜里的名次，以及进入全国榜的记录。点城市名查看完整档案。
               </p>
+              <dl class="cr-stats">
+                <div class="cr-stat"><dt>建档城市</dt><dd>{cityTotal}</dd></div>
+                <div class="cr-stat"><dt>有档案页</dt><dd>{cityWithPage}</dd></div>
+                <div class="cr-stat"><dt>省内榜</dt><dd>{provRankCount}</dd></div>
+                <div class="cr-stat"><dt>全国榜上榜次数</dt><dd>{natHitCount}</dd></div>
+              </dl>
             </header>
 
-            <section class="cr-prov-city">
-              <h2 class="cr-sec-title">省内城市</h2>
-              <ul class="cr-citylist">
-                {p.cities.map((cc: any) => {
-                  const linked = cityHasPage(CR, cc);
-                  const n = cityMentionCount(CR, cc.slug);
-                  return (
-                    <li class="cr-citylist-item">
-                      {linked ? (
-                        <a href={urlFor('/city/' + cc.slug + '/')}>
-                          <span class="cr-citylist-name">{cc.name}</span>
-                          {cc.level && <span class="cr-citylist-meta">{cc.level}</span>}
-                          <span class="cr-citylist-count">{n > 0 ? `上榜 ${n} 次` : '待补'}</span>
-                        </a>
-                      ) : (
-                        <span class="cr-citylist-plain">
-                          <span class="cr-citylist-name">{cc.name}</span>
-                          {cc.level && <span class="cr-citylist-meta">{cc.level}</span>}
-                          <span class="cr-citylist-count">档案整理中</span>
-                        </span>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
+            <section class="cr-sec-block">
+              <div class="cr-sec-head">
+                <h2 class="cr-sec-title">省内城市</h2>
+                <p class="cr-sec-note">数字与条形为本站榜单中的上榜次数，以本省最多者为满格</p>
+              </div>
+              <div class="cr-citygrid">
+                {cityRows.map(({ cc, n, linked }: any) =>
+                  linked ? (
+                    <a class="cr-provcard cr-citycard" href={urlFor('/city/' + cc.slug + '/')}>
+                      <span class="cr-provcard-top">
+                        <span class="cr-provcard-name">{cc.name}</span>
+                        <span class="cr-provcard-n">{n > 0 ? n : '—'}</span>
+                      </span>
+                      {cc.level && <span class="cr-citycard-meta">{cc.level}</span>}
+                      <span class="cr-provcard-bar" aria-hidden="true"><i style={`width: ${cityPct(n)}%`}></i></span>
+                    </a>
+                  ) : (
+                    <span class="cr-provcard cr-citycard is-plain">
+                      <span class="cr-provcard-top">
+                        <span class="cr-provcard-name">{cc.name}</span>
+                        <span class="cr-provcard-n">{n > 0 ? n : '—'}</span>
+                      </span>
+                      <span class="cr-citycard-meta">{cc.level ? cc.level + ' · ' : ''}档案整理中</span>
+                    </span>
+                  )
+                )}
+              </div>
             </section>
 
-            {provRanks.length > 0 && (
-              <section class="cr-prov-ranks">
-                <h2 class="cr-sec-title">省内各榜</h2>
-                <p class="cr-profile-note">以下榜单的候选范围限定为本省城市，由本站按公开指标现算。</p>
-                <ul class="cr-provrank-list">
-                  {provRanks.map((pr: any) => {
-                    const top = (pr.rank.items || []).slice(0, 3);
-                    const topTxt = top.map((x: any) => `${x.name} 第 ${x.rank} 名`).join(' · ');
-                    return (
-                      <li>
-                        <a href={urlFor('/cityrank/' + pr.rank.slug + '/')}>{pr.rank.title}</a>
-                        <span class="cr-provrank-top">{topTxt}</span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </section>
-            )}
-
-            {natRows.length > 0 && (
-              <section class="cr-prov-nat">
-                <h2 class="cr-sec-title">省内城市在全国榜的表现</h2>
-                <p class="cr-profile-note">全国榜只展示综合指数最高的前若干名，这里列出的是省内城市进入展示名次的记录——省内城市没进展示名次不代表排不进全国候选池。</p>
-                <ul class="cr-provnat-list">
-                  {natRows.map((nr: any) => {
-                    const hitsTxt = nr.hits.map((x: any) => `${x.name} 第 ${x.rank} 名`).join(' · ');
-                    return (
-                      <li>
-                        <a href={urlFor('/cityrank/' + nr.rank.slug + '/')}>{nr.rank.title}</a>
-                        <span class="cr-provrank-top">{hitsTxt}</span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </section>
-            )}
+            <section class="cr-sec-block">
+              <div class="cr-sec-head">
+                <h2 class="cr-sec-title">省内战绩</h2>
+                <p class="cr-sec-note">省内榜在前，全国榜在后。省内榜的榜首就是本省第一，只列名次；全国榜的条长为该榜中本省最好成绩相对全榜最高值的比例，只画有可核验数值的榜。</p>
+              </div>
+              {records.length > 0 ? (
+                <ol class="cr-prov-records">
+                  {records.map((rec: any) => (
+                    <li class="cr-prov-rec">
+                      <span class="cr-prov-rec-head">
+                        <a class="cr-prov-rec-title" href={urlFor('/cityrank/' + rec.rank.slug + '/')}>{rec.rank.title}</a>
+                        {rec.hits.length > 0 && <span class="cr-prov-rec-val">{hitsText(rec.hits)}</span>}
+                      </span>
+                      {rec.bar !== null && (
+                        <span class="cr-prov-rec-track" aria-hidden="true"><i style={`width: ${rec.bar}%`}></i></span>
+                      )}
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p class="cr-empty">这个省份的榜单记录还在补充中。</p>
+              )}
+            </section>
 
             <div class="cal-after">
-              <p class="cal-note">数据来自各地统计公报与行业主管部门公开名录；缺值一律标 [待补]，不填估算值。省级聚合不引入任何新数据，全部由城市档案与榜单现算得出。</p>
+              <p class="cal-note">数据来自各地统计公报与行业主管部门公开名录；缺值一律标 [待补]，不填估算值。省级聚合不引入任何新数据，全部由城市档案与榜单现算得出。数据年份 {dataYear}。</p>
             </div>
           </>
         )

@@ -7365,6 +7365,16 @@ html:not(.js) .fs-years-toggle { display: none; }
   color: var(--text-color);
 }
 
+/* 城市补充说明：承接地级市下设的县/县级市/镇与上榜记录（2026-11-14）。
+   故意比正文小一号、用次级色，读作「附注」而不是第二段身份介绍。 */
+.cr-city-desc {
+  margin: 0.35rem 0 0;
+  max-width: 34em;
+  font-size: 0.92rem;
+  line-height: 1.9;
+  color: var(--sec-text-color);
+}
+
 .cr-tags {
   display: flex;
   flex-wrap: wrap;
@@ -8190,40 +8200,80 @@ html:not(.js) .fs-years-toggle { display: none; }
   color: var(--sec-text-color);
 }
 
-/* 省内各榜 / 全国榜表现：一榜一行，行内列省内城市名次（共用行式） */
-.cr-provrank-list,
-.cr-provnat-list {
-  margin: 0.7rem 0 0;
-  padding: 0;
-  list-style: none;
-  border-top: 2px solid var(--line-strong);
-}
-
-.cr-provrank-list li,
-.cr-provnat-list li {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 1rem;
-  padding: 0.55rem 0;
+/* 省级页档案化（2026-11-14，PAGE-FORM-PLAN §4.3b）：
+   旧版是文章壳（kicker CITY + 一行「建档城市…数据年份」）+ ul.cr-citylist 平铺
+   + 两段纯文字榜行。现在首屏是档案头 + 四格数字带，城市改宫格卡，
+   榜单记录一榜一行、全国榜带横条；宫格与数字带沿用 /city/ 的类名与读法。 */
+.cr-prov-head {
+  margin-top: 0.9rem;
+  padding-bottom: 1.2rem;
   border-bottom: 1px solid var(--line-color);
 }
 
-.cr-provrank-list a,
-.cr-provnat-list a {
+.cr-prov-head .cr-index-title { margin-bottom: 0.55rem; }
+
+/* 标题不参与收缩：窄屏时让说明折到下一行，而不是把「省内城市」压成两行 */
+.cr-sec-head .cr-sec-title { flex: none; }
+
+.cr-citygrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 0.45rem;
+}
+
+.cr-citycard-meta {
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+/* 未建页城市：与有档案的城市同构但不参与交互，明确「档案整理中」而非坏链 */
+.cr-citycard.is-plain .cr-provcard-name,
+.cr-citycard.is-plain .cr-provcard-n { color: var(--sec-text-color); }
+
+.cr-prov-records {
+  display: grid;
+  gap: 0.9rem;
+  margin: 0.7rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cr-prov-rec { display: grid; gap: 0.3rem; }
+
+.cr-prov-rec-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 0.9rem;
+}
+
+.cr-prov-rec-title {
   font-size: 0.98rem;
   font-weight: 700;
   color: var(--text-color);
 }
 
-.cr-provrank-list a:hover,
-.cr-provnat-list a:hover { color: var(--accent); }
+.cr-prov-rec-title:hover { color: var(--accent); }
 
-.cr-provrank-top {
+.cr-prov-rec-val {
   font-family: var(--font-mono);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   color: var(--sec-text-color);
-  text-align: right;
+}
+
+.cr-prov-rec-track {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--line-color);
+}
+
+.cr-prov-rec-track i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
 }
 
 /* 榜单总览仪表盘（2026-11-08，PAGE-FORM-PLAN §4.2，主人从三个样例里选 A）。
@@ -8820,10 +8870,9 @@ html:not(.js) .fs-years-toggle { display: none; }
   .cr-spec-item { flex-direction: column; align-items: flex-start; gap: 0.1rem; }
   .cr-spec-item dd { text-align: left; }
 
-  /* 省级页两行行式在窄屏改为上下堆叠：榜名一行、城市名次折到第二行 */
-  .cr-provrank-list li,
-  .cr-provnat-list li { flex-direction: column; align-items: flex-start; gap: 0.2rem; }
-  .cr-provrank-top { text-align: left; }
+  /* 省级页：栏目标题与说明在窄屏上下堆叠——横排会把「省内城市」压成两行 */
+  .cr-sec-head { flex-wrap: wrap; }
+  .cr-sec-head .cr-sec-note { flex: 1 0 100%; margin-top: 0.2rem; }
 }
 
 /* ===== 5. 第三方组件纸面化（site.css 在 main.css 之后加载，覆盖即生效） ===== */

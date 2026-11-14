@@ -214,6 +214,27 @@ kicker（CALENDAR / CITY RANK）＋ 大标题 ＋ 一段导语 ＋ 「更新于�
 - **验收**：1440 / 390 两档无横向溢出；首屏可见结论与至少一处视觉编码；
   抽 3 个上榜次数与条形长度复算一致；省份页与 `/city/`、`/city/<slug>/` 共用同一套档案语言
 
+**4.3b 落地记录（2026-11-14）**
+
+- **首屏**：面包屑 + 省名 `h1` + 一句导览 + 四格数字带（建档城市 / 有档案页 / 省内榜 / 全国榜上榜次数）。
+- **省内城市**：`div.cr-citygrid` 宫格（`auto-fill minmax(9.5rem, 1fr)`），一城一张
+  `.cr-provcard.cr-citycard`——城市名 / 上榜次数 / 行政级别 / 条长（以本省最多者为满格）。
+  没有档案页的城市同构但不带链接，标「档案整理中」，不出坏链。
+- **省内战绩**：`ol.cr-prov-records` 一榜一行，省内榜在前、全国榜在后；行内最多列 3 座城市名次
+  （其余给总数），全国榜带条长，分母沿用 §4.2b 口径（本榜该指标最高分值）。
+- **与方案的一处偏差**：**省内榜不画条**。省内榜的候选池就是本省，榜首必然满格，
+  这条不承载信息，也违反 §4.2b「不画无数据支撑的条形」；故省内榜只列名次，
+  条形只出现在有跨省参照的榜上，fact / pending 榜一律不画。
+- **样式**：`site.css` 新增 `.cr-prov-head` / `.cr-citygrid` / `.cr-citycard-meta` /
+  `.cr-prov-records` / `.cr-prov-rec*`，全部走 token；旧 `.cr-provrank-list` / `.cr-provnat-list` /
+  `.cr-provrank-top` 随旧 DOM 一并删除；窄屏把栏目标题与说明改上下堆叠，避免「省内城市」被压成两行。
+- **验收**：`test/cityrank-e2e.js` 新增 S18b，逐省断言「无 `page-head` kicker、四格数字带、
+  无输入控件、城市卡数 = 建档城市数且次数与 `cityMentionCount()` 一致、未建页城市标档案整理中、
+  战绩行集合与数据一致、条长有无与独立复算（照 S26 从 yml 原始值算）一致且不超 100%」；
+  `npm run test:cityrank` 67 项、`test:tokens` 35 项、`test:pages` 31 项、`test:darkmode` 95 项全绿；
+  Chromium 实测江苏 / 新疆 / 海外三页 1440 与 390 均 `scrollWidth ≤ innerWidth`、无溢出元素，
+  1440 与 390 实拍无文字裁切。
+
 ### 4.4 其余（P1）
 
 | 页面 | 要点 |
@@ -305,9 +326,8 @@ kicker（CALENDAR / CITY RANK）＋ 大标题 ＋ 一段导语 ＋ 「更新于�
 
 每阶段结束跑：`astro:build` + `verify-urls --mode=exact`（708/708 不变）+ 像素/交互截图。
 
-**进度（2026-11-14 核对代码）**：P0 除省级页外均已落地；P1 三页（zodiac / library / festivals）
-均已落地；P2 首页 Bento 已落地（§4.5b）。剩余两件——§4.3b 省级页档案化、
-§4.4 归档/标签/分类索引条。
+**进度（2026-11-14 核对代码）**：P0 已全部落地（含 §4.3b 省级页）；P1 三页（zodiac / library / festivals）
+均已落地；P2 首页 Bento 已落地（§4.5b）。剩余一件——§4.4 归档/标签/分类索引条。
 
 ---
 
