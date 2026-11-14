@@ -181,7 +181,11 @@
 | E-147 | P3 | Commons 密集请求触发 429 抓到 XML 错误页；raw 缓存键只含槽位导致换图后复用旧文件 | 已修复（限速 + 标题 md5 入键 + content-type 校验）+ 体积/尺寸断言兜底 |
 | E-148 | P1 | 时间层明暗已生效但按钮 UI 停在系统态：`applyCustomColorSchemaSettings()` 的 current 漏读 `data-sun-scheme`，`waitElementLoaded` 异步重跑把同步好的 UI 覆盖回去 | 已修复（current 优先读独立标记）+ 异步覆盖时序回归断言与变异自检 |
 | E-149 | P2 | 蛇页图集带用 547px 源图全宽放大 1.75 倍，发虚；当时以降体积下限代替换图 | 已修复（换 Rijksmuseum 粉彩瓷板《白蛇传》1150×719）+ band 源图宽度 ≥900px 断言 |
+| E-150 | P1 | 日出日落只按网络出口 IP 时区判定，代理 / VPN 访客所在地与出口不同，深夜仍按出口白天显示浅色 | 已修复（设备 UTC 偏移校正经度）+ 端点运行时断言 |
+| E-151 | P2 | 首页「最近更新」暗态仍整块反相为亮纸，与暖墨底割裂 | 已修复（§15b 改暗面板 + 亮纸字）+ 成对分支断言 |
+| E-152 | P2 | 首页 HTML 被浏览器留存旧副本：旧版按钮在九宫格「更多」里、点击无反应，其它页面正常 | 已修复（HTML 响应头 no-store）+ 产物按钮位置断言；访客浏览器状态未直接取证 |
 | E-153 | P2 | 首页主卡短标题时顶部空出一大片；墨底卡选中文字变墨字压墨底、整块消失 | 已修复（三段式布局 + 墨底 ::selection 换纸色 + 压缩器保留后代空格）+ 三条 token 断言 |
+| E-154 | P1 | 城市榜清理只按分隔符/前缀筛查漏掉非城市桩（富硒特产、泉州十大系列）；删 cities 条目未同步清 cityrank 引用致 19 条死链 | 已修复（S1b 黑名单断言锁死非城市桩 + 删改城市须交叉核对 cityrank 引用）+ 三条机制断言 |
 
 ---
 
@@ -3111,6 +3115,30 @@
 - **修法：** 从源头统一 `current` 计算（只改 `applyCustomColorSchemaSettings()` 一处，覆盖所有调用点）：`var sunScheme = rootElement.getAttribute('data-sun-scheme');` + `var current = schema || (hasManual ? stored : (validColorSchemaKeys[sunScheme] ? sunScheme : getDefaultColorSchema()));`。手动态走 `stored`、时间态走 `sun`、系统兜底态回落 `getDefaultColorSchema()`、点击时 `schema` 参数优先，其余分支一字不动。`getDefaultColorSchema()` 的 `return systemPrefersDark() ? 'dark' : 'light'` 原句保留；读一个 DOM 标记不算时间计算，判定仍在独立模块（R-B）；不写 `data-user-color-scheme`（A2/A3）。
 - **防复发（机制）：** `test/darkmode-e2e.js` 新增 `E-148 防复发（异步覆盖时序）` 断言 —— vm harness 增加 `deferWaitCallbacks`，把 `waitElementLoaded` 回调挂起，在 `kasai:sun-scheme` 事件派发**之后**用 `fireWaitCallbacks()` 触发异步重跑，断言 `aria-pressed` / `aria-label` / `icon class` / `highlight-css-dark.disabled` 与 `data-sun-scheme` 一致；两个相反方向都跑（`time-dark / 系统浅`、`time-light / 系统深`）。另加 `E-148 变异自检` 断言，把 `current` 改回原句后同一时序必然撕裂，证明检测有效。变异自检实测：回退 l.82 → `FAIL E-148 防复发（异步覆盖时序）… time-dark / 系统浅 aria-pressed 与底色撕裂`、`RESULT: 89 项断言通过，存在失败`、exit 1；恢复 → `RESULT: 90 项断言通过`、exit 0。顺带补严过关建议改 #1 的断言盲区：对 `source/css/site.css` 全文、两份 `.styl` 全文、`static-public/css/*.css` 全文加 `:is(` 零命中断言。
 
+### E-150 日出日落按网络出口时区判定，深夜仍显示浅色（主人验收时指出）
+
+- **发生时间：** 2026-11-14 03:52 ｜ **发现方式：** 主人反馈「现在都几点了，我打开还是浅色模式啊」，并补充「我把网络代理关了刷新还是浅色」
+- **现象：** 线上 `/api/sun-times` 返回 `available:true, date=2026-11-13, sunrise=1794578275771, sunset=1794616028150`（UTC 13:57 / 次日 00:27），当前 UTC 19:54 落在「白天」窗口，`computeScheme()` 判为 `light`，`data-sun-scheme="light"`，首页浅色。走代理与 `--noproxy` 直连两种路径返回值与 `fp` 完全相同，端点响应头为 `Cache-Control: no-store`（排除 CDN 缓存）。
+- **根因：** 端点只信任 `x-vercel-ip-*` 平台地理头，定位到的是**网络出口**而非访客设备所在地。出口时区与设备时区不一致（代理 / VPN / 漫游 / 跨区出口）时，日出日落按出口所在地的太阳位置计算，与访客当地昼夜无关；关掉本机代理后出口未变，刷新也不会改变结果。
+- **修法：** 前端只上报一个整数 `tzoff`（设备当前 UTC 偏移分钟数，取自 `new Date().getTimezoneOffset()`，不上报时区名、IP、坐标或身份字段）；端点在 `|tzoff - 平台时区偏移| > 90` 分钟时，以设备时区中央经线 `tzoff / 4` 反推经度、按设备时区算当地日期重算日出日落，纬度仍取平台头；`fp` 计入校正后偏移避免复用旧缓存。时区一致或 `tzoff` 缺失时保持原行为。比较始终在 UTC 绝对时刻基准进行，不拿设备本地钟点裸比。
+- **防复发（机制）：** `test/darkmode-e2e.js` 新增 `E-150 源码` 与 `E-150 运行时` 两条断言：源码锁死 `deviceTzOffset` / `mismatched` / `effLon` 与前端 `fetch(apiUrl(), opts)`、禁止下发 IANA 时区名；运行时用假 req/res 直接调用端点，断言 `America/Chicago` 出口 + `tzoff=480` 时指纹变化、返回字段集合不变、日出落在北京 04–10 时 / 日落 15–21 时、当地日期按设备时区算，且 `tzoff=-360`（与出口一致）时不触发校正。
+
+### E-151 首页「最近更新」暗态整块亮纸（主人验收时指出）
+
+- **发生时间：** 2026-11-14 ｜ **发现方式：** 主人反馈「首页的最近更新深色模式没有跟上适配」
+- **现象：** 首页 full-width `.ink-band`（「最近更新」）在暗态下按 D5 反相为 `--surface-ink:#e5ded2` 亮纸块 + `--on-ink:#1b1712` 墨字，在整页暖墨底 `#1a1814` 上形成一大片浅色；`.feed-*` 条目在 §15 暗态段内规则数为 0。
+- **根因：** D5「反色块反相为亮纸块」是 2026-11-09 的整页节奏决策，未针对首页这一块做单独适配；`.ink-band .feed-row` 的 hairline 仍用 `--on-ink-line`（墨色低透明），在暗底上不可见。
+- **修法：** `source/css/site.css` 末尾新增 §15b，成对双分支把 `.ink-band` 改为 `var(--board-bg-color)` 暗面板 + `var(--text-color)` 亮纸字；`.col-title` / `.feed-title` 走 `--text-color`，`.col-count` / `.feed-type` / `.feed-date` 走 `--sec-text-color`，`.feed-row` hairline 走 `--line-color`，`.feed-title:hover` 走 `--accent`。浅态声明、暗色五令牌、按钮形态一律不动，不新增 UI 或色相。
+- **防复发（机制）：** `test/darkmode-e2e.js` 新增 `E-151 防复发` 断言：锁定 §15b 段边界、两个分支选择器（跟随系统 / 时间层）同时存在、四类 `.feed-*` 选择器齐全、改用 `--board-bg-color` + `--text-color`、段内 `:is(` 计数为 0。
+
+### E-152 首页旧 HTML 副本滞留：按钮仍在「更多」里、点击无反应（主人验收时指出）
+
+- **发生时间：** 2026-11-14 ｜ **发现方式：** 主人反馈「手机端别的页面生效，首页不生效，没有切换按钮」，以及「手机端的主页为什么还是在更多里面放着？并且点了也没有反应？」
+- **现象：** 主人手机端首页看不到顶栏切换按钮，切换入口仍被读成九宫格「更多」分组里的一项，点击无反应；同一设备其它页面正常。
+- **独立复核：** 线上 `dist/index.html`（24522 字节）内 `id="color-toggle-btn"` 恰好 1 处且在 `.site-nav-actions` 内，`mobile-color-toggle-btn` 0 处，九宫格 11 格无切换元素；系统 Edge headless + CDP 375 视口访问线上首页，按钮 `display:flex` / `visibility:visible` / `topIsBtnOrChild=true`，鼠标点击与触摸点击均使 `localStorage` 在 `dark` ↔ `light` 间往返、底色与 `aria` 同步，`errors=[]`、`logs=[]`。故当前线上产物无功能缺陷；访客浏览器持有的旧副本无法从本机取证，**根因未完全定位**，按「别的页面正常、首页异常」判定为首页 HTML 旧副本滞留（旧版引用的带 hash JS 已随新部署消失，故点击无绑定）。
+- **修法：** `vercel.json` 把 `/` 与 `/(.*).html` 的 `Cache-Control` 由 `public, max-age=0, must-revalidate` 收紧为 `no-cache, no-store, must-revalidate`，禁止浏览器与 CDN 留存 HTML 副本；交付时给出无痕窗口自检路径，让已持有旧副本的访客立即拿到新版。
+- **防复发（机制）：** `test/darkmode-e2e.js` 新增 `E-152 防复发 1/2`（断言 `vercel.json` 根路径与 `.html` 的 `Cache-Control` 含 `no-store` 且不含正整数 `max-age`）与 `2/2`（断言 `dist/index.html` 按钮存在、九宫格零切换格、按钮位置早于九宫格）。
+
 ### E-153 首页主卡顶部大片空白 + 墨底卡选中态文字消失（主人验收时指出）
 
 - **发生时间：** 2026-11-14 ｜ **发现方式：** 主人反馈「首页这个卡片上面空了很多看着很不适应」「这个卡片如果是选中状态会变黑什么都看不到」
@@ -3118,4 +3146,12 @@
 - **根因：** ① 主卡高度由内容墙固定（桌面 `grid-auto-rows: 196px` × 2 + 14 gap = 406px），内容体是 `justify-content: flex-end` 的单列 flex；内容（标题 2 行时约 238px）比卡矮时差值全部落在卡顶。② 全局 `::selection` 取 `background: var(--selection-bg)` + `color: var(--text-color)`；浅态 `--text-color` 是墨色 `#1b1712`，墨底卡背景也是 `#1b1712`，选中即「墨字压墨底」。同一缺陷命中 `.ink-band`（浅态墨底）与带封面的压图入口格。③ 新增的 `.wall-feature ::selection` 后代选择器被 `minify-css` 正则 `\s*([{};:,>+~])\s*` 压成 `.wall-feature::selection`——「后代」变「自身」，卡内文字仍走全局墨字规则，构建成功但线上选中照样消失（P1 静默失效）。
 - **修法：** ① 无封面主卡改三段式：内容体 `flex: 1` 撑满卡高、元信息 `margin-bottom: auto` 贴顶、CTA `margin-top: auto` 贴底（与右侧入口格上下边对齐），标题组落在中间，剩余高度拆成两段呼吸量；有封面主卡不动（压图渐隐要求文字落在图下缘）。省下的高度换成正文：无封面卡标题上限 3 行、摘要上限 4 行（3×51.6 + 4×27.8 + 79 ≈ 345px < 358px 内容高，不会把元信息顶出卡顶），主卡摘要从 `excerptText(raw, 90)` 放宽到 150 字。② 为 `.wall-feature`、`.wall-cell-mask ~ .wall-cell-body`、`.ink-band` 增加 `::selection` 覆盖：纸色字 `#fdfaf4` + 纸色 30% 淡底；暗态同样是纸字压深底，无需再分支。③ `tools/lib/minify-css.mjs` 与 `themes/fluid/scripts/filters/minify-css.js` 的空白收边正则去掉 `:`（声明里 `color: red` 保留一个空格完全合法），不再改写选择器语义。
 - **防复发（机制）：** `test/css-tokens.js` 新增四条断言——「首页无封面主卡：元信息贴顶（E-153）」锁死 `flex: 1` / `margin-bottom: auto` / 标题 3 行 / 摘要 4 行；「首页主卡最坏情况仍在卡高内（E-153）」把排版预算写成算术（`--fs-hero` 上限 × 1.12 × 3 + 0.94rem × 1.85 × 4 + 元信息/边距/CTA ≤ 2×行高+gap−2×padding），任何一次调字号、行高、行数上限或行高都会当场判红；「墨底容器选中态改用纸色（E-153）」锁死纸色字/底并要求三类墨底容器同时出现在覆盖选择器里；「CSS 压缩器保留伪元素前的后代空格（E-153）」直接调用 `minifyCss()`，断言 `.card ::selection`、`.card:hover`、`.ink-band .feed-title:hover` 压缩后语义不变。E-090 的定位方式同步改为「行首整条选择器」，避免被新的覆盖规则抢先命中。另用 Edge headless（CDP）做内容压力测试：注入 3 行标题 + 4 行正文、以及 1 行标题 + 2 行正文两种极端，前者元信息 24–45 / 标题 51–206 / 摘要 224–336 / CTA 359–382，无裁切；后者三段式仍成立，只是留白变大，不会退回「整块压底」的旧样子。
+
+### E-154 城市榜非城市桩清理筛查不全 + 删城市未同步清榜单引用（2026-11-14 清理任务）
+
+- **发生时间：** 2026-11-14 ｜ **发现方式：** 主人发现 /city/ 页混着富硒茶、泉州十大系列等非城市条目，指出「你检索检索了什么东西」
+- **现象：** ① cities.yml 里除真实城市外混着一批非城市条目：富硒茶/蛋/蔬菜/水果（特产桩）、泉州十大博物馆纪念馆等 7 条泉州十大/五大系列（榜单桩）、厦门·湖里·思明（城市+下属区挤一起的错误桩），以及一批「之乡：省份城市」「地名·称号」串名桩。② 上轮按「是否含 ：/·」「是否泉州前缀」筛查，只捞出带分隔符的条目，漏了不带分隔符的富硒特产桩与泉州十大系列。③ 从 cities.yml 删除/改名这些城市时，没同步清理 cityrank.yml 里引用其 slug 的榜单条目 → 19 条死链（S6/S11 红）。
+- **根因：** ① 筛查口径错误：以「分隔符/前缀」为异常信号，而非以「是否为真实城市」为准，纯商品名/榜单名自然漏网。② 数据联动缺失：cities.yml 与 cityrank.yml 是两个关联数据源，删改城市未做跨文件引用核对。
+- **修法：** 按非城市桩黑名单（富硒/十大/五大/榜单/之乡/景点类 + 分隔符）全量清掉本轮 11 条 + 上轮 4 条 FLAG + 上轮 21 条之乡/地名/区县，共 36 条非城市桩；真实城市（漠河→黑龙江、玉林→广西、东莞→广东等）归属已落省；cityrank.yml 里引用已删 slug 的 19 个榜单条目全部删除（shidazuimeibianjin / quanzhoulvyoujingd / shidatiyuzhixiang 三榜）。
+- **防复发（机制）：** ① test/cityrank-e2e.js 新增 S1b 断言：城市名不得匹配非城市桩黑名单（富硒/十大/五大/榜单/之乡/景点类 + ：·・），再塞这类桩测试直接红。② 删除/改名 cities.yml 城市条目时，必须先跑一次「cityrank 引用 slug 是否存在于 cities slug 集合」交叉核对（本次诊断脚本逻辑），确认无死链再提交。③ 复用 E-024：本地 astro preview 会锁 dist 导致重建 EPERM，重建前确认没有残留 preview 进程。
 

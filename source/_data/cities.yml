@@ -2675,16 +2675,6 @@ cities:
     metrics:
       scenic_5a: { v: 1, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1003.78, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 富硒茶
-    slug: fuxicha
-    province: 湖北省
-    metrics:
-      scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
-  - name: 富硒蛋
-    slug: fuxidan
-    province: 湖北省
-    metrics:
-      scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 阜新
     slug: fuxin
     province: 辽宁省
@@ -2695,16 +2685,6 @@ cities:
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 651.8, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 富硒蔬菜
-    slug: fuxishucai
-    province: 湖北省
-    metrics:
-      scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
-  - name: 富硒水果
-    slug: fuxishuiguo
-    province: 湖北省
-    metrics:
-      scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 阜阳
     slug: fuyang
     province: 安徽省
@@ -3324,56 +3304,6 @@ cities:
       express_handle: { v: 486965.6, unit: "万件", asOf: "2025", source: "expressSPB2025" }
       double_first_class: { v: 0, unit: "所", asOf: "2022", source: "dfc2022" }
       gdp: { v: 13778.34, unit: "亿元", asOf: "2025", source: "gdp2025" }
-  - name: 泉州十大博物馆纪念馆
-    slug: quanzhoushidabowuguanjinianguan
-    province: 福建省
-    metrics:
-      scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
-  - name: 泉州十大公园·园林
-    slug: quanzhoushidagongyuanyuanlin
-    province: 福建省
-    metrics:
-      scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
-  - name: 泉州十大海滩沙滩
-    slug: quanzhoushidahaitanshatan
-    province: 福建省
-    metrics:
-      scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
-  - name: 泉州十大街巷广场古镇
-    slug: quanzhoushidajiexiangguangchangguzhen
-    province: 福建省
-    metrics:
-      scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
-  - name: 泉州十大乐园亲子景点
-    slug: quanzhoushidaleyuanqinzijingdian
-    province: 福建省
-    metrics:
-      scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
-  - name: 泉州十大历史古迹·古桥
-    slug: quanzhoushidalishigujiguqiao
-    province: 福建省
-    metrics:
-      scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
-  - name: 泉州十大庙宇
-    slug: quanzhoushidamiaoyu
-    province: 福建省
-    metrics:
-      scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
-  - name: 泉州十大名山·峡谷
-    slug: quanzhoushidamingshanxiagu
-    province: 福建省
-    metrics:
-      scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
-  - name: 泉州十大寺院
-    slug: quanzhoushidasiyuan
-    province: 福建省
-    metrics:
-      scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
-  - name: 泉州五大岛屿
-    slug: quanzhouwudadaoyu
-    province: 福建省
-    metrics:
-      scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 曲阜
     slug: qufu
     province: 山东省
@@ -3686,11 +3616,6 @@ cities:
     metrics:
       scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       gdp: { v: 1719.79, unit: "亿元", asOf: "2025", source: "gdp2025prov" }
-  - name: 厦门·湖里·思明
-    slug: xiamenhulisiming
-    province: 福建省
-    metrics:
-      scenic_5a: { v: 0, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
   - name: 湘潭
     slug: xiangtan
     province: 湖南省

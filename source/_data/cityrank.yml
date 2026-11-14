@@ -847,7 +847,6 @@ groups:
           - { name: 三沙, slug: sansha, note: "" }
           - { name: 舟山市·普陀, slug: zhoushanshiputuo, note: "" }
           - { name: 中国香港, slug: xianggang, note: "" }
-          - { name: 厦门·湖里·思明, slug: xiamenhulisiming, note: "" }
           - { name: 汕头南澳, slug: shantounanao, note: "" }
           - { name: 大连市·长海, slug: dalianshizhanghai, note: "" }
           - { name: 舟山市·嵊泗, slug: zhoushanshishengsi, note: "" }
@@ -860,14 +859,11 @@ groups:
         size: 10
         note: 原榜共 10 条。
         items:
-          - { name: 伊犁/昭苏·塞外江南, slug: yilizhaosusaiwaijiangnan, note: "" }
           - { name: 东兴市·北部湾畔边陲明珠, slug: dongxingshibeibuwanpanbianchuimingzhu, note: "" }
-          - { name: 漠河县·中国地图最北端, slug: mohexianzhongguodituzuibeiduan, note: "" }
           - { name: 腾冲, slug: tengchong, note: "" }
           - { name: 喀什, slug: kashi, note: "" }
           - { name: 满洲里·东亚之窗, slug: manzhoulidongyazhichuang, note: "" }
           - { name: 西双版纳, slug: xishuangbanna, note: "" }
-          - { name: 阿勒泰/布尔津·北疆水塔, slug: aleitaibuerjinbeijiangshuita, note: "" }
           - { name: 靖西·小昆明, slug: jingxixiaokunming, note: "" }
           - { name: 抚远·华夏东极, slug: fuyuanhuaxiadongji, note: "" }
       - slug: shidawenquanchengs
@@ -1200,16 +1196,6 @@ groups:
         size: 10
         note: 原榜共 10 条。
         items:
-          - { name: 泉州十大名山·峡谷, slug: quanzhoushidamingshanxiagu, note: 清源山/德化九仙山/德化石牛山/牛姆林/仙公山等 }
-          - { name: 泉州十大海滩沙滩, slug: quanzhoushidahaitanshatan, note: 晋江触角沙滩/龟山湾海滩/崇武古城沙滩等 }
-          - { name: 泉州五大岛屿, slug: quanzhouwudadaoyu, note: 惠屿岛/小岞风车岛/獭窟岛/净峰八女岛/大坠岛等 }
-          - { name: 泉州十大寺院, slug: quanzhoushidasiyuan, note: 开元寺/南少林寺/承天禅寺/石狮洛伽寺/科山寺等 }
-          - { name: 泉州十大庙宇, slug: quanzhoushidamiaoyu, note: 元妙观/通淮关岳庙/天后宫/泉州府文庙等 }
-          - { name: 泉州十大历史古迹·古桥, slug: quanzhoushidalishigujiguqiao, note: 泉州佛寺/洛阳桥/安平桥·五里桥等 }
-          - { name: 泉州十大乐园亲子景点, slug: quanzhoushidaleyuanqinzijingdian, note: 八仙过海欧乐堡/海丝野生动物世界等 }
-          - { name: 泉州十大街巷广场古镇, slug: quanzhoushidajiexiangguangchangguzhen, note: 泉州古城/晋江五店市/永宁古城等 }
-          - { name: 泉州十大博物馆纪念馆, slug: quanzhoushidabowuguanjinianguan, note: 泉州市博物馆/海外交通史博物馆等 }
-          - { name: 泉州十大公园·园林, slug: quanzhoushidagongyuanyuanlin, note: 泉州西湖公园/海丝艺术公园等 }
 
   # ============ 美食 ============
   - key: food
@@ -1647,15 +1633,9 @@ groups:
         size: 9
         note: 原榜共 9 条。
         items:
-          - { name: 体操之乡：湖北省仙桃, slug: ticaozhixianghubeishengxiantao, note: "" }
-          - { name: 摔跤之乡：山西省忻州, slug: shuaijiaozhixiangshanxishengxinzhou, note: "" }
           - { name: 网球之乡：湖北省京山, slug: wangqiuzhixianghubeishengjingshan, note: "" }
           - { name: 排球之乡：广东省台山, slug: paiqiuzhixiangguangdongshengtaishan, note: "" }
-          - { name: 游泳之乡：广东省东莞, slug: youyongzhixiangguangdongshengdongguan, note: "" }
-          - { name: 跳水之乡：广东省湛江, slug: tiaoshuizhixiangguangdongshengzhanjiang, note: "" }
           - { name: 举重之乡：广东省石龙镇, slug: juzhongzhixiangguangdongshengshilongzhen, note: "" }
-          - { name: 田径之乡：广西玉林, slug: tianjingzhixiangguangxiyulin, note: "" }
-          - { name: 羽毛球之乡：湖南省益阳, slug: yumaoqiuzhixianghunanshengyiyang, note: "" }
       - slug: shidatiyuguanjunzh
         title: 中国十大体育冠军之城
         kind: "pending"
