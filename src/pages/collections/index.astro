@@ -1,13 +1,63 @@
 ---
-// /collections/：纯外链模块列表页，数据来自 source/_data/collections.yml
+// /collections/：收藏条目卡（PAGE-FORM-PLAN §4.6.5 / S2）。
+// 条目都是外链，没有详情路由；1 条时单卡占满内容宽，不铺网格。
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import ModuleIndex from '../../components/ModuleIndex.astro';
+import EmptyState from '../../components/EmptyState.astro';
 import { getData } from '../../lib/data';
+import { urlFor } from '../../lib/url';
+import { fmtItemDate } from '../../lib/dates';
 
 const items = (getData().collections?.items || []).filter((it: any) => it && it.title);
-const title = '收藏';
+
+const latest = items.reduce((acc: any, it: any) => {
+  if (!it.date) return acc;
+  if (!acc) return it;
+  return new Date(it.date).getTime() > new Date(acc.date).getTime() ? it : acc;
+}, null);
+
+const lead = [
+  `${items.length} 个条目`,
+  latest ? `最近更新 ${fmtItemDate(latest.date)}` : '',
+].filter(Boolean).join(' · ');
 ---
 
-<BaseLayout title={title} currentPath="/collections/">
-  <ModuleIndex moduleKey="collections" moduleTitle={title} items={items} />
+<BaseLayout title="收藏" currentPath="/collections/">
+  <div class="paper-page">
+    <div class="home-wrap">
+      <header class="cl-head">
+        <h1 class="cl-title">收藏</h1>
+        <p class="cl-lead">{lead}</p>
+      </header>
+
+      {items.length === 0 ? (
+        <EmptyState>还没有收藏条目，可以先去<a href={urlFor('/projects/')}>项目</a>看看。</EmptyState>
+      ) : (
+        <div class="cl-list">
+          {items.map((it: any) => {
+            const Card = it.link ? 'a' : 'div';
+            return (
+              <Card
+                class="cl-card"
+                {...(it.link ? { href: it.link, target: '_blank', rel: 'noopener' } : {})}
+              >
+                {it.cover && (
+                  <span class="cl-cover"><img src={urlFor(it.cover)} alt={it.title} loading="lazy" /></span>
+                )}
+                <span class="cl-body">
+                  <span class="cl-title-row">
+                    <span class="cl-name">{it.title}</span>
+                    {it.link && <span class="cl-badge">外链</span>}
+                  </span>
+                  {it.desc && <span class="cl-desc">{it.desc}</span>}
+                  {it.date && (
+                    <time class="cl-date" datetime={fmtItemDate(it.date, 'YYYY-MM-DD')}>{fmtItemDate(it.date)}</time>
+                  )}
+                </span>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  </div>
 </BaseLayout>

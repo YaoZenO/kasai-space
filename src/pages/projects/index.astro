@@ -1,13 +1,78 @@
 ---
-// /projects/：模块列表页（行式卡片网格），数据来自 source/_data/projects.yml
+// /projects/：项目档案卡（PAGE-FORM-PLAN §4.6.3 / S2）。
+// 3 个项目都没有封面，不做封面墙；用「标题 + 一句 summary + 技术栈 + 日期 + 出口」。
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import ModuleIndex from '../../components/ModuleIndex.astro';
+import StatBand from '../../components/StatBand.astro';
+import EmptyState from '../../components/EmptyState.astro';
 import { getData } from '../../lib/data';
+import { detailPath } from '../../lib/modules';
+import { urlFor } from '../../lib/url';
+import { fmtItemDate } from '../../lib/dates';
 
 const items = (getData().projects?.items || []).filter((it: any) => it && it.title);
-const title = '项目';
+
+const tags = new Set<string>();
+for (const it of items) for (const t of it.tags || []) tags.add(String(t));
+
+const latest = items.reduce((acc: any, it: any) => {
+  if (!it.date) return acc;
+  if (!acc) return it;
+  return new Date(it.date).getTime() > new Date(acc.date).getTime() ? it : acc;
+}, null);
+
+const lead = [
+  `${items.length} 个项目`,
+  tags.size ? `${tags.size} 种技术栈` : '',
+  latest ? `最近更新 ${fmtItemDate(latest.date)}` : '',
+].filter(Boolean).join(' · ');
+
+const stats = [
+  { label: '项目', value: items.length },
+  { label: '技术栈', value: tags.size },
+  { label: '最近更新', value: latest ? fmtItemDate(latest.date) : '—' },
+];
 ---
 
-<BaseLayout title={title} currentPath="/projects/">
-  <ModuleIndex moduleKey="projects" moduleTitle={title} items={items} />
+<BaseLayout title="项目" currentPath="/projects/">
+  <div class="paper-page">
+    <div class="home-wrap">
+      <header class="pj-head">
+        <h1 class="pj-title">项目</h1>
+        <p class="pj-lead">{lead}</p>
+      </header>
+
+      {items.length > 0 && <StatBand items={stats} columns={3} />}
+
+      {items.length === 0 ? (
+        <EmptyState>还没有项目条目，可以先回<a href={urlFor('/')}>首页</a>看看别的内容。</EmptyState>
+      ) : (
+        <div class="pj-list">
+          {items.map((it: any) => (
+            <article class="pj-card">
+              <div class="pj-card-main">
+                <h2 class="pj-card-title"><a href={urlFor(detailPath('projects', it))}>{it.title}</a></h2>
+                {it.summary && <p class="pj-card-sum">{it.summary}</p>}
+              </div>
+              <div class="pj-card-side">
+                {(it.tags || []).length > 0 && (
+                  <ul class="pj-tags">
+                    {(it.tags || []).map((t: string) => <li class="pj-tag">{t}</li>)}
+                  </ul>
+                )}
+                <footer class="pj-card-foot">
+                  {it.date && (
+                    <time class="pj-date" datetime={fmtItemDate(it.date, 'YYYY-MM-DD')}>{fmtItemDate(it.date)}</time>
+                  )}
+                  <span class="pj-actions">
+                    <a class="pj-more" href={urlFor(detailPath('projects', it))}>看详情 →</a>
+                    {it.link && <a class="pj-visit" href={it.link} target="_blank" rel="noopener">访问 ↗</a>}
+                  </span>
+                </footer>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
 </BaseLayout>

@@ -1,7 +1,9 @@
 ---
-// 游戏详情页：复刻 themes/fluid/layout/game.ejs。
+// 游戏详情页（PAGE-FORM-PLAN §4.6.4 / S2）：面包屑 + h1 + summary + 属性条
+// （平台 / 类型 / 状态 / 日期）+ 玩法长文 + 截图带 + 下载链接。
 // 铁律：只渲染有内容的区块；正文自带 <h2> 时不再加壳标题。
 import BaseLayout from '../layouts/BaseLayout.astro';
+import EmptyState from './EmptyState.astro';
 import { urlFor } from '../lib/url';
 import { fmtItemDate } from '../lib/dates';
 
@@ -20,80 +22,69 @@ const gameplayHasOwnH2 = /^\s*<h2[\s>]/.test(String(item.gameplay_html || ''));
 
 <BaseLayout title={item.title} currentPath={`/games/${item.slug || encodeURIComponent(String(item.title))}/`}>
   <div class="paper-page">
-    <div class="home-wrap module-detail">
-      <header class="about-head">
-        <div class="about-head-main">
-          <p class="page-head-kicker"><a href={urlFor('/games/')}>GAMES · 游戏</a></p>
-          <h1 class="page-head-title">{item.title}</h1>
-          {item.summary && <p class="about-head-intro">{item.summary}</p>}
-          <p class="detail-meta">
-            {item.date && (
-              <time class="mono" datetime={fmtItemDate(item.date, 'YYYY-MM-DD')}>{fmtItemDate(item.date)}</time>
-            )}
-            {item.genre && <span class="detail-tag detail-tag-solid">{item.genre}</span>}
-            {item.platform && <span class="detail-tag">{item.platform}</span>}
-            {item.status && <span class="detail-tag">{item.status}</span>}
-          </p>
-        </div>
-        {
-          item.cover && (
-            <div class="about-avatar-box detail-cover">
-              <img src={urlFor(item.cover)} alt={item.title} />
+    <div class="home-wrap">
+      <nav class="cal-crumb" aria-label="面包屑">
+        <a href={urlFor('/games/')}>游戏</a><span aria-hidden="true">/</span><span class="cal-crumb-now">{item.title}</span>
+      </nav>
+
+      <header class="gm-detail-head">
+        <h1 class="gm-detail-title">{item.title}</h1>
+        {item.summary && <p class="gm-detail-sum">{item.summary}</p>}
+        <dl class="gm-facts">
+          {item.platform && <div class="gm-fact"><dt>平台</dt><dd>{item.platform}</dd></div>}
+          {item.genre && <div class="gm-fact"><dt>类型</dt><dd>{item.genre}</dd></div>}
+          {item.status && <div class="gm-fact"><dt>状态</dt><dd>{item.status}</dd></div>}
+          {item.date && (
+            <div class="gm-fact">
+              <dt>日期</dt>
+              <dd><time datetime={fmtItemDate(item.date, 'YYYY-MM-DD')}>{fmtItemDate(item.date)}</time></dd>
             </div>
-          )
-        }
+          )}
+        </dl>
       </header>
 
-      <article class="about-body">
-        <div class="markdown-body">
-          {
-            item.gameplay_html && (
-              <section class="rich-section">
-                {!gameplayHasOwnH2 && <h2>玩法介绍</h2>}
-                <Fragment set:html={item.gameplay_html} />
-              </section>
-            )
-          }
+      <article class="gm-body">
+        {item.gameplay_html && (
+          <section class="rich-section">
+            <div class="markdown-body">
+              {!gameplayHasOwnH2 && <h2>玩法介绍</h2>}
+              <Fragment set:html={item.gameplay_html} />
+            </div>
+          </section>
+        )}
 
-          {
-            media.length > 0 && (
-              <section class="rich-section">
-                <h2>截图</h2>
-                <div class="media-wall">
-                  {media.map((m: string) => (
-                    <figure><img src={urlFor(m)} alt={`${item.title} 截图`} loading="lazy" /></figure>
-                  ))}
-                </div>
-              </section>
-            )
-          }
+        {media.length > 0 && (
+          <section class="rich-section">
+            <h2>截图</h2>
+            <div class="media-wall">
+              {media.map((m: string) => (
+                <figure><img src={urlFor(m)} alt={`${item.title} 截图`} loading="lazy" /></figure>
+              ))}
+            </div>
+          </section>
+        )}
 
-          {
-            item.video && (
-              <section class="rich-section">
-                <h2>视频</h2>
-                <p><a class="cta-link" href={item.video} target="_blank" rel="noopener">观看视频 →</a></p>
-              </section>
-            )
-          }
+        {item.video && (
+          <section class="rich-section">
+            <h2>视频</h2>
+            <p><a class="cta-link" href={item.video} target="_blank" rel="noopener">观看视频 →</a></p>
+          </section>
+        )}
 
-          {
-            links.length > 0 && (
-              <section class="rich-section">
-                <h2>下载 / 试玩</h2>
-                <ul class="detail-links">
-                  {links.map((l: any) => (
-                    <li><a href={l.url} target="_blank" rel="noopener">{l.label} →</a></li>
-                  ))}
-                </ul>
-              </section>
-            )
-          }
+        {links.length > 0 && (
+          <section class="rich-section">
+            <h2>下载 / 试玩</h2>
+            <ul class="detail-links">
+              {links.map((l: any) => (
+                <li><a href={l.url} target="_blank" rel="noopener">{l.label} →</a></li>
+              ))}
+            </ul>
+          </section>
+        )}
 
-          {!item.gameplay_html && media.length === 0 && !item.video && links.length === 0 && (
-            <p class="empty">详细介绍整理中。</p>
-          )}
-        </div>
+        {!item.gameplay_html && media.length === 0 && !item.video && links.length === 0 && (
+          <EmptyState>详细介绍整理中。</EmptyState>
+        )}
       </article>
 
       <footer class="detail-foot">

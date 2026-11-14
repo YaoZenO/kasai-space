@@ -1,13 +1,54 @@
 ---
-// /games/：模块列表页（封面墙），数据来自 source/_data/games.yml
+// /games/：游戏封面墙（PAGE-FORM-PLAN §4.6.4 / S2）。
+// 保留封面瓦片，只换页头：h1 + 一句结论 + 状态角标；不按状态分组。
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import ModuleIndex from '../../components/ModuleIndex.astro';
+import EmptyState from '../../components/EmptyState.astro';
 import { getData } from '../../lib/data';
+import { detailPath } from '../../lib/modules';
+import { urlFor } from '../../lib/url';
 
 const items = (getData().games?.items || []).filter((it: any) => it && it.title);
-const title = '游戏';
+
+const genres = new Set<string>();
+const statuses = new Set<string>();
+for (const it of items) {
+  if (it.genre) genres.add(String(it.genre));
+  if (it.status) statuses.add(String(it.status));
+}
+
+const leadParts = [`${items.length} 个`];
+if (statuses.size === 1) leadParts.push(`全部${[...statuses][0]}`);
+else if (statuses.size > 1) leadParts.push([...statuses].join(' / '));
+if (genres.size) leadParts.push(`${genres.size} 种类型`);
+const lead = leadParts.join(' · ');
 ---
 
-<BaseLayout title={title} currentPath="/games/">
-  <ModuleIndex moduleKey="games" moduleTitle={title} items={items} />
+<BaseLayout title="游戏" currentPath="/games/">
+  <div class="paper-page">
+    <div class="home-wrap">
+      <header class="gm-head">
+        <h1 class="gm-title">游戏</h1>
+        <p class="gm-lead">{lead}</p>
+      </header>
+
+      {items.length === 0 ? (
+        <EmptyState>还没有游戏条目，可以先回<a href={urlFor('/')}>首页</a>看看别的内容。</EmptyState>
+      ) : (
+        <div class="gm-wall">
+          {items.map((it: any) => (
+            <a class={`gm-tile${it.cover ? '' : ' no-cover'}`} href={urlFor(detailPath('games', it))}>
+              {it.cover && <img class="gm-tile-img" src={urlFor(it.cover)} alt={it.title} loading="lazy" />}
+              {it.status && <span class="gm-status">{it.status}</span>}
+              <span class="gm-tile-cap">
+                <span class="gm-tile-title">{it.title}</span>
+                {(it.genre || it.platform) && (
+                  <span class="gm-tile-meta">{[it.genre, it.platform].filter(Boolean).join(' · ')}</span>
+                )}
+              </span>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
 </BaseLayout>

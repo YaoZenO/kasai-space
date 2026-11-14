@@ -4,6 +4,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const assert = require('node:assert');
+const yaml = require('js-yaml');
 
 const ROOT = path.resolve(__dirname, '..');
 const OUT = path.join(ROOT, process.env.SITE_OUT || 'dist');
@@ -117,6 +118,98 @@ for (const dir of ['tags', 'categories']) {
 // ---- 无输入控件（C-6 红线，搜索页除外）----
 for (const [name, h] of [['/archives/', archives], ['/tags/', tagsIndex], ['/categories/', catsIndex]]) {
   ok(!/<input\b/i.test(h), `${name} 出现输入控件`);
+}
+
+// ---- S2：项目 / 游戏 / 收藏（PAGE-FORM-PLAN §4.6.3–4.6.5）----
+const dataItems = (name) => {
+  const file = path.join(ROOT, 'source', '_data', name + '.yml');
+  if (!fs.existsSync(file)) return [];
+  return ((yaml.load(fs.readFileSync(file, 'utf8')) || {}).items || []).filter((it) => it && it.title);
+};
+const moduleSlug = (it) => it.slug || encodeURIComponent(String(it.title));
+
+const projectsIndex = read('projects/index.html');
+const projectItems = dataItems('projects');
+
+ok(projectsIndex.length > 0, '缺少 /projects/ 产物');
+ok(!projectsIndex.includes('page-head-kicker'), '/projects/ 仍带文章壳 kicker');
+ok(projectsIndex.includes('<h1 class="pj-title">项目</h1>'), '/projects/ 标题不是「项目」');
+ok(/class="stat-band[ "]/.test(projectsIndex), '/projects/ 缺首屏数字带');
+ok(count(projectsIndex, /class="pj-card"/g) === projectItems.length,
+  `/projects/ 卡片数 ${count(projectsIndex, /class="pj-card"/g)} ≠ 数据 ${projectItems.length}`);
+for (const it of projectItems) {
+  ok(projectsIndex.includes(`href="/projects/${moduleSlug(it)}/"`), `/projects/ 缺少 ${it.title} 的详情链接`);
+}
+const projectTagCount = new Set(projectItems.flatMap((it) => it.tags || [])).size;
+ok(new RegExp(`<dt>技术栈</dt><dd>${projectTagCount}</dd>`).test(projectsIndex),
+  `/projects/ 技术栈数不是去重后的 ${projectTagCount}`);
+ok(!/<input\b/i.test(projectsIndex), '/projects/ 出现输入控件');
+
+for (const it of projectItems) {
+  const rel = `projects/${moduleSlug(it)}/index.html`;
+  const h = read(rel);
+  ok(h.length > 0, `缺少 ${rel}`);
+  ok(!h.includes('page-head-kicker'), `${rel} 仍带 kicker`);
+  ok(h.includes('class="cal-crumb"'), `${rel} 缺面包屑`);
+  ok(h.includes('class="pj-facts"'), `${rel} 缺属性条`);
+  for (const [id, field] of [
+    ['background', 'background'],
+    ['process', 'process'],
+    ['tech', 'tech'],
+    ['outcome', 'outcome'],
+  ]) {
+    const has = Boolean(it[field] && String(it[field]).trim());
+    ok((h.includes(`id="sec-${id}"`)) === has,
+      `${rel} 的 ${field} 段渲染状态与数据不一致（应为 ${has ? '渲染' : '不渲染'}）`);
+  }
+  ok(!/<input\b/i.test(h), `${rel} 出现输入控件`);
+}
+
+const gamesIndex = read('games/index.html');
+const gameItems = dataItems('games');
+ok(gamesIndex.length > 0, '缺少 /games/ 产物');
+ok(gamesIndex.includes('<h1 class="gm-title">游戏</h1>'), '/games/ 标题不是「游戏」');
+ok(gamesIndex.includes('class="gm-wall"'), '/games/ 不是封面墙');
+ok(!gamesIndex.includes('page-head-kicker'), '/games/ 仍带文章壳 kicker');
+ok(count(gamesIndex, /class="gm-tile[ "]/g) === gameItems.length,
+  `/games/ 瓦片数 ${count(gamesIndex, /class="gm-tile[ "]/g)} ≠ 数据 ${gameItems.length}`);
+ok(count(gamesIndex, /class="gm-tile-img"/g) === gameItems.filter((it) => it.cover).length,
+  '/games/ 封面数与数据不一致');
+ok(count(gamesIndex, /class="gm-status"/g) === gameItems.filter((it) => it.status).length,
+  '/games/ 状态角标数与数据不一致');
+ok(!/<input\b/i.test(gamesIndex), '/games/ 出现输入控件');
+
+for (const it of gameItems) {
+  const rel = `games/${moduleSlug(it)}/index.html`;
+  const h = read(rel);
+  ok(h.length > 0, `缺少 ${rel}`);
+  ok(!h.includes('page-head-kicker'), `${rel} 仍带 kicker`);
+  ok(h.includes('class="gm-facts"'), `${rel} 缺属性条`);
+  for (const [label, value] of [
+    ['平台', it.platform],
+    ['类型', it.genre],
+    ['状态', it.status],
+  ]) {
+    if (value) ok(h.includes(`<dt>${label}</dt>`), `${rel} 属性条缺「${label}」`);
+  }
+  ok(!/<input\b/i.test(h), `${rel} 出现输入控件`);
+}
+
+const collectionsIndex = read('collections/index.html');
+const collectionItems = dataItems('collections');
+ok(collectionsIndex.length > 0, '缺少 /collections/ 产物');
+ok(collectionsIndex.includes('<h1 class="cl-title">收藏</h1>'), '/collections/ 标题不是「收藏」');
+ok(!collectionsIndex.includes('page-head-kicker'), '/collections/ 仍带文章壳 kicker');
+ok(count(collectionsIndex, /class="cl-card"/g) === collectionItems.length,
+  `/collections/ 卡片数 ${count(collectionsIndex, /class="cl-card"/g)} ≠ 数据 ${collectionItems.length}`);
+ok(!collectionsIndex.includes('module-grid'), '/collections/ 仍在铺空网格');
+ok(!/<input\b/i.test(collectionsIndex), '/collections/ 出现输入控件');
+const clCards = collectionsIndex.match(/<(?:a|div) class="cl-card"[^>]*>/g) || [];
+for (const tag of clCards) {
+  if (tag.startsWith('<a')) {
+    ok(tag.includes('target="_blank"') && tag.includes('rel="noopener"'),
+      '收藏外链卡缺 target=_blank / rel=noopener');
+  }
 }
 
 console.log(`\nRESULT: ${pass} 项断言通过${fail ? '，存在失败' : ''}`);

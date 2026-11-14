@@ -1,7 +1,9 @@
 ---
-// 项目详情页：复刻 themes/fluid/layout/project.ejs。
+// 项目详情页（PAGE-FORM-PLAN §4.6.3 / S2）：面包屑 + h1 + summary + 属性条 +
+// 四段长文；桌面右侧 sticky 小节锚点，移动端 details 折叠。
 // 铁律：只渲染有内容的 section；正文自带 <h2> 时不再加壳标题。
 import BaseLayout from '../layouts/BaseLayout.astro';
+import EmptyState from './EmptyState.astro';
 import { urlFor } from '../lib/url';
 import { fmtItemDate } from '../lib/dates';
 
@@ -14,51 +16,84 @@ interface Props {
 const { item, prevItem, nextItem } = Astro.props;
 
 const startsWithH2 = (html: unknown) => html && /^\s*<h2[\s>]/.test(String(html));
+
 const sections = [
-  ['项目背景', item.background_html],
-  ['实现过程', item.process_html],
-  ['技术方案', item.tech_html],
-  ['成果', item.outcome_html],
-].filter((s): s is [string, string] => Boolean(s[1] && String(s[1]).trim()));
+  { id: 'background', heading: '项目背景', html: item.background_html },
+  { id: 'process', heading: '实现过程', html: item.process_html },
+  { id: 'tech', heading: '技术方案', html: item.tech_html },
+  { id: 'outcome', heading: '成果', html: item.outcome_html },
+].filter((s): s is { id: string; heading: string; html: string } => Boolean(s.html && String(s.html).trim()));
+
+const tags: string[] = item.tags || [];
 ---
 
 <BaseLayout title={item.title} currentPath={`/projects/${item.slug || encodeURIComponent(String(item.title))}/`}>
   <div class="paper-page">
-    <div class="home-wrap module-detail">
-      <header class="about-head">
-        <div class="about-head-main">
-          <p class="page-head-kicker"><a href={urlFor('/projects/')}>PROJECTS · 项目</a></p>
-          <h1 class="page-head-title">{item.title}</h1>
-          {item.summary && <p class="about-head-intro">{item.summary}</p>}
-          <p class="detail-meta">
-            {item.date && (
-              <time class="mono" datetime={fmtItemDate(item.date, 'YYYY-MM-DD')}>{fmtItemDate(item.date)}</time>
-            )}
-            {item.status && <span class="detail-tag detail-tag-solid">{item.status}</span>}
-            {(item.tags || []).map((t: string) => <span class="detail-tag">#{t}</span>)}
-          </p>
-          {item.link && <a class="cta-solid" href={item.link} target="_blank" rel="noopener">访问项目 →</a>}
-        </div>
-        {
-          item.cover && (
-            <div class="about-avatar-box detail-cover">
-              <img src={urlFor(item.cover)} alt={item.title} />
+    <div class="home-wrap">
+      <nav class="cal-crumb" aria-label="面包屑">
+        <a href={urlFor('/projects/')}>项目</a><span aria-hidden="true">/</span><span class="cal-crumb-now">{item.title}</span>
+      </nav>
+
+      <header class="pj-detail-head">
+        <h1 class="pj-detail-title">{item.title}</h1>
+        {item.summary && <p class="pj-detail-sum">{item.summary}</p>}
+        <dl class="pj-facts">
+          {item.date && (
+            <div class="pj-fact">
+              <dt>日期</dt>
+              <dd><time datetime={fmtItemDate(item.date, 'YYYY-MM-DD')}>{fmtItemDate(item.date)}</time></dd>
             </div>
-          )
-        }
+          )}
+          {tags.length > 0 && (
+            <div class="pj-fact">
+              <dt>技术栈</dt>
+              <dd>
+                <ul class="pj-tags">
+                  {tags.map((t) => <li class="pj-tag">{t}</li>)}
+                </ul>
+              </dd>
+            </div>
+          )}
+          {item.link && (
+            <div class="pj-fact">
+              <dt>仓库</dt>
+              <dd><a href={item.link} target="_blank" rel="noopener">访问项目 ↗</a></dd>
+            </div>
+          )}
+        </dl>
       </header>
 
-      <article class="about-body">
-        <div class="markdown-body">
-          {sections.map(([heading, html]) => (
-            <section class="rich-section">
-              {!startsWithH2(html) && <h2>{heading}</h2>}
-              <Fragment set:html={html} />
+      {sections.length > 0 && (
+        <details class="pj-toc-details">
+          <summary>小节导航</summary>
+          <ol>
+            {sections.map((s) => <li><a href={`#sec-${s.id}`}>{s.heading}</a></li>)}
+          </ol>
+        </details>
+      )}
+
+      <div class="pj-layout">
+        <main class="pj-main">
+          {sections.map((s) => (
+            <section class="pj-section rich-section" id={`sec-${s.id}`}>
+              <div class="markdown-body">
+                {!startsWithH2(s.html) && <h2>{s.heading}</h2>}
+                <Fragment set:html={s.html} />
+              </div>
             </section>
           ))}
-          {sections.length === 0 && <p class="empty">详细介绍整理中。</p>}
-        </div>
-      </article>
+          {sections.length === 0 && <EmptyState>详细介绍整理中。</EmptyState>}
+        </main>
+
+        {sections.length > 0 && (
+          <aside class="pj-toc" aria-label="小节导航">
+            <p class="pj-toc-label">小节</p>
+            <ol class="pj-toc-list">
+              {sections.map((s) => <li><a href={`#sec-${s.id}`}>{s.heading}</a></li>)}
+            </ol>
+          </aside>
+        )}
+      </div>
 
       <footer class="detail-foot">
         {(prevItem || nextItem) && (

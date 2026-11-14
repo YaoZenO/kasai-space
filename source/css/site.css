@@ -9196,6 +9196,478 @@ html:not(.js) .fs-years-toggle { display: none; }
   }
 }
 
+/* ===== 4.22 项目 / 游戏 / 收藏（2026-11-14 S2）=====
+   项目 = 档案卡（无封面，不做封面墙）；游戏 = 封面墙（保留 2×2 主位）；
+   收藏 = 单条大卡（1 条不铺网格）。类名统一前缀 pj- / gm- / cl-（§4.6.10）。
+   旧的 .module-* / .games-* 规则本轮不删：/links/ 仍用 .module-grid，留 S3/S5 清理。 */
+
+/* --- 索引型页头：h1 + 一句结论 --- */
+.pj-head,
+.gm-head,
+.cl-head {
+  margin: 0 0 1.6rem;
+}
+
+.pj-title,
+.gm-title,
+.cl-title {
+  margin: 0;
+  font-family: var(--font-serif-title);
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.pj-lead,
+.gm-lead,
+.cl-lead {
+  margin: 0.55rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--sec-text-color);
+}
+
+/* --- 项目档案卡 --- */
+.pj-list {
+  margin: 1.8rem 0 0;
+  border-top: 2px solid var(--rule-strong);
+}
+
+.pj-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 15rem;
+  gap: 1rem 2.4rem;
+  padding: 1.5rem 0 1.6rem;
+  border-bottom: 1px solid var(--line-color);
+}
+
+.pj-card-title {
+  margin: 0;
+  font-family: var(--font-serif-title);
+  font-size: clamp(1.25rem, 2.2vw, 1.55rem);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.pj-card-title a {
+  color: var(--text-color);
+}
+
+.pj-card-title a:hover {
+  color: var(--accent);
+}
+
+.pj-card-sum {
+  margin: 0.5rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: var(--sec-text-color);
+}
+
+.pj-card-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.8rem;
+}
+
+.pj-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pj-tag {
+  display: inline-block;
+  padding: 0.28rem 0.55rem;
+  border: 1px solid var(--line-color);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--sec-text-color);
+}
+
+.pj-card-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  margin-top: auto;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--line-color);
+}
+
+.pj-date {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--info-mark);
+}
+
+.pj-actions {
+  display: inline-flex;
+  gap: 1rem;
+  margin-left: auto;
+  font-size: 0.82rem;
+}
+
+.pj-more {
+  font-weight: 700;
+}
+
+.pj-more:hover,
+.pj-visit:hover {
+  color: var(--accent);
+}
+
+.pj-visit {
+  color: var(--sec-text-color);
+}
+
+/* --- 项目 / 游戏详情：档案头 + 属性条 --- */
+.pj-detail-head,
+.gm-detail-head {
+  margin: 1rem 0 0;
+}
+
+.pj-detail-title,
+.gm-detail-title {
+  margin: 0;
+  font-family: var(--font-serif-title);
+  font-size: clamp(1.9rem, 3.6vw, 2.6rem);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.pj-detail-sum,
+.gm-detail-sum {
+  max-width: 46rem;
+  margin: 0.7rem 0 0;
+  font-size: 1.02rem;
+  line-height: 1.8;
+  color: var(--sec-text-color);
+}
+
+.pj-facts,
+.gm-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem 2.2rem;
+  margin: 1.4rem 0 0;
+  padding: 1rem 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.pj-fact,
+.gm-fact {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+}
+
+.pj-fact dt,
+.gm-fact dt {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--info-mark);
+}
+
+.pj-fact dd,
+.gm-fact dd {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.pj-fact dd a {
+  color: var(--text-color);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.pj-fact dd a:hover {
+  color: var(--accent);
+}
+
+/* --- 项目详情：正文 + sticky 小节锚点 --- */
+.pj-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 13rem;
+  gap: clamp(2rem, 4vw, 3.4rem);
+  align-items: start;
+  margin-top: 2rem;
+}
+
+.pj-section {
+  scroll-margin-top: 5.5rem;
+}
+
+.pj-toc {
+  position: sticky;
+  top: 5.5rem;
+  padding-left: 1.1rem;
+  border-left: 1px solid var(--rule);
+}
+
+.pj-toc-label {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  color: var(--info-mark);
+}
+
+.pj-toc-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pj-toc-list li + li {
+  margin-top: 0.45rem;
+}
+
+.pj-toc-list a {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--sec-text-color);
+}
+
+.pj-toc-list a:hover {
+  color: var(--accent);
+}
+
+.pj-toc-details {
+  display: none;
+  margin: 1.6rem 0 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.pj-toc-details summary {
+  padding: 0.7rem 0;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: var(--sec-text-color);
+  cursor: pointer;
+}
+
+.pj-toc-details ol {
+  margin: 0;
+  padding: 0 0 0.8rem 1.2rem;
+}
+
+.pj-toc-details li + li {
+  margin-top: 0.4rem;
+}
+
+.pj-toc-details a {
+  font-size: 0.86rem;
+}
+
+/* --- 游戏封面墙 --- */
+.gm-wall {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 150px;
+  gap: 0.5rem;
+  margin-top: 1.8rem;
+}
+
+.gm-tile {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-tile);
+  background: var(--cream);
+  color: var(--text-color);
+}
+
+.gm-tile:hover {
+  transform: translateY(-2px);
+  border-color: var(--line-strong);
+}
+
+.gm-tile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.gm-tile-cap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0.55rem 0.75rem 0.6rem;
+  background: rgba(27, 23, 18, 0.72);
+  color: var(--cream-on-dark);
+}
+
+.gm-tile-title {
+  display: block;
+  font-weight: 700;
+  font-size: 0.92rem;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gm-tile-meta {
+  display: block;
+  margin-top: 0.15rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: rgba(253, 250, 244, 0.72);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gm-status {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--cream-on-dark);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.gm-wall .gm-tile:first-child {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.gm-wall .gm-tile:first-child .gm-tile-title {
+  font-size: 1.1rem;
+}
+
+/* --- 收藏：单条大卡 --- */
+.cl-list {
+  margin-top: 1.8rem;
+}
+
+.cl-card {
+  display: grid;
+  grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+  gap: clamp(1.2rem, 3vw, 2.4rem);
+  align-items: start;
+  padding: 1.2rem;
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-card);
+  background: var(--cream);
+  color: var(--text-color);
+}
+
+.cl-card + .cl-card {
+  margin-top: 1rem;
+}
+
+.cl-card:hover {
+  border-color: var(--line-strong);
+}
+
+.cl-cover img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: var(--r-tile);
+}
+
+.cl-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.cl-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.7rem;
+}
+
+.cl-name {
+  font-family: var(--font-serif-title);
+  font-size: clamp(1.2rem, 2.2vw, 1.5rem);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.cl-badge {
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--line-color);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--sec-text-color);
+}
+
+.cl-desc {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.8;
+  color: var(--sec-text-color);
+}
+
+.cl-date {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--info-mark);
+}
+
+@media (max-width: 767.98px) {
+  .pj-card {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.9rem;
+  }
+
+  .pj-card-foot {
+    margin-top: 0.2rem;
+  }
+
+  .pj-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pj-toc {
+    display: none;
+  }
+
+  .pj-toc-details {
+    display: block;
+  }
+
+  .cl-card {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .gm-wall {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 120px;
+  }
+}
+
 /* ===== 5. 第三方组件纸面化（site.css 在 main.css 之后加载，覆盖即生效） ===== */
 
 /* 5.1 nprogress 顶部进度条（VD-2）：主题 L124 的 color 配置是死配置，

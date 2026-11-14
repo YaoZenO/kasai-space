@@ -399,17 +399,19 @@ async function main() {
     console.log('\n[6] 游戏列表页');
     const gameList = readPage(path.join('games', 'index.html'));
     ok('列表页含游戏条目', () => assert.ok(gameList.includes('e2e-game')));
-    ok('游戏列表页是封面网格（games-wall），不是均质卡片阵列', () => {
+    ok('游戏列表页是封面网格（gm-wall），不是均质卡片阵列', () => {
       // 主人 2026-10-19 定「封面网格」。修订后 R-3 允许非均质拼贴、禁止均质阵列，
       // 这条断言把形态锁住：游戏分支不得回退到 module-grid。
-      assert.ok(gameList.includes('class="games-wall"'), '游戏列表页不是 games-wall 形态');
+      // 2026-11-14（S2）：类名统一为 gm- 前缀，保留封面拼贴形态。
+      assert.ok(gameList.includes('class="gm-wall"'), '游戏列表页不是 gm-wall 形态');
       assert.ok(!gameList.includes('class="module-grid"'), '游戏列表页仍渲染均质 module-grid');
-      const tiles = (gameList.match(/class="games-tile[ "]/g) || []).length;
-      assert.ok(tiles >= 5, `games-tile 数量异常：${tiles}（真实 5 条 + 测试 1 条应 ≥5）`);
+      const tiles = (gameList.match(/class="gm-tile[ "]/g) || []).length;
+      assert.ok(tiles >= 5, `gm-tile 数量异常：${tiles}（真实 5 条 + 测试 1 条应 ≥5）`);
     });
-    ok('项目列表页仍是行式卡片网格（未被游戏改动牵连）', () => {
+    ok('项目列表页仍是行式档案卡（未被游戏改动牵连）', () => {
       const projListNow = readPage(path.join('projects', 'index.html'));
-      assert.ok(projListNow.includes('class="module-grid"'), '项目列表页丢了 module-grid');
+      assert.ok(projListNow.includes('class="pj-list"'), '项目列表页丢了 pj-list');
+      assert.ok(projListNow.includes('href="/projects/e2e-rich/"'), '项目卡片未指向详情页');
     });
 
     console.log('\n[7] 首页联动');
