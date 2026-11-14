@@ -66,8 +66,7 @@ for (const f of folkFestivals) {
   const rec = folkRecords.find((x: any) => x && String(x.name).indexOf(f.name) === 0);
   if (!rec || !rec.date) continue;
   // 三类标记：法定假日（实心）、农历节日（空心）、节气（菱形）。
-  // 冬至是站点收录的十二个节日里唯一的节气——民间「冬至大如年」，它确实被当节日过；
-  // 其余 23 个节气只在轴上作细刻度，不单独成页（口径写进轴下说明）。
+  // 十二个节日里只有冬至属于节气，其余节气只作轴上细刻度。
   const isSolar = String(rec.kind || '').indexOf('节气') !== -1;
   marks.push({
     key: f.key,
@@ -137,7 +136,7 @@ const months = Array.from({ length: 12 }, (_, i) => i + 1);
             <a href={urlFor('/library/')}>资料库</a><span aria-hidden="true">/</span><span class="cal-crumb-now">节日文化</span>
           </nav>
           <h1 class="fs-title">节日文化</h1>
-          <p class="cal-lede">{fsMeta.lede || '十二个中国节日，每个都有一篇长文：来历与传说、习俗与食物、词汇和常见问题。日期按站内节假日数据逐年生成，不手工抄录。'}</p>
+          <p class="cal-lede">{fsMeta.lede || '十二个中国节日，每个都有一篇长文：来历与传说、习俗与食物、词汇和常见问题。'}</p>
         </div>
         <dl class="fs-legend">
           <div>
@@ -194,14 +193,10 @@ const months = Array.from({ length: 12 }, (_, i) => i + 1);
             </div>
 
             <p class="fs-axis-note">
-              细刻度是二十四节气。本站收十二个节日，冬至是其中唯一的节气——民间「冬至大如年」，它确实被当节日过，所以单独成页；其余节气只作刻度。清明同为节气，但按法定假日标记。法定节日按当年国务院办公厅安排标注放假天数。
+              细刻度是二十四节气；冬至既是节气也是节日，清明既是节气也是法定假日。放假天数按当年国务院办公厅安排。
               <a href={urlFor('/holidays/' + axisYear + '/')}>看 {axisYear} 年完整放假安排</a>
             </p>
           </section>
-
-          <div class="cal-after">
-            <p class="cal-note">每个节日的日期都由本站节假日数据现算，不手抄；民俗与说法部分已注明口径，来源互有出入的地方只列有依据的主流说法。</p>
-          </div>
         </>
       )}
     </div>
