@@ -109,5 +109,32 @@ if (fs.existsSync(ciFile)) {
   fail('.github/workflows/ci.yml 不存在');
 }
 
+// 6. 构建校验脚本必须指向真实产物目录（E-161）。
+// 724fc3f 把构建输出从 Hexo 的 public/ 换成 Astro 的 dist/，但 tools/verify-build.sh
+// 仍在查 $ROOT/public，而它不在 npm test 链里、只靠人工调用，失败没人看见——
+// E-087 / E-108 的防复发机制实际空转了整整一段时间。这里把目标目录钉死在 dist/：
+// 谁再把它改回 public/ 或改丢，这一条直接判红。
+const verifyFile = path.join(ROOT, 'tools', 'verify-build.sh');
+if (!fs.existsSync(verifyFile)) {
+  fail('tools/verify-build.sh 不存在（E-087 的防复发机制缺失）');
+} else {
+  const verifyText = fs.readFileSync(verifyFile, 'utf8');
+  // 只比对可执行行：脚本注释里会写明「原先查的是 $ROOT/public」这类历史说明，
+  // 整文件匹配会把注释当违规，断言就会永远红。
+  const verifyCode = verifyText
+    .split(/\r?\n/)
+    .filter((line) => !/^\s*#/.test(line))
+    .join('\n');
+  const pointsDist = /DIST="\$ROOT\/dist"/.test(verifyCode);
+  const pointsPublic = /\$ROOT\/public/.test(verifyCode);
+  if (pointsDist && !pointsPublic) {
+    pass('tools/verify-build.sh 的目标目录是 dist/（不是 Hexo 时代的 public/）');
+  } else if (pointsPublic) {
+    fail('tools/verify-build.sh 仍检查 $ROOT/public，而构建输出是 dist/（E-161）');
+  } else {
+    fail('tools/verify-build.sh 里找不到 DIST="$ROOT/dist"（E-161）');
+  }
+}
+
 console.log(`\nRESULTS: ${failed === 0 ? '全部通过' : failed + ' 项失败'}`);
 process.exit(failed === 0 ? 0 : 1);
