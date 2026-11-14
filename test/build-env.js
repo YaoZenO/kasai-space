@@ -136,5 +136,39 @@ if (!fs.existsSync(verifyFile)) {
   }
 }
 
+// 7. 后台回收站的运行目录必须真实存在（E-162）。
+// `_trash/` 看起来像垃圾目录，实际是后台删除/还原功能的正式落点：
+// api/_lib/shared.js 的 TRASH_DIR、api/_lib/domains/trash.js 的清单读写都指着它。
+// 2026-11-14 整理仓库时把它当残留整块删掉，回收站清单与两篇已删文章一起消失。
+// test:admin 跑在 mockfs 虚拟文件系统上，抓不到这个错——所以在这里对真实磁盘断言。
+const trashDir = path.join(ROOT, '_trash');
+const trashManifest = path.join(trashDir, 'manifest.json');
+if (!fs.existsSync(trashManifest)) {
+  fail('_trash/manifest.json 不存在：后台回收站清单丢失（E-162，_trash 不是垃圾目录）');
+} else {
+  let parsed = null;
+  try {
+    parsed = JSON.parse(fs.readFileSync(trashManifest, 'utf8'));
+  } catch (err) {
+    fail(`_trash/manifest.json 无法解析为 JSON：${err.message}`);
+  }
+  if (parsed) {
+    if (Array.isArray(parsed.items)) {
+      pass(`_trash/manifest.json 存在且结构合法（${parsed.items.length} 条回收站条目）`);
+    } else {
+      fail('_trash/manifest.json 缺少 items 数组（trash 域读写会失败）');
+    }
+    // 清单里登记的条目必须真的在磁盘上，否则「还原」会指向不存在的文件。
+    const missing = (parsed.items || [])
+      .map((it) => it.trashPath)
+      .filter((p) => p && !fs.existsSync(path.join(ROOT, p)));
+    if (missing.length === 0) {
+      pass('_trash/manifest.json 登记的所有条目文件均存在');
+    } else {
+      fail(`回收站条目文件缺失：${missing.join(', ')}（还原会失败）`);
+    }
+  }
+}
+
 console.log(`\nRESULTS: ${failed === 0 ? '全部通过' : failed + ' 项失败'}`);
 process.exit(failed === 0 ? 0 : 1);

@@ -193,6 +193,7 @@
 | E-159 | P2 | 节日页 §4.15 段的取样终点写成 §5，S3 新增的 §4.16–§4.23 全被算进 §4.15，E-043 负向断言把别页的 `overflow-wrap:anywhere` 当成 §4.15 违规 | 已修复（段尾改取下一个顶层分节）+ 段内存量自检断言仍有效 |
 | E-160 | P3 | 并行跑 `test:pages` 与 `test:form`，前者临时写入 e2e 条目未还原时后者读源数据，18 条断言假红 | 已记录（测试串行跑；数据文件已自动还原，单跑 383 项全绿） |
 | E-161 | P1 | 构建校验脚本 `verify-build.sh` 仍查 Hexo 时代的 `public/`，Astro 迁移后必然 FAIL 却因不在 `npm test` 链里无人发现，E-087/E-108 机制空转 | 已修复（改查 `dist/`，HTML 页数 ≥590、关键页 10 项、dist 缺失即失败）+ `test:env` 静态断言锁死目标目录 |
+| E-162 | P1 | 把后台回收站目录 `_trash/` 当残留整块 `rm -rf`，`manifest.json` 与两篇已删文章（tracked）一起消失，回收站变空、原条目无法还原 | 已恢复（`git show HEAD:` 写回 + `git checkout HEAD --` 修行尾）+ `test:env` 第 7 条对真实磁盘断言清单与条目文件存在（变异自检已过） |
 
 ---
 
@@ -3262,3 +3263,27 @@
   避免历史说明被误判），要求存在 `DIST="$ROOT/dist"` 且不得出现 `$ROOT/public`，并已做变异自检
   （临时改回 `public` 即判红、还原后转绿）；③ 该断言在 `npm test` 的 `test:env` 环节内，
   脚本再脱钩不会无人知晓。
+
+### E-162 把后台回收站目录 `_trash/` 当残留整块删除，回收站清单与已删文章一起丢失（2026-11-14 S6）
+
+- **发生时间：** 2026-11-14 ｜ **发现方式：** 删除后核对 `git status`，发现 `_trash/manifest.json`
+  与 `_trash/posts/*.md` 呈现为「已删除」——它们是被 git 跟踪的文件，不是生成物
+- **现象：** 整理仓库时把 `_trash/`（48M，其中 43M 是 `site-snapshot`）判定为「垃圾桶」执行
+  `rm -rf`。实际该目录是后台回收站的正式落点：`api/_lib/shared.js` 的 `TRASH_DIR`、
+  `api/_lib/domains/trash.js` 的删除/还原逻辑、`api/_lib/mockfs.js` 的快照初始化都指向它，
+  `manifest.json` 是回收站索引，两篇已删文章正躺在 `posts/` 下等待还原。删掉后回收站变空、
+  原条目无法通过后台还原。
+- **根因：** 仅凭目录名（`_trash`）与体积判断性质，没有先查是否被 `api/` 引用。
+  `_trash` 里同时混着两类东西——后台功能数据（tracked）与过程脚本/快照（untracked）——
+  我没有区分就直接整目录删除。同类风险：任何以 `_` 开头、名字像临时目录但可能承载功能的路径。
+- **修法：** 从 HEAD 恢复 `manifest.json` 与两篇 `posts/*.md`（`git show HEAD:<path>` 写回后用
+  `git checkout HEAD -- <三个路径>` 修正行尾符）；只清掉 `_trash/` 内 untracked 的过程文件与
+  `site-snapshot/`。`_preview`、`.trae-html-share-packages`、两个 `_*-base.yml` 数据快照
+  经核对无任何代码引用，照删。
+- **防复发（机制）：** ① `test/build-env.js` 第 7 条对**真实磁盘**断言：`_trash/manifest.json` 必须存在、
+  可解析、含 `items` 数组，且清单登记的每个 `trashPath` 文件都真实存在；已做变异自检
+  （临时移走 manifest 即判红、还原后转绿）。`test:admin` 跑在 mockfs 虚拟文件系统上，
+  对这个错误天生盲，故断言必须落在真实路径——这是本条的关键。
+  ② 删除流程前置：删任何路径前先跑 `git ls-files -- '<path>'`，有入库文件走 `git rm` 并逐条确认，
+  无入库文件才可 `rm -rf`。本轮对 `_config.landscape.yml`（0 字节、tracked）走了 `git rm`、
+  对 `_trash/` 走了 `rm -rf`——同一批操作两种判定，说明判定没成流程，故写进流程。
