@@ -627,15 +627,17 @@
 
 ## 六、交互原则
 
-### 6.1 动效白名单（可 grep 断言）
+### 6.1 动效与交互的上位原则
 
-全站交互动效**只允许**以下三种（DESIGN-REVIEW §四.8 / UI-AUDIT §五.5 既有纪律，固化为规则）：
+本节不再维护全站动效白名单。动效和交互的设计原则、创意方向、动态密度、
+页面差异化、性能与可访问性要求，统一以 `DESIGN-PHILOSOPHY.md` 为准。
 
-1. `transform: translateY(-2px)`——卡 / 格 hover 上浮（0.2s / 0.12s ease）；
-2. 颜色过渡——`color` / `background-color` / `border-color`（0.2s ease）；
-3. `transform: rotate(90deg)`——分类折叠箭头（0.2s ease）。
+本文件只记录已经实际落地、仍然有效的组件级实现细节。不得将当前组件的
+transition、时长或动画属性推广为全站限制；不得以「白名单外禁止」限制新页面。
 
-**白名单外一律禁止**；时长上限 0.25s。验收：grep `transition` / `animation` / `@keyframes`，属性与时长落在白名单内。
+（2026-11-15 废止：原「全站只许 transform: translateY(-2px) / 颜色过渡 /
+rotate(90deg) 三种动效」与「时长上限 0.25s」两条，按 `DESIGN-INTEGRATION.md`
+§2 解除。§6.2 水波母题、§6.3 阴影纪律、§6.4 焦点可见性仍然有效。）
 
 ### 6.2 「水波下划线」hover 母题（H-4，2026-10-19 主人拍板采纳，已落地）
 
@@ -654,9 +656,15 @@
 - 全站 focus-visible 必须可见：2px `--accent` + `outline-offset: 2px`（导航既有规则 L195-200 推广为全站基线）。
 - **禁止 `outline: none`**；禁止用 `:hover` 样式代替 `:focus-visible`。
 
-### 6.5 动效降级
+### 6.5 减少动态效果
 
-`prefers-reduced-motion: reduce` 时，全站 `transition: none; animation: none`（既有 `#navbar` 规则 L203-209 推广为全站规则）。
+遵循 `DESIGN-PHILOSOPHY.md` §6.1。`prefers-reduced-motion: reduce` 不等于
+全站无条件移除所有 transition / animation。应移除大幅位移、视差、连续旋转、
+强烈缩放和非必要循环，同时保留必要的状态反馈、焦点指示、内容可达性和操作结果。
+
+（2026-11-15 修订：原作「reduce 时全站 transition: none; animation: none」，
+按 `DESIGN-INTEGRATION.md` §3 解除——一律清零会把「操作已生效」的反馈也一起
+抹掉，用户反而不知道点击有没有成功。）
 
 ### 6.6 空态与诚实文案规则
 
@@ -673,11 +681,11 @@
 
 | 禁止 | 依据 |
 |---|---|
-| 无限弹跳 / 循环动画（回到顶部主题 hover、banner 视差滥用） | A-2；PRD §7.6 |
-| 持续运动装饰作为主要视觉特征 | PRD §7.6 |
+| 运动失控或无法暂停 | 循环与持续运动可以用于环境、叙事或功能表达；必须控制注意力占用，并按场景提供暂停、离开视口后暂停或减少动态效果方案 |
+| 用装饰动画掩盖导航 / 链接 / 功能缺失 | 动效不能代替功能本身 |
+| 强制滚动、强制跳转或阻止正常浏览 | 用户必须保有浏览器与页面控制权 |
 | Material 双阴影 | A-2 |
 | 装饰性社会证明（PV/UV、「共 N 篇」、「访问量」） | 红线 R-4 |
-| 用装饰动画掩盖导航 / 链接 / 功能缺失 | PRD §6.2 |
 | 10s 强制跳转类「陷阱」交互（未确认前） | UX-8 |
 
 ---

@@ -11,6 +11,17 @@ stalling on unnecessary confirmations and without touching things that were not 
 - Read project-level rules and any relevant design/architecture documents first.
 - **Read `ERRORS.md` before starting.** It is the record of every mistake already made
   in this repo. Do not repeat any of them.
+- For any UI, page, visual, motion, or interaction task, read
+  `DESIGN-PHILOSOPHY.md` before planning or editing.
+- `DESIGN-PHILOSOPHY.md` is the highest-level authority for creative direction,
+  visual expression, motion, and interaction. Existing pages and legacy visual
+  rules are references, not automatic constraints.
+- If it conflicts with `DESIGN-LANGUAGE.md` or visual sections of `PRD.md`,
+  follow `DESIGN-PHILOSOPHY.md`; preserve factual product, data, security,
+  accessibility, and URL constraints.
+- Do not declare a design task complete based only on build/test success.
+  Follow the design proposal, prototype, browser verification, and acceptance
+  requirements in `DESIGN-PHILOSOPHY.md`.
 - Inspect Git state: current branch, HEAD, staged area, working tree, and untracked files.
 - Inspect the actual source, config, dependencies, and existing implementation.
 - Separate changes that already existed before the task from changes you create.
