@@ -5391,6 +5391,198 @@ body.is-home footer {
   .fs-cards { grid-template-columns: 1fr; gap: 0.8rem; }
 }
 
+/* ---- 索引页年轴（2026-11，PAGE-FORM-PLAN §4.4 整改） ---------------------
+   桌面：水平年轴（12 个月刻度 + 24 节气细刻度），节日按真实日期落点，
+   奇偶上下交错避让；窄屏改竖向时间线（左轴右文），不横向滚动、不缩字号。
+   落点位置用 --x 传百分比，窄屏直接忽略该变量，无需 !important。 ---- */
+.fs-hero {
+  margin-top: 0.9rem;
+  padding-bottom: 1.2rem;
+}
+
+.fs-title {
+  margin: 0.2rem 0 0.55rem;
+  font-family: var(--font-serif-title);
+  font-weight: 600;
+  font-size: clamp(2.2rem, 4.2vw, 3.1rem);
+  line-height: 1.1;
+}
+
+.fs-year { margin-top: 1.7rem; }
+
+.fs-axis {
+  position: relative;
+  height: 19rem;
+  margin: 0.5rem 2.9rem 0;
+}
+
+.fs-axis-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--rule);
+}
+
+.fs-tick {
+  position: absolute;
+  left: var(--x);
+  top: 50%;
+  width: 1px;
+  height: 7px;
+  margin-top: -3.5px;
+  background: var(--line-strong);
+  opacity: 0.5;
+}
+
+.fs-months {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--line-color);
+}
+
+.fs-months span {
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+.fs-mark {
+  position: absolute;
+  left: var(--x);
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  width: 6rem;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.fs-mark-dot {
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid var(--text-color);
+  border-radius: 50%;
+  background: var(--board-color);
+}
+
+.fs-mark--legal .fs-mark-dot {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.fs-mark-label {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  width: 6rem;
+  text-align: center;
+}
+
+.fs-mark.is-up .fs-mark-label { bottom: 0.95rem; }
+.fs-mark.is-down .fs-mark-label { top: 0.95rem; }
+.fs-mark.is-up2 .fs-mark-label { bottom: 5.25rem; }
+.fs-mark.is-down2 .fs-mark-label { top: 5.25rem; }
+
+/* 远道（上远 / 下远）的标签离轴较远，补一条细引线，避免读者认错是哪一个点 */
+.fs-mark.is-up2::before,
+.fs-mark.is-down2::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: 1px;
+  height: 4.25rem;
+  background: var(--line-color);
+}
+
+.fs-mark.is-up2::before { bottom: 4px; }
+.fs-mark.is-down2::before { top: 4px; }
+
+.fs-mark-label b {
+  font-family: var(--font-serif-title);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text-color);
+}
+
+.fs-mark:hover .fs-mark-label b,
+.fs-mark:focus-visible .fs-mark-label b { color: var(--accent); }
+
+.fs-mark-label em {
+  font-style: normal;
+  font-size: 0.78rem;
+  color: var(--text-color);
+}
+
+.fs-mark-label i {
+  font-style: normal;
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+}
+
+.fs-axis-note {
+  margin: 0.9rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.85;
+  color: var(--sec-text-color);
+}
+
+.fs-axis-note a { color: var(--text-color); }
+
+@media (max-width: 1023.98px) {
+  .fs-axis {
+    height: auto;
+    margin: 0.3rem 0 0;
+    padding-left: 1.3rem;
+  }
+
+  .fs-axis-line {
+    top: 0;
+    bottom: 0;
+    left: 3px;
+    right: auto;
+    width: 1px;
+    height: auto;
+  }
+
+  .fs-tick,
+  .fs-months { display: none; }
+
+  .fs-mark {
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
+    width: auto;
+    justify-content: flex-start;
+    gap: 0.6rem;
+    padding: 0.5rem 0;
+  }
+
+  .fs-mark-dot {
+    position: absolute;
+    left: -1.3rem;
+    top: 0.85rem;
+    margin-left: -4px;
+  }
+
+  .fs-mark-label {
+    position: static;
+    transform: none;
+    width: auto;
+    text-align: left;
+  }
+}
+
 .fs-figure { margin: 1.6rem 0 0; }
 
 .fs-figure-media {

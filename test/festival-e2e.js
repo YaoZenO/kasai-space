@@ -319,6 +319,25 @@ if (!fs.existsSync(PUBLIC)) {
     });
   });
 
+  ok('S10：索引页是一年一条轴——12 个节日按真实日期落点，不再是文章壳', () => {
+    const abs = path.join(PUBLIC, 'festivals', 'index.html');
+    assert.ok(fs.existsSync(abs), '缺页面：festivals/index.html');
+    const h = fs.readFileSync(abs, 'utf8');
+    assert.strictEqual(h.indexOf('page-head'), -1, '索引页又回到文章壳（page-head）');
+    const marks = h.match(/class="fs-mark fs-mark--(legal|folk) is-/g) || [];
+    assert.strictEqual(marks.length, 12, '轴上的节日点数不是 12：' + marks.length);
+    SLUGS.forEach((s) => {
+      assert.ok(h.indexOf('href="/library/' + s + '/"') !== -1, '索引页缺节日链接：' + s);
+    });
+    // 落点由数据日期换算：最早的元旦在年初，最晚的冬至在年末
+    const xs = Array.from(h.matchAll(/is-(?:up2?|down2?)" style="--x:([\d.]+)%"/g)).map((m) => Number(m[1]));
+    assert.strictEqual(xs.length, 12, '取不到 12 个落点百分比');
+    assert.ok(Math.min(...xs) < 1, '最早的节日没有落在年初');
+    assert.ok(Math.max(...xs) > 95, '最晚的节日没有落在年末');
+    assert.ok(/放假 \d+ 天/.test(h), '法定节日缺放假天数');
+    assert.ok(/农历[正七九腊]月/.test(h), '传统节日缺农历日期');
+  });
+
   ok('S2：每页根元素挂 paper-page cal-page fs-page，章节锚点 ≥ 7，目录 li 数与数据一致', () => {
     SLUGS.forEach((s) => {
       const h = fs.readFileSync(path.join(PUBLIC, 'library', s, 'index.html'), 'utf8');

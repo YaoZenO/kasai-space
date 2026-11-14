@@ -1,12 +1,14 @@
 ---
-// 节日文化索引页（/festivals/）：复刻 themes/fluid/layout/festivals.ejs
+// 节日文化索引页（/festivals/）：一年一条轴的节日年表
 //
-// 为什么要有这一页：12 篇节日长文原本只能靠「资料库 → 从元旦开始读」一篇一篇往下翻，
-// 或者在站内搜索里逐个搜名字。资料库把「节日文化」列为一个专题，点进去应当看到一个
-// 能横向比较的列表，而不是某篇文章的正文。
+// 2026-11 按 PAGE-FORM-PLAN §4.4 整改：旧版是文章壳（kicker + 大标题 + 两组卡片列表），
+// 读者只能逐个点开才知道节日在一年里的位置。现在首屏就是一条公历时间轴：
+// 十二个节日按真实日期落点，法定假日标「放假天数」、传统节日标农历日期，
+// 细刻度为二十四节气——位置本身就是数据编码，不靠列表逐条读。
 //
-// 数据：source/_data/festivals.yml（唯一数据源）；页面文案只做分组，不写日期。
-// 样式：site.css §4.15（.fs-card 规则，与生肖卡同一套语法）。
+// 数据：source/_data/holidays.yml（逐年节假日与节气，唯一日期来源）；
+// 节日名与链接：source/_data/festivals.yml。页面不手写任何日期，换年份自动重排。
+// 样式：site.css §4.15（.fs-* 规则）。
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getData } from '../../lib/data';
@@ -18,96 +20,146 @@ const { published, modified } = pageDates('festivals/index.md');
 const fsData = data.festivals || {};
 const allFestivals: any[] = Array.isArray(fsData.festivals) ? fsData.festivals : [];
 const fsMeta = fsData.meta || {};
+const years: any[] = Array.isArray(data.holidays?.years) ? data.holidays.years : [];
 
-// 法定（有放假安排，statutory 是法定假日天数）与传统（不放假）分两组
-// 组内保持 yml 中的顺序——那是按年内时间先后排的，不是抓取序号
-const legalFestivals: any[] = [];
-const folkFestivals: any[] = [];
-for (let i = 0; i < allFestivals.length; i += 1) {
-  const f = allFestivals[i];
-  if (!f || !f.key || !f.name) continue;
-  if (f.kind === 'legal') legalFestivals.push(f);
-  else folkFestivals.push(f);
+const legalFestivals = allFestivals.filter((f: any) => f && f.key && f.kind === 'legal');
+const folkFestivals = allFestivals.filter((f: any) => f && f.key && f.kind !== 'legal');
+
+// 取当前年份；数据里没有当前年时退回最近的一个有数据的年份（不硬编码年份）
+const nowYear = new Date().getFullYear();
+const axisEntry = years.find((y: any) => Number(y.year) === nowYear) || years[years.length - 1] || null;
+const axisYear = axisEntry ? Number(axisEntry.year) : nowYear;
+
+// 当年的 1 月 1 日，用来把日期换算成「年内位置」百分比（0–100）
+const yearStart = new Date(Date.UTC(axisYear, 0, 1));
+const yearDays = (axisYear % 4 === 0 && axisYear % 100 !== 0) || axisYear % 400 === 0 ? 366 : 365;
+function pctOf(dateKey: string): number {
+  const [y, m, d] = String(dateKey).split('-').map(Number);
+  if (!y || !m || !d) return 0;
+  const day = Math.round((Date.UTC(y, m - 1, d) - yearStart.getTime()) / 86400000);
+  return Math.max(0, Math.min(100, (day / yearDays) * 100));
 }
 
-// 摘要取 desc（一句完整陈述），截到 2 行；desc 缺失时退回 lede
-function fsBrief(f: any): string {
-  const t = String(f.desc || f.lede || '').replace(/\s+/g, ' ').trim();
-  return t.length > 68 ? t.slice(0, 68) + '…' : t;
+// 法定节日：日期、放假区间、天数都取当年 holidays[]，与逐年的节假日页同源
+const holidayById: Record<string, any> = {};
+for (const h of axisEntry?.holidays || []) if (h && h.id) holidayById[h.id] = h;
+
+// 传统节日：日期取当年 festivals[]（按节日名匹配，如「元宵」→「元宵节」）
+const folkRecords: any[] = Array.isArray(axisEntry?.festivals) ? axisEntry.festivals : [];
+
+const marks: any[] = [];
+for (const f of legalFestivals) {
+  const h = holidayById[f.holidayKey] || (axisEntry?.holidays || []).find((x: any) => x && x.name === f.name);
+  if (!h || !h.date) continue;
+  marks.push({
+    key: f.key,
+    name: f.name,
+    kind: 'legal',
+    date: h.date,
+    pct: pctOf(h.date),
+    extra: h.days ? '放假 ' + h.days + ' 天' : '法定假日',
+    range: h.start && h.end ? h.start.slice(5).replace('-', '/') + '–' + h.end.slice(5).replace('-', '/') : ''
+  });
+}
+for (const f of folkFestivals) {
+  // 冬至在 festivals[] 里同时是节气，所以这里不按 kind 过滤，只按节日名匹配
+  const rec = folkRecords.find((x: any) => x && String(x.name).indexOf(f.name) === 0);
+  if (!rec || !rec.date) continue;
+  marks.push({
+    key: f.key,
+    name: f.name,
+    kind: 'folk',
+    date: rec.date,
+    pct: pctOf(rec.date),
+    extra: rec.lunar ? '农历' + rec.lunar : '按节气换算',
+    range: ''
+  });
+}
+marks.sort((a: any, b: any) => a.date.localeCompare(b.date));
+
+// 标签分四道泳道（上近 / 下近 / 上远 / 下远）：同侧相邻太近就换道，
+// 避免「中秋 / 重阳」这类相隔一周的节日标签叠在一起。
+// 阈值 11% ≈ 横向布局最窄（1024px）时一个标签的宽度；再窄就切竖向时间线。
+const laneLast: Record<string, number> = { up: -999, down: -999, up2: -999, down2: -999 };
+const LANES = ['up', 'down', 'up2', 'down2'];
+const LANE_MIN_GAP = 11;
+for (const m of marks) {
+  const gaps: Record<string, number> = {};
+  for (const lane of LANES) gaps[lane] = m.pct - laneLast[lane];
+  const lane = LANES.find((l) => gaps[l] >= LANE_MIN_GAP) || LANES.slice().sort((a, b) => gaps[b] - gaps[a])[0];
+  laneLast[lane] = m.pct;
+  m.lane = lane;
 }
 
-function fsTag(f: any): string {
-  if (f.kind === 'legal') {
-    return f.statutory ? '法定 ' + f.statutory + ' 天' : '法定假日';
-  }
-  return '不放假';
+function monthDay(dateKey: string): string {
+  const [, m, d] = String(dateKey).split('-').map(Number);
+  return m + ' 月 ' + d + ' 日';
 }
+
+// 二十四节气：只作为轴上的细刻度，不占文字（名称在逐年节假日页里）
+const TERMS: any[] = Array.isArray(axisEntry?.terms) ? axisEntry.terms : [];
+
+const months = Array.from({ length: 12 }, (_, i) => i + 1);
 ---
 
 <BaseLayout
   title="节日文化"
-  description="十二个节日的索引：六个法定节假日与六个传统节日，每个都有一篇独立长文，日期按春节与公历两套口径现算。"
+  description="一年一条轴的节日年表：十二个中国节日按公历日期落在同一条时间线上，法定假日标注放假天数，传统节日标注农历日期。"
   currentPath="/festivals/"
   ogDate={published}
   ogUpdated={modified}
 >
   <div class="paper-page cal-page fs-page">
     <div class="home-wrap">
-      <header class="page-head">
+      <header class="fs-hero">
         <nav class="cal-crumb" aria-label="面包屑">
           <a href={urlFor('/library/')}>资料库</a><span aria-hidden="true">/</span><span class="cal-crumb-now">节日文化</span>
         </nav>
-        <p class="page-head-kicker">FESTIVAL</p>
-        <h1 class="page-head-title">节日文化</h1>
+        <h1 class="fs-title">节日文化</h1>
         <p class="cal-lede">{fsMeta.lede || '十二个节日的逐页长文：来历与传说、习俗与食物、词汇与常见问题，以及从本站节假日数据现算的逐年日期。'}</p>
         <p class="archive-total">{allFestivals.length} 个节日 · 法定 {legalFestivals.length} 个 · 传统 {folkFestivals.length} 个</p>
       </header>
 
-      {!allFestivals.length ? (
+      {marks.length === 0 ? (
         <p class="post-desc">节日内容还在整理中，页面会随数据录入自动生成，欢迎稍后再来看看。</p>
       ) : (
         <>
-          {legalFestivals.length > 0 && (
-            <section class="cal-block">
-              <div class="col-head">
-                <h2 class="col-title">法定节假日</h2>
-                <span class="col-count">/ {legalFestivals.length}</span>
-              </div>
-              <div class="fs-cards">
-                {legalFestivals.map((lf: any) => (
-                  <a class="fs-card" href={urlFor('/library/' + lf.key + '/')}>
-                    <span class="fs-card-head">
-                      <span class="fs-card-name">{lf.name}</span>
-                      <span class="fs-card-tag fs-card-tag--legal">{fsTag(lf)}</span>
-                    </span>
-                    <span class="fs-card-desc">{fsBrief(lf)}</span>
-                  </a>
-                ))}
-              </div>
-              <p class="cal-fest-lead">天数是《全国年节及纪念日放假办法》规定的法定假日天数，不含调休与周末连休；实际放假区间逐年不同，见各节页面内的逐年表。</p>
-            </section>
-          )}
+          <section class="fs-year" aria-labelledby="fs-year-title">
+            <div class="col-head">
+              <h2 class="col-title" id="fs-year-title">{axisYear} 年的节日</h2>
+              <span class="col-count">/ {axisEntry?.official === false ? '预计安排' : '官方安排'}</span>
+            </div>
 
-          {folkFestivals.length > 0 && (
-            <section class="cal-block">
-              <div class="col-head">
-                <h2 class="col-title">传统节日</h2>
-                <span class="col-count">/ {folkFestivals.length}</span>
+            {/* 轴上的点全部是链接；节气刻度是装饰，读屏不重复念 */}
+            <div class="fs-axis">
+              <span class="fs-axis-line" aria-hidden="true"></span>
+              {TERMS.map((t: any) => (
+                <span class="fs-tick" style={`--x:${pctOf(t.date)}%`} aria-hidden="true"></span>
+              ))}
+              {marks.map((m: any, i: number) => (
+                <a
+                  class={`fs-mark fs-mark--${m.kind} is-${m.lane}`}
+                  style={`--x:${m.pct}%`}
+                  href={urlFor('/library/' + m.key + '/')}
+                >
+                  <span class="fs-mark-label">
+                    <b>{m.name}</b>
+                    <em>{monthDay(m.date)}</em>
+                    <i>{m.extra}</i>
+                  </span>
+                  <span class="fs-mark-dot" aria-hidden="true"></span>
+                </a>
+              ))}
+              <div class="fs-months" aria-hidden="true">
+                {months.map((m: number) => <span>{m} 月</span>)}
               </div>
-              <div class="fs-cards">
-                {folkFestivals.map((ff: any) => (
-                  <a class="fs-card" href={urlFor('/library/' + ff.key + '/')}>
-                    <span class="fs-card-head">
-                      <span class="fs-card-name">{ff.name}</span>
-                      <span class="fs-card-tag">{fsTag(ff)}</span>
-                    </span>
-                    <span class="fs-card-desc">{fsBrief(ff)}</span>
-                  </a>
-                ))}
-              </div>
-              <p class="cal-fest-lead">这些节日没有法定假期安排，日期按农历计算，逐年对应到不同的公历日期。</p>
-            </section>
-          )}
+            </div>
+
+            <p class="fs-axis-note">
+              实心点为法定节假日，空心点为传统节日；细刻度为二十四节气。法定节日按当年国务院办公厅安排标注放假天数，传统节日按农历换算到公历。
+              <a href={urlFor('/holidays/' + axisYear + '/')}>看 {axisYear} 年完整放假安排</a>
+            </p>
+          </section>
 
           <div class="cal-after">
             <p class="cal-note">每个节日的日期都由本站节假日数据现算，不手抄；民俗与说法部分已注明口径，来源互有出入的地方只列有依据的主流说法。</p>
