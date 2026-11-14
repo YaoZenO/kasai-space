@@ -45,6 +45,14 @@ function skip(label, why) {
 
 console.log('暗色模式 E2E（方案 §10 验收口径）');
 
+// E-169：HEAD 比对必须先归一换行符。
+// 本机 core.autocrlf=true —— 工作区文件是 CRLF，`git show HEAD:…` 出来的是 LF 的 blob，
+// 两边直接逐字比对会恒失败（2026-11-15 在本机实测：2 条断言长期假红，且与代码无关）。
+// 规矩：凡拿工作区内容跟 git blob 比的断言，两侧一律先过 lf()。
+const lf = (s) => String(s).replace(/\r\n/g, '\n');
+const gitShowLF = (rel) => lf(execFileSync('git', ['show', 'HEAD:' + rel],
+  { cwd: ROOT, encoding: 'utf8', maxBuffer: 20 * 1024 * 1024 }));
+
 const configYml = read('themes/fluid/_config.yml');
 const siteCss = read('source/css/site.css');
 const siteCssCode = stripComments(siteCss);
@@ -759,8 +767,7 @@ ok('年历页修补 3/4：暗态字色对其底全部 ≥4.5:1（WCAG，逐项�
 });
 
 ok('年历页修补 4/4：4.12b 原段零改动（HEAD 逐字比对 + git diff -U0 校验）', () => {
-  const head = execFileSync('git', ['show', 'HEAD:source/css/site.css'],
-    { cwd: ROOT, encoding: 'utf8', maxBuffer: 20 * 1024 * 1024 });
+  const head = gitShowLF('source/css/site.css');
   const grab = (s) => {
     const a = s.indexOf('/* ---- 4.12b');
     const b = s.indexOf('/* ===== 4.13', a);
@@ -768,7 +775,7 @@ ok('年历页修补 4/4：4.12b 原段零改动（HEAD 逐字比对 + git diff -
     return s.slice(a, b);
   };
   const headSeg = grab(head);
-  const curSeg = grab(siteCss);
+  const curSeg = lf(grab(siteCss));
   // 主理人已批准保留的唯一一处 4.12b 改动：calc 等价改写（归属并行年历段，非本次修补）。
   // 该改动已在 4bef1e8 随节假日图例一并提交，HEAD 里同样是改写后的形态——
   // 原来「把 cur 改回 calc 再和 HEAD 比」的写法只适用于它还在工作区的时候，
@@ -945,15 +952,14 @@ ok('A11/A12：§10-12 / §10-15 / §10-21 断言段与 HEAD 逐字一致（一�
 });
 
 ok('A11：过渡口径沿用 §10-21 一条不改（过渡段与 HEAD 逐字一致）', () => {
-  const headCss = execFileSync('git', ['show', 'HEAD:source/css/site.css'],
-    { cwd: ROOT, encoding: 'utf8', maxBuffer: 20 * 1024 * 1024 });
+  const headCss = gitShowLF('source/css/site.css');
   const grab = (s) => {
     const a = s.indexOf('@media (prefers-reduced-motion: no-preference)');
     const b = s.indexOf('/* ===== /15. 暗色模式', a);
     return a === -1 || b === -1 ? '' : s.slice(a, b);
   };
-  assert.ok(grab(siteCss).length > 100, '过渡段取样失效');
-  assert.strictEqual(grab(siteCss), grab(headCss), '明暗过渡段被改动');
+  assert.ok(grab(lf(siteCss)).length > 100, '过渡段取样失效');
+  assert.strictEqual(grab(lf(siteCss)), grab(headCss), '明暗过渡段被改动');
   assert.match(siteCss, /transition:\s*none !important/);
   assert.match(siteCss, /animation:\s*none !important/);
   ['background-color', 'color', 'border-color', 'filter'].forEach((p) => {
