@@ -702,7 +702,7 @@ if (!fs.existsSync(PUBLIC)) {
       '.zd-dossier', '.zd-name', '.zd-stats', '.zd-stat--wide', '.zd-relbar', '.zd-chip',
       '.zd-years', '.zd-year.is-current', '.zd-relations', '.zd-relation-note',
       '.lb-layout', '.lb-guide', '.lb-entries', '.lb-topic-more',
-      '.lb-stats', '.lb-cover-grid', '.lb-cover-bars', '.lb-cover-archive',
+      '.stat-band', '.lb-cover-grid', '.lb-cover-bars', '.lb-cover-archive',
       // 2026-11-11 §4.13b：地支环 + 正文配图 + 索引页缩略图
       '.z-wheel', '.zw-ring', '.zw-dot', '.zw-sanhe', '.zw-liuhe', '.zw-chong',
       '.zf-inline', '.zf-band', '.zf-band-fig', '.zf-cap', '.zf-credit',
@@ -856,7 +856,7 @@ if (!fs.existsSync(PUBLIC)) {
       assert.ok(cityCover.indexOf('<span>' + label + '</span>') !== -1, '城市封面缺字段标签：' + label);
     });
 
-    const statCount = (h.match(/<div class="lb-stat">/g) || []).length;
+    const statCount = (h.match(/<div class="stat-band-item">/g) || []).length;
     assert.strictEqual(statCount, 6, '首屏数字带应为专题 + 五类内容共六项');
     assert.ok(h.indexOf('<dt>节日</dt><dd>' + festivalCount + '</dd>') !== -1,
       '首屏数字带漏了节日文化或与 festivals.yml 不一致');

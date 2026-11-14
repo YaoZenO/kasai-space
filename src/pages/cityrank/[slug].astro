@@ -3,6 +3,7 @@
 // 排名表 + 评分口径；右栏常驻同组榜单（桌面 sticky，移动端落到内容下方）。
 // 约定（PRD §5.1 P0 铁律）：computed 榜必须公开指标与权重；来源与免责全页只留页脚一条小字。
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import EmptyState from '../../components/EmptyState.astro';
 import { getData } from '../../lib/data';
 import { buildCityRanks, findRank } from '../../lib/cityrank-data';
 import { fmtItemDate } from '../../lib/dates';
@@ -94,9 +95,9 @@ if (r) {
               <p class="page-head-kicker">CITY RANK</p>
               <h1 class="page-head-title">城市排行榜</h1>
             </header>
-            <p class="post-desc">
+            <EmptyState>
               这个榜单没有就位（<code>{rankSlug || '未知榜单'}</code>）：{CR.error || '数据里找不到该榜单'}。
-            </p>
+            </EmptyState>
           </>
         ) : (
           <>

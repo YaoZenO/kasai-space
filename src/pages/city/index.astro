@@ -18,6 +18,8 @@
 // 数据：source/_data/cities.yml + cityrank.yml；计算：src/lib/cityrank-data.ts
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import StatBand from '../../components/StatBand.astro';
+import EmptyState from '../../components/EmptyState.astro';
 import { getData } from '../../lib/data';
 import { buildCityRanks, cityMentionCount, cityProvinces } from '../../lib/cityrank-data';
 import { urlFor } from '../../lib/url';
@@ -151,7 +153,7 @@ const photos = data.cityphotos || {};
 
       {CR.error ? (
         <>
-          <p class="post-desc">城市档案的数据还在整理中，暂时无法展示，欢迎稍后再来看看。</p>
+          <EmptyState>城市档案的数据还在整理中，暂时无法展示，欢迎稍后再来看看。</EmptyState>
           <Fragment set:html={`<!-- dev: ${CR.error} -->`} />
         </>
       ) : (
@@ -162,12 +164,15 @@ const photos = data.cityphotos || {};
               <p class="cr-index-lede">
                 收录在本站榜单中出现过的城市。有权威来源的字段直接列出并标注年份，尚未采集到的一律标 <b>[待补]</b>，不做估算填充。
               </p>
-              <dl class="cr-stats">
-                <div class="cr-stat"><dt>城市档案</dt><dd>{list.length}</dd></div>
-                <div class="cr-stat"><dt>省级行政区</dt><dd>{provs.length}</dd></div>
-                <div class="cr-stat"><dt>有上榜记录</dt><dd>{withMentions}</dd></div>
-                <div class="cr-stat"><dt>数据年份</dt><dd>{dataYear}</dd></div>
-              </dl>
+              <StatBand
+                columns={4}
+                items={[
+                  { label: '城市档案', value: list.length },
+                  { label: '省级行政区', value: provs.length },
+                  { label: '有上榜记录', value: withMentions },
+                  { label: '数据年份', value: dataYear },
+                ]}
+              />
               <form class="cr-search" action={urlFor('/search/')} method="get" role="search">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
                 <input type="search" name="q" placeholder="输入城市名，例如 苏州、成都" aria-label="搜索城市" />

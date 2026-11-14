@@ -957,13 +957,13 @@ if (fs.existsSync(path.join(PUBLIC, 'city', 'index.html'))) {
       assert.strictEqual((html.match(/page-head-kicker/g) || []).length, 0,
         '省级页仍有文章壳 kicker：' + p.slug);
       assert.ok(html.indexOf('cr-prov-head') !== -1, '省级页缺档案头：' + p.slug);
-      assert.strictEqual((html.match(/<div class="cr-stat">/g) || []).length, 4,
+      assert.strictEqual((html.match(/<div class="stat-band-item">/g) || []).length, 4,
         '省级页数字带不是四格：' + p.slug);
       assert.strictEqual((html.match(/<input/g) || []).length, 0,
         '省级页出现了输入控件（C-6 红线）：' + p.slug);
 
       // ② 城市卡：一城一卡；有档案的链到城市页，没有的标「档案整理中」
-      assert.ok(html.indexOf('cr-stats') !== -1, '省级页缺数字带容器：' + p.slug);
+      assert.ok(html.indexOf('stat-band') !== -1, '省级页缺数字带容器：' + p.slug);
       const gridStart = html.indexOf('<div class="cr-citygrid">');
       const gridEnd = html.indexOf('cr-prov-records');
       assert.ok(gridStart > 0 && gridEnd > gridStart, '省级页缺城市宫格：' + p.slug);
@@ -1307,7 +1307,7 @@ ok('S25 产物：/cityrank/ 首屏是仪表盘，145 个榜仍全部可达', () 
   assert.ok(html.indexOf('crk-hero') !== -1, '首屏缺仪表盘容器（仍是文章壳）');
   assert.ok(html.indexOf('crk-herocard') !== -1, '首屏缺主榜条形卡');
   assert.ok(html.indexOf('class="cr-search"') !== -1, '首屏缺搜索（无 JS 也要能查）');
-  assert.ok(html.indexOf('crk-stats') !== -1, '首屏缺数字带');
+  assert.ok(html.indexOf('stat-band') !== -1, '首屏缺数字带');
 
   const slugs = new Set([...html.matchAll(/href="\/cityrank\/([a-z0-9-]+)\/"/g)].map((m) => m[1]));
   assert.ok(slugs.size >= R.rankCount, '有榜在页面上找不到入口：' + slugs.size + '/' + R.rankCount);

@@ -2,6 +2,7 @@
 // 友链页：复刻 links.ejs。条目来自主题配置 theme.links.items（当前为空 → 诚实空态）。
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHead from '../../components/PageHead.astro';
+import EmptyState from '../../components/EmptyState.astro';
 import { themeConfig } from '../../lib/site-config';
 import { t } from '../../lib/i18n';
 import { urlFor } from '../../lib/url';
@@ -28,7 +29,7 @@ const title = themeConfig.links?.title || t('links').title;
           ))}
         </div>
       ) : (
-        <p class="post-desc">还没有添加友链。想交换的话，从站内任意一个社交图标找到我——发站点链接和一句话介绍就行。</p>
+        <EmptyState>还没有添加友链。想交换的话，从站内任意一个社交图标找到我——发站点链接和一句话介绍就行。</EmptyState>
       )}
     </div>
   </div>

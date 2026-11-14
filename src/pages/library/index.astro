@@ -19,6 +19,8 @@
 // 每行一个字段名，右侧是 431 座城市里已收录该字段的座数，一眼看出档案里有什么。
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import StatBand from '../../components/StatBand.astro';
+import EmptyState from '../../components/EmptyState.astro';
 import { getData } from '../../lib/data';
 import { buildCityRanks } from '../../lib/cityrank-data';
 import { buildOverview } from '../../lib/zodiac-data';
@@ -161,7 +163,7 @@ const cityFieldTags = CITY_FIELDS.filter((f) =>
           <p class="page-head-kicker">LIBRARY</p>
           <h1 class="page-head-title">资料库</h1>
         </header>
-        <p class="post-desc">资料库的专题还在整理中，上线后即可阅读，欢迎稍后再来看看。</p>
+        <EmptyState>资料库的专题还在整理中，上线后即可阅读，欢迎稍后再来看看。</EmptyState>
       </div>
     </div>
   ) : (
@@ -170,11 +172,11 @@ const cityFieldTags = CITY_FIELDS.filter((f) =>
         <section class="lb-hero">
           <h1 class="lb-title">资料库</h1>
           <p class="lb-lede"><Fragment set:html={meta.intro || ''} /></p>
-          <dl class="lb-stats">
-            {stats.map((st: any) => (
-              <div class="lb-stat"><dt>{st.label}</dt><dd>{st.value}</dd></div>
-            ))}
-          </dl>
+          <StatBand
+            columns={6}
+            class="stat-band--flush stat-band--ruled"
+            items={stats.map((st: any) => ({ label: st.label, value: st.value }))}
+          />
         </section>
 
         <section class="lb-shelf-block">

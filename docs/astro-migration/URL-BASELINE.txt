@@ -1,7 +1,7 @@
 # URL 基线（Astro 迁移验收清单）
-# 来源：Hexo 构建产物 public/（2026-11-06 构建，HEAD=85fa96f）
+# 来源：Astro 构建产物 dist/（2026-11-14 重算）
 # 规则：index.html 归一为目录 URL 并补尾斜杠；非 ASCII 路径保持产物原样
-# 统计：702 个页面 + /404.html = 703 个 HTML
+# 统计：623 个页面 + 5 个非 HTML 资源 = 628 条
 
 [HOME] 1
 /
@@ -25,29 +25,29 @@
 
 [CATEGORIES] 8
 /categories/
-/categories/踩坑记录/
-/categories/城市数据/
 /categories/个人感悟/
 /categories/名词解释/
-/categories/设计资源/
+/categories/城市数据/
 /categories/学习路线/
 /categories/职业发展/
+/categories/设计资源/
+/categories/踩坑记录/
 
 [TAGS] 14
 /tags/
 /tags/C/
 /tags/Hexo/
 /tags/产品经理/
+/tags/名词解释/
 /tags/城市排行榜/
 /tags/城市数据/
 /tags/大模型/
+/tags/学习路线/
 /tags/工程/
 /tags/建站/
-/tags/面试/
-/tags/名词解释/
 /tags/设计风格/
 /tags/随笔/
-/tags/学习路线/
+/tags/面试/
 
 [PROJECTS] 4
 /projects/
@@ -161,10 +161,10 @@
 /cityrank/lvhuazuimeidecheng/
 /cityrank/lvyouchengshipandi/
 /cityrank/meishizuiduodeshid/
-/cityrank/mianjizuidadeshida/
 /cityrank/mianjizuidadeshida-2/
-/cityrank/mianjizuixiaodeshi/
+/cityrank/mianjizuidadeshida/
 /cityrank/mianjizuixiaodeshi-2/
+/cityrank/mianjizuixiaodeshi/
 /cityrank/nagechengshidewaim/
 /cityrank/nanfangshidalvyouc/
 /cityrank/nanfangzuiyijudeda/
@@ -179,8 +179,8 @@
 /cityrank/shandongmianjizuid/
 /cityrank/shandongshidacheng/
 /cityrank/shangbiaoshenqingl/
-/cityrank/shanxishidachengsh/
 /cityrank/shanxishidachengsh-2/
+/cityrank/shanxishidachengsh/
 /cityrank/shidabuyidizhenche/
 /cityrank/shidachuangyecheng/
 /cityrank/shidachunjilvyouch/
@@ -224,7 +224,6 @@
 /cityrank/shidazuiqueshuidec/
 /cityrank/shidazuishiheliuxu/
 /cityrank/shidazuqiuchengshi/
-/cityrank/shiheyuelvyoudeshi/
 /cityrank/shiheyuelvyoudeshi-10/
 /cityrank/shiheyuelvyoudeshi-11/
 /cityrank/shiheyuelvyoudeshi-12/
@@ -236,6 +235,7 @@
 /cityrank/shiheyuelvyoudeshi-7/
 /cityrank/shiheyuelvyoudeshi-8/
 /cityrank/shiheyuelvyoudeshi-9/
+/cityrank/shiheyuelvyoudeshi/
 /cityrank/shijiayijuchengshi/
 /cityrank/shuangyiliudaxuezu/
 /cityrank/sichuanshidachengs/
@@ -266,16 +266,13 @@
 /cityrank/zuirongyizhuanqian/
 /cityrank/zuizaokaitongditie/
 
-[CITY] 460
+[CITY] 380
 /city/
 /city/aba/
-/city/aershan/
 /city/akesu/
 /city/alashan/
 /city/aleitai/
-/city/aleitaibuerjinbeijiangshuita/
 /city/ali/
-/city/anhaizhen/
 /city/ankang/
 /city/anqing/
 /city/anshan/
@@ -305,24 +302,19 @@
 /city/changdou/
 /city/changji/
 /city/changsha/
-/city/changshu/
 /city/changzhou/
 /city/chaozhou/
-/city/chendaizhen/
 /city/chengde/
 /city/chengdu/
 /city/chenzhou/
-/city/chidianzhen/
 /city/chifeng/
 /city/chizhou/
 /city/chongqing/
 /city/chongzuo/
 /city/chuxiong/
 /city/chuzhou/
-/city/cizaozhen/
 /city/dali/
 /city/dalian/
-/city/dalianshizhanghai/
 /city/dandong/
 /city/danzhou/
 /city/daqing/
@@ -335,38 +327,27 @@
 /city/dingxi/
 /city/diqingxianggelila/
 /city/dongguan/
-/city/dongshizhen/
-/city/dongxingshibeibuwanpanbianchuimingzhu/
 /city/dongying/
 /city/eerduosi/
 /city/enshi/
 /city/ezhou/
 /city/fangchenggang/
 /city/foshan/
-/city/foshannanhai/
 /city/fushun/
-/city/fuxicha/
-/city/fuxidan/
 /city/fuxin/
-/city/fuxishucai/
-/city/fuxishuiguo/
 /city/fuyang/
-/city/fuyuanhuaxiadongji/
-/city/fuzhou/
 /city/fuzhou-jx/
+/city/fuzhou/
 /city/gannan/
-/city/gansuxiahe/
 /city/ganzhou/
 /city/ganzi/
 /city/gaoxiong/
 /city/guangan/
-/city/guangxiyangshuo/
 /city/guangyuan/
 /city/guangzhou/
 /city/guigang/
 /city/guilin/
 /city/guiyang/
-/city/guizhoulibo/
 /city/guoluozhou/
 /city/guyuan/
 /city/haerbin/
@@ -384,8 +365,6 @@
 /city/hefei/
 /city/hegang/
 /city/heihe/
-/city/henanruzhou/
-/city/henanxiuwu/
 /city/hengshui/
 /city/hengyang/
 /city/hetian/
@@ -405,13 +384,10 @@
 /city/huizhou/
 /city/huludao/
 /city/hulunbeier/
-/city/hunanfenghuang/
-/city/hunanliling/
 /city/huzhou/
 /city/jiamusi/
 /city/jian/
 /city/jiangmen/
-/city/jiangyin/
 /city/jiaozuo/
 /city/jiaxing/
 /city/jiayuguan/
@@ -422,26 +398,19 @@
 /city/jincheng/
 /city/jingdezhen/
 /city/jingmen/
-/city/jingxixiaokunming/
-/city/jingyu/
 /city/jingzhou/
 /city/jinhua/
 /city/jining/
-/city/jinjingzhen/
 /city/jinzhong/
 /city/jinzhou/
 /city/jiujiang/
 /city/jiuquan/
-/city/jiuquanshidunhuang/
 /city/jixi/
 /city/jiyuan/
-/city/juzhongzhixiangguangdongshengshilongzhen/
 /city/kaifeng/
-/city/kaili/
 /city/kashi/
 /city/kelamayi/
 /city/kezilesu/
-/city/kuerlei/
 /city/kunming/
 /city/laibin/
 /city/langfang/
@@ -462,7 +431,6 @@
 /city/liupanshui/
 /city/liuzhou/
 /city/liyuereneilu/
-/city/longhuzhen/
 /city/longnan/
 /city/longyan/
 /city/loudi/
@@ -473,15 +441,10 @@
 /city/luzhou/
 /city/lvliang/
 /city/maanshan/
-/city/mang/
-/city/manzhoulidongyazhichuang/
 /city/maoming/
 /city/meishan/
 /city/meizhou/
-/city/mengzi/
 /city/mianyang/
-/city/mohe/
-/city/mohexianzhongguodituzuibeiduan/
 /city/mudanjiang/
 /city/nanchang/
 /city/nanchong/
@@ -492,16 +455,13 @@
 /city/nanyang/
 /city/naqu/
 /city/neijiang/
-/city/neikengzhen/
 /city/ningbo/
 /city/ningde/
 /city/nujiang/
-/city/paiqiuzhixiangguangdongshengtaishan/
 /city/panjin/
 /city/panzhihua/
 /city/pingdingshan/
 /city/pingliang/
-/city/pingtan/
 /city/pingxiang/
 /city/province/anhui/
 /city/province/fujian/
@@ -510,6 +470,7 @@
 /city/province/guangxi/
 /city/province/guizhou/
 /city/province/hainan/
+/city/province/haiwai/
 /city/province/hebei/
 /city/province/heilongjiang/
 /city/province/henan/
@@ -546,17 +507,6 @@
 /city/qiqihaer/
 /city/qitaihe/
 /city/quanzhou/
-/city/quanzhoushidabowuguanjinianguan/
-/city/quanzhoushidagongyuanyuanlin/
-/city/quanzhoushidahaitanshatan/
-/city/quanzhoushidajiexiangguangchangguzhen/
-/city/quanzhoushidaleyuanqinzijingdian/
-/city/quanzhoushidalishigujiguqiao/
-/city/quanzhoushidamiaoyu/
-/city/quanzhoushidamingshanxiagu/
-/city/quanzhoushidasiyuan/
-/city/quanzhouwudadaoyu/
-/city/qufu/
 /city/qujing/
 /city/quzhou/
 /city/rikaze/
@@ -565,20 +515,16 @@
 /city/sanming/
 /city/sansha/
 /city/sanya/
-/city/shandongpenglai/
 /city/shanghai/
 /city/shangluo/
 /city/shangqiu/
 /city/shangrao/
-/city/shangzhi/
 /city/shannan/
 /city/shantou/
-/city/shantounanao/
 /city/shanwei/
 /city/shaoguan/
 /city/shaoxing/
 /city/shaoyang/
-/city/shenhuzhen/
 /city/shennongjia/
 /city/shenyang/
 /city/shenzhen/
@@ -586,41 +532,33 @@
 /city/shiyan/
 /city/shizuishan/
 /city/shouer/
-/city/shuaijiaozhixiangshanxishengxinzhou/
 /city/shuangyashan/
 /city/shuozhou/
-/city/sichuandaocheng/
-/city/sichuanheishui/
 /city/suihua/
 /city/suining/
 /city/suizhou/
 /city/suqian/
-/city/suzhou/
 /city/suzhou-ah/
+/city/suzhou/
 /city/tacheng/
 /city/taian/
 /city/taibei/
 /city/tainan/
 /city/taiyuan/
 /city/taizhong/
-/city/taizhou/
 /city/taizhou-js/
+/city/taizhou/
 /city/tangshan/
 /city/taoyuan/
-/city/tengchong/
 /city/tianjin/
-/city/tianjingzhixiangguangxiyulin/
 /city/tianmen/
 /city/tianshui/
-/city/tiaoshuizhixiangguangdongshengzhanjiang/
-/city/ticaozhixianghubeishengxiantao/
 /city/tieling/
 /city/tongchuan/
 /city/tongliao/
 /city/tongling/
 /city/tongren/
 /city/tulufan/
-/city/wangqiuzhixianghubeishengjingshan/
 /city/weifang/
 /city/weihai/
 /city/weinan/
@@ -631,14 +569,11 @@
 /city/wuhu/
 /city/wulanchabu/
 /city/wulumuqi/
-/city/wuqi/
 /city/wuwei/
 /city/wuxi/
-/city/wuxiyixing/
 /city/wuzhong/
 /city/wuzhou/
 /city/xiamen/
-/city/xiamenhulisiming/
 /city/xian/
 /city/xianggang/
 /city/xiangtan/
@@ -648,14 +583,11 @@
 /city/xiantao/
 /city/xianyang/
 /city/xiaogan/
-/city/xichang/
 /city/xilinguolei/
 /city/xinbei/
 /city/xingan/
 /city/xingtai/
-/city/xingyi/
 /city/xining/
-/city/xinjiangbuerjin/
 /city/xinjiapo/
 /city/xinxiang/
 /city/xinyang/
@@ -664,7 +596,6 @@
 /city/xinzhu/
 /city/xishuangbanna/
 /city/xiyatu/
-/city/xizangjiangzi/
 /city/xuancheng/
 /city/xuchang/
 /city/xuzhou/
@@ -675,32 +606,25 @@
 /city/yangjiang/
 /city/yangquan/
 /city/yangzhou/
-/city/yanling/
 /city/yantai/
 /city/yibin/
 /city/yichang/
-/city/yichun/
 /city/yichun-hlj/
+/city/yichun/
 /city/yili/
-/city/yilizhaosusaiwaijiangnan/
 /city/yinchuan/
 /city/yingkou/
-/city/yinglinzhen/
 /city/yingtan/
 /city/yiyang/
 /city/yongzhou/
-/city/youyongzhixiangguangdongshengdongguan/
 /city/yueyang/
-/city/yulin/
 /city/yulin-sx/
-/city/yumaoqiuzhixianghunanshengyiyang/
+/city/yulin/
 /city/yuncheng/
 /city/yunfu/
 /city/yushuzhou/
 /city/yuxi/
-/city/yuzhou/
 /city/zaozhuang/
-/city/zhangdao/
 /city/zhangjiajie/
 /city/zhangjiakou/
 /city/zhangye/
@@ -716,9 +640,6 @@
 /city/zhongwei/
 /city/zhoukou/
 /city/zhoushan/
-/city/zhoushanshidaishan/
-/city/zhoushanshiputuo/
-/city/zhoushanshishengsi/
 /city/zhuhai/
 /city/zhumadian/
 /city/zhuzhou/
@@ -726,19 +647,18 @@
 /city/zigong/
 /city/ziyang/
 /city/zunyi/
-/city/zuoquan/
 
-[OTHER] 5
+[OTHER] 6
+/404.html
 /about/
 /admin/
 /links/
 /now/
 /search/
 
-[ENDPOINTS]
-/404.html
+[ENDPOINTS] 5
 /atom.xml
-/sitemap.xml
-/search-index.json
-/robots.txt
 /favicon.ico
+/robots.txt
+/search-index.json
+/sitemap.xml

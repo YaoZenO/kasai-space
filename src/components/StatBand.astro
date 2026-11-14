@@ -1,0 +1,23 @@
+---
+// 数字带（PAGE-FORM-PLAN §4.6.10 / S0）：数字在上、标签在下。
+// 用 dl 保语义，视觉顺序交给 CSS 的 column-reverse，不把 dt/dd 写反。
+// 分栏由 columns 决定（3 / 4 / 6）；窄屏统一落两列，行间距由页面用 class 收口。
+interface Item {
+  label: string;
+  value: string | number;
+}
+
+interface Props {
+  items: Item[];
+  columns?: 3 | 4 | 6;
+  class?: string;
+}
+
+const { items, columns = 4, class: className } = Astro.props;
+---
+
+<dl class:list={['stat-band', columns === 3 && 'stat-band--three', className]} style={`--stat-cols:${columns}`}>
+  {items.map((item) => (
+    <div class="stat-band-item"><dt>{item.label}</dt><dd>{item.value}</dd></div>
+  ))}
+</dl>

@@ -12,6 +12,8 @@
 // 数据仍由 cityProvinces() / cityMentionCount() / buildCityRanks() 现算，不新增数据文件、
 // 不新增输入控件（C-6 红线）、URL 不变。
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import StatBand from '../../../components/StatBand.astro';
+import EmptyState from '../../../components/EmptyState.astro';
 import { getData } from '../../../lib/data';
 import { buildCityRanks, cityProvinces, cityHasPage, cityMentionCount } from '../../../lib/cityrank-data';
 import { urlFor } from '../../../lib/url';
@@ -118,7 +120,7 @@ function hitsText(hits: any[]): string {
         !p ? (
           <>
             <h1 class="cr-index-title">省级聚合</h1>
-            <p class="post-desc">这个省份的聚合页还在整理中，暂时无法展示，欢迎稍后再来看看。</p>
+            <EmptyState>这个省份的聚合页还在整理中，暂时无法展示，欢迎稍后再来看看。</EmptyState>
             <Fragment set:html={`<!-- dev: slug=${provinceSlug || '未知省份'}; ${CR.error || '数据里没有该省的建档城市'} -->`} />
           </>
         ) : (
@@ -132,12 +134,15 @@ function hitsText(hits: any[]): string {
               <p class="cr-index-lede">
                 这里列出{p.name}的建档城市、它们在省内榜里的名次，以及进入全国榜的记录。点城市名查看完整档案。
               </p>
-              <dl class="cr-stats">
-                <div class="cr-stat"><dt>建档城市</dt><dd>{cityTotal}</dd></div>
-                <div class="cr-stat"><dt>有档案页</dt><dd>{cityWithPage}</dd></div>
-                <div class="cr-stat"><dt>省内榜</dt><dd>{provRankCount}</dd></div>
-                <div class="cr-stat"><dt>全国榜上榜次数</dt><dd>{natHitCount}</dd></div>
-              </dl>
+              <StatBand
+                columns={4}
+                items={[
+                  { label: '建档城市', value: cityTotal },
+                  { label: '有档案页', value: cityWithPage },
+                  { label: '省内榜', value: provRankCount },
+                  { label: '全国榜上榜次数', value: natHitCount },
+                ]}
+              />
             </header>
 
             <section class="cr-sec-block">

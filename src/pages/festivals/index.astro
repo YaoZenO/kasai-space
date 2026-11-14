@@ -11,6 +11,7 @@
 // 样式：site.css §4.15（.fs-* 规则）。
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import EmptyState from '../../components/EmptyState.astro';
 import { getData } from '../../lib/data';
 import { urlFor } from '../../lib/url';
 import { pageDates } from '../../lib/page-meta';
@@ -155,7 +156,7 @@ const months = Array.from({ length: 12 }, (_, i) => i + 1);
       </header>
 
       {marks.length === 0 ? (
-        <p class="post-desc">节日内容还在整理中，页面会随数据录入自动生成，欢迎稍后再来看看。</p>
+        <EmptyState>节日内容还在整理中，页面会随数据录入自动生成，欢迎稍后再来看看。</EmptyState>
       ) : (
         <>
           <section class="fs-year" aria-labelledby="fs-year-title">

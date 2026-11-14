@@ -8,6 +8,7 @@
 // 内联脚本只做「chip 筛选高亮 + 点月切换明细」。
 
 import BaseLayout from '../layouts/BaseLayout.astro';
+import EmptyState from './EmptyState.astro';
 import { fmtItemDate } from '../lib/dates';
 import { urlFor } from '../lib/url';
 import { calendarView } from '../lib/holiday-calendar';
@@ -48,7 +49,7 @@ const pads = (n: number) => Array.from({ length: n }, (_, i) => i);
   <div class="paper-page cal-page pg-holidays hy-page" data-filter="all">
     <div class="home-wrap">
       {!cal ? (
-        <p class="post-desc">这一年的节假日数据还在整理中，页面会随数据录入自动生成，欢迎稍后再来看看。</p>
+        <EmptyState>这一年的节假日数据还在整理中，页面会随数据录入自动生成，欢迎稍后再来看看。</EmptyState>
       ) : (
         <>
           <header class="hy-head">

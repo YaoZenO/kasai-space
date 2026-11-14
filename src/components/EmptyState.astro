@@ -1,0 +1,11 @@
+---
+// 空态（PAGE-FORM-PLAN §4.6.10 / S0）：一句现状说明，必要时带一个出口。
+// 措辞只陈述现状，不解释设计。出口由调用方用普通链接写在内容里，组件只管排版。
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<p class:list={['empty-state', className]}><slot /></p>

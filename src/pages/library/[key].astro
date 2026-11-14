@@ -8,6 +8,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import EmptyState from '../../components/EmptyState.astro';
 import { getData } from '../../lib/data';
 import { buildFestival } from '../../lib/festival-data';
 import { fmtItemDate } from '../../lib/dates';
@@ -63,7 +64,7 @@ const { published, modified } = pageDates(`library/${key}/index.md`);
             <p class="page-head-kicker">FESTIVAL</p>
             <h1 class="page-head-title">节日文化</h1>
           </header>
-          <p class="post-desc">这一页的内容还在整理中，暂时无法展示，欢迎稍后再来看看。</p>
+          <EmptyState>这一页的内容还在整理中，暂时无法展示，欢迎稍后再来看看。</EmptyState>
         </div>
       </div>
     ) : (

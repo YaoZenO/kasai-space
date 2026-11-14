@@ -4,6 +4,7 @@
 // 数据：source/_data/zodiac.yml；计算：src/lib/zodiac-data.ts（干支、起止、三合六冲）
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import EmptyState from '../../components/EmptyState.astro';
 import { getData } from '../../lib/data';
 import { buildOverview } from '../../lib/zodiac-data';
 import { fmtItemDate } from '../../lib/dates';
@@ -23,7 +24,7 @@ const { published, modified } = pageDates('zodiac/index.md');
             <p class="page-head-kicker">ZODIAC</p>
             <h1 class="page-head-title">十二生肖</h1>
           </header>
-          <p class="post-desc">生肖内容还在整理中，页面会随数据录入自动生成，欢迎稍后再来看看。</p>
+          <EmptyState>生肖内容还在整理中，页面会随数据录入自动生成，欢迎稍后再来看看。</EmptyState>
         </>
       ) : (
         <>

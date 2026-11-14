@@ -6,6 +6,8 @@
 // 计算：src/lib/cityrank-data.ts（名次现算，不存名次）
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import StatBand from '../../components/StatBand.astro';
+import EmptyState from '../../components/EmptyState.astro';
 import { getData } from '../../lib/data';
 import { buildCityRanks } from '../../lib/cityrank-data';
 import { fmtItemDate } from '../../lib/dates';
@@ -81,7 +83,7 @@ function kindLabel(kind: string) {
             <p class="page-head-kicker">CITY RANK</p>
             <h1 class="page-head-title">城市排行榜</h1>
           </header>
-          <p class="post-desc">城市榜的数据还在整理中，暂时无法展示。我们会尽快补齐，欢迎稍后再来看看。</p>
+          <EmptyState>城市榜的数据还在整理中，暂时无法展示。我们会尽快补齐，欢迎稍后再来看看。</EmptyState>
         </>
       ) : (
         <>
@@ -95,11 +97,14 @@ function kindLabel(kind: string) {
               <p class="cal-lede">
                 <b>{rankCount} 个榜单，{cityCount} 座城市。</b>名次不是写死的：{computedCount} 个榜由公开指标现算，指标与权重都写在榜页上，可以复算。
               </p>
-              <dl class="cr-stats crk-stats">
-                <div class="cr-stat"><dt>榜单</dt><dd>{rankCount}</dd></div>
-                <div class="cr-stat"><dt>覆盖城市</dt><dd>{cityCount}</dd></div>
-                <div class="cr-stat"><dt>数据年份</dt><dd>{dataYear}</dd></div>
-              </dl>
+              <StatBand
+                columns={3}
+                items={[
+                  { label: '榜单', value: rankCount },
+                  { label: '覆盖城市', value: cityCount },
+                  { label: '数据年份', value: dataYear },
+                ]}
+              />
               <form class="cr-search" action={urlFor('/search/')} method="get" role="search">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
                 <input type="search" name="q" placeholder="输入城市名，查它在各榜的名次" aria-label="搜索城市" />

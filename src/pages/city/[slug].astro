@@ -3,6 +3,7 @@
 // 首屏回答「这是哪座城市、关键指标在全国什么位置」，再展开完整字段与上榜记录。
 // 数值档案 + 全国分位 + 上榜记录；缺值一律 [待补]，不填估算值。
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import EmptyState from '../../components/EmptyState.astro';
 import { getData } from '../../lib/data';
 import {
   buildCityRanks, cityHasPage, findCity, cityMentions, cityMetricStandings,
@@ -193,7 +194,7 @@ const peerMoreHref = provPage && !(provPage.total === 1 && provPage.pageCount ==
             <header class="page-head">
               <h1 class="page-head-title">城市档案</h1>
             </header>
-            <p class="post-desc">这座城市的档案还在整理中，暂时无法展示，欢迎稍后再来看看。</p>
+            <EmptyState>这座城市的档案还在整理中，暂时无法展示，欢迎稍后再来看看。</EmptyState>
             <Fragment set:html={`<!-- dev: slug=${citySlug || '未知城市'}; ${CR.error || '数据里找不到该城市'} -->`} />
           </>
         ) : (
