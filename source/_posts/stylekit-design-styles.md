@@ -5,6 +5,7 @@ tags: [设计风格, 建站]
 categories: 设计资源
 banner_img: https://www.stylekit.top/brand/v3/social-preview.png
 index_img: https://www.stylekit.top/brand/v3/social-preview.png
+blurb: "把玄学的「好看」拆解为可复用的视觉语法：149 种现代网页设计流派的色彩、排印与空间骨架索引。"
 ---
 
 > 来源：[StyleKit 设计风格库](https://www.stylekit.top/zh/styles)（开源项目）

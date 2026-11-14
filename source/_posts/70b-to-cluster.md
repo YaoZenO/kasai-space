@@ -3,6 +3,7 @@ title: "70B 到底有多大：从一块卡到一千张卡"
 date: "2026-11-04 01:16:46"
 tags: [名词解释, 大模型]
 categories: 名词解释
+blurb: "两张 80G 显卡勉强塞得下推理，却连训练的零头都装不下——从单卡显存墙到千卡集群通信的账本拆解。"
 ---
 
 > 数据出处：[NVIDIA H100 产品页](https://www.nvidia.com/en-us/data-center/h100/)（80GB HBM3、bf16 1,979 TFLOPS、700W）；[NVIDIA NVLink 页](https://www.nvidia.com/en-us/data-center/nvlink)（18 条链路、整卡总带宽 900GB/s）；[DGX H100 用户指南](https://docs.nvidia.com/dgx/dgxh100-user-guide/dgxh100-user-guide.pdf)（8 个 400Gb/s 网络口）；Meta《The Llama 3 Herd of Models》表 3（70B：80 层、模型维度 8192、8 个 KV head）；[NVIDIA MLPerf 记录](https://developer.nvidia.com/blog/setting-new-records-at-data-center-scale-using-nvidia-h100-gpus-and-quantum-2-infiniband/)（10,752 张 H100、3.92 分钟）。

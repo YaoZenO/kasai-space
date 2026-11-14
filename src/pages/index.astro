@@ -1,437 +1,377 @@
 ---
-// 首页：图纸 + 刻度 + 档案（2026-11-15 改版，方案见 DESIGN-HOME-MEASURE-2026-11-15.md）
+// 首页：三屏滚动叙事（2026-11-15 第二轮重构，方案见 DESIGN-HOME-SPATIAL.md）
 //
-// 三层空间：
-//   ① 图纸 .mz-plate —— 城市照片压站点身份与年度位置（sticky，滚动时被仪表覆盖）
-//   ② 仪表 .mz-inst  —— 站点档案的时间刻度，可拖动/键盘定位，读数条给出当天记录
-//   ③ 档案 .mz-arch  —— 全部记录按日期倒序，与刻度尺双向呼应
-// 末尾「去处」按真实条目数给出资料入口。
+// 结构对齐参考站 0z5a.github.io 的机制，不复制其像素：
+//   ① 底层 <canvas id="sd-canvas">  固定画布，程序化绘制（无图片请求）
+//   ② 三屏 #hero → #desk → #outro  滚动推进，画布按进度联动
+//   ③ 四窗 2×2 对称工作台           外壳 100% 统一，只有内容不同
 //
-// 纪律：全部真实数据驱动；空日不编造；无 JS 时刻度与档案照常可读可点；
-// 不新增第三方依赖；只改 transform / opacity，进度经 --mz-p 交给 CSS。
+// 纪律：
+//   · 窗口抬头只放标题，一个数字都不放（主人 2026-11-15 铁律 1）；
+//   · 第三屏用 section 元素而不是 footer：body.is-home footer 会被全站规则隐藏（E-071）；
+//   · 四窗内部结构与外壳同构，不做"一个墨底一个透明"的差异化；
+//   · 文章在首页只出现一次；游戏与收藏不进首页；
+//   · 商用文案（About 三句）由主人定稿，模板里只做展示。
 
+import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getData } from '../lib/data';
 import { getPosts } from '../lib/posts';
 import { themeConfig } from '../lib/site-config';
+import { renderMarkdown } from '../lib/markdown';
 import { urlFor } from '../lib/url';
 import { fmtItemDate } from '../lib/dates';
 import { detailPath, type ModuleKey } from '../lib/modules';
 
 const data = getData();
 const posts = getPosts();
-const siteCfg = data.site || {};
+const pages = await getCollection('pages');
+
+const siteCfg: any = data.site || {};
 const siteTitle = themeConfig.navbar?.blog_title || "KASAI'S Personal Space";
+const intro = siteCfg.intro || themeConfig.about?.intro || 'Be Water, My Friends.';
+const avatar = siteCfg.avatar || themeConfig.about?.avatar || '';
+const icons: any[] = themeConfig.about?.icons || [];
+const hasCopy = icons.some((e: any) => e && !e.link && !e.qrcode && e.copy);
 
-const identityAvatar = siteCfg.avatar || themeConfig.about?.avatar || '';
-const identityIntro = siteCfg.intro || themeConfig.about?.intro || '';
+// 站名里的颜文字不上首屏（R-5：身份位不放符号），只取中文姓名
+const realName = (String(themeConfig.about?.name || '').match(/^[\u4e00-\u9fa5·]+/) || [''])[0];
 
-const HERO_IMAGE = '/img/cities/hangzhou.jpg';
+const TODAY = fmtItemDate(new Date());
+const sinceYear = posts.length ? String(Math.min(...posts.map((p) => p.date.getFullYear()))) : '';
+
+// About Me 的三句状态描述：2026-11-15 主人定稿，逐字使用，不在此处改写
+const ABOUT_LINES = [
+  '构建本地优先的私有系统——用代码将「关系事实」与「资产周期」结构化。',
+  '独立维护这座数字空间：Astro 驱动，手搓 Git-backed 管理面板与自动化校验流。',
+  '数字策展与考据：清洗 350 城统计数据、16 年历法节气与馆藏文物档案。',
+];
+
+// ---------- Thinking：三篇长文 ----------
+// 顺序由深到浅：算力 → 数据 → 视觉。结论只读 front matter 的 blurb，
+// 绝不回退正文截取——正文开头是「数据出处」引用块，截进首页就成机械引用。
+const FEATURED = ['70b-to-cluster', 'metro-vs-gdp-rank-mismatch', 'stylekit-design-styles'];
+// 右侧短标签：全部是文章里的核心量级，不截断、不加省略号（主人 2026-11-15 铁律）
+const THINK_K: Record<string, string> = {
+  '70b-to-cluster': '显存 · 集群',
+  'metro-vs-gdp-rank-mismatch': '43 城 · ρ=0.870',
+  'stylekit-design-styles': '149 种风格',
+};
+const featured = FEATURED.map((slug) => posts.find((p) => p.slug === slug)).filter(Boolean) as any[];
+
+// ---------- Creations：两个真实项目 + 本站 ----------
+
+function plain(s: string): string {
+  return s
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/[*_`>#]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+function cut(s: string, max: number): string {
+  const head = plain(s).split(/——|；|：|，|。/)[0].trim();
+  return head.length > max ? head.slice(0, max) + '…' : head;
+}
+
+const nowEntry = pages.find((p) => p.id === 'now');
+const nowBody = String(nowEntry?.body || '');
+function sectionOf(body: string, heading: string): string {
+  const re = new RegExp(`(?:^|\\n)#{2,3}\\s*${heading}\\s*\\r?\\n([\\s\\S]*?)(?=\\r?\\n#{2,3}\\s|$)`);
+  const m = re.exec(body);
+  return m ? m[1].trim() : '';
+}
+
+const projectItems: any[] = data.projects?.items || [];
+const makeFromData = ['Ties', '资产追踪系统', '校园课程资源共享平台']
+  .map((t) => projectItems.find((it) => String(it.title) === t))
+  .filter(Boolean)
+  .map((it: any) => ({
+    id: String(it.title) === 'Ties' ? 'ties' : String(it.title) === '资产追踪系统' ? 'assets' : 'campus',
+    name: String(it.title),
+    note: cut(String(it.summary || ''), 20),
+    tech: (Array.isArray(it.tags) ? it.tags.slice(0, 3) : []).join(' · '),
+    href: urlFor(detailPath('projects' as ModuleKey, it)),
+    html: [it.background ? renderMarkdown(String(it.background)) : '', it.tech ? renderMarkdown(String(it.tech)) : ''].join(''),
+    more: { label: '完整记录', href: urlFor(detailPath('projects' as ModuleKey, it)) },
+  }));
+
+const makeAll = [
+  ...makeFromData,
+  {
+    id: 'site',
+    name: 'kasai-space',
+    note: '本站 · 自写管理面板',
+    tech: 'Astro · Vercel',
+    href: urlFor('/now/'),
+    html: renderMarkdown(sectionOf(nowBody, '这个站')),
+    more: { label: '完整演进见 /now/', href: urlFor('/now/') },
+  },
+];
+
+// ---------- Atlas：四个专题 + 馆藏缩略图 ----------
+
+const cityCount = (data.cities?.cities || []).length;
+let rankCount = 0;
+for (const g of data.cityrank?.groups || []) rankCount += (g.ranks || []).length;
+
+const holidayYears: any[] = data.holidays?.years || [];
+const holidayFirst = String(holidayYears[0]?.year || '');
+const holidayLast = String(holidayYears.slice(-1)[0]?.year || '');
+const festivalCount = (data.festivals?.festivals || []).length;
+const zodiacCount = (data.zodiac?.animals || []).length;
+
+const atlasRows = [
+  { href: '/cityrank/', name: '城市排行榜', k: `${cityCount} 城 · ${rankCount} 榜` },
+  { href: '/holidays/', name: '中国节假日', k: `${holidayFirst}–${holidayLast} · 节气` },
+  { href: '/festivals/', name: '节日文化', k: `${festivalCount} 篇考据` },
+  { href: '/zodiac/', name: '十二生肖', k: `${zodiacCount} 生肖 · LACMA 陶俑` },
+].filter((r) => r.k);
+
+const zodiacAnimals: any[] = data.zodiac?.animals || [];
+const zodiacImages: any = data.zodiac?.meta?.images || {};
+const THUMB_KEYS = ['dragon', 'tiger', 'horse', 'rat'];
+const thumbs = THUMB_KEYS.map((key) => {
+  const a = zodiacAnimals.find((x) => x.key === key);
+  const img = zodiacImages[key];
+  if (!a || !img) return null;
+  return {
+    key,
+    animal: String(a.animal),
+    alt: String(img.alt || ''),
+    thumb: `/img/zodiac/thumbs/${key}.jpg`,
+    href: urlFor(`/zodiac/${key}/`),
+  };
+}).filter(Boolean) as any[];
+
+// ---------- Outro：节气与假期状态 ----------
 
 const DAY_MS = 86400000;
-const SHANGHAI_OFFSET = 8 * 3600000;
-
-/** YYYY-MM-DD → 该日 00:00Z 的天序号；只做「日历日」运算，不参与时刻比较 */
 function dayNo(ymd: string): number {
   const [y, m, d] = ymd.split('-').map(Number);
   return Date.UTC(y, m - 1, d) / DAY_MS;
 }
-function ymdOf(dayNumber: number): string {
-  return new Date(dayNumber * DAY_MS).toISOString().slice(0, 10);
+const todayNo = dayNo(TODAY);
+
+type Ev = { kind: '假期' | '节气'; name: string; date: string };
+const events: Ev[] = [];
+for (const y of holidayYears) {
+  for (const h of y.holidays || []) if (h && h.start) events.push({ kind: '假期', name: String(h.name), date: String(h.start) });
+  for (const t of y.terms || []) if (t && t.date) events.push({ kind: '节气', name: String(t.name), date: String(t.date) });
 }
-function pct(v: number): string {
-  return `${Math.max(0, Math.min(1, v)) * 100}%`;
-}
+events.sort((a, b) => a.date.localeCompare(b.date));
 
-const TODAY_YMD = fmtItemDate(new Date()); // 上海日历日（fmtItemDate 内部按 Asia/Shanghai）
-const todayDay = dayNo(TODAY_YMD);
+const nextTerm = events.find((e) => e.kind === '节气' && e.date >= TODAY);
+const nextHoliday = events.find((e) => e.kind === '假期' && e.date >= TODAY);
+const daysTo = (d?: string) => (d ? dayNo(d) - todayNo : 0);
 
-// --- 记录聚合：文章 + 三个内容模块，全部条目（不是「最新 N 条」） ---
-type Rec = {
-  ymd: string;
-  day: number;
-  kind: string;
-  shape: string;
-  title: string;
-  href: string;
-  meta: string;
-  glyph: string;
-};
-
-const MODULE_META: Record<string, (it: any) => string> = {
-  projects: (it) => (Array.isArray(it.tags) ? it.tags.join(' / ') : ''),
-  games: (it) => [it.genre, it.platform, it.status].filter(Boolean).join(' · '),
-  collections: (it) => (it.link ? '站外' : '站内'),
-};
-const MODULE_SHAPE: Record<string, string> = {
-  projects: 'diamond',
-  games: 'square',
-  collections: 'ring',
-};
-const MODULE_ROUTE: Record<string, 1> = { projects: 1, games: 1 };
-
-let moduleCfg: any[] = data.modules?.items || [];
-if (!moduleCfg.length) {
-  moduleCfg = [
-    { key: 'projects', title: '项目', page: '/projects/' },
-    { key: 'games', title: '游戏', page: '/games/' },
-    { key: 'collections', title: '收藏', page: '/collections/' },
-  ];
-}
-
-const recs: Rec[] = [];
-
-for (const p of posts) {
-  const ymd = fmtItemDate(p.date);
-  recs.push({
-    ymd,
-    day: dayNo(ymd),
-    kind: '文章',
-    shape: 'circle',
-    title: p.title,
-    href: p.href,
-    meta: (p.categories || []).join(' / '),
-    glyph: '文',
-  });
-}
-
-for (const m of moduleCfg) {
-  if (!m || !m.key) continue;
-  const items: any[] = data[m.key as keyof typeof data]?.items || [];
-  for (const it of items) {
-    if (!it || !it.title || !it.date) continue;
-    const ymd = fmtItemDate(it.date);
-    const href = MODULE_ROUTE[m.key] ? detailPath(m.key as ModuleKey, it) : m.page || it.link || '';
-    recs.push({
-      ymd,
-      day: dayNo(ymd),
-      kind: String(m.title || m.key),
-      shape: MODULE_SHAPE[m.key] || 'circle',
-      title: String(it.title),
-      href: href || '',
-      meta: (MODULE_META[m.key] || (() => ''))(it),
-      glyph: String(m.title || m.key).slice(0, 1),
-    });
-  }
-}
-
-// 日期倒序；同日按类型固定次序，保证两次构建顺序一致
-const KIND_ORDER: Record<string, number> = { 文章: 0, 项目: 1, 游戏: 2, 收藏: 3 };
-recs.sort((a, b) => (b.day - a.day) || ((KIND_ORDER[a.kind] ?? 9) - (KIND_ORDER[b.kind] ?? 9)));
-
-const hasRecs = recs.length > 0;
-const startDay = hasRecs ? recs[recs.length - 1].day : todayDay;
-const endDay = Math.max(todayDay, startDay);
-const span = Math.max(1, endDay - startDay);
-const START_YMD = ymdOf(startDay);
-
-// 同一天的全部记录（供齿点计数与读数）
-const byDay = new Map<number, Rec[]>();
-for (const r of recs) {
-  const list = byDay.get(r.day) || [];
-  list.push(r);
-  byDay.set(r.day, list);
-}
-
-// --- 刻度：月细刻、年标签、月密度条 ---
-type Tick = { x: string; i: number; label?: string; align?: string };
-const monthTicks: Tick[] = [];
-const yearTicks: Tick[] = [];
-const density: { x: string; w: string; h: string; n: number; i: number; m: string }[] = [];
-
-const startDate = new Date(startDay * DAY_MS);
-const endDate = new Date(endDay * DAY_MS);
-let cursor = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), 1));
-let tickIndex = 0;
-const monthCounts = new Map<string, number>();
-for (const r of recs) {
-  const key = r.ymd.slice(0, 7);
-  monthCounts.set(key, (monthCounts.get(key) || 0) + 1);
-}
-
-while (cursor.getTime() <= endDate.getTime()) {
-  const y = cursor.getUTCFullYear();
-  const m = cursor.getUTCMonth();
-  const monthStart = Date.UTC(y, m, 1) / DAY_MS;
-  const nextMonth = Date.UTC(y, m + 1, 1) / DAY_MS;
-  const clampedStart = Math.max(monthStart, startDay);
-  const clampedEnd = Math.min(nextMonth, endDay + 1);
-  const key = `${y}-${String(m + 1).padStart(2, '0')}`;
-  const n = monthCounts.get(key) || 0;
-
-  if (monthStart > startDay) {
-    monthTicks.push({ x: pct((monthStart - startDay) / span), i: tickIndex });
-  }
-  if (m === 0 && monthStart >= startDay) {
-    yearTicks.push({ x: pct((monthStart - startDay) / span), i: tickIndex, label: String(y), align: 'start' });
-  }
-  if (clampedEnd > clampedStart) {
-    density.push({
-      x: pct((clampedStart - startDay) / span),
-      w: pct((clampedEnd - clampedStart) / span),
-      h: n === 0 ? '2px' : `${Math.min(26, 5 + n * 2.4)}px`,
-      n,
-      i: tickIndex,
-      m: key,
-    });
-  }
-  tickIndex += 1;
-  cursor = new Date(Date.UTC(y, m + 1, 1));
-}
-
-// 起点年份标签贴左；终点固定是「今天」
-yearTicks.unshift({ x: '0%', i: 0, label: String(startDate.getUTCFullYear()), align: 'start' });
-
-// --- 年度进度（图纸底边那条） ---
-const yearStart = Date.UTC(new Date(todayDay * DAY_MS).getUTCFullYear(), 0, 1) / DAY_MS;
-const yearEnd = Date.UTC(new Date(todayDay * DAY_MS).getUTCFullYear() + 1, 0, 1) / DAY_MS;
-const dayOfYear = todayDay - yearStart + 1;
-const daysInYear = yearEnd - yearStart;
-const currentYear = new Date(todayDay * DAY_MS).getUTCFullYear();
-
-// --- 距次年元旦天数：按 Asia/Shanghai 的口径算日期差，避免时区差一天 ---
-function daysToNewYear(now: number): { year: number; days: number } {
-  const shifted = now + SHANGHAI_OFFSET;
-  const year = new Date(shifted).getUTCFullYear() + 1;
-  return { year, days: Date.UTC(year, 0, 1) / DAY_MS - Math.floor(shifted / DAY_MS) };
-}
-const countdown = daysToNewYear(Date.now());
-
-const sinceYear = posts.length
-  ? String(Math.min(...posts.map((p) => p.date.getFullYear())))
-  : String(currentYear);
-
-// --- 去处：计数全部取自数据文件，不手写 ---
-const cityCount = (data.cities?.cities || []).length;
-let rankCount = 0;
-for (const g of data.cityrank?.groups || []) rankCount += (g.ranks || []).length;
-const holidayYears: any[] = data.holidays?.years || [];
-const holidaySpan = holidayYears.length
-  ? `${String(holidayYears[0].year || '').slice(0, 4)}—${String(holidayYears[holidayYears.length - 1].year || '').slice(-4)}`
-  : '';
-const animals: any[] = data.zodiac?.animals || [];
-const topics: any[] = data.library?.topics || [];
-const gameCount = (data.games?.items || []).length;
-const collectionCount = (data.collections?.items || []).length;
-
-const doors = [
-  { href: '/cityrank/', name: '城市榜单', figure: `${rankCount} 张榜单`, unit: cityCount ? `${cityCount} 座城市` : '' },
-  { href: '/holidays/', name: '节假日', figure: holidaySpan, unit: holidayYears.length ? `${holidayYears.length} 年` : '' },
-  { href: '/zodiac/', name: '生肖', figure: `${animals.length} 生肖`, unit: '' },
-  { href: '/games/', name: '游戏', figure: `${gameCount} 部`, unit: '' },
-  { href: '/collections/', name: '收藏', figure: `${collectionCount} 条`, unit: '' },
-  { href: '/library/', name: '资料库', figure: `${topics.length} 个专题`, unit: '' },
-].filter((d) => d.figure && d.figure !== '0 部' && d.figure !== '0 条');
-
-// 读数条与 aria-valuetext 共用同一份最小数据（只有真实字段）
-const recsJson = JSON.stringify(
-  recs.map((r) => ({ d: r.ymd, k: r.kind, t: r.title, h: r.href || '' }))
-).replace(/</g, '\\u003c');
-
-const todayRecs = byDay.get(todayDay) || [];
-const todayValueText = todayRecs.length
-  ? `${currentYear} 年 ${Number(TODAY_YMD.slice(5, 7))} 月 ${Number(TODAY_YMD.slice(8, 10))} 日，${todayRecs.length} 条记录：${todayRecs[0].title}`
-  : `${currentYear} 年 ${Number(TODAY_YMD.slice(5, 7))} 月 ${Number(TODAY_YMD.slice(8, 10))} 日，今天还没有记录`;
+// 构建日之后打开页面时由前端按同一份数据现算，天数不会停在旧值
+const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12).map((e) => ({ k: e.kind, n: e.name, d: e.date }));
 ---
 
 <BaseLayout isHome currentPath="/">
-  <div class="mz" id="top" style={`--mz-p:0`}>
-    <!-- ① 图纸：钉住的城市照片 + 站点身份 + 年度位置 -->
-    <div class="mz-hero" data-mz-hero>
-      <section class="mz-plate" aria-labelledby="mz-site-name" data-mz-plate>
-        <img class="mz-plate-img" src={urlFor(HERO_IMAGE)} alt="" fetchpriority="high" decoding="async" />
-        <div class="mz-plate-veil" aria-hidden="true"></div>
-        <div class="mz-plate-in">
-          <div class="mz-id">
-            <p class="mz-kicker">
-              {identityAvatar && (
-                <img class="mz-avatar" src={urlFor(identityAvatar)} alt={`${siteTitle} 头像`} loading="eager" />
-              )}
-              <span>PERSONAL SPACE{sinceYear ? ` · SINCE ${sinceYear}` : ''}</span>
-            </p>
-            <h1 class="mz-name" id="mz-site-name">{siteTitle}</h1>
-            {identityIntro && <p class="mz-intro">{identityIntro}</p>}
-          </div>
-          <div class="mz-clock">
-            <p class="mz-clock-label" data-newyear-label>距 {countdown.year} 元旦</p>
-            <p class="mz-clock-num">
-              <b data-newyear-days>{countdown.days}</b><span>天</span>
-            </p>
-            <p class="mz-clock-yday">
-              {currentYear} · 第 <b>{dayOfYear}</b> / {daysInYear} 天
-            </p>
-          </div>
+  <canvas id="sd-canvas" aria-hidden="true"></canvas>
+
+  <div class="sd">
+    <!-- 第一屏：纯序幕，不放任何卡片 -->
+    <header class="sd-hero" id="hero">
+      <p class="sd-mark"><span class="sd-slash" aria-hidden="true">/</span>KASAI</p>
+      <p class="sd-tag">{intro}</p>
+      <a class="sd-cue" href="#desk">
+        <span class="sd-cue-line" aria-hidden="true"></span>
+        <span class="sd-cue-t">Scroll</span>
+      </a>
+    </header>
+
+    <!-- 第二屏：四窗工作台，外壳完全统一 -->
+    <section class="sd-desk" id="desk" aria-label="工作台">
+      <!-- 01 · About Me -->
+      <section class="sd-win" id="win-about" aria-labelledby="win-about-t">
+        <header class="win-head">
+          <h2 class="win-title" id="win-about-t">About Me</h2>
+        </header>
+
+        <div class="win-ident">
+          <p class="ident-name">{realName || 'KASAI'}<span class="ident-brand">{siteTitle}</span></p>
         </div>
-        <div class="mz-yearline" aria-hidden="true">
-          <i style={`--yp:${pct(dayOfYear / daysInYear)}`}></i>
-        </div>
-      </section>
-    </div>
 
-    <!-- ② 仪表 + ③ 档案 -->
-    <div class="mz-body">
-      <section class="mz-inst" aria-labelledby="mz-inst-title" data-mz-inst>
-        <div class="mz-inst-in">
-          <div class="mz-inst-head">
-            <h2 class="mz-inst-title" id="mz-inst-title">档案刻度</h2>
-            <p class="mz-inst-fig">
-              {recs.length} 条记录 · {span + 1} 天 · {START_YMD} 起
-            </p>
-          </div>
+        <ul class="win-lines">
+          {ABOUT_LINES.map((line) => <li>{line}</li>)}
+        </ul>
 
-          <div
-            class="mz-scale"
-            role="slider"
-            tabindex="0"
-            aria-label="站点档案的时间刻度，可拖动或用方向键逐日查看"
-            aria-valuemin="0"
-            aria-valuemax={span}
-            aria-valuenow={span}
-            aria-valuetext={todayValueText}
-            aria-describedby="mz-hint"
-            data-mz-scale
-            data-min={startDay}
-            data-max={endDay}
-          >
-            <div class="mz-axis" aria-hidden="true"></div>
-
-            <div class="mz-ticks" aria-hidden="true">
-              {monthTicks.map((t) => <i class="mz-tick" style={`--x:${t.x};--i:${t.i}`} />)}
-            </div>
-
-            <div class="mz-bars" aria-hidden="true">
-              {density.map((b) => (
-                <i
-                  class:list={['mz-bar', b.n === 0 && 'is-zero']}
-                  data-month={b.m}
-                  data-count={b.n}
-                  style={`--x:${b.x};--w:${b.w};--h:${b.h};--i:${b.i}`}
-                />
-              ))}
-            </div>
-
-            <div class="mz-years" aria-hidden="true">
-              {yearTicks.map((t) => (
-                <span class="mz-year" style={`--x:${t.x}`}>{t.label}</span>
-              ))}
-              <span class="mz-year mz-year--now" style="--x:100%">今天</span>
-            </div>
-
-            <div class="mz-cur" aria-hidden="true" data-mz-cur>
-              <i class="mz-cur-line"></i>
-              <i class="mz-cur-dot"></i>
-            </div>
-          </div>
-
-          <div class="mz-read" aria-hidden="true" data-mz-read>
-            <p class="mz-read-date" data-mz-date>{TODAY_YMD}</p>
-            <p class="mz-read-say" data-mz-say>
-              {todayRecs.length ? `${todayRecs.length} 条记录` : '今天还没有记录'}
-            </p>
-            <p class="mz-read-list" data-mz-list>
-              {todayRecs.slice(0, 2).map((r) => (
-                <a href={urlFor(r.href)}>{r.title}</a>
-              ))}
-            </p>
-          </div>
-
-          <p class="mz-hint" id="mz-hint">
-            <span class="mz-hint-desk">
-              拖动刻度查看某天写了什么 · <kbd>←</kbd> <kbd>→</kbd> 逐日 · <kbd>PgUp</kbd> / <kbd>PgDn</kbd> 跳记录
-            </span>
-            <span class="mz-hint-mob">点按刻度查看某天的记录</span>
-          </p>
-        </div>
-      </section>
-
-      <section class="mz-arch" aria-labelledby="mz-arch-title">
-        <div class="mz-arch-in">
-          <header class="mz-arch-head">
-            <div>
-              <p class="mz-kicker">ARCHIVE · {START_YMD} — {TODAY_YMD}</p>
-              <h2 class="mz-arch-title" id="mz-arch-title">记录</h2>
-            </div>
-            <nav class="mz-arch-nav" aria-label="内容入口">
-              <a href={urlFor('/archives/')}>全部文字 →</a>
-              <a href={urlFor('/projects/')}>项目 →</a>
-            </nav>
-          </header>
-
-          <ol class="mz-list">
-            {recs.map((r) => (
-              <li class="mz-rec" data-day={r.ymd}>
-                {r.href ? (
-                  <a class="mz-rec-link" href={urlFor(r.href)}>
-                    <span class={`mz-rec-glyph mz-rec-glyph--${r.shape}`} aria-hidden="true"></span>
-                    <time class="mz-rec-date" datetime={r.ymd}>{r.ymd}</time>
-                    <span class="mz-rec-kind">{r.kind}</span>
-                    <span class="mz-rec-title">{r.title}</span>
-                    <span class="mz-rec-meta">{r.meta}</span>
-                    <span class="mz-rec-arrow" aria-hidden="true">↗</span>
-                  </a>
-                ) : (
-                  <span class="mz-rec-link mz-rec-link--plain">
-                    <span class={`mz-rec-glyph mz-rec-glyph--${r.shape}`} aria-hidden="true"></span>
-                    <time class="mz-rec-date" datetime={r.ymd}>{r.ymd}</time>
-                    <span class="mz-rec-kind">{r.kind}</span>
-                    <span class="mz-rec-title">{r.title}</span>
-                    <span class="mz-rec-meta">{r.meta}</span>
-                    <span class="mz-rec-arrow" aria-hidden="true"></span>
-                  </span>
-                )}
+        {
+          icons.length > 0 && (
+            <ul class="win-social">
+              {icons.map((each: any) => {
+                if (!each || !each.class) return null;
+                if (each.qrcode) {
+                  return (
+                    <li>
+                      <button class="social-btn" type="button" data-sd-open="wechat" aria-label="微信二维码">
+                        <i class={each.class} aria-hidden="true" />
+                      </button>
+                    </li>
+                  );
+                }
+                const isCopy = !each.link && Boolean(each.copy);
+                return (
+                  <li>
+                    <a
+                      class="social-btn"
+                      href={isCopy ? 'javascript:;' : urlFor(each.link)}
+                      target={isCopy ? undefined : '_blank'}
+                      rel={isCopy ? undefined : 'noopener'}
+                      data-copy={isCopy ? each.copy : undefined}
+                      aria-label={each.tip || undefined}
+                    >
+                      <i class={each.class} aria-hidden="true" />
+                    </a>
+                  </li>
+                );
+              })}
+              {/* 友链：配置里 0 条，浮层会是空盒子，所以直接进 /links/ 的真实空态页 */}
+              <li>
+                <a class="social-btn" href={urlFor('/links/')} aria-label="友链">
+                  <i class="iconfont icon-link" aria-hidden="true" />
+                </a>
               </li>
-            ))}
-          </ol>
-        </div>
+            </ul>
+          )
+        }
       </section>
 
-      {doors.length > 0 && (
-        <nav class="mz-doors" aria-label="去处">
-          <div class="mz-doors-in">
-            <p class="mz-kicker">ELSEWHERE · 去处</p>
-            <ul class="mz-door-list">
-              {doors.map((d) => (
+      <!-- 02 · Thinking -->
+      <section class="sd-win" id="win-thinking" aria-labelledby="win-thinking-t">
+        <header class="win-head">
+          <h2 class="win-title" id="win-thinking-t">Thinking</h2>
+        </header>
+
+        <ul class="win-rows">
+          {
+            featured.map((p) => (
+              <li>
+                <a class="row" href={urlFor(p.href)}>
+                  <span class="row-b">
+                    <span class="row-t">{p.title}</span>
+                  </span>
+                  <span class="row-k">{THINK_K[p.slug] || (p.categories || [])[0] || ''}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+
+        <div class="win-more"><a href={urlFor('/archives/')}>more →</a></div>
+      </section>
+
+      <!-- 03 · Creations -->
+      <section class="sd-win" id="win-creations" aria-labelledby="win-creations-t">
+        <header class="win-head">
+          <h2 class="win-title" id="win-creations-t">Creations</h2>
+        </header>
+
+        <ul class="win-rows">
+          {
+            makeAll.map((it) => (
+              <li>
+                <a class="row" href={it.href} data-sd-open={it.id}>
+                  <span class="row-b">
+                    <span class="row-t">{it.name}</span>
+                  </span>
+                  <span class="row-k">{it.tech}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+
+        <div class="win-more"><a href={urlFor('/projects/')}>more →</a></div>
+      </section>
+
+      <!-- 04 · Atlas -->
+      <section class="sd-win" id="win-atlas" aria-labelledby="win-atlas-t">
+        <header class="win-head">
+          <h2 class="win-title" id="win-atlas-t">Atlas</h2>
+        </header>
+
+        <ul class="win-rows">
+          {
+            atlasRows.map((r) => (
+              <li>
+                <a class="row" href={urlFor(r.href)}>
+                  <span class="row-b"><span class="row-t">{r.name}</span></span>
+                  <span class="row-k">{r.k}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+
+        {
+          thumbs.length > 0 && (
+            <ul class="win-thumbs">
+              {thumbs.map((t) => (
                 <li>
-                  <a class="mz-door" href={urlFor(d.href)}>
-                    <span class="mz-door-name">{d.name}</span>
-                    <span class="mz-door-fig">
-                      {d.figure}
-                      {d.unit && <em>{d.unit}</em>}
-                    </span>
-                    <span class="mz-door-arrow" aria-hidden="true">↗</span>
+                  <a href={t.href} aria-label={`${t.animal} · 元代陶俑`}>
+                    <img src={urlFor(t.thumb)} alt={t.alt} loading="lazy" decoding="async" />
                   </a>
                 </li>
               ))}
             </ul>
-          </div>
-        </nav>
-      )}
+          )
+        }
+      </section>
+    </section>
 
-      <!-- 用 div 而非 footer 元素：body.is-home footer 被全站规则隐藏（E-071），
-           首页自己的收尾不能再用 footer 标签。 -->
-      <div class="mz-foot">
-        <div class="mz-foot-in">
-          <span>{siteTitle}</span>
-          <span>SINCE {sinceYear}</span>
-        </div>
-      </div>
-    </div>
+    <!-- 第三屏：落幕。用 section 而非 footer（body.is-home footer 被全站隐藏，E-071） -->
+    <section class="sd-outro" id="outro" aria-label="落幕与节气状态">
+      <p class="sd-badge">
+        {
+          nextTerm && (
+            <span>
+              距 {nextTerm.name} <b data-sd-feed="term">{daysTo(nextTerm.date)}</b> 天
+            </span>
+          )
+        }
+        {
+          nextHoliday && (
+            <span>
+              距 {nextHoliday.name} <b data-sd-feed="holiday">{daysTo(nextHoliday.date)}</b> 天
+            </span>
+          )
+        }
+      </p>
+      <a class="sd-top" href="#hero" aria-label="回到顶部"><span aria-hidden="true">↑</span></a>
+    </section>
   </div>
 
-  <script type="application/json" id="mz-data" set:html={recsJson}></script>
-  <script defer src="/js/home-measure.js"></script>
+  <!-- 原地浮层：Creations 三条与微信码共用同一个 <dialog>（用 div 而非 header/footer，E-071） -->
+  <dialog class="sd-modal" id="sd-modal" aria-labelledby="sd-modal-title">
+    <div class="sd-modal-in">
+      <div class="sd-modal-head">
+        <p class="sd-modal-kicker" data-sd-kicker>造物</p>
+        <h2 class="sd-modal-title" id="sd-modal-title" data-sd-title></h2>
+      </div>
+      <div class="sd-modal-body" data-sd-body></div>
+      <div class="sd-modal-foot">
+        <a class="sd-modal-more" data-sd-more href="/">完整记录</a>
+        <button class="sd-modal-close" type="button" data-sd-close>关闭</button>
+      </div>
+    </div>
+  </dialog>
 
-  <script is:inline>
-    // 静态构建会把天数固化在构建日；这里按 Asia/Shanghai 当场重算一次，避免跨天后仍是旧数字
-    (function () {
-      var DAY = 86400000, OFFSET = 8 * 3600000;
-      var shifted = Date.now() + OFFSET;
-      var year = new Date(shifted).getUTCFullYear() + 1;
-      var days = Date.UTC(year, 0, 1) / DAY - Math.floor(shifted / DAY);
-      var label = document.querySelector('[data-newyear-label]');
-      var num = document.querySelector('[data-newyear-days]');
-      if (label) label.textContent = '距 ' + year + ' 元旦';
-      if (num) num.textContent = String(days);
-    })();
-  </script>
+  {
+    makeAll.map((it) => (
+      <template id={`sd-tpl-${it.id}`} data-sd-name={it.name} data-sd-more={it.more.label} data-sd-href={it.more.href}>
+        <div set:html={it.html} />
+      </template>
+    ))
+  }
+
+  <template id="sd-tpl-wechat" data-sd-name="微信二维码" data-sd-more="" data-sd-href="">
+    <img class="sd-modal-qr" src={urlFor('/img/wechat-qr.jpg')} alt="微信二维码" loading="lazy" />
+  </template>
+
+  <script type="application/json" id="sd-feed" set:html={JSON.stringify(eventFeed)}></script>
+  <script defer src="/js/home-study.js"></script>
+  {hasCopy && <script defer src="/js/about.js" />}
 </BaseLayout>

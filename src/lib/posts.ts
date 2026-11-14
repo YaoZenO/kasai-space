@@ -36,6 +36,13 @@ export interface Post {
   min2read: number;
   /** 首图：front matter 的 index_img / cover */
   cover?: string;
+  /**
+   * 首页策展用的一句话结论（front matter 的 blurb）。
+   * 与 excerpt 分开：excerpt 是正文截取，blurb 是作者写给首页的那一句。
+   * 首页「硬核思考」只读这个字段，绝不回退到正文截取——正文开头的「数据出处」块
+   * 一旦被截进首页，就变成机械引用（2026-11-15 重构的硬约束）。
+   */
+  blurb?: string;
 }
 
 function parseFrontMatter(raw: string): { data: any; body: string } {
@@ -109,6 +116,7 @@ export function getPosts(): Post[] {
       wordcount,
       min2read: Math.floor(wordcount / (awl * wpm)) + 1,
       cover: fm.index_img || fm.cover || undefined,
+      blurb: fm.blurb ? String(fm.blurb) : undefined,
     });
   }
 

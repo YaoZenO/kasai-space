@@ -426,33 +426,32 @@ async function main() {
       assert.ok(!home.includes('href="/tags/"'), '首页仍有 /tags/ 入口格链接 —— 标签应降级为详情页检索');
       assert.ok(fs.existsSync(path.join(PUBLIC, 'tags', 'index.html')),
         '/tags/ 页面不存在 —— 方案 A 要求保留标签页与所有标签 URL');
-      // 2026-11-14 首页改为「图带 + 近期动态 + 去处」，入口不再用 Bento 的 .wall-cell；
-      // 2026-11-15 首页改为「图纸 + 刻度 + 档案」，入口仍在「去处」里。
-      // 但「每个模块都有入口」这条不变量不变，改为直接认「去处」里的四条链接。
-      for (const href of ['/projects/', '/games/', '/collections/', '/library/']) {
-        assert.ok(home.includes(`href="${href}"`), `首页缺少 ${href} 入口 —— 「去处」应保留模块入口`);
+      // 2026-11-15 首页改为「三屏」后，游戏与收藏明确不进首页（主人拍板：占坑小格子撤掉），
+      // 所以不再要求四个模块都有首页入口；改为锁「文字与项目仍有出口」，
+      // 且被撤下的两个模块列表页必须仍然存在——撤入口不等于撤页面。
+      assert.ok(home.includes('href="/archives/"'), '首页缺少「文字」出口');
+      assert.ok(home.includes('href="/projects/"'), '首页缺少「项目」出口');
+      for (const dir of ['games', 'collections']) {
+        assert.ok(fs.existsSync(path.join(PUBLIC, dir, 'index.html')),
+          '/' + dir + '/ 列表页不存在 —— 撤首页入口不得连带删页');
       }
-      assert.ok(home.includes('class="mz-doors"'), '首页缺少「去处」导航');
     });
-    ok('首页「档案」结构自洽：档案在「去处」之前，且每条标题都有可点落点', () => {
-      // 原断言锁的是「墨底区块不能被两栏网格当第三个格子吞掉」的版面层级问题；
-      // 2026-11-14 首页改版后换成「时间线在去处之前」，2026-11-15 改版后是
-      // 「档案列表 .mz-list 在去处 .mz-doors 之前」，同样的失效场景仍然成立：
-      // 档案被挪到别处 / 生成死链。
-      const tlStart = home.indexOf('class="mz-list"');
-      const linksStart = home.indexOf('class="mz-doors"');
-      assert.ok(tlStart !== -1 && linksStart > tlStart,
-        '产物结构变化：找不到 mz-list，或「去处」不在档案之后');
-      const list = home.slice(tlStart, linksStart);
-      const rows = (list.match(/class="mz-rec"/g) || []).length;
-      assert.ok(rows >= 1, '「档案」没有渲染任何行');
-      const hrefs = [...list.matchAll(/class="mz-rec-link" href="([^"]*)"/g)].map((m) => m[1]);
-      assert.ok(hrefs.length >= 1, '「档案」没有可点条目');
+
+    ok('第二屏四窗顺序与落点自洽：About → Thinking → Creations → Atlas，行内无空链接', () => {
+      // 锁这一版首页最容易退化的两件事：窗口顺序被打乱、行条目变成死链。
+      const order = ['win-about', 'win-thinking', 'win-creations', 'win-atlas']
+        .map((id) => home.indexOf('id="' + id + '"'));
+      const names = ['About', 'Thinking', 'Creations', 'Atlas'];
+      order.forEach((i, n) => assert.ok(i > -1, '产物缺窗口 ' + names[n]));
+      for (let i = 1; i < order.length; i += 1) {
+        assert.ok(order[i] > order[i - 1], '四窗顺序被打乱：' + order.join(','));
+      }
+      const desk = home.slice(home.indexOf('id="desk"'), home.indexOf('id="outro"'));
+      const hrefs = [...desk.matchAll(/class="row" href="([^"]*)"/g)].map((m) => m[1]);
+      assert.ok(hrefs.length >= 9, '第二屏可点行太少：' + hrefs.length);
       for (const href of hrefs) {
-        assert.ok(href && href !== '#', '「档案」出现空链接');
-        // collections 没有 [slug] 详情路由，只能落列表页
-        assert.ok(!/^\/collections\/[^/]+\/$/.test(href),
-          `collections 详情页不存在，首页出现死链：${href}`);
+        assert.ok(href && href !== '#', '第二屏出现空链接');
+        assert.ok(!/^\/collections\/[^/]+\/$/.test(href), '收藏详情页不存在，首页出现死链：' + href);
       }
     });
   } finally {

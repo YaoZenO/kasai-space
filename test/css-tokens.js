@@ -96,14 +96,15 @@ ok('墨底 token 已定义（--surface-ink / --on-ink）', () => {
   assert.match(siteCss, /--on-ink:\s*#fdfaf4/, '缺少 --on-ink（墨底上的纸色）');
 });
 
-ok('墨底区块样式存在，且区块内不引入交互色', () => {
-  // 按空行切块，只取含 .ink-band 的规则块——避免按字符数硬切时越界读到后面的 accent 规则。
-  const blocks = siteCss.split(/\n\s*\n/).filter((b) => b.includes('.ink-band'));
-  assert.ok(blocks.length > 0, 'site.css 缺少 .ink-band 规则');
-  const band = blocks.join('\n');
-  assert.match(band, /var\(--surface-ink\)/, '墨底没有用 --surface-ink');
-  assert.ok(!/var\(--accent\)/.test(band),
-    '墨底区块内出现了交互色 —— R-2：反相区块不得引入第二彩色，只用纸色透明度衍生');
+ok('首页死类已清除：ink-band / home-cols / home-hero / pick-title 不得回到 site.css', () => {
+  // 2026-11-15 首页重构：「刻度」与更早的 J1/J2 首页结构全部下线，四组类已无任何消费者
+  // （src/ 与 dist/ 均零命中）。留着它们等于给下一个改首页的人留一套"看起来还能用"的样式。
+  // 这条断言是删除动作的机制：谁把它们加回来，这里立刻红。
+  const code = siteCss.replace(/\/\*[\s\S]*?\*\//g, '');
+  for (const cls of ['ink-band', 'home-cols', 'home-hero', 'pick-title']) {
+    const hit = new RegExp('\\.' + cls + '\\b').test(code);
+    assert.ok(!hit, 'site.css 仍定义了 .' + cls + '（该结构已下线）');
+  }
 });
 
 // 首页主卡内容必须被行数上限锁死（E-090 防复发）。
@@ -181,7 +182,6 @@ ok('墨底容器选中态改用纸色（E-153）', () => {
   assert.match(rule[0], /color:\s*#fdfaf4/, '墨底主卡选中文字不是纸色，选中后不可读');
   assert.match(rule[0], /background:\s*rgba\(253,\s*250,\s*244/,
     '墨底主卡选中底不是纸色淡底，与墨底混在一起');
-  assert.match(rule[0], /\.ink-band\s+::selection/, '墨底「最近更新」带未纳入选中态覆盖');
   assert.match(rule[0], /\.wall-cell-mask\s*~\s*\.wall-cell-body/,
     '压图入口格未纳入选中态覆盖');
 });
@@ -195,7 +195,7 @@ ok('CSS 压缩器保留伪元素前的后代空格（E-153）', () => {
   assert.match(out, /\.card ::selection/, '压缩后后代组合符被吃掉：' + out);
   assert.match(minifyCss('.card:hover{color:red}'), /\.card:hover/,
     '压缩后伪类前的选择器被改写');
-  assert.match(minifyCss('.ink-band .feed-title:hover{color:red}'), /\.ink-band \.feed-title:hover/);
+  assert.match(minifyCss('.wall .feed-title:hover{color:red}'), /\.wall \.feed-title:hover/);
 });
 
 // 前台中文字号 ≥12px（VD-4 / T1-4）。中文小字低于 12px 在纸底上不可读，

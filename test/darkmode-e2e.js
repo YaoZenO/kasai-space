@@ -1240,9 +1240,16 @@ ok('A8：既有跟随系统分支字面量命中数均不减（site.css 与两�
     const before = execFileSync('git', ['show', 'HEAD:' + rel],
       { cwd: ROOT, encoding: 'utf8', maxBuffer: 20 * 1024 * 1024 });
     literals.forEach((lit) => {
-      const b = before.split(lit).length - 1;
+      // 2026-11-15：首页重构删掉了 .ink-band 一族死 CSS，连带它名下 10 个暗态选择器一起下线，
+      // 这是有意的减法，不是覆盖回退。所以两侧都先剔掉含 .ink-band 的行再计数——
+      // 剩下的活样式命中数只许增不许减，原意保留。
+      const count = (txt) => txt.split(/\r?\n/)
+        .filter((line) => !line.includes('.ink-band'))
+        .join('\n')
+        .split(lit).length - 1;
+      const b = count(before);
       if (b === 0) return;
-      const a = cur.split(lit).length - 1;
+      const a = count(cur);
       assert.ok(a >= b, rel + ' 的 ' + lit + ' 命中数减少：' + b + ' -> ' + a);
     });
   });
@@ -1842,7 +1849,7 @@ async function okAsync(label, fn) {
     assert.strictEqual(same.sunrise, raw.sunrise, '时区一致时日出时刻不应变化');
   });
 
-  ok('E-151 防复发：首页「最近更新」暗态覆盖成对且落在既有 §15 两分支内', () => {
+  ok('E-151 防复发：首页空间桌面暗态覆盖成对且落在既有 §15 两分支内', () => {
     const start = siteCss.indexOf('/* ===== 15. 暗色模式');
     const end = siteCss.indexOf('@media (prefers-reduced-motion: no-preference)', start);
     assert.ok(start > 0 && end > start, '§15 段取样失效');
@@ -1851,16 +1858,13 @@ async function okAsync(label, fn) {
       '不得新增系统偏好分支');
     assert.strictEqual((seg.match(/@media not print/g) || []).length, 1,
       '不得新增手动分支');
-    assert.match(seg, /:root:not\(\[data-user-color-scheme\]\):not\(\[data-sun-scheme\]\) \.ink-band/,
+    assert.match(seg, /:root:not\(\[data-user-color-scheme\]\):not\(\[data-sun-scheme\]\) \.sd-modal/,
       '缺少跟随系统暗态分支');
-    assert.match(seg, /\[data-sun-scheme="dark"\]:not\(\[data-user-color-scheme\]\) \.ink-band/,
+    assert.match(seg, /\[data-sun-scheme="dark"\]:not\(\[data-user-color-scheme\]\) \.sd-modal/,
       '缺少时间层暗态分支');
-    for (const cls of ['.col-title', '.feed-title', '.feed-date', '.feed-row']) {
-      assert.ok(seg.includes(cls), `§15b 缺少 ${cls} 暗态覆盖`);
-    }
-    assert.ok(seg.includes('var(--board-bg-color)') && seg.includes('var(--text-color)'),
-      '§15b 未改用暗面板 + 亮纸字');
-    assert.ok(!seg.includes(':is('), '§15b 不得引入 :is()');
+    assert.ok(seg.includes('--win-bg: rgba(28, 24, 19, 0.9)'),
+      '§15 缺少首页窗口底色 --win-bg 的暗态');
+    assert.ok(!seg.includes(':is('), '§15 不得引入 :is()');
   });
 
   console.log(`\nRESULT: ${passed} 项断言通过${skipped ? `，${skipped} 项 SKIP` : ''}${process.exitCode ? '，存在失败' : ''}`);
