@@ -665,16 +665,16 @@ groups:
         size: 10
         note: 原榜共 10 条。
         items:
-          - { name: 四川稻城县, slug: sichuandaocheng, note: 三宝圣地美 }
-          - { name: 西藏江孜县, slug: xizangjiangzi, note: 雪域古堡美 英雄城 }
-          - { name: 河南修武县, slug: henanxiuwu, note: 河流泉瀑众多 太行山岳精华云台山 }
-          - { name: 广西阳朔县, slug: guangxiyangshuo, note: 秀领天下美 阳朔山水甲桂林 }
-          - { name: 贵州荔波县, slug: guizhoulibo, note: 地球绿宝石 全球最美喀斯特 }
-          - { name: 甘肃夏河县, slug: gansuxiahe, note: 中国拉卜楞·世界藏学府 }
-          - { name: 湖南凤凰县, slug: hunanfenghuang, note: 边城水色之美 }
-          - { name: 四川黑水县, slug: sichuanheishui, note: 自然风光俊秀 人文风光独具特色 }
-          - { name: 新疆布尔津, slug: xinjiangbuerjin, note: 童话边城 }
-          - { name: 山东蓬莱, slug: shandongpenglai, note: 仙气盎然之美 }
+          - { name: 稻城县, slug: ganzi, note: 三宝圣地美 }
+          - { name: 江孜县, slug: rikaze, note: 雪域古堡美 英雄城 }
+          - { name: 修武县, slug: jiaozuo, note: 河流泉瀑众多 太行山岳精华云台山 }
+          - { name: 阳朔县, slug: guilin, note: 秀领天下美 阳朔山水甲桂林 }
+          - { name: 荔波县, slug: qiannanzhou, note: 地球绿宝石 全球最美喀斯特 }
+          - { name: 夏河县, slug: gannan, note: 中国拉卜楞·世界藏学府 }
+          - { name: 凤凰县, slug: xiangxi, note: 边城水色之美 }
+          - { name: 黑水县, slug: aba, note: 自然风光俊秀 人文风光独具特色 }
+          - { name: 布尔津县, slug: aleitai, note: 童话边城 }
+          - { name: 蓬莱区, slug: yantai, note: 仙气盎然之美 }
       - slug: shidawuyilvyouchen
         title: 中国十大五一旅游城市
         kind: "pending"
@@ -719,7 +719,7 @@ groups:
           - { name: 哈尔滨, slug: haerbin, note: 中国冰雪旅游第一城 雪期长达5个多月 }
           - { name: 拉萨, slug: lasa, note: "高原冰雪与藏文化融合 高原雪期长（10月下旬-次年4月）" }
           - { name: 牡丹江, slug: mudanjiang, note: 素有雪城之称 雪期长达6个多月 }
-          - { name: 漠河, slug: mohe, note: 中国唯一的圣诞老人村和中国极寒之地 极寒冰雪与极光文化并存 }
+          - { name: 漠河市, slug: daxinganling, note: 中国唯一的圣诞老人村和中国极寒之地 极寒冰雪与极光文化并存 }
           - { name: 银川, slug: yinchuan, note: "“塞上江南”的冰雪湿地 冬季冰雪期约2-3个月" }
           - { name: 吉林, slug: jilin, note: 被誉为雾凇之都 滑雪胜地 }
           - { name: 伊春, slug: yichun-hlj, note: 有中国面积最大的冰雪红松林 被称为“中国林都” }
@@ -768,7 +768,7 @@ groups:
         items:
           - { name: 哈尔滨, slug: haerbin, note: "梦幻的冰雪王国 打卡地:哈尔滨冰雪大世界/太阳岛雪博会等" }
           - { name: 三亚, slug: sanya, note: 冬季避寒天堂 适合亲子与家庭出行 }
-          - { name: 漠河, slug: mohe, note: 追寻极光的好地方 宜观赏冰泡湖/寻找雾凇/看“冰河” }
+          - { name: 漠河市, slug: daxinganling, note: 追寻极光的好地方 宜观赏冰泡湖/寻找雾凇/看“冰河” }
           - { name: 丽江, slug: lijiang, note: 寒冬无严寒的风水宝地 看玉龙雪山最美积雪的最佳时期 }
           - { name: 昆明, slug: kunming, note: "“春城”暖冬候鸟之旅 红嘴鸥观赏季(11月-次年3月)" }
           - { name: 北京, slug: beijing, note: 故宫里的冬日雪景 适合博物馆与文化主题游 }
@@ -843,15 +843,15 @@ groups:
         size: 10
         note: 原榜共 10 条。
         items:
-          - { name: 长岛, slug: zhangdao, note: "" }
+          - { name: 长岛县, slug: yantai, note: "" }
           - { name: 三沙, slug: sansha, note: "" }
-          - { name: 舟山市·普陀, slug: zhoushanshiputuo, note: "" }
+          - { name: 普陀区, slug: zhoushan, note: "" }
           - { name: 中国香港, slug: xianggang, note: "" }
-          - { name: 汕头南澳, slug: shantounanao, note: "" }
-          - { name: 大连市·长海, slug: dalianshizhanghai, note: "" }
-          - { name: 舟山市·嵊泗, slug: zhoushanshishengsi, note: "" }
-          - { name: 舟山市·岱山, slug: zhoushanshidaishan, note: "" }
-          - { name: 平潭, slug: pingtan, note: "" }
+          - { name: 南澳县, slug: shantou, note: "" }
+          - { name: 长海县, slug: dalian, note: "" }
+          - { name: 嵊泗县, slug: zhoushan, note: "" }
+          - { name: 岱山县, slug: zhoushan, note: "" }
+          - { name: 平潭县, slug: fuzhou, note: "" }
       - slug: shidazuimeibianjin
         title: 中国十大最美边境城市
         kind: "pending"
@@ -859,13 +859,13 @@ groups:
         size: 10
         note: 原榜共 10 条。
         items:
-          - { name: 东兴市·北部湾畔边陲明珠, slug: dongxingshibeibuwanpanbianchuimingzhu, note: "" }
-          - { name: 腾冲, slug: tengchong, note: "" }
+          - { name: 东兴市, slug: fangchenggang, note: "" }
+          - { name: 腾冲市, slug: baoshan, note: "" }
           - { name: 喀什, slug: kashi, note: "" }
-          - { name: 满洲里·东亚之窗, slug: manzhoulidongyazhichuang, note: "" }
+          - { name: 满洲里市, slug: hulunbeier, note: "" }
           - { name: 西双版纳, slug: xishuangbanna, note: "" }
-          - { name: 靖西·小昆明, slug: jingxixiaokunming, note: "" }
-          - { name: 抚远·华夏东极, slug: fuyuanhuaxiadongji, note: "" }
+          - { name: 靖西市, slug: baise, note: "" }
+          - { name: 抚远市, slug: jiamusi, note: "" }
       - slug: shidawenquanchengs
         title: 中国十大温泉城市
         kind: "pending"
@@ -909,7 +909,7 @@ groups:
         items:
           - { name: 阿勒泰, slug: aleitai, note: "" }
           - { name: 北京, slug: beijing, note: "" }
-          - { name: 阿尔山, slug: aershan, note: "" }
+          - { name: 阿尔山市, slug: xingan, note: "" }
           - { name: 南京, slug: nanjing, note: "" }
           - { name: 阿坝, slug: aba, note: "" }
           - { name: 桂林, slug: guilin, note: "" }
@@ -960,7 +960,7 @@ groups:
         items:
           - { name: 珠海, slug: zhuhai, note: "" }
           - { name: 厦门, slug: xiamen, note: "" }
-          - { name: 库尔勒, slug: kuerlei, note: "" }
+          - { name: 库尔勒市, slug: bayinguoleng, note: "" }
           - { name: 大连, slug: dalian, note: "" }
           - { name: 深圳, slug: shenzhen, note: "" }
           - { name: 乐山, slug: leshan, note: "" }
@@ -1031,11 +1031,11 @@ groups:
           - { name: 三亚, slug: sanya, note: "登高望海/逛免税城/尝海鲜/冬泳潜水/跨年祈福和撞钟迎新等 游玩景点:亚龙湾·天" }
           - { name: 昆明, slug: kunming, note: "观红嘴鸥/赏水杉林/赏雾凇/滑雪/赏梅花/跨年祈福等 游玩景点:云南石林/九乡风" }
           - { name: 北京, slug: beijing, note: "看红墙白雪/滑冰/泡温泉/看冰挂/赏冰灯展/寻觅年味等 游玩景点:北京故宫/八达" }
-          - { name: 漠河, slug: mohe, note: "看极光/观赏冰泡湖/寻找雾凇/看“冰河”等 游玩景点:北极村冰雪童话/龙江第一湾" }
+          - { name: 漠河市, slug: daxinganling, note: "看极光/观赏冰泡湖/寻找雾凇/看“冰河”等 游玩景点:北极村冰雪童话/龙江第一湾" }
           - { name: 西双版纳, slug: xishuangbanna, note: "看热带雨林/看大象/尝傣味美食等 避寒胜地:中科院西双版纳热带植物园/热带雨林国" }
           - { name: 厦门, slug: xiamen, note: "冬泳/赏落羽杉/新年祈福/赏三角梅/泡温泉等 避寒胜地:鼓浪屿/南普陀寺/中山路" }
           - { name: 丽江, slug: lijiang, note: "看雪山雪景/观鸟/赏芦苇/赏梅花/滑雪等 游玩景点:玉龙雪山/老君山/丽江古城/" }
-          - { name: 腾冲, slug: tengchong, note: 泡温泉/赏银杏/观鸟/赏花等 避寒胜地：马站和睦村/来凤山茶基地/热海温泉等 }
+          - { name: 腾冲市, slug: baoshan, note: 泡温泉/赏银杏/观鸟/赏花等 避寒胜地：马站和睦村/来凤山茶基地/热海温泉等 }
       - slug: "shiheyuelvyoudeshi-5"
         title: 中国适合2月旅游的十大城市
         kind: "pending"
@@ -1633,9 +1633,9 @@ groups:
         size: 9
         note: 原榜共 9 条。
         items:
-          - { name: 网球之乡：湖北省京山, slug: wangqiuzhixianghubeishengjingshan, note: "" }
-          - { name: 排球之乡：广东省台山, slug: paiqiuzhixiangguangdongshengtaishan, note: "" }
-          - { name: 举重之乡：广东省石龙镇, slug: juzhongzhixiangguangdongshengshilongzhen, note: "" }
+          - { name: 京山市, slug: jingmen, note: "" }
+          - { name: 台山市, slug: jiangmen, note: "" }
+          - { name: 石龙镇, slug: dongguan, note: "" }
       - slug: shidatiyuguanjunzh
         title: 中国十大体育冠军之城
         kind: "pending"
@@ -1733,7 +1733,7 @@ groups:
           - { name: 上海, slug: shanghai, note: "" }
           - { name: 丹东, slug: dandong, note: "" }
           - { name: 焦作, slug: jiaozuo, note: "" }
-          - { name: 常熟, slug: changshu, note: "" }
+          - { name: 常熟市, slug: suzhou, note: "" }
           - { name: 莆田, slug: putian, note: "" }
           - { name: 广州, slug: guangzhou, note: "" }
           - { name: 太原, slug: taiyuan, note: "" }
@@ -1857,12 +1857,12 @@ groups:
           - { name: 中山, slug: zhongshan, note: 以孙中山先生命名 }
           - { name: 茂名, slug: maoming, note: 以潘茂名命名 }
           - { name: 吴忠, slug: wuzhong, note: 以吴忠命名 }
-          - { name: 禹州, slug: yuzhou, note: 以大禹命名 }
-          - { name: 左权县, slug: zuoquan, note: 以左权命名 }
-          - { name: 靖宇县, slug: jingyu, note: 以抗日英雄杨靖宇命名 }
-          - { name: 尚志, slug: shangzhi, note: 以抗日英雄赵尚志命名 }
-          - { name: 吴起县, slug: wuqi, note: 以战国名将吴起命名 }
-          - { name: 炎陵县, slug: yanling, note: 以华夏始祖炎帝而命名 }
+          - { name: 禹州市, slug: xuchang, note: 以大禹命名 }
+          - { name: 左权县, slug: jinzhong, note: 以左权命名 }
+          - { name: 靖宇县, slug: baishan, note: 以抗日英雄杨靖宇命名 }
+          - { name: 尚志市, slug: haerbin, note: 以抗日英雄赵尚志命名 }
+          - { name: 吴起县, slug: yanan, note: 以战国名将吴起命名 }
+          - { name: 炎陵县, slug: zhuzhou, note: 以华夏始祖炎帝而命名 }
       - slug: shidashaoshuminzuc
         title: 中国十大少数民族城市
         kind: "pending"
@@ -1870,16 +1870,16 @@ groups:
         size: 10
         note: 原榜共 10 条。
         items:
-          - { name: 凯里, slug: kaili, note: "" }
+          - { name: 凯里市, slug: qiandongnanzhou, note: "" }
           - { name: 临沧, slug: lincang, note: "" }
           - { name: 德宏, slug: dehong, note: "" }
           - { name: 喀什, slug: kashi, note: "" }
           - { name: 延边, slug: yanbian, note: "" }
           - { name: 西双版纳, slug: xishuangbanna, note: "" }
-          - { name: 蒙自, slug: mengzi, note: "" }
+          - { name: 蒙自市, slug: honghezhou, note: "" }
           - { name: 恩施, slug: enshi, note: "" }
-          - { name: 西昌, slug: xichang, note: "" }
-          - { name: 兴义, slug: xingyi, note: "" }
+          - { name: 西昌市, slug: liangshan, note: "" }
+          - { name: 兴义市, slug: qianxinanzhou, note: "" }
       - slug: shidacidou
         title: 中国十大瓷都
         kind: "pending"
@@ -1888,13 +1888,13 @@ groups:
         note: 原榜共 8 条。
         items:
           - { name: 景德镇, slug: jingdezhen, note: 世界瓷都之源 被誉为“千年瓷都” }
-          - { name: 湖南醴陵, slug: hunanliling, note: 五彩瓷都 釉下五彩瓷代表城市 }
+          - { name: 醴陵市, slug: zhuzhou, note: 五彩瓷都 釉下五彩瓷代表城市 }
           - { name: 潮州, slug: chaozhou, note: 中国瓷都 中国重要日用陶瓷出口基地 }
           - { name: 唐山, slug: tangshan, note: 北方瓷都 中国骨质瓷发源地 }
-          - { name: 无锡宜兴, slug: wuxiyixing, note: 中国陶都 以紫砂壶闻名 }
-          - { name: 禹州, slug: yuzhou, note: 中国钧瓷之都 以自然窑变著称 }
-          - { name: 佛山南海, slug: foshannanhai, note: 南国瓷都 中国建陶第一镇 }
-          - { name: 河南汝州, slug: henanruzhou, note: 汝瓷之都 宋代五大名窑之首“汝窑”的产地 }
+          - { name: 宜兴市, slug: wuxi, note: 中国陶都 以紫砂壶闻名 }
+          - { name: 禹州市, slug: xuchang, note: 中国钧瓷之都 以自然窑变著称 }
+          - { name: 南海区, slug: foshan, note: 南国瓷都 中国建陶第一镇 }
+          - { name: 汝州市, slug: pingdingshan, note: 汝瓷之都 宋代五大名窑之首“汝窑”的产地 }
       - slug: lishizuigulaodeshi
         title: 中国历史最古老的十座城市
         kind: "pending"
@@ -1906,7 +1906,7 @@ groups:
           - { name: 开封, slug: kaifeng, note: "" }
           - { name: 洛阳, slug: luoyang, note: "" }
           - { name: 邢台, slug: xingtai, note: "" }
-          - { name: 曲阜, slug: qufu, note: "" }
+          - { name: 曲阜市, slug: jining, note: "" }
           - { name: 安阳, slug: anyang, note: "" }
           - { name: 成都, slug: chengdu, note: "" }
           - { name: 西安, slug: xian, note: "" }

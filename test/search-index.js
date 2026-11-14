@@ -10,10 +10,15 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
+const yaml = require('js-yaml');
 
 const ROOT = path.join(__dirname, '..');
 const PUBLIC = path.join(ROOT, process.env.SITE_OUT || 'dist');
 const INDEX = path.join(PUBLIC, 'search-index.json');
+
+// 城市条数从数据现算，不写死：cities.yml 会随城市合并/新增变动，
+// 硬编码会在每次数据改动后假红（2026-11-14 县/镇并入上级市时踩到）。
+const CITY_COUNT = (yaml.load(fs.readFileSync(path.join(ROOT, 'source', '_data', 'cities.yml'), 'utf8')).cities || []).length;
 
 let pass = 0;
 function ok(name, fn) {
@@ -43,7 +48,9 @@ ok('S1 索引条数与内容一致（count 字段与实际条目数相同）', (
 });
 
 ok('S2 规模：索引覆盖全站，不再只有文章', () => {
-  assert.ok(items.length >= 600, '索引只有 ' + items.length + ' 条，疑似某一类页面没被收录');
+  // 至少要把「全部城市 + 全部榜单」收进去，才算覆盖了资料页而不只是文章。
+  assert.ok(items.length >= CITY_COUNT + (byType.rank || 0),
+    '索引只有 ' + items.length + ' 条（城市 ' + CITY_COUNT + ' + 榜单 ' + (byType.rank || 0) + '），疑似某类页面没被收录');
 });
 
 ok('S3 八类内容全部在列', () => {
@@ -52,8 +59,9 @@ ok('S3 八类内容全部在列', () => {
   });
 });
 
-ok('S4 数量对得上：城市 431 · 生肖 12 · 节日 12 · 节假日 16', () => {
-  assert.strictEqual(byType.city, 431);
+ok('S4 数量对得上：城市与数据条数一致 · 生肖 12 · 节日 12 · 节假日 16', () => {
+  assert.strictEqual(byType.city, CITY_COUNT,
+    '索引城市条数 ' + byType.city + ' 与 cities.yml 的 ' + CITY_COUNT + ' 不符——有城市漏收或重复');
   assert.strictEqual(byType.zodiac, 12);
   assert.strictEqual(byType.festival, 12);
   assert.strictEqual(byType.holiday, 16);

@@ -210,6 +210,7 @@ const peerMoreHref = provPage && !(provPage.total === 1 && provPage.pageCount ==
                   </p>
                   <h1 class="cr-city-name">{c.name}</h1>
                   <p class="cr-city-line">{cityLine}</p>
+                  {c.desc && <p class="cr-city-desc">{c.desc}</p>}
                   {tags.length > 0 && (
                     <ul class="cr-tags">
                       {tags.map((t: string) => <li>{t}</li>)}
