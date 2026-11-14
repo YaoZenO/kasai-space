@@ -59,6 +59,9 @@ const SLUGS = ['yuandan', 'chunjie', 'qingming', 'duanwu', 'zhongqiu', 'guoqing'
 const LEGAL = SLUGS.slice(0, 6);
 const CSS_FIG_SLUGS = ['yuanxiao', 'qixi', 'zhongyuan', 'laba'];
 const CUR = currentYearOf(holidaysRaw);
+// 年份表从「当前年」（最新官方年）铺到数据末年 2036：2026 时为 11 行，
+// 2027 官方化（2026-11-05 通知）后顺延为 10 行。行数跟着数据走，但不允许缺行。
+const EXPECTED_ROWS = holidaysRaw.years.filter((y) => y && Number(y.year) >= CUR).length;
 
 // 章节锚点 id 的合法集合（11 个约定值；vocab/faq 两节由 helper 注入）。
 // id 锁死、title 允许变体（裁决 15-2）。
@@ -97,18 +100,19 @@ ok('法定 6 个 holidayKey 与 holidays.yml 的 holidays[].id 逐字相同', ()
 });
 
 // S4（最关键）：132 行全非空；2026 行与 holidays.yml 逐字相同；法定 6 个连 start/end 一起锁
-ok('S4：12 slug × 11 年 = 132 行日期全非空，行数恰为 11', () => {
+ok('S4：12 slug × ' + EXPECTED_ROWS + ' 年 = ' + 12 * EXPECTED_ROWS + ' 行日期全非空，行数与数据一致', () => {
   let total = 0;
   SLUGS.forEach((s) => {
     const rows = built[s].tableRows;
-    assert.strictEqual(rows.length, 11, s + ' 的年份表不是 11 行（实际 ' + rows.length + '）');
+    assert.strictEqual(rows.length, EXPECTED_ROWS,
+      s + ' 的年份表不是 ' + EXPECTED_ROWS + ' 行（实际 ' + rows.length + '）');
     rows.forEach((r) => {
       assert.ok(r.date && !r.missing, s + ' ' + r.year + ' 年缺日期记录（E-047：缺数据不允许静默）');
       assert.match(r.date, /^\d{4}-\d{2}-\d{2}$/, s + ' ' + r.year + ' 日期格式不对：' + r.date);
       total += 1;
     });
   });
-  assert.strictEqual(total, 132, '总行数不是 132');
+  assert.strictEqual(total, 12 * EXPECTED_ROWS, '总行数不是 ' + 12 * EXPECTED_ROWS);
 });
 
 ok('S4：' + CUR + ' 行与 holidays.yml 逐字一致（法定 6 个含 start / end / days）', () => {
@@ -388,18 +392,19 @@ if (!fs.existsSync(PUBLIC)) {
     });
   });
 
-  ok('S12：年份表 11 行直出 + 6 行 data-fs-extra + tfoot 展开按钮（渐进增强，无 JS 全可见）', () => {
+  ok('S12：年份表 ' + EXPECTED_ROWS + ' 行直出 + ' + (EXPECTED_ROWS - 5) + ' 行 data-fs-extra + tfoot 展开按钮（渐进增强，无 JS 全可见）', () => {
     SLUGS.forEach((s) => {
       const h = fs.readFileSync(path.join(PUBLIC, 'library', s, 'index.html'), 'utf8');
       const t = h.slice(h.indexOf('class="cal-table fs-years"'), h.indexOf('</table>', h.indexOf('fs-years')));
       assert.ok(t.indexOf('data-collapsed="true"') !== -1, s + ' 年份表缺 data-collapsed');
       const tbody = t.slice(t.indexOf('<tbody>'), t.indexOf('</tbody>'));
       const trCount = (tbody.match(/<tr/g) || []).length;
-      assert.strictEqual(trCount, 11, s + ' 年份表 tbody 不是 11 行（实际 ' + trCount + '）');
-      assert.strictEqual((t.match(/data-fs-extra/g) || []).length, 6, s + ' 年份表 data-fs-extra 不是 6 行');
+      assert.strictEqual(trCount, EXPECTED_ROWS, s + ' 年份表 tbody 不是 ' + EXPECTED_ROWS + ' 行（实际 ' + trCount + '）');
+      assert.strictEqual((t.match(/data-fs-extra/g) || []).length, EXPECTED_ROWS - 5,
+        s + ' 年份表 data-fs-extra 不是 ' + (EXPECTED_ROWS - 5) + ' 行');
       assert.ok(t.indexOf('fs-years-toggle') !== -1, s + ' 年份表缺展开按钮');
       assert.ok(t.indexOf('aria-expanded="false"') !== -1, s + ' 展开按钮初始态不对');
-      assert.ok(t.indexOf('展开全部 11 年') !== -1, s + ' 展开按钮文案不对');
+      assert.ok(t.indexOf('展开全部 ' + EXPECTED_ROWS + ' 年') !== -1, s + ' 展开按钮文案不对');
     });
   });
 

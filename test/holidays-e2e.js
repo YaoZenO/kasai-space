@@ -97,7 +97,9 @@ ok('调休上班日按「离哪个假期最近」归属，且平局偏向节前'
 ok('「来源」只给官方年份标一行，预计年份不标（参考站的做法）', () => {
   assert.ok(buildCalendar(raw, 2026).source, '2026 是通知年，应当有来源');
   assert.strictEqual(buildCalendar(raw, 2026).source.dateLabel, '2025 年 11 月 4 日');
-  assert.strictEqual(buildCalendar(raw, 2027).source, null, '预计年份不该标来源');
+  assert.ok(buildCalendar(raw, 2027).source, '2027 是通知年（2026-11-05 发布），应当有来源');
+  assert.strictEqual(buildCalendar(raw, 2027).source.dateLabel, '2026 年 11 月 5 日');
+  assert.strictEqual(buildCalendar(raw, 2028).source, null, '预计年份不该标来源');
 });
 
 // 2024-11 修订的《全国年节及纪念日放假办法》自 2025-01-01 起施行，法定假日由 11 天增到 13 天。
@@ -134,7 +136,7 @@ ok('每年都有全部 24 个节气，且都落在本年内（E-047）', () => {
 // 节气是用通用寿星公式算的，必须有独立于公式的锚点。官方年份的清明节放假当天
 // 就是清明节气日本身，拿它当校验点，把公式与国务院通知钉在一起。
 ok('清明节气日与官方通知里的清明节日期一致（节气公式的独立校验点）', () => {
-  [2021, 2022, 2023, 2024, 2025, 2026].forEach((y) => {
+  [2021, 2022, 2023, 2024, 2025, 2026, 2027].forEach((y) => {
     const c = buildCalendar(raw, y);
     const qm = c.holidays.find((h) => h.id === 'qingming');
     const term = c.terms.find((t) => t.name === '清明');
@@ -144,7 +146,7 @@ ok('清明节气日与官方通知里的清明节日期一致（节气公式的�
   });
 });
 
-ok('预计放假合计 29 天，且统计值来自逐日状态而非手填', () => {
+ok('全年放假合计 29 天，且统计值来自逐日状态而非手填', () => {
   assert.strictEqual(cal.stats.holidayDays, 29, '合计放假天数变了');
   const counted = Object.keys(cal.days).filter((k) => cal.days[k].state === 'holiday').length;
   assert.strictEqual(counted, cal.stats.holidayDays, '统计值与逐日状态不一致');
@@ -172,13 +174,15 @@ ok('星期计算与 UTC 一致（2027-01-01 周五 / 2027-02-06 周六）', () =
   assert.strictEqual(weekdayOf('2027-02-06'), 6, '2027-02-06 不是周六');
 });
 
-ok('关键日期状态正确（除夕起放 / 初三后上班 / 国庆含 7 日 / 8 日上班）', () => {
+ok('关键日期状态正确（官方 2027：除夕起放 / 2-13 仍是假期 / 两个周日补班 / 国庆含 7 日 / 10-09 补班）', () => {
   const at = (k) => cal.days[k].state;
   assert.strictEqual(at('2027-02-05'), 'holiday', '除夕（2 月 5 日）没有标成放假');
   assert.strictEqual(at('2027-02-06'), 'holiday', '春节当天没有标成放假');
-  assert.strictEqual(at('2027-02-12'), 'holiday', '放假区间末日没有标成放假');
-  assert.strictEqual(at('2027-02-13'), 'weekend', '2 月 13 日应是周末（放假已结束）');
+  assert.strictEqual(at('2027-02-13'), 'holiday', '放假区间末日（2 月 13 日，周六）没有标成放假');
+  assert.strictEqual(at('2027-01-31'), 'makeup', '春节节前调休上班日（1 月 31 日，周日）没有标成补班');
+  assert.strictEqual(at('2027-02-14'), 'makeup', '春节节后调休上班日（2 月 14 日，周日）没有标成补班');
   assert.strictEqual(at('2027-10-07'), 'holiday', '10 月 7 日应是放假');
+  assert.strictEqual(at('2027-10-09'), 'makeup', '国庆节后调休上班日（10 月 9 日，周六）没有标成补班');
   assert.strictEqual(at('2027-10-08'), 'work', '10 月 8 日应是工作日');
 });
 
@@ -229,8 +233,8 @@ ok('悬停数据覆盖除夕且带放假区间与锚点', () => {
   assert.strictEqual(t.name, '春节');
   assert.strictEqual(t.kicker, cal.label + '法定节假日');
   assert.strictEqual(t.lunar, '除夕 · 腊月廿九', '除夕当天没带农历');
-  assert.strictEqual(t.dayNo, '第 2 天，共 9 天');
-  assert.match(t.arrange, /02-04 → 02-12 · 9 天/);
+  assert.strictEqual(t.dayNo, '第 1 天，共 9 天');
+  assert.match(t.arrange, /02-05 → 02-13 · 9 天/);
   assert.strictEqual(t.anchor, 'holiday-chunjie');
 });
 
@@ -273,13 +277,13 @@ if (!fs.existsSync(PAGE)) {
     });
   });
 
-  ok('年度状态标对：2021-2026 为官方，2027 起为预计', () => {
+  ok('年度状态标对：2021-2027 为官方，2028 起为预计', () => {
     const byYear = (y) => buildCalendar(raw, y);
-    [2021, 2022, 2023, 2024, 2025, 2026].forEach((y) => {
+    [2021, 2022, 2023, 2024, 2025, 2026, 2027].forEach((y) => {
       assert.strictEqual(byYear(y).label, '官方', y + ' 是国务院通知年，应标官方');
       assert.strictEqual(byYear(y).official, true);
     });
-    [2027, 2030, 2036].forEach((y) => {
+    [2028, 2030, 2036].forEach((y) => {
       assert.strictEqual(byYear(y).label, '预计', y + ' 应标预计');
       assert.strictEqual(byYear(y).official, false);
     });
@@ -718,13 +722,15 @@ ok('Astro 产物：FAQ 按当年生成，不串年份（2026-11-09 修订）', (
   assert.strictEqual(f27.indexOf('2026 年'), -1, '2027 页 FAQ 里出现了 2026 年的内容');
 
   // 2026-11-09 主人第二次反馈：年份不串了，但每年仍是同样四个问题，太死板。
-  // 题库按年份轮换后，把年份数字抹掉再比，相邻两年最多只能有 2 条同型问题
-  // （固定保留的总览、春节 + 与年份无关的通用问题）。
+  // 题库按年份轮换后，把年份数字抹掉再比。结构题（总览 / 春节 / 通用题）年年都在，
+  // 相邻两个官方年会自然共享这 3 条；要防的是「轮换的 4 条也撞车」——
+  // 所以结构题除外后，相邻年份的重叠必须为 0。
   const questionsOf = (s) => (s.match(/<summary>([^<]*)<\/summary>/g) || []).map((x) => x.replace(/<\/?summary>/g, ''));
   const norm = (s) => questionsOf(s).map((q) => q.replace(/\d{4}\s*年/g, 'X 年'));
-  const shared = norm(f26).filter((q) => norm(f27).indexOf(q) !== -1);
-  assert.ok(shared.length <= 2,
-    '2026 与 2027 的 FAQ 问题几乎一样（重复 ' + shared.length + ' 条）：' + shared.join('、'));
+  const STRUCTURAL = ['X 年的放假安排是什么？', 'X 年的放假安排官方公布了吗？', 'X 年春节是哪一天？', '一年到底有几天法定节假日？'];
+  const shared = norm(f26).filter((q) => norm(f27).indexOf(q) !== -1 && STRUCTURAL.indexOf(q) === -1);
+  assert.deepStrictEqual(shared, [],
+    '2026 与 2027 的轮换题撞车了（' + shared.length + ' 条）：' + shared.join('、'));
 });
 
 // ---------- ④ 断言自检 ----------
