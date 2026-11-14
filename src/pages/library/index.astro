@@ -132,25 +132,25 @@ const rankBars = (() => {
   });
 })();
 
-// 城市：字段覆盖。名目与 /city/<slug>/ 档案页同一批字段，只数「有值」的城市
-// （指标必须是 { v, unit, asOf, source } 四元组且 v 为数值，缺一即视为待补），
-// 与档案页「查不到就写待补、不填估算值」的口径一致。
+// 城市：档案里有哪些字段。封面只回答「这是什么」——几座城市、每座一份档案、档案里有哪几类字段。
+// 2026-11-14 二次反馈后不再放「各字段已收录多少座」的计数：脱离口径的裸数字读者读不懂。
+// 字段按城市数据里实际存在的才显示（有城市带该指标才算），不写死一张清单。
 const CITY_FIELDS = [
   { field: 'gdp', label: '地区生产总值' },
-  { field: 'area_km2', label: '行政面积' },
-  { field: 'express_handle', label: '快递处理量' },
-  { field: 'metro_km', label: '轨道交通' },
   { field: 'pop', label: '常住人口' },
+  { field: 'area_km2', label: '行政面积' },
   { field: 'temp_jan', label: '气候数据' },
+  { field: 'metro_km', label: '轨道交通' },
+  { field: 'universities', label: '高校数量' },
 ];
 const cityList: any[] = data.cities?.cities || [];
-const cityFieldRows = CITY_FIELDS.map((f) => ({
-  label: f.label,
-  count: cityList.filter((c: any) => {
+const cityFieldTags = CITY_FIELDS.filter((f) =>
+  cityList.some((c: any) => {
     const m = c?.metrics?.[f.field];
     return m && typeof m === 'object' && typeof m.v === 'number' && isFinite(m.v);
-  }).length
-})).filter((f) => f.count > 0);
+  })
+).map((f) => f.label);
+
 ---
 
 <BaseLayout title="资料库" currentPath="/library/" ogDate={published} ogUpdated={modified}>
@@ -223,15 +223,17 @@ const cityFieldRows = CITY_FIELDS.map((f) => ({
                       </span>
                     )}
                     {tp.key === 'city' && (
-                      <span class="lb-cover-fields">
-                        {cityFieldRows.map((f: any) => (
-                          <span class="lb-field-row">
-                            <em>{f.label}</em>
-                            <span class="lb-field-rule" />
-                            <b>{f.count}</b>
-                          </span>
-                        ))}
-                        <span class="lb-field-note">{cityList.length} 座城市中已收录的座数</span>
+                      <span class="lb-cover-archive">
+                        <span class="lb-archive-head">
+                          <b>{cityList.length}</b>
+                          <em>座城市</em>
+                        </span>
+                        <span class="lb-archive-note">每座城市一份档案</span>
+                        <span class="lb-archive-tags">
+                          {cityFieldTags.map((label: string) => (
+                            <span>{label}</span>
+                          ))}
+                        </span>
                       </span>
                     )}
                   </span>
