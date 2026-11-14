@@ -1,35 +1,85 @@
 ---
-// 友链页：复刻 links.ejs。条目来自主题配置 theme.links.items（当前为空 → 诚实空态）。
+// /links/：友链（PAGE-FORM-PLAN §4.6.7 / S3）。
+// 0 条时「空态即页面」：一句现状 + 「交换链接」信息卡，不再显示「共 0 个」；
+// 有数据时链接卡墙（站点名 + 一句介绍 + 域名），按配置里的日期倒序。
+// 数据源仍是 theme.links.items；不加输入控件（C-6），交换方式全部是链接。
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import PageHead from '../../components/PageHead.astro';
-import EmptyState from '../../components/EmptyState.astro';
-import { themeConfig } from '../../lib/site-config';
+import { siteConfig, themeConfig } from '../../lib/site-config';
 import { t } from '../../lib/i18n';
-import { urlFor } from '../../lib/url';
 
-const links = (themeConfig.links && themeConfig.links.items) || [];
-const valid = links.filter((each: any) => each && each.title && each.link);
+const raw = (themeConfig.links && themeConfig.links.items) || [];
 const title = themeConfig.links?.title || t('links').title;
+
+const items = raw
+  .filter((each: any) => each && each.title && each.link)
+  .map((each: any, i: number) => {
+    let host = '';
+    try {
+      host = new URL(String(each.link)).hostname;
+    } catch {
+      host = '';
+    }
+    return {
+      title: String(each.title),
+      intro: each.intro ? String(each.intro) : '',
+      link: String(each.link),
+      host,
+      time: each.date ? new Date(each.date).getTime() : 0,
+      order: i,
+    };
+  })
+  .sort((a: any, b: any) => b.time - a.time || a.order - b.order);
+
+const siteUrl = String(siteConfig.url || '');
+const siteTitle = String(siteConfig.title || '');
+
+const lead = items.length ? `${items.length} 个站点` : '还没有收录友链。';
 ---
 
 <BaseLayout title={title} currentPath="/links/">
   <div class="paper-page">
     <div class="home-wrap">
-      <PageHead kicker="LINKS" title={title} count={`共 ${valid.length} 个`} />
+      <header class="lk-head">
+        <h1 class="lk-title">{title}</h1>
+        <p class="lk-lead">{lead}</p>
+      </header>
 
-      {valid.length ? (
-        <div class="module-grid">
-          {valid.map((each: any) => (
-            <a class="module-card" href={urlFor(each.link)} target="_blank" rel="noopener">
-              <span class="module-card-body">
-                <span class="module-card-title">{each.title}</span>
-                {each.intro && <span class="module-card-sum">{each.intro}</span>}
-              </span>
-            </a>
+      {items.length > 0 ? (
+        <ul class="lk-wall">
+          {items.map((each: any) => (
+            <li class="lk-wall-item">
+              <a class="lk-card" href={each.link} target="_blank" rel="noopener">
+                <span class="lk-name">{each.title}</span>
+                {each.intro && <span class="lk-desc">{each.intro}</span>}
+                {each.host && <span class="lk-host">{each.host}</span>}
+              </a>
+            </li>
           ))}
-        </div>
+        </ul>
       ) : (
-        <EmptyState>还没有添加友链。想交换的话，从站内任意一个社交图标找到我——发站点链接和一句话介绍就行。</EmptyState>
+        <section class="lk-exchange" aria-labelledby="lk-exchange-title">
+          <h2 class="lk-exchange-title" id="lk-exchange-title">交换链接</h2>
+          <dl class="lk-facts">
+            <div class="lk-fact">
+              <dt>站点名</dt>
+              <dd>{siteTitle}</dd>
+            </div>
+            {siteUrl && (
+              <div class="lk-fact">
+                <dt>地址</dt>
+                <dd><a href={siteUrl} target="_blank" rel="noopener">{siteUrl.replace(/^https?:\/\//, '')}</a></dd>
+              </div>
+            )}
+            <div class="lk-fact">
+              <dt>RSS</dt>
+              <dd><a href="/atom.xml">订阅</a></dd>
+            </div>
+            <div class="lk-fact">
+              <dt>联系</dt>
+              <dd><a href="/about/">关于页的社交图标 →</a></dd>
+            </div>
+          </dl>
+        </section>
       )}
     </div>
   </div>

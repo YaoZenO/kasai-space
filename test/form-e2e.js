@@ -212,5 +212,71 @@ for (const tag of clCards) {
   }
 }
 
+// ---- S3：关于 / 友链（PAGE-FORM-PLAN §4.6.6–4.6.7）----
+const aboutIndex = read('about/index.html');
+const postFiles = fs
+  .readdirSync(path.join(ROOT, 'source', '_posts'))
+  .filter((f) => f.endsWith('.md') && !f.startsWith('_'));
+const postYears = postFiles
+  .map((f) => {
+    const raw = fs.readFileSync(path.join(ROOT, 'source', '_posts', f), 'utf8');
+    const m = /^date:\s*(\d{4})/m.exec(raw);
+    return m ? m[1] : '';
+  })
+  .filter(Boolean);
+const sinceYear = postYears.length ? String(Math.min(...postYears.map(Number))) : '—';
+const aboutSource = fs.readFileSync(path.join(ROOT, 'source', 'about', 'index.md'), 'utf8');
+const aboutParagraphs = aboutSource
+  .replace(/^---[\s\S]*?---\r?\n/, '')
+  .split(/\r?\n\s*\r?\n/)
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+ok(aboutIndex.length > 0, '缺少 /about/ 产物');
+ok(!aboutIndex.includes('page-head-kicker'), '/about/ 仍带文章壳 kicker');
+ok(aboutIndex.includes('class="ab-name"'), '/about/ 缺身份档案卡标题');
+ok(/class="stat-band[ "]/.test(aboutIndex), '/about/ 缺首屏数字带');
+ok(count(aboutIndex, /class="stat-band-item"/g) === 4, '/about/ 数字带不是四格');
+ok(aboutIndex.includes(`<dt>文字</dt><dd>${postFiles.length} 篇</dd>`),
+  `/about/ 文章数不是现算的 ${postFiles.length} 篇`);
+ok(aboutIndex.includes(`<dt>项目</dt><dd>${projectItems.length} 个</dd>`),
+  `/about/ 项目数不是现算的 ${projectItems.length} 个`);
+ok(aboutIndex.includes(`<dt>游戏</dt><dd>${gameItems.length} 个</dd>`),
+  `/about/ 游戏数不是现算的 ${gameItems.length} 个`);
+ok(aboutIndex.includes(`<dt>建站</dt><dd>${sinceYear}</dd>`),
+  `/about/ 建站年份不是最早文章的 ${sinceYear}`);
+ok(aboutIndex.includes('data-copy="'), '/about/ 复制邮箱图标回归（缺 data-copy）');
+ok(aboutIndex.includes('class="qr-trigger"'), '/about/ 二维码图标回归（缺 qr-trigger）');
+ok(aboutIndex.includes('class="qr-img"'), '/about/ 二维码弹层结构回归（缺 qr-img）');
+ok(/class="ab-now-more" href="\/now\/"/.test(aboutIndex), '/about/ 「现在」卡缺「看全部」出口');
+ok(count(aboutIndex, /class="ab-sect"/g) === aboutParagraphs.length,
+  `/about/ 小节卡 ${count(aboutIndex, /class="ab-sect"/g)} 张 ≠ 正文 ${aboutParagraphs.length} 段`);
+ok(!/<input\b/i.test(aboutIndex), '/about/ 出现输入控件');
+
+const linksIndex = read('links/index.html');
+const themeLinks = (yaml.load(
+  fs.readFileSync(path.join(ROOT, 'themes', 'fluid', '_config.yml'), 'utf8')
+) || {}).links || {};
+const linkItems = (themeLinks.items || []).filter((it) => it && it.title && it.link);
+
+ok(linksIndex.length > 0, '缺少 /links/ 产物');
+ok(!linksIndex.includes('page-head-kicker'), '/links/ 仍带文章壳 kicker');
+ok(!linksIndex.includes('共 0 个'), '/links/ 仍在显示「共 0 个」');
+ok(!linksIndex.includes('module-grid'), '/links/ 仍在使用旧 module-grid');
+ok(!/<input\b/i.test(linksIndex), '/links/ 出现输入控件');
+if (linkItems.length === 0) {
+  ok(linksIndex.includes('class="lk-exchange"'), '/links/ 0 条时缺「交换链接」信息卡');
+  ok(!linksIndex.includes('class="lk-wall"'), '/links/ 0 条时仍在铺空链接墙');
+  ok(linksIndex.includes('/atom.xml'), '/links/ 0 条时缺 RSS 入口');
+} else {
+  ok(count(linksIndex, /class="lk-card"/g) === linkItems.length,
+    `/links/ 卡片数 ${count(linksIndex, /class="lk-card"/g)} ≠ 数据 ${linkItems.length}`);
+  const lkCards = linksIndex.match(/<a class="lk-card"[^>]*>/g) || [];
+  for (const tag of lkCards) {
+    ok(tag.includes('target="_blank"') && tag.includes('rel="noopener"'),
+      '友链卡缺 target=_blank / rel=noopener');
+  }
+}
+
 console.log(`\nRESULT: ${pass} 项断言通过${fail ? '，存在失败' : ''}`);
 process.exit(fail ? 1 : 0);

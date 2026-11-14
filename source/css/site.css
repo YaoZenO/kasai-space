@@ -2102,29 +2102,6 @@ body.is-home footer {
 
 /* --- 4.7 关于页（身份区 + 正文档案轨） --- */
 
-.about-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: clamp(2rem, 4vw, 4rem);
-  /* V4：关于页正文收口到 42rem，头像不再漂到页面右缘（D-6） */
-  max-width: 42rem;
-  margin-bottom: 2.6rem;
-}
-
-.about-head-main {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-.about-head-intro {
-  margin: 1rem 0 0;
-  font-size: 1.02rem;
-  line-height: 1.9;
-  color: var(--sec-text-color);
-  max-width: 44ch;
-}
-
 /* 保留主题 .about-icons / .qr-trigger / .qr-img 行为，仅做配色 */
 .about-icons {
   list-style: none;
@@ -2175,24 +2152,6 @@ body.is-home footer {
   transform: translate(-50%, 0);
 }
 
-.about-avatar-box {
-  flex: 0 0 auto;
-  width: 132px;
-  height: 132px;
-  border-radius: var(--r-card);
-  overflow: hidden;
-  border: 1px solid var(--site-chip-border);
-  box-shadow: var(--site-float-shadow);
-  background-color: rgba(27, 23, 18, 0.05);
-}
-
-.about-avatar-box img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
 /* 关于页正文与文章页共用正文轨 */
 .about-body .markdown-body {
   max-width: 38em;
@@ -2203,18 +2162,6 @@ body.is-home footer {
   padding: 0;
   box-shadow: none;
   border: none;
-}
-
-@media (max-width: 575.98px) {
-  .about-head {
-    flex-direction: column-reverse;
-    gap: 1.6rem;
-  }
-
-  .about-avatar-box {
-    width: 108px;
-    height: 108px;
-  }
 }
 
 /* --- 4.8 搜索面板（保留 local-search.js 与 ID 契约，纸面化样式） --- */
@@ -2427,19 +2374,8 @@ body.is-home footer {
 /* 模块列表页 */
 .page-head-plain { margin: 0 0 1.6rem; }
 .page-head-plain .page-head-title { font-size: clamp(1.9rem, 3.6vw, 2.6rem); font-weight: 600; margin: .3rem 0 .4rem; }
-.module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
-.module-card {
-  display: block; background: var(--cream); border: 1px solid var(--line-color);
-  border-radius: var(--r-tile); overflow: hidden; color: var(--text-color);
-  text-decoration: none; transition: transform .12s ease, border-color .12s ease;
-}
-.module-card:hover { transform: translateY(-2px); border-color: var(--line-strong); }
-.module-card-img { display: block; }
-.module-card-img img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; border-bottom: 1px solid var(--line-color); }
-.module-card-body { display: block; padding: .9rem 1rem 1rem; }
-.module-card-title { display: block; font-weight: 700; font-size: 1rem; }
-.module-card-sum { display: block; color: var(--sec-text-color); font-size: .84rem; margin-top: .3rem; }
-.module-card-meta { display: flex; align-items: center; gap: .45rem; flex-wrap: wrap; margin-top: .6rem; }
+/* .module-grid / .module-card* 已于 2026-11-14（S3）删除：最后使用者 /links/ 改 lk- 卡墙，
+   构建产物 grep 0 命中。 */
 
 /* --- 4.9.1 游戏封面网格（主人 2026-10-19 定：封面网格模型）---
    非均质：1 大（2×2）+ 4 小（1×1）。这正是修订后 R-3 允许、修订前禁止的形态
@@ -9199,7 +9135,7 @@ html:not(.js) .fs-years-toggle { display: none; }
 /* ===== 4.22 项目 / 游戏 / 收藏（2026-11-14 S2）=====
    项目 = 档案卡（无封面，不做封面墙）；游戏 = 封面墙（保留 2×2 主位）；
    收藏 = 单条大卡（1 条不铺网格）。类名统一前缀 pj- / gm- / cl-（§4.6.10）。
-   旧的 .module-* / .games-* 规则本轮不删：/links/ 仍用 .module-grid，留 S3/S5 清理。 */
+   旧的 .module-* 规则已随 S3（/links/ 改 lk- 卡墙）删除；.games-* 留 S5 清理。 */
 
 /* --- 索引型页头：h1 + 一句结论 --- */
 .pj-head,
@@ -9665,6 +9601,328 @@ html:not(.js) .fs-years-toggle { display: none; }
   .gm-wall {
     grid-template-columns: repeat(2, 1fr);
     grid-auto-rows: 120px;
+  }
+}
+
+/* ===== 4.23 关于 / 友链（2026-11-14 S3）=====
+   关于 = 身份档案卡 + 四格数字带 + 现在摘要 + 四段小节卡；
+   友链 = 0 条时「交换链接」信息卡，有数据时链接卡墙。
+   类名前缀 ab- / lk-（§4.6.10）；字号下限 0.75rem，颜色全走 token。 */
+
+/* --- 关于：身份档案卡 --- */
+.ab-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: clamp(1.6rem, 4vw, 3rem);
+  margin: 0 0 1.6rem;
+}
+
+.ab-name {
+  margin: 0;
+  font-family: var(--font-serif-title);
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+
+.ab-tag {
+  margin: 0.55rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--sec-text-color);
+}
+
+.ab-avatar {
+  width: 132px;
+  height: 132px;
+  border-radius: var(--r-card);
+  overflow: hidden;
+  border: 1px solid var(--site-chip-border);
+  box-shadow: var(--site-float-shadow);
+  /* 底色只在头像缺失 / 未加载时可见：亮态用静态 accent-soft，暗态在色系块里换 --block-yellow */
+  background-color: var(--accent-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ab-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ab-avatar-fallback {
+  font-family: var(--font-serif-title);
+  font-size: 2.4rem;
+  color: var(--text-color);
+}
+
+/* 数字带紧跟身份卡；下方间距交给「现在」卡自己的外边距 */
+.ab-stats {
+  margin-bottom: 1.8rem;
+}
+
+/* --- 关于：「现在」摘要卡 --- */
+.ab-now {
+  margin: 0 0 1.8rem;
+  padding: 1.1rem 1.2rem 1.2rem;
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-card);
+  background-color: var(--cream);
+}
+
+.ab-now-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--line-color);
+}
+
+.ab-now-title {
+  margin: 0;
+  font-family: var(--font-serif-title);
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.ab-now-date {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--info-mark);
+}
+
+.ab-now-more {
+  margin-left: auto;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.ab-now-more:hover {
+  color: var(--accent);
+}
+
+.ab-now-body {
+  margin-top: 0.7rem;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: var(--post-text-color);
+}
+
+.ab-now-body p {
+  margin: 0;
+}
+
+.ab-now-body ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.ab-now-body li + li {
+  margin-top: 0.3rem;
+}
+
+.ab-now-body a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* --- 关于：四段小节卡 --- */
+.ab-sections {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.ab-sect {
+  padding: 1rem 1.1rem 1.1rem;
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-card);
+}
+
+.ab-sect-title {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-serif-title);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--info-mark);
+}
+
+.ab-sect-body {
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: var(--post-text-color);
+}
+
+.ab-sect-body p {
+  margin: 0;
+}
+
+.ab-sect-body p + p {
+  margin-top: 0.6rem;
+}
+
+/* --- 友链：索引型页头（与 §4.22 同语言） --- */
+.lk-head {
+  margin: 0 0 1.6rem;
+}
+
+.lk-title {
+  margin: 0;
+  font-family: var(--font-serif-title);
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.lk-lead {
+  margin: 0.55rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--sec-text-color);
+}
+
+/* --- 友链：交换链接信息卡（0 条时的页面主体） --- */
+.lk-exchange {
+  padding: 1.1rem 1.2rem 1.2rem;
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-card);
+  background-color: var(--cream);
+}
+
+.lk-exchange-title {
+  margin: 0 0 0.7rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--line-color);
+  font-family: var(--font-serif-title);
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.lk-facts {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+}
+
+.lk-fact {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  gap: 0.8rem;
+  align-items: baseline;
+}
+
+.lk-fact dt {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--info-mark);
+}
+
+.lk-fact dd {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  color: var(--text-color);
+}
+
+.lk-fact dd a {
+  color: var(--text-color);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.lk-fact dd a:hover {
+  color: var(--accent);
+}
+
+/* --- 友链：卡墙（有数据时） --- */
+.lk-wall {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lk-wall-item {
+  display: flex;
+}
+
+.lk-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  width: 100%;
+  padding: 0.95rem 1.05rem 1rem;
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-card);
+  background-color: var(--cream);
+  transition: border-color 0.2s;
+}
+
+.lk-card:hover {
+  border-color: var(--line-strong);
+}
+
+.lk-name {
+  font-family: var(--font-serif-title);
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text-color);
+}
+
+.lk-card:hover .lk-name {
+  color: var(--accent);
+}
+
+.lk-desc {
+  font-size: 0.88rem;
+  line-height: 1.75;
+  color: var(--sec-text-color);
+}
+
+.lk-host {
+  margin-top: 0.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--info-mark);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 767.98px) {
+  .ab-card {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+  }
+
+  .ab-avatar {
+    order: -1;
+    width: 96px;
+    height: 96px;
+  }
+
+  .ab-sections {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .lk-fact {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.15rem;
   }
 }
 
@@ -10161,8 +10419,8 @@ a:hover {
     color: var(--on-ink);
   }
 
-  :root:not([data-user-color-scheme]):not([data-sun-scheme]) .about-avatar-box {
-    background-color: rgba(229,222,210,.06);
+  :root:not([data-user-color-scheme]):not([data-sun-scheme]) .ab-avatar {
+    background-color: var(--block-yellow);
   }
 
   :root:not([data-user-color-scheme]):not([data-sun-scheme]) .games-tile-cap {
@@ -10544,9 +10802,9 @@ a:hover {
     color: var(--on-ink);
   }
 
-  [data-user-color-scheme="dark"] .about-avatar-box,
-  [data-sun-scheme="dark"]:not([data-user-color-scheme]) .about-avatar-box {
-    background-color: rgba(229,222,210,.06);
+  [data-user-color-scheme="dark"] .ab-avatar,
+  [data-sun-scheme="dark"]:not([data-user-color-scheme]) .ab-avatar {
+    background-color: var(--block-yellow);
   }
 
   [data-user-color-scheme="dark"] .games-tile-cap,

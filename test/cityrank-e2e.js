@@ -436,6 +436,12 @@ if (!hasPublic) {
 const cssPath = path.join(ROOT, 'source/css/site.css');
 const css = fs.readFileSync(cssPath, 'utf8');
 const secIdx = css.indexOf('4.16 城市排行榜页');
+// 段尾取「下一个顶层分节」，不能用 §5 作终点：§4.16 之后还插了 4.21–4.23，
+// 用 §5 会把它们整段算进 §4.16，让负向断言误判（ERRORS.md E-159）。
+function section416() {
+  const end = secIdx === -1 ? -1 : css.indexOf('/* ===== ', secIdx + 5);
+  return secIdx === -1 ? '' : css.slice(secIdx, end === -1 ? css.length : end);
+}
 
 ok('S9 样式 §4.16 存在且核心选择器齐全', () => {
   assert.ok(secIdx !== -1, 'site.css 缺少 §4.16 城市排行榜段');
@@ -446,23 +452,17 @@ ok('S9 样式 §4.16 存在且核心选择器齐全', () => {
 });
 
 ok('S9 §4.16 不重定义色值（E-052 同型：两处各写一份必然漂移）', () => {
-  const start = secIdx;
-  const nextSec = css.indexOf('/* ===== 5.', start);
-  const sec = css.slice(start, nextSec === -1 ? css.length : nextSec);
+  const sec = section416();
   assert.ok(!/#[0-9a-fA-F]{3,8}\b/.test(sec.replace(/#[0-9a-fA-F]{3,8}\s*;?\s*\/\*[^*]*\*\//g, '')),
     '§4.16 内出现硬编码色值');
 });
 
 ok('S9 §4.16 禁止 overflow-wrap:anywhere（E-043 防复发）', () => {
-  const nextSec = css.indexOf('/* ===== 5.', secIdx);
-  const sec = css.slice(secIdx, nextSec === -1 ? css.length : nextSec);
-  assert.ok(!/overflow-wrap:\s*anywhere/.test(sec), '§4.16 出现 overflow-wrap: anywhere');
+  assert.ok(!/overflow-wrap:\s*anywhere/.test(section416()), '§4.16 出现 overflow-wrap: anywhere');
 });
 
 ok('S9 §4.16 有移动端断点（真正的重排，不是等比缩小）', () => {
-  const nextSec = css.indexOf('/* ===== 5.', secIdx);
-  const sec = css.slice(secIdx, nextSec === -1 ? css.length : nextSec);
-  assert.ok(/@media\s*\(max-width:\s*767px\)/.test(sec), '§4.16 缺少 767px 移动断点');
+  assert.ok(/@media\s*\(max-width:\s*767px\)/.test(section416()), '§4.16 缺少 767px 移动断点');
 });
 
 // ---------- 自检：确认断言不会空转 ----------

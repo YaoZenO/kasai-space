@@ -484,10 +484,13 @@ if (!fs.existsSync(PUBLIC)) {
   const css = fs.readFileSync(path.join(ROOT, 'source', 'css', 'site.css'), 'utf8');
   const cssNoComment = css.replace(/\/\*[\s\S]*?\*\//g, '');
   const s15At = css.indexOf('===== 4.15 节日文化页');
-  const s5At = css.indexOf('===== 5. 第三方组件纸面化');
-  const sec15 = s15At > -1 && s5At > s15At ? css.slice(s15At, s5At) : null;
+  // 段尾必须取「下一个顶层分节」，不能用 §5 作终点：§4.15 之后还插了 4.16–4.23
+  // 的独立分节，用 §5 会把它们整段算进 §4.15，让本段的负向断言（E-043 禁
+  // overflow-wrap 等）对别的页面误判（见 ERRORS.md E-140）。
+  const s15End = s15At > -1 ? css.indexOf('/* ===== ', s15At + 5) : -1;
+  const sec15 = s15At > -1 && s15End > s15At ? css.slice(s15At, s15End) : null;
 
-  ok('§4.15 段存在于 §4.14 与 §5 之间（E-052：整份覆盖写最容易丢的就是新段）', () => {
+  ok('§4.15 段存在且能圈出段尾（E-052：整份覆盖写最容易丢的就是新段）', () => {
     assert.ok(sec15, 'site.css 找不到 §4.15 段（或段序不对）');
   });
 

@@ -1,11 +1,20 @@
 ---
-import { getCollection, render } from 'astro:content';
+// /about/：身份档案页（PAGE-FORM-PLAN §4.6.6 / S3）。
+// 结构：身份档案卡（头像 / 名字 / 一句定性 / 社交 icons）→ 四格数字带 →
+// 「现在」摘要卡（取 /now/ 的「在做」）→ 四段小节卡（正文原文，逐段不改写）。
+// icons 的复制 / 二维码行为保持原样：DOM 契约（data-copy / .qr-trigger / .qr-img）
+// 与 /js/about.js 的事件委托一一对应，不要改名。
+import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import StatBand from '../../components/StatBand.astro';
 import { getData } from '../../lib/data';
-import { themeConfig } from '../../lib/site-config';
+import { getPosts } from '../../lib/posts';
+import { renderMarkdown } from '../../lib/markdown';
+import { siteConfig, themeConfig } from '../../lib/site-config';
 import { t } from '../../lib/i18n';
 import { urlFor } from '../../lib/url';
 import { excerptFromMarkdown } from '../../lib/excerpt';
+import { fmtItemDate } from '../../lib/dates';
 import { pageDates } from '../../lib/page-meta';
 
 const pages = await getCollection('pages');
@@ -13,14 +22,13 @@ const pages = await getCollection('pages');
 const entry = pages.find(p => p.id === 'about');
 if (!entry) throw new Error('缺少 source/about/index.md: ' + pages.map(p => p.id).join(','));
 
-const { Content } = await render(entry);
 const description = excerptFromMarkdown(entry.body || '');
 const { published, modified } = pageDates('about/index.md');
 
 const siteData = getData().site || {};
 const aboutIntro = siteData.intro || themeConfig.about?.introduce || themeConfig.about?.intro || '';
 const aboutAvatar = siteData.avatar || themeConfig.about?.avatar || '';
-const aboutName = themeConfig.about?.name || '';
+const aboutName = themeConfig.about?.name || siteConfig.title;
 
 // 图标三态：链接 / 复制 / 二维码
 const icons: any[] = themeConfig.about?.icons || [];
@@ -45,6 +53,41 @@ function iconAttrs(each: any): Record<string, any> {
   if (!isQr && each.tip) attrs['aria-label'] = each.tip;
   return attrs;
 }
+
+// ---- 四格数字带：全部现算，不写死 ----
+const posts = getPosts();
+const data = getData();
+const projectCount = (data.projects?.items || []).filter((it: any) => it && it.title).length;
+const gameCount = (data.games?.items || []).filter((it: any) => it && it.title).length;
+const sinceYear = posts.length ? String(Math.min(...posts.map(p => p.date.getFullYear()))) : '—';
+
+const stats = [
+  { label: '文字', value: `${posts.length} 篇` },
+  { label: '项目', value: `${projectCount} 个` },
+  { label: '游戏', value: `${gameCount} 个` },
+  { label: '建站', value: sinceYear },
+];
+
+// ---- 「现在」摘要：取 /now/ 的「在做」小节，原样渲染 ----
+const nowEntry = pages.find(p => p.id === 'now');
+const doingMatch = nowEntry
+  ? /(?:^|\n)##\s*在做\s*\r?\n([\s\S]*?)(?=\r?\n##\s|$)/.exec(nowEntry.body || '')
+  : null;
+const doingHtml = doingMatch ? renderMarkdown(doingMatch[1].trim()) : '';
+const nowUpdated = nowEntry ? fmtItemDate((nowEntry.data as any).show_updated) : '';
+
+// ---- 正文四段 → 小节卡 ----
+// Markdown 正文按空行切段；标题按段落语义对位（P1 在学 / P2 在写 / P3 在做 / P4 工位之外）。
+// 只贴标题，不改一个字；段数多出时多出的段落不贴标题。
+const SECTION_LABELS = ['在学', '在写', '在做', '工位之外'];
+const paragraphs = String(entry.body || '')
+  .split(/\r?\n\s*\r?\n/)
+  .map(s => s.trim())
+  .filter(Boolean);
+const sections = paragraphs.map((text, i) => ({
+  label: SECTION_LABELS[i] || '',
+  html: renderMarkdown(text),
+}));
 ---
 
 <BaseLayout
@@ -53,14 +96,14 @@ function iconAttrs(each: any): Record<string, any> {
   descriptionPreformatted={true}
   ogDate={published}
   ogUpdated={modified}
+  currentPath="/about/"
 >
   <div class="paper-page">
     <div class="home-wrap about-page">
-      <header class="about-head">
-        <div class="about-head-main">
-          <p class="page-head-kicker">ABOUT</p>
-          <h1 class="page-head-title">{aboutName}</h1>
-          {aboutIntro && <p class="about-head-intro" set:html={aboutIntro} />}
+      <header class="ab-card">
+        <div class="ab-card-main">
+          <h1 class="ab-name">{aboutName}</h1>
+          {aboutIntro && <p class="ab-tag" set:html={aboutIntro} />}
           {
             icons.length > 0 && (
               <ul class="about-icons">
@@ -78,20 +121,38 @@ function iconAttrs(each: any): Record<string, any> {
             )
           }
         </div>
-        {
-          aboutAvatar && (
-            <div class="about-avatar-box">
-              <img src={urlFor(aboutAvatar)} alt="avatar" />
-            </div>
-          )
-        }
+        <div class="ab-avatar">
+          {aboutAvatar ? (
+            <img src={urlFor(aboutAvatar)} alt="avatar" />
+          ) : (
+            <span class="ab-avatar-fallback" aria-hidden="true">{String(aboutName).slice(0, 1)}</span>
+          )}
+        </div>
       </header>
 
-      <article class="about-body">
-        <div class="markdown-body">
-          <Content />
-        </div>
-      </article>
+      <StatBand items={stats} columns={4} class="ab-stats" />
+
+      {doingHtml && (
+        <section class="ab-now" aria-labelledby="ab-now-title">
+          <div class="ab-now-head">
+            <h2 class="ab-now-title" id="ab-now-title">现在</h2>
+            {nowUpdated && <time class="ab-now-date" datetime={nowUpdated}>更新于 {nowUpdated}</time>}
+            <a class="ab-now-more" href={urlFor('/now/')}>看全部 →</a>
+          </div>
+          <div class="ab-now-body markdown-body" set:html={doingHtml} />
+        </section>
+      )}
+
+      {sections.length > 0 && (
+        <section class="ab-sections" aria-label="关于我的几段">
+          {sections.map(s => (
+            <article class="ab-sect">
+              {s.label && <h2 class="ab-sect-title">{s.label}</h2>}
+              <div class="ab-sect-body markdown-body" set:html={s.html} />
+            </article>
+          ))}
+        </section>
+      )}
     </div>
   </div>
 
