@@ -211,11 +211,16 @@ ok('前台字号全部 ≥12px（0.75rem）', () => {
 
 // 模块页页头字重必须与衬线标题轨同口径（600）。V5 标题轨收口到 600 后，
 // 模块页页头仍是 700，衬线在 700 下笔画会糊（E-086）。
+// S5：.page-head-plain 已随旧模块列表页删除，改锁 pj- / gm- / cl- 两组页头。
 ok('模块页页头 H1 字重与标题轨一致（600）', () => {
-  const rule = siteCss.match(/\.page-head-plain\s+\.page-head-title\s*\{[^}]*\}/);
-  assert.ok(rule, 'site.css 缺少 .page-head-plain .page-head-title 规则');
-  assert.match(rule[0], /font-weight:\s*600/,
-    '模块页页头字重不是 600 —— 与全站衬线标题轨分叉，衬线 700 会加粗糊笔画');
+  const indexRule = siteCss.match(/\.pj-title,\s*\n\.gm-title,\s*\n\.cl-title\s*\{[^}]*\}/);
+  assert.ok(indexRule, 'site.css 缺少 .pj-title / .gm-title / .cl-title 规则');
+  assert.match(indexRule[0], /font-weight:\s*600/,
+    '模块索引页 H1 字重不是 600 —— 与全站衬线标题轨分叉，衬线 700 会加粗糊笔画');
+  const detailRule = siteCss.match(/\.pj-detail-title,\s*\n\.gm-detail-title\s*\{[^}]*\}/);
+  assert.ok(detailRule, 'site.css 缺少 .pj-detail-title / .gm-detail-title 规则');
+  assert.match(detailRule[0], /font-weight:\s*600/,
+    '模块详情页 H1 字重不是 600 —— 与全站衬线标题轨分叉，衬线 700 会加粗糊笔画');
 });
 
 // A10：头像圆形化（2026-10-21 主人确认）。圆角标尺的唯一例外，

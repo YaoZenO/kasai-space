@@ -1256,17 +1256,6 @@ a.cell-plain:hover {
   color: var(--accent);
 }
 
-.post-desc {
-  margin: 0.35rem 0 0;
-  font-size: 0.87rem;
-  line-height: 1.75;
-  color: var(--sec-text-color);
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
 .post-cat {
   grid-area: cat;
   font-family: var(--font-mono);
@@ -1582,7 +1571,8 @@ body.is-home footer {
   }
 }
 
-/* --- 4.2 公共纸面页框架（归档 / 分类 / 标签 / 关于共用） --- */
+/* --- 4.2 公共纸面页框架（404 / 城市榜详情 / 搜索 / now / 生肖总览仍在用；
+       归档 / 分类 / 标签 / 关于已改索引型页头，不再挂 page-head） --- */
 
 .paper-page {
   padding-top: var(--space-page-top);
@@ -1941,165 +1931,6 @@ body.is-home footer {
   color: var(--sec-text-color);
 }
 
-/* --- 4.5 分类页（分类名=有效入口；计数=真实文章数） --- */
-
-.category-list .cat-group {
-  border-top: 2px solid var(--rule-strong);
-}
-
-.cat-row {
-  display: flex;
-  align-items: baseline;
-  gap: 0.9rem;
-  padding: 1.15rem 0;
-  border-bottom: 1px solid var(--line-color);
-}
-
-.cat-name {
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: var(--text-color);
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.cat-name:hover {
-  color: var(--accent);
-}
-
-.cat-count {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  letter-spacing: 0.05em;
-  color: var(--info-mark);
-  white-space: nowrap;
-}
-
-.cat-toggle {
-  margin-left: auto;
-  display: flex;
-  align-items: baseline;
-  gap: 0.35rem;
-  font-family: var(--font-mono);
-  font-size: 0.76rem;
-  letter-spacing: 0.1em;
-  color: var(--sec-text-color);
-  white-space: nowrap;
-}
-
-.cat-toggle i {
-  display: inline-block;
-  transition: transform 0.2s ease;
-  transform: rotate(90deg);
-}
-
-.cat-toggle.collapsed i {
-  transform: rotate(0deg);
-}
-
-.cat-toggle:hover {
-  color: var(--accent);
-}
-
-.cat-collapse {
-  margin: 0 0 0.6rem 1px;
-  padding-left: 1.3rem;
-  border-left: 1px solid var(--line-color);
-}
-
-.cat-post-list {
-  padding: 0.2rem 0 0.6rem;
-}
-
-.cat-post {
-  display: flex;
-  align-items: baseline;
-  gap: 1rem;
-  padding: 0.55rem 0;
-  color: var(--text-color);
-}
-
-.cat-post-date {
-  flex: 0 0 auto;
-  font-family: var(--font-mono);
-  font-size: 0.76rem;
-  color: var(--sec-text-color);
-}
-
-.cat-post-title {
-  font-size: 0.94rem;
-  font-weight: 600;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.cat-post:hover .cat-post-title,
-.cat-post.is-active .cat-post-title {
-  color: var(--accent);
-}
-
-.cat-post-more {
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.08em;
-  color: var(--accent);
-}
-
-/* 子分类缩进层级 */
-.cat-subgroup .cat-row {
-  padding: 0.8rem 0;
-}
-
-.cat-subgroup .cat-name {
-  font-size: 1.02rem;
-  font-weight: 700;
-}
-
-/* --- 4.6 标签页（统一 chip，真实计数，不伪装热度） --- */
-
-.tag-cloud {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.8rem;
-}
-
-.tag-chip {
-  display: flex;
-  align-items: baseline;
-  gap: 0.55rem;
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--line-color);
-  border-radius: 999px;
-  transition: border-color 0.2s ease;
-}
-
-.tag-chip:hover {
-  border-color: var(--accent);
-}
-
-.tag-chip-name {
-  font-size: 0.92rem;
-  font-weight: 700;
-  color: var(--text-color);
-}
-
-.tag-chip:hover .tag-chip-name {
-  color: var(--accent);
-}
-
-.tag-chip-count {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--info-mark);
-}
-
 /* --- 4.7 关于页（身份区 + 正文档案轨） --- */
 
 /* 保留主题 .about-icons / .qr-trigger / .qr-img 行为，仅做配色 */
@@ -2249,16 +2080,7 @@ body.is-home footer {
   border-left: 3px solid var(--accent);
 }
 
-/* --- 4.9 模块详情页 / 列表页（项目 / 游戏） --- */
-
-.detail-meta { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin: .9rem 0 0; color: var(--sec-text-color); font-size: .82rem; }
-.detail-tag {
-  display: inline-block; font-size: .75rem; line-height: 1; padding: .32rem .6rem;
-  border: 1px solid var(--line-color); border-radius: 999px; color: var(--sec-text-color);
-}
-.detail-tag-solid { border-color: transparent; background: var(--accent-soft); color: var(--accent); }
-
-.detail-cover img { width: 100%; height: auto; border-radius: var(--r-tile); border: 1px solid var(--line-color); display: block; }
+/* --- 4.9 模块详情页正文（项目 / 游戏共用；列表页页头已改 pj- / gm-） --- */
 
 .rich-section { margin: 0 0 2.6rem; }
 .rich-section h2 {
@@ -2344,10 +2166,6 @@ body.is-home footer {
   border-radius: 2px;
 }
 
-.media-wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .8rem; }
-.media-wall figure { margin: 0; }
-.media-wall img { width: 100%; aspect-ratio: 16/10; object-fit: cover; border-radius: var(--r-card); border: 1px solid var(--line-color); display: block; }
-
 .detail-links { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .6rem; }
 .detail-links a {
   display: inline-block; padding: .5rem 1rem; border-radius: 999px;
@@ -2370,65 +2188,6 @@ body.is-home footer {
 .detail-prevnext a { color: var(--sec-text-color); }
 .detail-prevnext a:hover { color: var(--accent); text-decoration: underline; }
 .detail-prevnext .detail-next { margin-left: auto; text-align: right; }
-
-/* 模块列表页 */
-.page-head-plain { margin: 0 0 1.6rem; }
-.page-head-plain .page-head-title { font-size: clamp(1.9rem, 3.6vw, 2.6rem); font-weight: 600; margin: .3rem 0 .4rem; }
-/* .module-grid / .module-card* 已于 2026-11-14（S3）删除：最后使用者 /links/ 改 lk- 卡墙，
-   构建产物 grep 0 命中。 */
-
-/* --- 4.9.1 游戏封面网格（主人 2026-10-19 定：封面网格模型）---
-   非均质：1 大（2×2）+ 4 小（1×1）。这正是修订后 R-3 允许、修订前禁止的形态
-   （修订前禁「均质卡片阵列」，非均质拼贴合法）。
-   摘要默认收起，hover / focus-visible 展开；卡与格的上浮按 A8 结论保留。
-
-   ⚠️ 布局两次实测修正（2026-10-19，视觉线）：
-     ① 初版是 1 大(2×2) + 1 宽(2×1) + 2 小(1×1) + 1 横幅(4×1)、行高 88px。
-        横幅槽 1200×88 = 13.6:1，配 600×900 的竖封面只剩 4.9% 可见，封面认不出；
-     ② 同时 1×1 小格只有 88px 高，hover 展开后 cap 高 116px，标题被 overflow 切到格子上方。
-     现版去掉横幅、行高提到 130px：5 项无洞铺满 4×3，小格 cap 展开后 ≈93px < 130px。
-     封面多为 2:3 竖图，横槽必然裁切，这是图墙的常态；关键是别退化成一条色带。 */
-.games-wall { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 130px; gap: .5rem; }
-.games-tile {
-  position: relative; display: block; overflow: hidden; text-decoration: none;
-  background: var(--cream); border: 1px solid var(--line-color); border-radius: var(--r-tile);
-  transition: transform .12s ease, border-color .12s ease;
-}
-.games-tile:hover { transform: translateY(-2px); border-color: var(--line-strong); }
-.games-tile-img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.games-tile.no-cover { background: var(--cream); }
-.games-tile.no-cover::before {
-  content: ""; position: absolute; inset: 0;
-  background: repeating-linear-gradient(45deg, rgba(42,37,29,.045) 0 8px, transparent 8px 16px);
-}
-.games-tile-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: .5rem .7rem .55rem; background: rgba(27, 23, 18, .72); color: var(--cream-on-dark); }
-/* 标题强制单行 + ellipsis：折行会让 cap 高度不可预测，375 档会高过格子、削掉标题第一行
-   （2026-10-19 实测：Esports Manager 2026 折两行 → cap 117.3 > 108）。 */
-.games-tile-title { display: block; font-weight: 700; font-size: .92rem; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.games-tile-meta { display: block; font-family: var(--font-mono); font-size: .75rem; letter-spacing: .06em; color: rgba(253, 250, 244, .72); margin-top: .15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.games-tile-sum {
-  display: block; font-size: .78rem; line-height: 1.55; color: rgba(253, 250, 244, .86);
-  margin-top: .2rem; max-height: 0; opacity: 0; overflow: hidden;
-  transition: max-height .18s ease, opacity .18s ease, margin-top .18s ease;
-}
-/* 摘要行数按格子高度分档：小格桌面 3 行、小格移动端 2 行、大图格桌面 4 行 / 移动端 3 行。
-   ⚠️ max-height 必须用「行高 × 行数」的 calc，不能直接用 em：行高是 1.55，em 与它
-   不是整数倍，多出的 1.3px 会把下一行的头顶露出一条边（2026-10-19 实测，
-   375 档 3.2em = 39.94px vs 2 行 38.69px，第 3 行露出 1.25px 头顶）。
-   桌面小格 3 行 cap ≈114.4px < 130px 行高；375 小格 2 行 ≈96.9px < 108px；
-   桌面大格 4 行 ≈98.2px < 268px；375 大格 3 行 ≈118.2px < 224px。 */
-.games-tile:hover .games-tile-sum, .games-tile:focus-visible .games-tile-sum { max-height: calc(1.55em * 3); opacity: 1; }
-.games-tile:nth-child(1):hover .games-tile-sum, .games-tile:nth-child(1):focus-visible .games-tile-sum { max-height: calc(1.55em * 4); }
-.games-wall .games-tile:nth-child(1) { grid-column: span 2; grid-row: span 2; }
-.games-wall .games-tile:nth-child(1) .games-tile-title { font-size: 1.1rem; }
-
-@media (max-width: 720px) {
-  .games-wall { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 108px; }
-  .games-wall .games-tile:nth-child(1) { grid-column: span 2; grid-row: span 2; }
-  /* 移动端行高只有 108px，摘要收回 2 行，保证 cap 不溢出格子 */
-  .games-tile:hover .games-tile-sum, .games-tile:focus-visible .games-tile-sum { max-height: calc(1.55em * 2); }
-  .games-tile:nth-child(1):hover .games-tile-sum, .games-tile:nth-child(1):focus-visible .games-tile-sum { max-height: calc(1.55em * 3); }
-}
 
 /* --- 4.11 墨底整屏区块（方向 A：深色反相分节，2026-10-19）---
    首页「最近更新」从三栏提为 full-width 墨底区块，是全站唯一一处反相。
@@ -2458,25 +2217,6 @@ body.is-home footer {
 
 /* 首页精选行外链标注 */
 .pick-ext { display: block; font-family: var(--font-mono); font-size: .75rem; color: var(--sec-text-color); margin-top: .25rem; }
-
-/* --- 4.10 「文字」页精选摘录 --- */
-
-.archive-picks { margin: 0 0 2.8rem; }
-.archive-picks-kicker {
-  font-family: var(--font-mono); font-size: .75rem; letter-spacing: .14em;
-  text-transform: uppercase; color: var(--accent); margin: 0 0 .9rem;
-}
-.archive-picks .pick-row { padding: 1.1rem 0; border-top: 2px solid var(--rule); }
-.archive-picks .pick-row + .pick-row { border-top: 1px solid var(--line-color); }
-.archive-picks .pick-title { font-size: 1.12rem; }
-.archive-picks .pick-desc { font-size: .88rem; line-height: 1.7; color: var(--text-color); margin-top: .4rem; }
-.archive-picks .pick-note {
-  display: block; font-size: .78rem; line-height: 1.6; color: var(--accent);
-  border-left: 2px solid var(--accent-soft);
-  padding-left: .7rem; margin-top: .55rem;
-}
-.archive-picks .pick-meta { display: block; font-family: var(--font-mono); font-size: .75rem; color: var(--sec-text-color); margin-top: .55rem; }
-.archive-picks .pick-img { width: 100%; }
 
 /* --- 4.12 节假日页（/holidays/，2026-10-22 对齐参考站观感）---
    结构对齐 studycli.org 的「2027 年中国节假日」页：左「法定节假日表」+ 右「全年一览格」
