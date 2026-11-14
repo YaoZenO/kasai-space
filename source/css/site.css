@@ -5396,8 +5396,44 @@ body.is-home footer {
    奇偶上下交错避让；窄屏改竖向时间线（左轴右文），不横向滚动、不缩字号。
    落点位置用 --x 传百分比，窄屏直接忽略该变量，无需 !important。 ---- */
 .fs-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2.5rem 3.5rem;
+  align-items: end;
   margin-top: 0.9rem;
   padding-bottom: 1.2rem;
+}
+
+/* 导语右侧不再留白：三个计数做成对照栏，与左栏基线对齐 */
+.fs-hero-stats {
+  display: flex;
+  gap: 2.2rem;
+  margin: 0;
+}
+
+.fs-hero-stats dt {
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--sec-text-color);
+}
+
+.fs-hero-stats dd {
+  margin: 0.1rem 0 0;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 767.98px) {
+  .fs-hero {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+
+  .fs-hero-stats { gap: 1.8rem; }
+  .fs-hero-stats dd { font-size: 1.6rem; }
 }
 
 .fs-title {
@@ -5487,24 +5523,10 @@ body.is-home footer {
   text-align: center;
 }
 
-.fs-mark.is-up .fs-mark-label { bottom: 0.95rem; }
-.fs-mark.is-down .fs-mark-label { top: 0.95rem; }
-.fs-mark.is-up2 .fs-mark-label { bottom: 5.25rem; }
-.fs-mark.is-down2 .fs-mark-label { top: 5.25rem; }
-
-/* 远道（上远 / 下远）的标签离轴较远，补一条细引线，避免读者认错是哪一个点 */
-.fs-mark.is-up2::before,
-.fs-mark.is-down2::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  width: 1px;
-  height: 4.25rem;
-  background: var(--line-color);
-}
-
-.fs-mark.is-up2::before { bottom: 4px; }
-.fs-mark.is-down2::before { top: 4px; }
+.fs-mark.is-up .fs-mark-label { bottom: 1.25rem; }
+.fs-mark.is-down .fs-mark-label { top: 1.25rem; }
+.fs-mark.is-up2 .fs-mark-label { bottom: 4.9rem; }
+.fs-mark.is-down2 .fs-mark-label { top: 4.9rem; }
 
 .fs-mark-label b {
   font-family: var(--font-serif-title);
@@ -5520,12 +5542,14 @@ body.is-home footer {
 .fs-mark-label em {
   font-style: normal;
   font-size: 0.78rem;
+  line-height: 1.5;
   color: var(--text-color);
 }
 
 .fs-mark-label i {
   font-style: normal;
   font-size: 0.75rem;
+  line-height: 1.5;
   color: var(--sec-text-color);
 }
 

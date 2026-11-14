@@ -112,12 +112,18 @@ const months = Array.from({ length: 12 }, (_, i) => i + 1);
   <div class="paper-page cal-page fs-page">
     <div class="home-wrap">
       <header class="fs-hero">
-        <nav class="cal-crumb" aria-label="面包屑">
-          <a href={urlFor('/library/')}>资料库</a><span aria-hidden="true">/</span><span class="cal-crumb-now">节日文化</span>
-        </nav>
-        <h1 class="fs-title">节日文化</h1>
-        <p class="cal-lede">{fsMeta.lede || '十二个节日的逐页长文：来历与传说、习俗与食物、词汇与常见问题，以及从本站节假日数据现算的逐年日期。'}</p>
-        <p class="archive-total">{allFestivals.length} 个节日 · 法定 {legalFestivals.length} 个 · 传统 {folkFestivals.length} 个</p>
+        <div class="fs-hero-main">
+          <nav class="cal-crumb" aria-label="面包屑">
+            <a href={urlFor('/library/')}>资料库</a><span aria-hidden="true">/</span><span class="cal-crumb-now">节日文化</span>
+          </nav>
+          <h1 class="fs-title">节日文化</h1>
+          <p class="cal-lede">{fsMeta.lede || '十二个中国节日，每个都有一篇长文：来历与传说、习俗与食物、词汇和常见问题。日期按站内节假日数据逐年生成，不手工抄录。'}</p>
+        </div>
+        <dl class="fs-hero-stats">
+          <div><dt>节日</dt><dd>{allFestivals.length}</dd></div>
+          <div><dt>法定假日</dt><dd>{legalFestivals.length}</dd></div>
+          <div><dt>传统节日</dt><dd>{folkFestivals.length}</dd></div>
+        </dl>
       </header>
 
       {marks.length === 0 ? (
