@@ -1,12 +1,19 @@
 ---
-// 首页：图带 + 近期动态（2026-11-14 主人选定 J2 方案）。
-// 首屏是全幅城市照片带，压站点身份与「距次年元旦」天数；其下只有一条跨类型动态时间线，
-// 末尾一行「去处」导航。原则：全部真实数据驱动，无数据不渲染空块，不制造失效链接。
+// 首页：图纸 + 刻度 + 档案（2026-11-15 改版，方案见 DESIGN-HOME-MEASURE-2026-11-15.md）
+//
+// 三层空间：
+//   ① 图纸 .mz-plate —— 城市照片压站点身份与年度位置（sticky，滚动时被仪表覆盖）
+//   ② 仪表 .mz-inst  —— 站点档案的时间刻度，可拖动/键盘定位，读数条给出当天记录
+//   ③ 档案 .mz-arch  —— 全部记录按日期倒序，与刻度尺双向呼应
+// 末尾「去处」按真实条目数给出资料入口。
+//
+// 纪律：全部真实数据驱动；空日不编造；无 JS 时刻度与档案照常可读可点；
+// 不新增第三方依赖；只改 transform / opacity，进度经 --mz-p 交给 CSS。
 
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getData } from '../lib/data';
 import { getPosts } from '../lib/posts';
-import { siteConfig, themeConfig } from '../lib/site-config';
+import { themeConfig } from '../lib/site-config';
 import { urlFor } from '../lib/url';
 import { fmtItemDate } from '../lib/dates';
 import { detailPath, type ModuleKey } from '../lib/modules';
@@ -14,13 +21,55 @@ import { detailPath, type ModuleKey } from '../lib/modules';
 const data = getData();
 const posts = getPosts();
 const siteCfg = data.site || {};
+const siteTitle = themeConfig.navbar?.blog_title || "KASAI'S Personal Space";
 
 const identityAvatar = siteCfg.avatar || themeConfig.about?.avatar || '';
 const identityIntro = siteCfg.intro || themeConfig.about?.intro || '';
 
 const HERO_IMAGE = '/img/cities/hangzhou.jpg';
 
-// 内容模块：单一数据源 source/_data/modules.yml（缺失时回退内置默认）
+const DAY_MS = 86400000;
+const SHANGHAI_OFFSET = 8 * 3600000;
+
+/** YYYY-MM-DD → 该日 00:00Z 的天序号；只做「日历日」运算，不参与时刻比较 */
+function dayNo(ymd: string): number {
+  const [y, m, d] = ymd.split('-').map(Number);
+  return Date.UTC(y, m - 1, d) / DAY_MS;
+}
+function ymdOf(dayNumber: number): string {
+  return new Date(dayNumber * DAY_MS).toISOString().slice(0, 10);
+}
+function pct(v: number): string {
+  return `${Math.max(0, Math.min(1, v)) * 100}%`;
+}
+
+const TODAY_YMD = fmtItemDate(new Date()); // 上海日历日（fmtItemDate 内部按 Asia/Shanghai）
+const todayDay = dayNo(TODAY_YMD);
+
+// --- 记录聚合：文章 + 三个内容模块，全部条目（不是「最新 N 条」） ---
+type Rec = {
+  ymd: string;
+  day: number;
+  kind: string;
+  shape: string;
+  title: string;
+  href: string;
+  meta: string;
+  glyph: string;
+};
+
+const MODULE_META: Record<string, (it: any) => string> = {
+  projects: (it) => (Array.isArray(it.tags) ? it.tags.join(' / ') : ''),
+  games: (it) => [it.genre, it.platform, it.status].filter(Boolean).join(' · '),
+  collections: (it) => (it.link ? '站外' : '站内'),
+};
+const MODULE_SHAPE: Record<string, string> = {
+  projects: 'diamond',
+  games: 'square',
+  collections: 'ring',
+};
+const MODULE_ROUTE: Record<string, 1> = { projects: 1, games: 1 };
+
 let moduleCfg: any[] = data.modules?.items || [];
 if (!moduleCfg.length) {
   moduleCfg = [
@@ -30,55 +79,117 @@ if (!moduleCfg.length) {
   ];
 }
 
-// 只有 project / game 有详情页；collections 没有 [slug] 路由，落到列表页，避免死链
-const DETAIL_ROUTE: Record<string, 1> = { projects: 1, games: 1 };
+const recs: Rec[] = [];
 
-type FeedRow = {
-  type: string;
-  glyph: string;
-  title: string;
-  link: string;
-  date: number;
-  cover: string;
-};
+for (const p of posts) {
+  const ymd = fmtItemDate(p.date);
+  recs.push({
+    ymd,
+    day: dayNo(ymd),
+    kind: '文章',
+    shape: 'circle',
+    title: p.title,
+    href: p.href,
+    meta: (p.categories || []).join(' / '),
+    glyph: '文',
+  });
+}
 
-// 各内容模块取最新一条（同日期保持数据文件中的先后顺序）
-const moduleRows: FeedRow[] = moduleCfg
-  .filter((m: any) => m && m.key)
-  .map((m: any) => {
-    const items: any[] = (data[m.key as keyof typeof data]?.items || [])
-      .filter((it: any) => it && it.title && it.date);
-    if (!items.length) return null;
-    const latest = items
-      .slice()
-      .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
-    const link = DETAIL_ROUTE[m.key] ? detailPath(m.key as ModuleKey, latest) : m.page || latest.link || '';
-    return {
-      type: String(m.title || m.key),
+for (const m of moduleCfg) {
+  if (!m || !m.key) continue;
+  const items: any[] = data[m.key as keyof typeof data]?.items || [];
+  for (const it of items) {
+    if (!it || !it.title || !it.date) continue;
+    const ymd = fmtItemDate(it.date);
+    const href = MODULE_ROUTE[m.key] ? detailPath(m.key as ModuleKey, it) : m.page || it.link || '';
+    recs.push({
+      ymd,
+      day: dayNo(ymd),
+      kind: String(m.title || m.key),
+      shape: MODULE_SHAPE[m.key] || 'circle',
+      title: String(it.title),
+      href: href || '',
+      meta: (MODULE_META[m.key] || (() => ''))(it),
       glyph: String(m.title || m.key).slice(0, 1),
-      title: String(latest.title),
-      link,
-      date: new Date(latest.date).getTime(),
-      cover: latest.cover ? String(latest.cover) : '',
-    };
-  })
-  .filter(Boolean) as FeedRow[];
+    });
+  }
+}
 
-const postRows: FeedRow[] = posts.slice(0, 3).map(p => ({
-  type: '文章',
-  glyph: '文',
-  title: p.title,
-  link: p.href,
-  date: p.date.valueOf(),
-  cover: p.cover || '',
-}));
+// 日期倒序；同日按类型固定次序，保证两次构建顺序一致
+const KIND_ORDER: Record<string, number> = { 文章: 0, 项目: 1, 游戏: 2, 收藏: 3 };
+recs.sort((a, b) => (b.day - a.day) || ((KIND_ORDER[a.kind] ?? 9) - (KIND_ORDER[b.kind] ?? 9)));
 
-// 跨类型时间线：最新 3 篇文章 + 每类内容最新 1 条，按日期倒序
-const feedRows = postRows.concat(moduleRows).sort((a, b) => b.date - a.date).slice(0, 6);
+const hasRecs = recs.length > 0;
+const startDay = hasRecs ? recs[recs.length - 1].day : todayDay;
+const endDay = Math.max(todayDay, startDay);
+const span = Math.max(1, endDay - startDay);
+const START_YMD = ymdOf(startDay);
 
-// 距次年元旦天数：按 Asia/Shanghai 的口径算「日期差」，避免时区让结果差一天
-const DAY_MS = 86400000;
-const SHANGHAI_OFFSET = 8 * 3600000;
+// 同一天的全部记录（供齿点计数与读数）
+const byDay = new Map<number, Rec[]>();
+for (const r of recs) {
+  const list = byDay.get(r.day) || [];
+  list.push(r);
+  byDay.set(r.day, list);
+}
+
+// --- 刻度：月细刻、年标签、月密度条 ---
+type Tick = { x: string; i: number; label?: string; align?: string };
+const monthTicks: Tick[] = [];
+const yearTicks: Tick[] = [];
+const density: { x: string; w: string; h: string; n: number; i: number; m: string }[] = [];
+
+const startDate = new Date(startDay * DAY_MS);
+const endDate = new Date(endDay * DAY_MS);
+let cursor = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), 1));
+let tickIndex = 0;
+const monthCounts = new Map<string, number>();
+for (const r of recs) {
+  const key = r.ymd.slice(0, 7);
+  monthCounts.set(key, (monthCounts.get(key) || 0) + 1);
+}
+
+while (cursor.getTime() <= endDate.getTime()) {
+  const y = cursor.getUTCFullYear();
+  const m = cursor.getUTCMonth();
+  const monthStart = Date.UTC(y, m, 1) / DAY_MS;
+  const nextMonth = Date.UTC(y, m + 1, 1) / DAY_MS;
+  const clampedStart = Math.max(monthStart, startDay);
+  const clampedEnd = Math.min(nextMonth, endDay + 1);
+  const key = `${y}-${String(m + 1).padStart(2, '0')}`;
+  const n = monthCounts.get(key) || 0;
+
+  if (monthStart > startDay) {
+    monthTicks.push({ x: pct((monthStart - startDay) / span), i: tickIndex });
+  }
+  if (m === 0 && monthStart >= startDay) {
+    yearTicks.push({ x: pct((monthStart - startDay) / span), i: tickIndex, label: String(y), align: 'start' });
+  }
+  if (clampedEnd > clampedStart) {
+    density.push({
+      x: pct((clampedStart - startDay) / span),
+      w: pct((clampedEnd - clampedStart) / span),
+      h: n === 0 ? '2px' : `${Math.min(26, 5 + n * 2.4)}px`,
+      n,
+      i: tickIndex,
+      m: key,
+    });
+  }
+  tickIndex += 1;
+  cursor = new Date(Date.UTC(y, m + 1, 1));
+}
+
+// 起点年份标签贴左；终点固定是「今天」
+yearTicks.unshift({ x: '0%', i: 0, label: String(startDate.getUTCFullYear()), align: 'start' });
+
+// --- 年度进度（图纸底边那条） ---
+const yearStart = Date.UTC(new Date(todayDay * DAY_MS).getUTCFullYear(), 0, 1) / DAY_MS;
+const yearEnd = Date.UTC(new Date(todayDay * DAY_MS).getUTCFullYear() + 1, 0, 1) / DAY_MS;
+const dayOfYear = todayDay - yearStart + 1;
+const daysInYear = yearEnd - yearStart;
+const currentYear = new Date(todayDay * DAY_MS).getUTCFullYear();
+
+// --- 距次年元旦天数：按 Asia/Shanghai 的口径算日期差，避免时区差一天 ---
 function daysToNewYear(now: number): { year: number; days: number } {
   const shifted = now + SHANGHAI_OFFSET;
   const year = new Date(shifted).getUTCFullYear() + 1;
@@ -86,82 +197,229 @@ function daysToNewYear(now: number): { year: number; days: number } {
 }
 const countdown = daysToNewYear(Date.now());
 
-// 图带上「PERSONAL SPACE · SINCE <年份>」的年份取最早一篇文章
 const sinceYear = posts.length
-  ? String(Math.min(...posts.map(p => p.date.getFullYear())))
+  ? String(Math.min(...posts.map((p) => p.date.getFullYear())))
+  : String(currentYear);
+
+// --- 去处：计数全部取自数据文件，不手写 ---
+const cityCount = (data.cities?.cities || []).length;
+let rankCount = 0;
+for (const g of data.cityrank?.groups || []) rankCount += (g.ranks || []).length;
+const holidayYears: any[] = data.holidays?.years || [];
+const holidaySpan = holidayYears.length
+  ? `${String(holidayYears[0].year || '').slice(0, 4)}—${String(holidayYears[holidayYears.length - 1].year || '').slice(-4)}`
   : '';
+const animals: any[] = data.zodiac?.animals || [];
+const topics: any[] = data.library?.topics || [];
+const gameCount = (data.games?.items || []).length;
+const collectionCount = (data.collections?.items || []).length;
+
+const doors = [
+  { href: '/cityrank/', name: '城市榜单', figure: `${rankCount} 张榜单`, unit: cityCount ? `${cityCount} 座城市` : '' },
+  { href: '/holidays/', name: '节假日', figure: holidaySpan, unit: holidayYears.length ? `${holidayYears.length} 年` : '' },
+  { href: '/zodiac/', name: '生肖', figure: `${animals.length} 生肖`, unit: '' },
+  { href: '/games/', name: '游戏', figure: `${gameCount} 部`, unit: '' },
+  { href: '/collections/', name: '收藏', figure: `${collectionCount} 条`, unit: '' },
+  { href: '/library/', name: '资料库', figure: `${topics.length} 个专题`, unit: '' },
+].filter((d) => d.figure && d.figure !== '0 部' && d.figure !== '0 条');
+
+// 读数条与 aria-valuetext 共用同一份最小数据（只有真实字段）
+const recsJson = JSON.stringify(
+  recs.map((r) => ({ d: r.ymd, k: r.kind, t: r.title, h: r.href || '' }))
+).replace(/</g, '\\u003c');
+
+const todayRecs = byDay.get(todayDay) || [];
+const todayValueText = todayRecs.length
+  ? `${currentYear} 年 ${Number(TODAY_YMD.slice(5, 7))} 月 ${Number(TODAY_YMD.slice(8, 10))} 日，${todayRecs.length} 条记录：${todayRecs[0].title}`
+  : `${currentYear} 年 ${Number(TODAY_YMD.slice(5, 7))} 月 ${Number(TODAY_YMD.slice(8, 10))} 日，今天还没有记录`;
 ---
 
 <BaseLayout isHome currentPath="/">
-  <div class="home home-j2" id="top">
-    <section class="j2-band" aria-label="站点封面">
-      <img class="j2-band-img" src={urlFor(HERO_IMAGE)} alt="" />
-      <div class="j2-band-in">
-        <div class="j2-id">
-          {identityAvatar ? (
-            <img class="j2-avatar" src={urlFor(identityAvatar)} alt={`${siteConfig.title} 头像`} />
-          ) : (
-            <span class="j2-avatar j2-avatar-fallback" aria-hidden="true">
-              {String(siteConfig.title || 'K').slice(0, 1)}
-            </span>
-          )}
-          <div class="j2-id-text">
-            <p class="j2-kicker">PERSONAL SPACE{sinceYear ? ` · SINCE ${sinceYear}` : ''}</p>
-            <h1 class="j2-name">{siteConfig.title}</h1>
-            {identityIntro && <p class="j2-tag">{identityIntro}</p>}
+  <div class="mz" id="top" style={`--mz-p:0`}>
+    <!-- ① 图纸：钉住的城市照片 + 站点身份 + 年度位置 -->
+    <div class="mz-hero" data-mz-hero>
+      <section class="mz-plate" aria-labelledby="mz-site-name" data-mz-plate>
+        <img class="mz-plate-img" src={urlFor(HERO_IMAGE)} alt="" fetchpriority="high" decoding="async" />
+        <div class="mz-plate-veil" aria-hidden="true"></div>
+        <div class="mz-plate-in">
+          <div class="mz-id">
+            <p class="mz-kicker">
+              {identityAvatar && (
+                <img class="mz-avatar" src={urlFor(identityAvatar)} alt={`${siteTitle} 头像`} loading="eager" />
+              )}
+              <span>PERSONAL SPACE{sinceYear ? ` · SINCE ${sinceYear}` : ''}</span>
+            </p>
+            <h1 class="mz-name" id="mz-site-name">{siteTitle}</h1>
+            {identityIntro && <p class="mz-intro">{identityIntro}</p>}
+          </div>
+          <div class="mz-clock">
+            <p class="mz-clock-label" data-newyear-label>距 {countdown.year} 元旦</p>
+            <p class="mz-clock-num">
+              <b data-newyear-days>{countdown.days}</b><span>天</span>
+            </p>
+            <p class="mz-clock-yday">
+              {currentYear} · 第 <b>{dayOfYear}</b> / {daysInYear} 天
+            </p>
           </div>
         </div>
-        <p class="j2-count">
-          <span class="j2-count-label" data-newyear-label>距 {countdown.year} 元旦</span>
-          <b class="j2-count-days" data-newyear-days>{countdown.days}</b>
-          <span class="j2-count-unit">天</span>
-        </p>
-      </div>
-    </section>
+        <div class="mz-yearline" aria-hidden="true">
+          <i style={`--yp:${pct(dayOfYear / daysInYear)}`}></i>
+        </div>
+      </section>
+    </div>
 
-    <section class="j2-wrap" aria-labelledby="recent-title">
-      <div class="j2-head">
-        <h2 class="j2-head-title" id="recent-title">近期动态</h2>
-        <nav class="j2-head-nav" aria-label="内容入口">
-          <a href={urlFor('/projects/')}>项目 →</a>
-          <a href={urlFor('/archives/')}>文字 →</a>
+    <!-- ② 仪表 + ③ 档案 -->
+    <div class="mz-body">
+      <section class="mz-inst" aria-labelledby="mz-inst-title" data-mz-inst>
+        <div class="mz-inst-in">
+          <div class="mz-inst-head">
+            <h2 class="mz-inst-title" id="mz-inst-title">档案刻度</h2>
+            <p class="mz-inst-fig">
+              {recs.length} 条记录 · {span + 1} 天 · {START_YMD} 起
+            </p>
+          </div>
+
+          <div
+            class="mz-scale"
+            role="slider"
+            tabindex="0"
+            aria-label="站点档案的时间刻度，可拖动或用方向键逐日查看"
+            aria-valuemin="0"
+            aria-valuemax={span}
+            aria-valuenow={span}
+            aria-valuetext={todayValueText}
+            aria-describedby="mz-hint"
+            data-mz-scale
+            data-min={startDay}
+            data-max={endDay}
+          >
+            <div class="mz-axis" aria-hidden="true"></div>
+
+            <div class="mz-ticks" aria-hidden="true">
+              {monthTicks.map((t) => <i class="mz-tick" style={`--x:${t.x};--i:${t.i}`} />)}
+            </div>
+
+            <div class="mz-bars" aria-hidden="true">
+              {density.map((b) => (
+                <i
+                  class:list={['mz-bar', b.n === 0 && 'is-zero']}
+                  data-month={b.m}
+                  data-count={b.n}
+                  style={`--x:${b.x};--w:${b.w};--h:${b.h};--i:${b.i}`}
+                />
+              ))}
+            </div>
+
+            <div class="mz-years" aria-hidden="true">
+              {yearTicks.map((t) => (
+                <span class="mz-year" style={`--x:${t.x}`}>{t.label}</span>
+              ))}
+              <span class="mz-year mz-year--now" style="--x:100%">今天</span>
+            </div>
+
+            <div class="mz-cur" aria-hidden="true" data-mz-cur>
+              <i class="mz-cur-line"></i>
+              <i class="mz-cur-dot"></i>
+            </div>
+          </div>
+
+          <div class="mz-read" aria-hidden="true" data-mz-read>
+            <p class="mz-read-date" data-mz-date>{TODAY_YMD}</p>
+            <p class="mz-read-say" data-mz-say>
+              {todayRecs.length ? `${todayRecs.length} 条记录` : '今天还没有记录'}
+            </p>
+            <p class="mz-read-list" data-mz-list>
+              {todayRecs.slice(0, 2).map((r) => (
+                <a href={urlFor(r.href)}>{r.title}</a>
+              ))}
+            </p>
+          </div>
+
+          <p class="mz-hint" id="mz-hint">
+            <span class="mz-hint-desk">
+              拖动刻度查看某天写了什么 · <kbd>←</kbd> <kbd>→</kbd> 逐日 · <kbd>PgUp</kbd> / <kbd>PgDn</kbd> 跳记录
+            </span>
+            <span class="mz-hint-mob">点按刻度查看某天的记录</span>
+          </p>
+        </div>
+      </section>
+
+      <section class="mz-arch" aria-labelledby="mz-arch-title">
+        <div class="mz-arch-in">
+          <header class="mz-arch-head">
+            <div>
+              <p class="mz-kicker">ARCHIVE · {START_YMD} — {TODAY_YMD}</p>
+              <h2 class="mz-arch-title" id="mz-arch-title">记录</h2>
+            </div>
+            <nav class="mz-arch-nav" aria-label="内容入口">
+              <a href={urlFor('/archives/')}>全部文字 →</a>
+              <a href={urlFor('/projects/')}>项目 →</a>
+            </nav>
+          </header>
+
+          <ol class="mz-list">
+            {recs.map((r) => (
+              <li class="mz-rec" data-day={r.ymd}>
+                {r.href ? (
+                  <a class="mz-rec-link" href={urlFor(r.href)}>
+                    <span class={`mz-rec-glyph mz-rec-glyph--${r.shape}`} aria-hidden="true"></span>
+                    <time class="mz-rec-date" datetime={r.ymd}>{r.ymd}</time>
+                    <span class="mz-rec-kind">{r.kind}</span>
+                    <span class="mz-rec-title">{r.title}</span>
+                    <span class="mz-rec-meta">{r.meta}</span>
+                    <span class="mz-rec-arrow" aria-hidden="true">↗</span>
+                  </a>
+                ) : (
+                  <span class="mz-rec-link mz-rec-link--plain">
+                    <span class={`mz-rec-glyph mz-rec-glyph--${r.shape}`} aria-hidden="true"></span>
+                    <time class="mz-rec-date" datetime={r.ymd}>{r.ymd}</time>
+                    <span class="mz-rec-kind">{r.kind}</span>
+                    <span class="mz-rec-title">{r.title}</span>
+                    <span class="mz-rec-meta">{r.meta}</span>
+                    <span class="mz-rec-arrow" aria-hidden="true"></span>
+                  </span>
+                )}
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {doors.length > 0 && (
+        <nav class="mz-doors" aria-label="去处">
+          <div class="mz-doors-in">
+            <p class="mz-kicker">ELSEWHERE · 去处</p>
+            <ul class="mz-door-list">
+              {doors.map((d) => (
+                <li>
+                  <a class="mz-door" href={urlFor(d.href)}>
+                    <span class="mz-door-name">{d.name}</span>
+                    <span class="mz-door-fig">
+                      {d.figure}
+                      {d.unit && <em>{d.unit}</em>}
+                    </span>
+                    <span class="mz-door-arrow" aria-hidden="true">↗</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
         </nav>
-      </div>
-      <ol class="j2-tl">
-        {feedRows.map(f => (
-          <li class="j2-row">
-            <time class="j2-date" datetime={fmtItemDate(f.date)}>{fmtItemDate(f.date)}</time>
-            <span class="j2-thumb" aria-hidden="true">
-              {f.cover ? (
-                <img src={urlFor(f.cover)} alt="" loading="lazy" />
-              ) : (
-                <em>{f.glyph}</em>
-              )}
-            </span>
-            <span class="j2-main">
-              <span class="j2-type">{f.type}</span>
-              {f.link ? (
-                <a class="j2-title" href={urlFor(f.link)}>{f.title}</a>
-              ) : (
-                <span class="j2-title">{f.title}</span>
-              )}
-            </span>
-            <span class="j2-arrow" aria-hidden="true">→</span>
-          </li>
-        ))}
-      </ol>
-    </section>
+      )}
 
-    <nav class="j2-links" aria-label="去处">
-      <span class="j2-links-label">去处</span>
-      <a href={urlFor('/cityrank/')}>城市榜单</a>
-      <a href={urlFor('/holidays/')}>节假日</a>
-      <a href={urlFor('/zodiac/')}>生肖</a>
-      <a href={urlFor('/games/')}>游戏</a>
-      <a href={urlFor('/collections/')}>收藏</a>
-      <a href={urlFor('/library/')}>资料库</a>
-    </nav>
+      <!-- 用 div 而非 footer 元素：body.is-home footer 被全站规则隐藏（E-071），
+           首页自己的收尾不能再用 footer 标签。 -->
+      <div class="mz-foot">
+        <div class="mz-foot-in">
+          <span>{siteTitle}</span>
+          <span>SINCE {sinceYear}</span>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <script type="application/json" id="mz-data" set:html={recsJson}></script>
+  <script defer src="/js/home-measure.js"></script>
 
   <script is:inline>
     // 静态构建会把天数固化在构建日；这里按 Asia/Shanghai 当场重算一次，避免跨天后仍是旧数字
@@ -177,393 +435,3 @@ const sinceYear = posts.length
     })();
   </script>
 </BaseLayout>
-
-<style>
-  /* 图带整幅通铺到视口两侧；.home 的页顶内边距保留，给悬浮导航留出纸面 */
-  .home-j2 {
-    overflow-x: clip;
-  }
-
-  /* --- 首屏图带 --- */
-
-  .j2-band {
-    position: relative;
-    margin-left: calc(50% - 50vw);
-    margin-right: calc(50% - 50vw);
-    height: clamp(300px, 42vh, 430px);
-    overflow: hidden;
-    background: #14110c;
-  }
-
-  .j2-band-img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center 58%;
-  }
-
-  .j2-band::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(70% 90% at 14% 100%, rgba(15, 12, 9, 0.44), transparent 70%),
-      radial-gradient(48% 92% at 94% 86%, rgba(15, 12, 9, 0.46), transparent 74%),
-      linear-gradient(180deg, rgba(15, 12, 9, 0.1) 0%, rgba(15, 12, 9, 0.18) 46%, rgba(15, 12, 9, 0.74) 100%);
-  }
-
-  .j2-band-in {
-    position: relative;
-    z-index: 1;
-    height: 100%;
-    width: min(1200px, 100% - clamp(36px, 8vw, 96px));
-    margin: 0 auto;
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 24px;
-    padding-bottom: clamp(26px, 5vh, 46px);
-    color: #fdfaf4;
-  }
-
-  .j2-id {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    min-width: 0;
-  }
-
-  .j2-avatar {
-    width: 56px;
-    height: 56px;
-    flex: none;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1px solid rgba(253, 250, 244, 0.55);
-  }
-
-  .j2-avatar-fallback {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(253, 250, 244, 0.9);
-    color: #1b1712;
-    font-family: var(--font-serif-title);
-    font-size: 1.5rem;
-  }
-
-  .j2-id-text {
-    min-width: 0;
-  }
-
-  .j2-kicker {
-    margin: 0 0 9px;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.17em;
-    color: rgba(253, 250, 244, 0.86);
-    text-shadow: 0 1px 10px rgba(15, 12, 9, 0.6);
-  }
-
-  .j2-name {
-    margin: 0;
-    font-family: var(--font-serif-title);
-    font-weight: 600;
-    font-size: clamp(2rem, 3.7vw, 3.4rem);
-    line-height: 1.04;
-    letter-spacing: -0.015em;
-    color: #fdfaf4;
-  }
-
-  .j2-tag {
-    margin: 10px 0 0;
-    font-size: 0.92rem;
-    color: rgba(253, 250, 244, 0.88);
-    text-shadow: 0 1px 10px rgba(15, 12, 9, 0.6);
-  }
-
-  .j2-count {
-    flex: none;
-    margin: 0;
-    padding-bottom: 4px;
-    text-align: right;
-    color: rgba(253, 250, 244, 0.9);
-  }
-
-  .j2-count-label,
-  .j2-count-unit {
-    display: block;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.14em;
-  }
-
-  .j2-count-days {
-    display: block;
-    margin: 6px 0 4px;
-    font-family: var(--font-serif-title);
-    font-weight: 600;
-    font-size: 2.5rem;
-    line-height: 1;
-    letter-spacing: -0.02em;
-    color: #fdfaf4;
-  }
-
-  /* --- 近期动态 --- */
-
-  .j2-wrap,
-  .j2-links {
-    width: min(880px, 100% - clamp(36px, 8vw, 96px));
-    margin: 0 auto;
-  }
-
-  .j2-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 16px;
-    margin-top: clamp(34px, 6vh, 56px);
-    padding-bottom: 13px;
-    border-bottom: 1px solid var(--line-strong);
-  }
-
-  .j2-head-title {
-    margin: 0;
-    font-family: var(--font-serif-title);
-    font-weight: 600;
-    font-size: 1.3rem;
-    letter-spacing: 0.01em;
-    color: var(--text-color);
-  }
-
-  .j2-head-nav {
-    display: flex;
-    gap: 18px;
-  }
-
-  .j2-head-nav a {
-    font-size: 0.78rem;
-    letter-spacing: 0.04em;
-    color: var(--sec-text-color);
-    transition: color 0.2s;
-  }
-
-  .j2-head-nav a:hover {
-    color: var(--accent);
-  }
-
-  .j2-tl {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .j2-row {
-    display: grid;
-    grid-template-columns: 96px 84px 1fr 20px;
-    align-items: center;
-    gap: 22px;
-    padding: 14px 0;
-    border-top: 1px solid var(--line-strong);
-  }
-
-  .j2-row:first-child {
-    border-top: 0;
-  }
-
-  .j2-row:last-child {
-    border-bottom: 1px solid var(--line-strong);
-  }
-
-  .j2-date {
-    font-family: var(--font-mono);
-    font-size: 0.76rem;
-    letter-spacing: 0.06em;
-    color: var(--sec-text-color);
-  }
-
-  .j2-thumb {
-    width: 84px;
-    height: 58px;
-    border-radius: 10px;
-    overflow: hidden;
-    background: var(--block-yellow);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .j2-thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .j2-thumb em {
-    font-style: normal;
-    font-family: var(--font-serif-title);
-    font-size: 1.3rem;
-    color: var(--text-color);
-  }
-
-  .j2-main {
-    min-width: 0;
-  }
-
-  .j2-type {
-    display: block;
-    font-size: 0.75rem;
-    letter-spacing: 0.12em;
-    color: var(--sec-text-color);
-  }
-
-  .j2-title {
-    display: block;
-    margin-top: 5px;
-    font-family: var(--font-serif-title);
-    font-weight: 600;
-    font-size: 1.1rem;
-    line-height: 1.4;
-    color: var(--text-color);
-    transition: color 0.2s;
-  }
-
-  .j2-row:hover .j2-title {
-    color: var(--accent);
-  }
-
-  .j2-arrow {
-    text-align: right;
-    color: var(--sec-text-color);
-  }
-
-  /* --- 去处 --- */
-
-  .j2-links {
-    margin-top: clamp(40px, 7vh, 64px);
-    padding: 16px 0 28px;
-    border-top: 1px solid var(--line-strong);
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 8px 22px;
-  }
-
-  .j2-links-label {
-    margin-right: 8px;
-    font-family: var(--font-mono);
-    font-size: 0.76rem;
-    letter-spacing: 0.16em;
-    color: var(--sec-text-color);
-  }
-
-  .j2-links a {
-    font-size: 0.88rem;
-    color: var(--text-color);
-    transition: color 0.2s;
-  }
-
-  .j2-links a:hover {
-    color: var(--accent);
-  }
-
-  @media (max-width: 720px) {
-    .j2-band {
-      height: 46vh;
-      min-height: 300px;
-    }
-
-    /* 窄屏文字更靠近天空，加一段中段压暗，保证小字不糊在亮云上 */
-    .j2-band::after {
-      background: linear-gradient(
-        180deg,
-        rgba(15, 12, 9, 0.05) 0%,
-        rgba(15, 12, 9, 0.3) 42%,
-        rgba(15, 12, 9, 0.86) 100%
-      );
-    }
-
-    .j2-band-in {
-      flex-direction: column;
-      align-items: flex-start;
-      justify-content: flex-end;
-      gap: 16px;
-      padding-bottom: 22px;
-    }
-
-    .j2-avatar {
-      width: 44px;
-      height: 44px;
-    }
-
-    .j2-kicker {
-      margin-bottom: 7px;
-    }
-
-    .j2-name {
-      font-size: 1.95rem;
-    }
-
-    .j2-tag {
-      margin-top: 7px;
-      font-size: 0.84rem;
-    }
-
-    .j2-count {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-      padding-bottom: 0;
-      text-align: left;
-    }
-
-    .j2-count-days {
-      display: inline;
-      margin: 0;
-      font-size: 1.5rem;
-    }
-
-    .j2-head {
-      margin-top: 26px;
-    }
-
-    .j2-row {
-      grid-template-columns: 64px 1fr 18px;
-      grid-template-rows: auto auto;
-      column-gap: 12px;
-      row-gap: 4px;
-      padding: 12px 0;
-    }
-
-    .j2-thumb {
-      grid-column: 1;
-      grid-row: 1 / 3;
-      align-self: start;
-      width: 64px;
-      height: 64px;
-    }
-
-    .j2-date {
-      grid-column: 2;
-      grid-row: 1;
-      font-size: 0.75rem;
-    }
-
-    .j2-main {
-      grid-column: 2;
-      grid-row: 2;
-    }
-
-    .j2-arrow {
-      grid-column: 3;
-      grid-row: 1 / 3;
-      align-self: center;
-    }
-
-    .j2-title {
-      font-size: 1rem;
-    }
-  }
-</style>

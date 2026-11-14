@@ -9706,6 +9706,980 @@ html:not(.js) .fs-years-toggle { display: none; }
   margin: 1.1rem 0 0;
 }
 
+/* ===== 4.25 首页「刻度」（2026-11-15 改版）=====
+   方案：DESIGN-HOME-MEASURE-2026-11-15.md。三层空间——
+     ① 图纸 .mz-plate  城市照片 + 身份 + 年度位置，滚动时被 ② 覆盖（sticky）
+     ② 仪表 .mz-inst   站点档案时间刻度：齿点 / 月密度条 / 年标签 / 光标 / 读数条
+     ③ 档案 .mz-arch   全部记录按日期倒序的账本
+   纪律：
+     · 高度一律 svh（前一行给 vh 兜底），断点用 .98 家族；
+     · 本节禁止加法 calc（构建压缩器会吃掉「+」两侧空格，声明会静默失效，E-064）；
+       图纸/钉住距离/负上边距写成互相配套的字面值，改动时三处一起改；
+     · 颜色全部走 token，暗色模式由 §15 的两分支自动覆盖，本节不新增暗色声明；
+     · 动效只写 transform / opacity / scale / clip-path，滚动进度由 --mz-p 驱动。 */
+
+.mz {
+  --mz-p: 0; /* 图纸滚动进度 0→1，由 /js/home-measure.js 写入 */
+  padding-top: var(--space-page-top);
+  padding-bottom: 0;
+  min-height: 72vh;
+}
+
+/* --- ① 图纸 --- */
+
+/* 图纸高度 = 舞台高度 - 194px，于是「钉住行程 = 194px = 仪表的实测高度」。
+   这一条等式是整个几何的关键：
+     · 首屏静止时，仪表上沿正好贴住照片下缘（没有缝）；
+     · 钉住结束时，仪表下沿正好压到照片下缘（档案区不会漏出一条照片）。
+   仪表若因换行变高，压进的部分只会更多，方向是安全的（多盖，不会漏）。
+   不能写成「calc 里做加法」的形式：压缩器会吃掉加号两侧空格，声明静默失效（E-064）。
+   也不能靠父级 padding 造行程：sticky 的可移动范围只按父级**内容盒**算（实测无行程）。 */
+.mz-hero {
+  position: relative;
+  height: 88vh;
+  height: 88svh;
+}
+
+.mz-plate {
+  position: sticky;
+  top: 0;
+  z-index: 0;
+  height: calc(88vh - 194px);
+  height: calc(88svh - 194px);
+  overflow: hidden;
+  background: #14110c;
+}
+
+.mz-plate-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 58%;
+  transform: scale(calc(1 - var(--mz-p) * 0.06));
+  transform-origin: 50% 45%;
+}
+
+/* 压图压暗层：整幅均匀压暗，不做渐变（A14 反 AI 味：新增 CSS 不放渐变 / 发光）。
+   文字可读性交给压暗层 + 字身投影两层，取景不变。 */
+.mz-plate-veil {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 12, 9, 0.26);
+}
+
+.mz-plate-in {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  width: min(1200px, 100% - clamp(36px, 8vw, 96px));
+  margin: 0 auto;
+  /* 身份在图纸上沿，年度读数在右下角：仪表从下方升起时先盖住读数与照片下缘，
+     站名能一直留到图纸退场——身份不该是第一个被盖掉的东西。 */
+  padding-top: clamp(96px, 15vh, 152px);
+  color: #fdfaf4;
+  transform: translate3d(0, calc(var(--mz-p) * -30px), 0);
+  opacity: calc(1 - var(--mz-p) * 0.4);
+}
+
+.mz-id {
+  min-width: 0;
+  max-width: 42rem;
+}
+
+.mz-kicker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 14px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  /* 纸面上的报头用次级墨色；压图时才换成纸色（见下方 .mz-plate .mz-kicker） */
+  color: var(--sec-text-color);
+}
+
+.mz-plate .mz-kicker {
+  color: rgba(253, 250, 244, 0.88);
+  text-shadow: 0 1px 3px rgba(15, 12, 9, 0.72), 0 6px 22px rgba(15, 12, 9, 0.5);
+}
+
+.mz-avatar {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(253, 250, 244, 0.5);
+}
+
+.mz-name {
+  margin: 0;
+  font-family: var(--font-serif-title);
+  font-weight: 600;
+  font-size: clamp(2.1rem, 4vw, 3.5rem);
+  line-height: 1.06;
+  letter-spacing: -0.012em;
+  color: #fdfaf4;
+  text-shadow: 0 1px 3px rgba(15, 12, 9, 0.7), 0 10px 34px rgba(15, 12, 9, 0.55);
+  /* 站名最长词不得击穿 flex 的 min-content（E-040）：超长词用 break-word 兜底 */
+  overflow-wrap: break-word;
+}
+
+.mz-intro {
+  margin: 12px 0 0;
+  font-size: 0.96rem;
+  color: rgba(253, 250, 244, 0.9);
+  text-shadow: 0 1px 3px rgba(15, 12, 9, 0.72), 0 6px 22px rgba(15, 12, 9, 0.5);
+}
+
+.mz-clock {
+  position: absolute;
+  right: 0;
+  bottom: clamp(26px, 5vh, 50px);
+  text-align: right;
+  color: rgba(253, 250, 244, 0.9);
+  /* 仪表从下方升起时会压过读数区（上沿最多推进 194px，读数区就在这 194px 里）。
+     读数必须在仪表上沿到达之前退场，否则会被横切一半。
+     p=0.2 时剩一半，p=0.4 时归零——正好赶在仪表上沿压上来之前。 */
+  opacity: calc(1 - var(--mz-p) * 2.5);
+}
+
+.mz-clock-label,
+.mz-clock-yday {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.13em;
+  text-shadow: 0 1px 3px rgba(15, 12, 9, 0.72), 0 6px 22px rgba(15, 12, 9, 0.5);
+}
+
+.mz-clock-num {
+  margin: 4px 0 6px;
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.mz-clock-num b {
+  font-family: var(--font-serif-title);
+  font-weight: 600;
+  font-size: 2.7rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: #fdfaf4;
+  font-variant-numeric: tabular-nums;
+}
+
+.mz-clock-num span {
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+}
+
+/* 图纸底边 = 年度进度线：纸面 1px + 已过部分 accent。
+   它同时是图纸与仪表之间的接缝，所以不做圆角、不留间距。 */
+.mz-yearline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: rgba(20, 17, 12, 0.42);
+}
+
+.mz-yearline i {
+  display: block;
+  width: var(--yp);
+  height: 100%;
+  background: rgba(253, 250, 244, 0.9);
+}
+
+/* --- ② 仪表（负上边距把它压进图纸的钉住区，滚动时由下往上覆盖照片） --- */
+
+.mz-body {
+  position: relative;
+  z-index: 2;
+  /* 与图纸高度的算式配对：194px = 钉住行程 = 仪表高度（见 .mz-hero 注释） */
+  margin-top: -194px;
+}
+
+.mz-inst {
+  /* 不钉住：站点导航是悬浮胶囊、没有实心条，钉住的仪表会在导航下方切出一条
+     半截标题的缝。仪表留在档案区顶部，与档案同屏即可操作。 */
+  position: relative;
+  z-index: 3;
+  background: var(--board-bg-color);
+  border-bottom: 1px solid var(--line-strong);
+  padding: 14px 0 10px;
+}
+
+.mz-inst-in {
+  width: min(1200px, 100% - clamp(36px, 8vw, 96px));
+  margin: 0 auto;
+}
+
+.mz-inst-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.mz-inst-title {
+  margin: 0;
+  font-family: var(--font-serif-title);
+  font-weight: 600;
+  font-size: 1.02rem;
+  letter-spacing: 0.02em;
+  color: var(--text-color);
+}
+
+.mz-inst-fig {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: var(--sec-text-color);
+}
+
+/* 刻度本体：轴在上沿，月条从轴下坠，年标签垫底。
+   单位是「月」而不是「日」——16 条记录里有 5 条挤在 18px 内，
+   日刻点会糊成一团；月条既能读出密度，也留得住触摸命中区。 */
+.mz-scale {
+  position: relative;
+  height: 78px;
+  margin-top: 8px;
+  cursor: ew-resize;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.mz-scale:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+.mz-axis {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: var(--text-color);
+  opacity: 0.55;
+}
+
+.mz-ticks,
+.mz-bars {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 0;
+}
+
+.mz-tick {
+  position: absolute;
+  left: var(--x);
+  top: 0;
+  width: 1px;
+  height: 6px;
+  background: var(--text-color);
+  opacity: 0.22;
+}
+
+/* 月密度条：条高 = 当月记录数，零记录的月份只留一条 2px 基线，
+   让「哪几个月有东西」一眼可读，不靠动画。 */
+.mz-bar {
+  position: absolute;
+  left: var(--x);
+  top: 1px;
+  width: calc(var(--w) - 2px);
+  height: var(--h);
+  background: var(--text-color);
+  opacity: 0.82;
+  transform-origin: top;
+  transition: opacity 160ms ease, background-color 160ms ease;
+}
+
+.mz-bar.is-zero {
+  height: 2px;
+  opacity: 0.2;
+}
+
+/* 档案行悬停/聚焦时，把它所在月份的那根条点亮（行与尺的联动） */
+.mz-bar.is-lit {
+  opacity: 1;
+  background: var(--accent);
+}
+
+.mz-year {
+  position: absolute;
+  left: var(--x);
+  top: 56px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: var(--sec-text-color);
+  white-space: nowrap;
+}
+
+.mz-year--now {
+  transform: translateX(-100%);
+  color: var(--accent);
+}
+
+.mz-cur {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--x, 100%);
+  width: 0;
+  transition: left 130ms ease-out;
+}
+
+.mz-scale.is-dragging .mz-cur {
+  transition: none;
+}
+
+.mz-cur-line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 22px;
+  width: 1px;
+  background: var(--accent);
+  opacity: 0.8;
+}
+
+.mz-cur-dot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 9px;
+  height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* 读数条：仪表盘面上的数字窗 */
+.mz-read {
+  display: grid;
+  grid-template-columns: 96px auto minmax(0, 1fr);
+  gap: 4px 18px;
+  align-items: baseline;
+  padding-top: 10px;
+  border-top: 1px solid var(--line-strong);
+}
+
+.mz-read-date {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  color: var(--text-color);
+  font-variant-numeric: tabular-nums;
+}
+
+.mz-read-say {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--sec-text-color);
+  white-space: nowrap;
+}
+
+.mz-read-list {
+  margin: 0;
+  display: flex;
+  gap: 14px;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.mz-read-list a {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.86rem;
+  color: var(--text-color);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: text-underline-offset 160ms ease, text-decoration-thickness 160ms ease;
+}
+
+.mz-read-list a:hover,
+.mz-read-list a:focus-visible {
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+}
+
+.mz-read--empty .mz-read-say {
+  color: var(--sec-text-color);
+}
+
+.mz-hint {
+  margin: 6px 0 0;
+  max-height: 24px;
+  overflow: hidden;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  color: var(--sec-text-color);
+  transition: max-height 200ms ease, opacity 160ms ease;
+}
+
+.mz-hint-mob {
+  display: none;
+}
+
+.mz-hint kbd {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0 4px;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-color);
+}
+
+/* --- ③ 档案 --- */
+
+.mz-arch {
+  position: relative;
+  z-index: 2;
+  background: transparent;
+}
+
+.mz-arch-in,
+.mz-doors-in,
+.mz-foot-in {
+  width: min(1200px, 100% - clamp(36px, 8vw, 96px));
+  margin: 0 auto;
+}
+
+.mz-arch-in {
+  padding: clamp(44px, 7vh, 76px) 0 0;
+}
+
+.mz-arch-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 14px;
+}
+
+.mz-arch-title {
+  margin: 6px 0 0;
+  font-family: var(--font-serif-title);
+  font-weight: 600;
+  font-size: clamp(1.7rem, 3vw, 2.3rem);
+  line-height: 1.1;
+  color: var(--text-color);
+}
+
+.mz-arch-nav {
+  display: flex;
+  gap: 18px;
+  padding-bottom: 6px;
+}
+
+.mz-arch-nav a {
+  font-size: 0.8rem;
+  color: var(--sec-text-color);
+}
+
+.mz-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 2px solid var(--rule-strong);
+}
+
+.mz-rec {
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.mz-rec-link {
+  display: grid;
+  grid-template-columns: 14px 96px 44px minmax(0, 1fr) auto 18px;
+  column-gap: 16px;
+  align-items: baseline;
+  padding: 13px 0;
+  color: var(--text-color);
+}
+
+.mz-rec-link--plain {
+  cursor: default;
+}
+
+.mz-rec-glyph {
+  align-self: center;
+  width: 8px;
+  height: 8px;
+  border: 1.5px solid var(--sec-text-color);
+  border-radius: 50%;
+}
+
+.mz-rec-glyph--diamond {
+  border-radius: 0;
+  transform: rotate(45deg);
+}
+
+.mz-rec-glyph--square {
+  border-radius: 1px;
+}
+
+.mz-rec-glyph--ring {
+  border-width: 2.5px;
+  border-color: var(--line-strong);
+}
+
+.mz-rec-date {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.04em;
+  color: var(--sec-text-color);
+  font-variant-numeric: tabular-nums;
+}
+
+.mz-rec-kind {
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  color: var(--sec-text-color);
+}
+
+.mz-rec-title {
+  font-family: var(--font-serif-title);
+  font-weight: 600;
+  font-size: 1.04rem;
+  line-height: 1.5;
+  color: var(--text-color);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 160ms ease, text-underline-offset 160ms ease,
+    text-decoration-thickness 160ms ease;
+}
+
+.mz-rec-link:hover .mz-rec-title,
+.mz-rec-link:focus-visible .mz-rec-title {
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+}
+
+.mz-rec-meta {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  color: var(--sec-text-color);
+  white-space: nowrap;
+  max-width: 22rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mz-rec-arrow {
+  justify-self: end;
+  font-size: 0.95rem;
+  color: var(--sec-text-color);
+  transition: transform 180ms ease, color 160ms ease;
+}
+
+.mz-rec-link:hover .mz-rec-arrow,
+.mz-rec-link:focus-visible .mz-rec-arrow {
+  transform: translate3d(3px, -3px, 0);
+  color: var(--accent);
+}
+
+/* 拖到某天时，档案里的当天条目亮起左标记（不需要滚动到它也算反馈） */
+.mz-rec.is-hit .mz-rec-glyph {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.mz-rec.is-hit .mz-rec-date {
+  color: var(--text-color);
+}
+
+/* --- 去处 --- */
+
+.mz-doors {
+  margin-top: clamp(56px, 9vh, 96px);
+}
+
+.mz-door-list {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: clamp(28px, 5vw, 72px);
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.mz-door-list li {
+  border-top: 1px solid var(--line-strong);
+}
+
+.mz-door {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 16px;
+  align-items: baseline;
+  column-gap: 14px;
+  padding: 16px 0;
+  color: var(--text-color);
+}
+
+.mz-door-name {
+  font-family: var(--font-serif-title);
+  font-weight: 600;
+  font-size: 1.3rem;
+  line-height: 1.3;
+}
+
+.mz-door-fig {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--text-color);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.mz-door-fig em {
+  font-style: normal;
+  margin-left: 8px;
+  color: var(--sec-text-color);
+}
+
+.mz-door-arrow {
+  justify-self: end;
+  color: var(--sec-text-color);
+  transition: transform 180ms ease, color 160ms ease;
+}
+
+.mz-door:hover .mz-door-arrow,
+.mz-door:focus-visible .mz-door-arrow {
+  transform: translate3d(3px, -3px, 0);
+  color: var(--accent);
+}
+
+.mz-door:hover .mz-door-name,
+.mz-door:focus-visible .mz-door-name {
+  color: var(--accent);
+}
+
+/* --- 收尾 --- */
+
+.mz-foot {
+  margin-top: clamp(56px, 9vh, 88px);
+  border-top: 1px solid var(--line-strong);
+}
+
+.mz-foot-in {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 0 34px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  color: var(--sec-text-color);
+}
+
+/* --- 入场编排（只发生一次；reduce 分支里逐条 animation: none 关闭） --- */
+
+.mz-plate {
+  animation: mz-reveal 700ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+@keyframes mz-reveal {
+  from { clip-path: inset(100% 0 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+.mz-id > * {
+  animation: mz-rise 560ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.mz-id > :nth-child(1) { animation-delay: 160ms; }
+.mz-id > :nth-child(2) { animation-delay: 240ms; }
+.mz-id > :nth-child(3) { animation-delay: 320ms; }
+
+/* 入场动画挂在子元素上，不挂在 .mz-clock 本身：
+   animation 的 both 填充会把 opacity 永久钉成 1，滚动退场的 calc 就失效了。 */
+.mz-clock > * {
+  animation: mz-rise 560ms cubic-bezier(0.23, 1, 0.32, 1) 400ms both;
+}
+
+@keyframes mz-rise {
+  from { opacity: 0; transform: translate3d(0, 16px, 0); }
+  to { opacity: 1; transform: none; }
+}
+
+.mz-tick {
+  animation: mz-tick-grow 360ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  animation-delay: calc(var(--i) * 22ms);
+}
+
+@keyframes mz-tick-grow {
+  from { transform: scaleY(0.2); opacity: 0; }
+  to { transform: scaleY(1); }
+}
+
+.mz-bar {
+  animation: mz-bar-grow 420ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  animation-delay: calc(var(--i) * 22ms);
+}
+
+@keyframes mz-bar-grow {
+  from { transform: scaleY(0.05); opacity: 0; }
+  to { transform: scaleY(1); }
+}
+
+.mz-cur {
+  animation: mz-fade 320ms ease-out 640ms both;
+}
+
+@keyframes mz-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+/* --- 减少动态效果：保留结构、状态与全部操作，只去掉位移、缩放与编排 --- */
+
+@media (prefers-reduced-motion: reduce) {
+  .mz-hero {
+    height: auto;
+  }
+
+  .mz-plate {
+    position: relative;
+    animation: none;
+    clip-path: none;
+  }
+
+  .mz-id > *,
+  .mz-clock > *,
+  .mz-tick,
+  .mz-bar,
+  .mz-cur {
+    animation: none;
+  }
+
+  .mz-body {
+    margin-top: 0;
+  }
+
+  .mz-plate-img {
+    transform: none;
+  }
+
+  .mz-plate-in {
+    transform: none;
+    opacity: 1;
+  }
+
+  .mz-inst {
+    position: static;
+  }
+
+  .mz-cur,
+  .mz-read-list a,
+  .mz-rec-arrow,
+  .mz-rec-title,
+  .mz-door-arrow {
+    transition: none;
+  }
+
+  .mz-rec-link:hover .mz-rec-arrow,
+  .mz-rec-link:focus-visible .mz-rec-arrow,
+  .mz-door:hover .mz-door-arrow,
+  .mz-door:focus-visible .mz-door-arrow {
+    transform: none;
+  }
+}
+
+/* --- 首页响应式（桌面优先；断点沿用 .98 家族） --- */
+
+@media (max-width: 1099.98px) {
+  .mz-rec-link {
+    grid-template-columns: 14px 84px 40px minmax(0, 1fr) 18px;
+  }
+
+  .mz-rec-meta {
+    display: none;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .mz {
+    padding-top: 92px;
+  }
+
+  /* 窄屏不钉图纸：地址栏伸缩时 sticky 会跳，且首屏高度更宝贵。
+     空间转换交给入场编排与仪表本身的钉住，滚动手感保持原生。 */
+  .mz-hero {
+    height: auto;
+  }
+
+  .mz-plate {
+    position: relative;
+    height: 64vh;
+    height: 64svh;
+  }
+
+  .mz-body {
+    margin-top: 0;
+  }
+
+  .mz-plate-in {
+    padding-top: 22px;
+  }
+
+  .mz-name {
+    font-size: clamp(1.9rem, 8vw, 2.4rem);
+  }
+
+  .mz-intro {
+    font-size: 0.9rem;
+  }
+
+  .mz-clock {
+    right: 0;
+    bottom: 22px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .mz-clock-num {
+    margin: 0;
+    justify-content: flex-start;
+  }
+
+  .mz-clock-num b {
+    font-size: 1.8rem;
+  }
+
+  .mz-clock-yday {
+    display: none;
+  }
+
+  /* 仪表：上沿贴导航下沿，横向热区放大到 44px 以上 */
+  .mz-inst {
+    padding: 12px 0 10px;
+  }
+
+  .mz-scale {
+    height: 78px;
+  }
+
+  .mz-read {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 2px 12px;
+    padding-top: 8px;
+  }
+
+  .mz-read-list {
+    grid-column: 1 / -1;
+  }
+
+  .mz-hint-desk {
+    display: none;
+  }
+
+  .mz-hint-mob {
+    display: inline;
+  }
+
+  .mz-arch-in {
+    padding-top: 34px;
+  }
+
+  .mz-arch-head {
+    display: block;
+  }
+
+  .mz-arch-nav {
+    margin-top: 10px;
+    padding-bottom: 0;
+  }
+
+  /* 档案行改两行：日期与类型在上，标题在下；命中区仍是整行 */
+  .mz-rec-link {
+    grid-template-columns: 14px minmax(0, 1fr) 18px;
+    grid-template-rows: auto auto;
+    column-gap: 12px;
+    row-gap: 3px;
+    padding: 14px 0;
+  }
+
+  .mz-rec-glyph {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    align-self: start;
+    margin-top: 7px;
+  }
+
+  .mz-rec-date {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .mz-rec-kind {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  .mz-rec-title {
+    grid-column: 2;
+    grid-row: 2;
+    font-size: 1rem;
+  }
+
+  .mz-rec-arrow {
+    grid-column: 3;
+    grid-row: 1 / 3;
+    align-self: center;
+  }
+
+  .mz-door-list {
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: 0;
+  }
+
+  .mz-door-name {
+    font-size: 1.15rem;
+  }
+
+  .mz-foot-in {
+    flex-direction: column;
+    gap: 6px;
+  }
+}
+
+@media (max-width: 479.98px) {
+  .mz-door {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .mz-door-arrow {
+    display: none;
+  }
+}
+
 /* ===== 5. 第三方组件纸面化（site.css 在 main.css 之后加载，覆盖即生效） ===== */
 
 /* 5.1 nprogress 顶部进度条（VD-2）：主题 L124 的 color 配置是死配置，
