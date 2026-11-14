@@ -5404,26 +5404,57 @@ body.is-home footer {
   padding-bottom: 1.2rem;
 }
 
-/* 导语右侧不再留白：三个计数做成对照栏，与左栏基线对齐 */
-.fs-hero-stats {
-  display: flex;
-  gap: 2.2rem;
+/* 导语右侧：图例，用与轴上完全相同的三种标记，读者不用反推 */
+.fs-legend {
+  display: grid;
+  gap: 0.45rem;
   margin: 0;
+  padding-left: 1.2rem;
+  border-left: 1px solid var(--line-color);
 }
 
-.fs-hero-stats dt {
-  font-size: 0.75rem;
-  letter-spacing: 0.04em;
+.fs-legend > div {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  justify-content: space-between;
+}
+
+.fs-legend dt {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
   color: var(--sec-text-color);
 }
 
-.fs-hero-stats dd {
-  margin: 0.1rem 0 0;
+.fs-legend dd {
+  margin: 0;
   font-family: var(--font-display);
-  font-size: 2rem;
-  font-weight: 700;
-  line-height: 1;
+  font-size: 0.95rem;
   font-variant-numeric: tabular-nums;
+  color: var(--text-color);
+}
+
+.fs-glyph {
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid var(--text-color);
+  border-radius: 50%;
+}
+
+.fs-glyph.is-legal {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.fs-glyph.is-solar {
+  width: 8px;
+  height: 8px;
+  border: 0;
+  border-radius: 0;
+  background: var(--sec-text-color);
+  transform: rotate(45deg);
 }
 
 @media (max-width: 767.98px) {
@@ -5432,8 +5463,15 @@ body.is-home footer {
     gap: 1.2rem;
   }
 
-  .fs-hero-stats { gap: 1.8rem; }
-  .fs-hero-stats dd { font-size: 1.6rem; }
+  .fs-legend {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.6rem;
+    padding: 0.9rem 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--line-color);
+  }
+
+  .fs-legend > div { gap: 0.5rem; }
 }
 
 .fs-title {
@@ -5512,6 +5550,16 @@ body.is-home footer {
   background: var(--accent);
 }
 
+/* 冬至：节气用菱形，和轴上的节气刻度同一族，不再混进「传统节日」的空心圆 */
+.fs-mark--solar .fs-mark-dot {
+  width: 8px;
+  height: 8px;
+  border: 0;
+  border-radius: 0;
+  background: var(--sec-text-color);
+  transform: rotate(45deg);
+}
+
 .fs-mark-label {
   position: absolute;
   left: 50%;
@@ -5519,7 +5567,8 @@ body.is-home footer {
   display: flex;
   flex-direction: column;
   gap: 0.05rem;
-  width: 6rem;
+  width: max-content;
+  max-width: 7.5rem;
   text-align: center;
 }
 
@@ -5527,6 +5576,18 @@ body.is-home footer {
 .fs-mark.is-down .fs-mark-label { top: 1.25rem; }
 .fs-mark.is-up2 .fs-mark-label { bottom: 4.9rem; }
 .fs-mark.is-down2 .fs-mark-label { top: 4.9rem; }
+
+/* 远道标签的引线：从点引出，止于标签下沿外 0.3rem 处，绝不穿过文字 */
+.fs-mark-stem {
+  position: absolute;
+  left: 50%;
+  width: 1px;
+  background: var(--line-strong);
+  opacity: 0.55;
+}
+
+.fs-mark.is-up2 .fs-mark-stem { bottom: 6px; height: 4.15rem; }
+.fs-mark.is-down2 .fs-mark-stem { top: 6px; height: 4.15rem; }
 
 .fs-mark-label b {
   font-family: var(--font-serif-title);
@@ -5562,7 +5623,7 @@ body.is-home footer {
 
 .fs-axis-note a { color: var(--text-color); }
 
-@media (max-width: 1023.98px) {
+@media (max-width: 1199.98px) {
   .fs-axis {
     height: auto;
     margin: 0.3rem 0 0;
@@ -5579,7 +5640,8 @@ body.is-home footer {
   }
 
   .fs-tick,
-  .fs-months { display: none; }
+  .fs-months,
+  .fs-mark-stem { display: none; }
 
   .fs-mark {
     position: relative;

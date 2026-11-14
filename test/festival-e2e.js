@@ -324,8 +324,15 @@ if (!fs.existsSync(PUBLIC)) {
     assert.ok(fs.existsSync(abs), '缺页面：festivals/index.html');
     const h = fs.readFileSync(abs, 'utf8');
     assert.strictEqual(h.indexOf('page-head'), -1, '索引页又回到文章壳（page-head）');
-    const marks = h.match(/class="fs-mark fs-mark--(legal|folk) is-/g) || [];
+    const marks = h.match(/class="fs-mark fs-mark--(legal|lunar|solar) is-/g) || [];
     assert.strictEqual(marks.length, 12, '轴上的节日点数不是 12：' + marks.length);
+    // 三类标记齐全：法定 6、农历 5、节气 1（冬至）；图例与轴上用同一套标记
+    assert.strictEqual((h.match(/fs-mark--legal/g) || []).length, 6, '法定节日标记数不是 6');
+    assert.strictEqual((h.match(/fs-mark--lunar/g) || []).length, 5, '农历节日标记数不是 5');
+    assert.strictEqual((h.match(/fs-mark--solar/g) || []).length, 1, '节气标记数不是 1（应只有冬至）');
+    ['法定假日', '农历节日', '节气'].forEach((t) => {
+      assert.ok(h.indexOf(t) !== -1, '图例缺「' + t + '」');
+    });
     SLUGS.forEach((s) => {
       assert.ok(h.indexOf('href="/library/' + s + '/"') !== -1, '索引页缺节日链接：' + s);
     });

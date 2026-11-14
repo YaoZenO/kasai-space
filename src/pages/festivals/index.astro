@@ -65,31 +65,51 @@ for (const f of folkFestivals) {
   // 冬至在 festivals[] 里同时是节气，所以这里不按 kind 过滤，只按节日名匹配
   const rec = folkRecords.find((x: any) => x && String(x.name).indexOf(f.name) === 0);
   if (!rec || !rec.date) continue;
+  // 三类标记：法定假日（实心）、农历节日（空心）、节气（菱形）。
+  // 冬至是站点收录的十二个节日里唯一的节气——民间「冬至大如年」，它确实被当节日过；
+  // 其余 23 个节气只在轴上作细刻度，不单独成页（口径写进轴下说明）。
+  const isSolar = String(rec.kind || '').indexOf('节气') !== -1;
   marks.push({
     key: f.key,
     name: f.name,
-    kind: 'folk',
+    kind: isSolar ? 'solar' : 'lunar',
     date: rec.date,
     pct: pctOf(rec.date),
-    extra: rec.lunar ? '农历' + rec.lunar : '按节气换算',
+    extra: isSolar ? '二十四节气' : '农历' + rec.lunar,
     range: ''
   });
 }
 marks.sort((a: any, b: any) => a.date.localeCompare(b.date));
 
-// 标签分四道泳道（上近 / 下近 / 上远 / 下远）：同侧相邻太近就换道，
-// 避免「中秋 / 重阳」这类相隔一周的节日标签叠在一起。
-// 阈值 11% ≈ 横向布局最窄（1024px）时一个标签的宽度；再窄就切竖向时间线。
+// 标签分四道泳道（上近 / 下近 / 上远 / 下远）。
+// 规则：优先占近道；只有「中秋 / 国庆 / 重阳」这种一周内三点时，前两个占近道、
+// 最后一个走远道并补一条引线——先到的日期在下、后到的在上，读起来顺着时间走。
+// 阈值 9% ≈ 横向布局最窄（1200px）时一个标签的宽度；再窄就切竖向时间线。
 const laneLast: Record<string, number> = { up: -999, down: -999, up2: -999, down2: -999 };
-const LANES = ['up', 'down', 'up2', 'down2'];
-const LANE_MIN_GAP = 11;
-for (const m of marks) {
+const NEAR_LANES = ['up', 'down'];
+const FAR_LANES = ['up2', 'down2'];
+const LANE_MIN_GAP = 9;
+for (let i = 0; i < marks.length; i += 1) {
+  const m = marks[i];
+  const next = marks[i + 1];
   const gaps: Record<string, number> = {};
-  for (const lane of LANES) gaps[lane] = m.pct - laneLast[lane];
-  const lane = LANES.find((l) => gaps[l] >= LANE_MIN_GAP) || LANES.slice().sort((a, b) => gaps[b] - gaps[a])[0];
+  for (const lane of [...NEAR_LANES, ...FAR_LANES]) gaps[lane] = m.pct - laneLast[lane];
+  let lane = NEAR_LANES.find((l) => gaps[l] >= LANE_MIN_GAP);
+  if (!lane && next && next.pct - m.pct < LANE_MIN_GAP) {
+    // 后面还挤着一条：当前这条留在较宽的那条近道，把下一条顶去远道
+    lane = NEAR_LANES.slice().sort((a, b) => gaps[b] - gaps[a])[0];
+  }
+  if (!lane) {
+    lane = FAR_LANES.find((l) => gaps[l] >= LANE_MIN_GAP) ||
+      [...NEAR_LANES, ...FAR_LANES].sort((a, b) => gaps[b] - gaps[a])[0];
+  }
   laneLast[lane] = m.pct;
   m.lane = lane;
 }
+
+const legalCount = marks.filter((m: any) => m.kind === 'legal').length;
+const lunarCount = marks.filter((m: any) => m.kind === 'lunar').length;
+const solarCount = marks.filter((m: any) => m.kind === 'solar').length;
 
 function monthDay(dateKey: string): string {
   const [, m, d] = String(dateKey).split('-').map(Number);
@@ -119,10 +139,19 @@ const months = Array.from({ length: 12 }, (_, i) => i + 1);
           <h1 class="fs-title">节日文化</h1>
           <p class="cal-lede">{fsMeta.lede || '十二个中国节日，每个都有一篇长文：来历与传说、习俗与食物、词汇和常见问题。日期按站内节假日数据逐年生成，不手工抄录。'}</p>
         </div>
-        <dl class="fs-hero-stats">
-          <div><dt>节日</dt><dd>{allFestivals.length}</dd></div>
-          <div><dt>法定假日</dt><dd>{legalFestivals.length}</dd></div>
-          <div><dt>传统节日</dt><dd>{folkFestivals.length}</dd></div>
+        <dl class="fs-legend">
+          <div>
+            <dt><i class="fs-glyph is-legal" aria-hidden="true"></i>法定假日</dt>
+            <dd>{legalCount}</dd>
+          </div>
+          <div>
+            <dt><i class="fs-glyph is-lunar" aria-hidden="true"></i>农历节日</dt>
+            <dd>{lunarCount}</dd>
+          </div>
+          <div>
+            <dt><i class="fs-glyph is-solar" aria-hidden="true"></i>节气</dt>
+            <dd>{solarCount}</dd>
+          </div>
         </dl>
       </header>
 
@@ -142,12 +171,15 @@ const months = Array.from({ length: 12 }, (_, i) => i + 1);
               {TERMS.map((t: any) => (
                 <span class="fs-tick" style={`--x:${pctOf(t.date)}%`} aria-hidden="true"></span>
               ))}
-              {marks.map((m: any, i: number) => (
+              {marks.map((m: any) => (
                 <a
                   class={`fs-mark fs-mark--${m.kind} is-${m.lane}`}
                   style={`--x:${m.pct}%`}
                   href={urlFor('/library/' + m.key + '/')}
                 >
+                  {(m.lane === 'up2' || m.lane === 'down2') && (
+                    <span class="fs-mark-stem" aria-hidden="true"></span>
+                  )}
                   <span class="fs-mark-label">
                     <b>{m.name}</b>
                     <em>{monthDay(m.date)}</em>
@@ -162,7 +194,7 @@ const months = Array.from({ length: 12 }, (_, i) => i + 1);
             </div>
 
             <p class="fs-axis-note">
-              实心点为法定节假日，空心点为传统节日；细刻度为二十四节气。法定节日按当年国务院办公厅安排标注放假天数，传统节日按农历换算到公历。
+              细刻度是二十四节气。本站收十二个节日，冬至是其中唯一的节气——民间「冬至大如年」，它确实被当节日过，所以单独成页；其余节气只作刻度。清明同为节气，但按法定假日标记。法定节日按当年国务院办公厅安排标注放假天数。
               <a href={urlFor('/holidays/' + axisYear + '/')}>看 {axisYear} 年完整放假安排</a>
             </p>
           </section>
