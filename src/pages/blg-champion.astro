@@ -58,8 +58,9 @@ const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决
   .blg-hero-inner{position:relative; z-index:2; width:100%; max-width:1020px; margin:0 auto; padding:0 24px 84px; color:#fff}
   .blg-kicker{font-size:13px; letter-spacing:.34em; text-transform:uppercase; color:#f5d98a; font-weight:700; animation:blgRise .8s .1s ease both}
   .blg-kicker-cn{margin-top:8px; font-size:15px; letter-spacing:.42em; color:rgba(255,255,255,.82); animation:blgRise .8s .22s ease both}
-  .blg-title{margin:18px 0 0; font-size:clamp(72px, 13vw, 148px); line-height:1.02; font-weight:900; letter-spacing:-.01em; animation:blgRise .8s .34s ease both}
+  .blg-title{margin:18px 0 0; font-size:clamp(40px, 14vw, 148px); line-height:1.02; font-weight:900; letter-spacing:-.01em; animation:blgRise .8s .34s ease both}
   .blg-title .gold{
+    white-space:nowrap;
     background:linear-gradient(100deg,#a8842a,#e8c469 28%,#fff3c4 50%,#e8c469 72%,#a8842a);
     background-size:200% 100%; -webkit-background-clip:text; background-clip:text; color:transparent;
     animation:blgShine 7s linear infinite;
@@ -112,22 +113,12 @@ const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决
   .blg-figure figcaption{padding:12px 16px; font-size:13.5px; color:var(--blg-muted); background:var(--blg-card); border-top:1px solid var(--blg-line)}
 
   /* ---------- game cards ---------- */
-  .blg-cards{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:34px}
-  .blg-card{background:var(--blg-card); border:1px solid var(--blg-line); border-radius:14px; padding:20px 18px; box-shadow:var(--blg-shadow); transition:transform .35s ease, border-color .35s ease; position:relative; overflow:hidden}
-  .blg-card:hover{transform:translateY(-5px)}
-  .blg-card.win{border-top:4px solid var(--blg-gold2)}
-  .blg-card.lose{border-top:4px solid var(--blg-muted); opacity:.88}
-  .blg-card .g{font-size:12px; font-weight:700; letter-spacing:.26em; color:var(--blg-muted)}
-  .blg-card .w{margin-top:10px; font-size:24px; font-weight:900}
-  .blg-card .w .l{color:var(--blg-gold)}
-  .blg-card .meta{margin-top:6px; font-size:13.5px; color:var(--blg-muted)}
-  .blg-card .note{margin-top:12px; font-size:14px; line-height:1.6}
-
   /* ---------- story ---------- */
   .blg-games{margin-top:34px; display:grid; gap:30px}
   .blg-game h3{margin:0; font-size:22px; font-weight:900}
   .blg-game h3 .tag{margin-left:10px; font-size:12px; font-weight:700; letter-spacing:.2em; color:var(--blg-gold)}
   .blg-game p{margin:10px 0 0; color:var(--blg-ink)}
+  .blg-game .blg-game-meta{margin-top:6px; font-size:14px; color:var(--blg-muted)}
   .blg-game p b{color:var(--blg-ink)}
   .blg-game .num{font-variant-numeric:tabular-nums; font-weight:700; color:var(--blg-gold)}
 
@@ -221,7 +212,6 @@ const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决
   .blg-credits a{color:var(--blg-gold); text-decoration:underline}
 
   @media (max-width: 860px){
-    .blg-cards{grid-template-columns:repeat(2,1fr)}
     .blg-stats{grid-template-columns:repeat(2,1fr)}
     .blg-road{grid-template-columns:repeat(2,1fr)}
     .blg-vs{grid-template-columns:1fr}
@@ -229,7 +219,6 @@ const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决
   }
   @media (max-width: 560px){
     .blg-section{padding-top:60px}
-    .blg-cards{grid-template-columns:1fr}
     .blg-duo{grid-template-columns:1fr}
     .blg-hero{min-height:92vh}
     .blg-hero-media img{object-position:center 28%}
@@ -242,15 +231,12 @@ const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决
     .blg-kicker, .blg-kicker-cn, .blg-title, .blg-score, .blg-hero-sub, .blg-hero-meta{animation:none !important}
     .reveal{opacity:1; transform:none; transition:none}
     .blg-panel{animation:none}
-    .blg-figure img, .blg-team, .blg-card, .blg-step, .blg-stat, .blg-tab{transition:none}
+    .blg-figure img, .blg-team, .blg-step, .blg-stat, .blg-tab{transition:none}
   }
   .blg-wrap p.blg-kicker, .blg-wrap p.blg-kicker-cn, .blg-wrap p.blg-eyebrow, .blg-wrap p.blg-hero-meta{margin:0}
   .blg-wrap p.blg-kicker-cn{margin-top:8px}
   .blg-wrap p.blg-hero-meta{margin-top:16px}
-  .blg-wrap .blg-card p, .blg-wrap .blg-step p{margin:0}
-  .blg-wrap .blg-card p.w{margin-top:10px}
-  .blg-wrap .blg-card p.meta{margin-top:6px}
-  .blg-wrap .blg-card p.note{margin-top:12px}
+  .blg-wrap .blg-step p{margin:0}
   .blg-wrap .blg-step p.opp{margin-top:10px}
   .blg-wrap .blg-step p.sc{margin-top:6px}
   .blg-credits p{margin:0 0 6px}
@@ -312,57 +298,29 @@ const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决
     </figure>
   </section>
 
-  <!-- GAME CARDS -->
+  <!-- GAMES -->
   <section class="blg-section" id="games">
-    <p class="blg-eyebrow reveal">Four Games · 四局比分</p>
-    <h2 class="reveal" data-d="1">输掉的第一局，只是开场白。</h2>
-    <div class="blg-cards">
-      <article class="blg-card lose reveal" data-d="1">
-        <p class="g">GAME 1 · 38分钟</p>
-        <p class="w">GEN.G <span class="l">胜</span></p>
-        <p class="meta">人头 19–4 · 金币 80.0k–66.0k</p>
-        <p class="note">Ruler的Corki 7/0/8，Gen.G团战翻盘先下一城。</p>
-      </article>
-      <article class="blg-card win reveal" data-d="2">
-        <p class="g">GAME 2 · 53分钟</p>
-        <p class="w">BLG <span class="l">胜</span></p>
-        <p class="meta">人头 19–14 · 金币 99.5k–94.2k</p>
-        <p class="note">本届最长一局，Xun的Naafiri 8/1/9，扳平比分。</p>
-      </article>
-      <article class="blg-card win reveal" data-d="3">
-        <p class="g">GAME 3 · 37分钟</p>
-        <p class="w">BLG <span class="l">胜</span></p>
-        <p class="meta">人头 20–8 · 金币 74.0k–65.7k</p>
-        <p class="note">Bin的Jax一锤定音，BLG拿到赛点。</p>
-      </article>
-      <article class="blg-card win reveal" data-d="3">
-        <p class="g">GAME 4 · 43分钟</p>
-        <p class="w">BLG <span class="l">胜</span></p>
-        <p class="meta">人头 21–11 · 金币 89.7k–79.8k</p>
-        <p class="note">Xun抢下大龙，5打3赢下团战，一波夺冠。</p>
-      </article>
-    </div>
-  </section>
-
-  <!-- STORY -->
-  <section class="blg-section" id="story">
-    <p class="blg-eyebrow reveal">How It Happened · 四局讲述</p>
-    <h2 class="reveal" data-d="1">这四局，一局比一局硬。</h2>
+    <p class="blg-eyebrow reveal">Four Games · 四局比赛</p>
+    <h2 class="reveal" data-d="1">四局比赛的全部经过。</h2>
     <div class="blg-games">
       <article class="blg-game reveal">
         <h3>第一局：Gen.G先声夺人 <span class="tag">GEN.G WIN · 38分钟</span></h3>
+        <p class="blg-game-meta">人头 19–4 · 金币 80.0k–66.0k</p>
         <p>BLG一度拿到四条小龙和第一条远古巨龙，开局并不差。但Gen.G的团战更硬：Kiin的Olaf绕后直切Viper，Ruler的Corki在后排火力全开，<b>7/0/8</b>；Chovy的Syndra <b>6/1/11</b>。Gen.G赢下远古巨龙团，一波推平，<span class="num">19–4</span>，先下一城。Knight这局掏出的Locke没能打开局面，BLG全队只拿到4个人头。</p>
       </article>
       <article class="blg-game reveal">
         <h3>第二局：53分钟的拉锯战 <span class="tag">BLG WIN · 53分钟</span></h3>
+        <p class="blg-game-meta">人头 19–14 · 金币 99.5k–94.2k</p>
         <p>这是本届全球总决赛最长的一局。Gen.G掏出Vayne上单加Cho'Gath打野的怪阵，BLG则让Viper拿Ziggs、ON拿Camille走下路回应。双方来回拉扯近一个小时，Canyon甚至在倒下之前抢下了一条远古巨龙，Gen.G还是没能翻过来。Xun的Naafiri <b>8/1/9</b>，Knight的Cassiopeia <b>4/1/12</b>，BLG <span class="num">19–14</span>艰难扳平。</p>
       </article>
       <article class="blg-game reveal">
         <h3>第三局：Fearless Draft开始发力 <span class="tag">BLG WIN · 37分钟</span></h3>
+        <p class="blg-game-meta">人头 20–8 · 金币 74.0k–65.7k</p>
         <p>无畏征召之下，前两局用过的英雄不能再选，Kai'Sa、Sivir、Xayah又全被按在ban位上。BLG索性让Viper掏出Taliyah走下路，Knight拿下Viktor，ON拿下Alistar。25分钟左右的关键团战，Knight的Viktor打出决定性输出；随后Bin的Jax站了出来，一锤定音。Viper的Taliyah <b>6/1/11</b>，Knight的Viktor <b>5/2/11</b>，BLG <span class="num">20–8</span>拿下赛点。</p>
       </article>
       <article class="blg-game reveal">
         <h3>第四局：抢龙，夺冠 <span class="tag">BLG WIN · 43分钟</span></h3>
+        <p class="blg-game-meta">人头 21–11 · 金币 89.7k–79.8k</p>
         <p>Gen.G开局打得极凶，Ruler的Xayah 4分钟就连拿两个人头。但BLG的全球流开始运转：Knight的Twisted Fate和Xun的Nocturne满场带节奏，ON的Neeko几次先手开团锁住对手，Bin的Gwen <b>8/2/9</b>接管比赛。最关键的一波，Xun抢下大龙，BLG 5打3赢下团战，一波推平基地，<span class="num">21–11</span>。水晶爆炸的那一刻，五个人冲向舞台中央的奖杯。</p>
       </article>
     </div>
