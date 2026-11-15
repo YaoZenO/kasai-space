@@ -201,7 +201,10 @@
 | E-167 | P2 | 刻度初版按「一天一个齿点」设计，16 条记录里 5 条挤在 18px 内，齿点糊成一团、点不中 | 已修复（单位改「月密度条」，条高 = 当月条数）+ 断言：月条数等于时间跨度月数、每根条必须带 `data-month` |
 | E-168 | P2 | 读数退场 `opacity: calc(...)` 不生效，年度读数被仪表上沿横切：`.mz-clock` 同时挂着入场动画 `both`，`to{opacity:1}` 的填充值永久压住声明 | 已修复（入场动画挪到 `.mz-clock > *`）+ 断言：`.mz-clock` 规则内不得出现 `animation:` |
 | E-169 | P2 | 暗色 E2E 两条「与 HEAD 逐字一致」断言在本机恒红：工作区 CRLF、`git show` 出来的 blob 是 LF，直接逐字比对必然失败（与代码无关） | 已修复（比对两侧过 `lf()` 归一）+ 机制：HEAD 比对统一走 `gitShowLF()` |
-| E-170 | P1 | 首页浮层页脚写成 `<footer>`，被 `body.is-home footer { display:none }` 整块隐藏：DOM 在、无报错、页脚不渲染（E-071 同源复发） | 已修复（dialog 首尾改 div）+ 断言：首页模板与第二屏产物都不得出现 `<footer`，且旧套件里仍有效的防复发项必须迁进新套件 |
+| E-170 | P1 | 首页浮层页脚写成 `<footer>`，被 `body.is-home footer { display:none }` 整块隐藏：DOM 在、无报错、页脚不渲染（E-071 同源复发） | 已修复（dialog 首尾改 div）+ 断言：首页模板与第二屏产物都不得出现 `<footer`，且旧套件里仍有效的防复发项必须迁进新套件 |
+| E-171 | P2 | 首页隐藏导航胶囊用 `body.is-home .site-nav-center { display:none }` 无效：主题里是 `#navbar .site-nav-center`（id 级），特异性压不住，胶囊照常显示 | 已修复（选择器加 `#navbar`）+ 断言：CSS 必须存在 `body.is-home #navbar .site-nav-center` |
+| E-172 | P2 | 窗口列表行的右标签顶出窗口 8px：`.row` 作 grid 容器时自动最小尺寸取 min-content，标题一长整行被撑宽 | 已修复（`.row { width:100%; min-width:0 }` + `.row-b { overflow:hidden }`）+ 断言：`.row` 规则必须含这两条 |
+| E-173 | P2 | 首页相机三档写成「外景 → 后退偏轴 → 退远全景」，第三屏与第一屏构图几乎相同，滚到底等于倒车回门口 | 已修复（三档 z 严格递减：外景 46 → 厅内 8 → 内殿 -24）+ 断言：STOPS 的 eye[2] 必须单调递减 |
 
 ---
 
@@ -3412,3 +3415,31 @@
 - **防复发（机制）：** `test/home-study.js` 断言首页模板与产物第二屏都不含 `<footer`；
   并且确立一条迁移纪律——**替换页面套件时，旧套件里仍然成立的防复发断言必须整条搬过去**，
   E-064 / E-071 / E-163 / E-164 四条已在新套件中逐条保留。
+### E-171 首页隐藏导航胶囊的选择器被主题的 id 级规则压住（2026-11-15）
+
+- **发生时间：** 2026-11-15 ｜ **发现方式：** 第一屏截图里宽胶囊仍在，品牌却已消失，说明只有一半规则生效
+- **现象：** `body.is-home .site-brand` 生效（品牌隐藏了），`body.is-home .site-nav-center` 不生效。
+- **根因：** 主题写的是 `#navbar .site-nav-center`（1 个 id + 1 个 class）。`body.is-home .site-nav-center`
+  是 2 个 class + 1 个元素，特异性低于 id 级，无论加载顺序都压不住。
+- **修法：** 首页规则一律带 `#navbar`。
+- **防复发（机制）：** `test/home-study.js` 断言 §4.26 存在 `body.is-home #navbar .site-nav-center` 与
+  `body.is-home.nav-desk #navbar .site-nav-center` 两条；写成 class 级就红。
+
+### E-172 列表行被标题顶宽 8px，右标签跑到窗口边框外（2026-11-15）
+
+- **发生时间：** 2026-11-15 ｜ **发现方式：** 1024 档截图里「Tauri 2 · Vue 3 · TypeScript」压在窗口右边框上；
+  Playwright 量到 `.row` 470px、内容盒只有 440px
+- **根因：** `.row` 是 `display:grid` 容器，网格容器的自动最小尺寸取 min-content。
+  标题很长时整行被撑到 min-content 宽度，超过父容器。
+- **修法：** `.row { width: 100%; min-width: 0 } `，并给 `.row-b` 加 `overflow: hidden`。
+- **防复发（机制）：** `test/home-study.js` 断言 `.row` 规则里必须同时出现 `width: 100%` 与 `min-width: 0`。
+
+### E-173 相机关键帧非单调，第三屏等于倒车回第一屏（2026-11-15）
+
+- **发生时间：** 2026-11-15 ｜ **发现方式：** 首屏与第三屏截图几乎一致，主人当场指出「滑了一下又退回去了」
+- **根因：** 三档关键帧写成 `eyeZ = 30 → -2 → 40`，第三档又退到比第一档更远的位置；
+  z 不单调，叙事上就是从建筑里倒车出来。
+- **修法：** 三档 z 严格递减：外景 46 → 厅内 8 → 内殿 -24，并把内殿做成独立空间（暗墙 + 天窗 + 核心装置）。
+- **防复发（机制）：** `test/home-study.js` 解析 `STOPS` 的 `eye[2]`，断言三者严格递减；
+  谁再把某档改成回望，测试立刻红。
+
