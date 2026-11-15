@@ -1,0 +1,526 @@
+---
+// /blg-champion/：BLG 夺得 2026 英雄联盟全球总决赛冠军的宣传页。
+// 大图打底 + 内容叠加的单页设计，不走普通文章模板。
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const title = 'BLG 夺冠：3-1 战胜 Gen.G，队史首冠';
+const description =
+  '先丢一局，连赢三局。BLG 3-1 战胜 Gen.G，捧起 2026 英雄联盟全球总决赛冠军奖杯，Knight 拿下总决赛 MVP。';
+const hero = '/img/games/blg-s16/01-trophy-vcg.jpg';
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  ogType="article"
+  ogImages={[hero]}
+  ogKeywords={['BLG', '英雄联盟', 'S16', 'Gen.G', 'Knight']}
+  currentPath="/blg-champion/"
+>
+  <article class="blg">
+    <section class="blg-hero">
+      <img class="blg-hero-img" src={hero} alt="BLG 全队捧起召唤师奖杯" />
+      <div class="blg-hero-shade"></div>
+      <div class="blg-hero-inner">
+        <p class="blg-kicker">2026 英雄联盟全球总决赛 · 纽约布鲁克林巴克莱中心</p>
+        <h1 class="blg-title">BLG<br /><span>总冠军</span></h1>
+        <p class="blg-score">BLG <b>3-1</b> GEN.G</p>
+        <p class="blg-sub">先丢一局，连赢三局。建队第一座世界冠军，LPL 五年来的第一座召唤师奖杯。</p>
+        <p class="blg-meta">北京时间 2026 年 11 月 15 日凌晨 · 总决赛 MVP：Knight</p>
+      </div>
+      <p class="blg-credit">图：VCG</p>
+    </section>
+
+    <section class="blg-games" aria-label="四局比分">
+      <div class="blg-game blg-game--lost">
+        <p class="blg-game-no">第一局</p>
+        <p class="blg-game-winner">GEN.G 胜</p>
+        <p class="blg-game-time">38 分钟</p>
+        <p class="blg-game-note">Ruler 库奇 7/0/8，人头 19-4</p>
+      </div>
+      <div class="blg-game">
+        <p class="blg-game-no">第二局</p>
+        <p class="blg-game-winner">BLG 胜</p>
+        <p class="blg-game-time">53 分钟</p>
+        <p class="blg-game-note">本届最长一局，Xun 娜菲莉 8 杀 9 助攻</p>
+      </div>
+      <div class="blg-game">
+        <p class="blg-game-no">第三局</p>
+        <p class="blg-game-winner">BLG 胜</p>
+        <p class="blg-game-time">37 分钟</p>
+        <p class="blg-game-note">Bin 贾克斯一锤定音</p>
+      </div>
+      <div class="blg-game">
+        <p class="blg-game-no">第四局</p>
+        <p class="blg-game-winner">BLG 胜</p>
+        <p class="blg-game-time">约 42 分钟</p>
+        <p class="blg-game-note">大龙团后一波推平，人头 21-11</p>
+      </div>
+    </section>
+
+    <section class="blg-story">
+      <h2>四局，一座奖杯</h2>
+      <p>
+        第一局是 Gen.G
+        的。BLG开局拿到一些前期目标，但Gen.G的团战更胜一筹：Chovy的辛德拉几次关键控制帮队伍拿下大龙，Kiin在最后一波远古龙团战绕后切掉Viper，Gen.G以19-4的人头比先下一城。
+      </p>
+      <figure class="blg-figure">
+        <img src="/img/games/blg-s16/02-stage-vcg.jpg" alt="决赛现场：巴克莱中心座无虚席，大屏打出 WORLDS 26 与 GEN vs BLG" />
+        <figcaption>决赛现场，巴克莱中心。图：VCG，载于 CGTN 报道。</figcaption>
+      </figure>
+      <p>
+        第二局打了53分钟，是本届总决赛最长的一局。两边都掏出了怪阵：Gen.G是薇恩上单加大虫子打野，BLG是吉格斯配卡蜜尔走下路。Gen.G一度又要复刻第一局的剧本，但一次冒进的追击被BLG抓到Chovy和Canyon，BLG拿下大龙夺回主动权；Canyon还抢了一条远古龙续命，但BLG最终在Gen.G基地里抓到机会，拆掉水晶，1-1。
+      </p>
+      <p>
+        第三局BLG第一次领先。Duro的洛前期几次关键开团、Canyon早早控下小龙，Gen.G开局并不难受；但ON的牛头开始找到节奏，BLG连拿三条炼金龙、拿到海克斯龙魂，Bin的贾克斯成为一锤定音的那个点。37分钟，BLG
+        2-1领先，Viper的塔莉垭6杀11助攻，Knight的维克托5杀2死11助攻。
+      </p>
+      <p>
+        第四局Gen.G开局又凶了一把：Ruler的霞开场4分钟就从Viper身上拿到两个人头，Chovy掏出阿卡丽想把主动权抢回来。BLG没乱：Xun的梦魇和Knight的卡牌用全球流给边路施压，ON的妮蔻几次先手开团追回经济；Bin的格温8杀9助攻，BLG在大龙附近连赢两波团战，约42分钟、人头21-11，一波推平。3-1，冠军。
+      </p>
+    </section>
+
+    <section class="blg-fmvp">
+      <p class="blg-kicker">总决赛 MVP</p>
+      <h2 class="blg-fmvp-name">KNIGHT</h2>
+      <p class="blg-fmvp-sub">卓定 · 中单 · 首位捧起召唤师奖杯的中国大陆中单</p>
+      <div class="blg-stats">
+        <div><b>13-6-41</b><span>四局总战绩</span></div>
+        <div><b>9.0</b><span>KDA</span></div>
+        <div><b>84.4%</b><span>参团率（54/64）</span></div>
+        <div><b>19/21</b><span>第四局参与人头</span></div>
+      </div>
+      <blockquote>
+        <p>“赛前很多人说我打不过 Chovy、BLG 赢不了 Gen.G。现在我可以告诉全世界，我们就是最强的队伍，我们就是最好的。”</p>
+        <cite>—— Knight，赛后采访（据首尔经济日报译出）</cite>
+      </blockquote>
+      <p class="blg-note">
+        加上2023年在JDG拿到的MSI决赛MVP，Knight成为Faker、Zeus之后，历史上第三位同时拿过MSI和世界赛决赛MVP的选手。2024年决赛2-3输给T1的那场，两年后亲手改写了结局。
+      </p>
+      <figure class="blg-figure">
+        <img src="/img/games/blg-s16/03-celebrate-vcg.jpg" alt="BLG 队员在舞台上庆祝，Viper 与 Knight 的球衣清晰可见" />
+        <figcaption>夺冠后，BLG 队员在舞台上庆祝。图：VCG，载于 CGTN 报道。</figcaption>
+      </figure>
+    </section>
+
+    <section class="blg-road">
+      <h2>赢下全部四支 LCK 队伍</h2>
+      <p>从瑞士轮到决赛，BLG 遇到的四支 LCK 队伍，一个都没放过：13 局赢了 11 局。</p>
+      <ol class="blg-steps">
+        <li><span>瑞士轮</span><b>韩华 HLE</b><i>胜</i></li>
+        <li><span>八强</span><b>DK</b><i>3-0</i></li>
+        <li><span>四强</span><b>T1</b><i>3-1</i></li>
+        <li><span>决赛</span><b>GEN.G</b><i>3-1</i></li>
+      </ol>
+      <p class="blg-note">Gen.G 在进决赛之前，淘汰赛一局都没输过。Viper 拿下个人第二冠，Bin、Xun、Knight、ON 第一次捧杯。</p>
+    </section>
+
+    <section class="blg-scene">
+      <h2>场外，同样满座</h2>
+      <p>
+        17000个座位的巴克莱中心，门票不到一分钟售罄；110多个城市的300多家影院组织了观赛，北京时间凌晨3点开打，影院照样坐满。
+      </p>
+      <div class="blg-duo">
+        <figure class="blg-figure">
+          <img src="/img/games/blg-s16/04-fans-yonhap.jpg" alt="决赛开打前，巴克莱中心外的观众人群" />
+          <figcaption>决赛开打前，巴克莱中心外聚集的观众。图：AFP-Yonhap</figcaption>
+        </figure>
+        <figure class="blg-figure">
+          <img src="/img/games/blg-s16/05-cosplay-yonhap.jpg" alt="场外身着英雄联盟角色装扮的观众" />
+          <figcaption>场外的 Cosplay 观众。图：AFP-Yonhap</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="blg-finale">
+      <img class="blg-finale-img" src="/img/games/blg-s16/06-trophy-yonhap.jpg" alt="BLG 全队合力捧起召唤师奖杯" />
+      <div class="blg-finale-shade"></div>
+      <div class="blg-finale-inner">
+        <p class="blg-finale-big">2024 年输掉的，<br />2026 年亲手拿回来了。</p>
+        <p class="blg-finale-small">恭喜 BLG，冠军属于你们。</p>
+      </div>
+      <p class="blg-credit">图：AFP-Yonhap</p>
+    </section>
+
+    <footer class="blg-foot">
+      <p>
+        图片出处：本文图片分别来自 CGTN 报道（摄影：VCG）与首尔经济日报报道（摄影：AFP-Yonhap），仅作个人博客非商业分享，版权归原作者所有。赛况数据来自
+        CGTN、Dot Esports、Strafe、首尔经济日报与 LoLNow 的决赛报道。
+      </p>
+    </footer>
+  </article>
+
+  <style>
+    .blg {
+      --blg-bg: #0b0b10;
+      --blg-gold: #e8c469;
+      --blg-gold-dim: #b3923f;
+      --blg-pink: #fb7299;
+      --blg-ink: #f5f2ea;
+      --blg-ink-dim: rgba(245, 242, 234, 0.72);
+      --blg-line: rgba(245, 242, 234, 0.16);
+      background: var(--blg-bg);
+      color: var(--blg-ink);
+      margin: 0;
+    }
+    .blg h2 {
+      font-size: clamp(1.9rem, 4.5vw, 2.9rem);
+      line-height: 1.15;
+      letter-spacing: 0.04em;
+      margin: 0 0 1.1rem;
+      font-weight: 900;
+    }
+    .blg p {
+      font-size: 1.06rem;
+      line-height: 1.85;
+    }
+    .blg-kicker {
+      font-size: 0.82rem !important;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--blg-gold);
+      font-weight: 700;
+      margin: 0 0 1rem;
+      line-height: 1.7 !important;
+    }
+    .blg-credit {
+      position: absolute;
+      right: 1.1rem;
+      bottom: 0.9rem;
+      font-size: 0.78rem !important;
+      line-height: 1.4 !important;
+      color: rgba(255, 255, 255, 0.65);
+      margin: 0;
+      z-index: 3;
+    }
+    .blg-hero {
+      position: relative;
+      width: 100vw;
+      margin-left: calc(50% - 50vw);
+      min-height: 92svh;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .blg-hero-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 32%;
+      z-index: 0;
+    }
+    .blg-hero-shade {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background:
+        linear-gradient(180deg, rgba(11, 11, 16, 0.42) 0%, rgba(11, 11, 16, 0.08) 38%, rgba(11, 11, 16, 0.88) 100%),
+        linear-gradient(90deg, rgba(11, 11, 16, 0.62) 0%, rgba(11, 11, 16, 0) 62%);
+    }
+    .blg-hero-inner {
+      position: relative;
+      z-index: 2;
+      width: min(1120px, 92vw);
+      margin: 0 auto;
+      padding: 0 0 4.2rem;
+    }
+    .blg-title {
+      font-size: clamp(4.2rem, 15vw, 10.5rem);
+      line-height: 0.98;
+      letter-spacing: 0.02em;
+      font-weight: 900;
+      margin: 0 0 1.2rem;
+      text-shadow: 0 4px 40px rgba(0, 0, 0, 0.55);
+    }
+    .blg-title span {
+      color: var(--blg-gold);
+    }
+    .blg-score {
+      font-size: clamp(1.5rem, 3.6vw, 2.3rem) !important;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      margin: 0 0 0.7rem !important;
+    }
+    .blg-score b {
+      color: var(--blg-gold);
+      font-size: 1.25em;
+      padding: 0 0.15em;
+    }
+    .blg-sub {
+      max-width: 34em;
+      color: var(--blg-ink);
+      margin: 0 0 0.9rem !important;
+      text-shadow: 0 2px 18px rgba(0, 0, 0, 0.6);
+    }
+    .blg-meta {
+      font-size: 0.9rem !important;
+      color: var(--blg-ink-dim);
+      margin: 0 !important;
+    }
+    .blg-games {
+      width: min(1120px, 92vw);
+      margin: 0 auto;
+      padding: 3.2rem 0 0.6rem;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--blg-line);
+      border-top: 1px solid var(--blg-line);
+      border-bottom: 1px solid var(--blg-line);
+    }
+    .blg-game {
+      background: var(--blg-bg);
+      padding: 1.4rem 1.3rem 1.5rem;
+      border-top: 3px solid var(--blg-gold);
+    }
+    .blg-game--lost {
+      border-top-color: rgba(245, 242, 234, 0.28);
+      opacity: 0.62;
+    }
+    .blg-game-no {
+      font-size: 0.82rem !important;
+      letter-spacing: 0.28em;
+      color: var(--blg-ink-dim);
+      margin: 0 0 0.55rem !important;
+      line-height: 1.5 !important;
+    }
+    .blg-game-winner {
+      font-size: 1.45rem !important;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      margin: 0 0 0.2rem !important;
+      line-height: 1.3 !important;
+    }
+    .blg-game-time {
+      font-size: 0.95rem !important;
+      color: var(--blg-gold);
+      font-weight: 700;
+      margin: 0 0 0.5rem !important;
+      line-height: 1.5 !important;
+    }
+    .blg-game-note {
+      font-size: 0.9rem !important;
+      line-height: 1.6 !important;
+      color: var(--blg-ink-dim);
+      margin: 0 !important;
+    }
+    .blg-story,
+    .blg-fmvp,
+    .blg-road,
+    .blg-scene {
+      width: min(860px, 92vw);
+      margin: 0 auto;
+      padding: 4.2rem 0 0.4rem;
+    }
+    .blg-story p,
+    .blg-road p,
+    .blg-scene p {
+      color: var(--blg-ink-dim);
+      margin: 0 0 1.15rem;
+    }
+    .blg-story p:last-child,
+    .blg-road p:last-child,
+    .blg-scene p:last-child {
+      margin-bottom: 0;
+    }
+    .blg-figure {
+      margin: 2rem 0;
+    }
+    .blg-figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 6px;
+    }
+    .blg-figure figcaption {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: rgba(245, 242, 234, 0.55);
+      margin-top: 0.6rem;
+    }
+    .blg-fmvp {
+      text-align: left;
+    }
+    .blg-fmvp-name {
+      font-size: clamp(3.4rem, 11vw, 7.5rem) !important;
+      line-height: 1 !important;
+      letter-spacing: 0.06em;
+      font-weight: 900;
+      margin: 0 0 0.6rem !important;
+    }
+    .blg-fmvp-sub {
+      color: var(--blg-ink-dim);
+      margin: 0 0 2rem !important;
+    }
+    .blg-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--blg-line);
+      border-top: 1px solid var(--blg-line);
+      border-bottom: 1px solid var(--blg-line);
+      margin-bottom: 2.2rem;
+    }
+    .blg-stats div {
+      background: var(--blg-bg);
+      padding: 1.2rem 1rem 1.3rem;
+    }
+    .blg-stats b {
+      display: block;
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      line-height: 1.1;
+      color: var(--blg-gold);
+      letter-spacing: 0.02em;
+    }
+    .blg-stats span {
+      display: block;
+      font-size: 0.84rem;
+      line-height: 1.5;
+      color: var(--blg-ink-dim);
+      margin-top: 0.45rem;
+    }
+    .blg-fmvp blockquote {
+      margin: 0 0 1.6rem;
+      padding: 0 0 0 1.3rem;
+      border-left: 3px solid var(--blg-pink);
+    }
+    .blg-fmvp blockquote p {
+      font-size: clamp(1.25rem, 2.6vw, 1.55rem) !important;
+      line-height: 1.6 !important;
+      font-weight: 700;
+      color: var(--blg-ink);
+      margin: 0 0 0.6rem !important;
+    }
+    .blg-fmvp blockquote cite {
+      font-size: 0.88rem;
+      font-style: normal;
+      color: var(--blg-ink-dim);
+    }
+    .blg-note {
+      color: var(--blg-ink-dim);
+      margin: 0 0 1.15rem;
+    }
+    .blg-steps {
+      list-style: none;
+      margin: 1.8rem 0;
+      padding: 0;
+    }
+    .blg-steps li {
+      display: grid;
+      grid-template-columns: 5.2em 1fr auto;
+      align-items: baseline;
+      gap: 1rem;
+      padding: 1.05rem 0.2rem;
+      border-bottom: 1px solid var(--blg-line);
+    }
+    .blg-steps li:first-child {
+      border-top: 1px solid var(--blg-line);
+    }
+    .blg-steps span {
+      font-size: 0.88rem;
+      letter-spacing: 0.2em;
+      color: var(--blg-ink-dim);
+    }
+    .blg-steps b {
+      font-size: 1.35rem;
+      letter-spacing: 0.04em;
+    }
+    .blg-steps i {
+      font-style: normal;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--blg-gold);
+    }
+    .blg-duo {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.4rem;
+    }
+    .blg-duo .blg-figure {
+      margin: 1.8rem 0 0;
+    }
+    .blg-finale {
+      position: relative;
+      width: 100vw;
+      margin-left: calc(50% - 50vw);
+      margin-top: 4.5rem;
+      min-height: 78svh;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .blg-finale-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 30%;
+      z-index: 0;
+    }
+    .blg-finale-shade {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(180deg, rgba(11, 11, 16, 0.55) 0%, rgba(11, 11, 16, 0.25) 45%, rgba(11, 11, 16, 0.82) 100%);
+    }
+    .blg-finale-inner {
+      position: relative;
+      z-index: 2;
+      width: min(860px, 92vw);
+      margin: 0 auto;
+      padding: 5rem 0;
+      text-align: center;
+    }
+    .blg-finale-big {
+      font-size: clamp(2rem, 6vw, 3.6rem) !important;
+      line-height: 1.3 !important;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      margin: 0 0 1rem !important;
+      text-shadow: 0 4px 32px rgba(0, 0, 0, 0.6);
+    }
+    .blg-finale-small {
+      font-size: 1.15rem !important;
+      color: var(--blg-gold);
+      font-weight: 700;
+      letter-spacing: 0.24em;
+      margin: 0 !important;
+    }
+    .blg-foot {
+      width: min(860px, 92vw);
+      margin: 0 auto;
+      padding: 2.6rem 0 3.4rem;
+    }
+    .blg-foot p {
+      font-size: 0.84rem !important;
+      line-height: 1.7 !important;
+      color: rgba(245, 242, 234, 0.5);
+      margin: 0 !important;
+    }
+    @media (max-width: 720px) {
+      .blg-games {
+        grid-template-columns: 1fr 1fr;
+      }
+      .blg-stats {
+        grid-template-columns: 1fr 1fr;
+      }
+      .blg-duo {
+        grid-template-columns: 1fr;
+      }
+      .blg-hero {
+        min-height: 84svh;
+      }
+      .blg-hero-inner {
+        padding-bottom: 3.2rem;
+      }
+      .blg-steps li {
+        grid-template-columns: 4.6em 1fr auto;
+      }
+    }
+  </style>
+</BaseLayout>
