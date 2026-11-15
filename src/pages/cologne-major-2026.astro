@@ -274,6 +274,22 @@ const description = 'Team Falcons 3-0 横扫 FURIA，赢下 IEM Cologne Major 20
   .cg-wrap .cg-num p.l{margin-top:8px}
   .cg-credits p{margin:0 0 6px}
   .cg-credits .cg-back{margin-top:18px}
+
+  .cg-strip{max-width:960px; margin:34px auto 0; padding:0 20px}
+  .cg-strip-in{background:linear-gradient(160deg, var(--cg-panel), var(--cg-panel2)); color:var(--cg-panel-ink); border-radius:18px; padding:30px 24px 26px; text-align:center; box-shadow:var(--cg-shadow); position:relative; overflow:hidden}
+  .cg-strip-in::before{content:""; position:absolute; inset:0; background:radial-gradient(520px 240px at 50% -10%, rgba(232,196,105,.22), transparent 70%); pointer-events:none}
+  .cg-strip-teams{position:relative; display:flex; align-items:baseline; justify-content:center; gap:18px; font-weight:900; letter-spacing:.04em}
+  .cg-strip-teams span{font-size:clamp(17px,3.4vw,24px)}
+  .cg-strip-teams b{font-size:clamp(52px,10vw,84px); line-height:1; color:#f5d98a; font-variant-numeric:tabular-nums}
+  .cg-strip-scores{position:relative; margin:12px 0 0; font-size:15px; font-weight:700; letter-spacing:.06em}
+  .cg-strip-sub{position:relative; margin:6px 0 0; font-size:13px; color:var(--cg-panel-muted)}
+  .cg-bignum{margin:26px 0 6px; line-height:1; font-variant-numeric:tabular-nums}
+  .cg-bignum b{font-size:clamp(72px,17vw,132px); font-weight:900; color:var(--cg-gold); letter-spacing:-.02em}
+  .cg-bignum span{font-size:clamp(22px,4vw,30px); font-weight:800; margin-left:8px}
+  .cg-bignum small{display:block; margin-top:10px; font-size:14px; font-weight:400; color:var(--cg-muted); letter-spacing:.02em}
+  .cg-sb-who{display:flex; align-items:center; gap:10px; min-width:0}
+  .cg-sb-who-t{min-width:0}
+  .cg-sb-ava{width:38px; height:38px; border-radius:50%; object-fit:cover; flex:none; border:1px solid var(--cg-line); background:var(--cg-bg2)}
 </style>
 <noscript><style>.cg-wrap .reveal{opacity:1 !important; transform:none !important}</style></noscript>
 
@@ -286,7 +302,7 @@ const description = 'Team Falcons 3-0 横扫 FURIA，赢下 IEM Cologne Major 20
     </div>
     <div class="cg-hero-inner">
       <p class="cg-kicker">IEM Cologne Major 2026 · Grand Final</p>
-      <p class="cg-kicker-cn">反恐精英2 · 科隆特级锦标赛 · 总决赛</p>
+      <p class="cg-kicker-cn">反恐精英2 · 科隆Major · 总决赛</p>
       <h1 class="cg-title">FALCONS <span class="gold">总冠军</span></h1>
       <div><span class="cg-score"><span>FALCONS</span><span class="n">3–0</span><span>FURIA</span><span class="vs">BO5</span></span></div>
       <p class="cg-hero-sub">三张地图，三个13–8。队史首座Major奖杯，NiKo等了3067天。</p>
@@ -295,37 +311,47 @@ const description = 'Team Falcons 3-0 横扫 FURIA，赢下 IEM Cologne Major 20
     <div class="cg-scroll" aria-hidden="true"><span>Scroll</span><i></i></div>
   </header>
 
-  <!-- LINEUPS -->
-  <section class="cg-section" id="lineups">
-    <p class="cg-eyebrow reveal">Starting Five · 首发阵容</p>
-    <h2 class="reveal" data-d="1">一边是砸了重金的银河战舰，一边是第一次打进决赛的黑豹。</h2>
-    <p class="cg-lead reveal" data-d="2">Falcons在四月底才锁定这套阵容，karrigan入队62天就带队夺冠；FURIA则带着巴西的期望，队史第一次站上Major决赛的舞台。CS2时代的第五届Major，也是CS系列的第24届Major。</p>
-    <div class="cg-vs">
-      <div class="cg-team fal reveal" data-d="1">
-        <h3>Team Falcons</h3>
-        <span class="tag">沙特阿拉伯 · 欧洲区</span>
-        <ul class="cg-roster">
-          <li><span class="cg-role">IGL</span><span class="cg-player">karrigan<small>Finn Andersen</small></span></li>
-          <li><span class="cg-role">RIFLE</span><span class="cg-player">NiKo<small>Nikola Kovač</small></span></li>
-          <li><span class="cg-role">AWP</span><span class="cg-player">m0NESY<small>Ilya Osipov</small></span></li>
-          <li><span class="cg-role">RIFLE</span><span class="cg-player">TeSeS<small>René Madsen</small></span></li>
-          <li><span class="cg-role">RIFLE</span><span class="cg-player">kyousuke<small>Maksim Lukin</small></span></li>
-        </ul>
-        <p class="cg-coach">教练：<b>zonic</b>（Danny Sørensen）</p>
-      </div>
-      <div class="cg-vs-badge reveal" data-d="2">VS</div>
-      <div class="cg-team fur reveal" data-d="3">
-        <h3>FURIA</h3>
-        <span class="tag">巴西 · 美洲区</span>
-        <ul class="cg-roster">
-          <li><span class="cg-role">AWP</span><span class="cg-player">molodoy<small>Danil Golubenko</small></span></li>
-          <li><span class="cg-role">RIFLE</span><span class="cg-player">yuurih<small>Yuri Santos</small></span></li>
-          <li><span class="cg-role">IGL</span><span class="cg-player">FalleN<small>Gabriel Toledo</small></span></li>
-          <li><span class="cg-role">RIFLE</span><span class="cg-player">KSCERATO<small>Kaike Cerato</small></span></li>
-          <li><span class="cg-role">RIFLE</span><span class="cg-player">YEKINDAR<small>Mareks Gaļinskis</small></span></li>
-        </ul>
-        <p class="cg-coach">教练：<b>sidde</b></p>
-      </div>
+    <!-- SCORESTRIP -->
+  <div class="cg-strip">
+    <div class="cg-strip-in reveal">
+      <div class="cg-strip-teams"><span>FALCONS</span><b>3–0</b><span>FURIA</span></div>
+      <p class="cg-strip-scores">Mirage 13–8 · Anubis 13–8 · Inferno 13–8</p>
+      <p class="cg-strip-sub">2026年6月21日 · 德国科隆 · LANXESS Arena</p>
+    </div>
+  </div>
+
+  <!-- THE WAIT -->
+  <section class="cg-section cg-wait" id="wait">
+    <p class="cg-eyebrow reveal">The Wait · 3067天</p>
+    <h2 class="reveal" data-d="1">从波士顿到科隆。</h2>
+    <p class="cg-bignum reveal" data-d="2"><b>3067</b><span>天</span><small>从波士顿决赛，到科隆决赛</small></p>
+    <p class="reveal" data-d="2">2018年1月，ELEAGUE波士顿Major决赛，NiKo和karrigan所在的FaZe打到决胜图Inferno，输给了Cloud9。那是NiKo第一次打进Major决赛。12年职业生涯，<span class="num">17次</span>Major，<span class="num">3次</span>决赛，冠军一直没有来。</p>
+    <p class="reveal" data-d="2">中间还有一次：2021年11月，斯德哥尔摩Major决赛，NiKo随G2第二次打进决赛，0–2输给了NAVI。</p>
+    <p class="reveal" data-d="2">2026年6月21日，同一张Inferno，karrigan又站在他身边。36岁的karrigan四月底才从FaZe转会到Falcons，接过指挥棒<span class="num">62天</span>就带队夺冠，拿到个人第二座Major奖杯（上一座是2022年安特卫普，随FaZe）。2018年波士顿，决胜图Inferno，19–17，输。2026年科隆，决胜图Inferno，13–8，赢。</p>
+    <p class="reveal" data-d="2">这一夜还有两个第一次：18岁4个月22天的kyousuke，成为donk之后最年轻的Major冠军得主——这只是他的第二届Major；教练zonic则拿到了执教生涯的第6座Major奖杯。</p>
+    <figure class="cg-figure reveal">
+      <img src="/img/games/cologne-major-2026/03-karrigan.jpg" alt="karrigan 在比赛中神情激动" loading="lazy" />
+      <figcaption>karrigan在比赛中的激情瞬间。图：ESL</figcaption>
+    </figure>
+  </section>
+
+  <!-- STORY -->
+  <section class="cg-section" id="story">
+    <p class="cg-eyebrow reveal">How It Happened · 三张地图的讲述</p>
+    <h2 class="reveal" data-d="1">决赛打得很快，但每张图都有名场面。</h2>
+    <div class="cg-games">
+      <article class="cg-game reveal">
+        <h3>图一Mirage：8–0开局，3打5收尾 <span class="tag">FALCONS WIN · 13–8</span></h3>
+        <p>决赛在FURIA的选图Mirage上开打，Falcons上来就打出<span class="num">8–0</span>。FURIA追回4局，上半场定格在8–4。第15回合，m0NESY和kyousuke用沙漠之鹰在A点翻盘；FalleN第20回合4杀还以颜色。最后一局，NiKo在3打5的局面下连爆三头，收下地图，<span class="num">13–8</span>。</p>
+      </article>
+      <article class="cg-game reveal">
+        <h3>图二Anubis：下半场8–1，m0NESY接管 <span class="tag">FALCONS WIN · 13–8</span></h3>
+        <p>来到Falcons的选图Anubis，m0NESY手枪局双持精英4杀，Falcons 4–0开局。但FURIA稳住阵脚，半场结束反而<span class="num">7–5</span>领先。下半场Falcons一波<span class="num">8–1</span>翻了回来，kyousuke和m0NESY在这9局里合砍22杀，m0NESY第16回合1v2残局锁定胜势。又是13–8，m0NESY单图<span class="num">22杀、2.13 rating</span>。</p>
+      </article>
+      <article class="cg-game reveal">
+        <h3>图三Inferno：同一张图，另一个结局 <span class="tag">FALCONS WIN · 13–8</span></h3>
+        <p>决胜图Inferno，FURIA的选图。3067天前，NiKo和karrigan就是在波士顿决赛的Inferno上输掉冠军的。这次kyousuke第3回合4杀开局，karrigan第7回合USP-S三杀、第11回合赢下2v2回防残局，NiKo全图<span class="num">19杀、1.73 rating</span>。m0NESY这张图只有5杀，Falcons还是赢了：<span class="num">13–8</span>，横扫夺冠。</p>
+      </article>
     </div>
   </section>
 
@@ -365,23 +391,37 @@ const description = 'Team Falcons 3-0 横扫 FURIA，赢下 IEM Cologne Major 20
     </div>
   </section>
 
-  <!-- STORY -->
-  <section class="cg-section" id="story">
-    <p class="cg-eyebrow reveal">How It Happened · 三张地图的讲述</p>
-    <h2 class="reveal" data-d="1">决赛打得很快，但每张图都有名场面。</h2>
-    <div class="cg-games">
-      <article class="cg-game reveal">
-        <h3>图一Mirage：8–0开局，3打5收尾 <span class="tag">FALCONS WIN · 13–8</span></h3>
-        <p>决赛在FURIA的选图Mirage上开打，Falcons上来就打出<span class="num">8–0</span>。FURIA追回4局，上半场定格在8–4。第15回合，m0NESY和kyousuke用沙漠之鹰在A点翻盘；FalleN第20回合4杀还以颜色。最后一局，NiKo在3打5的局面下连爆三头，收下地图，<span class="num">13–8</span>。</p>
-      </article>
-      <article class="cg-game reveal">
-        <h3>图二Anubis：下半场8–1，m0NESY接管 <span class="tag">FALCONS WIN · 13–8</span></h3>
-        <p>来到Falcons的选图Anubis，m0NESY手枪局双持精英4杀，Falcons 4–0开局。但FURIA稳住阵脚，半场结束反而<span class="num">7–5</span>领先。下半场Falcons一波<span class="num">8–1</span>翻了回来，kyousuke和m0NESY在这9局里合砍22杀，m0NESY第16回合1v2残局锁定胜势。又是13–8，m0NESY单图<span class="num">22杀、2.13 rating</span>。</p>
-      </article>
-      <article class="cg-game reveal">
-        <h3>图三Inferno：同一张图，另一个结局 <span class="tag">FALCONS WIN · 13–8</span></h3>
-        <p>决胜图Inferno，FURIA的选图。3067天前，NiKo和karrigan就是在波士顿决赛的Inferno上输掉冠军的。这次kyousuke第3回合4杀开局，karrigan第7回合USP-S三杀、第11回合赢下2v2回防残局，NiKo全图<span class="num">19杀、1.73 rating</span>。m0NESY这张图只有5杀，Falcons还是赢了：<span class="num">13–8</span>，横扫夺冠。</p>
-      </article>
+  <!-- LINEUPS -->
+  <section class="cg-section" id="lineups">
+    <p class="cg-eyebrow reveal">Starting Five · 首发阵容</p>
+    <h2 class="reveal" data-d="1">一边是砸了重金的银河战舰，一边是第一次打进决赛的黑豹。</h2>
+    <p class="cg-lead reveal" data-d="2">Falcons在四月底才锁定这套阵容，karrigan入队62天就带队夺冠；FURIA则带着巴西的期望，队史第一次站上Major决赛的舞台。CS2时代的第五届Major，也是CS系列的第24届Major。</p>
+    <div class="cg-vs">
+      <div class="cg-team fal reveal" data-d="1">
+        <h3>Team Falcons</h3>
+        <span class="tag">沙特阿拉伯 · 欧洲区</span>
+        <ul class="cg-roster">
+          <li><span class="cg-role">IGL</span><span class="cg-player">karrigan<small>Finn Andersen</small></span></li>
+          <li><span class="cg-role">RIFLE</span><span class="cg-player">NiKo<small>Nikola Kovač</small></span></li>
+          <li><span class="cg-role">AWP</span><span class="cg-player">m0NESY<small>Ilya Osipov</small></span></li>
+          <li><span class="cg-role">RIFLE</span><span class="cg-player">TeSeS<small>René Madsen</small></span></li>
+          <li><span class="cg-role">RIFLE</span><span class="cg-player">kyousuke<small>Maksim Lukin</small></span></li>
+        </ul>
+        <p class="cg-coach">教练：<b>zonic</b>（Danny Sørensen）</p>
+      </div>
+      <div class="cg-vs-badge reveal" data-d="2">VS</div>
+      <div class="cg-team fur reveal" data-d="3">
+        <h3>FURIA</h3>
+        <span class="tag">巴西 · 美洲区</span>
+        <ul class="cg-roster">
+          <li><span class="cg-role">AWP</span><span class="cg-player">molodoy<small>Danil Golubenko</small></span></li>
+          <li><span class="cg-role">RIFLE</span><span class="cg-player">yuurih<small>Yuri Santos</small></span></li>
+          <li><span class="cg-role">IGL</span><span class="cg-player">FalleN<small>Gabriel Toledo</small></span></li>
+          <li><span class="cg-role">RIFLE</span><span class="cg-player">KSCERATO<small>Kaike Cerato</small></span></li>
+          <li><span class="cg-role">RIFLE</span><span class="cg-player">YEKINDAR<small>Mareks Gaļinskis</small></span></li>
+        </ul>
+        <p class="cg-coach">教练：<b>sidde</b></p>
+      </div>
     </div>
   </section>
 
@@ -401,21 +441,21 @@ const description = 'Team Falcons 3-0 横扫 FURIA，赢下 IEM Cologne Major 20
       <div class="cg-sb">
         <div class="cg-sb-head"><h3>Team Falcons</h3><span class="cg-win-badge">WINNER</span><span class="totals"><b>210</b> 击杀 · 三图总计</span></div>
         <div class="cg-sb-rows">
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">NiKo</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">52 / <span class="d">32</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.43</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+20</b> · <b>85.5</b> ADR · <b>79.4%</b> KAST · <b>+5.30%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">kyousuke</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">55 / <span class="d">43</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.34</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+12</b> · <b>93.0</b> ADR · <b>76.2%</b> KAST · <b>+2.55%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">m0NESY</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">46 / <span class="d">35</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.31</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+11</b> · <b>73.5</b> ADR · <b>73.0%</b> KAST · <b>+5.24%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">TeSeS</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">28 / <span class="d">40</span></div></div><div class="cg-sb-rating"><div class="rt">0.81</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-12</b> · <b>51.5</b> ADR · <b>69.8%</b> KAST · <b>-1.63%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">karrigan</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">29 / <span class="d">45</span></div></div><div class="cg-sb-rating"><div class="rt">0.75</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-16</b> · <b>59.1</b> ADR · <b>68.3%</b> KAST · <b>-3.23%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/niko.jpg" alt="NiKo" loading="lazy" /><div class="cg-sb-who-t"><div class="p">NiKo</div><div class="c">RIFLE</div></div></div><div class="cg-sb-stat"><div class="kd">52 / <span class="d">32</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.43</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+20</b> · <b>85.5</b> ADR · <b>79.4%</b> KAST · <b>+5.30%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/kyousuke.jpg" alt="kyousuke" loading="lazy" /><div class="cg-sb-who-t"><div class="p">kyousuke</div><div class="c">RIFLE</div></div></div><div class="cg-sb-stat"><div class="kd">55 / <span class="d">43</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.34</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+12</b> · <b>93.0</b> ADR · <b>76.2%</b> KAST · <b>+2.55%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/m0nesy.jpg" alt="m0NESY" loading="lazy" /><div class="cg-sb-who-t"><div class="p">m0NESY</div><div class="c">AWP</div></div></div><div class="cg-sb-stat"><div class="kd">46 / <span class="d">35</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.31</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+11</b> · <b>73.5</b> ADR · <b>73.0%</b> KAST · <b>+5.24%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/teses.jpg" alt="TeSeS" loading="lazy" /><div class="cg-sb-who-t"><div class="p">TeSeS</div><div class="c">RIFLE</div></div></div><div class="cg-sb-stat"><div class="kd">28 / <span class="d">40</span></div></div><div class="cg-sb-rating"><div class="rt">0.81</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-12</b> · <b>51.5</b> ADR · <b>69.8%</b> KAST · <b>-1.63%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/karrigan.jpg" alt="karrigan" loading="lazy" /><div class="cg-sb-who-t"><div class="p">karrigan</div><div class="c">IGL</div></div></div><div class="cg-sb-stat"><div class="kd">29 / <span class="d">45</span></div></div><div class="cg-sb-rating"><div class="rt">0.75</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-16</b> · <b>59.1</b> ADR · <b>68.3%</b> KAST · <b>-3.23%</b> Swing</div></div>
         </div>
       </div>
       <div class="cg-sb">
         <div class="cg-sb-head"><h3>FURIA</h3><span class="totals"><b>194</b> 击杀 · 三图总计</span></div>
         <div class="cg-sb-rows">
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">molodoy</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">51 / <span class="d">41</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.26</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+10</b> · <b>73.5</b> ADR · <b>79.4%</b> KAST · <b>+2.70%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">KSCERATO</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">38 / <span class="d">42</span></div></div><div class="cg-sb-rating"><div class="rt">0.90</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-4</b> · <b>66.1</b> ADR · <b>71.4%</b> KAST · <b>-2.99%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">YEKINDAR</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">35 / <span class="d">51</span></div></div><div class="cg-sb-rating"><div class="rt">0.89</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-16</b> · <b>72.8</b> ADR · <b>68.3%</b> KAST · <b>-2.30%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">FalleN</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">37 / <span class="d">44</span></div></div><div class="cg-sb-rating"><div class="rt">0.89</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-7</b> · <b>67.3</b> ADR · <b>71.4%</b> KAST · <b>-3.35%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">yuurih</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">33 / <span class="d">37</span></div></div><div class="cg-sb-rating"><div class="rt">0.85</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-4</b> · <b>61.2</b> ADR · <b>69.8%</b> KAST · <b>-3.10%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/molodoy.jpg" alt="molodoy" loading="lazy" /><div class="cg-sb-who-t"><div class="p">molodoy</div><div class="c">AWP</div></div></div><div class="cg-sb-stat"><div class="kd">51 / <span class="d">41</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.26</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+10</b> · <b>73.5</b> ADR · <b>79.4%</b> KAST · <b>+2.70%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/kscerato.jpg" alt="KSCERATO" loading="lazy" /><div class="cg-sb-who-t"><div class="p">KSCERATO</div><div class="c">RIFLE</div></div></div><div class="cg-sb-stat"><div class="kd">38 / <span class="d">42</span></div></div><div class="cg-sb-rating"><div class="rt">0.90</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-4</b> · <b>66.1</b> ADR · <b>71.4%</b> KAST · <b>-2.99%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/yekindar.jpg" alt="YEKINDAR" loading="lazy" /><div class="cg-sb-who-t"><div class="p">YEKINDAR</div><div class="c">RIFLE</div></div></div><div class="cg-sb-stat"><div class="kd">35 / <span class="d">51</span></div></div><div class="cg-sb-rating"><div class="rt">0.89</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-16</b> · <b>72.8</b> ADR · <b>68.3%</b> KAST · <b>-2.30%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/fallen.jpg" alt="FalleN" loading="lazy" /><div class="cg-sb-who-t"><div class="p">FalleN</div><div class="c">IGL</div></div></div><div class="cg-sb-stat"><div class="kd">37 / <span class="d">44</span></div></div><div class="cg-sb-rating"><div class="rt">0.89</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-7</b> · <b>67.3</b> ADR · <b>71.4%</b> KAST · <b>-3.35%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/yuurih.jpg" alt="yuurih" loading="lazy" /><div class="cg-sb-who-t"><div class="p">yuurih</div><div class="c">RIFLE</div></div></div><div class="cg-sb-stat"><div class="kd">33 / <span class="d">37</span></div></div><div class="cg-sb-rating"><div class="rt">0.85</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-4</b> · <b>61.2</b> ADR · <b>69.8%</b> KAST · <b>-3.10%</b> Swing</div></div>
         </div>
       </div>
     </div>
@@ -424,21 +464,21 @@ const description = 'Team Falcons 3-0 横扫 FURIA，赢下 IEM Cologne Major 20
       <div class="cg-sb">
         <div class="cg-sb-head"><h3>Team Falcons</h3><span class="cg-win-badge">WINNER</span><span class="totals"><b>72</b> 击杀 · 13–8 · 上半场 8–4</span></div>
         <div class="cg-sb-rows">
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">m0NESY</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">19 / <span class="d">13</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.49</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+6</b> · <b>97.4</b> ADR · <b>71.4%</b> KAST · <b>+6.67%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">NiKo</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">15 / <span class="d">10</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.24</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+5</b> · <b>83.1</b> ADR · <b>66.7%</b> KAST · <b>+3.26%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">kyousuke</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">18 / <span class="d">12</span></div></div><div class="cg-sb-rating"><div class="rt">1.17</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+6</b> · <b>77.4</b> ADR · <b>71.4%</b> KAST · <b>+1.13%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">TeSeS</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">11 / <span class="d">13</span></div></div><div class="cg-sb-rating"><div class="rt">1.00</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-2</b> · <b>59.4</b> ADR · <b>66.7%</b> KAST · <b>-0.19%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">karrigan</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">9 / <span class="d">14</span></div></div><div class="cg-sb-rating"><div class="rt">0.65</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-5</b> · <b>57.1</b> ADR · <b>57.1%</b> KAST · <b>-4.98%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/m0nesy.jpg" alt="m0NESY" loading="lazy" /><div class="cg-sb-who-t"><div class="p">m0NESY</div><div class="c">AWP</div></div></div><div class="cg-sb-stat"><div class="kd">19 / <span class="d">13</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.49</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+6</b> · <b>97.4</b> ADR · <b>71.4%</b> KAST · <b>+6.67%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/niko.jpg" alt="NiKo" loading="lazy" /><div class="cg-sb-who-t"><div class="p">NiKo</div><div class="c">RIFLE</div></div></div><div class="cg-sb-stat"><div class="kd">15 / <span class="d">10</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.24</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+5</b> · <b>83.1</b> ADR · <b>66.7%</b> KAST · <b>+3.26%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/kyousuke.jpg" alt="kyousuke" loading="lazy" /><div class="cg-sb-who-t"><div class="p">kyousuke</div><div class="c">RIFLE</div></div></div><div class="cg-sb-stat"><div class="kd">18 / <span class="d">12</span></div></div><div class="cg-sb-rating"><div class="rt">1.17</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+6</b> · <b>77.4</b> ADR · <b>71.4%</b> KAST · <b>+1.13%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/teses.jpg" alt="TeSeS" loading="lazy" /><div class="cg-sb-who-t"><div class="p">TeSeS</div><div class="c">RIFLE</div></div></div><div class="cg-sb-stat"><div class="kd">11 / <span class="d">13</span></div></div><div class="cg-sb-rating"><div class="rt">1.00</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-2</b> · <b>59.4</b> ADR · <b>66.7%</b> KAST · <b>-0.19%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/karrigan.jpg" alt="karrigan" loading="lazy" /><div class="cg-sb-who-t"><div class="p">karrigan</div><div class="c">IGL</div></div></div><div class="cg-sb-stat"><div class="kd">9 / <span class="d">14</span></div></div><div class="cg-sb-rating"><div class="rt">0.65</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-5</b> · <b>57.1</b> ADR · <b>57.1%</b> KAST · <b>-4.98%</b> Swing</div></div>
         </div>
       </div>
       <div class="cg-sb">
         <div class="cg-sb-head"><h3>FURIA</h3><span class="totals"><b>62</b> 击杀 · 8–13</span></div>
         <div class="cg-sb-rows">
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">molodoy</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">18 / <span class="d">15</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.43</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+3</b> · <b>73.9</b> ADR · <b>76.2%</b> KAST · <b>+4.28%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">KSCERATO</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">14 / <span class="d">14</span></div></div><div class="cg-sb-rating"><div class="rt">0.97</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>0</b> · <b>74.9</b> ADR · <b>76.2%</b> KAST · <b>-4.32%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">YEKINDAR</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">12 / <span class="d">16</span></div></div><div class="cg-sb-rating"><div class="rt">0.97</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-4</b> · <b>67.2</b> ADR · <b>71.4%</b> KAST · <b>-1.13%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">FalleN</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">9 / <span class="d">14</span></div></div><div class="cg-sb-rating"><div class="rt">0.83</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-5</b> · <b>62.2</b> ADR · <b>76.2%</b> KAST · <b>-2.73%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">yuurih</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">9 / <span class="d">13</span></div></div><div class="cg-sb-rating"><div class="rt">0.75</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-4</b> · <b>48.9</b> ADR · <b>47.6%</b> KAST · <b>-2.00%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/molodoy.jpg" alt="molodoy" loading="lazy" /><div class="cg-sb-who-t"><div class="p">molodoy</div><div class="c">AWP</div></div></div><div class="cg-sb-stat"><div class="kd">18 / <span class="d">15</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.43</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+3</b> · <b>73.9</b> ADR · <b>76.2%</b> KAST · <b>+4.28%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/kscerato.jpg" alt="KSCERATO" loading="lazy" /><div class="cg-sb-who-t"><div class="p">KSCERATO</div><div class="c">RIFLE</div></div></div><div class="cg-sb-stat"><div class="kd">14 / <span class="d">14</span></div></div><div class="cg-sb-rating"><div class="rt">0.97</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>0</b> · <b>74.9</b> ADR · <b>76.2%</b> KAST · <b>-4.32%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/yekindar.jpg" alt="YEKINDAR" loading="lazy" /><div class="cg-sb-who-t"><div class="p">YEKINDAR</div><div class="c">RIFLE</div></div></div><div class="cg-sb-stat"><div class="kd">12 / <span class="d">16</span></div></div><div class="cg-sb-rating"><div class="rt">0.97</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-4</b> · <b>67.2</b> ADR · <b>71.4%</b> KAST · <b>-1.13%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/fallen.jpg" alt="FalleN" loading="lazy" /><div class="cg-sb-who-t"><div class="p">FalleN</div><div class="c">IGL</div></div></div><div class="cg-sb-stat"><div class="kd">9 / <span class="d">14</span></div></div><div class="cg-sb-rating"><div class="rt">0.83</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-5</b> · <b>62.2</b> ADR · <b>76.2%</b> KAST · <b>-2.73%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/yuurih.jpg" alt="yuurih" loading="lazy" /><div class="cg-sb-who-t"><div class="p">yuurih</div><div class="c">RIFLE</div></div></div><div class="cg-sb-stat"><div class="kd">9 / <span class="d">13</span></div></div><div class="cg-sb-rating"><div class="rt">0.75</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-4</b> · <b>48.9</b> ADR · <b>47.6%</b> KAST · <b>-2.00%</b> Swing</div></div>
         </div>
       </div>
     </div>
@@ -447,21 +487,21 @@ const description = 'Team Falcons 3-0 横扫 FURIA，赢下 IEM Cologne Major 20
       <div class="cg-sb">
         <div class="cg-sb-head"><h3>Team Falcons</h3><span class="cg-win-badge">WINNER</span><span class="totals"><b>72</b> 击杀 · 13–8 · 上半场 5–7</span></div>
         <div class="cg-sb-rows">
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">m0NESY</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">22 / <span class="d">10</span></div></div><div class="cg-sb-rating"><div class="rt hot">2.13</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+12</b> · <b>97.3</b> ADR · <b>85.7%</b> KAST · <b>+13.60%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">kyousuke</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">19 / <span class="d">15</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.66</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+4</b> · <b>110.4</b> ADR · <b>81.0%</b> KAST · <b>+5.80%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">NiKo</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">18 / <span class="d">11</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.36</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+7</b> · <b>80.2</b> ADR · <b>81.0%</b> KAST · <b>+2.93%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">TeSeS</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">7 / <span class="d">14</span></div></div><div class="cg-sb-rating"><div class="rt">0.67</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-7</b> · <b>42.4</b> ADR · <b>76.2%</b> KAST · <b>-4.08%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">karrigan</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">6 / <span class="d">16</span></div></div><div class="cg-sb-rating"><div class="rt">0.47</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-10</b> · <b>37.0</b> ADR · <b>71.4%</b> KAST · <b>-8.27%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/m0nesy.jpg" alt="m0NESY" loading="lazy" /><div class="cg-sb-who-t"><div class="p">m0NESY</div><div class="c">AWP</div></div></div><div class="cg-sb-stat"><div class="kd">22 / <span class="d">10</span></div></div><div class="cg-sb-rating"><div class="rt hot">2.13</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+12</b> · <b>97.3</b> ADR · <b>85.7%</b> KAST · <b>+13.60%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/kyousuke.jpg" alt="kyousuke" loading="lazy" /><div class="cg-sb-who-t"><div class="p">kyousuke</div><div class="c">RIFLE</div></div></div><div class="cg-sb-stat"><div class="kd">19 / <span class="d">15</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.66</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+4</b> · <b>110.4</b> ADR · <b>81.0%</b> KAST · <b>+5.80%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/niko.jpg" alt="NiKo" loading="lazy" /><div class="cg-sb-who-t"><div class="p">NiKo</div><div class="c">RIFLE</div></div></div><div class="cg-sb-stat"><div class="kd">18 / <span class="d">11</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.36</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+7</b> · <b>80.2</b> ADR · <b>81.0%</b> KAST · <b>+2.93%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/teses.jpg" alt="TeSeS" loading="lazy" /><div class="cg-sb-who-t"><div class="p">TeSeS</div><div class="c">RIFLE</div></div></div><div class="cg-sb-stat"><div class="kd">7 / <span class="d">14</span></div></div><div class="cg-sb-rating"><div class="rt">0.67</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-7</b> · <b>42.4</b> ADR · <b>76.2%</b> KAST · <b>-4.08%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/karrigan.jpg" alt="karrigan" loading="lazy" /><div class="cg-sb-who-t"><div class="p">karrigan</div><div class="c">IGL</div></div></div><div class="cg-sb-stat"><div class="kd">6 / <span class="d">16</span></div></div><div class="cg-sb-rating"><div class="rt">0.47</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-10</b> · <b>37.0</b> ADR · <b>71.4%</b> KAST · <b>-8.27%</b> Swing</div></div>
         </div>
       </div>
       <div class="cg-sb">
         <div class="cg-sb-head"><h3>FURIA</h3><span class="totals"><b>66</b> 击杀 · 8–13</span></div>
         <div class="cg-sb-rows">
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">molodoy</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">21 / <span class="d">12</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.38</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+9</b> · <b>90.0</b> ADR · <b>85.7%</b> KAST · <b>+1.44%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">yuurih</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">14 / <span class="d">9</span></div></div><div class="cg-sb-rating"><div class="rt">1.08</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+5</b> · <b>66.3</b> ADR · <b>90.5%</b> KAST · <b>-0.93%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">KSCERATO</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">14 / <span class="d">15</span></div></div><div class="cg-sb-rating"><div class="rt">1.01</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-1</b> · <b>75.5</b> ADR · <b>71.4%</b> KAST · <b>-0.98%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">FalleN</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">10 / <span class="d">15</span></div></div><div class="cg-sb-rating"><div class="rt">0.72</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-5</b> · <b>55.9</b> ADR · <b>66.7%</b> KAST · <b>-7.72%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">YEKINDAR</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">7 / <span class="d">18</span></div></div><div class="cg-sb-rating"><div class="rt">0.67</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-11</b> · <b>65.0</b> ADR · <b>61.9%</b> KAST · <b>-3.09%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/molodoy.jpg" alt="molodoy" loading="lazy" /><div class="cg-sb-who-t"><div class="p">molodoy</div><div class="c">AWP</div></div></div><div class="cg-sb-stat"><div class="kd">21 / <span class="d">12</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.38</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+9</b> · <b>90.0</b> ADR · <b>85.7%</b> KAST · <b>+1.44%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/yuurih.jpg" alt="yuurih" loading="lazy" /><div class="cg-sb-who-t"><div class="p">yuurih</div><div class="c">RIFLE</div></div></div><div class="cg-sb-stat"><div class="kd">14 / <span class="d">9</span></div></div><div class="cg-sb-rating"><div class="rt">1.08</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+5</b> · <b>66.3</b> ADR · <b>90.5%</b> KAST · <b>-0.93%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/kscerato.jpg" alt="KSCERATO" loading="lazy" /><div class="cg-sb-who-t"><div class="p">KSCERATO</div><div class="c">RIFLE</div></div></div><div class="cg-sb-stat"><div class="kd">14 / <span class="d">15</span></div></div><div class="cg-sb-rating"><div class="rt">1.01</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-1</b> · <b>75.5</b> ADR · <b>71.4%</b> KAST · <b>-0.98%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/fallen.jpg" alt="FalleN" loading="lazy" /><div class="cg-sb-who-t"><div class="p">FalleN</div><div class="c">IGL</div></div></div><div class="cg-sb-stat"><div class="kd">10 / <span class="d">15</span></div></div><div class="cg-sb-rating"><div class="rt">0.72</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-5</b> · <b>55.9</b> ADR · <b>66.7%</b> KAST · <b>-7.72%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/yekindar.jpg" alt="YEKINDAR" loading="lazy" /><div class="cg-sb-who-t"><div class="p">YEKINDAR</div><div class="c">RIFLE</div></div></div><div class="cg-sb-stat"><div class="kd">7 / <span class="d">18</span></div></div><div class="cg-sb-rating"><div class="rt">0.67</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-11</b> · <b>65.0</b> ADR · <b>61.9%</b> KAST · <b>-3.09%</b> Swing</div></div>
         </div>
       </div>
     </div>
@@ -470,21 +510,21 @@ const description = 'Team Falcons 3-0 横扫 FURIA，赢下 IEM Cologne Major 20
       <div class="cg-sb">
         <div class="cg-sb-head"><h3>Team Falcons</h3><span class="cg-win-badge">WINNER</span><span class="totals"><b>66</b> 击杀 · 13–8 · 上半场 8–4</span></div>
         <div class="cg-sb-rows">
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">NiKo</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">19 / <span class="d">11</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.73</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+8</b> · <b>93.3</b> ADR · <b>90.5%</b> KAST · <b>+9.70%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">karrigan</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">14 / <span class="d">15</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.24</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-1</b> · <b>83.0</b> ADR · <b>76.2%</b> KAST · <b>+3.54%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">kyousuke</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">18 / <span class="d">16</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.21</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+2</b> · <b>91.3</b> ADR · <b>76.2%</b> KAST · <b>+0.73%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">TeSeS</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">10 / <span class="d">13</span></div></div><div class="cg-sb-rating"><div class="rt">0.81</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-3</b> · <b>52.6</b> ADR · <b>66.7%</b> KAST · <b>-0.62%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">m0NESY</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">5 / <span class="d">12</span></div></div><div class="cg-sb-rating"><div class="rt">0.56</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-7</b> · <b>25.8</b> ADR · <b>61.9%</b> KAST · <b>-4.55%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/niko.jpg" alt="NiKo" loading="lazy" /><div class="cg-sb-who-t"><div class="p">NiKo</div><div class="c">RIFLE</div></div></div><div class="cg-sb-stat"><div class="kd">19 / <span class="d">11</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.73</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+8</b> · <b>93.3</b> ADR · <b>90.5%</b> KAST · <b>+9.70%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/karrigan.jpg" alt="karrigan" loading="lazy" /><div class="cg-sb-who-t"><div class="p">karrigan</div><div class="c">IGL</div></div></div><div class="cg-sb-stat"><div class="kd">14 / <span class="d">15</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.24</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-1</b> · <b>83.0</b> ADR · <b>76.2%</b> KAST · <b>+3.54%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/kyousuke.jpg" alt="kyousuke" loading="lazy" /><div class="cg-sb-who-t"><div class="p">kyousuke</div><div class="c">RIFLE</div></div></div><div class="cg-sb-stat"><div class="kd">18 / <span class="d">16</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.21</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+2</b> · <b>91.3</b> ADR · <b>76.2%</b> KAST · <b>+0.73%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/teses.jpg" alt="TeSeS" loading="lazy" /><div class="cg-sb-who-t"><div class="p">TeSeS</div><div class="c">RIFLE</div></div></div><div class="cg-sb-stat"><div class="kd">10 / <span class="d">13</span></div></div><div class="cg-sb-rating"><div class="rt">0.81</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-3</b> · <b>52.6</b> ADR · <b>66.7%</b> KAST · <b>-0.62%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/m0nesy.jpg" alt="m0NESY" loading="lazy" /><div class="cg-sb-who-t"><div class="p">m0NESY</div><div class="c">AWP</div></div></div><div class="cg-sb-stat"><div class="kd">5 / <span class="d">12</span></div></div><div class="cg-sb-rating"><div class="rt">0.56</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-7</b> · <b>25.8</b> ADR · <b>61.9%</b> KAST · <b>-4.55%</b> Swing</div></div>
         </div>
       </div>
       <div class="cg-sb">
         <div class="cg-sb-head"><h3>FURIA</h3><span class="totals"><b>66</b> 击杀 · 8–13</span></div>
         <div class="cg-sb-rows">
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">FalleN</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">18 / <span class="d">15</span></div></div><div class="cg-sb-rating"><div class="rt">1.17</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+3</b> · <b>83.7</b> ADR · <b>71.4%</b> KAST · <b>+0.38%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">YEKINDAR</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">16 / <span class="d">17</span></div></div><div class="cg-sb-rating"><div class="rt">1.03</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-1</b> · <b>86.1</b> ADR · <b>71.4%</b> KAST · <b>-2.68%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">molodoy</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">12 / <span class="d">14</span></div></div><div class="cg-sb-rating"><div class="rt">1.00</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-2</b> · <b>56.5</b> ADR · <b>76.2%</b> KAST · <b>+2.39%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">KSCERATO</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">10 / <span class="d">13</span></div></div><div class="cg-sb-rating"><div class="rt">0.81</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-3</b> · <b>48.0</b> ADR · <b>66.7%</b> KAST · <b>-3.68%</b> Swing</div></div>
-        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">yuurih</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">10 / <span class="d">15</span></div></div><div class="cg-sb-rating"><div class="rt">0.74</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-5</b> · <b>68.4</b> ADR · <b>71.4%</b> KAST · <b>-6.38%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/fallen.jpg" alt="FalleN" loading="lazy" /><div class="cg-sb-who-t"><div class="p">FalleN</div><div class="c">IGL</div></div></div><div class="cg-sb-stat"><div class="kd">18 / <span class="d">15</span></div></div><div class="cg-sb-rating"><div class="rt">1.17</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+3</b> · <b>83.7</b> ADR · <b>71.4%</b> KAST · <b>+0.38%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/yekindar.jpg" alt="YEKINDAR" loading="lazy" /><div class="cg-sb-who-t"><div class="p">YEKINDAR</div><div class="c">RIFLE</div></div></div><div class="cg-sb-stat"><div class="kd">16 / <span class="d">17</span></div></div><div class="cg-sb-rating"><div class="rt">1.03</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-1</b> · <b>86.1</b> ADR · <b>71.4%</b> KAST · <b>-2.68%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/molodoy.jpg" alt="molodoy" loading="lazy" /><div class="cg-sb-who-t"><div class="p">molodoy</div><div class="c">AWP</div></div></div><div class="cg-sb-stat"><div class="kd">12 / <span class="d">14</span></div></div><div class="cg-sb-rating"><div class="rt">1.00</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-2</b> · <b>56.5</b> ADR · <b>76.2%</b> KAST · <b>+2.39%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/kscerato.jpg" alt="KSCERATO" loading="lazy" /><div class="cg-sb-who-t"><div class="p">KSCERATO</div><div class="c">RIFLE</div></div></div><div class="cg-sb-stat"><div class="kd">10 / <span class="d">13</span></div></div><div class="cg-sb-rating"><div class="rt">0.81</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-3</b> · <b>48.0</b> ADR · <b>66.7%</b> KAST · <b>-3.68%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><img class="cg-sb-ava" src="/img/games/cologne-major-2026/players/yuurih.jpg" alt="yuurih" loading="lazy" /><div class="cg-sb-who-t"><div class="p">yuurih</div><div class="c">RIFLE</div></div></div><div class="cg-sb-stat"><div class="kd">10 / <span class="d">15</span></div></div><div class="cg-sb-rating"><div class="rt">0.74</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-5</b> · <b>68.4</b> ADR · <b>71.4%</b> KAST · <b>-6.38%</b> Swing</div></div>
         </div>
       </div>
     </div>
@@ -506,23 +546,10 @@ const description = 'Team Falcons 3-0 横扫 FURIA，赢下 IEM Cologne Major 20
       <ul class="cg-mvp-facts reveal">
         <li>第一次打进Major决赛，第一次夺冠，第一次拿Major MVP——HLTV评选的赛事MVP。</li>
         <li>这是他第一个Major级别的MVP，也是近18个月来第一个冠军MVP。</li>
-        <li>他和NiKo一起从G2来到Falcons：2025年4月转会，14个月后，两人在科隆一起拿下冠军。</li>
+        <li>他2025年4月从G2转会到Falcons，和三个月前先到的NiKo重新做队友；14个月后，两人在科隆一起拿下冠军。</li>
         <li>决赛单场最佳属于NiKo：87.1%的球迷投票，系列赛1.43 rating，全队最高。</li>
       </ul>
     </div>
-  </section>
-
-  <!-- THE WAIT -->
-  <section class="cg-section cg-wait" id="wait">
-    <p class="cg-eyebrow reveal">The Wait · 3067天</p>
-    <h2 class="reveal" data-d="1">从波士顿到科隆，NiKo等了3067天。</h2>
-    <p class="reveal" data-d="2">2018年1月，ELEAGUE波士顿Major决赛，NiKo和karrigan所在的FaZe打到决胜图Inferno，输给了Cloud9。那是NiKo第一次打进Major决赛。12年职业生涯，<span class="num">17次</span>Major，<span class="num">3次</span>决赛，冠军一直没有来。</p>
-    <p class="reveal" data-d="2">2026年6月21日，同一张Inferno，karrigan又站在他身边。36岁的karrigan四月底才从FaZe转会到Falcons，接过指挥棒<span class="num">62天</span>就带队夺冠，拿到个人第二座Major奖杯（上一座是2022年安特卫普，随FaZe）。2018年波士顿，决胜图Inferno，19–17，输。2026年科隆，决胜图Inferno，13–8，赢。</p>
-    <p class="reveal" data-d="2">这一夜还有两个第一次：18岁4个月22天的kyousuke，成为donk之后最年轻的Major冠军得主——这只是他的第二届Major；教练zonic则拿到了执教生涯的第6座Major奖杯。</p>
-    <figure class="cg-figure reveal">
-      <img src="/img/games/cologne-major-2026/03-karrigan.jpg" alt="karrigan 在比赛中神情激动" loading="lazy" />
-      <figcaption>karrigan在比赛中的激情瞬间。图：ESL</figcaption>
-    </figure>
   </section>
 
   <!-- ROAD -->
@@ -536,7 +563,7 @@ const description = 'Team Falcons 3-0 横扫 FURIA，赢下 IEM Cologne Major 20
       <div class="cg-step final reveal" data-d="3"><p class="round">Grand Final · 决赛</p><p class="opp">FURIA</p><p class="sc">3–0 · 总冠军</p><p class="maps">Mirage 13–8 · Anubis 13–8 · Inferno 13–8</p></div>
     </div>
     <p class="cg-road-note reveal">Valve赛后复盘的原话：<span class="en">“Taking on the toughest Playoff bracket in Major history, the Falcons made a triumphant statement at the IEM Cologne 2026 Major.”</span></p>
-    <p class="cg-road-note reveal">FURIA同样来势汹汹：八强让一追二淘汰9z，四强2–0横扫Aurora，队史第一次打进Major决赛。决赛面对的是老将FalleN——巴西CS的教父级人物，队史第一次离冠军这么近。</p>
+    <p class="cg-road-note reveal">FURIA同样来势汹汹：八强让一追二淘汰9z，四强2–0横扫Aurora，队史第一次打进Major决赛。决赛面对的是老将FalleN——巴西CS的教父级人物，队史第一次离冠军这么近。FalleN已在同年4月的IEM Rio上宣布，将在2026年底退役。</p>
   </section>
 
   <!-- ATMOSPHERE -->
@@ -570,7 +597,7 @@ const description = 'Team Falcons 3-0 横扫 FURIA，赢下 IEM Cologne Major 20
   </section>
 
   <div class="cg-credits">
-    <p>图片：ESL官方摄影（Adela Sznajder、Stephanie Lindgren等），版权归原作者所有。</p>
+    <p>图片：ESL官方摄影（Adela Sznajder、Stephanie Lindgren等）；选手照片来自Liquipedia收录的2026年赛事摄影，版权归原作者所有。</p>
     <p>对局数据来自<a href="https://www.hltv.org/matches/2395002/iem-cologne-major-2026-grand-final-iem-cologne-major-2026" target="_blank" rel="noopener">HLTV</a>；文字参考Valve官方复盘、HLTV、Esports Charts与esports.gg的报道。</p>
     <p>页面发布于2026年11月15日。</p>
     <p class="cg-back"><a href="/games/cs2/">← 返回游戏 · Counter-Strike 2</a></p>
