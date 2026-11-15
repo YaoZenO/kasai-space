@@ -454,7 +454,7 @@ async function main() {
       assert.ok(laneB.indexOf('id="win-thinking"') < laneB.indexOf('id="win-atlas"'),
         '右泳道内顺序应为 Thinking → Atlas');
       const desk = home.slice(home.indexOf('id="desk"'), deskEnd);
-      const hrefs = [...desk.matchAll(/class="row" href="([^"]*)"/g)].map((m) => m[1]);
+      const hrefs = [...desk.matchAll(/class="win-row" href="([^"]*)"/g)].map((m) => m[1]);
       assert.ok(hrefs.length >= 9, '第二屏可点行太少：' + hrefs.length);
       for (const href of hrefs) {
         assert.ok(href && href !== '#', '第二屏出现空链接');

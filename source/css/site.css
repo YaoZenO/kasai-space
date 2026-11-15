@@ -9668,7 +9668,34 @@ body.is-home::before {
   z-index: 1;
 }
 
+/* 顶部工具条：只在第二屏出现的一条实底，卡片滑进来就被它裁在导航下沿。
+   为什么不用渐隐：渐变会在卡片腰部制造一条"半透明硬边"，比直接遮住更脏；
+   也不能用 #desk 的 mask-image——mask 的坐标相对元素盒，而 #desk 有 190dvh，
+   它的"顶部 66px"只在滚动起点对应视口顶部，滚起来就跑到画外了。 */
+.sd-veil {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 3;
+  height: 66px;
+  pointer-events: none;
+  background-color: var(--veil-bg);
+  border-bottom: 1px solid var(--site-chip-border);
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+body.nav-desk .sd-veil {
+  opacity: 1;
+}
+
+/* 进入第二屏后收起第一屏的 SCROLL 提示：它会和卡片、背景一起挤在左上角 */
+body.nav-desk .sd-cue {
+  opacity: 0;
+  pointer-events: none;
+}
+
 :root {
+  --veil-bg: #f7f3ec;
   --win-bg: rgba(253, 250, 244, 0.94);
   --win-line: rgba(27, 23, 18, 0.18);
   --win-head: rgba(27, 23, 18, 0.055);
@@ -9711,6 +9738,7 @@ body.is-home::before {
 
 .sd-cue {
   position: absolute;
+  transition: opacity 0.3s ease;
   left: clamp(20px, 7vw, 96px);
   /* 抬离底边：压在 64px 时，滚到第二屏入口正好落在顶部导航的横带上 */
   bottom: clamp(84px, 13vh, 150px);
@@ -9750,7 +9778,7 @@ body.is-home::before {
   align-items: flex-start;
   justify-content: center;
   gap: clamp(56px, 8vw, 110px);
-  width: min(1120px, 100%);
+  width: min(1240px, 100%);
   margin: 0 auto;
   min-height: 190vh;
   min-height: 190dvh;
@@ -9760,14 +9788,14 @@ body.is-home::before {
 .sd-lane {
   display: flex;
   flex-direction: column;
-  gap: 14vh;
+  gap: 11vh;
   flex: 1 1 0;
   min-width: 0;
 }
 
 /* 右泳道整体下错 22vh：向下滚动时四窗一左一右依次划过视野，而不是一整排同时出现 */
 .sd-lane--b {
-  padding-top: 22vh;
+  padding-top: 16vh;
 }
 
 /* 统一外壳：四个窗口共用这一条规则，不许任何窗口覆盖它。
@@ -9781,7 +9809,9 @@ body.is-home::before {
   flex-direction: column;
   flex: 0 0 auto;
   height: auto;
-  padding: var(--win-py) var(--win-px) var(--win-pb);
+  /* 左右内距交给内部元素各自承担：这样行的 hover 底色能铺到卡片边缘，
+     而文字距边框仍然严格等于 --win-px。 */
+  padding: var(--win-py) 0 var(--win-pb);
   border-radius: var(--r-tile);
   border: 1px solid var(--win-line);
   /* 比全站 --cream 更实一点：窗口底是动态 3D 场景，太透会让柱梁穿透文字。 */
@@ -9795,7 +9825,7 @@ body.is-home::before {
 /* 抬头：只有标题。底色条铺到窗口内边距的外沿，让"这是一扇窗"有明确的顶边框。 */
 .win-head {
   flex: 0 0 auto;
-  margin: calc(0px - var(--win-py)) calc(0px - var(--win-px)) 0.55rem;
+  margin: calc(0px - var(--win-py)) 0 0.55rem;
   padding: calc(var(--win-py) - 7px) var(--win-px) 0.5rem;
   background-color: var(--win-head);
   border-bottom: 1px solid var(--win-line);
@@ -9815,8 +9845,8 @@ body.is-home::before {
 /* 行列表：左标题、右灰字元信息 */
 .win-rows {
   flex: 1 1 auto;
-  margin: 0.35rem 0 0;
-  padding: 0;
+  margin: 0;
+  padding: 4px 0 2px;
   list-style: none;
 }
 
@@ -9824,16 +9854,18 @@ body.is-home::before {
   border-top: 1px solid var(--line-color);
 }
 
-/* width/min-width 两条是必需的：grid 容器的自动最小尺寸会取 min-content，
-   标题一长就把整行顶宽，右标签跟着跑到窗口边框外面（1024 档实测越界 8px）。 */
-.row {
+/* 类名不能再叫 .row：主题基于 Bootstrap，`.row` 带 margin-left:-15px，
+   会让整行被拉出卡片左缘 15px（实测文字距边框只剩 8px，右标签同时顶出右框）。
+   margin:0 是第二道保险，防止别的全局规则再把行拽走。 */
+.win-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: baseline;
   gap: 0.9rem;
   width: 100%;
   min-width: 0;
-  padding: 0.5rem 0;
+  margin: 0;
+  padding: 11px var(--win-px);
   color: inherit;
 }
 
@@ -9848,6 +9880,11 @@ body.is-home::before {
   font-weight: 700;
   line-height: 1.5;
   color: var(--text-color);
+  /* 单行：长标题（如「地铁修得越长……43 座城市的两项排名错位」）折行会把行高翻倍，
+     四个窗口的节奏就乱了。放不下时截断，完整标题在详情页。 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   transition: color 180ms ease-out;
 }
 
@@ -9862,25 +9899,27 @@ body.is-home::before {
   text-align: right;
 }
 
-.row:hover .row-t,
-.row:focus-visible .row-t {
+.win-row:hover .row-t,
+.win-row:focus-visible .row-t {
   color: var(--accent);
 }
 
-.win-more {
+.win-foot {
   flex: 0 0 auto;
   margin-top: auto;
-  padding-top: 0.6rem;
+  padding: 0.6rem var(--win-px) 0;
 }
 
-.win-more a {
+.win-more {
+  display: inline-block;
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 0.04em;
+  white-space: nowrap;
   color: var(--sec-text-color);
 }
 
-.win-more a:hover {
+.win-more:hover {
   color: var(--accent);
 }
 
@@ -9888,7 +9927,7 @@ body.is-home::before {
 
 .win-ident {
   flex: 0 0 auto;
-  padding: 0.75rem 0 0.6rem;
+  padding: 0.75rem var(--win-px) 0.6rem;
 }
 
 .ident-name {
@@ -9929,20 +9968,30 @@ body.is-home::before {
 }
 
 .win-lines li {
-  padding: 0.34rem 0;
+  padding: 0.34rem var(--win-px);
   font-size: 0.78rem;
   line-height: 1.62;
   color: var(--text-color);
+}
+
+/* 社交触点与 more 同一行两端对齐：整张卡片因此有明确的"底" */
+.win-social-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin: auto 0 0;
+  padding: 0.7rem var(--win-px) 0;
+  border-top: 1px solid var(--line-color);
 }
 
 .win-social {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
-  margin: auto 0 0;
-  padding: 0.7rem 0 0;
+  margin: 0;
+  padding: 0;
   list-style: none;
-  border-top: 1px solid var(--line-color);
   flex: 0 0 auto;
 }
 
@@ -9980,7 +10029,7 @@ body.is-home::before {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
   margin: 0.6rem 0 0;
-  padding: 0;
+  padding: 0 var(--win-px);
   list-style: none;
   flex: 0 0 auto;
 }
@@ -10299,8 +10348,8 @@ body.is-home #navbar .site-nav-actions {
     --win-pb: 12px;
   }
 
-  .row {
-    padding: 0.42rem 0;
+  .win-row {
+    padding: 9px var(--win-px);
   }
 
   .win-lines li {
@@ -10373,7 +10422,8 @@ body.is-home #navbar .site-nav-actions {
 /* ---------- 减少动态效果 ---------- */
 
 @media (prefers-reduced-motion: reduce) {
-  body.is-home #navbar .site-nav-center {
+  body.is-home #navbar .site-nav-center,
+  .sd-veil {
     transition: none;
   }
 
@@ -11037,6 +11087,7 @@ a:hover {
     background-color: var(--board-bg-color);
   }
   /* sd-dark-win-start */
+  :root:not([data-user-color-scheme]):not([data-sun-scheme]) { --veil-bg: #14120f; }
   :root:not([data-user-color-scheme]):not([data-sun-scheme]) .sd-win {
     --win-line: rgba(255, 255, 255, 0.2);
     --win-head: rgba(255, 255, 255, 0.05);
@@ -11458,6 +11509,8 @@ a:hover {
     background-color: var(--board-bg-color);
   }
   /* sd-dark-win-start */
+  [data-user-color-scheme="dark"] { --veil-bg: #14120f; }
+  [data-sun-scheme="dark"]:not([data-user-color-scheme]) { --veil-bg: #14120f; }
   [data-user-color-scheme="dark"] .sd-win {
     --win-line: rgba(255, 255, 255, 0.2);
     --win-head: rgba(255, 255, 255, 0.05);

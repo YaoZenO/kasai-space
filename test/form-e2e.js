@@ -168,7 +168,8 @@ for (const it of projectItems) {
 const gamesIndex = read('games/index.html');
 const gameItems = dataItems('games');
 ok(gamesIndex.length > 0, '缺少 /games/ 产物');
-ok(gamesIndex.includes('<h1 class="gm-title">游戏</h1>'), '/games/ 标题不是「游戏」');
+// 不比字面 class：Astro 给带 scoped <style> 的组件插入 data-astro-cid-* 属性（E-180）
+ok(/<h1 class="gm-title"[^>]*>游戏<\/h1>/.test(gamesIndex), '/games/ 标题不是「游戏」');
 ok(gamesIndex.includes('class="gm-wall"'), '/games/ 不是封面墙');
 ok(!gamesIndex.includes('page-head-kicker'), '/games/ 仍带文章壳 kicker');
 ok(count(gamesIndex, /class="gm-tile[ "]/g) === gameItems.length,

@@ -69,8 +69,14 @@ ok('E-064 防复发：§4.26 不得出现加法 calc', () => {
   assert.deepStrictEqual(bad, [], '出现加法 calc：' + bad.join(' | '));
 });
 
-ok('环境全部由 canvas 画：§4.26 内不得出现任何渐变或 glow', () => {
-  assert.ok(!/gradient|glow/i.test(s26), '§4.26 出现渐变/发光声明，环境应交给 #sd-canvas');
+ok('环境由 canvas 画：§4.26 内不得再出现渐变或 glow', () => {
+  const veil = /\.sd-veil\s*\{([^}]*)\}/.exec(s26);
+  assert.ok(veil, '§4.26 缺少 .sd-veil 顶部渐隐垫');
+  assert.ok(/background-color/.test(veil[1]), '.sd-veil 不是实底工具条');
+  // 去掉注释与渐隐垫本身，其余位置一律不许出现渐变 / 发光
+  const rest = s26.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\.sd-veil\s*\{[^}]*\}/g, '');
+  assert.ok(!/gradient|glow/i.test(rest),
+    '§4.26 出现多余的渐变/发光声明：' + ((rest.match(/[^\n]*(gradient|glow)[^\n]*/i) || [''])[0].trim()));
   assert.match(s26, /#sd-canvas\s*\{[^}]*position:\s*fixed/, '画布不是 fixed 全屏层');
 });
 
@@ -116,7 +122,7 @@ ok('第二屏是双泳道错落：两条独立纵列、中央通道、窗口紧�
   assert.match(s26, /\.sd-desk\s*\{[^}]*display:\s*flex/, '.sd-desk 不是 flex 双泳道');
   assert.match(s26, /\.sd-desk\s*\{[^}]*min-height:\s*190dvh/, '第二屏滚动高度没有拉到 190dvh');
   assert.match(s26, /\.sd-desk\s*\{[^}]*gap:\s*clamp\(56px, 8vw, 110px\)/, '两列之间没有中央视觉通道');
-  assert.match(s26, /\.sd-lane--b\s*\{[^}]*padding-top:\s*22vh/, '右泳道没有下错 22vh');
+  assert.match(s26, /\.sd-lane--b\s*\{[^}]*padding-top:\s*16vh/, '右泳道没有下错 16vh');
   assert.match(s26, /\.sd-lane\s*\{[^}]*flex-direction:\s*column/, '泳道不是纵向排列');
   const shell = /\.sd-win\s*\{([^}]*)\}/.exec(s26)[1];
   assert.match(shell, /height:\s*auto/, '窗口仍在被强制等高');
@@ -152,7 +158,7 @@ ok('常驻顶点动画：三类动态部件由 uTime 驱动，不滚动画面也
   // 常驻时间累加：只要画面不动，这条就会掉
   assert.match(homeJs, /t \+= dt \* 0\.001/, '没有时间累加，画面不会动');
   assert.match(homeJs, /(terra):\s*\[0\.784, 0\.353, 0\.196\]/, '色板里没有赤陶色 #C85A32');
-  assert.match(homeJs, /octa\(tx, pivotY - 5\.9, tz, 1\.5, 'terra', swing\)/, '钟摆不是赤陶色八面体');
+  assert.match(homeJs, /box\(tx, pivotY - 5\.5, tz, 2\.4, 0\.22, 1\.15, \{ tone: 'terra', anim: swing \}\)/, '秋千不是赤陶色座板');
 });
 
 ok('静水内院：半透明光柱与水面波纹走独立通道', () => {
@@ -164,8 +170,8 @@ ok('静水内院：半透明光柱与水面波纹走独立通道', () => {
 });
 
 ok('E-172 防复发：.row 必须显式声明 width:100% + min-width:0', () => {
-  const m = /\.row\s*\{([^}]*)\}/.exec(s26);
-  assert.ok(m, '§4.26 缺少 .row 规则');
+  const m = /\.win-row\s*\{([^}]*)\}/.exec(s26);
+  assert.ok(m, '§4.26 缺少 .win-row 规则');
   assert.ok(/width:\s*100%/.test(m[1]), '.row 缺 width:100%（grid 容器会被标题顶宽）');
   assert.ok(/min-width:\s*0/.test(m[1]), '.row 缺 min-width:0');
 });
@@ -183,6 +189,37 @@ ok('E-171 防复发：首页隐藏导航用带 #navbar 的选择器', () => {
   assert.match(s26, /body\.is-home\.nav-desk #navbar \.site-nav-center/, '缺第二屏浮现规则');
 });
 
+ok('E-179 防复发：卡片左右内距由 .win-row 自己承担且 ≥ 18px', () => {
+  // 主题基于 Bootstrap，`.row` 带 margin-left:-15px。行用同名类会被整行拉出卡片左缘，
+  // 文字距边框只剩 8px（实测），右标签同时被顶出右框。所以行必须叫 .win-row 并显式 margin:0。
+  const row = /\.win-row\s*\{([^}]*)\}/.exec(s26);
+  assert.ok(row, '§4.26 缺少 .win-row');
+  assert.ok(/margin:\s*0/.test(row[1]), '.win-row 没有显式 margin:0（会被全局 .row 拽走）');
+  assert.ok(/padding:[^;]*var\(--win-px\)/.test(row[1]), '.win-row 的水平内距不是 var(--win-px)');
+  const px = /--win-px:\s*(\d+)px/.exec(s26);
+  assert.ok(px, '§4.26 缺少 --win-px');
+  assert.ok(Number(px[1]) >= 18, '--win-px = ' + px[1] + 'px，行距卡片边框不足 18px');
+  // 外壳左右必须归零，否则行再补 22px 会变成双份
+  const shell = /\.sd-win\s*\{([^}]*)\}/.exec(s26)[1];
+  assert.ok(/padding:\s*var\(--win-py\)\s+0\s+var\(--win-pb\)/.test(shell),
+    '外壳左右内距未归零：行会拿到 22+22 的双份缩进');
+  ['\.win-head', '\.win-ident', '\.win-lines li', '\.win-social-row', '\.win-thumbs', '\.win-foot']
+    .forEach((sel) => {
+      const m = new RegExp(sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*\\{([^}]*)\\}').exec(s26);
+      assert.ok(m, '§4.26 缺少 ' + sel);
+      assert.ok(/var\(--win-px\)/.test(m[1]), sel + ' 的水平内距没有用 var(--win-px)，与行不对齐');
+    });
+});
+
+ok('E-179 防复发：四个窗口各有 more 入口，指向各自主页', () => {
+  const page = read(PAGE);
+  const links = [...page.matchAll(/class="win-more" href=\{urlFor\('([^']*)'\)\}/g)].map((m) => m[1]);
+  ['/about/', '/archives/', '/projects/', '/library/'].forEach((h) => {
+    assert.ok(links.includes(h), '缺少指向 ' + h + ' 的 more 入口（当前：' + links.join(',') + '）');
+  });
+  assert.strictEqual((page.match(/class="win-foot"/g) || []).length, 3,
+    '底栏容器数与预期不符（Thinking / Creations / Atlas 各一）');
+});
 ok('E-174 防复发：两个着色器必须同为 mediump，否则程序链接失败整屏空白', () => {
   const prec = homeJs.match(/'precision (highp|mediump) float;'/g) || [];
   assert.ok(prec.length >= 2, '精度声明不足');

@@ -179,6 +179,9 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
   <canvas id="sd-canvas" aria-hidden="true"></canvas>
 
   <div class="sd">
+    <!-- 顶部渐隐垫：窗口向上滑进导航带时溶进纸色，不与胶囊的边框硬碰 -->
+    <div class="sd-veil" aria-hidden="true"></div>
+
     <!-- 第一屏：纯序幕，不放任何卡片 -->
     <header class="sd-hero" id="hero">
       <p class="sd-mark"><span class="sd-slash" aria-hidden="true">/</span>KASAI</p>
@@ -209,46 +212,49 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
 
           {
             icons.length > 0 && (
-              <ul class="win-social">
-                {icons.map((each: any) => {
-                  if (!each || !each.class) return null;
-                  if (each.qrcode) {
+              <div class="win-social-row">
+            <ul class="win-social">
+                  {icons.map((each: any) => {
+                    if (!each || !each.class) return null;
+                    if (each.qrcode) {
+                      return (
+                        <li>
+                          <button class="social-btn" type="button" data-sd-open="wechat" aria-label="微信二维码">
+                            <i class={each.class} aria-hidden="true" />
+                          </button>
+                        </li>
+                      );
+                    }
+                    const isCopy = !each.link && Boolean(each.copy);
                     return (
                       <li>
-                        <button class="social-btn" type="button" data-sd-open="wechat" aria-label="微信二维码">
+                        <a
+                          class="social-btn"
+                          href={isCopy ? 'javascript:;' : urlFor(each.link)}
+                          target={isCopy ? undefined : '_blank'}
+                          rel={isCopy ? undefined : 'noopener'}
+                          data-copy={isCopy ? each.copy : undefined}
+                          aria-label={each.tip || undefined}
+                        >
                           <i class={each.class} aria-hidden="true" />
-                        </button>
+                        </a>
                       </li>
                     );
-                  }
-                  const isCopy = !each.link && Boolean(each.copy);
-                  return (
-                    <li>
-                      <a
-                        class="social-btn"
-                        href={isCopy ? 'javascript:;' : urlFor(each.link)}
-                        target={isCopy ? undefined : '_blank'}
-                        rel={isCopy ? undefined : 'noopener'}
-                        data-copy={isCopy ? each.copy : undefined}
-                        aria-label={each.tip || undefined}
-                      >
-                        <i class={each.class} aria-hidden="true" />
-                      </a>
-                    </li>
-                  );
-                })}
-                {/* 友链：配置里 0 条，浮层会是空盒子，所以直接进 /links/ 的真实空态页 */}
-                <li>
-                  <a class="social-btn" href={urlFor('/links/')} aria-label="友链">
-                    {/* 内联图标：iconfont 里没有稳定的 link 字形，缺字时会渲染成空心圆 */}
-                    <svg class="social-svg" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-                      <path d="M6.4 9.6 9.6 6.4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>
-                      <path d="M7.2 4.9 8.7 3.4a2.7 2.7 0 0 1 3.9 3.9l-1.5 1.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>
-                      <path d="M8.8 11.1 7.3 12.6a2.7 2.7 0 0 1-3.9-3.9l1.5-1.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>
-                    </svg>
-                  </a>
-                </li>
-              </ul>
+                  })}
+                  {/* 友链：配置里 0 条，浮层会是空盒子，所以直接进 /links/ 的真实空态页 */}
+                  <li>
+                    <a class="social-btn" href={urlFor('/links/')} aria-label="友链">
+                      {/* 内联图标：iconfont 里没有稳定的 link 字形，缺字时会渲染成空心圆 */}
+                      <svg class="social-svg" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                        <path d="M6.4 9.6 9.6 6.4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>
+                        <path d="M7.2 4.9 8.7 3.4a2.7 2.7 0 0 1 3.9 3.9l-1.5 1.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>
+                        <path d="M8.8 11.1 7.3 12.6a2.7 2.7 0 0 1-3.9-3.9l1.5-1.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>
+                      </svg>
+                    </a>
+                  </li>
+                </ul>
+            <a class="win-more" href={urlFor('/about/')}>more <span aria-hidden="true">→</span></a>
+          </div>
             )
           }
         </section>
@@ -263,7 +269,7 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
             {
               makeAll.map((it) => (
                 <li>
-                  <a class="row" href={it.href} data-sd-open={it.id}>
+                  <a class="win-row" href={it.href} data-sd-open={it.id}>
                     <span class="row-b">
                       <span class="row-t">{it.name}</span>
                     </span>
@@ -274,7 +280,7 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
             }
           </ul>
 
-          <div class="win-more"><a href={urlFor('/projects/')}>more →</a></div>
+          <div class="win-foot"><a class="win-more" href={urlFor('/projects/')}>more <span aria-hidden="true">→</span></a></div>
         </section>
 
       </div>
@@ -291,7 +297,7 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
             {
               featured.map((p) => (
                 <li>
-                  <a class="row" href={urlFor(p.href)}>
+                  <a class="win-row" href={urlFor(p.href)}>
                     <span class="row-b">
                       <span class="row-t">{p.title}</span>
                     </span>
@@ -302,7 +308,7 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
             }
           </ul>
 
-          <div class="win-more"><a href={urlFor('/archives/')}>more →</a></div>
+          <div class="win-foot"><a class="win-more" href={urlFor('/archives/')}>more <span aria-hidden="true">→</span></a></div>
         </section>
 
         <!-- 04 · Atlas -->
@@ -315,7 +321,7 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
             {
               atlasRows.map((r) => (
                 <li>
-                  <a class="row" href={urlFor(r.href)}>
+                  <a class="win-row" href={urlFor(r.href)}>
                     <span class="row-b"><span class="row-t">{r.name}</span></span>
                     <span class="row-k">{r.k}</span>
                   </a>
@@ -337,6 +343,10 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
               </ul>
             )
           }
+
+        <div class="win-foot">
+          <a class="win-more" href={urlFor('/library/')}>more <span aria-hidden="true">→</span></a>
+        </div>
         </section>
       </div>
     </section>

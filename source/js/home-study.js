@@ -67,18 +67,35 @@
 
     var reduce = prefersReduce();
 
+    // 六档色阶：顶面 → 受光 → 中间 → 次暗 → 背光 → 围合。
+    // 档位多不等于灰度化：浅色六档的色相全部偏暖（R>G>B），叠起来是砂岩版画，
+    // 不是水泥灰。暗色同理，六档共用暖褐底，靠明度分层。
     var THEME = {
       light: {
-        bg: [0.984, 0.969, 0.941],
-        tones: [[0.949, 0.929, 0.890], [0.847, 0.814, 0.754], [0.678, 0.634, 0.562]],
-        terra: [0.784, 0.353, 0.196], // #C85A32，与 /KASAI 的斜杠同色
-        light: [1.0, 0.988, 0.955],   // 光柱与水面的基色
+        bg: [0.969, 0.953, 0.925],   // #F7F3EC 天空与远景雾
+        tones: [
+          [0.988, 0.976, 0.957],     // #FCF9F4 受光亮面
+          [0.937, 0.914, 0.874],     // #EFE9DF
+          [0.835, 0.788, 0.722],     // #D5C9B8 中间调
+          [0.722, 0.663, 0.588],     // #B8A996
+          [0.478, 0.420, 0.345],     // #7A6B58 背光深色面
+          [0.322, 0.275, 0.224],     // #524639 内殿围合
+        ],
+        terra: [0.784, 0.353, 0.196], // #C85A32 秋千 / 点睛
+        light: [1.0, 0.992, 0.976],   // #FFFDF9 核心发光面
       },
       dark: {
-        bg: [0.102, 0.094, 0.078],
-        tones: [[0.408, 0.356, 0.284], [0.222, 0.192, 0.156], [0.134, 0.118, 0.097]],
-        terra: [0.851, 0.467, 0.341],
-        light: [0.996, 0.882, 0.760],
+        bg: [0.078, 0.071, 0.059],   // #14120F 黑曜石夜幕
+        tones: [
+          [0.290, 0.251, 0.208],     // #4A4035 受光
+          [0.220, 0.188, 0.157],     // #383028
+          [0.157, 0.133, 0.110],     // #28221C 中间调
+          [0.125, 0.106, 0.086],     // #201B16
+          [0.102, 0.086, 0.071],     // #1A1612 背光
+          [0.082, 0.070, 0.058],     // #151210 围合
+        ],
+        terra: [0.878, 0.478, 0.329], // #E07A54
+        light: [0.961, 0.902, 0.784], // #F5E6C8 核心发光面
       },
     };
     var pal = THEME[isDark() ? 'dark' : 'light'];
@@ -119,7 +136,7 @@
     var nOpaque = 0;
     var nAlpha = 0;
 
-    var LIGHT = norm([0.75, 0.55, -0.1]);
+    var LIGHT = norm([0.55, 0.64, -0.12]);
 
     function put(arr, p, col, an) {
       arr.push(
@@ -143,7 +160,9 @@
 
     function shade(n) {
       var d = dot(n, LIGHT);
-      return pal.tones[d > 0.42 ? 0 : d > -0.12 ? 1 : 2];
+      return pal.tones[
+    d > 0.6 ? 0 : d > 0.22 ? 1 : d > -0.02 ? 2 : d > -0.32 ? 3 : d > -0.62 ? 4 : 5
+  ];
     }
 
     /** tone: null 按法线取色阶；0/1/2 强制档位；'terra' 用赤陶色（钟摆） */
@@ -208,7 +227,11 @@
 
     /** 八面体：星盘核心与浮空多面体共用 */
     function octa(cx, cy, cz, r, tone, an) {
-      var col = tone === 'terra' ? pal.terra : tone === 0 || tone === 1 || tone === 2 ? pal.tones[tone] : pal.tones[0];
+      var col =
+        tone === 'terra' ? pal.terra
+        : tone === 'glow' ? pal.light
+        : typeof tone === 'number' && tone >= 0 && tone <= 5 ? pal.tones[tone]
+        : pal.tones[0];
       var top = [cx, cy + r, cz];
       var bot = [cx, cy - r, cz];
       var q = [[cx + r, cy, cz], [cx, cy, cz + r], [cx - r, cy, cz], [cx, cy, cz - r]];
@@ -229,28 +252,28 @@
     function build() {
       V.length = 0;
       VT.length = 0;
-      LIGHT = norm([0.75, 0.55, -0.1]);
+      LIGHT = norm([0.55, 0.64, -0.12]);
 
       var T = pal.tones;
 
       // ================= 地面与台基 =================
-      quad([-160, 0, 150], [160, 0, 150], [160, 0, -130], [-160, 0, -130], T[1]);
+      quad([-160, 0, 150], [160, 0, 150], [160, 0, -130], [-160, 0, -130], pal.tones[3]);
 
       // 台基：整座建筑坐在它上面，前缘到 z=18.2（台阶顶）
       box(0, 0, -32, 70, BASE, 100.5);
       box(0, BASE - 0.34, 18.1, 70, 0.34, 0.9, { tone: 0 });
 
       // ================= 外景：长阶梯 =================
-      var STEPS = 10;
+      var STEPS = 8;
       var RISE = BASE / STEPS;
-      var RUN = 2.4;
+      var RUN = 3.0;
       for (var s = 0; s < STEPS; s += 1) {
         var top = RISE * (s + 1);
         var zc = 42 - RUN * (s + 0.5);
-        box(0, top - RISE, zc, 18, RISE, RUN + 0.04);
+        box(0, 0, zc, 12, top, RUN + 0.04);
         // 两侧栏墙随阶梯逐级上升，读作扶手；顶面永远比踏面高 0.8
-        box(-9.4, top - RISE, zc, 0.8, RISE + 0.42, RUN + 0.04);
-        box(9.4, top - RISE, zc, 0.8, RISE + 0.42, RUN + 0.04);
+        box(-10.5, 0, zc, 9.0, top + 0.34, RUN + 0.04);
+        box(10.5, 0, zc, 9.0, top + 0.34, RUN + 0.04);
       }
 
       // ================= 外景：主立面（左低右高，错落） =================
@@ -298,10 +321,15 @@
       var deckB = box(tx, deckA + colH, tz, 7.6, 0.5, 7.6, { tone: 0 });
 
       // 星盘：内环半径 3.0 竖直，环底正好落在 deckB 顶面；外环微倾，最低点高于平台
-      var astroY = deckB + 3.5;
-      ring(tx, astroY, tz, 3.5, 12, 0.3, Math.PI / 2, 0, [1, 0.42, tx, tz, astroY, 0]);
-      ring(tx, astroY, tz, 5.0, 16, 0.28, 0.3, 0, [1, -0.28, tx, tz, astroY, 0.9]);
-      octa(tx, astroY, tz, 1.4, 0, [3, 0.8, tx, tz, astroY, 0]);
+      // 经纬天球仪：赤道环 + 两条正交经线环 + 一条外挂黄道环，四条各自转速不同；中间一颗核心。
+      var astroY = deckB + 3.6;
+      ring(tx, astroY, tz, 3.4, 16, 0.26, Math.PI / 2, 0, [1, 0.42, tx, tz, astroY, 0]);
+      ring(tx, astroY, tz, 3.4, 16, 0.24, Math.PI / 2, 1, [1, -0.34, tx, tz, astroY, 1.57]);
+      ring(tx, astroY, tz, 3.9, 20, 0.22, 0.28, 1, [1, 0.26, tx, tz, astroY, 0.7]);
+      octa(tx, astroY, tz, 1.3, 0, [3, 0.8, tx, tz, astroY, 0]);
+      // 中柱 + 基座托住球仪：柱顶正好落在球心高度，环的下半部套在柱上（零悬空、零穿模）
+      box(tx, deckB, tz, 2.6, 1.2, 2.6, { tone: 2 });
+      box(tx, deckB + 1.2, tz, 1.1, astroY - deckB - 1.2, 1.1, { tone: 2 });
 
       // 环形外挑桁架（塔身中部）+ 八根斜拉索上挑到塔身上段
       var trussY = BASE + 11.5;
@@ -318,16 +346,18 @@
       // 赤陶钟摆：双索吊在桁架下，整组绕桁架中心的水轴摆动（索与摆锤共用同一个 anim）
       var pivotY = trussY - 0.3;
       var swing = [2, 1.15, tx, tz, pivotY, 0.4];
-      beam([tx - 1.4, pivotY, tz], [tx - 0.7, pivotY - 5.0, tz], 0.12, 2, swing);
-      beam([tx + 1.4, pivotY, tz], [tx + 0.7, pivotY - 5.0, tz], 0.12, 2, swing);
-      octa(tx, pivotY - 5.9, tz, 1.5, 'terra', swing);
+      // 秋千：两根斜索吊一块赤陶座板。索与座板共用同一个 anim，摆动时整体绕桁架中心转。
+      beam([tx - 1.5, pivotY, tz], [tx - 0.85, pivotY - 5.1, tz], 0.11, 5, swing);
+      beam([tx + 1.5, pivotY, tz], [tx + 0.85, pivotY - 5.1, tz], 0.11, 5, swing);
+      box(tx, pivotY - 5.5, tz, 2.4, 0.22, 1.15, { tone: 'terra', anim: swing });
+      box(tx, pivotY - 5.72, tz, 2.0, 0.22, 0.9, { tone: 'terra', anim: swing });
 
       // ================= 柱廊主厅 =================
       var HALF = 10;
       for (var k = 0; k < 6; k += 1) {
         var pz = 12 - k * 8.8;
         [-HALF, HALF].forEach(function (px) {
-          box(px, BASE, pz, 1.5, 12, 1.5, { tone: 2 });
+          box(px, BASE, pz, 1.5, 12, 1.5, { tone: 5 });
           box(px, BASE + 12, pz, 2.3, 0.7, 2.3, { tone: 0 });
           box(px, BASE + 12.7, pz, 3.0, 0.5, 3.0, { tone: 0 });
         });
@@ -338,7 +368,7 @@
         box(lx, BASE + 13.65, -12, 0.7, 0.55, 48);
       });
       for (var r2 = 0; r2 < 6; r2 += 1) {
-        box(0, BASE + 13.65, 12 - r2 * 8.8, 20, 0.35, 0.35, { tone: 2 });
+        box(0, BASE + 13.65, 12 - r2 * 8.8, 20, 0.35, 0.35, { tone: 5 });
       }
       // 两侧格栅墙：让走廊有边界但不挡光
       for (var wc = 0; wc < 6; wc += 1) {
@@ -349,18 +379,18 @@
 
       // ================= 静水内院 =================
       // 入口门框（z = -40）
-      box(-12, BASE, -40, 5.0, 15, 2.2, { tone: 2 });
-      box(12, BASE, -40, 5.0, 15, 2.2, { tone: 2 });
-      box(0, BASE + 15, -40, 20, 3.5, 2.2, { tone: 2 });
+      box(-12, BASE, -40, 5.0, 15, 2.2, { tone: 5 });
+      box(12, BASE, -40, 5.0, 15, 2.2, { tone: 5 });
+      box(0, BASE + 15, -40, 20, 3.5, 2.2, { tone: 5 });
 
       // 围合：两侧墙 + 后墙
-      box(-21, BASE, SZ - 4, 2.4, 18, 44, { tone: 2 });
-      box(21, BASE, SZ - 4, 2.4, 18, 44, { tone: 2 });
-      box(0, BASE, -82, 44, 18, 2.4, { tone: 2 });
+      box(-21, BASE, SZ - 4, 2.4, 18, 44, { tone: 5 });
+      box(21, BASE, SZ - 4, 2.4, 18, 44, { tone: 5 });
+      box(0, BASE, -82, 44, 18, 2.4, { tone: 5 });
 
       // 后墙壁柱：与外部格栅呼应，也给空荡的墙面一点可读的竖向节奏
       for (var nb = 0; nb < 5; nb += 1) {
-        box(-8.4 + nb * 4.2, BASE, -80.4, 0.72, 16, 0.9, { tone: 1 });
+        box(-8.4 + nb * 4.2, BASE, -80.4, 0.72, 16, 0.9, { tone: 2 });
       }
 
       // 两侧层叠看台：向内递进，每层踏面 = 上一层的顶面
@@ -372,7 +402,7 @@
       }
 
       // 水池：池底 + 池沿 + 水面（水面 type=5，片元按 uTime 画同心波纹）
-      box(0, BASE - 0.4, SZ, 22, 0.6, 28, { tone: 2 });
+      box(0, BASE - 0.4, SZ, 22, 0.6, 28, { tone: 5 });
       box(0, BASE, -44.8, 26, 0.55, 2.8, { tone: 0 });
       box(0, BASE, -75.2, 26, 0.55, 2.8, { tone: 0 });
       box(-11.6, BASE, SZ, 1.6, 0.55, 33, { tone: 0 });
@@ -384,10 +414,10 @@
       );
 
       // 天花板：围着一口 16×16 的天窗铺四块，洞的位置由这四块反推
-      box(0, CEIL, SZ - 14, 44, 1.2, 12, { tone: 2 });
-      box(0, CEIL, SZ + 14, 44, 1.2, 12, { tone: 2 });
-      box(-15, CEIL, SZ, 14, 1.2, 16, { tone: 2 });
-      box(15, CEIL, SZ, 14, 1.2, 16, { tone: 2 });
+      box(0, CEIL, SZ - 14, 44, 1.2, 12, { tone: 4 });
+      box(0, CEIL, SZ + 14, 44, 1.2, 12, { tone: 4 });
+      box(-15, CEIL, SZ, 14, 1.2, 16, { tone: 4 });
+      box(15, CEIL, SZ, 14, 1.2, 16, { tone: 4 });
 
       // 光柱：外层 7×7 + 内层 3.4×3.4，都从水面下方起、穿过天窗，半透明叠加出体积感
       var LY0 = BASE + 0.15;
@@ -414,6 +444,86 @@
         var fl = floaters[f];
         octa(fl[0], BASE + fl[1], fl[2], fl[3], 0, [3, fl[4], fl[0], fl[2], BASE + fl[1], f * 1.7]);
       }
+
+      // ================= 远景城市天际线 =================
+      // 只在第一屏两侧露出。四种体量 + 树 + 抛物面天线，全部落在广场地面上。
+      function spireTop(x, y, z, w, h) {
+        var t = [x, y + h, z];
+        var b = [[x - w / 2, y, z - w / 2], [x + w / 2, y, z - w / 2], [x + w / 2, y, z + w / 2], [x - w / 2, y, z + w / 2]];
+        for (var i = 0; i < 4; i += 1) tri(t, b[i], b[(i + 1) % 4], pal.tones[2]);
+      }
+      function domeTop(x, y, z, R) {
+        var n = 12, rows = 4;
+        for (var k = 0; k < rows; k += 1) {
+          var a0 = (k / rows) * Math.PI * 0.5, a1 = ((k + 1) / rows) * Math.PI * 0.5;
+          var r0 = R * Math.cos(a0), r1 = R * Math.cos(a1);
+          var y0 = y + R * Math.sin(a0), y1 = y + R * Math.sin(a1);
+          for (var i = 0; i < n; i += 1) {
+            var t0 = (i / n) * Math.PI * 2, t1 = ((i + 1) / n) * Math.PI * 2;
+            var P1 = function (r, yy, t) { return [x + Math.cos(t) * r, yy, z + Math.sin(t) * r]; };
+            quad(P1(r0, y0, t0), P1(r1, y1, t0), P1(r1, y1, t1), P1(r0, y0, t1),
+              shade(norm([Math.cos(t0), 0.62, Math.sin(t0)])));
+          }
+        }
+      }
+      function skyline(x, z, w, h, d, kind) {
+        if (kind === 'grid') {
+          box(x, 0, z, w, h, d, { tone: 2 });
+          box(x, h, z, w * 0.86, 0.6, d * 0.86, { tone: 1 });
+          for (var g = 1; g < 4; g += 1) box(x, (h * g) / 4, z, w * 1.02, 0.35, d * 1.02, { tone: 1 });
+          for (var v = 0; v < 3; v += 1) box(x - w / 2 + (w / 3) * (v + 0.5), 0, z + d * 0.51, 0.5, h, 0.3, { tone: 1 });
+        } else if (kind === 'spire') {
+          box(x, 0, z, w, h * 0.68, d, { tone: 2 });
+          box(x, h * 0.68, z, w * 0.8, h * 0.12, d * 0.8, { tone: 1 });
+          spireTop(x, h * 0.8, z, w * 0.78, h * 0.42);
+        } else if (kind === 'dome') {
+          box(x, 0, z, w, h * 0.72, d, { tone: 2 });
+          box(x, h * 0.72, z, w * 1.08, 0.7, d * 1.08, { tone: 1 });
+          domeTop(x, h * 0.72 + 0.7, z, w * 0.46);
+        } else if (kind === 'step') {
+          for (var k2 = 0; k2 < 3; k2 += 1) {
+            box(x, (h / 3) * k2, z, w - (k2 * w) / 4, h / 3, d - (k2 * d) / 4, { tone: k2 ? 1 : 2 });
+          }
+        } else if (kind === 'tree') {
+          box(x, 0, z, 0.6, h * 0.45, 0.6, { tone: 2 });
+          octa(x, h * 0.45 + w * 0.42, z, w * 0.62, 2);
+        }
+      }
+      function dishTop(x, z, R, h) {
+        box(x, 0, z, 1.1, h, 1.1, { tone: 2 });
+        var rr = [1, 0.66, 0.34], yy = [0, -0.26 * R, -0.4 * R];
+        for (var i = 0; i < rr.length; i += 1) ring(x, h + yy[i], z, R * rr[i], 14, 0.16, Math.PI / 2, 1);
+        beam([x, h, z], [x, h + R * 0.95, z], 0.14, 2);
+        for (var k = 0; k < 3; k += 1) {
+          var ra2 = (k / 3) * Math.PI * 2;
+          beam([x, h - R * 0.12, z], [x + Math.cos(ra2) * R * 0.28, h + R * 0.5, z + Math.sin(ra2) * R * 0.28], 0.08, 2);
+        }
+      }
+
+      [
+        [-70, -34, 9, 17, 9, 'grid'], [-56, -46, 7, 23, 7, 'spire'],
+        [-66, -42, 13, 12, 13, 'dome'], [-52, -56, 8, 19, 8, 'grid'],
+        [-74, -26, 10, 9, 10, 'step'], [-64, -66, 8, 15, 8, 'grid'],
+        [46, -6, 9, 15, 9, 'grid'], [57, -22, 8, 21, 8, 'spire'],
+        [50, -38, 14, 11, 14, 'dome'], [67, -10, 9, 18, 9, 'grid'],
+        [43, -52, 9, 8, 9, 'step'], [62, -48, 8, 14, 8, 'grid'],
+        [-58, -20, 6, 7, 6, 'tree'], [-64, -8, 5, 9, 5, 'tree'],
+        [38, 12, 6, 8, 6, 'tree'], [44, 22, 5, 10, 5, 'tree'],
+      ].forEach(function (b) { skyline(b[0], b[1], b[2], b[3], b[4], b[5]); });
+
+      // 抛物面天线群：远景右侧，朝天的三口
+      dishTop(70, -34, 5.2, 7);
+      dishTop(79, -44, 3.8, 5);
+      dishTop(64, -50, 3.0, 4);
+
+      // ================= 水院：长椅阵列 + 后墙光隙 =================
+      for (var bz = -45; bz > -77; bz -= 4.6) {
+        box(-15.2, BASE + 0.55, bz, 2.6, 0.4, 1.5, { tone: 2 });
+        box(15.2, BASE + 0.55, bz, 2.6, 0.4, 1.5, { tone: 2 });
+      }
+      // 后墙光隙：一条竖直亮缝从水面接到天花板。不做十字，避免引入宗教符号。
+      box(0, BASE + 1.2, -80.3, 5.0, 14.4, 0.5, { tone: 'glow' });
+      box(0, BASE + 1.2, -80.4, 3.2, 0.6, 0.4, { tone: 'glow' });
 
       // ================= 前庭矮墙 =================
       box(-34, 0, 40, 2.2, 2.4, 74);
@@ -667,7 +777,7 @@
       gl.uniformMatrix4fv(loc.uP, false, new Float32Array(Pm));
       gl.uniform3f(loc.uBg, pal.bg[0], pal.bg[1], pal.bg[2]);
       // 中间屏雾最重：背景柔下去托住四个窗口
-      gl.uniform1f(loc.uFog, 0.55 * Math.sin(p * Math.PI));
+      gl.uniform1f(loc.uFog, 0.42 * Math.sin(p * Math.PI));
       gl.uniform1f(loc.uT, t);
       gl.uniform2f(loc.uPool, 0, SZ);
 
