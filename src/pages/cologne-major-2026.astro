@@ -166,7 +166,7 @@ const description = 'Team Falcons 3-0 横扫 FURIA，赢下 IEM Cologne Major 20
   .cg-sb-head .totals b{color:var(--cg-ink)}
   .cg-win-badge{font-size:11px; font-weight:800; letter-spacing:.2em; color:#1c1a12; background:var(--cg-gold2); padding:4px 10px; border-radius:999px}
   .cg-sb-rows{padding:6px 20px 10px}
-  .cg-sb-row{display:grid; grid-template-columns:1fr auto auto; gap:20px; align-items:center; padding:10px 0; border-top:1px dashed var(--cg-line)}
+  .cg-sb-row{display:grid; grid-template-columns:1fr auto auto; column-gap:20px; row-gap:2px; align-items:center; padding:10px 0; border-top:1px dashed var(--cg-line)}
   .cg-sb-row:first-child{border-top:0}
   .cg-sb-who{min-width:0}
   .cg-sb-who .p{font-size:16.5px; font-weight:800; line-height:1.25}
@@ -179,6 +179,8 @@ const description = 'Team Falcons 3-0 横扫 FURIA，赢下 IEM Cologne Major 20
   .cg-sb-rating .rt{font-size:19px; font-weight:900}
   .cg-sb-rating .rt.hot{color:var(--cg-gold)}
   .cg-sb-rating .rl{font-size:11px; letter-spacing:.14em; color:var(--cg-muted)}
+  .cg-sb-extra{grid-column:1 / -1; font-size:13px; color:var(--cg-muted); font-variant-numeric:tabular-nums; padding-bottom:2px}
+  .cg-sb-extra b{color:var(--cg-ink); font-weight:700}
   .cg-data-note{margin-top:18px; font-size:13.5px; color:var(--cg-muted)}
   .cg-data-note a{color:var(--cg-gold); text-decoration:underline}
 
@@ -279,10 +281,9 @@ const description = 'Team Falcons 3-0 横扫 FURIA，赢下 IEM Cologne Major 20
 
   <!-- HERO -->
   <header class="cg-hero">
-    <picture class="cg-hero-media">
-      <source media="(max-width: 720px)" srcset="/img/games/cologne-major-2026/hero-mobile.jpg" />
+    <div class="cg-hero-media">
       <img src="/img/games/cologne-major-2026/01-trophy.jpg" alt="Falcons 全队走向舞台上的冠军奖杯，观众在两侧欢呼" fetchpriority="high" />
-    </picture>
+    </div>
     <div class="cg-hero-inner">
       <p class="cg-kicker">IEM Cologne Major 2026 · Grand Final</p>
       <p class="cg-kicker-cn">反恐精英2 · 科隆特级锦标赛 · 总决赛</p>
@@ -331,7 +332,7 @@ const description = 'Team Falcons 3-0 横扫 FURIA，赢下 IEM Cologne Major 20
   <!-- MAP CARDS -->
   <section class="cg-section" id="maps">
     <p class="cg-eyebrow reveal">Three Maps · 三张地图</p>
-    <h2 class="reveal" data-d="1">三个13–8，整齐得像剧本。</h2>
+    <h2 class="reveal" data-d="1">三张地图，同一个比分。</h2>
     <div class="cg-cards">
       <article class="cg-card win reveal" data-d="1">
         <p class="g">MAP 1 · MIRAGE · FURIA选图</p>
@@ -379,7 +380,7 @@ const description = 'Team Falcons 3-0 横扫 FURIA，赢下 IEM Cologne Major 20
       </article>
       <article class="cg-game reveal">
         <h3>图三Inferno：同一张图，另一个结局 <span class="tag">FALCONS WIN · 13–8</span></h3>
-        <p>决胜图Inferno，FURIA的选图——也是3067天前那场波士顿决赛的决胜图。这一次剧本反过来了：kyousuke第3回合4杀开局，karrigan第7回合USP-S三杀、第11回合2v2回防残局，NiKo全图<span class="num">19杀、1.73 rating</span>接管比赛。m0NESY这图只拿5杀，但Falcons不需要他：<span class="num">13–8</span>，横扫夺冠。</p>
+        <p>决胜图Inferno，FURIA的选图——也是3067天前那场波士顿决赛的决胜图。这一次，赢的是他们：kyousuke第3回合4杀开局，karrigan第7回合USP-S三杀、第11回合2v2回防残局，NiKo全图<span class="num">19杀、1.73 rating</span>接管比赛。m0NESY这图只拿5杀，但Falcons不需要他：<span class="num">13–8</span>，横扫夺冠。</p>
       </article>
     </div>
   </section>
@@ -388,7 +389,7 @@ const description = 'Team Falcons 3-0 横扫 FURIA，赢下 IEM Cologne Major 20
   <section class="cg-section" id="scoreboards">
     <p class="cg-eyebrow reveal">Scoreboards · 战绩数据</p>
     <h2 class="reveal" data-d="1">系列总计与每张图的数据，都在这里。</h2>
-    <p class="cg-lead reveal" data-d="2">点下面的标签切换。K-D为击杀/死亡，ADR为每回合平均伤害，Rating为HLTV Rating 3.0。</p>
+    <p class="cg-lead reveal" data-d="2">点下面的标签切换。每名选手一行，数据为HLTV记分板全量：K-D、净胜值、ADR、KAST、Swing、Rating。</p>
     <div class="cg-tabs reveal" role="tablist" aria-label="战绩数据">
       <button class="cg-tab active" role="tab" id="tab-series" aria-controls="panel-series" aria-selected="true">系列总计<small>3–0</small></button>
       <button class="cg-tab" role="tab" id="tab-m1" aria-controls="panel-m1" aria-selected="false">Mirage<small>13–8</small></button>
@@ -400,21 +401,21 @@ const description = 'Team Falcons 3-0 横扫 FURIA，赢下 IEM Cologne Major 20
       <div class="cg-sb">
         <div class="cg-sb-head"><h3>Team Falcons</h3><span class="cg-win-badge">WINNER</span><span class="totals"><b>210</b> 击杀 · 三图总计</span></div>
         <div class="cg-sb-rows">
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">NiKo</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">52 / <span class="d">32</span></div><div class="adr">85.5 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.43</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">kyousuke</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">55 / <span class="d">43</span></div><div class="adr">93.0 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.34</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">m0NESY</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">46 / <span class="d">35</span></div><div class="adr">73.5 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.31</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">TeSeS</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">28 / <span class="d">40</span></div><div class="adr">51.5 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.81</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">karrigan</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">29 / <span class="d">45</span></div><div class="adr">59.1 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.75</div><div class="rl">RATING</div></div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">NiKo</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">52 / <span class="d">32</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.43</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+20</b> · <b>85.5</b> ADR · <b>79.4%</b> KAST · <b>+5.30%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">kyousuke</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">55 / <span class="d">43</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.34</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+12</b> · <b>93.0</b> ADR · <b>76.2%</b> KAST · <b>+2.55%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">m0NESY</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">46 / <span class="d">35</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.31</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+11</b> · <b>73.5</b> ADR · <b>73.0%</b> KAST · <b>+5.24%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">TeSeS</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">28 / <span class="d">40</span></div></div><div class="cg-sb-rating"><div class="rt">0.81</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-12</b> · <b>51.5</b> ADR · <b>69.8%</b> KAST · <b>-1.63%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">karrigan</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">29 / <span class="d">45</span></div></div><div class="cg-sb-rating"><div class="rt">0.75</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-16</b> · <b>59.1</b> ADR · <b>68.3%</b> KAST · <b>-3.23%</b> Swing</div></div>
         </div>
       </div>
       <div class="cg-sb">
         <div class="cg-sb-head"><h3>FURIA</h3><span class="totals"><b>194</b> 击杀 · 三图总计</span></div>
         <div class="cg-sb-rows">
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">molodoy</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">51 / <span class="d">41</span></div><div class="adr">73.5 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.26</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">KSCERATO</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">38 / <span class="d">42</span></div><div class="adr">66.1 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.90</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">YEKINDAR</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">35 / <span class="d">51</span></div><div class="adr">72.8 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.89</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">FalleN</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">37 / <span class="d">44</span></div><div class="adr">67.3 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.89</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">yuurih</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">33 / <span class="d">37</span></div><div class="adr">61.2 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.85</div><div class="rl">RATING</div></div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">molodoy</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">51 / <span class="d">41</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.26</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+10</b> · <b>73.5</b> ADR · <b>79.4%</b> KAST · <b>+2.70%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">KSCERATO</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">38 / <span class="d">42</span></div></div><div class="cg-sb-rating"><div class="rt">0.90</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-4</b> · <b>66.1</b> ADR · <b>71.4%</b> KAST · <b>-2.99%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">YEKINDAR</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">35 / <span class="d">51</span></div></div><div class="cg-sb-rating"><div class="rt">0.89</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-16</b> · <b>72.8</b> ADR · <b>68.3%</b> KAST · <b>-2.30%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">FalleN</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">37 / <span class="d">44</span></div></div><div class="cg-sb-rating"><div class="rt">0.89</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-7</b> · <b>67.3</b> ADR · <b>71.4%</b> KAST · <b>-3.35%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">yuurih</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">33 / <span class="d">37</span></div></div><div class="cg-sb-rating"><div class="rt">0.85</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-4</b> · <b>61.2</b> ADR · <b>69.8%</b> KAST · <b>-3.10%</b> Swing</div></div>
         </div>
       </div>
     </div>
@@ -423,21 +424,21 @@ const description = 'Team Falcons 3-0 横扫 FURIA，赢下 IEM Cologne Major 20
       <div class="cg-sb">
         <div class="cg-sb-head"><h3>Team Falcons</h3><span class="cg-win-badge">WINNER</span><span class="totals"><b>72</b> 击杀 · 13–8 · 上半场 8–4</span></div>
         <div class="cg-sb-rows">
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">m0NESY</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">19 / <span class="d">13</span></div><div class="adr">97.4 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.49</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">NiKo</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">15 / <span class="d">10</span></div><div class="adr">83.1 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.24</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">kyousuke</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">18 / <span class="d">12</span></div><div class="adr">77.4 ADR</div></div><div class="cg-sb-rating"><div class="rt">1.17</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">TeSeS</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">11 / <span class="d">13</span></div><div class="adr">59.4 ADR</div></div><div class="cg-sb-rating"><div class="rt">1.00</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">karrigan</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">9 / <span class="d">14</span></div><div class="adr">57.1 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.65</div><div class="rl">RATING</div></div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">m0NESY</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">19 / <span class="d">13</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.49</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+6</b> · <b>97.4</b> ADR · <b>71.4%</b> KAST · <b>+6.67%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">NiKo</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">15 / <span class="d">10</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.24</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+5</b> · <b>83.1</b> ADR · <b>66.7%</b> KAST · <b>+3.26%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">kyousuke</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">18 / <span class="d">12</span></div></div><div class="cg-sb-rating"><div class="rt">1.17</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+6</b> · <b>77.4</b> ADR · <b>71.4%</b> KAST · <b>+1.13%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">TeSeS</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">11 / <span class="d">13</span></div></div><div class="cg-sb-rating"><div class="rt">1.00</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-2</b> · <b>59.4</b> ADR · <b>66.7%</b> KAST · <b>-0.19%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">karrigan</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">9 / <span class="d">14</span></div></div><div class="cg-sb-rating"><div class="rt">0.65</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-5</b> · <b>57.1</b> ADR · <b>57.1%</b> KAST · <b>-4.98%</b> Swing</div></div>
         </div>
       </div>
       <div class="cg-sb">
         <div class="cg-sb-head"><h3>FURIA</h3><span class="totals"><b>62</b> 击杀 · 8–13</span></div>
         <div class="cg-sb-rows">
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">molodoy</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">18 / <span class="d">15</span></div><div class="adr">73.9 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.43</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">KSCERATO</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">14 / <span class="d">14</span></div><div class="adr">74.9 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.97</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">YEKINDAR</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">12 / <span class="d">16</span></div><div class="adr">67.2 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.97</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">FalleN</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">9 / <span class="d">14</span></div><div class="adr">62.2 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.83</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">yuurih</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">9 / <span class="d">13</span></div><div class="adr">48.9 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.75</div><div class="rl">RATING</div></div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">molodoy</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">18 / <span class="d">15</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.43</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+3</b> · <b>73.9</b> ADR · <b>76.2%</b> KAST · <b>+4.28%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">KSCERATO</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">14 / <span class="d">14</span></div></div><div class="cg-sb-rating"><div class="rt">0.97</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>0</b> · <b>74.9</b> ADR · <b>76.2%</b> KAST · <b>-4.32%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">YEKINDAR</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">12 / <span class="d">16</span></div></div><div class="cg-sb-rating"><div class="rt">0.97</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-4</b> · <b>67.2</b> ADR · <b>71.4%</b> KAST · <b>-1.13%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">FalleN</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">9 / <span class="d">14</span></div></div><div class="cg-sb-rating"><div class="rt">0.83</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-5</b> · <b>62.2</b> ADR · <b>76.2%</b> KAST · <b>-2.73%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">yuurih</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">9 / <span class="d">13</span></div></div><div class="cg-sb-rating"><div class="rt">0.75</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-4</b> · <b>48.9</b> ADR · <b>47.6%</b> KAST · <b>-2.00%</b> Swing</div></div>
         </div>
       </div>
     </div>
@@ -446,21 +447,21 @@ const description = 'Team Falcons 3-0 横扫 FURIA，赢下 IEM Cologne Major 20
       <div class="cg-sb">
         <div class="cg-sb-head"><h3>Team Falcons</h3><span class="cg-win-badge">WINNER</span><span class="totals"><b>72</b> 击杀 · 13–8 · 上半场 5–7</span></div>
         <div class="cg-sb-rows">
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">m0NESY</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">22 / <span class="d">10</span></div><div class="adr">97.3 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">2.13</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">kyousuke</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">19 / <span class="d">15</span></div><div class="adr">110.4 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.66</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">NiKo</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">18 / <span class="d">11</span></div><div class="adr">80.2 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.36</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">TeSeS</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">7 / <span class="d">14</span></div><div class="adr">42.4 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.67</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">karrigan</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">6 / <span class="d">16</span></div><div class="adr">37.0 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.47</div><div class="rl">RATING</div></div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">m0NESY</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">22 / <span class="d">10</span></div></div><div class="cg-sb-rating"><div class="rt hot">2.13</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+12</b> · <b>97.3</b> ADR · <b>85.7%</b> KAST · <b>+13.60%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">kyousuke</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">19 / <span class="d">15</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.66</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+4</b> · <b>110.4</b> ADR · <b>81.0%</b> KAST · <b>+5.80%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">NiKo</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">18 / <span class="d">11</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.36</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+7</b> · <b>80.2</b> ADR · <b>81.0%</b> KAST · <b>+2.93%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">TeSeS</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">7 / <span class="d">14</span></div></div><div class="cg-sb-rating"><div class="rt">0.67</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-7</b> · <b>42.4</b> ADR · <b>76.2%</b> KAST · <b>-4.08%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">karrigan</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">6 / <span class="d">16</span></div></div><div class="cg-sb-rating"><div class="rt">0.47</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-10</b> · <b>37.0</b> ADR · <b>71.4%</b> KAST · <b>-8.27%</b> Swing</div></div>
         </div>
       </div>
       <div class="cg-sb">
         <div class="cg-sb-head"><h3>FURIA</h3><span class="totals"><b>66</b> 击杀 · 8–13</span></div>
         <div class="cg-sb-rows">
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">molodoy</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">21 / <span class="d">12</span></div><div class="adr">90.0 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.38</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">yuurih</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">14 / <span class="d">9</span></div><div class="adr">66.3 ADR</div></div><div class="cg-sb-rating"><div class="rt">1.08</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">KSCERATO</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">14 / <span class="d">15</span></div><div class="adr">75.5 ADR</div></div><div class="cg-sb-rating"><div class="rt">1.01</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">FalleN</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">10 / <span class="d">15</span></div><div class="adr">55.9 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.72</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">YEKINDAR</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">7 / <span class="d">18</span></div><div class="adr">65.0 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.67</div><div class="rl">RATING</div></div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">molodoy</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">21 / <span class="d">12</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.38</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+9</b> · <b>90.0</b> ADR · <b>85.7%</b> KAST · <b>+1.44%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">yuurih</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">14 / <span class="d">9</span></div></div><div class="cg-sb-rating"><div class="rt">1.08</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+5</b> · <b>66.3</b> ADR · <b>90.5%</b> KAST · <b>-0.93%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">KSCERATO</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">14 / <span class="d">15</span></div></div><div class="cg-sb-rating"><div class="rt">1.01</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-1</b> · <b>75.5</b> ADR · <b>71.4%</b> KAST · <b>-0.98%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">FalleN</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">10 / <span class="d">15</span></div></div><div class="cg-sb-rating"><div class="rt">0.72</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-5</b> · <b>55.9</b> ADR · <b>66.7%</b> KAST · <b>-7.72%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">YEKINDAR</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">7 / <span class="d">18</span></div></div><div class="cg-sb-rating"><div class="rt">0.67</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-11</b> · <b>65.0</b> ADR · <b>61.9%</b> KAST · <b>-3.09%</b> Swing</div></div>
         </div>
       </div>
     </div>
@@ -469,25 +470,25 @@ const description = 'Team Falcons 3-0 横扫 FURIA，赢下 IEM Cologne Major 20
       <div class="cg-sb">
         <div class="cg-sb-head"><h3>Team Falcons</h3><span class="cg-win-badge">WINNER</span><span class="totals"><b>66</b> 击杀 · 13–8 · 上半场 8–4</span></div>
         <div class="cg-sb-rows">
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">NiKo</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">19 / <span class="d">11</span></div><div class="adr">93.3 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.73</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">karrigan</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">14 / <span class="d">15</span></div><div class="adr">83.0 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.24</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">kyousuke</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">18 / <span class="d">16</span></div><div class="adr">91.3 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.21</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">TeSeS</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">10 / <span class="d">13</span></div><div class="adr">52.6 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.81</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">m0NESY</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">5 / <span class="d">12</span></div><div class="adr">25.8 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.56</div><div class="rl">RATING</div></div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">NiKo</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">19 / <span class="d">11</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.73</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+8</b> · <b>93.3</b> ADR · <b>90.5%</b> KAST · <b>+9.70%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">karrigan</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">14 / <span class="d">15</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.24</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-1</b> · <b>83.0</b> ADR · <b>76.2%</b> KAST · <b>+3.54%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">kyousuke</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">18 / <span class="d">16</span></div></div><div class="cg-sb-rating"><div class="rt hot">1.21</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+2</b> · <b>91.3</b> ADR · <b>76.2%</b> KAST · <b>+0.73%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">TeSeS</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">10 / <span class="d">13</span></div></div><div class="cg-sb-rating"><div class="rt">0.81</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-3</b> · <b>52.6</b> ADR · <b>66.7%</b> KAST · <b>-0.62%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">m0NESY</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">5 / <span class="d">12</span></div></div><div class="cg-sb-rating"><div class="rt">0.56</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-7</b> · <b>25.8</b> ADR · <b>61.9%</b> KAST · <b>-4.55%</b> Swing</div></div>
         </div>
       </div>
       <div class="cg-sb">
         <div class="cg-sb-head"><h3>FURIA</h3><span class="totals"><b>66</b> 击杀 · 8–13</span></div>
         <div class="cg-sb-rows">
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">FalleN</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">18 / <span class="d">15</span></div><div class="adr">83.7 ADR</div></div><div class="cg-sb-rating"><div class="rt">1.17</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">YEKINDAR</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">16 / <span class="d">17</span></div><div class="adr">86.1 ADR</div></div><div class="cg-sb-rating"><div class="rt">1.03</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">molodoy</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">12 / <span class="d">14</span></div><div class="adr">56.5 ADR</div></div><div class="cg-sb-rating"><div class="rt">1.00</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">KSCERATO</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">10 / <span class="d">13</span></div><div class="adr">48.0 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.81</div><div class="rl">RATING</div></div></div>
-          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">yuurih</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">10 / <span class="d">15</span></div><div class="adr">68.4 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.74</div><div class="rl">RATING</div></div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">FalleN</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">18 / <span class="d">15</span></div></div><div class="cg-sb-rating"><div class="rt">1.17</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>+3</b> · <b>83.7</b> ADR · <b>71.4%</b> KAST · <b>+0.38%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">YEKINDAR</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">16 / <span class="d">17</span></div></div><div class="cg-sb-rating"><div class="rt">1.03</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-1</b> · <b>86.1</b> ADR · <b>71.4%</b> KAST · <b>-2.68%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">molodoy</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">12 / <span class="d">14</span></div></div><div class="cg-sb-rating"><div class="rt">1.00</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-2</b> · <b>56.5</b> ADR · <b>76.2%</b> KAST · <b>+2.39%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">KSCERATO</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">10 / <span class="d">13</span></div></div><div class="cg-sb-rating"><div class="rt">0.81</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-3</b> · <b>48.0</b> ADR · <b>66.7%</b> KAST · <b>-3.68%</b> Swing</div></div>
+        <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">yuurih</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">10 / <span class="d">15</span></div></div><div class="cg-sb-rating"><div class="rt">0.74</div><div class="rl">RATING</div></div><div class="cg-sb-extra"><b>-5</b> · <b>68.4</b> ADR · <b>71.4%</b> KAST · <b>-6.38%</b> Swing</div></div>
         </div>
       </div>
     </div>
-    <p class="cg-data-note">对局数据来源：<a href="https://www.hltv.org/matches/2395002/iem-cologne-major-2026-grand-final-iem-cologne-major-2026" target="_blank" rel="noopener">HLTV</a>。K-D为击杀/死亡，ADR为每回合平均伤害，Rating为HLTV Rating 3.0。</p>
+    <p class="cg-data-note">对局数据来源：<a href="https://www.hltv.org/matches/2395002/iem-cologne-major-2026-grand-final-iem-cologne-major-2026" target="_blank" rel="noopener">HLTV</a>。K-D为击杀/死亡，净胜值为击杀减死亡；ADR为每回合平均伤害；KAST为有贡献回合占比（击杀、助攻、存活或被补枪换回）；Swing为HLTV回合胜率摆动指标；Rating为HLTV Rating 3.0。</p>
   </section>
 
   <!-- MVP -->
@@ -557,10 +558,9 @@ const description = 'Team Falcons 3-0 横扫 FURIA，赢下 IEM Cologne Major 20
 
   <!-- FINALE -->
   <section class="cg-finale">
-    <picture class="cg-finale-media">
-      <source media="(max-width: 720px)" srcset="/img/games/cologne-major-2026/hero-mobile.jpg" />
+    <div class="cg-finale-media">
       <img src="/img/games/cologne-major-2026/01-trophy.jpg" alt="Falcons 全队走向舞台上的冠军奖杯" loading="lazy" />
-    </picture>
+    </div>
     <div class="cg-finale-inner reveal">
       <div class="rule"></div>
       <h2>无冕之王，今夜加冕。</h2>
