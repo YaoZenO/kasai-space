@@ -1,526 +1,632 @@
 ---
-// /blg-champion/：BLG 夺得 2026 英雄联盟全球总决赛冠军的宣传页。
-// 大图打底 + 内容叠加的单页设计，不走普通文章模板。
 import BaseLayout from '../layouts/BaseLayout.astro';
 
 const title = 'BLG 夺冠：3-1 战胜 Gen.G，队史首冠';
-const description =
-  '先丢一局，连赢三局。BLG 3-1 战胜 Gen.G，捧起 2026 英雄联盟全球总决赛冠军奖杯，Knight 拿下总决赛 MVP。';
-const hero = '/img/games/blg-s16/01-trophy-vcg.jpg';
+const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决赛，队史首座召唤师奖杯。先丢一局，连赢三局。Barclays Center, Brooklyn, New York。';
 ---
 
 <BaseLayout
   title={title}
   description={description}
   ogType="article"
-  ogImages={[hero]}
-  ogKeywords={['BLG', '英雄联盟', 'S16', 'Gen.G', 'Knight']}
+  ogImages={['/img/games/blg-s16/01-trophy-vcg.jpg']}
+  ogKeywords={['BLG', 'Gen.G', '英雄联盟', 'S16', '全球总决赛', 'Knight', '召唤师奖杯']}
   currentPath="/blg-champion/"
 >
-  <article class="blg">
-    <section class="blg-hero">
-      <img class="blg-hero-img" src={hero} alt="BLG 全队捧起召唤师奖杯" />
-      <div class="blg-hero-shade"></div>
-      <div class="blg-hero-inner">
-        <p class="blg-kicker">2026 英雄联盟全球总决赛 · 纽约布鲁克林巴克莱中心</p>
-        <h1 class="blg-title">BLG<br /><span>总冠军</span></h1>
-        <p class="blg-score">BLG <b>3-1</b> GEN.G</p>
-        <p class="blg-sub">先丢一局，连赢三局。建队第一座世界冠军，LPL 五年来的第一座召唤师奖杯。</p>
-        <p class="blg-meta">北京时间 2026 年 11 月 15 日凌晨 · 总决赛 MVP：Knight</p>
-      </div>
-      <p class="blg-credit">图：VCG</p>
-    </section>
+<style>
+  .blg-wrap{
+    --blg-bg:#f4f0e6; --blg-bg2:#e9e2cf; --blg-ink:#25212b; --blg-muted:#6f6a5c;
+    --blg-card:#fffdf6; --blg-line:#ddd3b8; --blg-gold:#96760f; --blg-gold2:#c9a227;
+    --blg-pink:#d6336c; --blg-blue:#2563eb; --blg-red:#dc2626;
+    --blg-shadow:0 12px 32px rgba(60,50,20,.10);
+    --blg-panel:#141826; --blg-panel2:#0d0f16; --blg-panel-ink:#ece7da; --blg-panel-muted:#9aa0ae;
+    background:
+      radial-gradient(1100px 420px at 50% -80px, rgba(201,162,39,.16), transparent 70%),
+      linear-gradient(180deg, var(--blg-bg), var(--blg-bg2));
+    color:var(--blg-ink);
+    margin:0 calc(50% - 50vw); width:100vw; max-width:100vw; overflow:hidden;
+    font-size:17px; line-height:1.75;
+  }
+  :global(html[data-user-color-scheme="dark"]) .blg-wrap,
+  :global(html[data-sun-scheme="dark"]) .blg-wrap{
+    --blg-bg:#131624; --blg-bg2:#0b0d14; --blg-ink:#ece7da; --blg-muted:#9aa0ae;
+    --blg-card:#1a1e2b; --blg-line:#2c3247; --blg-gold:#e8c469; --blg-gold2:#f5d98a;
+    --blg-pink:#fb7299; --blg-blue:#5b9bff; --blg-red:#ff6b6b;
+    --blg-shadow:0 12px 32px rgba(0,0,0,.45);
+  }
+  @media (prefers-color-scheme: dark){
+    :global(html:not([data-user-color-scheme]):not([data-sun-scheme])) .blg-wrap{
+      --blg-bg:#131624; --blg-bg2:#0b0d14; --blg-ink:#ece7da; --blg-muted:#9aa0ae;
+      --blg-card:#1a1e2b; --blg-line:#2c3247; --blg-gold:#e8c469; --blg-gold2:#f5d98a;
+      --blg-pink:#fb7299; --blg-blue:#5b9bff; --blg-red:#ff6b6b;
+      --blg-shadow:0 12px 32px rgba(0,0,0,.45);
+    }
+  }
+  .blg-wrap::before{
+    content:""; display:block; height:4px;
+    background:linear-gradient(90deg, var(--blg-gold2), var(--blg-pink), var(--blg-gold2));
+  }
+  .blg-wrap img{user-select:none}
+  .blg-wrap ::selection{background:var(--blg-gold2); color:#1a1a1a}
 
-    <section class="blg-games" aria-label="四局比分">
-      <div class="blg-game blg-game--lost">
-        <p class="blg-game-no">第一局</p>
-        <p class="blg-game-winner">GEN.G 胜</p>
-        <p class="blg-game-time">38 分钟</p>
-        <p class="blg-game-note">Ruler 库奇 7/0/8，人头 19-4</p>
-      </div>
-      <div class="blg-game">
-        <p class="blg-game-no">第二局</p>
-        <p class="blg-game-winner">BLG 胜</p>
-        <p class="blg-game-time">53 分钟</p>
-        <p class="blg-game-note">本届最长一局，Xun 娜菲莉 8 杀 9 助攻</p>
-      </div>
-      <div class="blg-game">
-        <p class="blg-game-no">第三局</p>
-        <p class="blg-game-winner">BLG 胜</p>
-        <p class="blg-game-time">37 分钟</p>
-        <p class="blg-game-note">Bin 贾克斯一锤定音</p>
-      </div>
-      <div class="blg-game">
-        <p class="blg-game-no">第四局</p>
-        <p class="blg-game-winner">BLG 胜</p>
-        <p class="blg-game-time">约 42 分钟</p>
-        <p class="blg-game-note">大龙团后一波推平，人头 21-11</p>
-      </div>
-    </section>
+  /* ---------- hero ---------- */
+  .blg-hero{position:relative; min-height:94vh; display:flex; align-items:flex-end; overflow:hidden; background:#0b0d14}
+  .blg-hero-media{position:absolute; inset:0; animation:blgZoom 22s ease-in-out infinite alternate}
+  .blg-hero-media img{width:100%; height:100%; object-fit:cover; object-position:center 30%; display:block}
+  .blg-hero::after{content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(5,6,10,.42) 0%, rgba(5,6,10,.08) 42%, rgba(5,6,10,.30) 66%, rgba(5,6,10,.88) 100%)}
+  .blg-hero-inner{position:relative; z-index:2; width:100%; max-width:1020px; margin:0 auto; padding:0 24px 84px; color:#fff}
+  .blg-kicker{font-size:13px; letter-spacing:.34em; text-transform:uppercase; color:#f5d98a; font-weight:700; animation:blgRise .8s .1s ease both}
+  .blg-kicker-cn{margin-top:8px; font-size:15px; letter-spacing:.42em; color:rgba(255,255,255,.82); animation:blgRise .8s .22s ease both}
+  .blg-title{margin:18px 0 0; font-size:clamp(72px, 13vw, 148px); line-height:1.02; font-weight:900; letter-spacing:-.01em; animation:blgRise .8s .34s ease both}
+  .blg-title .gold{
+    background:linear-gradient(100deg,#a8842a,#e8c469 28%,#fff3c4 50%,#e8c469 72%,#a8842a);
+    background-size:200% 100%; -webkit-background-clip:text; background-clip:text; color:transparent;
+    animation:blgShine 7s linear infinite;
+  }
+  .blg-score{display:inline-flex; align-items:baseline; gap:14px; margin-top:26px; padding:10px 22px;
+    border:1px solid rgba(232,196,105,.75); border-radius:999px; background:rgba(8,9,14,.42); backdrop-filter:blur(6px);
+    font-size:clamp(20px,3.4vw,30px); font-weight:800; letter-spacing:.06em; animation:blgRise .8s .48s ease both}
+  .blg-score .n{color:#f5d98a}
+  .blg-score .vs{font-size:.62em; letter-spacing:.3em; color:rgba(255,255,255,.7)}
+  .blg-hero-sub{margin:20px 0 0; max-width:640px; font-size:clamp(16px,2.4vw,20px); line-height:1.7; color:rgba(255,255,255,.92); animation:blgRise .8s .6s ease both}
+  .blg-hero-meta{margin-top:16px; font-size:14px; letter-spacing:.08em; color:rgba(255,255,255,.72); animation:blgRise .8s .72s ease both}
+  .blg-hero-meta b{color:#fff; font-weight:700}
+  .blg-scroll{position:absolute; z-index:2; left:50%; bottom:26px; transform:translateX(-50%);
+    display:flex; flex-direction:column; align-items:center; gap:6px; color:rgba(255,255,255,.75);
+    font-size:11px; letter-spacing:.4em; text-transform:uppercase; animation:blgRise .8s 1s ease both}
+  .blg-scroll i{width:18px; height:18px; border-right:2px solid #f5d98a; border-bottom:2px solid #f5d98a; transform:rotate(45deg); animation:blgBounce 1.8s ease-in-out infinite}
+  @keyframes blgZoom{from{transform:scale(1)}to{transform:scale(1.07)}}
+  @keyframes blgRise{from{opacity:0; transform:translateY(26px)}to{opacity:1; transform:none}}
+  @keyframes blgShine{to{background-position:-200% 0}}
+  @keyframes blgBounce{0%,100%{transform:rotate(45deg) translate(0,0)}50%{transform:rotate(45deg) translate(4px,4px)}}
 
-    <section class="blg-story">
-      <h2>四局，一座奖杯</h2>
-      <p>
-        第一局是 Gen.G
-        的。BLG开局拿到一些前期目标，但Gen.G的团战更胜一筹：Chovy的辛德拉几次关键控制帮队伍拿下大龙，Kiin在最后一波远古龙团战绕后切掉Viper，Gen.G以19-4的人头比先下一城。
-      </p>
-      <figure class="blg-figure">
-        <img src="/img/games/blg-s16/02-stage-vcg.jpg" alt="决赛现场：巴克莱中心座无虚席，大屏打出 WORLDS 26 与 GEN vs BLG" />
-        <figcaption>决赛现场，巴克莱中心。图：VCG，载于 CGTN 报道。</figcaption>
-      </figure>
-      <p>
-        第二局打了53分钟，是本届总决赛最长的一局。两边都掏出了怪阵：Gen.G是薇恩上单加大虫子打野，BLG是吉格斯配卡蜜尔走下路。Gen.G一度又要复刻第一局的剧本，但一次冒进的追击被BLG抓到Chovy和Canyon，BLG拿下大龙夺回主动权；Canyon还抢了一条远古龙续命，但BLG最终在Gen.G基地里抓到机会，拆掉水晶，1-1。
-      </p>
-      <p>
-        第三局BLG第一次领先。Duro的洛前期几次关键开团、Canyon早早控下小龙，Gen.G开局并不难受；但ON的牛头开始找到节奏，BLG连拿三条炼金龙、拿到海克斯龙魂，Bin的贾克斯成为一锤定音的那个点。37分钟，BLG
-        2-1领先，Viper的塔莉垭6杀11助攻，Knight的维克托5杀2死11助攻。
-      </p>
-      <p>
-        第四局Gen.G开局又凶了一把：Ruler的霞开场4分钟就从Viper身上拿到两个人头，Chovy掏出阿卡丽想把主动权抢回来。BLG没乱：Xun的梦魇和Knight的卡牌用全球流给边路施压，ON的妮蔻几次先手开团追回经济；Bin的格温8杀9助攻，BLG在大龙附近连赢两波团战，约42分钟、人头21-11，一波推平。3-1，冠军。
-      </p>
-    </section>
+  /* ---------- sections ---------- */
+  .blg-section{max-width:960px; margin:0 auto; padding:76px 20px 8px}
+  .blg-eyebrow{display:flex; align-items:center; gap:14px; font-size:13px; font-weight:700; letter-spacing:.32em; text-transform:uppercase; color:var(--blg-gold)}
+  .blg-eyebrow::after{content:""; height:1px; width:64px; background:var(--blg-gold2)}
+  .blg-section h2{margin:14px 0 0; font-size:clamp(30px,5vw,44px); line-height:1.2; font-weight:900; letter-spacing:-.01em}
+  .blg-lead{margin:16px 0 0; font-size:18px; color:var(--blg-muted)}
+  .blg-lead b{color:var(--blg-ink)}
 
-    <section class="blg-fmvp">
-      <p class="blg-kicker">总决赛 MVP</p>
-      <h2 class="blg-fmvp-name">KNIGHT</h2>
-      <p class="blg-fmvp-sub">卓定 · 中单 · 首位捧起召唤师奖杯的中国大陆中单</p>
+  .reveal{opacity:0; transform:translateY(20px); transition:opacity .7s ease, transform .7s ease}
+  .reveal.in{opacity:1; transform:none}
+  .reveal[data-d="1"]{transition-delay:.08s}
+  .reveal[data-d="2"]{transition-delay:.16s}
+  .reveal[data-d="3"]{transition-delay:.24s}
+
+  /* ---------- lineups ---------- */
+  .blg-vs{display:grid; grid-template-columns:1fr auto 1fr; gap:20px; align-items:stretch; margin-top:34px}
+  .blg-team{background:var(--blg-card); border:1px solid var(--blg-line); border-radius:16px; padding:24px 22px; box-shadow:var(--blg-shadow); transition:transform .35s ease, box-shadow .35s ease}
+  .blg-team:hover{transform:translateY(-4px)}
+  .blg-team.blg{border-top:4px solid var(--blg-gold2)}
+  .blg-team.gen{border-top:4px solid var(--blg-blue)}
+  .blg-team h3{margin:0; font-size:30px; font-weight:900; letter-spacing:.02em; line-height:1.1}
+  .blg-team .tag{display:inline-block; margin-top:8px; font-size:12px; letter-spacing:.22em; font-weight:700; color:var(--blg-muted)}
+  .blg-roster{margin:18px 0 0; padding:0; list-style:none}
+  .blg-roster li{display:flex; align-items:baseline; gap:12px; padding:9px 0; border-top:1px dashed var(--blg-line)}
+  .blg-roster li:first-child{border-top:0}
+  .blg-role{flex:0 0 44px; font-size:11px; font-weight:700; letter-spacing:.14em; color:var(--blg-muted)}
+  .blg-player{font-size:19px; font-weight:800}
+  .blg-player small{margin-left:8px; font-size:13px; font-weight:400; color:var(--blg-muted)}
+  .blg-vs-badge{align-self:center; width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:var(--blg-ink); color:var(--blg-bg); font-weight:900; font-size:20px; letter-spacing:.05em; box-shadow:var(--blg-shadow)}
+  .blg-figure{margin:28px 0 0; overflow:hidden; border-radius:16px; box-shadow:var(--blg-shadow)}
+  .blg-figure img{display:block; width:100%; transition:transform .6s ease}
+  .blg-figure:hover img{transform:scale(1.03)}
+  .blg-figure figcaption{padding:12px 16px; font-size:13.5px; color:var(--blg-muted); background:var(--blg-card); border-top:1px solid var(--blg-line)}
+
+  /* ---------- game cards ---------- */
+  .blg-cards{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:34px}
+  .blg-card{background:var(--blg-card); border:1px solid var(--blg-line); border-radius:14px; padding:20px 18px; box-shadow:var(--blg-shadow); transition:transform .35s ease, border-color .35s ease; position:relative; overflow:hidden}
+  .blg-card:hover{transform:translateY(-5px)}
+  .blg-card.win{border-top:4px solid var(--blg-gold2)}
+  .blg-card.lose{border-top:4px solid var(--blg-muted); opacity:.88}
+  .blg-card .g{font-size:12px; font-weight:700; letter-spacing:.26em; color:var(--blg-muted)}
+  .blg-card .w{margin-top:10px; font-size:24px; font-weight:900}
+  .blg-card .w .l{color:var(--blg-gold)}
+  .blg-card .meta{margin-top:6px; font-size:13.5px; color:var(--blg-muted)}
+  .blg-card .note{margin-top:12px; font-size:14px; line-height:1.6}
+
+  /* ---------- story ---------- */
+  .blg-games{margin-top:34px; display:grid; gap:30px}
+  .blg-game h3{margin:0; font-size:22px; font-weight:900}
+  .blg-game h3 .tag{margin-left:10px; font-size:12px; font-weight:700; letter-spacing:.2em; color:var(--blg-gold)}
+  .blg-game p{margin:10px 0 0; color:var(--blg-ink)}
+  .blg-game p b{color:var(--blg-ink)}
+  .blg-game .num{font-variant-numeric:tabular-nums; font-weight:700; color:var(--blg-gold)}
+
+  /* ---------- scoreboards ---------- */
+  .blg-tabs{display:flex; flex-wrap:wrap; gap:10px; margin-top:30px}
+  .blg-tab{appearance:none; border:1px solid var(--blg-line); background:var(--blg-card); color:var(--blg-ink);
+    padding:11px 20px; border-radius:999px; font-size:15px; font-weight:700; letter-spacing:.04em; cursor:pointer;
+    transition:all .25s ease; box-shadow:var(--blg-shadow)}
+  .blg-tab small{margin-left:6px; font-size:12px; font-weight:400; color:var(--blg-muted)}
+  .blg-tab:hover{transform:translateY(-2px); border-color:var(--blg-gold2)}
+  .blg-tab.active{background:var(--blg-gold2); border-color:var(--blg-gold2); color:#1c1a12}
+  .blg-tab.active small{color:rgba(28,26,18,.66)}
+  .blg-panel{margin-top:22px; animation:blgFade .45s ease both}
+  .blg-panel[hidden]{display:none}
+  @keyframes blgFade{from{opacity:0; transform:translateY(10px)}to{opacity:1; transform:none}}
+  .blg-sb{background:var(--blg-card); border:1px solid var(--blg-line); border-radius:16px; overflow:hidden; box-shadow:var(--blg-shadow)}
+  .blg-sb + .blg-sb{margin-top:16px}
+  .blg-sb-head{display:flex; flex-wrap:wrap; align-items:center; gap:12px; padding:16px 20px; border-bottom:1px solid var(--blg-line)}
+  .blg-sb-head .side{font-size:11px; font-weight:800; letter-spacing:.18em; padding:4px 10px; border-radius:999px; color:#fff}
+  .blg-sb-head .side.blue{background:#2563eb}
+  .blg-sb-head .side.red{background:#dc2626}
+  .blg-sb-head h3{margin:0; font-size:21px; font-weight:900; letter-spacing:.02em}
+  .blg-sb-head .totals{margin-left:auto; font-size:14px; color:var(--blg-muted); font-variant-numeric:tabular-nums}
+  .blg-sb-head .totals b{color:var(--blg-ink)}
+  .blg-win-badge{font-size:11px; font-weight:800; letter-spacing:.2em; color:#1c1a12; background:var(--blg-gold2); padding:4px 10px; border-radius:999px}
+  .blg-sb-rows{padding:6px 20px 10px}
+  .blg-sb-row{display:grid; grid-template-columns:44px 1fr auto; gap:14px; align-items:center; padding:10px 0; border-top:1px dashed var(--blg-line)}
+  .blg-sb-row:first-child{border-top:0}
+  .blg-sb-row img{width:44px; height:44px; border-radius:10px; display:block; box-shadow:0 2px 8px rgba(0,0,0,.25)}
+  .blg-sb-who{min-width:0}
+  .blg-sb-who .p{font-size:16.5px; font-weight:800; line-height:1.25}
+  .blg-sb-who .c{font-size:13px; color:var(--blg-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .blg-sb-stat{text-align:right; font-variant-numeric:tabular-nums}
+  .blg-sb-stat .kda{font-size:16.5px; font-weight:800; white-space:nowrap}
+  .blg-sb-stat .kda .d{color:var(--blg-muted); font-weight:400}
+  .blg-sb-stat .cs{font-size:12.5px; color:var(--blg-muted); white-space:nowrap}
+  .blg-bans{display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:12px 20px 16px; border-top:1px solid var(--blg-line); font-size:13px}
+  .blg-bans .lbl{font-size:11px; font-weight:800; letter-spacing:.22em; color:var(--blg-muted); margin-right:2px}
+  .blg-ban{padding:4px 11px; border:1px solid var(--blg-line); border-radius:999px; color:var(--blg-muted)}
+  .blg-data-note{margin-top:18px; font-size:13.5px; color:var(--blg-muted)}
+  .blg-data-note a{color:var(--blg-gold); text-decoration:underline}
+
+  /* ---------- fmvp ---------- */
+  .blg-fmvp{margin-top:76px; background:linear-gradient(160deg, var(--blg-panel), var(--blg-panel2)); color:var(--blg-panel-ink); position:relative; overflow:hidden}
+  .blg-fmvp::before{content:""; position:absolute; inset:0; background:radial-gradient(640px 300px at 88% 0%, rgba(232,196,105,.20), transparent 70%); pointer-events:none}
+  .blg-fmvp-inner{position:relative; max-width:960px; margin:0 auto; padding:72px 20px}
+  .blg-fmvp .blg-eyebrow{color:#f5d98a}
+  .blg-fmvp-name{margin:12px 0 0; font-size:clamp(56px,10vw,104px); line-height:1; font-weight:900; letter-spacing:.01em;
+    background:linear-gradient(100deg,#a8842a,#e8c469 30%,#fff3c4 50%,#e8c469 70%,#a8842a); background-size:200% 100%;
+    -webkit-background-clip:text; background-clip:text; color:transparent; animation:blgShine 8s linear infinite}
+  .blg-fmvp-role{margin-top:10px; font-size:15px; letter-spacing:.3em; text-transform:uppercase; color:rgba(236,231,218,.75)}
+  .blg-stats{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:34px}
+  .blg-stat{border:1px solid rgba(232,196,105,.28); border-radius:14px; padding:20px 16px; background:rgba(255,255,255,.03); transition:transform .35s ease, border-color .35s ease}
+  .blg-stat:hover{transform:translateY(-4px); border-color:rgba(232,196,105,.6)}
+  .blg-stat .v{font-size:clamp(26px,4.4vw,38px); font-weight:900; color:#f5d98a; font-variant-numeric:tabular-nums; line-height:1.1}
+  .blg-stat .l{margin-top:8px; font-size:13px; line-height:1.5; color:rgba(236,231,218,.72)}
+  .blg-fmvp-facts{margin:28px 0 0; padding:0; list-style:none; display:grid; gap:10px; font-size:16px; color:rgba(236,231,218,.88)}
+  .blg-fmvp-facts li{padding-left:22px; position:relative}
+  .blg-fmvp-facts li::before{content:""; position:absolute; left:0; top:.62em; width:8px; height:8px; border-radius:50%; background:#e8c469}
+  .blg-quote{margin:30px 0 0; padding:22px 26px; border-left:3px solid #e8c469; background:rgba(232,196,105,.07); border-radius:0 14px 14px 0; font-size:clamp(18px,2.8vw,23px); line-height:1.6; font-weight:700}
+  .blg-quote small{display:block; margin-top:10px; font-size:13px; font-weight:400; color:rgba(236,231,218,.6)}
+  .blg-fmvp .blg-figure figcaption{background:#1a1e2b; color:#9aa0ae; border-top:1px solid #2c3247}
+
+  /* ---------- road ---------- */
+  .blg-road{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:34px}
+  .blg-step{background:var(--blg-card); border:1px solid var(--blg-line); border-radius:14px; padding:22px 18px; box-shadow:var(--blg-shadow); transition:transform .35s ease; position:relative}
+  .blg-step:hover{transform:translateY(-5px)}
+  .blg-step .round{font-size:12px; font-weight:700; letter-spacing:.24em; color:var(--blg-muted); text-transform:uppercase}
+  .blg-step .opp{margin-top:10px; font-size:21px; font-weight:900; line-height:1.25}
+  .blg-step .sc{margin-top:6px; font-size:15px; font-weight:700; color:var(--blg-gold)}
+  .blg-step.final{border-color:var(--blg-gold2); background:linear-gradient(160deg, var(--blg-card), var(--blg-card))}
+  .blg-road-note{margin-top:22px; font-size:16px; color:var(--blg-muted)}
+  .blg-road-note .en{display:block; margin-top:6px; font-style:italic; color:var(--blg-ink); font-size:17px}
+
+  /* ---------- atmosphere ---------- */
+  .blg-duo{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:34px}
+  .blg-duo .blg-figure{margin:0}
+
+  /* ---------- finale ---------- */
+  .blg-finale{position:relative; margin-top:76px; min-height:88vh; display:flex; align-items:center; justify-content:center; text-align:center; overflow:hidden; background:#0b0d14}
+  .blg-finale-media{position:absolute; inset:0; animation:blgZoom 24s ease-in-out infinite alternate}
+  .blg-finale-media img{width:100%; height:100%; object-fit:cover; object-position:center 42%; display:block}
+  .blg-finale::after{content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(5,6,10,.55), rgba(5,6,10,.28) 45%, rgba(5,6,10,.82))}
+  .blg-finale-inner{position:relative; z-index:2; padding:40px 24px; color:#fff; max-width:820px}
+  .blg-finale-inner .rule{width:72px; height:3px; background:#e8c469; margin:0 auto 26px}
+  .blg-finale-inner h2{margin:0; font-size:clamp(34px,6.4vw,58px); line-height:1.25; font-weight:900; text-shadow:0 2px 24px rgba(0,0,0,.45)}
+  .blg-finale-inner p{margin:20px 0 0; font-size:clamp(16px,2.6vw,20px); color:rgba(255,255,255,.88)}
+  .blg-finale-inner .en{margin-top:14px; font-size:13px; letter-spacing:.34em; text-transform:uppercase; color:#f5d98a}
+
+  .blg-credits{max-width:960px; margin:0 auto; padding:36px 20px 64px; font-size:13.5px; line-height:1.8; color:var(--blg-muted)}
+  .blg-credits a{color:var(--blg-gold); text-decoration:underline}
+
+  @media (max-width: 860px){
+    .blg-cards{grid-template-columns:repeat(2,1fr)}
+    .blg-stats{grid-template-columns:repeat(2,1fr)}
+    .blg-road{grid-template-columns:repeat(2,1fr)}
+    .blg-vs{grid-template-columns:1fr}
+    .blg-vs-badge{justify-self:center; width:54px; height:54px; font-size:17px}
+  }
+  @media (max-width: 560px){
+    .blg-section{padding-top:60px}
+    .blg-cards{grid-template-columns:1fr}
+    .blg-duo{grid-template-columns:1fr}
+    .blg-hero{min-height:92vh}
+    .blg-hero-media img{object-position:center 28%}
+    .blg-sb-row{grid-template-columns:38px 1fr auto; gap:10px}
+    .blg-sb-row img{width:38px; height:38px}
+    .blg-sb-head .totals{margin-left:0; width:100%}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .blg-hero-media, .blg-finale-media, .blg-title .gold, .blg-fmvp-name, .blg-scroll i,
+    .blg-kicker, .blg-kicker-cn, .blg-title, .blg-score, .blg-hero-sub, .blg-hero-meta, .blg-scroll{animation:none !important}
+    .reveal{opacity:1; transform:none; transition:none}
+    .blg-panel{animation:none}
+    .blg-figure img, .blg-team, .blg-card, .blg-step, .blg-stat, .blg-tab{transition:none}
+  }
+  .blg-wrap p.blg-kicker, .blg-wrap p.blg-kicker-cn, .blg-wrap p.blg-eyebrow, .blg-wrap p.blg-hero-meta{margin:0}
+  .blg-wrap p.blg-kicker-cn{margin-top:8px}
+  .blg-wrap p.blg-hero-meta{margin-top:16px}
+  .blg-wrap .blg-card p, .blg-wrap .blg-step p{margin:0}
+  .blg-wrap .blg-card p.w{margin-top:10px}
+  .blg-wrap .blg-card p.meta{margin-top:6px}
+  .blg-wrap .blg-card p.note{margin-top:12px}
+  .blg-wrap .blg-step p.opp{margin-top:10px}
+  .blg-wrap .blg-step p.sc{margin-top:6px}
+  .blg-credits p{margin:0 0 6px}
+</style>
+<noscript><style>.blg-wrap .reveal{opacity:1 !important; transform:none !important}</style></noscript>
+
+<div class="blg-wrap">
+
+  <!-- HERO -->
+  <header class="blg-hero">
+    <picture class="blg-hero-media">
+      <source media="(max-width: 720px)" srcset="/img/games/blg-s16/hero-mobile.jpg" />
+      <img src="/img/games/blg-s16/01-trophy-vcg.jpg" alt="BLG 全队一起捧起召唤师奖杯" fetchpriority="high" />
+    </picture>
+    <div class="blg-hero-inner">
+      <p class="blg-kicker">2026 League of Legends World Championship · Grand Final</p>
+      <p class="blg-kicker-cn">英雄联盟全球总决赛 · 总决赛</p>
+      <h1 class="blg-title">BLG <span class="gold">总冠军</span></h1>
+      <div><span class="blg-score"><span>BLG</span><span class="n">3–1</span><span>GEN.G</span><span class="vs">BO5</span></span></div>
+      <p class="blg-hero-sub">先丢一局，连赢三局。建队第一座世界冠军，LPL五年来的第一座召唤师奖杯。</p>
+      <p class="blg-hero-meta">Barclays Center, Brooklyn, New York · 纽约布鲁克林巴克莱中心<br />北京时间2026年11月15日凌晨 · Finals MVP：<b>Knight</b></p>
+    </div>
+    <div class="blg-scroll" aria-hidden="true"><span>Scroll</span><i></i></div>
+  </header>
+
+  <!-- LINEUPS -->
+  <section class="blg-section" id="lineups">
+    <p class="blg-eyebrow reveal">Starting Five · 首发阵容</p>
+    <h2 class="reveal" data-d="1">两边都是全主力，谁也不让。</h2>
+    <p class="blg-lead reveal" data-d="2">一边是LPL的头号种子，一边是淘汰赛开打以来一局未输的Gen.G。五个人对五个人，打满四局。</p>
+    <div class="blg-vs">
+      <div class="blg-team blg reveal" data-d="1">
+        <h3>Bilibili Gaming</h3>
+        <span class="tag">LPL · 中国</span>
+        <ul class="blg-roster">
+          <li><span class="blg-role">TOP</span><span class="blg-player">Bin<small>陈泽彬</small></span></li>
+          <li><span class="blg-role">JGL</span><span class="blg-player">Xun<small>彭立勋</small></span></li>
+          <li><span class="blg-role">MID</span><span class="blg-player">Knight<small>卓定</small></span></li>
+          <li><span class="blg-role">ADC</span><span class="blg-player">Viper<small>朴到贤</small></span></li>
+          <li><span class="blg-role">SUP</span><span class="blg-player">ON<small>骆文俊</small></span></li>
+        </ul>
+      </div>
+      <div class="blg-vs-badge reveal" data-d="2">VS</div>
+      <div class="blg-team gen reveal" data-d="3">
+        <h3>Gen.G</h3>
+        <span class="tag">LCK · 韩国</span>
+        <ul class="blg-roster">
+          <li><span class="blg-role">TOP</span><span class="blg-player">Kiin<small>金基仁</small></span></li>
+          <li><span class="blg-role">JGL</span><span class="blg-player">Canyon<small>金建敷</small></span></li>
+          <li><span class="blg-role">MID</span><span class="blg-player">Chovy<small>郑智勋</small></span></li>
+          <li><span class="blg-role">ADC</span><span class="blg-player">Ruler<small>朴宰赫</small></span></li>
+          <li><span class="blg-role">SUP</span><span class="blg-player">Duro<small>朱玟奎</small></span></li>
+        </ul>
+      </div>
+    </div>
+    <figure class="blg-figure reveal">
+      <img src="/img/games/blg-s16/07-stage-riot.jpg" alt="BLG 五名选手走向舞台，向观众致意" loading="lazy" />
+      <figcaption>决赛舞台上，BLG五名选手走向观众席致意，队服背后印着各自的ID。图：Riot Games（经首尔经济日报）</figcaption>
+    </figure>
+  </section>
+
+  <!-- GAME CARDS -->
+  <section class="blg-section" id="games">
+    <p class="blg-eyebrow reveal">Four Games · 四局比分</p>
+    <h2 class="reveal" data-d="1">输掉的第一局，只是开场白。</h2>
+    <div class="blg-cards">
+      <article class="blg-card lose reveal" data-d="1">
+        <p class="g">GAME 1 · 38分钟</p>
+        <p class="w">GEN.G <span class="l">胜</span></p>
+        <p class="meta">人头 19–4 · 金币 80.0k–66.0k</p>
+        <p class="note">Ruler的Corki 7/0/8，Gen.G团战翻盘先下一城。</p>
+      </article>
+      <article class="blg-card win reveal" data-d="2">
+        <p class="g">GAME 2 · 53分钟</p>
+        <p class="w">BLG <span class="l">胜</span></p>
+        <p class="meta">人头 19–14 · 金币 99.5k–94.2k</p>
+        <p class="note">本届最长一局，Xun的Naafiri 8/1/9，扳平比分。</p>
+      </article>
+      <article class="blg-card win reveal" data-d="3">
+        <p class="g">GAME 3 · 37分钟</p>
+        <p class="w">BLG <span class="l">胜</span></p>
+        <p class="meta">人头 20–8 · 金币 74.0k–65.7k</p>
+        <p class="note">Bin的Jax一锤定音，BLG拿到赛点。</p>
+      </article>
+      <article class="blg-card win reveal" data-d="3">
+        <p class="g">GAME 4 · 43分钟</p>
+        <p class="w">BLG <span class="l">胜</span></p>
+        <p class="meta">人头 21–11 · 金币 89.7k–79.8k</p>
+        <p class="note">Xun抢下大龙，5打3赢下团战，一波夺冠。</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- STORY -->
+  <section class="blg-section" id="story">
+    <p class="blg-eyebrow reveal">How It Happened · 四局讲述</p>
+    <h2 class="reveal" data-d="1">这四局，一局比一局硬。</h2>
+    <div class="blg-games">
+      <article class="blg-game reveal">
+        <h3>第一局：Gen.G先声夺人 <span class="tag">GEN.G WIN · 38:00</span></h3>
+        <p>BLG一度拿到四条小龙和第一条远古巨龙，开局并不差。但Gen.G的团战更硬：Kiin的Olaf绕后直切Viper，Ruler的Corki在后排火力全开，<b>7/0/8</b>、全场最高伤害，Chovy的Syndra <b>6/1/11</b>紧随其后。Gen.G赢下远古巨龙团，一波推平，<span class="num">19–4</span>，先下一城。Knight这局掏出的Locke没能打开局面，BLG全队只拿到4个人头。</p>
+      </article>
+      <article class="blg-game reveal">
+        <h3>第二局：53分钟的拉锯战 <span class="tag">BLG WIN · 53:00</span></h3>
+        <p>这是本届全球总决赛最长的一局。Gen.G掏出Vayne上单加Cho'Gath打野的怪阵，BLG则让Viper拿Ziggs、ON拿Camille走下路回应。双方来回拉扯近一个小时，Canyon甚至在倒下之前抢下了一条远古巨龙，Gen.G还是没能翻过来。Xun的Naafiri <b>8/1/9</b>，Knight的Cassiopeia <b>4/1/12</b>，BLG <span class="num">19–14</span>艰难扳平。</p>
+      </article>
+      <article class="blg-game reveal">
+        <h3>第三局：Fearless Draft开始发力 <span class="tag">BLG WIN · 37:00</span></h3>
+        <p>无畏征召之下，前两局用过的英雄不能再选，Kai'Sa、Sivir、Xayah又全被按在ban位上。BLG索性让Viper掏出Taliyah走下路，Knight拿下Viktor，ON拿下Alistar。25分钟左右的关键团战，Knight的Viktor打出决定性输出；随后Bin的Jax站了出来，一锤定音。Viper的Taliyah <b>6/1/11</b>，Knight的Viktor <b>5/2/11</b>，BLG <span class="num">20–8</span>拿下赛点。</p>
+      </article>
+      <article class="blg-game reveal">
+        <h3>第四局：抢龙，夺冠 <span class="tag">BLG WIN · 43:00</span></h3>
+        <p>Gen.G开局打得极凶，Ruler的Xayah 4分钟就连拿两个人头。但BLG的全球流开始运转：Knight的Twisted Fate和Xun的Nocturne满场带节奏，ON的Neeko几次先手开团锁住对手，Bin的Gwen <b>8/2/9</b>接管比赛。最关键的一波，Xun抢下大龙，BLG 5打3赢下团战，一波推平基地，<span class="num">21–11</span>。水晶爆炸的那一刻，五个人冲向舞台中央的奖杯。</p>
+      </article>
+    </div>
+    <figure class="blg-figure reveal">
+      <img src="/img/games/blg-s16/02-stage-vcg.jpg" alt="巴克莱中心内场座无虚席，大屏打出 WORLDS 26 与 GEN 对 BLG" loading="lazy" />
+      <figcaption>Barclays Center内场座无虚席，大屏打出WORLDS 26与GEN vs BLG。图：VCG（经CGTN）</figcaption>
+    </figure>
+  </section>
+
+  <!-- SCOREBOARDS -->
+  <section class="blg-section" id="scoreboards">
+    <p class="blg-eyebrow reveal">Scoreboards · 四局战绩</p>
+    <h2 class="reveal" data-d="1">每一局的阵容与数据，都在这里。</h2>
+    <p class="blg-lead reveal" data-d="2">点下面的标签切换四局。K/D/A为击杀/死亡/助攻，CS为补刀数。</p>
+    <div class="blg-tabs reveal" role="tablist" aria-label="四局战绩">
+      <button class="blg-tab" role="tab" id="tab-g1" aria-controls="panel-g1" aria-selected="false">G1<small>GEN.G胜</small></button>
+      <button class="blg-tab" role="tab" id="tab-g2" aria-controls="panel-g2" aria-selected="false">G2<small>BLG胜</small></button>
+      <button class="blg-tab" role="tab" id="tab-g3" aria-controls="panel-g3" aria-selected="false">G3<small>BLG胜</small></button>
+      <button class="blg-tab active" role="tab" id="tab-g4" aria-controls="panel-g4" aria-selected="true">G4<small>BLG胜 · 夺冠局</small></button>
+    </div>
+
+    <div class="blg-panel" id="panel-g1" role="tabpanel" aria-labelledby="tab-g1" hidden>
+      <div class="blg-sb">
+        <div class="blg-sb-head"><span class="side blue">BLUE</span><h3>Gen.G</h3><span class="blg-win-badge">WINNER</span><span class="totals"><b>19</b> 击杀 · <b>80.0k</b> 金币 · 38:00</span></div>
+        <div class="blg-sb-rows">
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Olaf.png" alt="Olaf" loading="lazy" /><div class="blg-sb-who"><div class="p">Kiin</div><div class="c">TOP · Olaf</div></div><div class="blg-sb-stat"><div class="kda">2 / <span class="d">1</span> / 13</div><div class="cs">295 CS · 14.6k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/LeeSin.png" alt="Lee Sin" loading="lazy" /><div class="blg-sb-who"><div class="p">Canyon</div><div class="c">JGL · Lee Sin</div></div><div class="blg-sb-stat"><div class="kda">3 / <span class="d">2</span> / 13</div><div class="cs">290 CS · 16.3k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Syndra.png" alt="Syndra" loading="lazy" /><div class="blg-sb-who"><div class="p">Chovy</div><div class="c">MID · Syndra</div></div><div class="blg-sb-stat"><div class="kda">6 / <span class="d">1</span> / 11</div><div class="cs">285 CS · 15.7k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Corki.png" alt="Corki" loading="lazy" /><div class="blg-sb-who"><div class="p">Ruler</div><div class="c">ADC · Corki</div></div><div class="blg-sb-stat"><div class="kda">7 / <span class="d">0</span> / 8</div><div class="cs">455 CS · 22.9k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Nami.png" alt="Nami" loading="lazy" /><div class="blg-sb-who"><div class="p">Duro</div><div class="c">SUP · Nami</div></div><div class="blg-sb-stat"><div class="kda">1 / <span class="d">0</span> / 16</div><div class="cs">27 CS · 10.5k</div></div></div>
+        </div>
+        <div class="blg-bans"><span class="lbl">BANS</span><span class="blg-ban">Nocturne</span><span class="blg-ban">Orianna</span><span class="blg-ban">Vi</span><span class="blg-ban">Jax</span><span class="blg-ban">Camille</span></div>
+      </div>
+      <div class="blg-sb">
+        <div class="blg-sb-head"><span class="side red">RED</span><h3>Bilibili Gaming</h3><span class="totals"><b>4</b> 击杀 · <b>66.0k</b> 金币 · 38:00</span></div>
+        <div class="blg-sb-rows">
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/KSante.png" alt="K'Sante" loading="lazy" /><div class="blg-sb-who"><div class="p">Bin</div><div class="c">TOP · K'Sante</div></div><div class="blg-sb-stat"><div class="kda">0 / <span class="d">4</span> / 1</div><div class="cs">309 CS · 12.4k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/JarvanIV.png" alt="Jarvan IV" loading="lazy" /><div class="blg-sb-who"><div class="p">Xun</div><div class="c">JGL · Jarvan IV</div></div><div class="blg-sb-stat"><div class="kda">1 / <span class="d">4</span> / 3</div><div class="cs">266 CS · 12.9k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Locke.png" alt="Locke" loading="lazy" /><div class="blg-sb-who"><div class="p">Knight</div><div class="c">MID · Locke</div></div><div class="blg-sb-stat"><div class="kda">2 / <span class="d">2</span> / 1</div><div class="cs">374 CS · 15.4k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Kalista.png" alt="Kalista" loading="lazy" /><div class="blg-sb-who"><div class="p">Viper</div><div class="c">ADC · Kalista</div></div><div class="blg-sb-stat"><div class="kda">1 / <span class="d">5</span> / 3</div><div class="cs">408 CS · 16.1k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Renata.png" alt="Renata Glasc" loading="lazy" /><div class="blg-sb-who"><div class="p">ON</div><div class="c">SUP · Renata Glasc</div></div><div class="blg-sb-stat"><div class="kda">0 / <span class="d">4</span> / 4</div><div class="cs">41 CS · 9.1k</div></div></div>
+        </div>
+        <div class="blg-bans"><span class="lbl">BANS</span><span class="blg-ban">Qiyana</span><span class="blg-ban">Cassiopeia</span><span class="blg-ban">Lulu</span><span class="blg-ban">Ezreal</span><span class="blg-ban">Seraphine</span></div>
+      </div>
+    </div>
+
+    <div class="blg-panel" id="panel-g2" role="tabpanel" aria-labelledby="tab-g2" hidden>
+      <div class="blg-sb">
+        <div class="blg-sb-head"><span class="side red">RED</span><h3>Bilibili Gaming</h3><span class="blg-win-badge">WINNER</span><span class="totals"><b>19</b> 击杀 · <b>99.5k</b> 金币 · 53:00</span></div>
+        <div class="blg-sb-rows">
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Gnar.png" alt="Gnar" loading="lazy" /><div class="blg-sb-who"><div class="p">Bin</div><div class="c">TOP · Gnar</div></div><div class="blg-sb-stat"><div class="kda">3 / <span class="d">2</span> / 6</div><div class="cs">360 CS · 19.2k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Naafiri.png" alt="Naafiri" loading="lazy" /><div class="blg-sb-who"><div class="p">Xun</div><div class="c">JGL · Naafiri</div></div><div class="blg-sb-stat"><div class="kda">8 / <span class="d">1</span> / 9</div><div class="cs">385 CS · 22.3k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Cassiopeia.png" alt="Cassiopeia" loading="lazy" /><div class="blg-sb-who"><div class="p">Knight</div><div class="c">MID · Cassiopeia</div></div><div class="blg-sb-stat"><div class="kda">4 / <span class="d">1</span> / 12</div><div class="cs">408 CS · 20.9k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Ziggs.png" alt="Ziggs" loading="lazy" /><div class="blg-sb-who"><div class="p">Viper</div><div class="c">ADC · Ziggs</div></div><div class="blg-sb-stat"><div class="kda">3 / <span class="d">2</span> / 13</div><div class="cs">459 CS · 22.8k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Camille.png" alt="Camille" loading="lazy" /><div class="blg-sb-who"><div class="p">ON</div><div class="c">SUP · Camille</div></div><div class="blg-sb-stat"><div class="kda">1 / <span class="d">8</span> / 10</div><div class="cs">78 CS · 14.2k</div></div></div>
+        </div>
+        <div class="blg-bans"><span class="lbl">BANS</span><span class="blg-ban">Jayce</span><span class="blg-ban">Vi</span><span class="blg-ban">Galio</span><span class="blg-ban">Renekton</span><span class="blg-ban">Viktor</span></div>
+      </div>
+      <div class="blg-sb">
+        <div class="blg-sb-head"><span class="side blue">BLUE</span><h3>Gen.G</h3><span class="totals"><b>14</b> 击杀 · <b>94.2k</b> 金币 · 53:00</span></div>
+        <div class="blg-sb-rows">
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Vayne.png" alt="Vayne" loading="lazy" /><div class="blg-sb-who"><div class="p">Kiin</div><div class="c">TOP · Vayne</div></div><div class="blg-sb-stat"><div class="kda">3 / <span class="d">4</span> / 3</div><div class="cs">453 CS · 20.3k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Chogath.png" alt="Cho'Gath" loading="lazy" /><div class="blg-sb-who"><div class="p">Canyon</div><div class="c">JGL · Cho'Gath</div></div><div class="blg-sb-stat"><div class="kda">2 / <span class="d">5</span> / 3</div><div class="cs">295 CS · 16.1k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Orianna.png" alt="Orianna" loading="lazy" /><div class="blg-sb-who"><div class="p">Chovy</div><div class="c">MID · Orianna</div></div><div class="blg-sb-stat"><div class="kda">2 / <span class="d">6</span> / 5</div><div class="cs">408 CS · 19.0k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Ezreal.png" alt="Ezreal" loading="lazy" /><div class="blg-sb-who"><div class="p">Ruler</div><div class="c">ADC · Ezreal</div></div><div class="blg-sb-stat"><div class="kda">6 / <span class="d">2</span> / 5</div><div class="cs">551 CS · 26.0k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Karma.png" alt="Karma" loading="lazy" /><div class="blg-sb-who"><div class="p">Duro</div><div class="c">SUP · Karma</div></div><div class="blg-sb-stat"><div class="kda">1 / <span class="d">2</span> / 11</div><div class="cs">53 CS · 12.9k</div></div></div>
+        </div>
+        <div class="blg-bans"><span class="lbl">BANS</span><span class="blg-ban">Nocturne</span><span class="blg-ban">Qiyana</span><span class="blg-ban">Nautilus</span><span class="blg-ban">Lulu</span><span class="blg-ban">Akali</span></div>
+      </div>
+    </div>
+
+    <div class="blg-panel" id="panel-g3" role="tabpanel" aria-labelledby="tab-g3" hidden>
+      <div class="blg-sb">
+        <div class="blg-sb-head"><span class="side red">RED</span><h3>Bilibili Gaming</h3><span class="blg-win-badge">WINNER</span><span class="totals"><b>20</b> 击杀 · <b>74.0k</b> 金币 · 37:00</span></div>
+        <div class="blg-sb-rows">
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Jax.png" alt="Jax" loading="lazy" /><div class="blg-sb-who"><div class="p">Bin</div><div class="c">TOP · Jax</div></div><div class="blg-sb-stat"><div class="kda">3 / <span class="d">1</span> / 10</div><div class="cs">291 CS · 14.6k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Vi.png" alt="Vi" loading="lazy" /><div class="blg-sb-who"><div class="p">Xun</div><div class="c">JGL · Vi</div></div><div class="blg-sb-stat"><div class="kda">4 / <span class="d">3</span> / 12</div><div class="cs">306 CS · 16.3k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Viktor.png" alt="Viktor" loading="lazy" /><div class="blg-sb-who"><div class="p">Knight</div><div class="c">MID · Viktor</div></div><div class="blg-sb-stat"><div class="kda">5 / <span class="d">2</span> / 11</div><div class="cs">304 CS · 15.2k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Taliyah.png" alt="Taliyah" loading="lazy" /><div class="blg-sb-who"><div class="p">Viper</div><div class="c">ADC · Taliyah</div></div><div class="blg-sb-stat"><div class="kda">6 / <span class="d">1</span> / 11</div><div class="cs">284 CS · 17.4k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Alistar.png" alt="Alistar" loading="lazy" /><div class="blg-sb-who"><div class="p">ON</div><div class="c">SUP · Alistar</div></div><div class="blg-sb-stat"><div class="kda">2 / <span class="d">1</span> / 16</div><div class="cs">47 CS · 10.4k</div></div></div>
+        </div>
+        <div class="blg-bans"><span class="lbl">BANS</span><span class="blg-ban">Qiyana</span><span class="blg-ban">Jayce</span><span class="blg-ban">Lulu</span><span class="blg-ban">Xayah</span><span class="blg-ban">Poppy</span></div>
+      </div>
+      <div class="blg-sb">
+        <div class="blg-sb-head"><span class="side blue">BLUE</span><h3>Gen.G</h3><span class="totals"><b>8</b> 击杀 · <b>65.7k</b> 金币 · 37:00</span></div>
+        <div class="blg-sb-rows">
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Ambessa.png" alt="Ambessa" loading="lazy" /><div class="blg-sb-who"><div class="p">Kiin</div><div class="c">TOP · Ambessa</div></div><div class="blg-sb-stat"><div class="kda">0 / <span class="d">3</span> / 2</div><div class="cs">343 CS · 13.0k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Wukong.png" alt="Wukong" loading="lazy" /><div class="blg-sb-who"><div class="p">Canyon</div><div class="c">JGL · Wukong</div></div><div class="blg-sb-stat"><div class="kda">0 / <span class="d">4</span> / 5</div><div class="cs">281 CS · 13.0k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Annie.png" alt="Annie" loading="lazy" /><div class="blg-sb-who"><div class="p">Chovy</div><div class="c">MID · Annie</div></div><div class="blg-sb-stat"><div class="kda">4 / <span class="d">6</span> / 1</div><div class="cs">262 CS · 13.3k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Jhin.png" alt="Jhin" loading="lazy" /><div class="blg-sb-who"><div class="p">Ruler</div><div class="c">ADC · Jhin</div></div><div class="blg-sb-stat"><div class="kda">4 / <span class="d">3</span> / 3</div><div class="cs">362 CS · 17.1k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Rakan.png" alt="Rakan" loading="lazy" /><div class="blg-sb-who"><div class="p">Duro</div><div class="c">SUP · Rakan</div></div><div class="blg-sb-stat"><div class="kda">0 / <span class="d">4</span> / 5</div><div class="cs">41 CS · 9.3k</div></div></div>
+        </div>
+        <div class="blg-bans"><span class="lbl">BANS</span><span class="blg-ban">Nautilus</span><span class="blg-ban">Renekton</span><span class="blg-ban">Seraphine</span><span class="blg-ban">Kai'Sa</span><span class="blg-ban">Sivir</span></div>
+      </div>
+    </div>
+
+    <div class="blg-panel" id="panel-g4" role="tabpanel" aria-labelledby="tab-g4">
+      <div class="blg-sb">
+        <div class="blg-sb-head"><span class="side blue">BLUE</span><h3>Bilibili Gaming</h3><span class="blg-win-badge">WINNER</span><span class="totals"><b>21</b> 击杀 · <b>89.7k</b> 金币 · 43:00</span></div>
+        <div class="blg-sb-rows">
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Gwen.png" alt="Gwen" loading="lazy" /><div class="blg-sb-who"><div class="p">Bin</div><div class="c">TOP · Gwen</div></div><div class="blg-sb-stat"><div class="kda">8 / <span class="d">2</span> / 9</div><div class="cs">337 CS · 17.7k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Nocturne.png" alt="Nocturne" loading="lazy" /><div class="blg-sb-who"><div class="p">Xun</div><div class="c">JGL · Nocturne</div></div><div class="blg-sb-stat"><div class="kda">3 / <span class="d">3</span> / 11</div><div class="cs">276 CS · 16.3k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/TwistedFate.png" alt="Twisted Fate" loading="lazy" /><div class="blg-sb-who"><div class="p">Knight</div><div class="c">MID · Twisted Fate</div></div><div class="blg-sb-stat"><div class="kda">2 / <span class="d">1</span> / 17</div><div class="cs">364 CS · 20.6k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Yunara.png" alt="Yunara" loading="lazy" /><div class="blg-sb-who"><div class="p">Viper</div><div class="c">ADC · Yunara</div></div><div class="blg-sb-stat"><div class="kda">6 / <span class="d">4</span> / 9</div><div class="cs">421 CS · 23.2k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Neeko.png" alt="Neeko" loading="lazy" /><div class="blg-sb-who"><div class="p">ON</div><div class="c">SUP · Neeko</div></div><div class="blg-sb-stat"><div class="kda">2 / <span class="d">1</span> / 13</div><div class="cs">66 CS · 12.0k</div></div></div>
+        </div>
+        <div class="blg-bans"><span class="lbl">BANS</span><span class="blg-ban">Qiyana</span><span class="blg-ban">Jayce</span><span class="blg-ban">Seraphine</span><span class="blg-ban">Sylas</span><span class="blg-ban">Rumble</span></div>
+      </div>
+      <div class="blg-sb">
+        <div class="blg-sb-head"><span class="side red">RED</span><h3>Gen.G</h3><span class="totals"><b>11</b> 击杀 · <b>79.8k</b> 金币 · 43:00</span></div>
+        <div class="blg-sb-rows">
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Aurora.png" alt="Aurora" loading="lazy" /><div class="blg-sb-who"><div class="p">Kiin</div><div class="c">TOP · Aurora</div></div><div class="blg-sb-stat"><div class="kda">0 / <span class="d">5</span> / 6</div><div class="cs">325 CS · 13.8k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Pantheon.png" alt="Pantheon" loading="lazy" /><div class="blg-sb-who"><div class="p">Canyon</div><div class="c">JGL · Pantheon</div></div><div class="blg-sb-stat"><div class="kda">0 / <span class="d">5</span> / 5</div><div class="cs">289 CS · 14.1k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Akali.png" alt="Akali" loading="lazy" /><div class="blg-sb-who"><div class="p">Chovy</div><div class="c">MID · Akali</div></div><div class="blg-sb-stat"><div class="kda">5 / <span class="d">4</span> / 1</div><div class="cs">385 CS · 17.8k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Xayah.png" alt="Xayah" loading="lazy" /><div class="blg-sb-who"><div class="p">Ruler</div><div class="c">ADC · Xayah</div></div><div class="blg-sb-stat"><div class="kda">6 / <span class="d">3</span> / 4</div><div class="cs">488 CS · 24.0k</div></div></div>
+          <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Lulu.png" alt="Lulu" loading="lazy" /><div class="blg-sb-who"><div class="p">Duro</div><div class="c">SUP · Lulu</div></div><div class="blg-sb-stat"><div class="kda">0 / <span class="d">4</span> / 9</div><div class="cs">29 CS · 10.2k</div></div></div>
+        </div>
+        <div class="blg-bans"><span class="lbl">BANS</span><span class="blg-ban">Nautilus</span><span class="blg-ban">Skarner</span><span class="blg-ban">Kindred</span><span class="blg-ban">Renekton</span><span class="blg-ban">Galio</span></div>
+      </div>
+    </div>
+    <p class="blg-data-note">对局数据来源：<a href="https://ggez.gg/worlds/match/2026-finals-blg-vs-gen" target="_blank" rel="noopener">ggez.gg</a>（原始数据来自Leaguepedia，CC BY-SA 3.0）。英雄头像来自Riot Games Data Dragon。Patch 26.20，Fearless Draft。</p>
+  </section>
+
+  <!-- FMVP -->
+  <section class="blg-fmvp" id="fmvp">
+    <div class="blg-fmvp-inner">
+      <p class="blg-eyebrow reveal">Finals MVP · 总决赛最有价值选手</p>
+      <h2 class="blg-fmvp-name reveal" data-d="1">KNIGHT</h2>
+      <div class="blg-fmvp-role reveal" data-d="2">MID · Bilibili Gaming · 卓定</div>
       <div class="blg-stats">
-        <div><b>13-6-41</b><span>四局总战绩</span></div>
-        <div><b>9.0</b><span>KDA</span></div>
-        <div><b>84.4%</b><span>参团率（54/64）</span></div>
-        <div><b>19/21</b><span>第四局参与人头</span></div>
+        <div class="blg-stat reveal" data-d="1"><div class="v"><span data-count="9.0" data-dec="1">9.0</span></div><div class="l">系列赛KDA，13杀6死41助攻</div></div>
+        <div class="blg-stat reveal" data-d="2"><div class="v"><span data-count="84.4" data-dec="1" data-suffix="%">84.4%</span></div><div class="l">系列赛参团率，54/64</div></div>
+        <div class="blg-stat reveal" data-d="3"><div class="v"><span data-count="90.5" data-dec="1" data-suffix="%">90.5%</span></div><div class="l">第四局参团率，19/21，只死1次</div></div>
+        <div class="blg-stat reveal" data-d="3"><div class="v"><span data-count="3" data-dec="0">3</span></div><div class="l">三场胜利，三个英雄：Cassiopeia、Viktor、Twisted Fate</div></div>
       </div>
-      <blockquote>
-        <p>“赛前很多人说我打不过 Chovy、BLG 赢不了 Gen.G。现在我可以告诉全世界，我们就是最强的队伍，我们就是最好的。”</p>
-        <cite>—— Knight，赛后采访（据首尔经济日报译出）</cite>
+      <ul class="blg-fmvp-facts reveal">
+        <li>首位拿到世界冠军的中国大陆中单，终结了韩国中单对这个位置连续13届的统治。</li>
+        <li>继Faker、Zeus之后，第三位同时拿到MSI与全球总决赛FMVP的选手（MSI 2023随JDG）。</li>
+        <li>这是他职业生涯的第一座召唤师奖杯。两年前的同一片决赛舞台，他输给了T1。</li>
+      </ul>
+      <blockquote class="blg-quote reveal">
+        “赛前很多人说我打不过Chovy、BLG赢不了Gen.G。现在我可以告诉全世界：我们就是最强的队伍，我们就是最好的。”
+        <small>Knight赛后采访，大意，译自首尔经济日报的报道。</small>
       </blockquote>
-      <p class="blg-note">
-        加上2023年在JDG拿到的MSI决赛MVP，Knight成为Faker、Zeus之后，历史上第三位同时拿过MSI和世界赛决赛MVP的选手。2024年决赛2-3输给T1的那场，两年后亲手改写了结局。
-      </p>
-      <figure class="blg-figure">
-        <img src="/img/games/blg-s16/03-celebrate-vcg.jpg" alt="BLG 队员在舞台上庆祝，Viper 与 Knight 的球衣清晰可见" />
-        <figcaption>夺冠后，BLG 队员在舞台上庆祝。图：VCG，载于 CGTN 报道。</figcaption>
+      <figure class="blg-figure reveal">
+        <img src="/img/games/blg-s16/06-trophy-yonhap.jpg" alt="BLG 全队再次捧起召唤师奖杯" loading="lazy" />
+        <figcaption>BLG全队再次捧起召唤师奖杯。图：AFP-Yonhap（经首尔经济日报）</figcaption>
       </figure>
-    </section>
+    </div>
+  </section>
 
-    <section class="blg-road">
-      <h2>赢下全部四支 LCK 队伍</h2>
-      <p>从瑞士轮到决赛，BLG 遇到的四支 LCK 队伍，一个都没放过：13 局赢了 11 局。</p>
-      <ol class="blg-steps">
-        <li><span>瑞士轮</span><b>韩华 HLE</b><i>胜</i></li>
-        <li><span>八强</span><b>DK</b><i>3-0</i></li>
-        <li><span>四强</span><b>T1</b><i>3-1</i></li>
-        <li><span>决赛</span><b>GEN.G</b><i>3-1</i></li>
-      </ol>
-      <p class="blg-note">Gen.G 在进决赛之前，淘汰赛一局都没输过。Viper 拿下个人第二冠，Bin、Xun、Knight、ON 第一次捧杯。</p>
-    </section>
+  <!-- ROAD -->
+  <section class="blg-section" id="road">
+    <p class="blg-eyebrow reveal">The Road · 夺冠之路</p>
+    <h2 class="reveal" data-d="1">赢下的，是整个LCK。</h2>
+    <p class="blg-lead reveal" data-d="2">从瑞士轮到总决赛，BLG把本届的四支LCK队伍赢了个遍——<b>13局里赢下11局</b>，史上第一次有队伍在同一届全球总决赛赢下全部四支LCK队伍。</p>
+    <div class="blg-road">
+      <div class="blg-step reveal" data-d="1"><p class="round">Swiss · 瑞士轮</p><p class="opp">Hanwha Life Esports</p><p class="sc">胜 · 晋级淘汰赛</p></div>
+      <div class="blg-step reveal" data-d="2"><p class="round">Quarterfinal · 八强</p><p class="opp">Dplus KIA</p><p class="sc">3–0 · 横扫</p></div>
+      <div class="blg-step reveal" data-d="3"><p class="round">Semifinal · 四强</p><p class="opp">T1</p><p class="sc">3–1 · 终结三连冠</p></div>
+      <div class="blg-step final reveal" data-d="3"><p class="round">Grand Final · 决赛</p><p class="opp">Gen.G</p><p class="sc">3–1 · 总冠军</p></div>
+    </div>
+    <p class="blg-road-note reveal">水晶爆炸的那一刻，英文解说喊出了一句：<span class="en">“BLG burn all four LCK banners.”</span></p>
+    <p class="blg-road-note reveal">Viper也拿到了个人第二座召唤师奖杯——上一座是2021年随EDG，中间隔了五年。</p>
+  </section>
 
-    <section class="blg-scene">
-      <h2>场外，同样满座</h2>
-      <p>
-        17000个座位的巴克莱中心，门票不到一分钟售罄；110多个城市的300多家影院组织了观赛，北京时间凌晨3点开打，影院照样坐满。
-      </p>
-      <div class="blg-duo">
-        <figure class="blg-figure">
-          <img src="/img/games/blg-s16/04-fans-yonhap.jpg" alt="决赛开打前，巴克莱中心外的观众人群" />
-          <figcaption>决赛开打前，巴克莱中心外聚集的观众。图：AFP-Yonhap</figcaption>
-        </figure>
-        <figure class="blg-figure">
-          <img src="/img/games/blg-s16/05-cosplay-yonhap.jpg" alt="场外身着英雄联盟角色装扮的观众" />
-          <figcaption>场外的 Cosplay 观众。图：AFP-Yonhap</figcaption>
-        </figure>
-      </div>
-    </section>
+  <!-- ATMOSPHERE -->
+  <section class="blg-section" id="atmosphere">
+    <p class="blg-eyebrow reveal">Beyond the Arena · 场外</p>
+    <h2 class="reveal" data-d="1">场外，同样满座。</h2>
+    <p class="blg-lead reveal" data-d="2">Barclays Center的17000个座位爆满，门票不到1分钟售罄；中国110多座城市的300多家影院组织了观赛。</p>
+    <div class="blg-duo">
+      <figure class="blg-figure reveal" data-d="1">
+        <img src="/img/games/blg-s16/04-fans-yonhap.jpg" alt="决赛开打前，巴克莱中心外聚集的观众" loading="lazy" />
+        <figcaption>决赛开打前，Barclays Center外聚集的观众。图：AFP-Yonhap</figcaption>
+      </figure>
+      <figure class="blg-figure reveal" data-d="2">
+        <img src="/img/games/blg-s16/05-cosplay-yonhap.jpg" alt="场外的 Cosplay 观众" loading="lazy" />
+        <figcaption>场外的Cosplay观众。图：AFP-Yonhap</figcaption>
+      </figure>
+    </div>
+  </section>
 
-    <section class="blg-finale">
-      <img class="blg-finale-img" src="/img/games/blg-s16/06-trophy-yonhap.jpg" alt="BLG 全队合力捧起召唤师奖杯" />
-      <div class="blg-finale-shade"></div>
-      <div class="blg-finale-inner">
-        <p class="blg-finale-big">2024 年输掉的，<br />2026 年亲手拿回来了。</p>
-        <p class="blg-finale-small">恭喜 BLG，冠军属于你们。</p>
-      </div>
-      <p class="blg-credit">图：AFP-Yonhap</p>
-    </section>
+  <!-- FINALE -->
+  <section class="blg-finale">
+    <picture class="blg-finale-media">
+      <source media="(max-width: 720px)" srcset="/img/games/blg-s16/finale-mobile.jpg" />
+      <img src="/img/games/blg-s16/03-celebrate-vcg.jpg" alt="BLG 队员在舞台上庆祝胜利" loading="lazy" />
+    </picture>
+    <div class="blg-finale-inner reveal">
+      <div class="rule"></div>
+      <h2>2024年输掉的，2026年亲手拿回来了。</h2>
+      <p>恭喜BLG，冠军属于你们。</p>
+      <p class="en">Champions · Bilibili Gaming · Worlds 2026</p>
+    </div>
+  </section>
 
-    <footer class="blg-foot">
-      <p>
-        图片出处：本文图片分别来自 CGTN 报道（摄影：VCG）与首尔经济日报报道（摄影：AFP-Yonhap），仅作个人博客非商业分享，版权归原作者所有。赛况数据来自
-        CGTN、Dot Esports、Strafe、首尔经济日报与 LoLNow 的决赛报道。
-      </p>
-    </footer>
-  </article>
+  <div class="blg-credits">
+    <p>图片：VCG（经CGTN）、AFP-Yonhap与Riot Games（经首尔经济日报），版权归原作者所有；英雄头像来自Riot Games Data Dragon。</p>
+    <p>对局数据来自Leaguepedia（CC BY-SA 3.0），经<a href="https://ggez.gg/worlds/match/2026-finals-blg-vs-gen" target="_blank" rel="noopener">ggez.gg</a>整理；文字参考Dot Esports、Inven Global、CGTN、LoLNow与首尔经济日报的报道。</p>
+    <p>页面发布于2026年11月15日。</p>
+  </div>
 
-  <style>
-    .blg {
-      --blg-bg: #0b0b10;
-      --blg-gold: #e8c469;
-      --blg-gold-dim: #b3923f;
-      --blg-pink: #fb7299;
-      --blg-ink: #f5f2ea;
-      --blg-ink-dim: rgba(245, 242, 234, 0.72);
-      --blg-line: rgba(245, 242, 234, 0.16);
-      background: var(--blg-bg);
-      color: var(--blg-ink);
-      margin: 0;
+</div>
+
+<script>
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var wrap = document.querySelector('.blg-wrap');
+  if (!wrap) return;
+  var revealEls = wrap.querySelectorAll('.reveal');
+  if (reduce || !('IntersectionObserver' in window)) {
+    revealEls.forEach(function (el) { el.classList.add('in'); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(function (el) { io.observe(el); });
+  }
+  var nums = wrap.querySelectorAll('[data-count]');
+  function runCount(el) {
+    var target = parseFloat(el.getAttribute('data-count'));
+    var dec = parseInt(el.getAttribute('data-dec') || '0', 10);
+    var suffix = el.getAttribute('data-suffix') || '';
+    if (reduce) { el.textContent = target.toFixed(dec) + suffix; return; }
+    var start = null;
+    function frame(ts) {
+      if (!start) start = ts;
+      var p = Math.min((ts - start) / 1100, 1);
+      var eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = (target * eased).toFixed(dec) + suffix;
+      if (p < 1) requestAnimationFrame(frame);
     }
-    .blg h2 {
-      font-size: clamp(1.9rem, 4.5vw, 2.9rem);
-      line-height: 1.15;
-      letter-spacing: 0.04em;
-      margin: 0 0 1.1rem;
-      font-weight: 900;
-    }
-    .blg p {
-      font-size: 1.06rem;
-      line-height: 1.85;
-    }
-    .blg-kicker {
-      font-size: 0.82rem !important;
-      letter-spacing: 0.32em;
-      text-transform: uppercase;
-      color: var(--blg-gold);
-      font-weight: 700;
-      margin: 0 0 1rem;
-      line-height: 1.7 !important;
-    }
-    .blg-credit {
-      position: absolute;
-      right: 1.1rem;
-      bottom: 0.9rem;
-      font-size: 0.78rem !important;
-      line-height: 1.4 !important;
-      color: rgba(255, 255, 255, 0.65);
-      margin: 0;
-      z-index: 3;
-    }
-    .blg-hero {
-      position: relative;
-      width: 100vw;
-      margin-left: calc(50% - 50vw);
-      min-height: 92svh;
-      display: flex;
-      align-items: flex-end;
-      overflow: hidden;
-      isolation: isolate;
-    }
-    .blg-hero-img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center 32%;
-      z-index: 0;
-    }
-    .blg-hero-shade {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      background:
-        linear-gradient(180deg, rgba(11, 11, 16, 0.42) 0%, rgba(11, 11, 16, 0.08) 38%, rgba(11, 11, 16, 0.88) 100%),
-        linear-gradient(90deg, rgba(11, 11, 16, 0.62) 0%, rgba(11, 11, 16, 0) 62%);
-    }
-    .blg-hero-inner {
-      position: relative;
-      z-index: 2;
-      width: min(1120px, 92vw);
-      margin: 0 auto;
-      padding: 0 0 4.2rem;
-    }
-    .blg-title {
-      font-size: clamp(4.2rem, 15vw, 10.5rem);
-      line-height: 0.98;
-      letter-spacing: 0.02em;
-      font-weight: 900;
-      margin: 0 0 1.2rem;
-      text-shadow: 0 4px 40px rgba(0, 0, 0, 0.55);
-    }
-    .blg-title span {
-      color: var(--blg-gold);
-    }
-    .blg-score {
-      font-size: clamp(1.5rem, 3.6vw, 2.3rem) !important;
-      font-weight: 800;
-      letter-spacing: 0.12em;
-      margin: 0 0 0.7rem !important;
-    }
-    .blg-score b {
-      color: var(--blg-gold);
-      font-size: 1.25em;
-      padding: 0 0.15em;
-    }
-    .blg-sub {
-      max-width: 34em;
-      color: var(--blg-ink);
-      margin: 0 0 0.9rem !important;
-      text-shadow: 0 2px 18px rgba(0, 0, 0, 0.6);
-    }
-    .blg-meta {
-      font-size: 0.9rem !important;
-      color: var(--blg-ink-dim);
-      margin: 0 !important;
-    }
-    .blg-games {
-      width: min(1120px, 92vw);
-      margin: 0 auto;
-      padding: 3.2rem 0 0.6rem;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1px;
-      background: var(--blg-line);
-      border-top: 1px solid var(--blg-line);
-      border-bottom: 1px solid var(--blg-line);
-    }
-    .blg-game {
-      background: var(--blg-bg);
-      padding: 1.4rem 1.3rem 1.5rem;
-      border-top: 3px solid var(--blg-gold);
-    }
-    .blg-game--lost {
-      border-top-color: rgba(245, 242, 234, 0.28);
-      opacity: 0.62;
-    }
-    .blg-game-no {
-      font-size: 0.82rem !important;
-      letter-spacing: 0.28em;
-      color: var(--blg-ink-dim);
-      margin: 0 0 0.55rem !important;
-      line-height: 1.5 !important;
-    }
-    .blg-game-winner {
-      font-size: 1.45rem !important;
-      font-weight: 900;
-      letter-spacing: 0.06em;
-      margin: 0 0 0.2rem !important;
-      line-height: 1.3 !important;
-    }
-    .blg-game-time {
-      font-size: 0.95rem !important;
-      color: var(--blg-gold);
-      font-weight: 700;
-      margin: 0 0 0.5rem !important;
-      line-height: 1.5 !important;
-    }
-    .blg-game-note {
-      font-size: 0.9rem !important;
-      line-height: 1.6 !important;
-      color: var(--blg-ink-dim);
-      margin: 0 !important;
-    }
-    .blg-story,
-    .blg-fmvp,
-    .blg-road,
-    .blg-scene {
-      width: min(860px, 92vw);
-      margin: 0 auto;
-      padding: 4.2rem 0 0.4rem;
-    }
-    .blg-story p,
-    .blg-road p,
-    .blg-scene p {
-      color: var(--blg-ink-dim);
-      margin: 0 0 1.15rem;
-    }
-    .blg-story p:last-child,
-    .blg-road p:last-child,
-    .blg-scene p:last-child {
-      margin-bottom: 0;
-    }
-    .blg-figure {
-      margin: 2rem 0;
-    }
-    .blg-figure img {
-      display: block;
-      width: 100%;
-      height: auto;
-      border-radius: 6px;
-    }
-    .blg-figure figcaption {
-      font-size: 0.85rem;
-      line-height: 1.6;
-      color: rgba(245, 242, 234, 0.55);
-      margin-top: 0.6rem;
-    }
-    .blg-fmvp {
-      text-align: left;
-    }
-    .blg-fmvp-name {
-      font-size: clamp(3.4rem, 11vw, 7.5rem) !important;
-      line-height: 1 !important;
-      letter-spacing: 0.06em;
-      font-weight: 900;
-      margin: 0 0 0.6rem !important;
-    }
-    .blg-fmvp-sub {
-      color: var(--blg-ink-dim);
-      margin: 0 0 2rem !important;
-    }
-    .blg-stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1px;
-      background: var(--blg-line);
-      border-top: 1px solid var(--blg-line);
-      border-bottom: 1px solid var(--blg-line);
-      margin-bottom: 2.2rem;
-    }
-    .blg-stats div {
-      background: var(--blg-bg);
-      padding: 1.2rem 1rem 1.3rem;
-    }
-    .blg-stats b {
-      display: block;
-      font-size: clamp(1.6rem, 4vw, 2.4rem);
-      line-height: 1.1;
-      color: var(--blg-gold);
-      letter-spacing: 0.02em;
-    }
-    .blg-stats span {
-      display: block;
-      font-size: 0.84rem;
-      line-height: 1.5;
-      color: var(--blg-ink-dim);
-      margin-top: 0.45rem;
-    }
-    .blg-fmvp blockquote {
-      margin: 0 0 1.6rem;
-      padding: 0 0 0 1.3rem;
-      border-left: 3px solid var(--blg-pink);
-    }
-    .blg-fmvp blockquote p {
-      font-size: clamp(1.25rem, 2.6vw, 1.55rem) !important;
-      line-height: 1.6 !important;
-      font-weight: 700;
-      color: var(--blg-ink);
-      margin: 0 0 0.6rem !important;
-    }
-    .blg-fmvp blockquote cite {
-      font-size: 0.88rem;
-      font-style: normal;
-      color: var(--blg-ink-dim);
-    }
-    .blg-note {
-      color: var(--blg-ink-dim);
-      margin: 0 0 1.15rem;
-    }
-    .blg-steps {
-      list-style: none;
-      margin: 1.8rem 0;
-      padding: 0;
-    }
-    .blg-steps li {
-      display: grid;
-      grid-template-columns: 5.2em 1fr auto;
-      align-items: baseline;
-      gap: 1rem;
-      padding: 1.05rem 0.2rem;
-      border-bottom: 1px solid var(--blg-line);
-    }
-    .blg-steps li:first-child {
-      border-top: 1px solid var(--blg-line);
-    }
-    .blg-steps span {
-      font-size: 0.88rem;
-      letter-spacing: 0.2em;
-      color: var(--blg-ink-dim);
-    }
-    .blg-steps b {
-      font-size: 1.35rem;
-      letter-spacing: 0.04em;
-    }
-    .blg-steps i {
-      font-style: normal;
-      font-size: 1.2rem;
-      font-weight: 800;
-      color: var(--blg-gold);
-    }
-    .blg-duo {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.4rem;
-    }
-    .blg-duo .blg-figure {
-      margin: 1.8rem 0 0;
-    }
-    .blg-finale {
-      position: relative;
-      width: 100vw;
-      margin-left: calc(50% - 50vw);
-      margin-top: 4.5rem;
-      min-height: 78svh;
-      display: flex;
-      align-items: center;
-      overflow: hidden;
-      isolation: isolate;
-    }
-    .blg-finale-img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center 30%;
-      z-index: 0;
-    }
-    .blg-finale-shade {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      background: linear-gradient(180deg, rgba(11, 11, 16, 0.55) 0%, rgba(11, 11, 16, 0.25) 45%, rgba(11, 11, 16, 0.82) 100%);
-    }
-    .blg-finale-inner {
-      position: relative;
-      z-index: 2;
-      width: min(860px, 92vw);
-      margin: 0 auto;
-      padding: 5rem 0;
-      text-align: center;
-    }
-    .blg-finale-big {
-      font-size: clamp(2rem, 6vw, 3.6rem) !important;
-      line-height: 1.3 !important;
-      font-weight: 900;
-      letter-spacing: 0.04em;
-      margin: 0 0 1rem !important;
-      text-shadow: 0 4px 32px rgba(0, 0, 0, 0.6);
-    }
-    .blg-finale-small {
-      font-size: 1.15rem !important;
-      color: var(--blg-gold);
-      font-weight: 700;
-      letter-spacing: 0.24em;
-      margin: 0 !important;
-    }
-    .blg-foot {
-      width: min(860px, 92vw);
-      margin: 0 auto;
-      padding: 2.6rem 0 3.4rem;
-    }
-    .blg-foot p {
-      font-size: 0.84rem !important;
-      line-height: 1.7 !important;
-      color: rgba(245, 242, 234, 0.5);
-      margin: 0 !important;
-    }
-    @media (max-width: 720px) {
-      .blg-games {
-        grid-template-columns: 1fr 1fr;
-      }
-      .blg-stats {
-        grid-template-columns: 1fr 1fr;
-      }
-      .blg-duo {
-        grid-template-columns: 1fr;
-      }
-      .blg-hero {
-        min-height: 84svh;
-      }
-      .blg-hero-inner {
-        padding-bottom: 3.2rem;
-      }
-      .blg-steps li {
-        grid-template-columns: 4.6em 1fr auto;
-      }
-    }
-  </style>
+    requestAnimationFrame(frame);
+  }
+  if ('IntersectionObserver' in window) {
+    var io2 = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { runCount(en.target); io2.unobserve(en.target); }
+      });
+    }, { threshold: 0.4 });
+    nums.forEach(function (n) { io2.observe(n); });
+  } else {
+    nums.forEach(runCount);
+  }
+  var tabs = wrap.querySelectorAll('.blg-tab');
+  var panels = wrap.querySelectorAll('.blg-panel');
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      tabs.forEach(function (t) { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+      panels.forEach(function (p) { p.hidden = true; });
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+      var panel = document.getElementById(tab.getAttribute('aria-controls'));
+      if (panel) panel.hidden = false;
+    });
+  });
+})();
+</script>
 </BaseLayout>
