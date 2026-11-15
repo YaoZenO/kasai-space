@@ -31,6 +31,15 @@ const lead = leadParts.join(' · ');
         <p class="gm-lead">{lead}</p>
       </header>
 
+      <a class="gm-feature" href={urlFor('/blg-champion/')}>
+        <img class="gm-feature-img" src={urlFor('/img/games/blg-s16/01-trophy-vcg.jpg')} alt="BLG 全队捧起召唤师奖杯" loading="lazy" />
+        <span class="gm-feature-body">
+          <span class="gm-feature-kicker">专题 · 2026 英雄联盟全球总决赛</span>
+          <span class="gm-feature-title">BLG 3-1 战胜 Gen.G，队史首冠</span>
+          <span class="gm-feature-sub">先丢一局，连赢三局 →</span>
+        </span>
+      </a>
+
       {items.length === 0 ? (
         <EmptyState>还没有游戏条目，可以先回<a href={urlFor('/')}>首页</a>看看别的内容。</EmptyState>
       ) : (
@@ -52,3 +61,15 @@ const lead = leadParts.join(' · ');
     </div>
   </div>
 </BaseLayout>
+
+<style>
+  .gm-feature{position:relative;display:flex;align-items:flex-end;min-height:132px;margin:0 0 22px;border-radius:14px;overflow:hidden;text-decoration:none;color:#fff}
+  .gm-feature-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 32%}
+  .gm-feature::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,8,20,.12),rgba(5,8,20,.74))}
+  .gm-feature-body{position:relative;z-index:1;display:flex;flex-direction:column;gap:3px;padding:18px 20px}
+  .gm-feature-kicker{font-size:11px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#f5c56b}
+  .gm-feature-title{font-size:21px;font-weight:800;line-height:1.25}
+  .gm-feature-sub{font-size:13px;opacity:.85}
+  .gm-feature:hover .gm-feature-title{text-decoration:underline}
+  @media (max-width:640px){.gm-feature{min-height:112px}.gm-feature-title{font-size:18px}}
+</style>
