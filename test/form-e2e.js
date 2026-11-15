@@ -368,5 +368,34 @@ Object.keys(FEST_MAP).forEach((s) => {
   ok(h.includes('fsProgressRing') && /festival\.js\?v=/.test(h), `${rel} 进度环 / 脚本回归`);
 });
 
+// ---- S6：/search/、/now/、/zodiac/ 去 kicker，/404/ 保留（PAGE-FORM-PLAN §4.6.9 / §4.6.12）----
+// .page-head* 自此只服务 404 状态页；这三个纸面页改用 pg-hd 通用页头。
+['search/index.html', 'now/index.html', 'zodiac/index.html'].forEach((rel) => {
+  const h = read(rel);
+  ok(h.length > 0, `缺少 ${rel} 产物`);
+  if (!h) return;
+  ok(!h.includes('page-head'), `${rel} 仍挂 page-head`);
+  ok(!h.includes('page-head-kicker'), `${rel} 仍有文章壳 kicker`);
+  ok(h.includes('class="pg-hd"'), `${rel} 缺 pg-hd 页头`);
+  ok(h.includes('class="pg-hd-title"'), `${rel} 缺页头标题`);
+});
+
+ok(!read('search/index.html').includes('>SEARCH<'), '/search/ 仍输出 SEARCH kicker 文案');
+ok(!read('zodiac/index.html').includes('>ZODIAC<'), '/zodiac/ 仍输出 ZODIAC kicker 文案');
+ok(count(read('search/index.html'), /<input\b/gi) === 1, '/search/ 搜索框数量应为 1');
+ok(count(read('now/index.html'), /<input\b/gi) === 0, '/now/ 出现输入控件');
+ok(count(read('zodiac/index.html'), /<input\b/gi) === 0, '/zodiac/ 出现输入控件');
+
+const nowHtml = read('now/index.html');
+ok(nowHtml.includes('class="about-body"') && nowHtml.includes('class="markdown-body"'),
+  '/now/ 正文轨丢失（about-body / markdown-body）');
+ok(/img-lazyload\.js/.test(nowHtml), '/now/ 丢失 markdown 运行时插件');
+
+const notFound = read('404.html');
+ok(notFound.length > 0, '缺少 404.html 产物');
+ok(notFound.includes('class="page-head"') && notFound.includes('page-head-kicker'),
+  '404 的 kicker 被误删（状态码页应保留）');
+ok(notFound.includes('>404<'), '404 kicker 文案不是 404');
+
 console.log(`\nRESULT: ${pass} 项断言通过${fail ? '，存在失败' : ''}`);
 process.exit(fail ? 1 : 0);

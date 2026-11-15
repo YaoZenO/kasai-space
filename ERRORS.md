@@ -213,6 +213,7 @@
 | E-179 | P1 | 第二屏列表文字死贴卡片左边框（距边框仅 8px）、右标签同时顶出右框：行用了 `.row` 类名，主题基于 Bootstrap，`.row` 自带 `margin-left:-15px`，整行被拉出卡片内边距 | 已修复（类名改 `.win-row` + 显式 `margin:0`；左右内距改由行自己承担）+ 断言：`.win-row` 必须含 `margin:0` 与 `padding:…var(--win-px)`，且 `--win-px ≥ 18px` |
 | E-180 | P2 | `test/form-e2e.js` 里 `/games/` 标题断言恒红：断言硬比 `<h1 class="gm-title">游戏</h1>`，而 Astro 给带 scoped `<style>` 的组件插入 `data-astro-cid-*` 属性（远端给 games 页加样式后触发） | 已修复（改用正则允许属性）+ 机制：断言只锚定 class 与文本，不逐字节比对开标签 |
 | E-181 | P2 | 第二屏顶部用 `linear-gradient` 渐隐垫遮卡片：渐变在卡片腰部切出一条半透明硬边，比原来的「卡片撞导航」更脏 | 已修复（改为 66px 实底工具条 + 1px 底线，仅 `body.nav-desk` 时显示）+ 断言：`.sd-veil` 必须是 `background-color` 实底；§4.26 其余位置仍禁渐变 |
+| E-182 | P3 | S6 删 `/cityrank/` 的 `CITY RANK` kicker 时，误把节点改成 `class="page-head-kicker is-hidden"`（类并不存在），等于没删 | 已修复（整行删除）+ 机制：S6 断言对 `/cityrank/`、全部榜详情页、`/search/`、`/now/`、`/zodiac/` 的 `page-head-kicker` 计数严格为 0，隐藏类无法蒙混 |
 ---
 
 ## 3. P0 — 数据损害（绝不再犯）
@@ -3530,3 +3531,13 @@
   卡片滑到 66px 以下就被干净裁掉，裁切线正好是导航条的下沿，读作工具栏而不是瑕疵。
 - **防复发（机制）：** 断言要求 `.sd-veil` 必须是 `background-color`（不是 gradient），
   且 §4.26 除它之外仍不得出现任何渐变。
+
+### E-182 删 kicker 时误加 `is-hidden` 类而不是删除（2026-11-16）
+
+- **现象：** S6 改 `/cityrank/` 总览时，本应删掉 `<p class="page-head-kicker">CITY RANK</p>`，
+  却写成 `<p class="page-head-kicker is-hidden">CITY RANK</p>`——节点仍在 DOM 里，`is-hidden` 还是个不存在的类。
+- **根因：** 编辑时脑子里想的是「别再显示」，用隐藏类代替删除；隐藏不是收口，节点仍在，样式一旦补齐就会重新露出来。
+- **修法：** 立即整行删除；同批把城市榜详情的 kicker 一并删净。
+- **防复发（机制）：** `test/cityrank-e2e.js` 的 S6 断言要求 `/cityrank/` 与全部榜详情页
+  `page-head-kicker` 计数严格为 0；`test/form-e2e.js` 对 `/search/`、`/now/`、`/zodiac/` 同样断言。
+  隐藏类骗不过计数断言。

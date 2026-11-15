@@ -20,19 +20,17 @@ const { published, modified } = pageDates('zodiac/index.md');
     <div class="home-wrap">
       {!ov ? (
         <>
-          <header class="page-head">
-            <p class="page-head-kicker">ZODIAC</p>
-            <h1 class="page-head-title">十二生肖</h1>
+          <header class="pg-hd">
+            <h1 class="pg-hd-title">十二生肖</h1>
           </header>
           <EmptyState>生肖内容还在整理中，页面会随数据录入自动生成，欢迎稍后再来看看。</EmptyState>
         </>
       ) : (
         <>
-          <header class="page-head">
-            <p class="page-head-kicker">ZODIAC</p>
-            <h1 class="page-head-title">十二生肖</h1>
+          <header class="pg-hd">
+            <h1 class="pg-hd-title">十二生肖</h1>
             <p class="cal-lede"><Fragment set:html={ov.lede} /></p>
-            <p class="archive-total">
+            <p class="pg-hd-meta">
               更新于 {fmtItemDate(ov.updated)} · {ov.rows.length} 个生肖 · 本轮 {ov.cycle.from}–{ov.cycle.to}
             </p>
           </header>

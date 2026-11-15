@@ -4,6 +4,7 @@
 // 约定（PRD §5.1 P0 铁律）：computed 榜必须公开指标与权重；来源与免责全页只留页脚一条小字。
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import EmptyState from '../../components/EmptyState.astro';
+import StatBand from '../../components/StatBand.astro';
 import { getData } from '../../lib/data';
 import { buildCityRanks, findRank } from '../../lib/cityrank-data';
 import { fmtItemDate } from '../../lib/dates';
@@ -91,9 +92,8 @@ if (r) {
       {
         !r ? (
           <>
-            <header class="page-head">
-              <p class="page-head-kicker">CITY RANK</p>
-              <h1 class="page-head-title">城市排行榜</h1>
+            <header class="cr-hd">
+              <h1 class="cr-hd-title">城市排行榜</h1>
             </header>
             <EmptyState>
               这个榜单没有就位（<code>{rankSlug || '未知榜单'}</code>）：{CR.error || '数据里找不到该榜单'}。
@@ -101,16 +101,24 @@ if (r) {
           </>
         ) : (
           <>
-            <header class="page-head">
+            <header class="cr-hd">
               <nav class="cal-crumb" aria-label="面包屑">
                 <a href={urlFor('/library/')}>资料库</a><span aria-hidden="true">/</span><a href={urlFor('/cityrank/')}>城市排行榜</a><span aria-hidden="true">/</span><span class="cal-crumb-now">{r.title}</span>
               </nav>
-              <p class="page-head-kicker">{g.kicker || 'CITY RANK'}</p>
-              <h1 class="page-head-title">{r.title}</h1>
+              <h1 class="cr-hd-title">{r.title}</h1>
               {r.lede && <p class="cal-lede">{r.lede}</p>}
-              <p class="archive-total">
-                更新于 {fmtItemDate(CR.meta.updated)} · 数据年份 {CR.cityMeta.dataYear || '2025'} · 候选城市 {r.candidateCount} 座 · {KIND_LABEL[r.kind] || r.kind}
+              <p class="cr-hd-meta">
+                更新于 {fmtItemDate(CR.meta.updated)} · 数据年份 {CR.cityMeta.dataYear || '2025'} · {KIND_LABEL[r.kind] || r.kind}
               </p>
+              <StatBand
+                class="cr-hd-stats"
+                columns={3}
+                items={[
+                  { label: '候选城市', value: `${r.candidateCount} 座` },
+                  { label: '收录名次', value: `${items.length} 条` },
+                  { label: '榜首', value: items.length ? items[0].name : '—' },
+                ]}
+              />
             </header>
 
             <div class="cr-layout">

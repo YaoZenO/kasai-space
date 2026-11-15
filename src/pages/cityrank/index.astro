@@ -79,9 +79,8 @@ function kindLabel(kind: string) {
     <div class="home-wrap">
       {CR.error ? (
         <>
-          <header class="page-head">
-            <p class="page-head-kicker">CITY RANK</p>
-            <h1 class="page-head-title">城市排行榜</h1>
+          <header class="cr-hd">
+            <h1 class="cr-hd-title">城市排行榜</h1>
           </header>
           <EmptyState>城市榜的数据还在整理中，暂时无法展示。我们会尽快补齐，欢迎稍后再来看看。</EmptyState>
         </>
@@ -92,7 +91,6 @@ function kindLabel(kind: string) {
               <nav class="cal-crumb" aria-label="面包屑">
                 <a href={urlFor('/library/')}>资料库</a><span aria-hidden="true">/</span><span class="cal-crumb-now">城市排行榜</span>
               </nav>
-              <p class="page-head-kicker">CITY RANK</p>
               <h1 class="crk-title">城市排行榜</h1>
               <p class="cal-lede">
                 <b>{rankCount} 个榜单，{cityCount} 座城市。</b>名次不是写死的：{computedCount} 个榜由公开指标现算，指标与权重都写在榜页上，可以复算。
@@ -153,10 +151,7 @@ function kindLabel(kind: string) {
             return (
               <section class="crk-section" id={`group-${g.key}`}>
                 <div class="col-head">
-                  <div>
-                    <p class="page-head-kicker">{g.kicker || ''}</p>
-                    <h2 class="col-title">{g.title}</h2>
-                  </div>
+                  <h2 class="col-title">{g.title}</h2>
                   <span class="col-count">/ {g.ranks.length}</span>
                 </div>
 

@@ -1519,8 +1519,8 @@ body.is-home footer {
   }
 }
 
-/* --- 4.2 公共纸面页框架（404 / 城市榜详情 / 搜索 / now / 生肖总览仍在用；
-       归档 / 分类 / 标签 / 关于已改索引型页头，不再挂 page-head） --- */
+/* --- 4.2 公共纸面页框架（仅 404 状态页使用；
+       S6 已把城市榜 / 搜索 / now / 生肖总览的页头迁到 §4.25） --- */
 
 .paper-page {
   padding-top: var(--space-page-top);
@@ -2187,7 +2187,8 @@ body.is-home footer {
   -webkit-font-smoothing: antialiased;
 }
 
-/* 标题轨：Fraunces 600（拉丁）+ 宋体系（中文），对齐参考站 --serif */
+/* 标题轨：Fraunces 600（拉丁）+ 宋体系（中文），对齐参考站 --serif。
+   第一行选择器 S6 后 0 命中（.cal-page 下已无 .page-head），待后续清理 */
 .cal-page .page-head-title,
 .cal-page .col-title,
 .cal-page .cal-terms-title {
@@ -2205,7 +2206,7 @@ body.is-home footer {
 }
 
 /* 左表 + 右年历格 */
-/* 节假日页的页头间距单独收一档（不动其它纸面页的 .page-head）：
+/* 页头间距收一档（S6 后 .cal-page 下已无 .page-head，规则 0 命中待清理）：
    右栏比左表多一行图例说明，页头再松一档，「来源」那行就会被视口切掉。 */
 .cal-page .page-head { margin-bottom: 1.5rem; }
 .cal-page .col-head { margin-bottom: 1.05rem; }
@@ -9626,6 +9627,70 @@ html:not(.js) .fs-years-toggle { display: none; }
 .fc-stats {
   margin: 1.1rem 0 0;
 }
+
+/* ===== 4.25 剩余页头收口（城市榜详情 / 城市榜总览 / 搜索 / 生肖总览 / 现在页，2026-11-16 S6）=====
+   PAGE-FORM-PLAN §4.6.9：这些页不再挂 .page-head；.page-head* 自此只服务 /404/ 状态页。
+   城市榜沿用 cr- 前缀；搜索 / 生肖 / 现在共用 pg-（纸面页通用页头）。
+   字号下限 0.75rem，颜色全走 token。 */
+
+.cr-hd {
+  margin: 0;
+}
+
+.cr-hd-title {
+  margin: 0;
+  font-family: var(--font-serif-title);
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+/* 属性条：更新于 / 数据年份 / 榜型并作一行 */
+.cr-hd-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 0.55rem;
+  margin: 0.7rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: var(--sec-text-color);
+}
+
+/* 数字带收口：与下方 .cr-layout 的 margin-top 1.8rem 分开算 */
+.cr-hd-stats {
+  margin: 1.1rem 0 0;
+}
+
+.pg-hd {
+  margin: 0 0 1.6rem;
+}
+
+.pg-hd-title {
+  margin: 0;
+  font-family: var(--font-serif-title);
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.pg-hd-meta {
+  margin: 0.7rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: var(--sec-text-color);
+}
+
+@media (max-width: 767.98px) {
+  .pg-hd {
+    margin-bottom: 1.3rem;
+  }
+}
+
 
 /* ===== 4.26 首页「三屏」（2026-11-15 第二轮重构，方案 DESIGN-HOME-SPATIAL.md）=====
    结构：底层 #sd-canvas 固定画布 → 三屏 #hero / #desk / #outro → 原生 <dialog>。

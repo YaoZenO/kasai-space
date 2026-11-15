@@ -532,6 +532,20 @@ kicker（CALENDAR / CITY RANK）＋ 大标题 ＋ 一段导语 ＋ 「更新于�
 - `/search/`：已是工具页（1 个搜索框 + 类型 chip + 结果区），只去掉 `SEARCH` 头，改一句「搜什么」。P3。
 - `/404/`：保留。kicker 是状态码不是栏目名，倒数跳转逻辑不动。
 
+**落地记录（2026-11-16，S6）**
+
+- `/now/`：去掉 `NOW` kicker 与独立「更新于」行；页头改为 `pg-hd`（标题 + 属性条），
+  正文仍走 `.about-body > .markdown-body`。`PaperLayout` 已删除（改完 0 引用），
+  `/now/` 直接使用 `BaseLayout` + `MarkdownPlugins`；`PageHead` 仅剩 `/404/` 使用。
+- `/search/`：去掉 `SEARCH` kicker，保留一句「搜什么」导语；搜索框 / 类型 chip / 结果区零改动。
+- `/zodiac/` 总览：错误分支与正常分支都换 `pg-hd`，属性条（更新于 / 生肖数 / 本轮）合并为一行。
+- `/cityrank/` 与 145 个榜详情：去 kicker；详情页头改 `cr-hd`（面包屑 + 标题 + 导语 +
+  属性条 + 三格数字带：候选城市 / 收录名次 / 榜首），总览组头只留中文标题与计数。
+- `/404/` 保留 `page-head` + `page-head-kicker`，未改动。
+- 样式新增 §4.25（`cr-hd-*` / `pg-hd-*`），§4.2 注释收窄为「仅 404 使用」。
+- 验收：产物中 `page-head-kicker` 只剩 `/404.html` 一个；`test:cityrank` 70 项、`test:form` 408 项全绿；
+  1440 / 390 实测 `scrollWidth == innerWidth`（城市榜详情、城市榜总览、现在、搜索、生肖、404）。
+
 #### 4.6.10 跨页统一（先做，避免六页各写一套）
 
 1. **`StatBand.astro`**：数字带现有两份实现（`.cr-stats` 与 `.lb-stats`）。抽出组件，props 为
@@ -552,7 +566,7 @@ kicker（CALENDAR / CITY RANK）＋ 大标题 ＋ 一段导语 ＋ 「更新于�
 
 | 类型 | 遗留 | 处理 |
 |---|---|---|
-| CSS | `site.css` §4.2「公共纸面页框架（归档 / 分类 / 标签 / 关于共用）」 | 本方案完成后只剩 404 使用；把 `.page-head-*` 收窄为状态页样式 |
+| CSS | `site.css` §4.2「公共纸面页框架（归档 / 分类 / 标签 / 关于共用）」 | S6 已完成：仅 404 使用，`.page-head-*` 已收窄为状态页样式 |
 | CSS | §4.9 / §4.9.1 模块列表与详情、§4.10 文字页精选摘录 | 随页面重写替换；重写后删除 0 命中的规则 |
 | CSS | `.tag-cloud`、`.cat-*`、`.module-grid` | 由新组件取代后删除；删前必须 grep 产物确认 0 命中 |
 | CSS | `static-public/css/main.css`（主题底座） | 文章页仍依赖，本轮不动，只记录不误删 |
@@ -587,8 +601,7 @@ kicker（CALENDAR / CITY RANK）＋ 大标题 ＋ 一段导语 ＋ 「更新于�
 
 - `npm run astro:build` 成功；`astro:verify` 与 §9 基线差异**不扩大**（不新增、不删除路由）。
 - `npm test` 全绿；新增断言（建议并入 `test:pages` 或新建 `test/form-e2e.js`）：
-  1. 上述页面产物不含 `page-head-kicker`（例外清单只有 `/404/`；`/now/`、`/search/` 的去 kicker
-     仍待做，见 §4.6.9）
+  1. 上述页面产物不含 `page-head-kicker`（例外清单只有 `/404/`；S6 已完成全站收口）
   2. 每个数据页首屏存在 `.stat-band` 或轨道 / 宫格之一
   3. 项目 / 游戏 / 收藏 / 友链条目数与数据文件一致（3 / 5 / 1 / 0）
   4. 除 `/search/` 的 1 个搜索框外，全站 `<input>` = 0（C-6）
@@ -620,7 +633,10 @@ S4 已完成——节日详情 12 页只换页头：面包屑 + 标题 + 一句�
 长文 / 目录 / 进度环 / 年份表 / 导航条与脚本零回归；样式新增 §4.24（`fc-`）。
 S5 已完成——删除 261 行 0 命中死规则（§4.5 / §4.6 / §4.9 部分 / §4.9.1 / §4.10 / `.post-desc`），
 `css-tokens` 的页头字重断言改锁 `pj-` / `gm-` / `cl-`；`astro:verify` 628/628，`npm test` 全绿。
-S0–S5 计划内阶段全部完成；剩余事项见 §4.6.9（`/now/`、`/search/` 去 kicker）与 §4.6.11 的偏差记录。
+S6 已完成——城市榜 145 页详情改 `cr-hd` 档案头 + 三格数字带，`/cityrank/`、`/search/`、
+`/now/`、`/zodiac/` 去 kicker 并换 `pg-hd` / `cr-hd`；`PaperLayout` 删除，`.page-head*` 仅 404 使用。
+`test:cityrank` 70 项、`test:form` 408 项全绿；1440 / 390 实测无横向溢出。
+S0–S6 计划内阶段全部完成；§4.6.9 与 §4.6.11 的遗留项已清空。
 
 ---
 

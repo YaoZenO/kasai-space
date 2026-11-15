@@ -782,8 +782,9 @@ if (fs.existsSync(path.join(PUBLIC, 'cityrank', 'index.html'))) {
     const html = fs.readFileSync(path.join(PUBLIC, 'cityrank', 'index.html'), 'utf8');
     let prev = -1;
     for (const g of R.groups) {
-      const i = html.indexOf(g.kicker);
-      assert.ok(i > prev, '索引页里 ' + g.kicker + '（' + g.title + '）没有排在上一组之后');
+      // S6 起组头不再挂 kicker，改用分组锚点锁顺序（kicker 已从页面删除）
+      const i = html.indexOf('id="group-' + g.key + '"');
+      assert.ok(i > prev, '索引页里 ' + g.key + '（' + g.title + '）没有排在上一组之后');
       prev = i;
     }
   });
@@ -1407,6 +1408,71 @@ ok('S26 样式：条形只显示所选指标，无 JS 也有服务端默认', ()
   }
   const track = css.match(/\.crr-track\s*\{[^}]*\}/);
   assert.ok(track && /overflow:\s*hidden/.test(track[0]), '.crr-track 缺 overflow:hidden');
+});
+
+// S6 页头收口（2026-11-16，PAGE-FORM-PLAN §4.6.9）：榜详情不再挂文章壳，
+// 换 cr-hd 档案头 + 三格数字带；数字带逐格与数据现算比对。
+ok('S6 产物：全部榜详情页无文章壳 kicker，换 cr-hd 档案头与三格数字带', () => {
+  let checked = 0;
+  for (const def of allRanks) {
+    const p = path.join(PUBLIC, 'cityrank', def.slug, 'index.html');
+    if (!fs.existsSync(p)) continue;
+    const html = fs.readFileSync(p, 'utf8');
+    assert.strictEqual((html.match(/page-head-kicker/g) || []).length, 0, def.slug + ' 仍有文章壳 kicker');
+    assert.strictEqual((html.match(/class="page-head"/g) || []).length, 0, def.slug + ' 仍挂 page-head');
+    assert.ok(html.indexOf('class="cr-hd"') !== -1, def.slug + ' 缺 cr-hd 档案头');
+    assert.ok(html.indexOf('class="cr-hd-title"') !== -1, def.slug + ' 缺档案头标题');
+    assert.ok(html.indexOf('class="cr-hd-meta"') !== -1, def.slug + ' 缺属性条');
+    assert.strictEqual((html.match(/<div class="stat-band-item">/g) || []).length, 3,
+      def.slug + ' 数字带不是三格');
+    checked += 1;
+  }
+  assert.ok(checked >= 100, '抽到的榜详情页过少（' + checked + '）——断言空转');
+});
+
+ok('S6 产物：数字带三格与数据现算一致（computed / fact 各抽两榜）', () => {
+  const factRanks = allRanks.filter((def) => {
+    const f = findRank(R, def.slug);
+    return f && f.rank && f.rank.kind === 'fact';
+  });
+  const samples = computedRanks.slice(0, 2).concat(factRanks.slice(0, 2));
+  assert.ok(samples.some((d) => d.kind === 'computed') && factRanks.length > 0,
+    '代表榜样本不全（computed / fact 至少各一个）');
+
+  for (const def of samples) {
+    const file = path.join(PUBLIC, 'cityrank', def.slug, 'index.html');
+    assert.ok(fs.existsSync(file), '缺页面：/cityrank/' + def.slug + '/');
+    const html = fs.readFileSync(file, 'utf8');
+    const got = findRank(R, def.slug).rank;
+
+    const at = html.indexOf('cr-hd-stats');
+    assert.ok(at > 0, def.slug + ' 数字带没挂 cr-hd-stats');
+    const band = html.slice(at, html.indexOf('</dl>', at));
+    const cells = [...band.matchAll(/<dt>(.*?)<\/dt><dd>(.*?)<\/dd>/g)].map((m) => [m[1], m[2]]);
+    assert.strictEqual(cells.length, 3, def.slug + ' 数字带不是三格（实际 ' + cells.length + '）');
+
+    const expect = [
+      ['候选城市', got.candidateCount + ' 座'],
+      ['收录名次', (got.items || []).length + ' 条'],
+      ['榜首', got.items && got.items.length ? got.items[0].name : '—'],
+    ];
+    expect.forEach(([label, value], i) => {
+      assert.strictEqual(cells[i][0], label, def.slug + ' 第 ' + (i + 1) + ' 格标签应为 ' + label);
+      assert.strictEqual(cells[i][1], value,
+        def.slug + ' 第 ' + (i + 1) + ' 格应为「' + value + '」，实际「' + cells[i][1] + '」');
+    });
+  }
+});
+
+ok('S6 产物：/cityrank/ 总览去 kicker，组头不再挂文章壳', () => {
+  const file = path.join(PUBLIC, 'cityrank', 'index.html');
+  assert.ok(fs.existsSync(file), '缺 /cityrank/ 产物');
+  const html = fs.readFileSync(file, 'utf8');
+  assert.strictEqual((html.match(/page-head-kicker/g) || []).length, 0, '/cityrank/ 仍有 kicker');
+  assert.strictEqual((html.match(/class="page-head"/g) || []).length, 0, '/cityrank/ 仍挂 page-head');
+  assert.ok(html.indexOf('class="crk-title"') !== -1, '/cityrank/ 缺主标题');
+  assert.strictEqual((html.match(/class="col-head"/g) || []).length, R.groups.length,
+    '/cityrank/ 组头数量与分组数不符');
 });
 
 ok('自检：镇域榜混入主序列必须被 S16 抓到（变异样本自造，不依赖真实待审组样本）', () => {

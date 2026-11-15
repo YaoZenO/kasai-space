@@ -1,7 +1,9 @@
 ---
 import { getCollection, render } from 'astro:content';
-import PaperLayout from '../../layouts/PaperLayout.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import MarkdownPlugins from '../../components/MarkdownPlugins.astro';
 import { excerptFromMarkdown } from '../../lib/excerpt';
+import { fmtItemDate } from '../../lib/dates';
 import { pageDates } from '../../lib/page-meta';
 
 const pages = await getCollection('pages');
@@ -9,21 +11,35 @@ const entry = pages.find(p => p.id === 'now');
 if (!entry) throw new Error('缺少 source/now/index.md: ' + pages.map(p => p.id).join(','));
 
 const { Content } = await render(entry);
-const { title, kicker, show_updated } = entry.data as any;
+const { title, show_updated } = entry.data as any;
 // article:* 用 front matter 的 show_updated，不用文件 mtime：
 // Vercel 每次全新 checkout，mtime 等于部署时刻，会让同一提交产出不同 head（E-028）。
 const { published, modified } = pageDates('now/index.md');
 const description = excerptFromMarkdown(entry.body || '');
 ---
 
-<PaperLayout
+<BaseLayout
   title={title}
-  kicker={kicker}
-  updated={show_updated}
+  currentPath="/now/"
   description={description}
   descriptionPreformatted={true}
   ogDate={published}
   ogUpdated={modified}
+  markdownPlugins
 >
-  <Content />
-</PaperLayout>
+  <div class="paper-page">
+    <div class="home-wrap">
+      <header class="pg-hd">
+        <h1 class="pg-hd-title">{title}</h1>
+        {show_updated && <p class="pg-hd-meta">更新于 {fmtItemDate(show_updated)}</p>}
+      </header>
+      <article class="about-body">
+        <div class="markdown-body">
+          <Content />
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <MarkdownPlugins />
+</BaseLayout>
