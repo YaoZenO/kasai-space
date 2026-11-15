@@ -1,0 +1,637 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const title = 'Falcons 3-0 FURIA：科隆Major夺冠，NiKo圆梦';
+const description = 'Team Falcons 3-0 横扫 FURIA，赢下 IEM Cologne Major 2026，三张地图全部 13-8。队史首座 Major 奖杯，NiKo 3067 天的等待终结，m0NESY 拿下 MVP。LANXESS Arena, Cologne。';
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  ogType="article"
+  ogImages={['/img/games/cologne-major-2026/01-trophy.jpg']}
+  ogKeywords={['Falcons', 'FURIA', 'CS2', 'IEM Cologne Major', 'NiKo', 'm0NESY', 'Major']}
+  currentPath="/cologne-major-2026/"
+>
+<style>
+  .cg-wrap{
+    --cg-bg:#f2f0e8; --cg-bg2:#e6e8df; --cg-ink:#1e2420; --cg-muted:#6d7268;
+    --cg-card:#fffdf6; --cg-line:#d8dcc9; --cg-gold:#96760f; --cg-gold2:#c9a227;
+    --cg-green:#0e6b3f; --cg-green2:#17a05e; --cg-furia:#3f4440;
+    --cg-shadow:0 12px 32px rgba(30,50,35,.10);
+    --cg-panel:#0d2b1d; --cg-panel2:#07150e; --cg-panel-ink:#ecefe4; --cg-panel-muted:#9db3a4;
+    background:
+      radial-gradient(1100px 420px at 50% -80px, rgba(23,160,94,.14), transparent 70%),
+      linear-gradient(180deg, var(--cg-bg), var(--cg-bg2));
+    color:var(--cg-ink);
+    margin:0 calc(50% - 50vw); width:100vw; max-width:100vw; overflow:hidden;
+    font-size:17px; line-height:1.75;
+  }
+  :global(html[data-user-color-scheme="dark"]) .cg-wrap,
+  :global(html[data-sun-scheme="dark"]) .cg-wrap{
+    --cg-bg:#0e1512; --cg-bg2:#090d0b; --cg-ink:#ecefe4; --cg-muted:#9db3a4;
+    --cg-card:#161d19; --cg-line:#263129; --cg-gold:#e8c469; --cg-gold2:#f5d98a;
+    --cg-green:#4cc38a; --cg-green2:#5fd79a; --cg-furia:#c9cdc5;
+    --cg-shadow:0 12px 32px rgba(0,0,0,.45);
+  }
+  @media (prefers-color-scheme: dark){
+    :global(html:not([data-user-color-scheme]):not([data-sun-scheme])) .cg-wrap{
+      --cg-bg:#0e1512; --cg-bg2:#090d0b; --cg-ink:#ecefe4; --cg-muted:#9db3a4;
+      --cg-card:#161d19; --cg-line:#263129; --cg-gold:#e8c469; --cg-gold2:#f5d98a;
+      --cg-green:#4cc38a; --cg-green2:#5fd79a; --cg-furia:#c9cdc5;
+      --cg-shadow:0 12px 32px rgba(0,0,0,.45);
+    }
+  }
+  .cg-wrap::before{
+    content:""; display:block; height:4px;
+    background:linear-gradient(90deg, var(--cg-gold2), var(--cg-green2), var(--cg-gold2));
+  }
+  .cg-wrap img{user-select:none}
+  .cg-wrap ::selection{background:var(--cg-gold2); color:#1a1a1a}
+
+  /* ---------- hero ---------- */
+  .cg-hero{position:relative; min-height:94vh; display:flex; align-items:flex-end; overflow:hidden; background:#0b0d14}
+  .cg-hero-media{position:absolute; inset:0; animation:cgZoom 22s ease-in-out infinite alternate}
+  .cg-hero-media img{width:100%; height:100%; object-fit:cover; object-position:center 30%; display:block}
+  .cg-hero::after{content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(5,6,10,.42) 0%, rgba(5,6,10,.08) 42%, rgba(5,6,10,.30) 66%, rgba(5,6,10,.88) 100%)}
+  .cg-hero-inner{position:relative; z-index:2; width:100%; max-width:1020px; margin:0 auto; padding:0 24px 84px; color:#fff}
+  .cg-kicker{font-size:13px; letter-spacing:.34em; text-transform:uppercase; color:#f5d98a; font-weight:700; animation:cgRise .8s .1s ease both}
+  .cg-kicker-cn{margin-top:8px; font-size:15px; letter-spacing:.42em; color:rgba(255,255,255,.82); animation:cgRise .8s .22s ease both}
+  .cg-title{margin:18px 0 0; font-size:clamp(56px, 11vw, 128px); line-height:1.02; font-weight:900; letter-spacing:-.01em; animation:cgRise .8s .34s ease both}
+  .cg-title .gold{
+    background:linear-gradient(100deg,#a8842a,#e8c469 28%,#fff3c4 50%,#e8c469 72%,#a8842a);
+    background-size:200% 100%; -webkit-background-clip:text; background-clip:text; color:transparent;
+    animation:cgShine 7s linear infinite;
+  }
+  .cg-score{display:inline-flex; align-items:baseline; gap:14px; margin-top:26px; padding:10px 22px;
+    border:1px solid rgba(232,196,105,.75); border-radius:999px; background:rgba(8,9,14,.42); backdrop-filter:blur(6px);
+    font-size:clamp(20px,3.4vw,30px); font-weight:800; letter-spacing:.06em; animation:cgRise .8s .48s ease both}
+  .cg-score .n{color:#f5d98a}
+  .cg-score .vs{font-size:.62em; letter-spacing:.3em; color:rgba(255,255,255,.7)}
+  .cg-hero-sub{margin:20px 0 0; max-width:640px; font-size:clamp(16px,2.4vw,20px); line-height:1.7; color:rgba(255,255,255,.92); animation:cgRise .8s .6s ease both}
+  .cg-hero-meta{margin-top:16px; font-size:14px; letter-spacing:.08em; color:rgba(255,255,255,.72); animation:cgRise .8s .72s ease both}
+  .cg-hero-meta b{color:#fff; font-weight:700}
+  .cg-scroll{position:absolute; z-index:2; left:50%; bottom:26px; transform:translateX(-50%);
+    display:flex; flex-direction:column; align-items:center; gap:6px; color:rgba(255,255,255,.75);
+    font-size:11px; letter-spacing:.4em; text-transform:uppercase; animation:cgRise .8s 1s ease both}
+  .cg-scroll i{width:18px; height:18px; border-right:2px solid #f5d98a; border-bottom:2px solid #f5d98a; transform:rotate(45deg); animation:cgBounce 1.8s ease-in-out infinite}
+  @keyframes cgZoom{from{transform:scale(1)}to{transform:scale(1.07)}}
+  @keyframes cgRise{from{opacity:0; transform:translateY(26px)}to{opacity:1; transform:none}}
+  @keyframes cgShine{to{background-position:-200% 0}}
+  @keyframes cgBounce{0%,100%{transform:rotate(45deg) translate(0,0)}50%{transform:rotate(45deg) translate(4px,4px)}}
+
+  /* ---------- sections ---------- */
+  .cg-section{max-width:960px; margin:0 auto; padding:76px 20px 8px}
+  .cg-eyebrow{display:flex; align-items:center; gap:14px; font-size:13px; font-weight:700; letter-spacing:.32em; text-transform:uppercase; color:var(--cg-gold)}
+  .cg-eyebrow::after{content:""; height:1px; width:64px; background:var(--cg-gold2)}
+  .cg-section h2{margin:14px 0 0; font-size:clamp(30px,5vw,44px); line-height:1.2; font-weight:900; letter-spacing:-.01em}
+  .cg-lead{margin:16px 0 0; font-size:18px; color:var(--cg-muted)}
+  .cg-lead b{color:var(--cg-ink)}
+
+  .reveal{opacity:0; transform:translateY(20px); transition:opacity .7s ease, transform .7s ease}
+  .reveal.in{opacity:1; transform:none}
+  .reveal[data-d="1"]{transition-delay:.08s}
+  .reveal[data-d="2"]{transition-delay:.16s}
+  .reveal[data-d="3"]{transition-delay:.24s}
+
+  /* ---------- lineups ---------- */
+  .cg-vs{display:grid; grid-template-columns:1fr auto 1fr; gap:20px; align-items:stretch; margin-top:34px}
+  .cg-team{background:var(--cg-card); border:1px solid var(--cg-line); border-radius:16px; padding:24px 22px; box-shadow:var(--cg-shadow); transition:transform .35s ease, box-shadow .35s ease}
+  .cg-team:hover{transform:translateY(-4px)}
+  .cg-team.fal{border-top:4px solid var(--cg-green2)}
+  .cg-team.fur{border-top:4px solid var(--cg-furia)}
+  .cg-team h3{margin:0; font-size:30px; font-weight:900; letter-spacing:.02em; line-height:1.1}
+  .cg-team .tag{display:inline-block; margin-top:8px; font-size:12px; letter-spacing:.22em; font-weight:700; color:var(--cg-muted)}
+  .cg-roster{margin:18px 0 0; padding:0; list-style:none}
+  .cg-roster li{display:flex; align-items:baseline; gap:12px; padding:9px 0; border-top:1px dashed var(--cg-line)}
+  .cg-roster li:first-child{border-top:0}
+  .cg-role{flex:0 0 44px; font-size:11px; font-weight:700; letter-spacing:.14em; color:var(--cg-muted)}
+  .cg-player{font-size:19px; font-weight:800}
+  .cg-player small{margin-left:8px; font-size:13px; font-weight:400; color:var(--cg-muted)}
+  .cg-coach{margin-top:14px; padding-top:12px; border-top:1px solid var(--cg-line); font-size:13.5px; color:var(--cg-muted)}
+  .cg-coach b{color:var(--cg-ink)}
+  .cg-vs-badge{align-self:center; width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:var(--cg-ink); color:var(--cg-bg); font-weight:900; font-size:20px; letter-spacing:.05em; box-shadow:var(--cg-shadow)}
+  .cg-figure{margin:28px 0 0; overflow:hidden; border-radius:16px; box-shadow:var(--cg-shadow)}
+  .cg-figure img{display:block; width:100%; transition:transform .6s ease}
+  .cg-figure:hover img{transform:scale(1.03)}
+  .cg-figure figcaption{padding:12px 16px; font-size:13.5px; color:var(--cg-muted); background:var(--cg-card); border-top:1px solid var(--cg-line)}
+
+  /* ---------- map cards ---------- */
+  .cg-cards{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:34px}
+  .cg-card{background:var(--cg-card); border:1px solid var(--cg-line); border-radius:14px; padding:20px 18px; box-shadow:var(--cg-shadow); transition:transform .35s ease, border-color .35s ease; position:relative; overflow:hidden}
+  .cg-card:hover{transform:translateY(-5px)}
+  .cg-card.win{border-top:4px solid var(--cg-gold2)}
+  .cg-card .g{font-size:12px; font-weight:700; letter-spacing:.26em; color:var(--cg-muted)}
+  .cg-card .w{margin-top:10px; font-size:26px; font-weight:900}
+  .cg-card .w .l{color:var(--cg-gold)}
+  .cg-card .meta{margin-top:6px; font-size:13.5px; color:var(--cg-muted)}
+  .cg-card .note{margin-top:12px; font-size:14px; line-height:1.6}
+
+  /* ---------- veto ---------- */
+  .cg-veto{margin-top:26px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; font-size:13.5px}
+  .cg-veto .lbl{font-size:11px; font-weight:800; letter-spacing:.22em; color:var(--cg-muted); margin-right:4px}
+  .cg-veto .chip{padding:6px 13px; border-radius:999px; border:1px solid var(--cg-line); background:var(--cg-card); font-weight:700; box-shadow:var(--cg-shadow)}
+  .cg-veto .chip small{margin-left:6px; font-weight:400; color:var(--cg-muted)}
+  .cg-veto .chip.ban{opacity:.72; text-decoration:line-through}
+  .cg-veto .chip.unplayed{opacity:.72; border-style:dashed}
+  .cg-veto .arrow{color:var(--cg-muted)}
+
+  /* ---------- story ---------- */
+  .cg-games{margin-top:34px; display:grid; gap:30px}
+  .cg-game h3{margin:0; font-size:22px; font-weight:900}
+  .cg-game h3 .tag{margin-left:10px; font-size:12px; font-weight:700; letter-spacing:.2em; color:var(--cg-gold)}
+  .cg-game p{margin:10px 0 0; color:var(--cg-ink)}
+  .cg-game p b{color:var(--cg-ink)}
+  .cg-game .num{font-variant-numeric:tabular-nums; font-weight:700; color:var(--cg-gold)}
+
+  /* ---------- scoreboards ---------- */
+  .cg-tabs{display:flex; flex-wrap:wrap; gap:10px; margin-top:30px}
+  .cg-tab{appearance:none; border:1px solid var(--cg-line); background:var(--cg-card); color:var(--cg-ink);
+    padding:11px 20px; border-radius:999px; font-size:15px; font-weight:700; letter-spacing:.04em; cursor:pointer;
+    transition:all .25s ease; box-shadow:var(--cg-shadow)}
+  .cg-tab small{margin-left:6px; font-size:12px; font-weight:400; color:var(--cg-muted)}
+  .cg-tab:hover{transform:translateY(-2px); border-color:var(--cg-gold2)}
+  .cg-tab.active{background:var(--cg-gold2); border-color:var(--cg-gold2); color:#1c1a12}
+  .cg-tab.active small{color:rgba(28,26,18,.66)}
+  .cg-panel{margin-top:22px; animation:cgFade .45s ease both}
+  .cg-panel[hidden]{display:none}
+  @keyframes cgFade{from{opacity:0; transform:translateY(10px)}to{opacity:1; transform:none}}
+  .cg-sb{background:var(--cg-card); border:1px solid var(--cg-line); border-radius:16px; overflow:hidden; box-shadow:var(--cg-shadow)}
+  .cg-sb + .cg-sb{margin-top:16px}
+  .cg-sb-head{display:flex; flex-wrap:wrap; align-items:center; gap:12px; padding:16px 20px; border-bottom:1px solid var(--cg-line)}
+  .cg-sb-head h3{margin:0; font-size:21px; font-weight:900; letter-spacing:.02em}
+  .cg-sb-head .totals{margin-left:auto; font-size:14px; color:var(--cg-muted); font-variant-numeric:tabular-nums}
+  .cg-sb-head .totals b{color:var(--cg-ink)}
+  .cg-win-badge{font-size:11px; font-weight:800; letter-spacing:.2em; color:#1c1a12; background:var(--cg-gold2); padding:4px 10px; border-radius:999px}
+  .cg-sb-rows{padding:6px 20px 10px}
+  .cg-sb-row{display:grid; grid-template-columns:1fr auto auto; gap:20px; align-items:center; padding:10px 0; border-top:1px dashed var(--cg-line)}
+  .cg-sb-row:first-child{border-top:0}
+  .cg-sb-who{min-width:0}
+  .cg-sb-who .p{font-size:16.5px; font-weight:800; line-height:1.25}
+  .cg-sb-who .c{font-size:13px; color:var(--cg-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .cg-sb-stat{text-align:right; font-variant-numeric:tabular-nums; min-width:86px}
+  .cg-sb-stat .kd{font-size:16.5px; font-weight:800; white-space:nowrap}
+  .cg-sb-stat .kd .d{color:var(--cg-muted); font-weight:400}
+  .cg-sb-stat .adr{font-size:12.5px; color:var(--cg-muted); white-space:nowrap}
+  .cg-sb-rating{text-align:right; font-variant-numeric:tabular-nums; min-width:52px}
+  .cg-sb-rating .rt{font-size:19px; font-weight:900}
+  .cg-sb-rating .rt.hot{color:var(--cg-gold)}
+  .cg-sb-rating .rl{font-size:11px; letter-spacing:.14em; color:var(--cg-muted)}
+  .cg-data-note{margin-top:18px; font-size:13.5px; color:var(--cg-muted)}
+  .cg-data-note a{color:var(--cg-gold); text-decoration:underline}
+
+  /* ---------- mvp ---------- */
+  .cg-mvp{margin-top:76px; background:linear-gradient(160deg, var(--cg-panel), var(--cg-panel2)); color:var(--cg-panel-ink); position:relative; overflow:hidden}
+  .cg-mvp::before{content:""; position:absolute; inset:0; background:radial-gradient(640px 300px at 88% 0%, rgba(232,196,105,.20), transparent 70%); pointer-events:none}
+  .cg-mvp-inner{position:relative; max-width:960px; margin:0 auto; padding:72px 20px}
+  .cg-mvp .cg-eyebrow{color:#f5d98a}
+  .cg-mvp-name{margin:12px 0 0; font-size:clamp(56px,10vw,104px); line-height:1; font-weight:900; letter-spacing:.01em;
+    background:linear-gradient(100deg,#a8842a,#e8c469 30%,#fff3c4 50%,#e8c469 70%,#a8842a); background-size:200% 100%;
+    -webkit-background-clip:text; background-clip:text; color:transparent; animation:cgShine 8s linear infinite}
+  .cg-mvp-role{margin-top:10px; font-size:15px; letter-spacing:.3em; text-transform:uppercase; color:rgba(236,239,228,.75)}
+  .cg-stats{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:34px}
+  .cg-stat{border:1px solid rgba(232,196,105,.28); border-radius:14px; padding:20px 16px; background:rgba(255,255,255,.03); transition:transform .35s ease, border-color .35s ease}
+  .cg-stat:hover{transform:translateY(-4px); border-color:rgba(232,196,105,.6)}
+  .cg-stat .v{font-size:clamp(26px,4.4vw,38px); font-weight:900; color:#f5d98a; font-variant-numeric:tabular-nums; line-height:1.1}
+  .cg-stat .l{margin-top:8px; font-size:13px; line-height:1.5; color:rgba(236,239,228,.72)}
+  .cg-mvp-facts{margin:28px 0 0; padding:0; list-style:none; display:grid; gap:10px; font-size:16px; color:rgba(236,239,228,.88)}
+  .cg-mvp-facts li{padding-left:22px; position:relative}
+  .cg-mvp-facts li::before{content:""; position:absolute; left:0; top:.62em; width:8px; height:8px; border-radius:50%; background:#e8c469}
+  .cg-mvp .cg-figure figcaption{background:#101a14; color:#9db3a4; border-top:1px solid #263129}
+
+  /* ---------- wait / road ---------- */
+  .cg-wait p{margin:14px 0 0}
+  .cg-wait .num{font-variant-numeric:tabular-nums; font-weight:700; color:var(--cg-gold)}
+  .cg-road{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:34px}
+  .cg-step{background:var(--cg-card); border:1px solid var(--cg-line); border-radius:14px; padding:22px 18px; box-shadow:var(--cg-shadow); transition:transform .35s ease; position:relative}
+  .cg-step:hover{transform:translateY(-5px)}
+  .cg-step .round{font-size:12px; font-weight:700; letter-spacing:.24em; color:var(--cg-muted); text-transform:uppercase}
+  .cg-step .opp{margin-top:10px; font-size:21px; font-weight:900; line-height:1.25}
+  .cg-step .sc{margin-top:6px; font-size:15px; font-weight:700; color:var(--cg-gold)}
+  .cg-step .maps{margin-top:8px; font-size:13.5px; color:var(--cg-muted); line-height:1.6}
+  .cg-step.final{border-color:var(--cg-gold2)}
+  .cg-road-note{margin-top:22px; font-size:16px; color:var(--cg-muted)}
+  .cg-road-note .en{display:block; margin-top:6px; font-style:italic; color:var(--cg-ink); font-size:17px}
+
+  /* ---------- atmosphere ---------- */
+  .cg-nums{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:34px}
+  .cg-num{background:var(--cg-card); border:1px solid var(--cg-line); border-radius:14px; padding:20px 16px; box-shadow:var(--cg-shadow); text-align:center}
+  .cg-num .v{font-size:clamp(24px,4vw,34px); font-weight:900; color:var(--cg-green); font-variant-numeric:tabular-nums; line-height:1.1}
+  .cg-num .l{margin-top:8px; font-size:13px; line-height:1.5; color:var(--cg-muted)}
+
+  /* ---------- finale ---------- */
+  .cg-finale{position:relative; margin-top:76px; min-height:88vh; display:flex; align-items:center; justify-content:center; text-align:center; overflow:hidden; background:#0b0d14}
+  .cg-finale-media{position:absolute; inset:0; animation:cgZoom 24s ease-in-out infinite alternate}
+  .cg-finale-media img{width:100%; height:100%; object-fit:cover; object-position:center 42%; display:block}
+  .cg-finale::after{content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(5,6,10,.55), rgba(5,6,10,.28) 45%, rgba(5,6,10,.82))}
+  .cg-finale-inner{position:relative; z-index:2; padding:40px 24px; color:#fff; max-width:820px}
+  .cg-finale-inner .rule{width:72px; height:3px; background:#e8c469; margin:0 auto 26px}
+  .cg-finale-inner h2{margin:0; font-size:clamp(34px,6.4vw,58px); line-height:1.25; font-weight:900; text-shadow:0 2px 24px rgba(0,0,0,.45)}
+  .cg-finale-inner p{margin:20px 0 0; font-size:clamp(16px,2.6vw,20px); color:rgba(255,255,255,.88)}
+  .cg-finale-inner .en{margin-top:14px; font-size:13px; letter-spacing:.34em; text-transform:uppercase; color:#f5d98a}
+
+  .cg-credits{max-width:960px; margin:0 auto; padding:36px 20px 64px; font-size:13.5px; line-height:1.8; color:var(--cg-muted)}
+  .cg-credits a{color:var(--cg-gold); text-decoration:underline}
+
+  @media (max-width: 860px){
+    .cg-cards{grid-template-columns:1fr}
+    .cg-stats{grid-template-columns:repeat(2,1fr)}
+    .cg-road{grid-template-columns:1fr}
+    .cg-nums{grid-template-columns:repeat(2,1fr)}
+    .cg-vs{grid-template-columns:1fr}
+    .cg-vs-badge{justify-self:center; width:54px; height:54px; font-size:17px}
+  }
+  @media (max-width: 560px){
+    .cg-section{padding-top:60px}
+    .cg-hero{min-height:92vh}
+    .cg-hero-media img{object-position:center 28%}
+    .cg-sb-row{gap:12px}
+    .cg-sb-stat{min-width:70px}
+    .cg-sb-head .totals{margin-left:0; width:100%}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .cg-hero-media, .cg-finale-media, .cg-title .gold, .cg-mvp-name, .cg-scroll i,
+    .cg-kicker, .cg-kicker-cn, .cg-title, .cg-score, .cg-hero-sub, .cg-hero-meta, .cg-scroll{animation:none !important}
+    .reveal{opacity:1; transform:none; transition:none}
+    .cg-panel{animation:none}
+    .cg-figure img, .cg-team, .cg-card, .cg-step, .cg-stat, .cg-tab{transition:none}
+  }
+  .cg-wrap p.cg-kicker, .cg-wrap p.cg-kicker-cn, .cg-wrap p.cg-eyebrow, .cg-wrap p.cg-hero-meta{margin:0}
+  .cg-wrap p.cg-kicker-cn{margin-top:8px}
+  .cg-wrap p.cg-hero-meta{margin-top:16px}
+  .cg-wrap .cg-card p, .cg-wrap .cg-step p, .cg-wrap .cg-num p{margin:0}
+  .cg-wrap .cg-card p.w{margin-top:10px}
+  .cg-wrap .cg-card p.meta{margin-top:6px}
+  .cg-wrap .cg-card p.note{margin-top:12px}
+  .cg-wrap .cg-step p.opp{margin-top:10px}
+  .cg-wrap .cg-step p.sc{margin-top:6px}
+  .cg-wrap .cg-step p.maps{margin-top:8px}
+  .cg-wrap .cg-num p.v{margin:0}
+  .cg-wrap .cg-num p.l{margin-top:8px}
+  .cg-credits p{margin:0 0 6px}
+  .cg-credits .cg-back{margin-top:18px}
+</style>
+<noscript><style>.cg-wrap .reveal{opacity:1 !important; transform:none !important}</style></noscript>
+
+<div class="cg-wrap">
+
+  <!-- HERO -->
+  <header class="cg-hero">
+    <picture class="cg-hero-media">
+      <source media="(max-width: 720px)" srcset="/img/games/cologne-major-2026/hero-mobile.jpg" />
+      <img src="/img/games/cologne-major-2026/01-trophy.jpg" alt="Falcons 全队走向舞台上的冠军奖杯，观众在两侧欢呼" fetchpriority="high" />
+    </picture>
+    <div class="cg-hero-inner">
+      <p class="cg-kicker">IEM Cologne Major 2026 · Grand Final</p>
+      <p class="cg-kicker-cn">反恐精英2 · 科隆特级锦标赛 · 总决赛</p>
+      <h1 class="cg-title">FALCONS <span class="gold">总冠军</span></h1>
+      <div><span class="cg-score"><span>FALCONS</span><span class="n">3–0</span><span>FURIA</span><span class="vs">BO5</span></span></div>
+      <p class="cg-hero-sub">三张地图，三个13–8。队史首座Major奖杯，NiKo等了3067天。</p>
+      <p class="cg-hero-meta">LANXESS Arena, Cologne · 德国科隆朗盛体育馆<br />决赛：2026年6月21日 · MVP：<b>m0NESY</b></p>
+    </div>
+    <div class="cg-scroll" aria-hidden="true"><span>Scroll</span><i></i></div>
+  </header>
+
+  <!-- LINEUPS -->
+  <section class="cg-section" id="lineups">
+    <p class="cg-eyebrow reveal">Starting Five · 首发阵容</p>
+    <h2 class="reveal" data-d="1">一边是砸了重金的银河战舰，一边是第一次打进决赛的黑豹。</h2>
+    <p class="cg-lead reveal" data-d="2">Falcons在四月底才锁定这套阵容，karrigan入队62天就带队夺冠；FURIA则带着巴西的期望，队史第一次站上Major决赛的舞台。CS2时代的第五届Major，也是CS系列的第24届Major。</p>
+    <div class="cg-vs">
+      <div class="cg-team fal reveal" data-d="1">
+        <h3>Team Falcons</h3>
+        <span class="tag">沙特阿拉伯 · 欧洲区</span>
+        <ul class="cg-roster">
+          <li><span class="cg-role">IGL</span><span class="cg-player">karrigan<small>Finn Andersen</small></span></li>
+          <li><span class="cg-role">RIFLE</span><span class="cg-player">NiKo<small>Nikola Kovač</small></span></li>
+          <li><span class="cg-role">AWP</span><span class="cg-player">m0NESY<small>Ilya Osipov</small></span></li>
+          <li><span class="cg-role">RIFLE</span><span class="cg-player">TeSeS<small>René Madsen</small></span></li>
+          <li><span class="cg-role">RIFLE</span><span class="cg-player">kyousuke<small>Maksim Lukin</small></span></li>
+        </ul>
+        <p class="cg-coach">教练：<b>zonic</b>（Danny Sørensen）</p>
+      </div>
+      <div class="cg-vs-badge reveal" data-d="2">VS</div>
+      <div class="cg-team fur reveal" data-d="3">
+        <h3>FURIA</h3>
+        <span class="tag">巴西 · 美洲区</span>
+        <ul class="cg-roster">
+          <li><span class="cg-role">AWP</span><span class="cg-player">molodoy<small>Danil Golubenko</small></span></li>
+          <li><span class="cg-role">RIFLE</span><span class="cg-player">yuurih<small>Yuri Santos</small></span></li>
+          <li><span class="cg-role">IGL</span><span class="cg-player">FalleN<small>Gabriel Toledo</small></span></li>
+          <li><span class="cg-role">RIFLE</span><span class="cg-player">KSCERATO<small>Kaike Cerato</small></span></li>
+          <li><span class="cg-role">RIFLE</span><span class="cg-player">YEKINDAR<small>Mareks Gaļinskis</small></span></li>
+        </ul>
+        <p class="cg-coach">教练：<b>sidde</b></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAP CARDS -->
+  <section class="cg-section" id="maps">
+    <p class="cg-eyebrow reveal">Three Maps · 三张地图</p>
+    <h2 class="reveal" data-d="1">三个13–8，整齐得像剧本。</h2>
+    <div class="cg-cards">
+      <article class="cg-card win reveal" data-d="1">
+        <p class="g">MAP 1 · MIRAGE · FURIA选图</p>
+        <p class="w">FALCONS <span class="l">13–8</span></p>
+        <p class="meta">上半场 8–4 · 下半场 5–4</p>
+        <p class="note">8–0开局，NiKo最后3打5残局收下地图。</p>
+      </article>
+      <article class="cg-card win reveal" data-d="2">
+        <p class="g">MAP 2 · ANUBIS · FALCONS选图</p>
+        <p class="w">FALCONS <span class="l">13–8</span></p>
+        <p class="meta">上半场 5–7 · 下半场 8–1</p>
+        <p class="note">上半场落后，下半场一波8–1翻盘，m0NESY单图2.13 rating。</p>
+      </article>
+      <article class="cg-card win reveal" data-d="3">
+        <p class="g">MAP 3 · INFERNO · FURIA选图</p>
+        <p class="w">FALCONS <span class="l">13–8</span></p>
+        <p class="meta">上半场 8–4 · 下半场 5–4</p>
+        <p class="note">NiKo 1.73接管比赛，karrigan连打关键残局，横扫夺冠。</p>
+      </article>
+    </div>
+    <div class="cg-veto reveal">
+      <span class="lbl">MAP VETO · 地图BAN/PICK</span>
+      <span class="chip ban">Ancient<small>FURIA ban</small></span><span class="arrow">→</span>
+      <span class="chip ban">Overpass<small>Falcons ban</small></span><span class="arrow">→</span>
+      <span class="chip">Mirage<small>FURIA pick</small></span><span class="arrow">→</span>
+      <span class="chip">Anubis<small>Falcons pick</small></span><span class="arrow">→</span>
+      <span class="chip">Inferno<small>FURIA pick</small></span><span class="arrow">→</span>
+      <span class="chip unplayed">Dust2<small>Falcons pick，未打</small></span><span class="arrow">→</span>
+      <span class="chip unplayed">Nuke<small>决胜图，未打</small></span>
+    </div>
+  </section>
+
+  <!-- STORY -->
+  <section class="cg-section" id="story">
+    <p class="cg-eyebrow reveal">How It Happened · 三张地图的讲述</p>
+    <h2 class="reveal" data-d="1">决赛打得很快，但每张图都有名场面。</h2>
+    <div class="cg-games">
+      <article class="cg-game reveal">
+        <h3>图一Mirage：8–0开局，3打5收尾 <span class="tag">FALCONS WIN · 13–8</span></h3>
+        <p>决赛在FURIA的选图Mirage上开打，Falcons上来就打出<span class="num">8–0</span>。FURIA追回4局，上半场定格在8–4。第15回合，m0NESY和kyousuke用沙漠之鹰在A点翻盘；FalleN第20回合4杀还以颜色。最后一局，NiKo在3打5的局面下连爆三头，顶着人数劣势拿下地图，<span class="num">13–8</span>。</p>
+      </article>
+      <article class="cg-game reveal">
+        <h3>图二Anubis：下半场8–1，m0NESY接管 <span class="tag">FALCONS WIN · 13–8</span></h3>
+        <p>来到Falcons的选图Anubis，m0NESY手枪局双持精英4杀，Falcons 4–0开局。但FURIA稳住阵脚，半场结束反而<span class="num">7–5</span>领先。下半场风云突变：Falcons一波<span class="num">8–1</span>，kyousuke和m0NESY在这波攻势里合砍22杀，m0NESY第16回合1v2残局锁定胜势。又是13–8，m0NESY单图<span class="num">22杀、2.13 rating</span>。</p>
+      </article>
+      <article class="cg-game reveal">
+        <h3>图三Inferno：同一张图，另一个结局 <span class="tag">FALCONS WIN · 13–8</span></h3>
+        <p>决胜图Inferno，FURIA的选图——也是3067天前那场波士顿决赛的决胜图。这一次剧本反过来了：kyousuke第3回合4杀开局，karrigan第7回合USP-S三杀、第11回合2v2回防残局，NiKo全图<span class="num">19杀、1.73 rating</span>接管比赛。m0NESY这图只拿5杀，但Falcons不需要他：<span class="num">13–8</span>，横扫夺冠。</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- SCOREBOARDS -->
+  <section class="cg-section" id="scoreboards">
+    <p class="cg-eyebrow reveal">Scoreboards · 战绩数据</p>
+    <h2 class="reveal" data-d="1">系列总计与每张图的数据，都在这里。</h2>
+    <p class="cg-lead reveal" data-d="2">点下面的标签切换。K-D为击杀/死亡，ADR为每回合平均伤害，Rating为HLTV Rating 3.0。</p>
+    <div class="cg-tabs reveal" role="tablist" aria-label="战绩数据">
+      <button class="cg-tab active" role="tab" id="tab-series" aria-controls="panel-series" aria-selected="true">系列总计<small>3–0</small></button>
+      <button class="cg-tab" role="tab" id="tab-m1" aria-controls="panel-m1" aria-selected="false">Mirage<small>13–8</small></button>
+      <button class="cg-tab" role="tab" id="tab-m2" aria-controls="panel-m2" aria-selected="false">Anubis<small>13–8</small></button>
+      <button class="cg-tab" role="tab" id="tab-m3" aria-controls="panel-m3" aria-selected="false">Inferno<small>13–8 · 夺冠图</small></button>
+    </div>
+
+    <div class="cg-panel" id="panel-series" role="tabpanel" aria-labelledby="tab-series">
+      <div class="cg-sb">
+        <div class="cg-sb-head"><h3>Team Falcons</h3><span class="cg-win-badge">WINNER</span><span class="totals"><b>210</b> 击杀 · 三图总计</span></div>
+        <div class="cg-sb-rows">
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">NiKo</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">52 / <span class="d">32</span></div><div class="adr">85.5 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.43</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">kyousuke</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">55 / <span class="d">43</span></div><div class="adr">93.0 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.34</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">m0NESY</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">46 / <span class="d">35</span></div><div class="adr">73.5 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.31</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">TeSeS</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">28 / <span class="d">40</span></div><div class="adr">51.5 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.81</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">karrigan</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">29 / <span class="d">45</span></div><div class="adr">59.1 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.75</div><div class="rl">RATING</div></div></div>
+        </div>
+      </div>
+      <div class="cg-sb">
+        <div class="cg-sb-head"><h3>FURIA</h3><span class="totals"><b>194</b> 击杀 · 三图总计</span></div>
+        <div class="cg-sb-rows">
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">molodoy</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">51 / <span class="d">41</span></div><div class="adr">73.5 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.26</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">KSCERATO</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">38 / <span class="d">42</span></div><div class="adr">66.1 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.90</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">YEKINDAR</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">35 / <span class="d">51</span></div><div class="adr">72.8 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.89</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">FalleN</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">37 / <span class="d">44</span></div><div class="adr">67.3 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.89</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">yuurih</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">33 / <span class="d">37</span></div><div class="adr">61.2 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.85</div><div class="rl">RATING</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cg-panel" id="panel-m1" role="tabpanel" aria-labelledby="tab-m1" hidden>
+      <div class="cg-sb">
+        <div class="cg-sb-head"><h3>Team Falcons</h3><span class="cg-win-badge">WINNER</span><span class="totals"><b>72</b> 击杀 · 13–8 · 上半场 8–4</span></div>
+        <div class="cg-sb-rows">
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">m0NESY</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">19 / <span class="d">13</span></div><div class="adr">97.4 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.49</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">NiKo</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">15 / <span class="d">10</span></div><div class="adr">83.1 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.24</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">kyousuke</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">18 / <span class="d">12</span></div><div class="adr">77.4 ADR</div></div><div class="cg-sb-rating"><div class="rt">1.17</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">TeSeS</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">11 / <span class="d">13</span></div><div class="adr">59.4 ADR</div></div><div class="cg-sb-rating"><div class="rt">1.00</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">karrigan</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">9 / <span class="d">14</span></div><div class="adr">57.1 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.65</div><div class="rl">RATING</div></div></div>
+        </div>
+      </div>
+      <div class="cg-sb">
+        <div class="cg-sb-head"><h3>FURIA</h3><span class="totals"><b>62</b> 击杀 · 8–13</span></div>
+        <div class="cg-sb-rows">
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">molodoy</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">18 / <span class="d">15</span></div><div class="adr">73.9 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.43</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">KSCERATO</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">14 / <span class="d">14</span></div><div class="adr">74.9 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.97</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">YEKINDAR</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">12 / <span class="d">16</span></div><div class="adr">67.2 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.97</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">FalleN</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">9 / <span class="d">14</span></div><div class="adr">62.2 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.83</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">yuurih</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">9 / <span class="d">13</span></div><div class="adr">48.9 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.75</div><div class="rl">RATING</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cg-panel" id="panel-m2" role="tabpanel" aria-labelledby="tab-m2" hidden>
+      <div class="cg-sb">
+        <div class="cg-sb-head"><h3>Team Falcons</h3><span class="cg-win-badge">WINNER</span><span class="totals"><b>72</b> 击杀 · 13–8 · 上半场 5–7</span></div>
+        <div class="cg-sb-rows">
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">m0NESY</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">22 / <span class="d">10</span></div><div class="adr">97.3 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">2.13</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">kyousuke</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">19 / <span class="d">15</span></div><div class="adr">110.4 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.66</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">NiKo</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">18 / <span class="d">11</span></div><div class="adr">80.2 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.36</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">TeSeS</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">7 / <span class="d">14</span></div><div class="adr">42.4 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.67</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">karrigan</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">6 / <span class="d">16</span></div><div class="adr">37.0 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.47</div><div class="rl">RATING</div></div></div>
+        </div>
+      </div>
+      <div class="cg-sb">
+        <div class="cg-sb-head"><h3>FURIA</h3><span class="totals"><b>66</b> 击杀 · 8–13</span></div>
+        <div class="cg-sb-rows">
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">molodoy</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">21 / <span class="d">12</span></div><div class="adr">90.0 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.38</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">yuurih</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">14 / <span class="d">9</span></div><div class="adr">66.3 ADR</div></div><div class="cg-sb-rating"><div class="rt">1.08</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">KSCERATO</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">14 / <span class="d">15</span></div><div class="adr">75.5 ADR</div></div><div class="cg-sb-rating"><div class="rt">1.01</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">FalleN</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">10 / <span class="d">15</span></div><div class="adr">55.9 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.72</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">YEKINDAR</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">7 / <span class="d">18</span></div><div class="adr">65.0 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.67</div><div class="rl">RATING</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cg-panel" id="panel-m3" role="tabpanel" aria-labelledby="tab-m3" hidden>
+      <div class="cg-sb">
+        <div class="cg-sb-head"><h3>Team Falcons</h3><span class="cg-win-badge">WINNER</span><span class="totals"><b>66</b> 击杀 · 13–8 · 上半场 8–4</span></div>
+        <div class="cg-sb-rows">
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">NiKo</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">19 / <span class="d">11</span></div><div class="adr">93.3 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.73</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">karrigan</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">14 / <span class="d">15</span></div><div class="adr">83.0 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.24</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">kyousuke</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">18 / <span class="d">16</span></div><div class="adr">91.3 ADR</div></div><div class="cg-sb-rating"><div class="rt hot">1.21</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">TeSeS</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">10 / <span class="d">13</span></div><div class="adr">52.6 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.81</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">m0NESY</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">5 / <span class="d">12</span></div><div class="adr">25.8 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.56</div><div class="rl">RATING</div></div></div>
+        </div>
+      </div>
+      <div class="cg-sb">
+        <div class="cg-sb-head"><h3>FURIA</h3><span class="totals"><b>66</b> 击杀 · 8–13</span></div>
+        <div class="cg-sb-rows">
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">FalleN</div><div class="c">IGL</div></div><div class="cg-sb-stat"><div class="kd">18 / <span class="d">15</span></div><div class="adr">83.7 ADR</div></div><div class="cg-sb-rating"><div class="rt">1.17</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">YEKINDAR</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">16 / <span class="d">17</span></div><div class="adr">86.1 ADR</div></div><div class="cg-sb-rating"><div class="rt">1.03</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">molodoy</div><div class="c">AWP</div></div><div class="cg-sb-stat"><div class="kd">12 / <span class="d">14</span></div><div class="adr">56.5 ADR</div></div><div class="cg-sb-rating"><div class="rt">1.00</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">KSCERATO</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">10 / <span class="d">13</span></div><div class="adr">48.0 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.81</div><div class="rl">RATING</div></div></div>
+          <div class="cg-sb-row"><div class="cg-sb-who"><div class="p">yuurih</div><div class="c">RIFLE</div></div><div class="cg-sb-stat"><div class="kd">10 / <span class="d">15</span></div><div class="adr">68.4 ADR</div></div><div class="cg-sb-rating"><div class="rt">0.74</div><div class="rl">RATING</div></div></div>
+        </div>
+      </div>
+    </div>
+    <p class="cg-data-note">对局数据来源：<a href="https://www.hltv.org/matches/2395002/iem-cologne-major-2026-grand-final-iem-cologne-major-2026" target="_blank" rel="noopener">HLTV</a>。K-D为击杀/死亡，ADR为每回合平均伤害，Rating为HLTV Rating 3.0。</p>
+  </section>
+
+  <!-- MVP -->
+  <section class="cg-mvp" id="mvp">
+    <div class="cg-mvp-inner">
+      <p class="cg-eyebrow reveal">Tournament MVP · 赛事最有价值选手</p>
+      <h2 class="cg-mvp-name reveal" data-d="1">m0NESY</h2>
+      <div class="cg-mvp-role reveal" data-d="2">AWP · Team Falcons · Ilya Osipov</div>
+      <div class="cg-stats">
+        <div class="cg-stat reveal" data-d="1"><div class="v"><span data-count="1.25" data-dec="2">1.25</span></div><div class="l">整届赛事Rating 3.0，20张地图</div></div>
+        <div class="cg-stat reveal" data-d="2"><div class="v"><span data-count="2.13" data-dec="2">2.13</span></div><div class="l">决赛Anubis单图rating，22杀10死</div></div>
+        <div class="cg-stat reveal" data-d="3"><div class="v"><span data-count="7" data-dec="0">7</span></div><div class="l">单图最佳次数，与NiKo、kyousuke持平，靠总评胜出</div></div>
+        <div class="cg-stat reveal" data-d="3"><div class="v"><span data-count="1.10" data-dec="2">1.10</span></div><div class="l">整届赛事KPR，每回合击杀数</div></div>
+      </div>
+      <ul class="cg-mvp-facts reveal">
+        <li>第一次打进Major决赛，第一次夺冠，第一次拿Major MVP——HLTV评选的赛事MVP。</li>
+        <li>这是他第一个Major级别的MVP，也是近18个月来第一个冠军MVP。</li>
+        <li>他从G2一路跟随NiKo来到Falcons：2025年4月转会，14个月后两人在科隆一起圆梦。</li>
+        <li>决赛单场最佳属于NiKo：87.1%的球迷投票，系列赛1.43 rating，全队最高。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- THE WAIT -->
+  <section class="cg-section cg-wait" id="wait">
+    <p class="cg-eyebrow reveal">The Wait · 3067天</p>
+    <h2 class="reveal" data-d="1">从波士顿到科隆，NiKo等了3067天。</h2>
+    <p class="reveal" data-d="2">2018年1月，ELEAGUE波士顿Major决赛，NiKo和karrigan所在的FaZe打到决胜图Inferno，输给了Cloud9。那是NiKo离Major冠军最近的一次——也是此后漫长等待的起点。12年职业生涯，<span class="num">17次</span>Major，<span class="num">3次</span>决赛，“史上最强无冕步枪手”的标签越贴越紧。</p>
+    <p class="reveal" data-d="2">2026年6月21日，同一张Inferno，同一个karrigan站在他身边。36岁的karrigan在四月底才从FaZe转会Falcons，接过指挥棒<span class="num">62天</span>后就带队夺冠，拿到个人第二座Major奖杯（上一座是2022年安特卫普，随FaZe）。命运兜了一个大圈子，在科隆的Inferno上把答案还给了他们。</p>
+    <p class="reveal" data-d="2">这一夜还有两个第一次：18岁4个月22天的kyousuke，成为donk之后最年轻的Major冠军得主——这只是他的第二届Major；教练zonic则拿到了执教生涯的第6座Major奖杯。</p>
+    <figure class="cg-figure reveal">
+      <img src="/img/games/cologne-major-2026/03-karrigan.jpg" alt="karrigan 在比赛中神情激动" loading="lazy" />
+      <figcaption>karrigan在比赛中的激情瞬间。图：ESL</figcaption>
+    </figure>
+  </section>
+
+  <!-- ROAD -->
+  <section class="cg-section" id="road">
+    <p class="cg-eyebrow reveal">The Road · 夺冠之路</p>
+    <h2 class="reveal" data-d="1">季后赛三轮，赢的全是硬骨头。</h2>
+    <p class="cg-lead reveal" data-d="2">Valve在赛后复盘里称这是“Major历史上最难的季后赛签表”。而在此之前，Falcons已经连续7次打进决赛、7次屈居亚军，冠军荒长达434天——第8次，他们终于赢了。</p>
+    <div class="cg-road">
+      <div class="cg-step reveal" data-d="1"><p class="round">Quarterfinal · 八强</p><p class="opp">Team Vitality</p><p class="sc">2–1 · 卫冕冠军出局</p><p class="maps">Anubis 13–11 · Inferno 11–13 · Dust2 13–11，三张图每张都打满24回合</p></div>
+      <div class="cg-step reveal" data-d="2"><p class="round">Semifinal · 四强</p><p class="opp">Team Spirit</p><p class="sc">2–1 · 淘汰夺冠热门</p><p class="maps">Anubis 16–14 · Mirage 8–13 · Dust2 16–12，两张图打进加时</p></div>
+      <div class="cg-step final reveal" data-d="3"><p class="round">Grand Final · 决赛</p><p class="opp">FURIA</p><p class="sc">3–0 · 总冠军</p><p class="maps">Mirage 13–8 · Anubis 13–8 · Inferno 13–8</p></div>
+    </div>
+    <p class="cg-road-note reveal">Valve赛后复盘的原话：<span class="en">“Taking on the toughest Playoff bracket in Major history, the Falcons made a triumphant statement at the IEM Cologne 2026 Major.”</span></p>
+    <p class="cg-road-note reveal">FURIA同样来势汹汹：八强让一追二淘汰9z，四强2–0横扫Aurora，队史第一次打进Major决赛。决赛面对的是老将FalleN——巴西CS的教父级人物，队史第一次离冠军这么近。</p>
+  </section>
+
+  <!-- ATMOSPHERE -->
+  <section class="cg-section" id="atmosphere">
+    <p class="cg-eyebrow reveal">The Cathedral · 大教堂</p>
+    <h2 class="reveal" data-d="1">十年之后，Major回到科隆。</h2>
+    <p class="cg-lead reveal" data-d="2">LANXESS Arena被称为“CS的大教堂”，这是它十年来第一次承办Major。赛事前三个阶段在科隆Palladium举行，季后赛移师朗盛体育馆，决赛夜座无虚席。</p>
+    <div class="cg-nums">
+      <div class="cg-num reveal" data-d="1"><p class="v">2.75M</p><p class="l">决赛峰值观众（Esports Charts），CS史上收视最高的比赛</p></div>
+      <div class="cg-num reveal" data-d="2"><p class="v">$1.25M</p><p class="l">总奖金，冠军Falcons独得$500,000</p></div>
+      <div class="cg-num reveal" data-d="3"><p class="v">32</p><p class="l">参赛队伍，三阶段瑞士轮加八队单败淘汰</p></div>
+      <div class="cg-num reveal" data-d="3"><p class="v">20天</p><p class="l">6月2日至21日，CS2时代第五届Major</p></div>
+    </div>
+    <figure class="cg-figure reveal">
+      <img src="/img/games/cologne-major-2026/04-fallen.jpg" alt="FalleN 在舞台上向观众致意" loading="lazy" />
+      <figcaption>FalleN在舞台上向观众致意。图：ESL（Stephanie Lindgren摄）</figcaption>
+    </figure>
+  </section>
+
+  <!-- FINALE -->
+  <section class="cg-finale">
+    <picture class="cg-finale-media">
+      <source media="(max-width: 720px)" srcset="/img/games/cologne-major-2026/hero-mobile.jpg" />
+      <img src="/img/games/cologne-major-2026/01-trophy.jpg" alt="Falcons 全队走向舞台上的冠军奖杯" loading="lazy" />
+    </picture>
+    <div class="cg-finale-inner reveal">
+      <div class="rule"></div>
+      <h2>无冕之王，今夜加冕。</h2>
+      <p>恭喜Falcons，恭喜NiKo——3067天的等待，值了。</p>
+      <p class="en">Champions · Team Falcons · IEM Cologne Major 2026</p>
+    </div>
+  </section>
+
+  <div class="cg-credits">
+    <p>图片：ESL官方摄影（Adela Sznajder、Stephanie Lindgren等），版权归原作者所有。</p>
+    <p>对局数据来自<a href="https://www.hltv.org/matches/2395002/iem-cologne-major-2026-grand-final-iem-cologne-major-2026" target="_blank" rel="noopener">HLTV</a>；文字参考Valve官方复盘、HLTV、Esports Charts与esports.gg的报道。</p>
+    <p>页面发布于2026年11月15日。</p>
+    <p class="cg-back"><a href="/games/cs2/">← 返回游戏 · Counter-Strike 2</a></p>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var wrap = document.querySelector('.cg-wrap');
+  if (!wrap) return;
+  var revealEls = wrap.querySelectorAll('.reveal');
+  if (reduce || !('IntersectionObserver' in window)) {
+    revealEls.forEach(function (el) { el.classList.add('in'); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(function (el) { io.observe(el); });
+  }
+  var nums = wrap.querySelectorAll('[data-count]');
+  function runCount(el) {
+    var target = parseFloat(el.getAttribute('data-count'));
+    var dec = parseInt(el.getAttribute('data-dec') || '0', 10);
+    var suffix = el.getAttribute('data-suffix') || '';
+    if (reduce) { el.textContent = target.toFixed(dec) + suffix; return; }
+    var start = null;
+    function frame(ts) {
+      if (!start) start = ts;
+      var p = Math.min((ts - start) / 1100, 1);
+      var eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = (target * eased).toFixed(dec) + suffix;
+      if (p < 1) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+  if ('IntersectionObserver' in window) {
+    var io2 = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { runCount(en.target); io2.unobserve(en.target); }
+      });
+    }, { threshold: 0.4 });
+    nums.forEach(function (n) { io2.observe(n); });
+  } else {
+    nums.forEach(runCount);
+  }
+  var tabs = wrap.querySelectorAll('.cg-tab');
+  var panels = wrap.querySelectorAll('.cg-panel');
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      tabs.forEach(function (t) { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+      panels.forEach(function (p) { p.hidden = true; });
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+      var panel = document.getElementById(tab.getAttribute('aria-controls'));
+      if (panel) panel.hidden = false;
+    });
+  });
+})();
+</script>
+</BaseLayout>
