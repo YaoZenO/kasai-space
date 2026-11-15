@@ -72,14 +72,9 @@ const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决
   .blg-hero-sub{margin:20px 0 0; max-width:640px; font-size:clamp(16px,2.4vw,20px); line-height:1.7; color:rgba(255,255,255,.92); animation:blgRise .8s .6s ease both}
   .blg-hero-meta{margin-top:16px; font-size:14px; letter-spacing:.08em; color:rgba(255,255,255,.72); animation:blgRise .8s .72s ease both}
   .blg-hero-meta b{color:#fff; font-weight:700}
-  .blg-scroll{position:absolute; z-index:2; left:50%; bottom:26px; transform:translateX(-50%);
-    display:flex; flex-direction:column; align-items:center; gap:6px; color:rgba(255,255,255,.75);
-    font-size:11px; letter-spacing:.4em; text-transform:uppercase; animation:blgRise .8s 1s ease both}
-  .blg-scroll i{width:18px; height:18px; border-right:2px solid #f5d98a; border-bottom:2px solid #f5d98a; transform:rotate(45deg); animation:blgBounce 1.8s ease-in-out infinite}
   @keyframes blgZoom{from{transform:scale(1)}to{transform:scale(1.07)}}
   @keyframes blgRise{from{opacity:0; transform:translateY(26px)}to{opacity:1; transform:none}}
   @keyframes blgShine{to{background-position:-200% 0}}
-  @keyframes blgBounce{0%,100%{transform:rotate(45deg) translate(0,0)}50%{transform:rotate(45deg) translate(4px,4px)}}
 
   /* ---------- sections ---------- */
   .blg-section{max-width:960px; margin:0 auto; padding:76px 20px 8px}
@@ -243,8 +238,8 @@ const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决
     .blg-sb-head .totals{margin-left:0; width:100%}
   }
   @media (prefers-reduced-motion: reduce){
-    .blg-hero-media, .blg-finale-media, .blg-title .gold, .blg-fmvp-name, .blg-scroll i,
-    .blg-kicker, .blg-kicker-cn, .blg-title, .blg-score, .blg-hero-sub, .blg-hero-meta, .blg-scroll{animation:none !important}
+    .blg-hero-media, .blg-finale-media, .blg-title .gold, .blg-fmvp-name,
+    .blg-kicker, .blg-kicker-cn, .blg-title, .blg-score, .blg-hero-sub, .blg-hero-meta{animation:none !important}
     .reveal{opacity:1; transform:none; transition:none}
     .blg-panel{animation:none}
     .blg-figure img, .blg-team, .blg-card, .blg-step, .blg-stat, .blg-tab{transition:none}
@@ -279,7 +274,6 @@ const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决
       <p class="blg-hero-sub">队史首冠，LPL时隔五年再夺世界冠军。</p>
       <p class="blg-hero-meta">Barclays Center, Brooklyn, New York · 纽约布鲁克林巴克莱中心<br />夺冠时刻：北京时间2026年11月15日08:02 · Finals MVP：<b>Knight</b></p>
     </div>
-    <div class="blg-scroll" aria-hidden="true"><span>Scroll</span><i></i></div>
   </header>
 
   <!-- LINEUPS -->
