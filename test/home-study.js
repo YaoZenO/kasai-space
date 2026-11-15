@@ -98,7 +98,9 @@ ok('抬头只放标题：模板与 CSS 都不存在计数角标', () => {
 
 ok('首页导航只留右上角入口：品牌与宽胶囊被隐藏，动作区靠右', () => {
   assert.match(s26, /body\.is-home #navbar \.site-brand[\s\S]{0,80}display: none/, 'CSS 没有在首页隐藏品牌');
-  assert.match(s26, /body\.is-home #navbar \.site-nav-center[\s\S]{0,80}display: none/, 'CSS 没有在首页隐藏宽胶囊菜单');
+  assert.match(s26, /body\.is-home #navbar \.site-nav-center[\s\S]{0,60}opacity: 0/, '首页没有默认收起宽胶囊');
+  assert.match(s26, /body\.is-home\.nav-desk #navbar \.site-nav-center[\s\S]{0,60}opacity: 1/, '第二屏没有浮现宽胶囊');
+  assert.match(homeJs, /classList\.toggle\('nav-desk'/, 'JS 没有切换 nav-desk');
   assert.match(s26, /body\.is-home #navbar \.site-nav-actions[\s\S]{0,60}justify-self: end/, '动作区没有靠右');
   assert.ok(!s26.includes('nav-away'), 'nav-away 机制已废弃，不应留在样式里');
 });
@@ -116,6 +118,26 @@ ok('画布是 WebGL 三维场景：深度测试、相机样条、雾、DPI 与 r
   // 曾经被否掉的形态：只画点与线
   assert.ok(!/createRadialGradient/.test(homeJs), '又回到 2D 渐变画法了');
   assert.ok(!/ctx\.arc\(/.test(homeJs), '又回到画圆点当浮尘的老路');
+});
+
+ok('E-172 防复发：.row 必须显式声明 width:100% + min-width:0', () => {
+  const m = /\.row\s*\{([^}]*)\}/.exec(s26);
+  assert.ok(m, '§4.26 缺少 .row 规则');
+  assert.ok(/width:\s*100%/.test(m[1]), '.row 缺 width:100%（grid 容器会被标题顶宽）');
+  assert.ok(/min-width:\s*0/.test(m[1]), '.row 缺 min-width:0');
+});
+
+ok('E-173 防复发：相机三档的 eye z 必须严格递减（不许倒车回门口）', () => {
+  const stops = /var STOPS = \[([\s\S]*?)\n    \];/.exec(homeJs);
+  assert.ok(stops, '找不到 STOPS 定义');
+  const zs = [...stops[1].matchAll(/eye:\s*\[[^\]]*?,\s*[^,]+,\s*(-?\d+(?:\.\d+)?)\]/g)].map((x) => Number(x[1]));
+  assert.strictEqual(zs.length, 3, '关键帧不是三档：' + zs.length);
+  assert.ok(zs[0] > zs[1] && zs[1] > zs[2], '相机 z 非单调，叙事上等于倒车：' + zs.join(' → '));
+});
+
+ok('E-171 防复发：首页隐藏导航用带 #navbar 的选择器', () => {
+  assert.match(s26, /body\.is-home #navbar \.site-nav-center/, '缺 id 级隐藏规则');
+  assert.match(s26, /body\.is-home\.nav-desk #navbar \.site-nav-center/, '缺第二屏浮现规则');
 });
 
 console.log('产物契约（dist/index.html）');
@@ -191,9 +213,14 @@ if (!exists(HOME)) {
     });
   });
 
-  ok('没有手搓火柴棍图形：模板与产物第二屏都不含 <svg>', () => {
-    assert.ok(!/<svg/.test(page), 'index.astro 里出现了 <svg>');
-    assert.ok(!/<svg/.test(desk), '第二屏里出现了 <svg>');
+  ok('第二屏没有手搓火柴棍图形：<svg> 只允许出现在社交按钮里', () => {
+    const svgCount = (desk.match(/<svg/g) || []).length;
+    const iconCount = (desk.match(/class="social-svg"/g) || []).length;
+    assert.strictEqual(svgCount, iconCount,
+      '第二屏出现了非图标 svg：' + (svgCount - iconCount) + ' 个');
+    assert.ok(iconCount >= 1, '友链图标缺失');
+    // 友链按钮不能再依赖 iconfont 字形（缺字时渲染成空心圆）
+    assert.ok(!desk.includes('icon-link'), '友链仍在用 iconfont 的 link 字形');
   });
 
   ok('浮层语义完整：dialog + labelledby + 关闭按钮 + 每个触发点都有模板', () => {

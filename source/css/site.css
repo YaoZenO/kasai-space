@@ -9937,6 +9937,12 @@ body.is-home::before {
   transition: color 180ms ease-out, border-color 180ms ease-out;
 }
 
+.social-svg {
+  display: block;
+  width: 15px;
+  height: 15px;
+}
+
 .social-btn:hover,
 .social-btn:focus-visible {
   color: var(--accent);
@@ -10042,9 +10048,23 @@ body.is-home::before {
    全站导航入口由四窗承担：Thinking → /archives/，Creations → /projects/，Atlas → 四个专题。 */
 
 /* 必须带 #navbar：主题里 #navbar .site-nav-center 是 id 级选择器，光靠 body.is-home 压不住 */
-body.is-home #navbar .site-brand,
-body.is-home #navbar .site-nav-center {
+body.is-home #navbar .site-brand {
   display: none;
+}
+
+/* 完整胶囊只在第二屏出现：display 不能过渡，所以用透明度 + pointer-events。
+   品牌位始终保持隐藏（右上角只留搜索 / 明暗切换 / 移动端菜单）。 */
+body.is-home #navbar .site-nav-center {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-6px);
+  transition: opacity 0.32s ease, transform 0.32s ease;
+}
+
+body.is-home.nav-desk #navbar .site-nav-center {
+  opacity: 1;
+  pointer-events: auto;
+  transform: none;
 }
 
 body.is-home #navbar .site-nav-inner {
@@ -10315,6 +10335,10 @@ body.is-home #navbar .site-nav-actions {
 /* ---------- 减少动态效果 ---------- */
 
 @media (prefers-reduced-motion: reduce) {
+  body.is-home #navbar .site-nav-center {
+    transition: none;
+  }
+
   body.is-home #navbar {
     transition: none;
   }

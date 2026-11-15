@@ -50,12 +50,13 @@ const ABOUT_LINES = [
 // ---------- Thinking：三篇长文 ----------
 // 顺序由深到浅：算力 → 数据 → 视觉。结论只读 front matter 的 blurb，
 // 绝不回退正文截取——正文开头是「数据出处」引用块，截进首页就成机械引用。
-const FEATURED = ['70b-to-cluster', 'metro-vs-gdp-rank-mismatch', 'stylekit-design-styles'];
+const FEATURED = ['70b-to-cluster', 'metro-vs-gdp-rank-mismatch', 'stylekit-design-styles', 'deepseek-pm-interview'];
 // 右侧短标签：全部是文章里的核心量级，不截断、不加省略号（主人 2026-11-15 铁律）
 const THINK_K: Record<string, string> = {
   '70b-to-cluster': '显存 · 集群',
   'metro-vs-gdp-rank-mismatch': '43 城 · ρ=0.870',
   'stylekit-design-styles': '149 种风格',
+  'deepseek-pm-interview': 'AI 产品 · 深度复盘',
 };
 const featured = FEATURED.map((slug) => posts.find((p) => p.slug === slug)).filter(Boolean) as any[];
 
@@ -82,14 +83,21 @@ function sectionOf(body: string, heading: string): string {
 }
 
 const projectItems: any[] = data.projects?.items || [];
+// 右标签写「这是什么」，不写技术栈——访客不需要先认 Vue 才知道 Ties 是什么。
+// 技术栈留在浮层里（projects.yml 的 tech 段）。
+const MAKE_K: Record<string, string> = {
+  Ties: '私有关系档案系统',
+  '资产追踪系统': '全周期日均成本桌面端',
+  '校园课程资源共享平台': '多角色课程资源与 AI 助手',
+};
+
 const makeFromData = ['Ties', '资产追踪系统', '校园课程资源共享平台']
   .map((t) => projectItems.find((it) => String(it.title) === t))
   .filter(Boolean)
   .map((it: any) => ({
     id: String(it.title) === 'Ties' ? 'ties' : String(it.title) === '资产追踪系统' ? 'assets' : 'campus',
     name: String(it.title),
-    note: cut(String(it.summary || ''), 20),
-    tech: (Array.isArray(it.tags) ? it.tags.slice(0, 3) : []).join(' · '),
+    k: MAKE_K[String(it.title)] || cut(String(it.summary || ''), 14),
     href: urlFor(detailPath('projects' as ModuleKey, it)),
     html: [it.background ? renderMarkdown(String(it.background)) : '', it.tech ? renderMarkdown(String(it.tech)) : ''].join(''),
     more: { label: '完整记录', href: urlFor(detailPath('projects' as ModuleKey, it)) },
@@ -100,8 +108,7 @@ const makeAll = [
   {
     id: 'site',
     name: 'kasai-space',
-    note: '本站 · 自写管理面板',
-    tech: 'Astro · Vercel',
+    k: '本站 · 自研后台与专题库',
     href: urlFor('/now/'),
     html: renderMarkdown(sectionOf(nowBody, '这个站')),
     more: { label: '完整演进见 /now/', href: urlFor('/now/') },
@@ -231,7 +238,12 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
               {/* 友链：配置里 0 条，浮层会是空盒子，所以直接进 /links/ 的真实空态页 */}
               <li>
                 <a class="social-btn" href={urlFor('/links/')} aria-label="友链">
-                  <i class="iconfont icon-link" aria-hidden="true" />
+                  {/* 内联图标：iconfont 里没有稳定的 link 字形，缺字时会渲染成空心圆 */}
+                  <svg class="social-svg" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                    <path d="M6.4 9.6 9.6 6.4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>
+                    <path d="M7.2 4.9 8.7 3.4a2.7 2.7 0 0 1 3.9 3.9l-1.5 1.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>
+                    <path d="M8.8 11.1 7.3 12.6a2.7 2.7 0 0 1-3.9-3.9l1.5-1.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>
+                  </svg>
                 </a>
               </li>
             </ul>
@@ -277,7 +289,7 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
                   <span class="row-b">
                     <span class="row-t">{it.name}</span>
                   </span>
-                  <span class="row-k">{it.tech}</span>
+                  <span class="row-k">{it.k}</span>
                 </a>
               </li>
             ))

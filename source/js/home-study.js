@@ -71,7 +71,7 @@
       },
       dark: {
         bg: [0.102, 0.094, 0.078],
-        tones: [[0.19, 0.163, 0.126], [0.108, 0.095, 0.078], [0.052, 0.046, 0.038]],
+        tones: [[0.26, 0.222, 0.172], [0.108, 0.095, 0.078], [0.05, 0.044, 0.036]],
         accent: [0.851, 0.467, 0.341],
       },
     };
@@ -115,11 +115,12 @@
     }
 
     /** 实体盒子：8 个角、6 个面，每个面按法线取三档色之一 */
-    function box(x, y, z, w, h, d, accent) {
+    /** tone 传 0/1/2 时强制用该色阶（围合压暗、核心提亮都要靠它），不传则按法线取 */
+    function box(x, y, z, w, h, d, tone) {
       var x0 = x - w / 2, x1 = x + w / 2;
       var y0 = y, y1 = y + h;
       var z0 = z - d / 2, z1 = z + d / 2;
-      function col(n) { return accent ? pal.accent : shade(n); }
+      function col(n) { return tone === 0 || tone === 1 || tone === 2 ? pal.tones[tone] : shade(n); }
       var P = [
         [x0, y0, z0], [x1, y0, z0], [x1, y0, z1], [x0, y0, z1],
         [x0, y1, z0], [x1, y1, z0], [x1, y1, z1], [x0, y1, z1],
@@ -132,52 +133,101 @@
       quad(P[1], P[2], P[6], P[5], col([1, 0, 0]));
     }
 
-    function ribbon(x, y, z, w, h) {
-      var a = [x - w / 2, y, z];
-      var b = [x + w / 2, y, z];
-      var c = [x + w / 2, y - h, z];
-      var d = [x - w / 2, y - h, z];
-      quad(a, b, c, d, pal.accent);
+    /** 绕 y 轴转过的盒子：内殿的核心装置要用它叠出旋转的层次 */
+    function boxRy(x, y, z, w, h, d, ry) {
+      var cs = Math.cos(ry);
+      var sn = Math.sin(ry);
+      var P = function (a, b, e) {
+        return [x + (a * w / 2) * cs + (e * d / 2) * sn, y + b * h / 2, z - (a * w / 2) * sn + (e * d / 2) * cs];
+      };
+      var c = [
+        P(-1, -1, -1), P(1, -1, -1), P(1, -1, 1), P(-1, -1, 1),
+        P(-1, 1, -1), P(1, 1, -1), P(1, 1, 1), P(-1, 1, 1),
+      ];
+      quad(c[0], c[1], c[2], c[3], shade([0, -1, 0]));
+      quad(c[4], c[5], c[6], c[7], shade([0, 1, 0]));
+      quad(c[0], c[1], c[5], c[4], shade([0, 0, -1]));
+      quad(c[3], c[2], c[6], c[7], shade([0, 0, 1]));
+      quad(c[0], c[3], c[7], c[4], shade([-1, 0, 0]));
+      quad(c[1], c[2], c[6], c[5], shade([1, 0, 0]));
     }
 
     // 确定性伪随机：每次构建同一座展厅，不做「随机生成」的假惊喜
     var seed = 20231115;
     function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
 
-    var ROWS = [-9.5, 9.5];
-    var ZS = [];
-    for (var i = 0; i < 11; i += 1) ZS.push(8 - i * 7);
+    // 空间分三段，对应三屏：外景前庭（z 正）→ 柱廊主厅（z 0…-40）→ 内殿光井（z -42…-78）
+    // 观众沿着 -z 单向推进，永不回头。
+    var DOOR = 7;          // 门洞半宽
+    var HALL_H = 17;       // 主厅净高
+    var SANCT = -60;       // 内殿核心所在
 
     function build() {
       V.length = 0;
       seed = 20231115;
       LIGHT = norm([-0.42, 0.76, 0.5]);
 
-      // 地面：一整块，给柱廊一个落脚的平面
-      quad([-70, -2, 26], [70, -2, 26], [70, -2, -86], [-70, -2, -86], pal.tones[2]);
+      // —— 地面：一整块，从前庭铺到内殿 ——
+      quad([-90, -2, 86], [90, -2, 86], [90, -2, -100], [-90, -2, -100], pal.tones[1]);
 
-      ZS.forEach(function (z, idx) {
-        var h = 14 + Math.round(rnd() * 4);
-        ROWS.forEach(function (x) {
-          box(x, -2, z, 1.5, h + 2, 1.5);   // 柱身
-          box(x, h, z, 2.3, 0.7, 2.3);      // 柱头
+      // —— 内殿静水面：比地面亮一档，读作反光 ——
+      quad([-13, -0.4, -42], [13, -0.4, -42], [13, -0.4, -76], [-13, -0.4, -76], pal.tones[2]);
+
+      // —— 外立面：两翼实墙 + 门楣，中间留门洞 ——
+      box(-(DOOR + 13), -2, 10, 26, 30, 2.4, 1);
+      box(DOOR + 13, -2, 10, 26, 30, 2.4, 1);
+      box(0, 21, 10, DOOR * 2, 7, 2.4, 1);
+      // 门前台阶与门框
+      box(0, -2, 13, 30, 1.2, 6);
+      box(-DOOR, -2, 10, 1.2, 21, 3);
+      box(DOOR, -2, 10, 1.2, 21, 3);
+
+      // —— 柱廊：七开间，柱头 + 柱身 ——
+      var zs = [];
+      for (var i = 0; i < 7; i += 1) zs.push(4 - i * 7);
+      zs.forEach(function (z) {
+        [-9.5, 9.5].forEach(function (x) {
+          box(x, -2, z, 1.6, HALL_H + 2, 1.6);
+          box(x, HALL_H, z, 2.4, 0.8, 2.4);
         });
-        box(0, h + 0.6, z, 20.5, 0.5, 0.9); // 跨梁
-        if (idx % 2 === 0) box(0, h - 1.7, z + 0.4, 20.5, 0.35, 0.6); // 次梁
+        box(0, HALL_H + 0.8, z, 21, 0.5, 0.9);
       });
 
-      // 两侧通长压梁
-      ROWS.forEach(function (x) { box(x, 18.6, -27, 0.8, 0.8, 76); });
+      // —— 顶部天光格栅：纵向主梁，让抬头有结构 ——
+      [-9.5, -3.2, 3.2, 9.5].forEach(function (x) {
+        box(x, HALL_H + 0.9, -17, 0.7, 0.6, 50);
+      });
 
-      // 后墙：一面大板，给纵深一个落点
-      box(0, -2, -84, 46, 34, 1.6);
+      // —— 内殿围合：两侧墙 + 后墙，把空间收成一口"井" ——
+      box(-15, -2, SANCT - 8, 2.6, 32, 44, 2);
+      box(15, -2, SANCT - 8, 2.6, 32, 44, 2);
+      box(0, -2, -82, 32, 32, 2.6, 2);
 
-      // 悬垂缎带：三段强调色，挂在跨梁下
-      ribbon(-3.2, 13.2, -6, 2.2, 9.2);
-      ribbon(2.8, 13.2, -20, 2.4, 10.6);
-      ribbon(-1.4, 13.2, -34, 2, 8.2);
+      // —— 天花板：围着核心挖一口 14×14 的天窗，光从洞正上方落下 ——
+      box(0, 24, SANCT - 15, 32, 1.4, 16, 2);   // 天窗之后
+      box(0, 24, SANCT + 15, 32, 1.4, 16, 2);   // 天窗之前
+      box(-11.5, 24, SANCT, 9, 1.4, 14, 2);     // 天窗左侧
+      box(11.5, 24, SANCT, 9, 1.4, 14, 2);      // 天窗右侧
+
+      // —— 核心装置：三层旋转台 + 中柱 + 悬浮冠，立在静水中央 ——
+      boxRy(0, 0.6, SANCT, 17, 1.1, 17, 0.5);
+      boxRy(0, 1.9, SANCT, 13, 1.1, 13, 0);
+      boxRy(0, 3.2, SANCT, 9.4, 1.1, 9.4, -0.5);
+      boxRy(0, 4.5, SANCT, 6, 1.1, 6, 0.25);
+      box(0, 5.8, SANCT, 2.6, 8.6, 2.6, 0);
+      boxRy(0, 15.2, SANCT, 7.4, 1.1, 7.4, 0.4);
+
+      // —— 光池：天窗正下方，把"光落下来"画成一块亮面 ——
+      quad([-7, 0.12, SANCT - 7], [7, 0.12, SANCT - 7], [7, 0.12, SANCT + 7], [-7, 0.12, SANCT + 7], pal.tones[0]);
+
+      // —— 踏步：从主厅下到内殿，两级，给"抵达"一个动作 ——
+      box(0, -0.6, -41, 30, 0.9, 4, 1);
+      box(0, -1.4, -45, 30, 0.9, 4, 1);
+
+      // —— 前庭两侧矮墙：给外景一个边界，避免广场漫无边 ——
+      box(-26, -2, 40, 2, 2.4, 60);
+      box(26, -2, 40, 2, 2.4, 60);
     }
-    build();
 
     // ---- 着色器 ----
     var VS = [
@@ -207,7 +257,6 @@
       '  vec2 g = floor(x / 1.5);',
       '  float n = fract(52.9829189 * fract(dot(g, vec2(0.06711056, 0.00583715))));',
       '  vec3 c = vC + (n - 0.5) * 0.032;',
-      '  c *= 0.975 + 0.025 * step(0.5, fract(x.y / 3.0));',
       '  c += 0.012 * smoothstep(0.965, 1.0, fract(x.y * 0.0006 - uT * 0.02));',
       '  gl_FragColor = vec4(c, 1.0);',
       '}',
@@ -251,10 +300,17 @@
     upload();
 
     // ---- 相机：三档关键帧 + Catmull-Rom 插值，对应三屏 ----
+    // 三档都是沿 -z 前进，z 严格递减：外景 → 门廊 → 主厅；内殿由第三档的落点承担，
+    // 不存在"滑到底又退回门口"的倒车。
+    // 三档沿 -z 单向推进，z 严格递减：外景 → 门廊主厅 → 内殿核心。
+    // 不设"回望"的关键帧，滚到底不会倒车回门口。
     var STOPS = [
-      { eye: [0, 3.4, 30], ctr: [0, 8.2, -16], fov: 52 },   // 第一屏：厅外，看纵深
-      { eye: [4.2, 11, 20], ctr: [0, 6.2, -22], fov: 46 }, // 第二屏：后退抬高偏轴，柱廊退成背景，窗口才是主体
-      { eye: [0, 6.4, 40], ctr: [0, 8.4, -20], fov: 54 },   // 第三屏：退远，整座厅收进画面
+      // 第一屏：建筑外景远眺。门洞偏右，左侧大片广场与远景留给 /KASAI
+      { eye: [14, 9.5, 46], ctr: [-9, 9, 8], fov: 48 },
+      // 第二屏：跨过门槛进入主厅，柱列在视野两侧展开
+      { eye: [0, 6.8, 8], ctr: [0, 7, -26], fov: 54 },
+      // 第三屏：走完长廊下两级台阶，正对内殿核心与天窗
+      { eye: [0, 4.4, -24], ctr: [0, 7.6, SANCT], fov: 50 },
     ];
 
     function catmull(a, b, c, d, t) {
@@ -394,7 +450,33 @@
     } catch (e) { /* 老浏览器忽略 */ }
   })();
 
-  // ================= 2. 浮层 =================
+  // ================= 2. 导航：只在第二屏浮现完整胶囊 =================
+
+  (function nav() {
+    var desk = doc.getElementById('desk');
+    var body = doc.body;
+    if (!desk || !body) return;
+    var queued = false;
+
+    function sync() {
+      queued = false;
+      var r = desk.getBoundingClientRect();
+      // 视口中线落在第二屏内 → 展开导航
+      var mid = (window.innerHeight || 0) * 0.5;
+      var on = r.top <= mid && r.bottom >= mid;
+      body.classList.toggle('nav-desk', on);
+    }
+
+    window.addEventListener('scroll', function () {
+      if (queued) return;
+      queued = true;
+      window.requestAnimationFrame(sync);
+    }, { passive: true });
+    window.addEventListener('resize', sync);
+    sync();
+  })();
+
+  // ================= 3. 浮层 =================
 
   (function modal() {
     var dlg = doc.getElementById('sd-modal');
@@ -466,7 +548,7 @@
     });
   })();
 
-  // ================= 3. 落幕屏倒计时 =================
+  // ================= 4. 落幕屏倒计时 =================
 
   (function feed() {
     var node = doc.getElementById('sd-feed');

@@ -69,7 +69,7 @@ const baseLayoutAstro = read('src/layouts/BaseLayout.astro');
 const cssEjs = read('themes/fluid/layout/_partials/css.ejs');
 const prepareAssets = stripComments(read('tools/prepare-assets.mjs'));
 const designLang = read('DESIGN-LANGUAGE.md');
-const proposal = read('DESIGN-DARKMODE-PROPOSAL-2026-11-09.md');
+const proposal = read('docs/archive/DESIGN-DARKMODE-PROPOSAL-2026-11-09.md');
 const pkg = JSON.parse(read('package.json'));
 // Phase 4A 新增的三层自动层输入（源码层断言始终执行）
 const sunSchemeJs = read('themes/fluid/source/js/sun-scheme.js');
