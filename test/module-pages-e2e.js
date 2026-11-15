@@ -437,16 +437,23 @@ async function main() {
       }
     });
 
-    ok('第二屏四窗顺序与落点自洽：About → Thinking → Creations → Atlas，行内无空链接', () => {
-      // 锁这一版首页最容易退化的两件事：窗口顺序被打乱、行条目变成死链。
-      const order = ['win-about', 'win-thinking', 'win-creations', 'win-atlas']
-        .map((id) => home.indexOf('id="' + id + '"'));
-      const names = ['About', 'Thinking', 'Creations', 'Atlas'];
-      order.forEach((i, n) => assert.ok(i > -1, '产物缺窗口 ' + names[n]));
-      for (let i = 1; i < order.length; i += 1) {
-        assert.ok(order[i] > order[i - 1], '四窗顺序被打乱：' + order.join(','));
-      }
-      const desk = home.slice(home.indexOf('id="desk"'), home.indexOf('id="outro"'));
+    ok('第二屏双泳道自洽：左 01→03、右 02→04，行内无空链接', () => {
+      // 锁这一版首页最容易退化的两件事：泳道归属与顺序被打乱、行条目变成死链。
+      const aStart = home.indexOf('sd-lane--a');
+      const bStart = home.indexOf('sd-lane--b');
+      const deskEnd = home.indexOf('id="outro"');
+      assert.ok(aStart > -1 && bStart > aStart && deskEnd > bStart, '#desk 双泳道结构缺失');
+      const laneA = home.slice(aStart, bStart);
+      const laneB = home.slice(bStart, deskEnd);
+      assert.ok(laneA.includes('id="win-about"') && laneA.includes('id="win-creations"'),
+        '左泳道不是 About / Creations');
+      assert.ok(laneB.includes('id="win-thinking"') && laneB.includes('id="win-atlas"'),
+        '右泳道不是 Thinking / Atlas');
+      assert.ok(laneA.indexOf('id="win-about"') < laneA.indexOf('id="win-creations"'),
+        '左泳道内顺序应为 About → Creations');
+      assert.ok(laneB.indexOf('id="win-thinking"') < laneB.indexOf('id="win-atlas"'),
+        '右泳道内顺序应为 Thinking → Atlas');
+      const desk = home.slice(home.indexOf('id="desk"'), deskEnd);
       const hrefs = [...desk.matchAll(/class="row" href="([^"]*)"/g)].map((m) => m[1]);
       assert.ok(hrefs.length >= 9, '第二屏可点行太少：' + hrefs.length);
       for (const href of hrefs) {

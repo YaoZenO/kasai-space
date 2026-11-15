@@ -9669,7 +9669,9 @@ body.is-home::before {
 }
 
 :root {
-  --win-bg: rgba(252, 249, 242, 0.9);
+  --win-bg: rgba(253, 250, 244, 0.94);
+  --win-line: rgba(27, 23, 18, 0.18);
+  --win-head: rgba(27, 23, 18, 0.055);
 }
 
 /* ---------- 第一屏：序幕 ---------- */
@@ -9682,7 +9684,7 @@ body.is-home::before {
   align-items: flex-start;
   min-height: 100vh;
   min-height: 100dvh;
-  padding: 0 clamp(20px, 7vw, 96px);
+  padding: 0 clamp(20px, 7vw, 96px) clamp(120px, 24vh, 280px);
 }
 
 .sd-mark {
@@ -9710,7 +9712,8 @@ body.is-home::before {
 .sd-cue {
   position: absolute;
   left: clamp(20px, 7vw, 96px);
-  bottom: clamp(28px, 7vh, 64px);
+  /* 抬离底边：压在 64px 时，滚到第二屏入口正好落在顶部导航的横带上 */
+  bottom: clamp(84px, 13vh, 150px);
   display: inline-flex;
   align-items: center;
   gap: 0.7rem;
@@ -9738,44 +9741,65 @@ body.is-home::before {
   transform: scaleX(1.28);
 }
 
-/* ---------- 第二屏：四窗工作台 ---------- */
+/* ---------- 第二屏：双泳道错落漫游 ----------
+   两条独立的纵向泳道，中间留一条视觉通道让 3D 的台阶与光柱透出来。
+   窗口 height: auto 紧包内容——强制等高会在信息少的窗口里留下大片白板。 */
 
 .sd-desk {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(12px, 1.4vw, 20px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: clamp(56px, 8vw, 110px);
   width: min(1120px, 100%);
   margin: 0 auto;
-  min-height: 100vh;
-  min-height: 100dvh;
-  padding: clamp(76px, 11vh, 128px) clamp(16px, 3vw, 36px) clamp(48px, 8vh, 96px);
-  align-content: center;
+  min-height: 190vh;
+  min-height: 190dvh;
+  padding: clamp(64px, 9vh, 110px) clamp(16px, 3vw, 36px) clamp(72px, 12vh, 150px);
+}
+
+.sd-lane {
+  display: flex;
+  flex-direction: column;
+  gap: 14vh;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* 右泳道整体下错 22vh：向下滚动时四窗一左一右依次划过视野，而不是一整排同时出现 */
+.sd-lane--b {
+  padding-top: 22vh;
 }
 
 /* 统一外壳：四个窗口共用这一条规则，不许任何窗口覆盖它。
    刻意不用 backdrop-filter：画布每帧都在重绘，四块大面积 backdrop 会迫使
-   合成器每帧重新模糊，代价远高于收益——画布本身已经是柔和低对比线场，
-   半透明底 + 1px 内高光在观感上等价于毛玻璃。 */
+   合成器每帧重新模糊，代价远高于收益——半透明底 + 1px 描边在观感上等价于毛玻璃。 */
 .sd-win {
+  --win-px: 22px;
+  --win-py: 20px;
+  --win-pb: 16px;
   display: flex;
   flex-direction: column;
-  min-height: clamp(236px, 31vh, 320px);
-  padding: 20px 22px 16px;
+  flex: 0 0 auto;
+  height: auto;
+  padding: var(--win-py) var(--win-px) var(--win-pb);
   border-radius: var(--r-tile);
-  border: 1px solid var(--site-chip-border);
-  /* 比全站 --cream 更实一点：窗口底是动态 3D 场景，太透会让柱梁穿透文字。
-     两态各一档，写在 §15 的两分支里。 */
+  border: 1px solid var(--win-line);
+  /* 比全站 --cream 更实一点：窗口底是动态 3D 场景，太透会让柱梁穿透文字。 */
   background-color: var(--win-bg, var(--cream));
   box-shadow:
-    0 22px 52px -32px rgba(90, 70, 50, 0.34),
-    inset 0 1px 0 var(--site-chip-border);
+    0 32px 68px -38px rgba(78, 60, 42, 0.46),
+    0 3px 10px -6px rgba(27, 23, 18, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
 }
 
-/* 抬头：只有标题 */
+/* 抬头：只有标题。底色条铺到窗口内边距的外沿，让"这是一扇窗"有明确的顶边框。 */
 .win-head {
   flex: 0 0 auto;
-  padding-bottom: 0.6rem;
-  border-bottom: 1px solid var(--line-color);
+  margin: calc(0px - var(--win-py)) calc(0px - var(--win-px)) 0.55rem;
+  padding: calc(var(--win-py) - 7px) var(--win-px) 0.5rem;
+  background-color: var(--win-head);
+  border-bottom: 1px solid var(--win-line);
+  border-radius: var(--r-tile) var(--r-tile) 0 0;
 }
 
 .win-title {
@@ -10053,8 +10077,11 @@ body.is-home #navbar .site-brand {
 }
 
 /* 完整胶囊只在第二屏出现：display 不能过渡，所以用透明度 + pointer-events。
-   品牌位始终保持隐藏（右上角只留搜索 / 明暗切换 / 移动端菜单）。 */
+   品牌位整块 display:none——它若只是 opacity:0，仍会占据 1fr 列，
+   胶囊就被挤到右侧（grid 第 2 列不再是容器中线）。这里显式钉到第 2 列居中。 */
 body.is-home #navbar .site-nav-center {
+  grid-column: 2;
+  justify-self: center;
   opacity: 0;
   pointer-events: none;
   transform: translateY(-6px);
@@ -10067,11 +10094,8 @@ body.is-home.nav-desk #navbar .site-nav-center {
   transform: none;
 }
 
-body.is-home #navbar .site-nav-inner {
-  grid-template-columns: 1fr auto;
-}
-
 body.is-home #navbar .site-nav-actions {
+  grid-column: 3;
   justify-self: end;
 }
 
@@ -10264,34 +10288,36 @@ body.is-home #navbar .site-nav-actions {
 
 @media (min-width: 1024px) and (max-height: 860px) {
   .sd-desk {
-    padding-top: clamp(52px, 7vh, 74px);
-    padding-bottom: 28px;
+    gap: clamp(44px, 5vw, 76px);
+    padding-top: clamp(56px, 7vh, 78px);
+    padding-bottom: 48px;
   }
 
   .sd-win {
-    min-height: 0;
-    padding: 14px 16px 11px;
+    --win-px: 17px;
+    --win-py: 15px;
+    --win-pb: 12px;
   }
 
   .row {
-    padding: 0.38rem 0;
+    padding: 0.42rem 0;
   }
 
   .win-lines li {
-    padding: 0.24rem 0;
+    padding: 0.26rem 0;
     font-size: 0.76rem;
   }
 
   .win-ident {
-    padding: 0.5rem 0 0.4rem;
+    padding: 0.55rem 0 0.45rem;
   }
 
   .win-thumbs {
-    margin-top: 0.45rem;
+    margin-top: 0.5rem;
   }
 
   .win-social {
-    padding-top: 0.5rem;
+    padding-top: 0.55rem;
   }
 
   .sd-outro {
@@ -10300,19 +10326,31 @@ body.is-home #navbar .site-nav-actions {
   }
 }
 
-/* ---------- <1024：单列 ---------- */
+/* ---------- <1024：单列。泳道合并，错落位移清零 ---------- */
 
 @media (max-width: 1023.98px) {
   .sd-desk {
-    grid-template-columns: minmax(0, 1fr);
+    flex-direction: column;
     gap: 12px;
+    width: 100%;
+    min-height: 0;
     padding: clamp(64px, 9vh, 96px) 16px 48px;
-    align-content: start;
+  }
+
+  .sd-lane {
+    flex: 0 0 auto;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .sd-lane--b {
+    padding-top: 0;
   }
 
   .sd-win {
-    min-height: 0;
-    padding: 16px 16px 14px;
+    --win-px: 16px;
+    --win-py: 15px;
+    --win-pb: 14px;
   }
 
   .sd-hero {
@@ -10998,6 +11036,12 @@ a:hover {
   :root:not([data-user-color-scheme]):not([data-sun-scheme]) .sd-modal {
     background-color: var(--board-bg-color);
   }
+  /* sd-dark-win-start */
+  :root:not([data-user-color-scheme]):not([data-sun-scheme]) .sd-win {
+    --win-line: rgba(255, 255, 255, 0.2);
+    --win-head: rgba(255, 255, 255, 0.05);
+  }
+  /* sd-dark-win-end */
 }
 
 @media not print {
@@ -11413,6 +11457,16 @@ a:hover {
   [data-sun-scheme="dark"]:not([data-user-color-scheme]) .sd-modal {
     background-color: var(--board-bg-color);
   }
+  /* sd-dark-win-start */
+  [data-user-color-scheme="dark"] .sd-win {
+    --win-line: rgba(255, 255, 255, 0.2);
+    --win-head: rgba(255, 255, 255, 0.05);
+  }
+  [data-sun-scheme="dark"]:not([data-user-color-scheme]) .sd-win {
+    --win-line: rgba(255, 255, 255, 0.2);
+    --win-head: rgba(255, 255, 255, 0.05);
+  }
+  /* sd-dark-win-end */
 }
 
 @media (prefers-reduced-motion: no-preference) {

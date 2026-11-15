@@ -931,9 +931,9 @@ ok('§2.6 / A12：两态不变、matchMedia 压制走 DOM 标记、toggle 读当
 // ---------- A11–A14 ----------
 
 ok('A11/A12：§10-12 / §10-15 / §10-21 断言段与 HEAD 逐字一致（一条不改）', () => {
-  const headTest = execFileSync('git', ['show', 'HEAD:test/darkmode-e2e.js'],
-    { cwd: ROOT, encoding: 'utf8', maxBuffer: 20 * 1024 * 1024 });
-  const cur = read('test/darkmode-e2e.js');
+  // 必须走 gitShowLF + lf：工作区是 CRLF、blob 是 LF，直接比会把换行差异当成内容改写（E-169）
+  const headTest = gitShowLF('test/darkmode-e2e.js');
+  const cur = lf(read('test/darkmode-e2e.js'));
   const seg = (s, a, b) => {
     const i = s.indexOf("ok('" + a);
     const j = s.indexOf("ok('" + b, i);
@@ -968,15 +968,14 @@ ok('A11：过渡口径沿用 §10-21 一条不改（过渡段与 HEAD 逐字一�
 });
 
 ok('A13：§10-13 / §10-14 与 HEAD 逐字一致（改写数 = 0，只新增）', () => {
-  const headTest = execFileSync('git', ['show', 'HEAD:test/darkmode-e2e.js'],
-    { cwd: ROOT, encoding: 'utf8', maxBuffer: 20 * 1024 * 1024 });
+  const headTest = gitShowLF('test/darkmode-e2e.js');
   const grab = (s) => {
     const a = s.indexOf("ok('§10-13");
     const b = s.indexOf("ok('§10-15", a);
     return a === -1 || b === -1 ? '' : s.slice(a, b);
   };
   assert.ok(grab(headTest).length > 500, 'HEAD 断言段取样失效');
-  const curTest = read('test/darkmode-e2e.js');
+  const curTest = lf(read('test/darkmode-e2e.js'));
   assert.strictEqual(grab(curTest), grab(headTest),
     '§10-13 / §10-14 被改写（应为逐字原样）');
   // l.409–415 / l.432 / l.435–450 / §10-16~24 等既有断言段一条不删
@@ -1207,8 +1206,7 @@ ok('A6：head/nav 模板无新文案、无新增可见 DOM 节点、切换控件
 // ---------- A7 / A8：暗色令牌未漂移、既有跟随系统分支未被破坏 ----------
 
 ok('A7：git diff 无五个暗色令牌的增删行，出现次数与 HEAD 一致，无第三套暗色声明块', () => {
-  const headCss = execFileSync('git', ['show', 'HEAD:source/css/site.css'],
-    { cwd: ROOT, encoding: 'utf8', maxBuffer: 20 * 1024 * 1024 });
+  const headCss = gitShowLF('source/css/site.css');
   const diff = execFileSync('git', ['diff', '-U0', '--', 'source/css/site.css'],
     { cwd: ROOT, encoding: 'utf8', maxBuffer: 20 * 1024 * 1024 });
   const changed = diff.split('\n').filter((l) => (l.startsWith('+') || l.startsWith('-'))
@@ -1237,8 +1235,7 @@ ok('A8：既有跟随系统分支字面量命中数均不减（site.css 与两�
   const literals = ['@media (prefers-color-scheme: dark)',
     ':root:not([data-user-color-scheme])', '[data-user-color-scheme="dark"]', '@media not print'];
   pairs.forEach(([rel, cur]) => {
-    const before = execFileSync('git', ['show', 'HEAD:' + rel],
-      { cwd: ROOT, encoding: 'utf8', maxBuffer: 20 * 1024 * 1024 });
+    const before = gitShowLF(rel);
     literals.forEach((lit) => {
       // 2026-11-15：首页重构删掉了 .ink-band 一族死 CSS，连带它名下 10 个暗态选择器一起下线，
       // 这是有意的减法，不是覆盖回退。所以两侧都先剔掉含 .ink-band 的行再计数——
@@ -1865,6 +1862,15 @@ async function okAsync(label, fn) {
     assert.ok(seg.includes('--win-bg: rgba(28, 24, 19, 0.9)'),
       '§15 缺少首页窗口底色 --win-bg 的暗态');
     assert.ok(!seg.includes(':is('), '§15 不得引入 :is()');
+  });
+
+  ok('E-169 防复发：HEAD 比对一律经 gitShowLF，不得裸调 git show', () => {
+    // 工作区是 CRLF、git 的 blob 是 LF。任何裸调 git show 之后与工作区字符串比对的
+    // 断言，在 Windows 上都会把换行差异当成内容改写。唯一允许的地方是 gitShowLF 定义处。
+    const src = lf(read('test/darkmode-e2e.js'));
+    const bare = (src.match(/execFileSync\('git', \['show'/g) || []).length;
+    assert.strictEqual(bare, 1,
+      '出现 ' + bare + ' 处裸调 git show（应为 1，仅 gitShowLF 定义处）：新断言请改用 gitShowLF(rel) + lf(工作区内容)');
   });
 
   console.log(`\nRESULT: ${passed} 项断言通过${skipped ? `，${skipped} 项 SKIP` : ''}${process.exitCode ? '，存在失败' : ''}`);

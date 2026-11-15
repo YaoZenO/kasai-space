@@ -96,13 +96,33 @@ ok('抬头只放标题：模板与 CSS 都不存在计数角标', () => {
   });
 });
 
-ok('首页导航只留右上角入口：品牌与宽胶囊被隐藏，动作区靠右', () => {
+ok('首页导航：品牌整块隐藏，胶囊钉在第 2 列严格居中，第二屏才浮现', () => {
   assert.match(s26, /body\.is-home #navbar \.site-brand[\s\S]{0,80}display: none/, 'CSS 没有在首页隐藏品牌');
+  // 只是 opacity:0 时品牌仍占 1fr 列，胶囊被挤到右侧——必须 display:none + 显式钉到第 2 列
+  assert.match(s26, /body\.is-home #navbar \.site-nav-center[\s\S]{0,90}grid-column: 2/,
+    '胶囊没有钉到中间列，会被空掉的品牌列挤偏');
+  assert.match(s26, /body\.is-home #navbar \.site-nav-center[\s\S]{0,90}justify-self: center/,
+    '胶囊没有显式居中');
+  assert.ok(!/\.site-nav-inner\s*\{[^}]*grid-template-columns:\s*1fr auto;/.test(s26),
+    '容器又被改成两列了——两列时胶囊落在 1fr 里，天然偏左/偏右');
   assert.match(s26, /body\.is-home #navbar \.site-nav-center[\s\S]{0,60}opacity: 0/, '首页没有默认收起宽胶囊');
   assert.match(s26, /body\.is-home\.nav-desk #navbar \.site-nav-center[\s\S]{0,60}opacity: 1/, '第二屏没有浮现宽胶囊');
   assert.match(homeJs, /classList\.toggle\('nav-desk'/, 'JS 没有切换 nav-desk');
   assert.match(s26, /body\.is-home #navbar \.site-nav-actions[\s\S]{0,60}justify-self: end/, '动作区没有靠右');
   assert.ok(!s26.includes('nav-away'), 'nav-away 机制已废弃，不应留在样式里');
+});
+
+ok('第二屏是双泳道错落：两条独立纵列、中央通道、窗口紧包内容', () => {
+  assert.match(s26, /\.sd-desk\s*\{[^}]*display:\s*flex/, '.sd-desk 不是 flex 双泳道');
+  assert.match(s26, /\.sd-desk\s*\{[^}]*min-height:\s*190dvh/, '第二屏滚动高度没有拉到 190dvh');
+  assert.match(s26, /\.sd-desk\s*\{[^}]*gap:\s*clamp\(56px, 8vw, 110px\)/, '两列之间没有中央视觉通道');
+  assert.match(s26, /\.sd-lane--b\s*\{[^}]*padding-top:\s*22vh/, '右泳道没有下错 22vh');
+  assert.match(s26, /\.sd-lane\s*\{[^}]*flex-direction:\s*column/, '泳道不是纵向排列');
+  const shell = /\.sd-win\s*\{([^}]*)\}/.exec(s26)[1];
+  assert.match(shell, /height:\s*auto/, '窗口仍在被强制等高');
+  assert.ok(!/min-height/.test(shell), '外壳里还留着 min-height，会重新拉起等高与内部白板');
+  assert.ok(page.includes('sd-lane sd-lane--a') && page.includes('sd-lane sd-lane--b'),
+    '模板里没有两条泳道');
 });
 
 ok('画布是 WebGL 三维场景：深度测试、相机样条、雾、DPI 与 reduce 静态帧', () => {
@@ -114,10 +134,33 @@ ok('画布是 WebGL 三维场景：深度测试、相机样条、雾、DPI 与 r
   assert.match(homeJs, /devicePixelRatio/, '画布没适配 devicePixelRatio');
   assert.match(homeJs, /requestAnimationFrame/, '画布没有走 rAF');
   const reduceBlock = homeJs.slice(homeJs.indexOf('if (reduce) {'));
-  assert.ok(reduceBlock.includes('p = 0.34'), 'reduce 分支没有固定静态帧');
+  assert.ok(reduceBlock.includes('p = 0.52'), 'reduce 分支没有固定静态帧');
   // 曾经被否掉的形态：只画点与线
   assert.ok(!/createRadialGradient/.test(homeJs), '又回到 2D 渐变画法了');
   assert.ok(!/ctx\.arc\(/.test(homeJs), '又回到画圆点当浮尘的老路');
+});
+
+ok('常驻顶点动画：三类动态部件由 uTime 驱动，不滚动画面也在动', () => {
+  assert.match(homeJs, /attribute vec4 a;/, '顶点没有动画通道 a');
+  assert.match(homeJs, /attribute vec2 b;/, '顶点没有支点 / 相位通道 b');
+  assert.match(homeJs, /float ang = uT \* a\.y \+ b\.y/, '动画角度没有接 uTime');
+  // 三个类型分支：绕竖轴自转、绕水平轴摆动、自转+浮动
+  assert.ok(homeJs.includes('t > 0.5 && t < 1.5'), '缺「绕竖轴自转」分支（星盘环）');
+  assert.ok(homeJs.includes('t > 1.5 && t < 2.5'), '缺「绕水平轴摆动」分支（钟摆）');
+  assert.ok(homeJs.includes('t > 2.5 && t < 3.5'), '缺「自转 + 浮动」分支（浮空多面体）');
+  assert.match(homeJs, /pos\.y \+= sin\(ang \* 0\.7\) \* 0\.55/, '浮空体没有上下浮动');
+  // 常驻时间累加：只要画面不动，这条就会掉
+  assert.match(homeJs, /t \+= dt \* 0\.001/, '没有时间累加，画面不会动');
+  assert.match(homeJs, /(terra):\s*\[0\.784, 0\.353, 0\.196\]/, '色板里没有赤陶色 #C85A32');
+  assert.match(homeJs, /octa\(tx, pivotY - 5\.9, tz, 1\.5, 'terra', swing\)/, '钟摆不是赤陶色八面体');
+});
+
+ok('静水内院：半透明光柱与水面波纹走独立通道', () => {
+  assert.match(homeJs, /t > 3\.5 && t < 4\.5\) \? 0\.33/, '光柱没有走半透明批次');
+  assert.match(homeJs, /gl\.enable\(gl\.BLEND\)[\s\S]{0,200}gl\.depthMask\(false\)/, '光柱没有开混合 / 关深度写入');
+  assert.match(homeJs, /vType > 4\.5/, '水面没有波纹着色');
+  assert.match(homeJs, /uniform vec2 uPool/, '波纹没有池心 uniform，会画在屏幕空间');
+  assert.match(homeJs, /shaft\(4\.4\);\s*[\s\S]{0,60}shaft\(1\.3\)/, '光柱不是多层叠加');
 });
 
 ok('E-172 防复发：.row 必须显式声明 width:100% + min-width:0', () => {
@@ -138,6 +181,40 @@ ok('E-173 防复发：相机三档的 eye z 必须严格递减（不许倒车回
 ok('E-171 防复发：首页隐藏导航用带 #navbar 的选择器', () => {
   assert.match(s26, /body\.is-home #navbar \.site-nav-center/, '缺 id 级隐藏规则');
   assert.match(s26, /body\.is-home\.nav-desk #navbar \.site-nav-center/, '缺第二屏浮现规则');
+});
+
+ok('E-174 防复发：两个着色器必须同为 mediump，否则程序链接失败整屏空白', () => {
+  const prec = homeJs.match(/'precision (highp|mediump) float;'/g) || [];
+  assert.ok(prec.length >= 2, '精度声明不足');
+  assert.ok(prec.every((x) => x.indexOf('mediump') > -1),
+    '出现了 highp 全局精度：同名 uniform 两侧精度不一致会直接链接失败');
+  assert.match(homeJs, /attribute highp vec3 p;/, '位置属性没有单独 highp，160 米尺度会抖');
+  assert.match(homeJs, /uniform highp mat4 uV;/, '相机矩阵没有单独 highp');
+});
+
+ok('E-176 防复发：光源必须侧向（z 分量不为正）', () => {
+  const m = /LIGHT = norm\(\[([-\d.]+), ([-\d.]+), ([-\d.]+)\]\)/.exec(homeJs);
+  assert.ok(m, '找不到 LIGHT 定义');
+  assert.ok(Number(m[3]) <= 0,
+    '光源 z 分量为正：朝向观众的面会被照到最亮档，建筑读作纸片剪影');
+});
+
+ok('E-177 防复发：每档关键帧的 eye 与 ctr 不能共 z（lookAt 会退化）', () => {
+  const block = /var STOPS = \[([\s\S]*?)\n    \];/.exec(homeJs);
+  assert.ok(block, '找不到 STOPS');
+  const pairs = [...block[1].matchAll(/eye:\s*\[([^\]]+)\],\s*ctr:\s*\[([^\]]+)\]/g)];
+  assert.strictEqual(pairs.length, 3, '关键帧不是三档');
+  pairs.forEach((pair, i) => {
+    const ez = pair[1].split(',')[2].trim();
+    const cz = pair[2].split(',')[2].trim();
+    assert.notStrictEqual(ez, cz, '第 ' + (i + 1) + ' 档 eye.z 与 ctr.z 相同，视线朝正下方，整屏会糊成一团');
+  });
+});
+
+ok('E-178 防复发：柱距不小于 8 米（柱身不许贴脸）', () => {
+  const m = /var pz = 12 - k \* ([\d.]+)/.exec(homeJs);
+  assert.ok(m, '找不到柱距');
+  assert.ok(Number(m[1]) >= 8, '柱距 ' + m[1] + ' 米：机位会落在柱子旁边，柱身贴满两侧画面');
 });
 
 console.log('产物契约（dist/index.html）');
