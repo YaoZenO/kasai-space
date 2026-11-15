@@ -171,7 +171,7 @@ const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决
   .blg-sb-stat .cs{font-size:12.5px; color:var(--blg-muted); white-space:nowrap}
   .blg-bans{display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:12px 20px 16px; border-top:1px solid var(--blg-line); font-size:13px}
   .blg-bans .lbl{font-size:11px; font-weight:800; letter-spacing:.22em; color:var(--blg-muted); margin-right:2px}
-  .blg-ban{padding:4px 11px; border:1px solid var(--blg-line); border-radius:999px; color:var(--blg-muted)}
+  .blg-ban{display:inline-flex; line-height:0}.blg-ban img{width:32px; height:32px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,.25)}
   .blg-data-note{margin-top:18px; font-size:13.5px; color:var(--blg-muted)}
   .blg-data-note a{color:var(--blg-gold); text-decoration:underline}
 
@@ -275,8 +275,8 @@ const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决
       <p class="blg-kicker-cn">英雄联盟全球总决赛 · 总决赛</p>
       <h1 class="blg-title">BLG <span class="gold">总冠军</span></h1>
       <div><span class="blg-score"><span>BLG</span><span class="n">3–1</span><span>GEN.G</span><span class="vs">BO5</span></span></div>
-      <p class="blg-hero-sub">先丢一局，连赢三局。建队第一座世界冠军，LPL五年来的第一座召唤师奖杯。</p>
-      <p class="blg-hero-meta">Barclays Center, Brooklyn, New York · 纽约布鲁克林巴克莱中心<br />北京时间2026年11月15日凌晨 · Finals MVP：<b>Knight</b></p>
+      <p class="blg-hero-sub">先丢一局，连赢三局。队史首冠，LPL五年来的第一座召唤师奖杯。</p>
+      <p class="blg-hero-meta">Barclays Center, Brooklyn, New York · 纽约布鲁克林巴克莱中心<br />夺冠时刻：北京时间2026年11月15日08:02 · Finals MVP：<b>Knight</b></p>
     </div>
     <div class="blg-scroll" aria-hidden="true"><span>Scroll</span><i></i></div>
   </header>
@@ -285,7 +285,7 @@ const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决
   <section class="blg-section" id="lineups">
     <p class="blg-eyebrow reveal">Starting Five · 首发阵容</p>
     <h2 class="reveal" data-d="1">两边都是全主力，谁也不让。</h2>
-    <p class="blg-lead reveal" data-d="2">一边是LPL的头号种子，一边是淘汰赛开打以来一局未输的Gen.G。五个人对五个人，打满四局。</p>
+    <p class="blg-lead reveal" data-d="2">一边是LPL的二号种子，一边是淘汰赛开打以来一局未输的Gen.G。五个人对五个人，打满四局。</p>
     <div class="blg-vs">
       <div class="blg-team blg reveal" data-d="1">
         <h3>Bilibili Gaming</h3>
@@ -355,19 +355,19 @@ const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决
     <h2 class="reveal" data-d="1">这四局，一局比一局硬。</h2>
     <div class="blg-games">
       <article class="blg-game reveal">
-        <h3>第一局：Gen.G先声夺人 <span class="tag">GEN.G WIN · 38:00</span></h3>
-        <p>BLG一度拿到四条小龙和第一条远古巨龙，开局并不差。但Gen.G的团战更硬：Kiin的Olaf绕后直切Viper，Ruler的Corki在后排火力全开，<b>7/0/8</b>、全场最高伤害，Chovy的Syndra <b>6/1/11</b>紧随其后。Gen.G赢下远古巨龙团，一波推平，<span class="num">19–4</span>，先下一城。Knight这局掏出的Locke没能打开局面，BLG全队只拿到4个人头。</p>
+        <h3>第一局：Gen.G先声夺人 <span class="tag">GEN.G WIN · 38分钟</span></h3>
+        <p>BLG一度拿到四条小龙和第一条远古巨龙，开局并不差。但Gen.G的团战更硬：Kiin的Olaf绕后直切Viper，Ruler的Corki在后排火力全开，<b>7/0/8</b>；Chovy的Syndra <b>6/1/11</b>。Gen.G赢下远古巨龙团，一波推平，<span class="num">19–4</span>，先下一城。Knight这局掏出的Locke没能打开局面，BLG全队只拿到4个人头。</p>
       </article>
       <article class="blg-game reveal">
-        <h3>第二局：53分钟的拉锯战 <span class="tag">BLG WIN · 53:00</span></h3>
+        <h3>第二局：53分钟的拉锯战 <span class="tag">BLG WIN · 53分钟</span></h3>
         <p>这是本届全球总决赛最长的一局。Gen.G掏出Vayne上单加Cho'Gath打野的怪阵，BLG则让Viper拿Ziggs、ON拿Camille走下路回应。双方来回拉扯近一个小时，Canyon甚至在倒下之前抢下了一条远古巨龙，Gen.G还是没能翻过来。Xun的Naafiri <b>8/1/9</b>，Knight的Cassiopeia <b>4/1/12</b>，BLG <span class="num">19–14</span>艰难扳平。</p>
       </article>
       <article class="blg-game reveal">
-        <h3>第三局：Fearless Draft开始发力 <span class="tag">BLG WIN · 37:00</span></h3>
+        <h3>第三局：Fearless Draft开始发力 <span class="tag">BLG WIN · 37分钟</span></h3>
         <p>无畏征召之下，前两局用过的英雄不能再选，Kai'Sa、Sivir、Xayah又全被按在ban位上。BLG索性让Viper掏出Taliyah走下路，Knight拿下Viktor，ON拿下Alistar。25分钟左右的关键团战，Knight的Viktor打出决定性输出；随后Bin的Jax站了出来，一锤定音。Viper的Taliyah <b>6/1/11</b>，Knight的Viktor <b>5/2/11</b>，BLG <span class="num">20–8</span>拿下赛点。</p>
       </article>
       <article class="blg-game reveal">
-        <h3>第四局：抢龙，夺冠 <span class="tag">BLG WIN · 43:00</span></h3>
+        <h3>第四局：抢龙，夺冠 <span class="tag">BLG WIN · 43分钟</span></h3>
         <p>Gen.G开局打得极凶，Ruler的Xayah 4分钟就连拿两个人头。但BLG的全球流开始运转：Knight的Twisted Fate和Xun的Nocturne满场带节奏，ON的Neeko几次先手开团锁住对手，Bin的Gwen <b>8/2/9</b>接管比赛。最关键的一波，Xun抢下大龙，BLG 5打3赢下团战，一波推平基地，<span class="num">21–11</span>。水晶爆炸的那一刻，五个人冲向舞台中央的奖杯。</p>
       </article>
     </div>
@@ -381,7 +381,7 @@ const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决
   <section class="blg-section" id="scoreboards">
     <p class="blg-eyebrow reveal">Scoreboards · 四局战绩</p>
     <h2 class="reveal" data-d="1">每一局的阵容与数据，都在这里。</h2>
-    <p class="blg-lead reveal" data-d="2">点下面的标签切换四局。K/D/A为击杀/死亡/助攻，CS为补刀数。</p>
+    <p class="blg-lead reveal" data-d="2">点下面的标签切换四局。K/D/A为击杀/死亡/助攻，CS为补刀数，Ban位只显示头像（悬停可见名字）。</p>
     <div class="blg-tabs reveal" role="tablist" aria-label="四局战绩">
       <button class="blg-tab" role="tab" id="tab-g1" aria-controls="panel-g1" aria-selected="false">G1<small>GEN.G胜</small></button>
       <button class="blg-tab" role="tab" id="tab-g2" aria-controls="panel-g2" aria-selected="false">G2<small>BLG胜</small></button>
@@ -391,7 +391,7 @@ const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决
 
     <div class="blg-panel" id="panel-g1" role="tabpanel" aria-labelledby="tab-g1" hidden>
       <div class="blg-sb">
-        <div class="blg-sb-head"><span class="side blue">BLUE</span><h3>Gen.G</h3><span class="blg-win-badge">WINNER</span><span class="totals"><b>19</b> 击杀 · <b>80.0k</b> 金币 · 38:00</span></div>
+        <div class="blg-sb-head"><span class="side blue">BLUE</span><h3>Gen.G</h3><span class="blg-win-badge">WINNER</span><span class="totals"><b>19</b> 击杀 · <b>80.0k</b> 金币 · 38分钟</span></div>
         <div class="blg-sb-rows">
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Olaf.png" alt="Olaf" loading="lazy" /><div class="blg-sb-who"><div class="p">Kiin</div><div class="c">TOP · Olaf</div></div><div class="blg-sb-stat"><div class="kda">2 / <span class="d">1</span> / 13</div><div class="cs">295 CS · 14.6k</div></div></div>
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/LeeSin.png" alt="Lee Sin" loading="lazy" /><div class="blg-sb-who"><div class="p">Canyon</div><div class="c">JGL · Lee Sin</div></div><div class="blg-sb-stat"><div class="kda">3 / <span class="d">2</span> / 13</div><div class="cs">290 CS · 16.3k</div></div></div>
@@ -399,10 +399,10 @@ const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Corki.png" alt="Corki" loading="lazy" /><div class="blg-sb-who"><div class="p">Ruler</div><div class="c">ADC · Corki</div></div><div class="blg-sb-stat"><div class="kda">7 / <span class="d">0</span> / 8</div><div class="cs">455 CS · 22.9k</div></div></div>
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Nami.png" alt="Nami" loading="lazy" /><div class="blg-sb-who"><div class="p">Duro</div><div class="c">SUP · Nami</div></div><div class="blg-sb-stat"><div class="kda">1 / <span class="d">0</span> / 16</div><div class="cs">27 CS · 10.5k</div></div></div>
         </div>
-        <div class="blg-bans"><span class="lbl">BANS</span><span class="blg-ban">Nocturne</span><span class="blg-ban">Orianna</span><span class="blg-ban">Vi</span><span class="blg-ban">Jax</span><span class="blg-ban">Camille</span></div>
+        <div class="blg-bans"><span class="lbl">BANS</span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Nocturne.png" alt="Nocturne" title="Nocturne" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Orianna.png" alt="Orianna" title="Orianna" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Vi.png" alt="Vi" title="Vi" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Jax.png" alt="Jax" title="Jax" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Camille.png" alt="Camille" title="Camille" loading="lazy" /></span></div>
       </div>
       <div class="blg-sb">
-        <div class="blg-sb-head"><span class="side red">RED</span><h3>Bilibili Gaming</h3><span class="totals"><b>4</b> 击杀 · <b>66.0k</b> 金币 · 38:00</span></div>
+        <div class="blg-sb-head"><span class="side red">RED</span><h3>Bilibili Gaming</h3><span class="totals"><b>4</b> 击杀 · <b>66.0k</b> 金币 · 38分钟</span></div>
         <div class="blg-sb-rows">
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/KSante.png" alt="K'Sante" loading="lazy" /><div class="blg-sb-who"><div class="p">Bin</div><div class="c">TOP · K'Sante</div></div><div class="blg-sb-stat"><div class="kda">0 / <span class="d">4</span> / 1</div><div class="cs">309 CS · 12.4k</div></div></div>
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/JarvanIV.png" alt="Jarvan IV" loading="lazy" /><div class="blg-sb-who"><div class="p">Xun</div><div class="c">JGL · Jarvan IV</div></div><div class="blg-sb-stat"><div class="kda">1 / <span class="d">4</span> / 3</div><div class="cs">266 CS · 12.9k</div></div></div>
@@ -410,13 +410,13 @@ const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Kalista.png" alt="Kalista" loading="lazy" /><div class="blg-sb-who"><div class="p">Viper</div><div class="c">ADC · Kalista</div></div><div class="blg-sb-stat"><div class="kda">1 / <span class="d">5</span> / 3</div><div class="cs">408 CS · 16.1k</div></div></div>
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Renata.png" alt="Renata Glasc" loading="lazy" /><div class="blg-sb-who"><div class="p">ON</div><div class="c">SUP · Renata Glasc</div></div><div class="blg-sb-stat"><div class="kda">0 / <span class="d">4</span> / 4</div><div class="cs">41 CS · 9.1k</div></div></div>
         </div>
-        <div class="blg-bans"><span class="lbl">BANS</span><span class="blg-ban">Qiyana</span><span class="blg-ban">Cassiopeia</span><span class="blg-ban">Lulu</span><span class="blg-ban">Ezreal</span><span class="blg-ban">Seraphine</span></div>
+        <div class="blg-bans"><span class="lbl">BANS</span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Qiyana.png" alt="Qiyana" title="Qiyana" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Cassiopeia.png" alt="Cassiopeia" title="Cassiopeia" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Lulu.png" alt="Lulu" title="Lulu" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Ezreal.png" alt="Ezreal" title="Ezreal" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Seraphine.png" alt="Seraphine" title="Seraphine" loading="lazy" /></span></div>
       </div>
     </div>
 
     <div class="blg-panel" id="panel-g2" role="tabpanel" aria-labelledby="tab-g2" hidden>
       <div class="blg-sb">
-        <div class="blg-sb-head"><span class="side red">RED</span><h3>Bilibili Gaming</h3><span class="blg-win-badge">WINNER</span><span class="totals"><b>19</b> 击杀 · <b>99.5k</b> 金币 · 53:00</span></div>
+        <div class="blg-sb-head"><span class="side red">RED</span><h3>Bilibili Gaming</h3><span class="blg-win-badge">WINNER</span><span class="totals"><b>19</b> 击杀 · <b>99.5k</b> 金币 · 53分钟</span></div>
         <div class="blg-sb-rows">
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Gnar.png" alt="Gnar" loading="lazy" /><div class="blg-sb-who"><div class="p">Bin</div><div class="c">TOP · Gnar</div></div><div class="blg-sb-stat"><div class="kda">3 / <span class="d">2</span> / 6</div><div class="cs">360 CS · 19.2k</div></div></div>
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Naafiri.png" alt="Naafiri" loading="lazy" /><div class="blg-sb-who"><div class="p">Xun</div><div class="c">JGL · Naafiri</div></div><div class="blg-sb-stat"><div class="kda">8 / <span class="d">1</span> / 9</div><div class="cs">385 CS · 22.3k</div></div></div>
@@ -424,10 +424,10 @@ const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Ziggs.png" alt="Ziggs" loading="lazy" /><div class="blg-sb-who"><div class="p">Viper</div><div class="c">ADC · Ziggs</div></div><div class="blg-sb-stat"><div class="kda">3 / <span class="d">2</span> / 13</div><div class="cs">459 CS · 22.8k</div></div></div>
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Camille.png" alt="Camille" loading="lazy" /><div class="blg-sb-who"><div class="p">ON</div><div class="c">SUP · Camille</div></div><div class="blg-sb-stat"><div class="kda">1 / <span class="d">8</span> / 10</div><div class="cs">78 CS · 14.2k</div></div></div>
         </div>
-        <div class="blg-bans"><span class="lbl">BANS</span><span class="blg-ban">Jayce</span><span class="blg-ban">Vi</span><span class="blg-ban">Galio</span><span class="blg-ban">Renekton</span><span class="blg-ban">Viktor</span></div>
+        <div class="blg-bans"><span class="lbl">BANS</span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Jayce.png" alt="Jayce" title="Jayce" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Vi.png" alt="Vi" title="Vi" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Galio.png" alt="Galio" title="Galio" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Renekton.png" alt="Renekton" title="Renekton" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Viktor.png" alt="Viktor" title="Viktor" loading="lazy" /></span></div>
       </div>
       <div class="blg-sb">
-        <div class="blg-sb-head"><span class="side blue">BLUE</span><h3>Gen.G</h3><span class="totals"><b>14</b> 击杀 · <b>94.2k</b> 金币 · 53:00</span></div>
+        <div class="blg-sb-head"><span class="side blue">BLUE</span><h3>Gen.G</h3><span class="totals"><b>14</b> 击杀 · <b>94.2k</b> 金币 · 53分钟</span></div>
         <div class="blg-sb-rows">
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Vayne.png" alt="Vayne" loading="lazy" /><div class="blg-sb-who"><div class="p">Kiin</div><div class="c">TOP · Vayne</div></div><div class="blg-sb-stat"><div class="kda">3 / <span class="d">4</span> / 3</div><div class="cs">453 CS · 20.3k</div></div></div>
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Chogath.png" alt="Cho'Gath" loading="lazy" /><div class="blg-sb-who"><div class="p">Canyon</div><div class="c">JGL · Cho'Gath</div></div><div class="blg-sb-stat"><div class="kda">2 / <span class="d">5</span> / 3</div><div class="cs">295 CS · 16.1k</div></div></div>
@@ -435,13 +435,13 @@ const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Ezreal.png" alt="Ezreal" loading="lazy" /><div class="blg-sb-who"><div class="p">Ruler</div><div class="c">ADC · Ezreal</div></div><div class="blg-sb-stat"><div class="kda">6 / <span class="d">2</span> / 5</div><div class="cs">551 CS · 26.0k</div></div></div>
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Karma.png" alt="Karma" loading="lazy" /><div class="blg-sb-who"><div class="p">Duro</div><div class="c">SUP · Karma</div></div><div class="blg-sb-stat"><div class="kda">1 / <span class="d">2</span> / 11</div><div class="cs">53 CS · 12.9k</div></div></div>
         </div>
-        <div class="blg-bans"><span class="lbl">BANS</span><span class="blg-ban">Nocturne</span><span class="blg-ban">Qiyana</span><span class="blg-ban">Nautilus</span><span class="blg-ban">Lulu</span><span class="blg-ban">Akali</span></div>
+        <div class="blg-bans"><span class="lbl">BANS</span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Nocturne.png" alt="Nocturne" title="Nocturne" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Qiyana.png" alt="Qiyana" title="Qiyana" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Nautilus.png" alt="Nautilus" title="Nautilus" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Lulu.png" alt="Lulu" title="Lulu" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Akali.png" alt="Akali" title="Akali" loading="lazy" /></span></div>
       </div>
     </div>
 
     <div class="blg-panel" id="panel-g3" role="tabpanel" aria-labelledby="tab-g3" hidden>
       <div class="blg-sb">
-        <div class="blg-sb-head"><span class="side red">RED</span><h3>Bilibili Gaming</h3><span class="blg-win-badge">WINNER</span><span class="totals"><b>20</b> 击杀 · <b>74.0k</b> 金币 · 37:00</span></div>
+        <div class="blg-sb-head"><span class="side red">RED</span><h3>Bilibili Gaming</h3><span class="blg-win-badge">WINNER</span><span class="totals"><b>20</b> 击杀 · <b>74.0k</b> 金币 · 37分钟</span></div>
         <div class="blg-sb-rows">
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Jax.png" alt="Jax" loading="lazy" /><div class="blg-sb-who"><div class="p">Bin</div><div class="c">TOP · Jax</div></div><div class="blg-sb-stat"><div class="kda">3 / <span class="d">1</span> / 10</div><div class="cs">291 CS · 14.6k</div></div></div>
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Vi.png" alt="Vi" loading="lazy" /><div class="blg-sb-who"><div class="p">Xun</div><div class="c">JGL · Vi</div></div><div class="blg-sb-stat"><div class="kda">4 / <span class="d">3</span> / 12</div><div class="cs">306 CS · 16.3k</div></div></div>
@@ -449,10 +449,10 @@ const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Taliyah.png" alt="Taliyah" loading="lazy" /><div class="blg-sb-who"><div class="p">Viper</div><div class="c">ADC · Taliyah</div></div><div class="blg-sb-stat"><div class="kda">6 / <span class="d">1</span> / 11</div><div class="cs">284 CS · 17.4k</div></div></div>
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Alistar.png" alt="Alistar" loading="lazy" /><div class="blg-sb-who"><div class="p">ON</div><div class="c">SUP · Alistar</div></div><div class="blg-sb-stat"><div class="kda">2 / <span class="d">1</span> / 16</div><div class="cs">47 CS · 10.4k</div></div></div>
         </div>
-        <div class="blg-bans"><span class="lbl">BANS</span><span class="blg-ban">Qiyana</span><span class="blg-ban">Jayce</span><span class="blg-ban">Lulu</span><span class="blg-ban">Xayah</span><span class="blg-ban">Poppy</span></div>
+        <div class="blg-bans"><span class="lbl">BANS</span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Qiyana.png" alt="Qiyana" title="Qiyana" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Jayce.png" alt="Jayce" title="Jayce" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Lulu.png" alt="Lulu" title="Lulu" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Xayah.png" alt="Xayah" title="Xayah" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Poppy.png" alt="Poppy" title="Poppy" loading="lazy" /></span></div>
       </div>
       <div class="blg-sb">
-        <div class="blg-sb-head"><span class="side blue">BLUE</span><h3>Gen.G</h3><span class="totals"><b>8</b> 击杀 · <b>65.7k</b> 金币 · 37:00</span></div>
+        <div class="blg-sb-head"><span class="side blue">BLUE</span><h3>Gen.G</h3><span class="totals"><b>8</b> 击杀 · <b>65.7k</b> 金币 · 37分钟</span></div>
         <div class="blg-sb-rows">
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Ambessa.png" alt="Ambessa" loading="lazy" /><div class="blg-sb-who"><div class="p">Kiin</div><div class="c">TOP · Ambessa</div></div><div class="blg-sb-stat"><div class="kda">0 / <span class="d">3</span> / 2</div><div class="cs">343 CS · 13.0k</div></div></div>
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Wukong.png" alt="Wukong" loading="lazy" /><div class="blg-sb-who"><div class="p">Canyon</div><div class="c">JGL · Wukong</div></div><div class="blg-sb-stat"><div class="kda">0 / <span class="d">4</span> / 5</div><div class="cs">281 CS · 13.0k</div></div></div>
@@ -460,13 +460,13 @@ const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Jhin.png" alt="Jhin" loading="lazy" /><div class="blg-sb-who"><div class="p">Ruler</div><div class="c">ADC · Jhin</div></div><div class="blg-sb-stat"><div class="kda">4 / <span class="d">3</span> / 3</div><div class="cs">362 CS · 17.1k</div></div></div>
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Rakan.png" alt="Rakan" loading="lazy" /><div class="blg-sb-who"><div class="p">Duro</div><div class="c">SUP · Rakan</div></div><div class="blg-sb-stat"><div class="kda">0 / <span class="d">4</span> / 5</div><div class="cs">41 CS · 9.3k</div></div></div>
         </div>
-        <div class="blg-bans"><span class="lbl">BANS</span><span class="blg-ban">Nautilus</span><span class="blg-ban">Renekton</span><span class="blg-ban">Seraphine</span><span class="blg-ban">Kai'Sa</span><span class="blg-ban">Sivir</span></div>
+        <div class="blg-bans"><span class="lbl">BANS</span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Nautilus.png" alt="Nautilus" title="Nautilus" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Renekton.png" alt="Renekton" title="Renekton" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Seraphine.png" alt="Seraphine" title="Seraphine" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Kaisa.png" alt="Kai'Sa" title="Kai'Sa" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Sivir.png" alt="Sivir" title="Sivir" loading="lazy" /></span></div>
       </div>
     </div>
 
     <div class="blg-panel" id="panel-g4" role="tabpanel" aria-labelledby="tab-g4">
       <div class="blg-sb">
-        <div class="blg-sb-head"><span class="side blue">BLUE</span><h3>Bilibili Gaming</h3><span class="blg-win-badge">WINNER</span><span class="totals"><b>21</b> 击杀 · <b>89.7k</b> 金币 · 43:00</span></div>
+        <div class="blg-sb-head"><span class="side blue">BLUE</span><h3>Bilibili Gaming</h3><span class="blg-win-badge">WINNER</span><span class="totals"><b>21</b> 击杀 · <b>89.7k</b> 金币 · 43分钟</span></div>
         <div class="blg-sb-rows">
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Gwen.png" alt="Gwen" loading="lazy" /><div class="blg-sb-who"><div class="p">Bin</div><div class="c">TOP · Gwen</div></div><div class="blg-sb-stat"><div class="kda">8 / <span class="d">2</span> / 9</div><div class="cs">337 CS · 17.7k</div></div></div>
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Nocturne.png" alt="Nocturne" loading="lazy" /><div class="blg-sb-who"><div class="p">Xun</div><div class="c">JGL · Nocturne</div></div><div class="blg-sb-stat"><div class="kda">3 / <span class="d">3</span> / 11</div><div class="cs">276 CS · 16.3k</div></div></div>
@@ -474,10 +474,10 @@ const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Yunara.png" alt="Yunara" loading="lazy" /><div class="blg-sb-who"><div class="p">Viper</div><div class="c">ADC · Yunara</div></div><div class="blg-sb-stat"><div class="kda">6 / <span class="d">4</span> / 9</div><div class="cs">421 CS · 23.2k</div></div></div>
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Neeko.png" alt="Neeko" loading="lazy" /><div class="blg-sb-who"><div class="p">ON</div><div class="c">SUP · Neeko</div></div><div class="blg-sb-stat"><div class="kda">2 / <span class="d">1</span> / 13</div><div class="cs">66 CS · 12.0k</div></div></div>
         </div>
-        <div class="blg-bans"><span class="lbl">BANS</span><span class="blg-ban">Qiyana</span><span class="blg-ban">Jayce</span><span class="blg-ban">Seraphine</span><span class="blg-ban">Sylas</span><span class="blg-ban">Rumble</span></div>
+        <div class="blg-bans"><span class="lbl">BANS</span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Qiyana.png" alt="Qiyana" title="Qiyana" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Jayce.png" alt="Jayce" title="Jayce" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Seraphine.png" alt="Seraphine" title="Seraphine" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Sylas.png" alt="Sylas" title="Sylas" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Rumble.png" alt="Rumble" title="Rumble" loading="lazy" /></span></div>
       </div>
       <div class="blg-sb">
-        <div class="blg-sb-head"><span class="side red">RED</span><h3>Gen.G</h3><span class="totals"><b>11</b> 击杀 · <b>79.8k</b> 金币 · 43:00</span></div>
+        <div class="blg-sb-head"><span class="side red">RED</span><h3>Gen.G</h3><span class="totals"><b>11</b> 击杀 · <b>79.8k</b> 金币 · 43分钟</span></div>
         <div class="blg-sb-rows">
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Aurora.png" alt="Aurora" loading="lazy" /><div class="blg-sb-who"><div class="p">Kiin</div><div class="c">TOP · Aurora</div></div><div class="blg-sb-stat"><div class="kda">0 / <span class="d">5</span> / 6</div><div class="cs">325 CS · 13.8k</div></div></div>
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Pantheon.png" alt="Pantheon" loading="lazy" /><div class="blg-sb-who"><div class="p">Canyon</div><div class="c">JGL · Pantheon</div></div><div class="blg-sb-stat"><div class="kda">0 / <span class="d">5</span> / 5</div><div class="cs">289 CS · 14.1k</div></div></div>
@@ -485,7 +485,7 @@ const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Xayah.png" alt="Xayah" loading="lazy" /><div class="blg-sb-who"><div class="p">Ruler</div><div class="c">ADC · Xayah</div></div><div class="blg-sb-stat"><div class="kda">6 / <span class="d">3</span> / 4</div><div class="cs">488 CS · 24.0k</div></div></div>
           <div class="blg-sb-row"><img src="/img/games/blg-s16/champs/Lulu.png" alt="Lulu" loading="lazy" /><div class="blg-sb-who"><div class="p">Duro</div><div class="c">SUP · Lulu</div></div><div class="blg-sb-stat"><div class="kda">0 / <span class="d">4</span> / 9</div><div class="cs">29 CS · 10.2k</div></div></div>
         </div>
-        <div class="blg-bans"><span class="lbl">BANS</span><span class="blg-ban">Nautilus</span><span class="blg-ban">Skarner</span><span class="blg-ban">Kindred</span><span class="blg-ban">Renekton</span><span class="blg-ban">Galio</span></div>
+        <div class="blg-bans"><span class="lbl">BANS</span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Nautilus.png" alt="Nautilus" title="Nautilus" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Skarner.png" alt="Skarner" title="Skarner" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Kindred.png" alt="Kindred" title="Kindred" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Renekton.png" alt="Renekton" title="Renekton" loading="lazy" /></span><span class="blg-ban"><img src="/img/games/blg-s16/champs/Galio.png" alt="Galio" title="Galio" loading="lazy" /></span></div>
       </div>
     </div>
     <p class="blg-data-note">对局数据来源：<a href="https://ggez.gg/worlds/match/2026-finals-blg-vs-gen" target="_blank" rel="noopener">ggez.gg</a>（原始数据来自Leaguepedia，CC BY-SA 3.0）。英雄头像来自Riot Games Data Dragon。Patch 26.20，Fearless Draft。</p>
@@ -506,7 +506,7 @@ const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决
       <ul class="blg-fmvp-facts reveal">
         <li>首位拿到世界冠军的中国大陆中单，终结了韩国中单对这个位置连续13届的统治。</li>
         <li>继Faker、Zeus之后，第三位同时拿到MSI与全球总决赛FMVP的选手（MSI 2023随JDG）。</li>
-        <li>这是他职业生涯的第一座召唤师奖杯。两年前的同一片决赛舞台，他输给了T1。</li>
+        <li>这是他职业生涯的第一座召唤师奖杯。两年前，他在决赛里输给了T1。</li>
       </ul>
       <blockquote class="blg-quote reveal">
         “赛前很多人说我打不过Chovy、BLG赢不了Gen.G。现在我可以告诉全世界：我们就是最强的队伍，我们就是最好的。”
@@ -527,7 +527,7 @@ const description = 'BLG 3-1 战胜 Gen.G，赢下 2026 英雄联盟全球总决
     <div class="blg-road">
       <div class="blg-step reveal" data-d="1"><p class="round">Swiss · 瑞士轮</p><p class="opp">Hanwha Life Esports</p><p class="sc">胜 · 晋级淘汰赛</p></div>
       <div class="blg-step reveal" data-d="2"><p class="round">Quarterfinal · 八强</p><p class="opp">Dplus KIA</p><p class="sc">3–0 · 横扫</p></div>
-      <div class="blg-step reveal" data-d="3"><p class="round">Semifinal · 四强</p><p class="opp">T1</p><p class="sc">3–1 · 终结三连冠</p></div>
+      <div class="blg-step reveal" data-d="3"><p class="round">Semifinal · 四强</p><p class="opp">T1</p><p class="sc">3–1 · 卫冕冠军出局</p></div>
       <div class="blg-step final reveal" data-d="3"><p class="round">Grand Final · 决赛</p><p class="opp">Gen.G</p><p class="sc">3–1 · 总冠军</p></div>
     </div>
     <p class="blg-road-note reveal">水晶爆炸的那一刻，英文解说喊出了一句：<span class="en">“BLG burn all four LCK banners.”</span></p>
