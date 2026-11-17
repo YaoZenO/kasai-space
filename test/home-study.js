@@ -52,6 +52,13 @@ ok('首页样式段是 §4.26，且上一轮的死类已清零', () => {
   });
 });
 
+ok('第二屏不再有顶部遮挡条，第一屏不再有 SCROLL 提示', () => {
+  assert.ok(!page.includes('sd-veil'), '模板里还留着顶部遮挡条');
+  assert.ok(!s26.includes('sd-veil'), '样式里还留着顶部遮挡条');
+  assert.ok(!page.includes('sd-cue'), '模板里还留着 SCROLL 提示');
+  assert.ok(!s26.includes('sd-cue'), '样式里还留着 SCROLL 提示');
+});
+
 ok('E-071 / E-163 防复发：首页不得出现 <footer，第三屏用 <section>', () => {
   assert.ok(!/<footer[\s>]/.test(page), '首页模板里出现了 <footer> 标签');
   assert.ok(page.includes('class="sd-outro" id="outro"'), '第三屏不是 section#outro');
@@ -69,14 +76,10 @@ ok('E-064 防复发：§4.26 不得出现加法 calc', () => {
   assert.deepStrictEqual(bad, [], '出现加法 calc：' + bad.join(' | '));
 });
 
-ok('环境由 canvas 画：§4.26 内不得再出现渐变或 glow', () => {
-  const veil = /\.sd-veil\s*\{([^}]*)\}/.exec(s26);
-  assert.ok(veil, '§4.26 缺少 .sd-veil 顶部渐隐垫');
-  assert.ok(/background-color/.test(veil[1]), '.sd-veil 不是实底工具条');
-  // 去掉注释与渐隐垫本身，其余位置一律不许出现渐变 / 发光
-  const rest = s26.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\.sd-veil\s*\{[^}]*\}/g, '');
+ok('环境全部由 canvas 画：§4.26 内不得出现任何渐变或 glow', () => {
+  const rest = s26.replace(/\/\*[\s\S]*?\*\//g, '');
   assert.ok(!/gradient|glow/i.test(rest),
-    '§4.26 出现多余的渐变/发光声明：' + ((rest.match(/[^\n]*(gradient|glow)[^\n]*/i) || [''])[0].trim()));
+    '§4.26 出现渐变/发光声明：' + ((rest.match(/[^\n]*(gradient|glow)[^\n]*/i) || [''])[0].trim()));
   assert.match(s26, /#sd-canvas\s*\{[^}]*position:\s*fixed/, '画布不是 fixed 全屏层');
 });
 
@@ -87,7 +90,14 @@ ok('四窗外壳只定义一次，且不允许逐窗覆盖', () => {
   ['background-color', 'border', 'border-radius', 'padding'].forEach((prop) => {
     assert.ok(shell.includes(prop), '统一外壳缺少 ' + prop);
   });
-  assert.ok(!/#win-\w+\s*\{/.test(s26), 'CSS 里出现了按窗口 id 的外壳覆盖');
+  // 允许按 id 做位置（第 4 窗向左探进通道），但不许改外壳属性——外壳必须四窗一致
+  const idRules = [...s26.matchAll(/#win-\w+\s*\{([^}]*)\}/g)].map((m) => m[1]);
+  idRules.forEach((body) => {
+    ['background', 'border', 'border-radius', 'box-shadow', 'padding'].forEach((prop) => {
+      assert.ok(!new RegExp('(^|[;\\s])' + prop).test(body),
+        '按窗口 id 的规则里改了外壳属性 ' + prop + '：' + body.trim());
+    });
+  });
   assert.ok(!/\.sd-win--/.test(s26), 'CSS 里出现了窗口变体类（外壳必须完全统一）');
 });
 
@@ -98,7 +108,7 @@ ok('抬头只放标题：模板与 CSS 都不存在计数角标', () => {
   heads.forEach((h) => {
     const text = h.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
     assert.ok(!/\d/.test(text), '窗口抬头出现数字：' + text);
-    assert.ok(/^[A-Za-z ]+$/.test(text), '窗口抬头只应有纯标题：' + text);
+    assert.ok(/^[\u4e00-\u9fa5A-Za-z ]+$/.test(text), '窗口抬头只应有纯标题：' + text);
   });
 });
 
@@ -119,10 +129,13 @@ ok('首页导航：品牌整块隐藏，胶囊钉在第 2 列严格居中，第�
 });
 
 ok('第二屏是双泳道错落：两条独立纵列、中央通道、窗口紧包内容', () => {
-  assert.match(s26, /\.sd-desk\s*\{[^}]*display:\s*flex/, '.sd-desk 不是 flex 双泳道');
-  assert.match(s26, /\.sd-desk\s*\{[^}]*min-height:\s*190dvh/, '第二屏滚动高度没有拉到 190dvh');
-  assert.match(s26, /\.sd-desk\s*\{[^}]*gap:\s*clamp\(56px, 8vw, 110px\)/, '两列之间没有中央视觉通道');
-  assert.match(s26, /\.sd-lane--b\s*\{[^}]*padding-top:\s*16vh/, '右泳道没有下错 16vh');
+  assert.match(s26, /\.sd-desk\s*\{[^}]*grid-template-columns:\s*416px/, '.sd-desk 不是 416px 窄幅双列');
+  assert.match(s26, /\.sd-desk\s*\{[^}]*min-height:\s*130dvh/, '第二屏高度不是 130dvh');
+  assert.match(s26, /\.sd-desk\s*\{[^}]*padding:\s*96px/, '第二屏没有留出 96px 顶距避开胶囊导航');
+  assert.match(s26, /\.sd-desk\s*\{[^}]*width:\s*min\(1180px/, '版心不是 1180px');
+  assert.match(s26, /#win-atlas\s*\{[^}]*translate:\s*-140px/, '第 4 窗没有向左探进中央通道');
+  assert.match(s26, /\.sd-lane--b\s*\{[^}]*padding-top:\s*80px/, '右泳道错位不是 80px');
+  assert.match(s26, /\.sd-lane\s*\{[^}]*gap:\s*20px/, '卡间距不是 20px');
   assert.match(s26, /\.sd-lane\s*\{[^}]*flex-direction:\s*column/, '泳道不是纵向排列');
   const shell = /\.sd-win\s*\{([^}]*)\}/.exec(s26)[1];
   assert.match(shell, /height:\s*auto/, '窗口仍在被强制等高');
@@ -131,43 +144,45 @@ ok('第二屏是双泳道错落：两条独立纵列、中央通道、窗口紧�
     '模板里没有两条泳道');
 });
 
-ok('画布是 WebGL 三维场景：深度测试、相机样条、雾、DPI 与 reduce 静态帧', () => {
+ok('画布是 WebGL 三维场景：深度缓冲、距离雾、Catmull-Rom 相机与 DPI', () => {
   assert.match(homeJs, /getContext\('webgl'/, '画布没有用 WebGL');
-  assert.match(homeJs, /depth: true/, '没有开深度缓冲，画不出体块遮挡');
-  assert.match(homeJs, /STOPS\.length/, '没有三档相机关键帧');
-  assert.match(homeJs, /catmull|lookAt/, '没有相机插值');
-  assert.match(homeJs, /uFog/, '着色器没有雾，背景压不下去');
-  assert.match(homeJs, /devicePixelRatio/, '画布没适配 devicePixelRatio');
-  assert.match(homeJs, /requestAnimationFrame/, '画布没有走 rAF');
-  const reduceBlock = homeJs.slice(homeJs.indexOf('if (reduce) {'));
-  assert.ok(reduceBlock.includes('p = 0.52'), 'reduce 分支没有固定静态帧');
-  // 曾经被否掉的形态：只画点与线
+  assert.match(homeJs, /depth:true/, '没有开深度缓冲，画不出体块遮挡');
+  assert.match(homeJs, /gl\.enable\(gl\.DEPTH_TEST\)/, '绘制前没有开深度测试');
+  assert.match(homeJs, /const cr=\(a,b,c,d,t\)=>/, '相机没有 Catmull-Rom 插值，关键帧之间会折线');
+  assert.match(homeJs, /clamp\(1\.3-d\/380\./, '着色器没有距离雾，远景压不下去');
+  assert.match(homeJs, /Math\.min\(window\.devicePixelRatio \|\| 1, 2\)/, '画布没适配 devicePixelRatio');
+  assert.match(homeJs, /requestAnimationFrame\(loop\)/, '画布没有走 rAF');
   assert.ok(!/createRadialGradient/.test(homeJs), '又回到 2D 渐变画法了');
   assert.ok(!/ctx\.arc\(/.test(homeJs), '又回到画圆点当浮尘的老路');
 });
 
-ok('常驻顶点动画：三类动态部件由 uTime 驱动，不滚动画面也在动', () => {
-  assert.match(homeJs, /attribute vec4 a;/, '顶点没有动画通道 a');
-  assert.match(homeJs, /attribute vec2 b;/, '顶点没有支点 / 相位通道 b');
-  assert.match(homeJs, /float ang = uT \* a\.y \+ b\.y/, '动画角度没有接 uTime');
-  // 三个类型分支：绕竖轴自转、绕水平轴摆动、自转+浮动
-  assert.ok(homeJs.includes('t > 0.5 && t < 1.5'), '缺「绕竖轴自转」分支（星盘环）');
-  assert.ok(homeJs.includes('t > 1.5 && t < 2.5'), '缺「绕水平轴摆动」分支（钟摆）');
-  assert.ok(homeJs.includes('t > 2.5 && t < 3.5'), '缺「自转 + 浮动」分支（浮空多面体）');
-  assert.match(homeJs, /pos\.y \+= sin\(ang \* 0\.7\) \* 0\.55/, '浮空体没有上下浮动');
-  // 常驻时间累加：只要画面不动，这条就会掉
+
+ok('常驻动画由 uT 驱动：星盘双环 / 秋千 / 浮空体三条通道', () => {
+  assert.match(homeJs, /uniform float T[,;]/, '没有时间 uniform');
+  assert.match(homeJs, /sy>19\.5&&sy<40\./, '缺「绕竖轴自转」通道（星盘环）');
+  assert.match(homeJs, /s\.y>40\./, '缺「摆动」通道（赤陶秋千）');
+  assert.match(homeJs, /s\.x>0\./, '缺「自转 + 浮动」通道（浮空多面体）');
   assert.match(homeJs, /t \+= dt \* 0\.001/, '没有时间累加，画面不会动');
-  assert.match(homeJs, /(terra):\s*\[0\.784, 0\.353, 0\.196\]/, '色板里没有赤陶色 #C85A32');
-  assert.match(homeJs, /box\(tx, pivotY - 5\.5, tz, 2\.4, 0\.22, 1\.15, \{ tone: 'terra', anim: swing \}\)/, '秋千不是赤陶色座板');
+  assert.match(homeJs, /PAL\.red=\['#e8603c','#d94826','#8e2a12'\]/, '色板里没有赤陶红');
 });
 
-ok('静水内院：半透明光柱与水面波纹走独立通道', () => {
-  assert.match(homeJs, /t > 3\.5 && t < 4\.5\) \? 0\.33/, '光柱没有走半透明批次');
-  assert.match(homeJs, /gl\.enable\(gl\.BLEND\)[\s\S]{0,200}gl\.depthMask\(false\)/, '光柱没有开混合 / 关深度写入');
-  assert.match(homeJs, /vType > 4\.5/, '水面没有波纹着色');
-  assert.match(homeJs, /uniform vec2 uPool/, '波纹没有池心 uniform，会画在屏幕空间');
-  assert.match(homeJs, /shaft\(4\.4\);\s*[\s\S]{0,60}shaft\(1\.3\)/, '光柱不是多层叠加');
+
+ok('内殿终局：只有悬浮多面体核心 + 两道正交星轨环，没有任何十字', () => {
+  // 2026-11-17 主人要求：抹掉尽头墙面的十字与塔顶十字，换成方案 B 的几何核心。
+  assert.ok(!homeJs.includes('cbox(-GAP,GAP,0,CHT'), '尽头的十字竖杆又回来了');
+  assert.ok(!homeJs.includes('-GAP,ARM+GAP'), '尽头的十字横杆又回来了');
+  assert.ok(!homeJs.includes("b(0,87.8,0,2,.3,.3,'ink')"), '塔顶的横向短杆又回来了（和竖针一起就是十字）');
+  assert.match(homeJs, /const CORE=CT\(0,4\.75,21\.4\)/, '内殿中央没有核心');
+  assert.match(homeJs, /icosa\(CORE,1\.78,'core'\)/, '核心不是正二十面体');
+  assert.match(homeJs, /beam\(Q\[i\],Q\[j\],\.055,'edge'\)/, '核心没有棱线，正面会读成一块平板');
+  const rings = homeJs.match(/hoop\(CORE,[\d.]+,/g) || [];
+  assert.strictEqual(rings.length, 2, '星轨环不是两道：' + rings.length);
+  assert.match(homeJs, /hoop\(CORE,2\.72,norm\(\[1,\.18,\.12\]\)/, '第一道环不是斜轴');
+  assert.match(homeJs, /hoop\(CORE,3\.14,\[0,1,0\]/, '第二道环不是正交水平环');
+  assert.match(homeJs, /turns\(v0,CORE,\[0,1,0\],\.58,true\)[\s\S]{0,140}turns\(v0,CORE,norm\(\[1,0,\.15\]\),-\.26,true\)/,
+    '两道环没有各自的反向转速，会读成同一块平板在转');
 });
+
 
 ok('E-172 防复发：.row 必须显式声明 width:100% + min-width:0', () => {
   const m = /\.win-row\s*\{([^}]*)\}/.exec(s26);
@@ -176,13 +191,29 @@ ok('E-172 防复发：.row 必须显式声明 width:100% + min-width:0', () => {
   assert.ok(/min-width:\s*0/.test(m[1]), '.row 缺 min-width:0');
 });
 
-ok('E-173 防复发：相机三档的 eye z 必须严格递减（不许倒车回门口）', () => {
-  const stops = /var STOPS = \[([\s\S]*?)\n    \];/.exec(homeJs);
-  assert.ok(stops, '找不到 STOPS 定义');
-  const zs = [...stops[1].matchAll(/eye:\s*\[[^\]]*?,\s*[^,]+,\s*(-?\d+(?:\.\d+)?)\]/g)].map((x) => Number(x[1]));
-  assert.strictEqual(zs.length, 3, '关键帧不是三档：' + zs.length);
-  assert.ok(zs[0] > zs[1] && zs[1] > zs[2], '相机 z 非单调，叙事上等于倒车：' + zs.join(' → '));
+ok('场景里每个被调用的辅助函数都有定义（改名不许留裸调用）', () => {
+  // E-183：清洗脚本把调用点 at(v) 批量改名成 lift(v)，却漏了定义 const at=…，
+  // 页面一加载就是 ReferenceError，整块画布只剩天空色——构建与静态断言全都看不到。
+  const helpers = ['lift', 'icosa', 'hoop', 'quad', 'hull', 'box', 'beam', 'loft', 'turns', 'tone',
+    'pushV', 'ribbon', 'placeSun', 'aimSun', 'look', 'camera', 'sample', 'hx'];
+  helpers.forEach((h) => {
+    const used = new RegExp('\\b' + h + '\\s*\\(').test(homeJs);
+    // 允许与别的声明写在同一行：`const SPIN=[],turns=…`
+    const defined = new RegExp('(?:const|let|var|function)\\s+' + h + '\\s*[=(]').test(homeJs)
+      || new RegExp('[,;]\\s*' + h + '\\s*=').test(homeJs);
+    assert.ok(!used || defined, '调用了 ' + h + '() 却没有定义，页面会直接 ReferenceError');
+  });
+  assert.ok(!/\bat\s*\(/.test(homeJs), '还有 at( 的裸调用：旧名只改了一半');
 });
+ok('E-173 防复发：相机是多档关键帧 + 阻尼收敛，滚动不许瞬移', () => {
+  const stops = /const STOPS=\[([\s\S]*?)\n\];/.exec(homeJs);
+  assert.ok(stops, '找不到 STOPS 定义');
+  const n = (stops[1].match(/^\s{2}\[/gm) || []).length;
+  assert.ok(n >= 5, '关键帧不足：' + n + ' 档，镜头会在两屏之间跳');
+  assert.match(homeJs, /p \+= \(target - p\) \* 0\.08/, '进度没有阻尼，滚动跟着手指硬走');
+  assert.match(homeJs, /function placeSun\(/, '首帧机位没有按视口重算');
+});
+
 
 ok('E-171 防复发：首页隐藏导航用带 #navbar 的选择器', () => {
   assert.match(s26, /body\.is-home #navbar \.site-nav-center/, '缺 id 级隐藏规则');
@@ -195,19 +226,25 @@ ok('E-179 防复发：卡片左右内距由 .win-row 自己承担且 ≥ 18px', 
   const row = /\.win-row\s*\{([^}]*)\}/.exec(s26);
   assert.ok(row, '§4.26 缺少 .win-row');
   assert.ok(/margin:\s*0/.test(row[1]), '.win-row 没有显式 margin:0（会被全局 .row 拽走）');
-  assert.ok(/padding:[^;]*var\(--win-px\)/.test(row[1]), '.win-row 的水平内距不是 var(--win-px)');
+  assert.ok(/padding:\s*9px\s+0/.test(row[1]), '.win-row 只该有纵向内距（水平内距归 .win-rows）');
+  const rowsBox = /\.win-rows\s*\{([^}]*)\}/.exec(s26);
+  assert.ok(rowsBox && /var\(--win-px\)/.test(rowsBox[1]), '.win-rows 没有承担水平内距');
   const px = /--win-px:\s*(\d+)px/.exec(s26);
   assert.ok(px, '§4.26 缺少 --win-px');
   assert.ok(Number(px[1]) >= 18, '--win-px = ' + px[1] + 'px，行距卡片边框不足 18px');
   // 外壳左右必须归零，否则行再补 22px 会变成双份
   const shell = /\.sd-win\s*\{([^}]*)\}/.exec(s26)[1];
-  assert.ok(/padding:\s*var\(--win-py\)\s+0\s+var\(--win-pb\)/.test(shell),
+  assert.ok(/padding:\s*0\s+0\s+var\(--win-pb\)/.test(shell),
     '外壳左右内距未归零：行会拿到 22+22 的双份缩进');
-  ['\.win-head', '\.win-ident', '\.win-lines li', '\.win-social-row', '\.win-thumbs', '\.win-foot']
+  assert.match(shell, /border-radius:\s*6px/, '窗口圆角不是利落的 6px');
+  assert.match(shell, /border:\s*1\.5px\s+solid\s+var\(--win-line\)/, '窗口不是 1.5px 硬边');
+  ['\.win-head', '\.win-ident', '\.win-lines li', '\.win-social-row', '\.win-split', '\.win-foot']
     .forEach((sel) => {
       const m = new RegExp(sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*\\{([^}]*)\\}').exec(s26);
       assert.ok(m, '§4.26 缺少 ' + sel);
-      assert.ok(/var\(--win-px\)/.test(m[1]), sel + ' 的水平内距没有用 var(--win-px)，与行不对齐');
+      // .win-lines li 的水平缩进走 margin（这样分隔线跟着内缩，不顶到边框），其余走 padding
+      const okIndent = /var\(--win-px\)/.test(m[1]);
+      assert.ok(okIndent, sel + ' 的水平内距没有用 var(--win-px)，与行不对齐');
     });
 });
 
@@ -220,39 +257,39 @@ ok('E-179 防复发：四个窗口各有 more 入口，指向各自主页', () =
   assert.strictEqual((page.match(/class="win-foot"/g) || []).length, 3,
     '底栏容器数与预期不符（Thinking / Creations / Atlas 各一）');
 });
-ok('E-174 防复发：两个着色器必须同为 mediump，否则程序链接失败整屏空白', () => {
-  const prec = homeJs.match(/'precision (highp|mediump) float;'/g) || [];
-  assert.ok(prec.length >= 2, '精度声明不足');
-  assert.ok(prec.every((x) => x.indexOf('mediump') > -1),
-    '出现了 highp 全局精度：同名 uniform 两侧精度不一致会直接链接失败');
-  assert.match(homeJs, /attribute highp vec3 p;/, '位置属性没有单独 highp，160 米尺度会抖');
-  assert.match(homeJs, /uniform highp mat4 uV;/, '相机矩阵没有单独 highp');
+ok('E-174 防复发：片元着色器必须有精度兜底，否则链接失败整屏空白', () => {
+  assert.match(homeJs, /#ifdef GL_FRAGMENT_PRECISION_HIGH/, '缺精度兜底分支');
+  assert.match(homeJs, /precision mediump float;/, '没有 mediump 兜底');
+  assert.ok(homeJs.includes('SCENE_FS=HP+'), '片元着色器没有拼上精度头');
 });
 
-ok('E-176 防复发：光源必须侧向（z 分量不为正）', () => {
-  const m = /LIGHT = norm\(\[([-\d.]+), ([-\d.]+), ([-\d.]+)\]\)/.exec(homeJs);
-  assert.ok(m, '找不到 LIGHT 定义');
-  assert.ok(Number(m[3]) <= 0,
-    '光源 z 分量为正：朝向观众的面会被照到最亮档，建筑读作纸片剪影');
+
+ok('E-176 防复发：明暗只由面法线与固定光向点积落三档', () => {
+  assert.match(homeJs, /const LIGHT=norm\(\[/, '找不到固定光向');
+  assert.match(homeJs, /const d=dot\(n,LIGHT\),p=PAL\[mat\]/, '明暗没有走「法线·光向」');
+  assert.match(homeJs, /return d>\.42\?p\[0\]:d>-\.12\?p\[1\]:p\[2\]/, '三档阈值被改动了');
+  assert.ok(!/gl\.enable\(gl\.BLEND\)/.test(homeJs), '引入了混合批次：透明面会互相打架，而且没有排序');
+  assert.match(homeJs, /gl\.disable\(gl\.CULL_FACE\)/, '背面剔除被打开：法线靠 quad 的 out 点翻正，两面都要画');
 });
 
-ok('E-177 防复发：每档关键帧的 eye 与 ctr 不能共 z（lookAt 会退化）', () => {
-  const block = /var STOPS = \[([\s\S]*?)\n    \];/.exec(homeJs);
-  assert.ok(block, '找不到 STOPS');
-  const pairs = [...block[1].matchAll(/eye:\s*\[([^\]]+)\],\s*ctr:\s*\[([^\]]+)\]/g)];
-  assert.strictEqual(pairs.length, 3, '关键帧不是三档');
-  pairs.forEach((pair, i) => {
-    const ez = pair[1].split(',')[2].trim();
-    const cz = pair[2].split(',')[2].trim();
-    assert.notStrictEqual(ez, cz, '第 ' + (i + 1) + ' 档 eye.z 与 ctr.z 相同，视线朝正下方，整屏会糊成一团');
-  });
+
+ok('E-177 防复发：内殿两档机位必须正对核心，不许对着墙根', () => {
+  assert.match(homeJs, /\[inCH\(0,3\.5,-2\.5\),inCH\(0,4\.6,CL\),44\]/, '内殿第一机位没有对准核心高度');
+  assert.match(homeJs, /\[inCH\(0,3\.4,7\.5\),inCH\(0,ARM-\.4,CL\),50\]/, '内殿第二机位没有对准核心');
 });
 
-ok('E-178 防复发：柱距不小于 8 米（柱身不许贴脸）', () => {
-  const m = /var pz = 12 - k \* ([\d.]+)/.exec(homeJs);
-  assert.ok(m, '找不到柱距');
-  assert.ok(Number(m[1]) >= 8, '柱距 ' + m[1] + ' 米：机位会落在柱子旁边，柱身贴满两侧画面');
+
+ok('E-180 防复发：核心必须走自发光批次，暗夜系数不能把它压暗', () => {
+  assert.match(homeJs, /\(mat=='core'\|\|mat=='orbit'\|\|mat=='edge'\)\?-5:0/, '核心没有进自发光批次');
+  assert.match(homeJs, /s\.y<-4\.5\)\{f=1\.;k=c;\}/, '自发光分支没有在 k=c*N*DM 之后覆盖，暗态会连核心一起压暗');
+  assert.match(homeJs, /THM\.DM = dark \? \[0\.52, 0\.46, 0\.4\] : \[1, 1, 1\]/, '暗夜暖金系数不是 0.52/0.46/0.40');
+  // E-184：自转槽与材质标记共用 s.y。自发光体必须把槽号写成负数，否则裸 turns() 会把
+  // -5 覆盖成 20+i，核心在暗态跟着建筑一起被压成褐色（实测 #745f46，应是 #e9bd72）。
+  assert.match(homeJs, /turns\(v0,CORE,\[0,1,0\],\.34,true\)/, '核心自转没有标自发光');
+  assert.match(homeJs, /\(emis\?-1:1\)\*\(20\+SPIN\.length\)/, 'turns 不写负槽号，自发光标记会被覆盖');
+  assert.match(homeJs, /float sy=s\.y;if\(sy<-19\.5\)sy=-sy;/, '着色器没有把负槽号还原成正槽，核心不会转');
 });
+
 
 console.log('产物契约（dist/index.html）');
 
@@ -297,12 +334,31 @@ if (!exists(HOME)) {
     assert.ok(!desk.includes('/collections/'), '第二屏出现收藏入口');
   });
 
-  ok('Atlas 四行 + 四张馆藏缩略图（走 thumbs 目录）', () => {
-    ['/cityrank/', '/holidays/', '/festivals/', '/zodiac/'].forEach((h) => {
-      assert.ok(desk.includes(h), 'Atlas 缺入口 ' + h);
+  ok('四个窗口抬头只有标题（无篇数角标），标题统一为英文单行', () => {
+    ['About Me', 'Thinking', 'Creations', 'Library'].forEach((t) => {
+      assert.ok(desk.includes('>' + t + '</h2>'), '抬头缺标题：' + t);
     });
-    const thumbs = desk.match(/\/img\/zodiac\/thumbs\/[a-z]+\.jpg/g) || [];
-    assert.strictEqual(thumbs.length, 4, '缩略图不是 4 张：' + thumbs.length);
+    const heads = [...desk.matchAll(/<header class="win-head">([\s\S]*?)<\/header>/g)];
+    assert.strictEqual(heads.length, 4, '抬头数量不是 4：' + heads.length);
+    heads.forEach((h) => {
+      const label = h[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      assert.ok(!/\d/.test(label), '抬头里出现数字（篇数 / 个数角标）：' + label);
+      assert.strictEqual((h[1].match(/<h2/g) || []).length, 1, '抬头里不止一个标题');
+    });
+  });
+
+  ok('Library 四行入口 + 四张与本行对应的界面裁图', () => {
+    ['/cityrank/', '/holidays/', '/festivals/', '/zodiac/'].forEach((h) => {
+      assert.ok(desk.includes(h), 'Library 缺入口 ' + h);
+    });
+    // 2026-11-16：改裁本站页面，四行各配一张、顺序一一对应。
+    // 只放同一个专题的图（比如全是生肖）等于把四件事说成一件，断言锁死这件事。
+    const thumbs = [...desk.matchAll(/\/img\/library-thumbs\/([a-z]+)\.jpg/g)].map((m) => m[1]);
+    assert.deepStrictEqual(thumbs, ['cityrank', 'holidays', 'festivals', 'zodiac'],
+      '四张裁图必须与四行一一对应：' + thumbs.join(','));
+    assert.ok(!/\/img\/zodiac\/thumbs\//.test(desk), '又回到只放生肖缩略图的老路');
+    assert.ok(desk.includes('class="win-scraps"'), '缺左栏画廊容器');
+    assert.ok(desk.includes('class="win-split-main"'), '缺左图右文的分栏结构');
   });
 
   ok('About Me 的三句状态描述逐字上屏（主人 2026-11-15 定稿）', () => {
@@ -315,14 +371,17 @@ if (!exists(HOME)) {
   });
 
   ok('行内只放「标题 + 右标签」：没有多行小字摘要，右标签不截断', () => {
-    assert.ok(!desk.includes('class="row-s"'), '列表行里又出现了第二行小字');
+    const subs = [...desk.matchAll(/class="row-s">([^<]*)</g)].map((m) => m[1]);
+    assert.ok(subs.length >= 11, '两行结构缺失：说明小字只有 ' + subs.length + ' 条');
+    subs.forEach((t) => assert.ok(t.trim().length >= 4, '行内说明过短或为空：' + JSON.stringify(t)));
     const ks = [...desk.matchAll(/class="row-k">([^<]*)</g)].map((m) => m[1]);
     assert.ok(ks.length >= 9, '右标签数量不足：' + ks.length);
     ks.forEach((k) => {
       assert.ok(!k.includes('…'), '右标签被截断：' + k);
       assert.ok(!k.includes('...'), '右标签被截断：' + k);
     });
-    ['显存 · 集群', '43 城 · ρ=0.870', '149 种风格', '350 城 · 145 榜'].forEach((want) => {
+    ['显存 · 集群', '城市数据', '设计风格', 'AI 产品', 'Vue · Node', 'Tauri 2 · TS',
+      'Astro · Vercel', '350 城 · 145 榜'].forEach((want) => {
       assert.ok(desk.includes(want), '右标签缺关键短语：' + want);
     });
   });

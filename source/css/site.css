@@ -9691,16 +9691,37 @@ html:not(.js) .fs-years-toggle { display: none; }
   }
 }
 
-
-/* ===== 4.26 首页「三屏」（2026-11-15 第二轮重构，方案 DESIGN-HOME-SPATIAL.md）=====
+/* ===== 4.26 首页「三屏」（2026-11-15 第三轮，方案 DESIGN-HOME-SPATIAL.md）=====
    结构：底层 #sd-canvas 固定画布 → 三屏 #hero / #desk / #outro → 原生 <dialog>。
    纪律：
-     · 本节不出现任何渐变——环境光与等高线全部由 /js/home-study.js 在 canvas 上画；
-     · 四窗外壳只在这里定义一次，任何窗口都不得再写背景 / 边框 / 圆角 / 内边距；
+     · 本节不出现任何渐变——环境全部由 /js/home-ref.js 在 canvas 上画；
+     · 四窗外壳只在这里定义一次，任何窗口都不得再写背景 / 边框 / 圆角；
      · 窗口抬头只放标题：不出现篇数、个数、分类计数；
      · 断点用 .98 家族；字号一律 ≥ 0.75rem（12px，DESIGN-LANGUAGE §3.3）；
-     · 圆角只走 --r-tile / --r-xs / 999px，不用 50%。
-   原 §4.25「刻度」段与第一轮「四窗浮岛」段已整体删除（2026-11-15）。 */
+     · 圆角走 --r-tile / --r-xs / 999px，不用 50%。
+   卡片形态：0z5a 那一路的「实心暖标题栏 + 1.5px 硬边 + 窄幅错落」，
+   不是本站此前的软圆角毛玻璃浮岛（2026-11-16 主人定）。 */
+
+/* 窗口材质令牌。浅色一套写在 :root，深色由 §15 的两条既有分支改写（不新增第三套）。 */
+:root {
+  --win-bg: rgba(255, 252, 246, 0.92);
+  --win-line: #8c5a3c;
+  --win-head: #e8d5be;
+  --win-head-line: #8c5a3c;
+  --win-head-text: #3a2214;
+  --win-more-bg: #efe2d0;
+  --win-more-line: #8c5a3c;
+  --win-more-text: #4a2a18;
+  --win-shadow: 0 10px 28px rgba(58, 34, 20, 0.12);
+  /* 资料库裁图是浅色页面截图，深色卡里四块白会跳；暗态压一档亮度 */
+  --scrap-filter: none;
+  /* 导航胶囊：页面底是暖色画布，主题那套近白的玻璃底会糊成一片 */
+  --nav-capsule-bg: rgba(253, 248, 240, 0.88);
+  --nav-capsule-line: rgba(140, 90, 60, 0.3);
+  --nav-capsule-text: #4a2a18;
+  --nav-active-bg: #7a4726;
+  --nav-active-text: #fdf6ea;
+}
 
 body.is-home main {
   padding: 0;
@@ -9733,40 +9754,7 @@ body.is-home::before {
   z-index: 1;
 }
 
-/* 顶部工具条：只在第二屏出现的一条实底，卡片滑进来就被它裁在导航下沿。
-   为什么不用渐隐：渐变会在卡片腰部制造一条"半透明硬边"，比直接遮住更脏；
-   也不能用 #desk 的 mask-image——mask 的坐标相对元素盒，而 #desk 有 190dvh，
-   它的"顶部 66px"只在滚动起点对应视口顶部，滚起来就跑到画外了。 */
-.sd-veil {
-  position: fixed;
-  inset: 0 0 auto 0;
-  z-index: 3;
-  height: 66px;
-  pointer-events: none;
-  background-color: var(--veil-bg);
-  border-bottom: 1px solid var(--site-chip-border);
-  opacity: 0;
-  transition: opacity 0.28s ease;
-}
-
-body.nav-desk .sd-veil {
-  opacity: 1;
-}
-
-/* 进入第二屏后收起第一屏的 SCROLL 提示：它会和卡片、背景一起挤在左上角 */
-body.nav-desk .sd-cue {
-  opacity: 0;
-  pointer-events: none;
-}
-
-:root {
-  --veil-bg: #f7f3ec;
-  --win-bg: rgba(253, 250, 244, 0.94);
-  --win-line: rgba(27, 23, 18, 0.18);
-  --win-head: rgba(27, 23, 18, 0.055);
-}
-
-/* ---------- 第一屏：序幕 ---------- */
+/* ---------- 第一屏：序幕（只有标记与标语，不放任何控件） ---------- */
 
 .sd-hero {
   position: relative;
@@ -9801,117 +9789,99 @@ body.nav-desk .sd-cue {
   color: var(--sec-text-color);
 }
 
-.sd-cue {
-  position: absolute;
-  transition: opacity 0.3s ease;
-  left: clamp(20px, 7vw, 96px);
-  /* 抬离底边：压在 64px 时，滚到第二屏入口正好落在顶部导航的横带上 */
-  bottom: clamp(84px, 13vh, 150px);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.7rem;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--sec-text-color);
-}
-
-.sd-cue-line {
-  display: block;
-  width: 46px;
-  height: 1px;
-  background: currentColor;
-  transform-origin: left center;
-  transition: transform 260ms ease-out;
-}
-
-.sd-cue:hover {
-  color: var(--accent);
-}
-
-.sd-cue:hover .sd-cue-line {
-  transform: scaleX(1.28);
-}
-
-/* ---------- 第二屏：双泳道错落漫游 ----------
-   两条独立的纵向泳道，中间留一条视觉通道让 3D 的台阶与光柱透出来。
-   窗口 height: auto 紧包内容——强制等高会在信息少的窗口里留下大片白板。 */
+/* ---------- 第二屏：窄幅错落工作台 ----------
+   两列各 416px，中间留一条 260~320px 的通道让塔与秋千露出来。
+   窗口 height: auto 紧包内容——强制等高会在信息少的窗口里留下大片白板。
+   第 4 窗（专题策展）向左探进通道，形成左 / 右 / 中下三点的品字形错落。 */
 
 .sd-desk {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  gap: clamp(56px, 8vw, 110px);
-  width: min(1240px, 100%);
+  display: grid;
+  grid-template-columns: 416px minmax(0, 1fr) 416px;
+  align-items: start;
+  width: min(1180px, 100%);
   margin: 0 auto;
-  min-height: 190vh;
-  min-height: 190dvh;
-  padding: clamp(64px, 9vh, 110px) clamp(16px, 3vw, 36px) clamp(72px, 12vh, 150px);
+  min-height: 130vh;
+  min-height: 130dvh;
+  /* 顶部让开胶囊导航（约 66px）+ 呼吸：96px 起 */
+  padding: 96px clamp(12px, 2.4vw, 28px) 56px;
 }
 
 .sd-lane {
   display: flex;
   flex-direction: column;
-  gap: 11vh;
-  flex: 1 1 0;
+  gap: 20px;
   min-width: 0;
 }
 
-/* 右泳道整体下错 22vh：向下滚动时四窗一左一右依次划过视野，而不是一整排同时出现 */
+.sd-lane--a {
+  grid-column: 1;
+}
+
+/* 左列第一张往中心挪一点：两张卡垂直对齐时左列像一条直筒，
+   错开后与右列的 80px 下错一起读作"漫游"。translate 不改盒子宽度（负 margin 会）。 */
+#win-about {
+  translate: 40px 0;
+}
+
+/* 右列整体下错 80px：与左列错开半张卡，读起来是"漫游"而不是"表格" */
 .sd-lane--b {
-  padding-top: 16vh;
+  grid-column: 3;
+  padding-top: 80px;
+}
+
+/* 第 4 窗向左探进中央通道。用 translate 而不是负 margin：
+   .sd-win 在 flex 纵列里被 stretch 拉满，负 margin 会让它算成 416+140=556 宽
+   （实测整张卡被拉宽、两行文字全挤在一起）。translate 只挪位置，不动盒子。 */
+#win-atlas {
+  translate: -140px 0;
 }
 
 /* 统一外壳：四个窗口共用这一条规则，不许任何窗口覆盖它。
    刻意不用 backdrop-filter：画布每帧都在重绘，四块大面积 backdrop 会迫使
-   合成器每帧重新模糊，代价远高于收益——半透明底 + 1px 描边在观感上等价于毛玻璃。 */
+   合成器每帧重新模糊，代价远高于收益——0.92 的不透明底已经足够压住背景。 */
 .sd-win {
   --win-px: 22px;
-  --win-py: 20px;
-  --win-pb: 16px;
+  --win-pb: 14px;
   display: flex;
   flex-direction: column;
   flex: 0 0 auto;
   height: auto;
-  /* 左右内距交给内部元素各自承担：这样行的 hover 底色能铺到卡片边缘，
+  /* 左右内距交给内部元素各自承担：这样行的分隔线只在自己的内容宽度内，
      而文字距边框仍然严格等于 --win-px。 */
-  padding: var(--win-py) 0 var(--win-pb);
-  border-radius: var(--r-tile);
-  border: 1px solid var(--win-line);
-  /* 比全站 --cream 更实一点：窗口底是动态 3D 场景，太透会让柱梁穿透文字。 */
-  background-color: var(--win-bg, var(--cream));
-  box-shadow:
-    0 32px 68px -38px rgba(78, 60, 42, 0.46),
-    0 3px 10px -6px rgba(27, 23, 18, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  padding: 0 0 var(--win-pb);
+  border-radius: 6px;
+  border: 1.5px solid var(--win-line);
+  background-color: var(--win-bg);
+  box-shadow: var(--win-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.55);
 }
 
-/* 抬头：只有标题。底色条铺到窗口内边距的外沿，让"这是一扇窗"有明确的顶边框。 */
+/* 抬头：实心暖色条 + 硬朗下边线。窗口边框 1.5px，所以内层圆角取 5px。 */
 .win-head {
+  display: flex;
+  align-items: center;
   flex: 0 0 auto;
-  margin: calc(0px - var(--win-py)) 0 0.55rem;
-  padding: calc(var(--win-py) - 7px) var(--win-px) 0.5rem;
+  height: 32px;
+  margin: 0;
+  padding: 0 var(--win-px);
   background-color: var(--win-head);
-  border-bottom: 1px solid var(--win-line);
-  border-radius: var(--r-tile) var(--r-tile) 0 0;
+  border-bottom: 1.5px solid var(--win-head-line);
+  border-radius: 5px 5px 0 0;
 }
 
 .win-title {
   margin: 0;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
   font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--info-mark);
+  letter-spacing: 0.04em;
+  color: var(--win-head-text);
 }
 
-/* 行列表：左标题、右灰字元信息 */
+/* 行列表：左侧上下两行（主标题 + 说明），右侧等宽小标签 */
 .win-rows {
   flex: 1 1 auto;
   margin: 0;
-  padding: 4px 0 2px;
+  padding: 4px var(--win-px) 2px;
   list-style: none;
 }
 
@@ -9925,38 +9895,55 @@ body.nav-desk .sd-cue {
 .win-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  align-items: baseline;
-  gap: 0.9rem;
+  align-items: start;
+  gap: 0.7rem;
   width: 100%;
   min-width: 0;
   margin: 0;
-  padding: 11px var(--win-px);
+  padding: 9px 0;
   color: inherit;
 }
 
 .row-b {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
   min-width: 0;
-  overflow: hidden;
 }
 
 .row-t {
   display: block;
   font-size: 0.84rem;
   font-weight: 700;
-  line-height: 1.5;
+  line-height: 1.45;
   color: var(--text-color);
-  /* 单行：长标题（如「地铁修得越长……43 座城市的两项排名错位」）折行会把行高翻倍，
-     四个窗口的节奏就乱了。放不下时截断，完整标题在详情页。 */
+  /* 单行：长标题折行会把行高翻倍，四个窗口的节奏就乱了。
+     首页用短标题别名（完整标题在详情页），这里只做兜底截断。 */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   transition: color 180ms ease-out;
 }
 
+/* 说明小字：一行，不折行。放不下时截断——它本来就是摘要，不是正文。
+   11.5px 而不是 12px：416 宽的卡里左栏只剩 300 出头，12px 下「多角色课程资源流转与 AI 助教」
+   会顶满整行，右标签被挤得没有呼吸。半像素不影响可读性。 */
+.row-s {
+  display: block;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--sec-text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* 右标签：完整性优先——不换行、不省略、不参与压缩。
    参考站的行是「左标题 + 右短标签」，标签被截成「名…」就等于信息没了。 */
 .row-k {
   flex: 0 0 auto;
+  margin-top: 1px;
+  font-family: var(--font-mono);
   font-size: 0.75rem;
   line-height: 1.5;
   color: var(--sec-text-color);
@@ -9972,19 +9959,24 @@ body.nav-desk .sd-cue {
 .win-foot {
   flex: 0 0 auto;
   margin-top: auto;
-  padding: 0.6rem var(--win-px) 0;
+  padding: 0.5rem var(--win-px) 0;
+  /* 四个窗口的 more 统一钉在右下角 */
+  text-align: right;
 }
 
+/* 右下角 more：只留文字和箭头。上一版做成实心小方框，四个窗口的右下角
+   同时出现四块有底色的方块，比内容本身还抢眼（2026-11-16 主人要求降权）。 */
 .win-more {
   display: inline-block;
-  font-family: var(--font-mono);
   font-size: 0.75rem;
-  letter-spacing: 0.04em;
+  line-height: 1.5;
   white-space: nowrap;
   color: var(--sec-text-color);
+  transition: color 160ms ease-out;
 }
 
-.win-more:hover {
+.win-more:hover,
+.win-more:focus-visible {
   color: var(--accent);
 }
 
@@ -9992,7 +9984,7 @@ body.nav-desk .sd-cue {
 
 .win-ident {
   flex: 0 0 auto;
-  padding: 0.75rem var(--win-px) 0.6rem;
+  padding: 0.7rem var(--win-px) 0.5rem;
 }
 
 .ident-name {
@@ -10003,7 +9995,7 @@ body.nav-desk .sd-cue {
   gap: 0.5rem;
   font-family: var(--font-serif-title);
   font-weight: 600;
-  font-size: 1.28rem;
+  font-size: 1.3rem;
   line-height: 1.15;
   letter-spacing: -0.01em;
   color: var(--text-color);
@@ -10013,7 +10005,7 @@ body.nav-desk .sd-cue {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 400;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   color: var(--sec-text-color);
 }
 
@@ -10024,36 +10016,44 @@ body.nav-desk .sd-cue {
   color: var(--sec-text-color);
 }
 
+/* 状态三行：分隔线跟着 li 一起内缩，不再顶到卡片边框；
+   行距从 0.36rem 放到 0.6rem——上一版文字挤在两条细线之间，像贴上去的。 */
 .win-lines {
   flex: 1 1 auto;
   margin: 0;
   padding: 0;
   list-style: none;
-  border-top: 1px solid var(--line-color);
 }
 
 .win-lines li {
-  padding: 0.34rem var(--win-px);
+  margin: 0 var(--win-px);
+  padding: 0.6rem 0;
   font-size: 0.78rem;
   line-height: 1.62;
   color: var(--text-color);
 }
 
-/* 社交触点与 more 同一行两端对齐：整张卡片因此有明确的"底" */
+.win-lines li + li,
+.win-lines li:first-child {
+  border-top: 1px solid var(--line-color);
+}
+
+/* 社交触点与 more 同一行两端对齐：整张卡片因此有明确的"底"。
+   分隔线跟着内缩，与正文那三条线对齐（否则卡片里两种线宽并存）。 */
 .win-social-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.8rem;
-  margin: auto 0 0;
-  padding: 0.7rem var(--win-px) 0;
+  margin: auto var(--win-px) 0;
+  padding: 0.6rem 0 0;
   border-top: 1px solid var(--line-color);
 }
 
 .win-social {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.35rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -10064,13 +10064,13 @@ body.nav-desk .sd-cue {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
-  border: 1px solid var(--site-chip-border);
-  border-radius: 999px;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--win-line);
+  border-radius: 3px;
   background: transparent;
-  color: var(--info-mark);
-  font-size: 0.82rem;
+  color: var(--win-more-text);
+  font-size: 0.8rem;
   cursor: pointer;
   transition: color 180ms ease-out, border-color 180ms ease-out;
 }
@@ -10087,35 +10087,94 @@ body.nav-desk .sd-cue {
   border-color: var(--accent);
 }
 
-/* ---------- 窗口 04 内部：馆藏缩略图 ---------- */
 
-.win-thumbs {
+/* ---------- 窗口 04 内部：左图右文 ----------
+   左栏四张 92px 竖排裁图，与右栏四行一一对应；右栏列表在剩余高度里居中，
+   「更多」沉底。图取自本站四个页面本身，所以不需要任何署名。 */
+
+.win-split {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-  margin: 0.6rem 0 0;
-  padding: 0 var(--win-px);
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 0.75rem;
+  /* stretch 而不是 start：右栏要拉到与左栏同高，「更多」才会沉到卡片底部 */
+  align-items: stretch;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0.6rem var(--win-px) 0;
+}
+
+.win-scraps {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 2px 0 0;
   list-style: none;
+}
+
+.win-scraps li {
   flex: 0 0 auto;
 }
 
-.win-thumbs a {
-  display: block;
-  overflow: hidden;
-  border-radius: var(--r-xs);
-  border: 1px solid var(--site-chip-border);
+.win-scraps li:nth-child(odd) {
+  rotate: -2.4deg;
 }
 
-.win-thumbs img {
+.win-scraps li:nth-child(even) {
+  rotate: 2.4deg;
+}
+
+.win-scraps a {
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--win-line);
+  border-radius: 2px;
+  background-color: var(--win-head);
+  transition: border-color 180ms ease-out;
+}
+
+.win-scraps img {
   display: block;
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
+  filter: var(--scrap-filter, none);
   transition: transform 320ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.win-thumbs a:hover img {
-  transform: scale(1.05);
+.win-scraps a:hover {
+  border-color: var(--accent);
+}
+
+/* 主题在 main.css 里给暗态的每张 img 上了 brightness(.97) 与 filter 过渡，
+   选择器是 `:root:not():not() img`（0,3,1），裸 `.sd-win .win-scraps img`（0,2,1）压不住。
+   这里补 body.is-home 前缀提到 (0,3,2)，属性数与它相同、类型数多一个 → 胜出。 */
+body.is-home .sd-win .win-scraps img {
+  filter: var(--scrap-filter, none);
+  transition: transform 320ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.win-scraps a:hover img {
+  transform: scale(1.06);
+}
+
+.win-split-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.win-split .win-rows {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.win-split .win-foot {
+  padding: 0.5rem 0 0;
 }
 
 /* ---------- 第三屏：落幕 ---------- */
@@ -10143,12 +10202,12 @@ body.nav-desk .sd-cue {
   justify-content: center;
   width: 44px;
   height: 44px;
-  border: 1px solid var(--site-chip-border);
+  border: 1px solid var(--win-line);
   border-radius: 999px;
-  background-color: var(--win-bg, var(--cream));
-  box-shadow: var(--site-float-shadow);
+  background-color: var(--win-bg);
+  box-shadow: var(--win-shadow);
   font-size: 0.9rem;
-  color: var(--sec-text-color);
+  color: var(--win-more-text);
   transition: color 180ms ease-out, border-color 180ms ease-out, transform 220ms ease-out;
 }
 
@@ -10164,14 +10223,14 @@ body.nav-desk .sd-cue {
   gap: 0.9rem;
   margin: 0;
   padding: 0.42rem 1rem;
-  border: 1px solid var(--site-chip-border);
+  border: 1px solid var(--win-line);
   border-radius: 999px;
-  background-color: var(--win-bg, var(--cream));
-  box-shadow: var(--site-float-shadow);
+  background-color: var(--win-bg);
+  box-shadow: var(--win-shadow);
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 0.04em;
-  color: var(--sec-text-color);
+  color: var(--win-more-text);
 }
 
 .sd-badge b {
@@ -10183,7 +10242,7 @@ body.nav-desk .sd-cue {
 /* ---------- 首页导航：只留右上角极简入口 ----------
    DOM 一个节点都不动（SEO 与全站路由零风险），只把「品牌 + 宽胶囊菜单」在首页隐去，
    保留 .site-nav-actions 里的搜索、明暗切换与移动端菜单按钮。
-   全站导航入口由四窗承担：Thinking → /archives/，Creations → /projects/，Atlas → 四个专题。 */
+   全站导航入口由四窗承担：硬核思考 → /archives/，数字造物 → /projects/，专题策展 → 四个专题。 */
 
 /* 必须带 #navbar：主题里 #navbar .site-nav-center 是 id 级选择器，光靠 body.is-home 压不住 */
 body.is-home #navbar .site-brand {
@@ -10211,6 +10270,24 @@ body.is-home.nav-desk #navbar .site-nav-center {
 body.is-home #navbar .site-nav-actions {
   grid-column: 3;
   justify-self: end;
+}
+
+/* 浅色下胶囊压在暖色画面上会糊成一片奶白：换暖纸底 + 描边更清楚。
+   （深色由 §15 两条既有分支改写同一组变量） */
+body.is-home #navbar .site-nav-capsule,
+body.is-home #navbar .site-nav-aux {
+  background-color: var(--nav-capsule-bg);
+  border-color: var(--nav-capsule-line);
+}
+
+body.is-home #navbar .site-nav-list .nav-link {
+  color: var(--nav-capsule-text);
+}
+
+body.is-home #navbar .site-nav-list .nav-item.active .nav-link,
+body.is-home #navbar .site-nav-list .nav-item.active .nav-link:hover {
+  color: var(--nav-active-text);
+  background-color: var(--nav-active-bg);
 }
 
 /* ---------- 浮层 ---------- */
@@ -10385,36 +10462,63 @@ body.is-home #navbar .site-nav-actions {
   color: var(--accent);
 }
 
-/* ---------- 矮视口：1024×768 这一档必须一屏放下 ----------
-   四窗内容量不变的前提下，只收桌面上下留白与行内边距，不删任何信息。 */
+/* ---------- 1024–1099：两列仍在，但卡片先瘦身 ----------
+   1180 的版心在 1024 视口放不下两张 416 的卡 + 260 通道，
+   所以这一档把卡收到 340，通道让到 200 以上。 */
 
-@media (min-width: 1024px) {
-  .row-k {
-    max-width: 22ch;
+@media (min-width: 1024px) and (max-width: 1099.98px) {
+  .sd-desk {
+    grid-template-columns: 340px minmax(0, 1fr) 340px;
+  }
+
+  #win-atlas {
+    translate: -80px 0;
   }
 }
 
-@media (min-width: 1280px) {
-  .row-k {
-    max-width: 26ch;
+/* ---------- ≤1099：资料库的缩略图改成横向四连 ----------
+   340 宽的卡里再切 92px 给左栏，右栏只剩 200，行内说明必被截成「排名错位与…」。 */
+
+@media (max-width: 1099.98px) {
+  .win-split {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.6rem;
+  }
+
+  .win-scraps {
+    flex-direction: row;
+    gap: 6px;
+  }
+
+  .win-scraps li {
+    flex: 1 1 0;
+    min-width: 0;
   }
 }
+
+/* ---------- 1024–1279 且矮视口：只收留白与行距，不删信息 ---------- */
 
 @media (min-width: 1024px) and (max-height: 860px) {
   .sd-desk {
-    gap: clamp(44px, 5vw, 76px);
-    padding-top: clamp(56px, 7vh, 78px);
-    padding-bottom: 48px;
+    padding-top: 76px;
+    padding-bottom: 40px;
   }
 
   .sd-win {
-    --win-px: 17px;
-    --win-py: 15px;
+    --win-px: 18px;
     --win-pb: 12px;
   }
 
+  .sd-lane {
+    gap: 16px;
+  }
+
+  .sd-lane--b {
+    padding-top: 66px;
+  }
+
   .win-row {
-    padding: 9px var(--win-px);
+    padding: 7px 0;
   }
 
   .win-lines li {
@@ -10423,15 +10527,7 @@ body.is-home #navbar .site-nav-actions {
   }
 
   .win-ident {
-    padding: 0.55rem 0 0.45rem;
-  }
-
-  .win-thumbs {
-    margin-top: 0.5rem;
-  }
-
-  .win-social {
-    padding-top: 0.55rem;
+    padding: 0.5rem 0 0.4rem;
   }
 
   .sd-outro {
@@ -10444,7 +10540,7 @@ body.is-home #navbar .site-nav-actions {
 
 @media (max-width: 1023.98px) {
   .sd-desk {
-    flex-direction: column;
+    grid-template-columns: minmax(0, 1fr);
     gap: 12px;
     width: 100%;
     min-height: 0;
@@ -10452,19 +10548,26 @@ body.is-home #navbar .site-nav-actions {
   }
 
   .sd-lane {
-    flex: 0 0 auto;
     gap: 12px;
-    width: 100%;
   }
 
+  .sd-lane--a,
   .sd-lane--b {
+    grid-column: 1;
     padding-top: 0;
+  }
+
+  #win-atlas {
+    translate: none;
+  }
+
+  #win-about {
+    translate: none;
   }
 
   .sd-win {
     --win-px: 16px;
-    --win-py: 15px;
-    --win-pb: 14px;
+    --win-pb: 12px;
   }
 
   .sd-hero {
@@ -10475,10 +10578,6 @@ body.is-home #navbar .site-nav-actions {
     font-size: clamp(2.8rem, 13vw, 4.4rem);
   }
 
-  .sd-cue {
-    left: 20px;
-  }
-
   .sd-modal {
     width: calc(100% - 20px);
   }
@@ -10487,8 +10586,7 @@ body.is-home #navbar .site-nav-actions {
 /* ---------- 减少动态效果 ---------- */
 
 @media (prefers-reduced-motion: reduce) {
-  body.is-home #navbar .site-nav-center,
-  .sd-veil {
+  body.is-home #navbar .site-nav-center {
     transition: none;
   }
 
@@ -10496,15 +10594,15 @@ body.is-home #navbar .site-nav-actions {
     transition: none;
   }
 
-  .sd-cue-line,
   .sd-top,
-  .win-thumbs img,
   .row-t,
-  .social-btn {
+  .social-btn,
+  .win-scraps img,
+  .win-scraps a {
     transition: none;
   }
 
-  .win-thumbs a:hover img {
+  .win-scraps a:hover img {
     transform: none;
   }
 
@@ -11152,10 +11250,28 @@ a:hover {
     background-color: var(--board-bg-color);
   }
   /* sd-dark-win-start */
-  :root:not([data-user-color-scheme]):not([data-sun-scheme]) { --veil-bg: #14120f; }
-  :root:not([data-user-color-scheme]):not([data-sun-scheme]) .sd-win {
-    --win-line: rgba(255, 255, 255, 0.2);
-    --win-head: rgba(255, 255, 255, 0.05);
+  :root:not([data-user-color-scheme]):not([data-sun-scheme]) {
+    --win-bg: rgba(24, 20, 17, 0.9);
+    --win-line: #5c4332;
+    --win-head: #2c221b;
+    --win-head-line: #5c4332;
+    --win-head-text: #eedac2;
+    --win-more-bg: #2a211a;
+    --win-more-line: #5c4332;
+    --win-more-text: #e4d0b6;
+    --win-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+    --scrap-filter: brightness(0.8) saturate(0.92);
+  }
+  :root:not([data-user-color-scheme]):not([data-sun-scheme]) {
+    --nav-capsule-bg: rgba(26, 22, 18, 0.85);
+    --nav-capsule-line: rgba(255, 240, 220, 0.14);
+    --nav-capsule-text: #e4d0b6;
+    --nav-active-bg: #c99a63;
+    --nav-active-text: #211309;
+  }
+  :root:not([data-user-color-scheme]):not([data-sun-scheme]) body.is-home #navbar .site-nav-list .nav-item.active .nav-link {
+    color: #211309;
+    background-color: #c99a63;
   }
   /* sd-dark-win-end */
 }
@@ -11574,15 +11690,51 @@ a:hover {
     background-color: var(--board-bg-color);
   }
   /* sd-dark-win-start */
-  [data-user-color-scheme="dark"] { --veil-bg: #14120f; }
-  [data-sun-scheme="dark"]:not([data-user-color-scheme]) { --veil-bg: #14120f; }
-  [data-user-color-scheme="dark"] .sd-win {
-    --win-line: rgba(255, 255, 255, 0.2);
-    --win-head: rgba(255, 255, 255, 0.05);
+  [data-user-color-scheme="dark"] {
+    --win-bg: rgba(24, 20, 17, 0.9);
+    --win-line: #5c4332;
+    --win-head: #2c221b;
+    --win-head-line: #5c4332;
+    --win-head-text: #eedac2;
+    --win-more-bg: #2a211a;
+    --win-more-line: #5c4332;
+    --win-more-text: #e4d0b6;
+    --win-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+    --scrap-filter: brightness(0.8) saturate(0.92);
   }
-  [data-sun-scheme="dark"]:not([data-user-color-scheme]) .sd-win {
-    --win-line: rgba(255, 255, 255, 0.2);
-    --win-head: rgba(255, 255, 255, 0.05);
+  [data-sun-scheme="dark"]:not([data-user-color-scheme]) {
+    --win-bg: rgba(24, 20, 17, 0.9);
+    --win-line: #5c4332;
+    --win-head: #2c221b;
+    --win-head-line: #5c4332;
+    --win-head-text: #eedac2;
+    --win-more-bg: #2a211a;
+    --win-more-line: #5c4332;
+    --win-more-text: #e4d0b6;
+    --win-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+    --scrap-filter: brightness(0.8) saturate(0.92);
+  }
+  [data-user-color-scheme="dark"] {
+    --nav-capsule-bg: rgba(26, 22, 18, 0.85);
+    --nav-capsule-line: rgba(255, 240, 220, 0.14);
+    --nav-capsule-text: #e4d0b6;
+    --nav-active-bg: #c99a63;
+    --nav-active-text: #211309;
+  }
+  [data-user-color-scheme="dark"] body.is-home #navbar .site-nav-list .nav-item.active .nav-link {
+    color: #211309;
+    background-color: #c99a63;
+  }
+  [data-sun-scheme="dark"]:not([data-user-color-scheme]) {
+    --nav-capsule-bg: rgba(26, 22, 18, 0.85);
+    --nav-capsule-line: rgba(255, 240, 220, 0.14);
+    --nav-capsule-text: #e4d0b6;
+    --nav-active-bg: #c99a63;
+    --nav-active-text: #211309;
+  }
+  [data-sun-scheme="dark"]:not([data-user-color-scheme]) body.is-home #navbar .site-nav-list .nav-item.active .nav-link {
+    color: #211309;
+    background-color: #c99a63;
   }
   /* sd-dark-win-end */
 }

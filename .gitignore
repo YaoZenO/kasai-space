@@ -21,3 +21,6 @@ design/favicon-candidates/
 static-public/
 dist/
 .astro/
+
+# 本地验收截图与探针脚本（体积大、不参与构建，也不该进版本库）
+.screenshots/

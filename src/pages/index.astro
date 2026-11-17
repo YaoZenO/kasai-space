@@ -51,12 +51,27 @@ const ABOUT_LINES = [
 // 顺序由深到浅：算力 → 数据 → 视觉。结论只读 front matter 的 blurb，
 // 绝不回退正文截取——正文开头是「数据出处」引用块，截进首页就成机械引用。
 const FEATURED = ['70b-to-cluster', 'metro-vs-gdp-rank-mismatch', 'stylekit-design-styles', 'deepseek-pm-interview'];
-// 右侧短标签：全部是文章里的核心量级，不截断、不加省略号（主人 2026-11-15 铁律）
+// 首页行只有 416px 宽：完整标题（带副标题的最长到 31 字）放不下，
+// 这里给每篇一个短标题别名，只做前缀或等价收缩，不改语义；完整标题在详情页。
+const THINK_T: Record<string, string> = {
+  '70b-to-cluster': '70B 到底有多大',
+  'metro-vs-gdp-rank-mismatch': '地铁越长，经济越强吗',
+  'stylekit-design-styles': 'StyleKit 风格库（149 种）',
+  'deepseek-pm-interview': 'DeepSeek 产品面经',
+};
+// 行内第二行：一句话核心论点，取自文章自己的结论，不新增观点
+const THINK_S: Record<string, string> = {
+  '70b-to-cluster': '140/70/35 GB 显存对单卡 80GB',
+  'metro-vs-gdp-rank-mismatch': '43 城 ρ=0.870，排名大幅错位',
+  'stylekit-design-styles': '149 种流派的色彩与空间语法',
+  'deepseek-pm-interview': '四轮面经与产品判断复盘',
+};
+// 右侧短标签：分类，不超过 5 个字（数量与结论已经写进第二行）
 const THINK_K: Record<string, string> = {
   '70b-to-cluster': '显存 · 集群',
-  'metro-vs-gdp-rank-mismatch': '43 城 · ρ=0.870',
-  'stylekit-design-styles': '149 种风格',
-  'deepseek-pm-interview': 'AI 产品 · 深度复盘',
+  'metro-vs-gdp-rank-mismatch': '城市数据',
+  'stylekit-design-styles': '设计风格',
+  'deepseek-pm-interview': 'AI 产品',
 };
 const featured = FEATURED.map((slug) => posts.find((p) => p.slug === slug)).filter(Boolean) as any[];
 
@@ -83,12 +98,12 @@ function sectionOf(body: string, heading: string): string {
 }
 
 const projectItems: any[] = data.projects?.items || [];
-// 右标签写「这是什么」，不写技术栈——访客不需要先认 Vue 才知道 Ties 是什么。
-// 技术栈留在浮层里（projects.yml 的 tech 段）。
-const MAKE_K: Record<string, string> = {
-  Ties: '私有关系档案系统',
-  '资产追踪系统': '全周期日均成本桌面端',
-  '校园课程资源共享平台': '多角色课程资源与 AI 助手',
+// 两行结构：第一行写「这是什么」（主标题就是项目名），第二行写定位，右侧是技术栈。
+// 项目名本身太抽象，光写 Ties 访客不知道是什么；技术栈也不是给人看的第一信息。
+const MAKE_META: Record<string, { sub: string; k: string }> = {
+  Ties: { sub: '私有关系事实与时间线档案系统', k: 'Vue · Node' },
+  '资产追踪系统': { sub: '全生命周期日均持有成本桌面端', k: 'Tauri 2 · TS' },
+  '校园课程资源共享平台': { sub: '多角色课程资源流转与 AI 助教', k: 'Django · Vue 3' },
 };
 
 const makeFromData = ['Ties', '资产追踪系统', '校园课程资源共享平台']
@@ -97,7 +112,8 @@ const makeFromData = ['Ties', '资产追踪系统', '校园课程资源共享平
   .map((it: any) => ({
     id: String(it.title) === 'Ties' ? 'ties' : String(it.title) === '资产追踪系统' ? 'assets' : 'campus',
     name: String(it.title),
-    k: MAKE_K[String(it.title)] || cut(String(it.summary || ''), 14),
+    sub: MAKE_META[String(it.title)]?.sub || cut(String(it.summary || ''), 16),
+    k: MAKE_META[String(it.title)]?.k || '',
     href: urlFor(detailPath('projects' as ModuleKey, it)),
     html: [it.background ? renderMarkdown(String(it.background)) : '', it.tech ? renderMarkdown(String(it.tech)) : ''].join(''),
     more: { label: '完整记录', href: urlFor(detailPath('projects' as ModuleKey, it)) },
@@ -108,7 +124,8 @@ const makeAll = [
   {
     id: 'site',
     name: 'kasai-space',
-    k: '本站 · 自研后台与专题库',
+    sub: '本站 · 自研 Git-backed 管理后台',
+    k: 'Astro · Vercel',
     href: urlFor('/now/'),
     html: renderMarkdown(sectionOf(nowBody, '这个站')),
     more: { label: '完整演进见 /now/', href: urlFor('/now/') },
@@ -127,28 +144,19 @@ const holidayLast = String(holidayYears.slice(-1)[0]?.year || '');
 const festivalCount = (data.festivals?.festivals || []).length;
 const zodiacCount = (data.zodiac?.animals || []).length;
 
+// 资料库四行各配一张自己的界面裁图（2026-11-16）：图取本站页面本身，
+// 不引外部素材，也就不需要任何署名。四张的顺序与四行一一对应，
+// 成品在 source/img/library-thumbs/，页面改版后按同样顺序重截替换即可。
 const atlasRows = [
-  { href: '/cityrank/', name: '城市排行榜', k: `${cityCount} 城 · ${rankCount} 榜` },
-  { href: '/holidays/', name: '中国节假日', k: `${holidayFirst}–${holidayLast} · 节气` },
-  { href: '/festivals/', name: '节日文化', k: `${festivalCount} 篇考据` },
-  { href: '/zodiac/', name: '十二生肖', k: `${zodiacCount} 生肖 · LACMA 陶俑` },
+  { href: '/cityrank/', name: '城市排行榜', sub: '排名错位与体量', k: `${cityCount} 城 · ${rankCount} 榜`, thumb: 'cityrank' },
+  { href: '/holidays/', name: '中国节假日', sub: '放假与调休', k: `${holidayFirst}–${holidayLast}`, thumb: 'holidays' },
+  { href: '/festivals/', name: '节日文化', sub: '来源与地方习俗', k: `${festivalCount} 篇考据`, thumb: 'festivals' },
+  { href: '/zodiac/', name: '十二生肖', sub: '馆藏陶俑与纪年', k: `${zodiacCount} 生肖`, thumb: 'zodiac' },
 ].filter((r) => r.k);
 
-const zodiacAnimals: any[] = data.zodiac?.animals || [];
-const zodiacImages: any = data.zodiac?.meta?.images || {};
-const THUMB_KEYS = ['dragon', 'tiger', 'horse', 'rat'];
-const thumbs = THUMB_KEYS.map((key) => {
-  const a = zodiacAnimals.find((x) => x.key === key);
-  const img = zodiacImages[key];
-  if (!a || !img) return null;
-  return {
-    key,
-    animal: String(a.animal),
-    alt: String(img.alt || ''),
-    thumb: `/img/zodiac/thumbs/${key}.jpg`,
-    href: urlFor(`/zodiac/${key}/`),
-  };
-}).filter(Boolean) as any[];
+// 资料库这张不再放缩略图（2026-11-16 主人要求）：四个条目里只有生肖是 Public domain，
+// 城市图没有授权字段、节日图是 CC BY 2.0 需署名，混着放等于给首页引入署名义务。
+// 「要么别放，要么每个都放一张」——取前者，四窗回到同一种行结构。
 
 // ---------- Outro：节气与假期状态 ----------
 
@@ -179,22 +187,16 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
   <canvas id="sd-canvas" aria-hidden="true"></canvas>
 
   <div class="sd">
-    <!-- 顶部渐隐垫：窗口向上滑进导航带时溶进纸色，不与胶囊的边框硬碰 -->
-    <div class="sd-veil" aria-hidden="true"></div>
-
     <!-- 第一屏：纯序幕，不放任何卡片 -->
     <header class="sd-hero" id="hero">
       <p class="sd-mark"><span class="sd-slash" aria-hidden="true">/</span>KASAI</p>
       <p class="sd-tag">{intro}</p>
-      <a class="sd-cue" href="#desk">
-        <span class="sd-cue-line" aria-hidden="true"></span>
-        <span class="sd-cue-t">Scroll</span>
-      </a>
     </header>
 
-    <!-- 第二屏：四窗工作台，外壳完全统一 -->
+    <!-- 第二屏：四窗工作台。外壳完全统一，左列 01/03、右列 02/04，右列下错 80px，
+         第 4 窗向左探进中央通道 —— 左 / 右 / 中下三点的品字形错落。 -->
     <section class="sd-desk" id="desk" aria-label="工作台">
-      <!-- 左泳道：01 在上，03 在下，间隔 14vh -->
+      <!-- 左泳道：01 在上，03 在下 -->
       <div class="sd-lane sd-lane--a">
       <!-- 01 · About Me -->
         <section class="sd-win" id="win-about" aria-labelledby="win-about-t">
@@ -272,6 +274,7 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
                   <a class="win-row" href={it.href} data-sd-open={it.id}>
                     <span class="row-b">
                       <span class="row-t">{it.name}</span>
+                      <span class="row-s">{it.sub}</span>
                     </span>
                     <span class="row-k">{it.k}</span>
                   </a>
@@ -285,7 +288,7 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
 
       </div>
 
-    <!-- 右泳道：整体下错 22vh，02 在上，04 在下 -->
+    <!-- 右泳道：整体下错 80px，02 在上，04 在下 -->
       <div class="sd-lane sd-lane--b">
       <!-- 02 · Thinking -->
         <section class="sd-win" id="win-thinking" aria-labelledby="win-thinking-t">
@@ -299,7 +302,8 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
                 <li>
                   <a class="win-row" href={urlFor(p.href)}>
                     <span class="row-b">
-                      <span class="row-t">{p.title}</span>
+                      <span class="row-t">{THINK_T[p.slug] || p.title}</span>
+                      <span class="row-s">{THINK_S[p.slug] || ''}</span>
                     </span>
                     <span class="row-k">{THINK_K[p.slug] || (p.categories || [])[0] || ''}</span>
                   </a>
@@ -311,42 +315,47 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
           <div class="win-foot"><a class="win-more" href={urlFor('/archives/')}>more <span aria-hidden="true">→</span></a></div>
         </section>
 
-        <!-- 04 · Atlas -->
+        <!-- 04 · Library -->
         <section class="sd-win" id="win-atlas" aria-labelledby="win-atlas-t">
           <header class="win-head">
-            <h2 class="win-title" id="win-atlas-t">Atlas</h2>
+            <h2 class="win-title" id="win-atlas-t">Library</h2>
           </header>
 
-          <ul class="win-rows">
-            {
-              atlasRows.map((r) => (
+          <div class="win-split">
+            {/* 左栏四张界面裁图，与右栏四行一一对应；图片是行的缩略预览，
+                所以对读屏隐藏、也不进 Tab 序（行本身才是真入口）。 */}
+            <ul class="win-scraps" aria-hidden="true">
+              {atlasRows.map((r) => (
                 <li>
-                  <a class="win-row" href={urlFor(r.href)}>
-                    <span class="row-b"><span class="row-t">{r.name}</span></span>
-                    <span class="row-k">{r.k}</span>
+                  <a href={urlFor(r.href)} tabindex="-1">
+                    <img src={urlFor(`/img/library-thumbs/${r.thumb}.jpg`)} alt="" loading="lazy" decoding="async" />
                   </a>
                 </li>
-              ))
-            }
-          </ul>
+              ))}
+            </ul>
 
-          {
-            thumbs.length > 0 && (
-              <ul class="win-thumbs">
-                {thumbs.map((t) => (
-                  <li>
-                    <a href={t.href} aria-label={`${t.animal} · 元代陶俑`}>
-                      <img src={urlFor(t.thumb)} alt={t.alt} loading="lazy" decoding="async" />
-                    </a>
-                  </li>
-                ))}
+            <div class="win-split-main">
+              <ul class="win-rows">
+                {
+                  atlasRows.map((r) => (
+                    <li>
+                      <a class="win-row" href={urlFor(r.href)}>
+                        <span class="row-b">
+                          <span class="row-t">{r.name}</span>
+                          <span class="row-s">{r.sub}</span>
+                        </span>
+                        <span class="row-k">{r.k}</span>
+                      </a>
+                    </li>
+                  ))
+                }
               </ul>
-            )
-          }
 
-        <div class="win-foot">
-          <a class="win-more" href={urlFor('/library/')}>more <span aria-hidden="true">→</span></a>
-        </div>
+              <div class="win-foot">
+                <a class="win-more" href={urlFor('/library/')}>more <span aria-hidden="true">→</span></a>
+              </div>
+            </div>
+          </div>
         </section>
       </div>
     </section>
