@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "astro": "^7.4.7",
-    "ejs": "3.1.10",
+    "ejs": "7.0.2",
     "feedsmith": "2.9.0",
     "hexo-util": "4.0.0",
     "js-yaml": "^4.3.2",
