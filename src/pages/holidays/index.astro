@@ -2,7 +2,7 @@
 // 节假日页（/holidays/，默认年 2027）：取数后交给 HolidaysPage 渲染。
 import HolidaysPage from '../../components/HolidaysPage.astro';
 import { getData } from '../../lib/data';
-import { holidayCalendar, tipPayload } from '../../lib/holiday-calendar';
+import { holidayCalendar } from '../../lib/holiday-calendar';
 import { pageDates } from '../../lib/page-meta';
 
 const data = getData();
@@ -10,7 +10,6 @@ const { published, modified } = pageDates('holidays/index.md');
 // 对应 source/holidays/index.md 的 year: 2027（不是年份总览）。
 // 新一年官方通知发布后，这里与 front-matter 一起顺延（2027 通知 2026-11-05 已发布）。
 const cal = holidayCalendar(data.holidays || {}, 2027);
-const tipsJson = JSON.stringify(cal ? tipPayload(cal) : {}).replace(/</g, '\\u003c');
 ---
 
 <HolidaysPage
@@ -19,5 +18,4 @@ const tipsJson = JSON.stringify(cal ? tipPayload(cal) : {}).replace(/</g, '\\u00
   currentPath="/holidays/"
   published={published}
   modified={modified}
-  tipsJson={tipsJson}
 />

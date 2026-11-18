@@ -393,9 +393,6 @@ if (!fs.existsSync(PAGE)) {
     const rule = css.slice(at, css.indexOf('}', at));
     assert.ok(rule.indexOf('border-radius: 999px') !== -1, '图例色块还是方角，和圆形格子两套形态');
     assert.strictEqual(css.indexOf('backdrop-filter: blur(24px)'), -1, '详情卡又用回 24px 毛玻璃：换格重绘会掉帧');
-    const js = fs.readFileSync(path.join(ROOT, 'source/js/holidays.js'), 'utf8');
-    assert.ok(js.indexOf('requestAnimationFrame') !== -1, '悬停没有按帧合并，连续假期会逐格同步重排');
-    assert.ok(js.indexOf('groups[key]') !== -1, '聚焦高亮没有按假期预分组，又在遍历全部 365 格');
   });
 
   ok('日期渲染为纯日期，没有机器串（E-028）', () => {

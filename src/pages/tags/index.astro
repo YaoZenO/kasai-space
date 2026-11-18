@@ -25,6 +25,11 @@ function tier(n: number): string {
   <div class="paper-page">
     <div class="home-wrap">
       <header class="ar-head">
+        <nav class="ar-tabs" aria-label="文字视图切换">
+          <a class="ar-tab" href="/archives/">时间轴</a>
+          <a class="ar-tab" href="/categories/">四大主题</a>
+          <a class="ar-tab is-active" href="/tags/" aria-current="page">关键词</a>
+        </nav>
         <h1 class="ar-title">关键词</h1>
         <p class="ar-lead">{tags.length} 个关键词 · 覆盖 {covered.size} 篇</p>
       </header>

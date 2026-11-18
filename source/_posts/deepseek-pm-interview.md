@@ -2,7 +2,7 @@
 title: DeepSeek AI产品经理面试全过程整理
 date: 2026-10-21 20:47:00
 tags: [面试, 产品经理]
-categories: 职业发展
+categories: 产品与设计
 ---
 
 > 来源：抖音图文《DeepSeek AI产品经理面试全过程》，作者"木子AI产品经理实战"，2026-10-21发布

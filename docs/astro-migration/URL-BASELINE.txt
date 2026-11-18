@@ -1,7 +1,7 @@
 # URL 基线（Astro 迁移验收清单）
 # 来源：Astro 构建产物 dist/（2026-11-17 补录两篇电竞页）
 # 规则：index.html 归一为目录 URL 并补尾斜杠；非 ASCII 路径保持产物原样
-# 统计：625 个页面 + 5 个非 HTML 资源 = 630 条
+# 统计：622 个页面 + 5 个非 HTML 资源 = 627 条
 
 [HOME] 1
 /
@@ -23,15 +23,12 @@
 /archives/2026/10/
 /archives/2026/11/
 
-[CATEGORIES] 8
+[CATEGORIES] 5
 /categories/
-/categories/个人感悟/
-/categories/名词解释/
-/categories/城市数据/
-/categories/学习路线/
-/categories/职业发展/
-/categories/设计资源/
-/categories/踩坑记录/
+/categories/产品与设计/
+/categories/技术与工程/
+/categories/数据与考据/
+/categories/随笔与思考/
 
 [TAGS] 14
 /tags/

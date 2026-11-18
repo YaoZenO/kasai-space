@@ -14,4 +14,4 @@ export function getStaticPaths() {
 const { name, posts } = Astro.props;
 ---
 
-<ArchiveView posts={posts} heading={`# ${name}`} pageTitle={`${zhCN.tag.title} - ${name}`} />
+<ArchiveView posts={posts} heading={`# ${name}`} pageTitle={`${zhCN.tag.title} - ${name}`} activeTab="tags" />

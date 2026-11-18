@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import HolidaysPage from '../../components/HolidaysPage.astro';
 import { getData } from '../../lib/data';
-import { holidayCalendar, tipPayload } from '../../lib/holiday-calendar';
+import { holidayCalendar } from '../../lib/holiday-calendar';
 import { pageFrontMatter, pageDates } from '../../lib/page-meta';
 
 export function getStaticPaths() {
@@ -23,7 +23,6 @@ export function getStaticPaths() {
 const { year, fm } = Astro.props;
 const data = getData();
 const cal = holidayCalendar(data.holidays || {}, fm.year ?? Number(year));
-const tipsJson = JSON.stringify(cal ? tipPayload(cal) : {}).replace(/</g, '\\u003c');
 const { published, modified } = pageDates(`holidays/${year}/index.md`);
 ---
 
@@ -34,5 +33,4 @@ const { published, modified } = pageDates(`holidays/${year}/index.md`);
   currentPath={`/holidays/${year}/`}
   published={published}
   modified={modified}
-  tipsJson={tipsJson}
 />

@@ -13,6 +13,8 @@ _multiconfig.yml
 .vercel
 .env*
 .workbuddy/
+.workbuddy-ai/
+.trae/
 
 # favicon 候选生成物（临时）：正式产物在 source/img/favicon-*.png 与 source/favicon.ico
 design/favicon-candidates/

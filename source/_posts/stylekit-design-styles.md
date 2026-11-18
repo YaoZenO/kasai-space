@@ -2,7 +2,7 @@
 title: StyleKit设计风格库全库整理（149种）
 date: 2026-10-21 23:30:00
 tags: [设计风格, 建站]
-categories: 设计资源
+categories: 产品与设计
 banner_img: https://www.stylekit.top/brand/v3/social-preview.png
 index_img: https://www.stylekit.top/brand/v3/social-preview.png
 blurb: "把玄学的「好看」拆解为可复用的视觉语法：149 种现代网页设计流派的色彩、排印与空间骨架索引。"

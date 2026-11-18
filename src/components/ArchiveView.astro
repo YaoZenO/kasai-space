@@ -22,9 +22,11 @@ interface Props {
   showPicks?: boolean;
   /** 年份轨道（仅 /archives/） */
   showTrack?: boolean;
+  /** 顶部视图切换高亮 */
+  activeTab?: 'archives' | 'categories' | 'tags';
 }
 
-const { posts, heading, pageTitle, showPicks = false, showTrack = false } = Astro.props;
+const { posts, heading, pageTitle, showPicks = false, showTrack = false, activeTab = 'archives' } = Astro.props;
 const allPosts = getPosts();
 const total = posts.length;
 
@@ -83,6 +85,11 @@ for (const post of posts) {
   <div class="paper-page">
     <div class="home-wrap">
       <header class="ar-head">
+        <nav class="ar-tabs" aria-label="文字视图切换">
+          <a class:list={['ar-tab', { 'is-active': activeTab === 'archives' }]} href="/archives/" aria-current={activeTab === 'archives' ? 'page' : undefined}>时间轴</a>
+          <a class:list={['ar-tab', { 'is-active': activeTab === 'categories' }]} href="/categories/" aria-current={activeTab === 'categories' ? 'page' : undefined}>四大主题</a>
+          <a class:list={['ar-tab', { 'is-active': activeTab === 'tags' }]} href="/tags/" aria-current={activeTab === 'tags' ? 'page' : undefined}>关键词</a>
+        </nav>
         <h1 class="ar-title">{heading}</h1>
         <p class="ar-lead">{lead}</p>
       </header>

@@ -53,8 +53,8 @@ ok('S2 规模：索引覆盖全站，不再只有文章', () => {
     '索引只有 ' + items.length + ' 条（城市 ' + CITY_COUNT + ' + 榜单 ' + (byType.rank || 0) + '），疑似某类页面没被收录');
 });
 
-ok('S3 八类内容全部在列', () => {
-  ['post', 'page', 'city', 'rank', 'zodiac', 'festival', 'holiday', 'topic'].forEach((c) => {
+ok('S3 全站十一类内容全部在列', () => {
+  ['post', 'project', 'game', 'collection', 'page', 'city', 'rank', 'zodiac', 'festival', 'holiday', 'topic'].forEach((c) => {
     assert.ok((byType[c] || 0) > 0, '缺少类型 ' + c);
   });
 });

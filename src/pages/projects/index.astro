@@ -47,30 +47,46 @@ const stats = [
         <EmptyState>还没有项目条目，可以先回<a href={urlFor('/')}>首页</a>看看别的内容。</EmptyState>
       ) : (
         <div class="pj-list">
-          {items.map((it: any) => (
-            <article class="pj-card">
-              <div class="pj-card-main">
-                <h2 class="pj-card-title"><a href={urlFor(detailPath('projects', it))}>{it.title}</a></h2>
-                {it.summary && <p class="pj-card-sum">{it.summary}</p>}
-              </div>
-              <div class="pj-card-side">
-                {(it.tags || []).length > 0 && (
-                  <ul class="pj-tags">
-                    {(it.tags || []).map((t: string) => <li class="pj-tag">{t}</li>)}
-                  </ul>
-                )}
-                <footer class="pj-card-foot">
-                  {it.date && (
-                    <time class="pj-date" datetime={fmtItemDate(it.date, 'YYYY-MM-DD')}>{fmtItemDate(it.date)}</time>
+          {items.map((it: any) => {
+            const baseHref = urlFor(detailPath('projects', it));
+            const parts = [
+              { id: 'background', label: '背景', has: Boolean(it.background && String(it.background).trim()) },
+              { id: 'process', label: '过程', has: Boolean(it.process && String(it.process).trim()) },
+              { id: 'tech', label: '技术', has: Boolean(it.tech && String(it.tech).trim()) },
+              { id: 'outcome', label: '成果', has: Boolean(it.outcome && String(it.outcome).trim()) },
+            ].filter((p) => p.has);
+            return (
+              <article class="pj-card">
+                <div class="pj-card-main">
+                  <h2 class="pj-card-title"><a href={baseHref}>{it.title}</a></h2>
+                  {it.summary && <p class="pj-card-sum">{it.summary}</p>}
+                  {parts.length > 0 && (
+                    <nav class="pj-blueprint" aria-label={`${it.title} 章节直达`}>
+                      {parts.map((p) => (
+                        <a class="pj-bp-node" href={`${baseHref}#sec-${p.id}`}>{p.label}</a>
+                      ))}
+                    </nav>
                   )}
-                  <span class="pj-actions">
-                    <a class="pj-more" href={urlFor(detailPath('projects', it))}>看详情 →</a>
-                    {it.link && <a class="pj-visit" href={it.link} target="_blank" rel="noopener">访问 ↗</a>}
-                  </span>
-                </footer>
-              </div>
-            </article>
-          ))}
+                </div>
+                <div class="pj-card-side">
+                  {(it.tags || []).length > 0 && (
+                    <ul class="pj-tags">
+                      {(it.tags || []).map((t: string) => <li class="pj-tag">{t}</li>)}
+                    </ul>
+                  )}
+                  <footer class="pj-card-foot">
+                    {it.date && (
+                      <time class="pj-date" datetime={fmtItemDate(it.date, 'YYYY-MM-DD')}>{fmtItemDate(it.date)}</time>
+                    )}
+                    <span class="pj-actions">
+                      <a class="pj-more" href={baseHref}>看详情 →</a>
+                      {it.link && <a class="pj-visit" href={it.link} target="_blank" rel="noopener">访问 ↗</a>}
+                    </span>
+                  </footer>
+                </div>
+              </article>
+            );
+          })}
         </div>
       )}
     </div>

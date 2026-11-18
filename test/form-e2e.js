@@ -207,7 +207,7 @@ ok(!collectionsIndex.includes('module-grid'), '/collections/ 仍在铺空网格'
 ok(!/<input\b/i.test(collectionsIndex), '/collections/ 出现输入控件');
 const clCards = collectionsIndex.match(/<(?:a|div) class="cl-card"[^>]*>/g) || [];
 for (const tag of clCards) {
-  if (tag.startsWith('<a')) {
+  if (tag.startsWith('<a') && /href="https?:\/\//.test(tag)) {
     ok(tag.includes('target="_blank"') && tag.includes('rel="noopener"'),
       '收藏外链卡缺 target=_blank / rel=noopener');
   }

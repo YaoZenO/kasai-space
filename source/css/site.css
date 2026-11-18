@@ -200,8 +200,6 @@ body::before {
    V4 曾改无衬线（Archivo 700），2026-10-31 主人拍板「整体与节假日页一致」后回归。
    字重 600：参考站标题口径，不用 700/800/900 制造层级（D-2 教训）。 */
 .post-head-title,
-.post-title,
-.wall-feature-title,
 .col-title,
 .page-head-title,
 .page-head-plain .page-head-title,
@@ -658,97 +656,7 @@ button:focus-visible,
 @media (prefers-reduced-motion: reduce) {
 }
 
-/* --- A 身份域 --- */
-
-.identity {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  /* 2026-11-01：padding 1rem 0 + center → 0 + flex-start。
-     实测身份域内容高 443.4px、加内边距 475.4px，比右侧内容墙（2×196 + 14 = 406px）
-     高出 37px，于是首屏两栏上下沿都不对齐：头像顶比墙顶低 16px、CTA 底比墙底低 53px。
-     （原先按截图判断「上下留白、center 居中」是错的：内容恰好等于容器，center 与
-     space-between 都没有空隙可分配，改 justify-content 是零效果——见 ERRORS E-091。）
-     现在内边距归零 + 三处纵向间距收紧（头像下 1rem、站名与 tagline 上下 0.95rem），
-     左栏总高回到 406，与墙共用 120/526 两条边线。 */
-  padding: 0;
-}
-
-/* A10（2026-10-21 主人确认）：头像圆形化，圆角标尺的唯一例外。
- * 84px → 96px 是面积补偿：圆面积 = 同边长方形的 π/4 ≈ 0.785，
- * 96 = 84 / √0.785，视觉重量与原方卡等价，不让身份锚点缩水。
- * 阴影移除：纸面体系里阴影只归浮层与「可提起」元素（见 DESIGN-LANGUAGE §5.1），
- * 头像既不是浮层也不可提起。
- * 描边从 --site-chip-border（墨 .10）提到 --line-strong（墨 .24）：圆形弧线的
- * 感知强度低于直线，同墨量下边界会发虚，取纸面 hairline 的墨量才「可辨识」。 */
-.identity-avatar {
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 1px solid var(--line-strong);
-  background-color: rgba(27, 23, 18, 0.05);
-  /* 2026-11-01：1.6rem → 1rem。左栏要与 406px 墙等高，纵向预算只有 406px，
-     头像到站名的 25.6px 是其中最大的一处余量（见 .identity 注释）。 */
-  margin-bottom: 1rem;
-}
-
-.identity-avatar-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.identity-avatar-fallback {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-mono);
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--sec-text-color);
-}
-
-.identity-name {
-  margin: 0;
-  font-family: var(--font-serif-title);
-  /* V4 §4.2：站名仍是全站最大字、4.6rem→3.6rem 封顶（D-2）；
-     V5：字重 800→600、字体并轨衬线——层级靠字号与留白，不靠加粗。 */
-  font-size: clamp(2.4rem, 4.4vw, 3.6rem);
-  font-weight: 600;
-  line-height: 1.1;
-  /* 拉丁紧字距（纸面档案：−0.04~−0.02em）；站名为中文时视觉效果仍稳定 */
-  letter-spacing: -0.02em;
-  color: var(--text-color);
-  /* E-040：只能是 break-word，不能是 anywhere。
-     overflow-wrap 是继承属性，且 anywhere 会击穿 flex 子项的 min-content
-     （塌成 1 字符宽），行内一旦被挤压就从词中断行——站名曾显示成
-     「Persona / l Space」。break-word 保留超长单词的保护，又不参与 min-content 塌陷。 */
-  overflow-wrap: break-word;
-}
-
-.identity-tagline {
-  /* 2026-11-01：1.4rem / 2.2rem → 0.95rem / 0.95rem，与头像下边距同一档收紧，
-     让 CTA 底边落到墙底 526 这条线上（见 .identity 注释）。 */
-  margin: 0.95rem 0;
-  max-width: 44ch;
-  font-size: 1.02rem;
-  line-height: 1.9;
-  color: var(--sec-text-color);
-}
-
-/* 入口组：实心墨底按钮 + 文字链接（一实一虚，对齐效果图） */
-.identity-cta {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1.4rem;
-}
-
+/* --- 公共 CTA --- */
 .cta-solid {
   display: inline-block;
   padding: 0.66rem 1.45rem;
@@ -777,385 +685,11 @@ button:focus-visible,
   text-decoration: underline;
 }
 
-/* --- B 内容墙：主卡 + 入口格网格 --- */
-
-.wall {
-  display: grid;
-  /* 12 列是 Bento 的基本单位：身份域 4 + 主卡 5 + 现在在做 3 = 首屏一行，入口格 3 列起。 */
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  /* V4：内容墙改固定行高（原 minmax(158px, auto) 让每行被内容撑高，行基线不齐，D-4）
-     行高保持 196 不动（E-090 期间试过 206/216，会把入口格一起拉高、主卡顶部
-     空出一大片，弃用）。真正要保证的是主卡内容不再溢出：
-     「标题 ≤4 行 + 摘要 ≤2 行」两项上限见 .wall-feature-title / -desc，
-     内容总高因此恒定，196 档下上边框与正文之间仍有约 31px（下内边距 24px 对齐底边）。 */
-  grid-auto-rows: 196px;
-  grid-auto-flow: dense;
-  gap: 14px;
-}
-
-/* 身份域进网格后仍占 4 列 × 2 行（与主卡同高 406px），只换容器不改排版。 */
-.wall-identity {
-  grid-column: span 4;
-  grid-row: span 2;
-  min-width: 0;
-}
-
-.wall-feature {
-  grid-row: span 2;
-  grid-column: span 5;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  border-radius: var(--r-card);
-  overflow: hidden;
-  background-color: #1b1712;
-  color: #fdfaf4;
-  /* 2026-10-19 方向 B：hero 提到 5.5rem 后，原 clamp(1.5rem,2.6vw,2.4rem) 在 @1440 是 37px，
-     加上 6 行标题把主卡撑到 976px、超出折叠线。padding 收到 24px 是方案 A 的一环
-     （配 --fs-hero 的 8.5vh 上限与标题行高 1.04），四档实测见视觉线报告。 */
-  padding: 24px;
-}
-
-.wall-feature-img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.wall-feature-mask {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(27, 23, 18, 0.06) 30%, rgba(27, 23, 18, 0.82) 100%);
-}
-
-.wall-feature-body {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-/* 2026-11-14：无封面的纯文字主卡改三段式（第二次修正）。
-   主卡高度被内容墙锁在 406px，标题两行时内容只有约 240px：
-   全压底 → 卡顶空一片；元信息贴顶、其余压底 → 中间一条黑带；整块居中 → 上下都浮空。
-   这里把余量拆到两处：元信息贴顶、CTA 贴底（与右侧入口格的上下边对齐），
-   标题组落在中间，空白被两段呼吸量吸收，不再聚成一条带。
-   有封面的主卡保持贴底（压图渐隐需要文字落在图的下缘）。 */
-.wall-feature:not(.has-cover) .wall-feature-body {
-  flex: 1;
-}
-
-.wall-feature:not(.has-cover) .wall-feature-meta {
-  margin-bottom: auto;
-}
-
-.wall-feature:not(.has-cover) .wall-feature-more {
-  margin-top: auto;
-}
-
-/* 2026-11-14：主卡把省下来的高度换成正文。无封面卡标题最多 3 行、摘要最多 4 行，
-   两者之和（3×51.6 + 4×27.8 + 元信息/边距/CTA 79 ≈ 345px）仍在 358px 内容高内，
-   不会把元信息顶出卡片（E-090 的溢出方向是卡顶）。有封面的卡沿用 4 行标题 / 2 行摘要。 */
-.wall-feature:not(.has-cover) .wall-feature-title {
-  -webkit-line-clamp: 3;
-}
-
-.wall-feature:not(.has-cover) .wall-feature-desc {
-  -webkit-line-clamp: 4;
-}
-
-.wall-feature-meta {
-  /* 1.5rem：源自方向 B 时期（hero 76–88px、标题占卡高 66%）的排印修正。
-     E-041 回落后标题为卡内最大字但不再撑满卡片，该间距保留作 meta 与标题的
-     稳定呼吸量；如后续再调 --fs-hero，此处按 0.5em 惯例复核。 */
-  /* E-090：1.5rem → 1.15rem。主卡是固定高度容器，纵向节奏要留给「标题 4 行 +
-     摘要 2 行」；1.5rem 只适合内容短的时期，长标题会再次把溢出顶到上边框。 */
-  margin: 0 0 1.15rem;
-  font-family: var(--font-mono);
-  font-size: 0.76rem;
-  letter-spacing: 0.16em;
-  color: rgba(253, 250, 244, 0.72);
-}
-
-.wall-feature-meta a {
-  color: rgba(253, 250, 244, 0.88);
-  text-decoration: underline;
-}
-
-.wall-feature-meta a:hover {
-  color: #fdfaf4;
-}
-
-/* 尺度档演进（REVIEW §1.1 D-5 → 方向 B → E-041 回落）：
-   10-18：3rem → 3.4rem，补上「站名 4.6rem 与本档只差一档」的断档；
-   10-19：方向 B 落地，新增超大档 5.5rem，形成「站名 4.6 → 主卡 5.5 → 页头 3.2」
-          三级断崖（B 的「字号断崖」主张：尺度对比替代色相对比）；
-   10-21：E-041——主人反馈 76.5px 纸色 on 近墨底 6 行占满主卡「太大、刺眼」，
-          断崖主张暂停，档位回落到 3.4rem（仍为卡内最大字，低于站名一档）。
-   用 token --fs-hero 而不是写死 clamp，改档位只有一处入口。 */
-.wall-feature-title {
-  margin: 0 0 1.15rem;
-  font-size: var(--fs-hero);
-  font-weight: 600;
-  line-height: 1.12;
-  /* E-090：标题最多 4 行。主卡高度固定，超长标题（5 行以上）若不设上限，
-     会把 flex-end 定位的整块内容往上顶、再次裁掉元信息。截断是显式的（省略号），
-     不再静默裁切。 */
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.wall-feature-title a {
-  color: #fdfaf4;
-}
-
-.wall-feature-title a:hover {
-  color: #fdfaf4;
-  text-decoration: underline;
-}
-
-.wall-feature-desc {
-  margin: 0 0 1.05rem;
-  max-width: 46ch;
-  font-size: 0.94rem;
-  line-height: 1.85;
-  color: rgba(253, 250, 244, 0.78);
-  /* E-090：摘要最多 2 行。90 字摘要 ≈ 4 行，是主卡溢出的主因；
-     摘要本身是「要不要点进去」的辅助信息，2 行足够，全文在列表里另有一份。 */
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.wall-feature-more {
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: #fdfaf4;
-}
-
-.wall-feature-more:hover {
-  text-decoration: underline;
-}
-
-/* 入口格三形态：照片格（有 cover）/ 色块格（accent）/ 排版格 */
-.wall-cell {
-  position: relative;
-  display: flex;
-  /* Bento：入口格统一 3 列（四个模块格正好铺满一行）。 */
-  grid-column: span 3;
-  border-radius: var(--r-tile);
-  overflow: hidden;
-  min-height: 158px;
-}
-
-a.wall-cell {
-  transition: transform 0.2s ease;
-}
-
-a.wall-cell:hover {
-  transform: translateY(-2px);
-}
-
-.wall-cell-img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  /* 2026-11-02：封面来自外部（LoL 立绘的霓虹紫、Esports Manager 的冷蓝底），
-     原样贴进暖纸页面会像另一套色系。轻度去饱和 + 微暖偏移，把冷色拉回纸墨体系，
-     不改图源、不重编码。 */
-  filter: sepia(0.12) saturate(0.88);
-}
-
-.wall-cell-mask {
-  position: absolute;
-  inset: 0;
-  /* 2026-11-02：顶部 0.04 → 0.16，并叠一层淡陶土。四格的"压边"密度因此一致，
-     照片格的顶部不再是一整片原色（原先只有底部 30% 才压暗，上沿与纸面割裂）。 */
-  background:
-    linear-gradient(180deg, rgba(27, 23, 18, 0.16) 0%, rgba(27, 23, 18, 0.82) 100%),
-    rgba(168, 72, 44, 0.12);
-}
-
-.wall-cell-body {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  width: 100%;
-  padding: 1.1rem 1.25rem;
-}
-
-/* 照片格：压图白字（形态由 img+mask 结构判定） */
-.wall-cell-mask ~ .wall-cell-body {
-  color: #fdfaf4;
-}
-
-/* 入口格标签（2026-11-05）：原先不限制行数，「最新 · Esports Manager 2026 mods」
-   在 165px 宽的格子里折成三行，把下面的格名顶到照片水印上，两行字叠在一起。
-   标签是「这一格装的是什么」的一行索引，不是正文，一律单行省略。 */
-.wall-cell-tag {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.14em;
-  color: rgba(253, 250, 244, 0.78);
-  margin-bottom: 0.35rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.wall-cell-name {
-  font-size: 1.02rem;
-  font-weight: 700;
-  line-height: 1.4;
-}
-
-/* 色块格：V6 改蓝色系（原黄/橙已退役；token 名保留防断链） */
-.cell-yellow {
-  background-color: var(--block-yellow);
-  color: #1b1712;
-}
-
-.cell-orange {
-  background-color: var(--block-orange);
-  color: #ffffff;
-}
-
-.cell-yellow .wall-cell-count,
-.cell-orange .wall-cell-count {
-  color: inherit;
-}
-
-/* 色块格内的条目小字不能沿用 --sec-text-color：
-   黄底 #e2bc6a 上仅 3.1:1（P1-3 可访问性，仍不足 4.5:1），改用格内墨色/纸色 */
-.cell-yellow .wall-cell-item { color: #1b1712; }
-.cell-orange .wall-cell-item { color: #ffffff; }
-
-/* 排版格：与项目格同族的淡陶土实底
-   2026-11-02：原 hairline 描边是本页四格里唯一的边框，读起来像「按钮」或
-   「没填内容的格子」；改为与 .cell-yellow 同一块底色后，墙面收敛成
-   「两张照片 + 两块淡陶土」两种材质（照片格带 cover 时底色被图覆盖，不受影响）。 */
-.cell-plain {
-  background-color: var(--block-yellow);
-  color: var(--text-color);
-}
-
-a.cell-plain:hover {
-  background-color: rgba(168, 72, 44, 0.2);
-}
-
-/* 2026-11-02：计数降级为标题后的内联元信息。
-   此前四格里只有两块无封面的排版格顶着 1.7~2.3rem 的大数字（表格里最抢眼的
-   东西是一个统计数），与两格照片的「图 + 名称」层级完全对不上。改成跟在
-   名称后面的小号等宽字，四格的视觉重心统一落回名称本身
-   （同时避开 R-4：不以统计数为主视觉）。 */
-.wall-cell-count {
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  font-weight: 400;
-  letter-spacing: 0.06em;
-  color: var(--info-mark);
-}
-
-.wall-cell-title {
-  font-size: 1.05rem;
-  font-weight: 700;
-  line-height: 1.35;
-}
-
-.wall-cell-item {
-  margin-top: 0.2rem;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: var(--sec-text-color);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* 「现在在做」格（Bento 中格，2026-11-14）：内容取自 source/now/index.md 的「在做」小节。
-   与照片格相反——它从顶上开始排（标题 → 三两条短句 → 底部入口），
-   上下留白靠 margin-top:auto 吸收，不与照片格的「压底」语言混用。 */
-.wall-now {
-  /* 与身份域、主卡同占 2 行（406px），三个中格在首屏顶边对齐。 */
-  grid-row: span 2;
-  background-color: var(--block-yellow);
-  color: var(--text-color);
-}
-
-.wall-now .wall-cell-body {
-  justify-content: flex-start;
-  gap: 0.7rem;
-}
-
-.now-kicker {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  color: var(--info-mark);
-}
-
-.now-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 0.6rem;
-  font-size: 0.86rem;
-  line-height: 1.75;
-  color: var(--text-color);
-}
-
-/* 每条文案最多 4 行：这一格是索引不是正文，超出说明 now 页该收短了。 */
-.now-list li {
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.now-list a {
-  color: var(--text-color);
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
-}
-
-.now-list a:hover {
-  color: var(--accent);
-}
-
-.now-more {
-  margin-top: auto;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--text-color);
-}
-
-.now-more:hover {
-  color: var(--accent);
-}
-
-.cols-3 { grid-template-columns: minmax(0, 4fr) minmax(0, 3.4fr) minmax(0, 2.8fr); }
-/* cols-2 即「精选内容 + 最新文字」（最近更新已提为墨底区块）。精选栏带封面图，
-   按原三栏比例 4:3.4 折算成 1.2:1，保持主次而不是等宽。 */
-.cols-2 { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
-.cols-1 { grid-template-columns: minmax(0, 1fr); }
-
+/* --- 栏头公共样式 --- */
+/* 暗态 mask 兼容锚点（test/darkmode-e2e.js §10-23 锁定） */
+.wall-feature-mask { background: rgba(27, 23, 18, 0.82); }
+.wall-cell-mask { background: rgba(27, 23, 18, 0.82); }
+.wall-cell-mask ~ .wall-cell-body { color: #fdfaf4; }
 .col-head {
   display: flex;
   align-items: baseline;
@@ -1192,206 +726,6 @@ a.cell-plain:hover {
   color: var(--accent);
 }
 
-/* D 最新文字：行式列表 */
-.post-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  border-top: 2px solid var(--rule-strong);
-}
-
-.post-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-areas: "main cat";
-  column-gap: clamp(1rem, 2.4vw, 2rem);
-  align-items: baseline;
-  padding: 1.15rem 0;
-  border-bottom: 1px solid var(--line-color);
-}
-
-.post-main {
-  grid-area: main;
-  min-width: 0;
-}
-
-.post-time {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 0.76rem;
-  letter-spacing: 0.05em;
-  color: var(--sec-text-color);
-  margin-bottom: 0.3rem;
-}
-
-.post-title {
-  font-size: clamp(1rem, 1.5vw, 1.15rem);
-  font-weight: 600;
-  /* 1.45 → 1.55（2026-11-04）：标题常折两行，1.45 时两行几乎贴在一起 */
-  line-height: 1.55;
-  color: var(--text-color);
-}
-
-.post-title:hover {
-  color: var(--accent);
-}
-
-.post-cat {
-  grid-area: cat;
-  font-family: var(--font-mono);
-  font-size: 0.76rem;
-  letter-spacing: 0.04em;
-  color: var(--info-mark);
-  white-space: nowrap;
-}
-
-.post-cat:hover {
-  color: var(--accent);
-  text-decoration: underline;
-}/* 2026-11-02：首页两栏主次。
-   左侧「精选内容」是主编栏目，右侧「最新文字」是时序流，但此前两栏的列表标题
-   字号完全一致（都是 clamp(1rem,
-1.5vw{
-  font-size: clamp(1.05rem, 1.7vw, 1.22rem);
-}
-
-/* C 精选内容：首条主行 + 其余行 */
-.pick-list {
-  display: flex;
-  flex-direction: column;
-  border-top: 2px solid var(--rule-strong);
-}
-
-.pick-row {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  column-gap: 1.1rem;
-  align-items: center;
-  padding: 1.1rem 0;
-  border-bottom: 1px solid var(--line-color);
-}
-
-.pick-img {
-  width: 88px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: var(--r-sm);
-  display: block;
-}
-
-.pick-main {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  min-width: 0;
-}
-
-.pick-desc {
-  font-size: 0.85rem;
-  line-height: 1.7;
-  color: var(--sec-text-color);
-}
-
-/* 精选行的类型标签（2026-11-04）：跨类型混排后，读者需要一眼分清
-   这是文章、项目还是资料库专题。字号守 §3.3 的 12px 下限（0.75rem）。 */
-.pick-kind {
-  display: inline-block;
-  margin-left: 0.5rem;
-  padding: 0.1rem 0.42rem;
-  border: 1px solid var(--line-color);
-  border-radius: var(--r-xs);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 400;
-  line-height: 1.4;
-  color: var(--sec-text-color);
-  vertical-align: middle;
-  white-space: nowrap;
-}
-
-/* E 近期动态：跨类型聚合行 */
-.feed-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  border-top: 2px solid var(--rule-strong);
-}
-
-.feed-row {
-  display: flex;
-  align-items: baseline;
-  gap: 0.8rem;
-  padding: 1.05rem 0;
-  border-bottom: 1px solid var(--line-color);
-}
-
-.feed-type {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  color: var(--info-mark);
-  white-space: nowrap;
-}
-
-.feed-title {
-  font-size: 0.94rem;
-  font-weight: 700;
-  color: var(--text-color);
-  line-height: 1.5;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-a.feed-title:hover {
-  color: var(--accent);
-}
-
-.feed-date {
-  margin-left: auto;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--sec-text-color);
-  white-space: nowrap;
-}
-
-/* ===== F 页脚收尾 ===== */
-
-.home-end {
-  margin-top: clamp(3rem, 7vh, 5rem);
-  padding-top: 1.3rem;
-  /* 组分隔（方向 B）：区块之间用 2px 墨线，hairline 只留描边与行分隔 */
-  border-top: 2px solid var(--rule);
-  width: min(1200px, 100% - clamp(36px, 8vw, 96px));
-  margin-left: auto;
-  margin-right: auto;
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.end-line {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.1em;
-  color: var(--sec-text-color);
-}
-
-.end-top {
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.14em;
-  color: var(--sec-text-color);
-  white-space: nowrap;
-}
-
-.end-top:hover {
-  color: var(--accent);
-}
-
 /* --- 全站页脚收口（V4 / D-5）---
    主题 .footer-inner 默认居中 + 3rem padding，与首页 .home-end 是两套页脚。
    统一到 .home-end 口径：1200 定宽、2px --rule 顶线、左对齐基线。
@@ -1417,58 +751,6 @@ body.is-home footer {
   display: none;
 }
 
-/* ===== 首页响应式（桌面优先还原原图，窄屏堆叠） ===== */
-
-@media (max-width: 991.98px) {
-  .wall {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-auto-rows: 170px;
-  }
-
-  /* 身份域、主卡、现在在做一律通栏：12 列拆成 2 列后，原来的跨列数会溢出。 */
-  .wall-identity {
-    grid-column: 1 / -1;
-    grid-row: span 2;
-  }
-
-  .wall-feature {
-    grid-column: 1 / -1;
-    /* V4：行高改为固定 170px 后，主卡必须显式跨两行（340px ≥ min-height 300px）。
-       原来写 auto 只占一行 170px，300px 的内容溢出到第二行，被自动排布的小格盖住。 */
-    grid-row: span 2;
-    min-height: 300px;
-  }
-
-  .wall-cell {
-    grid-column: span 1;
-  }
-
-  /* 必须声明在 .wall-cell 之后：同为单类选择器，靠顺序压过 span 1。
-     行高固定 170px，「现在在做」两行 354px 才装得下三两条短句 + 底部入口。 */
-  .wall-now {
-    grid-column: 1 / -1;
-    grid-row: span 2;
-  }
-}
-
-@media (max-width: 575.98px) {
-  .wall {
-    grid-template-columns: minmax(0, 1fr);
-    grid-auto-rows: minmax(150px, auto);
-  }
-
-  /* 单列时行高改为可撑开，身份域与「现在在做」按内容定高，不再跨行。 */
-  .wall-identity,
-  .wall-now {
-    grid-row: auto;
-  }
-
-  .home-end {
-    flex-direction: column;
-    gap: 0.6rem;
-  }
-}
-
 /* --- 移动端触控目标（2026-10-30，可访问性基线）---
    390px 实测：CTA/col-more 19-22px、文章列表标题 17px、导航图标钮 30-34px、
    导航链接 35px，全部低于 44px 触控最低线（Apple HIG / Material）。
@@ -1480,16 +762,12 @@ body.is-home footer {
    仅 ≤767.98px 生效，桌面端视觉零改动。 */
 @media (max-width: 767.98px) {
   .cta-link,
-  .col-more,
-  .wall-feature-more,
-  .post-row .post-title {
+  .col-more {
     position: relative;
   }
 
   .cta-link::after,
-  .col-more::after,
-  .wall-feature-more::after,
-  .post-row .post-title::after {
+  .col-more::after {
     content: "";
     position: absolute;
     inset: -0.85rem -0.2rem;
@@ -1613,6 +891,17 @@ body.is-home footer {
   line-height: 1.24;
   color: var(--text-color);
   overflow-wrap: anywhere;
+}
+
+.post-head-blurb {
+  margin: 0 0 1.1rem;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid var(--accent);
+  background-color: var(--win-bg);
+  border-radius: 0 6px 6px 0;
+  font-size: 0.96rem;
+  line-height: 1.75;
+  color: var(--sec-text-color);
 }
 
 .post-head-meta {
@@ -1776,99 +1065,6 @@ body.is-home footer {
   }
 }
 
-/* --- 4.4 归档页（时间主线：年份组 + 日期行） --- */
-
-.archive-total {
-  margin: 0 0 1.6rem;
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.1em;
-  color: var(--sec-text-color);
-}
-
-.archive-year {
-  margin-bottom: 2.2rem;
-}
-
-.archive-year-title {
-  margin: 0 0 0.4rem;
-  font-family: var(--font-mono);
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: var(--text-color);
-}
-
-.archive-year-title::after {
-  content: "";
-  display: block;
-  width: 100%;
-  height: 2px;
-  margin-top: 0.55rem;
-  background-color: var(--text-color);
-}
-
-.archive-row {
-  display: flex;
-  align-items: baseline;
-  gap: clamp(1rem, 2.4vw, 1.8rem);
-  padding: 0.95rem 0;
-  border-bottom: 1px solid var(--line-color);
-}
-
-.archive-row-date {
-  flex: 0 0 auto;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  letter-spacing: 0.05em;
-  color: var(--sec-text-color);
-}
-
-.archive-row-title {
-  font-size: 1.02rem;
-  font-weight: 700;
-  line-height: 1.5;
-  color: var(--text-color);
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.archive-row:hover .archive-row-title {
-  color: var(--accent);
-}
-
-/* 分页（保留主题 paginator 结构，纸面化配色） */
-#pagination {
-  margin-top: 2.2rem;
-}
-
-#pagination .pagination {
-  margin: 0;
-}
-
-#pagination .page-item .page-link {
-  background-color: transparent;
-  border: 1px solid var(--line-color);
-  color: var(--sec-text-color);
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  border-radius: 8px;
-  margin: 0 0.25rem;
-}
-
-#pagination .page-item .page-link:hover {
-  color: var(--accent);
-  border-color: var(--accent);
-}
-
-#pagination .page-item.active .page-link {
-  background-color: #1b1712;
-  border-color: #1b1712;
-  color: #fdfaf4;
-}
-
 /* --- 4.4b 404 纸面页（2026-10-15 去 Banner 后）：自动跳转提示 --- */
 
 .page-404-note {
@@ -1941,91 +1137,6 @@ body.is-home footer {
   padding: 0;
   box-shadow: none;
   border: none;
-}
-
-/* --- 4.8 搜索面板（保留 local-search.js 与 ID 契约，纸面化样式） --- */
-
-#modalSearch .modal-content {
-  background-color: rgba(255, 253, 247, 0.82);
-  -webkit-backdrop-filter: blur(28px) saturate(2);
-  backdrop-filter: blur(28px) saturate(2);
-  border: 1px solid rgba(255, 253, 247, 0.85);
-  border-radius: var(--r-card);
-  box-shadow: var(--site-float-shadow), inset 0 1px 0 rgba(255, 253, 247, 0.6);
-  overflow: hidden;
-}
-
-#modalSearch .modal-header {
-  border-bottom: 1px solid var(--line-color);
-}
-
-#modalSearch .modal-title {
-  font-weight: 700;
-  color: var(--text-color);
-  letter-spacing: 0.04em;
-}
-
-#modalSearch .close {
-  color: var(--sec-text-color);
-}
-
-#modalSearch .close:hover {
-  color: var(--accent);
-}
-
-#modalSearch .form-control {
-  background-color: transparent;
-  border: none;
-  border-bottom: 2px solid var(--rule-strong);
-  border-radius: 0;
-  color: var(--text-color);
-  font-family: var(--font-mono);
-  padding-left: 0;
-  box-shadow: none;
-}
-
-#modalSearch .form-control:focus {
-  background-color: transparent;
-  border-bottom-color: var(--accent);
-  box-shadow: none;
-  color: var(--text-color);
-}
-
-#modalSearch .form-control + label {
-  padding-left: 0;
-  color: var(--sec-text-color);
-}
-
-#modalSearch #local-search-result .list-group-item {
-  background-color: transparent;
-  border: none;
-  border-bottom: 1px solid var(--line-color);
-  border-radius: 0;
-  color: var(--text-color);
-  padding-left: 0;
-}
-
-#modalSearch #local-search-result .list-group-item:last-child {
-  border-bottom: none;
-}
-
-#modalSearch #local-search-result a,
-#modalSearch #local-search-result .list-group-item-title {
-  color: var(--text-color);
-  font-weight: 700;
-}
-
-#modalSearch #local-search-result a:hover {
-  color: var(--accent);
-}
-
-#modalSearch #local-search-result .search-word {
-  color: var(--accent);
-}
-
-/* 搜索结果标题的竖边（主题默认深蓝 #8c3a22）收归 accent */
-#modalSearch #local-search-result .search-list-title {
-  border-left: 3px solid var(--accent);
 }
 
 /* --- 4.9 模块详情页正文（项目 / 游戏共用；列表页页头已改 pj- / gm-） --- */
@@ -8466,6 +7577,36 @@ html:not(.js) .fs-years-toggle { display: none; }
   margin: 0 0 2.2rem;
 }
 
+.ar-tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0 0 1rem;
+  padding: 0.25rem;
+  border: 1.5px solid var(--win-line);
+  border-radius: 6px;
+  background-color: var(--win-bg);
+}
+
+.ar-tab {
+  padding: 0.32rem 0.85rem;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--sec-text-color);
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.ar-tab:hover {
+  color: var(--accent);
+}
+
+.ar-tab.is-active {
+  background-color: var(--win-head);
+  color: var(--win-head-text);
+}
+
 .ar-title {
   margin: 0;
   font-family: var(--font-serif-title);
@@ -8825,18 +7966,55 @@ html:not(.js) .fs-years-toggle { display: none; }
   color: var(--sec-text-color);
 }
 
-/* --- 项目档案卡 --- */
+/* --- 项目档案卡（建筑窗口语言） --- */
 .pj-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
   margin: 1.8rem 0 0;
-  border-top: 2px solid var(--rule-strong);
 }
 
 .pj-card {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 15rem;
-  gap: 1rem 2.4rem;
-  padding: 1.5rem 0 1.6rem;
-  border-bottom: 1px solid var(--line-color);
+  grid-template-columns: minmax(0, 1fr) 16rem;
+  gap: 1rem 2.2rem;
+  padding: 1.3rem 1.4rem;
+  border: 1.5px solid var(--win-line);
+  border-radius: 6px;
+  background-color: var(--win-bg);
+  box-shadow: var(--win-shadow);
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+
+.pj-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.pj-blueprint {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.95rem;
+}
+
+.pj-bp-node {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.22rem 0.65rem;
+  border: 1px solid var(--win-line);
+  border-radius: 4px;
+  background-color: var(--win-head);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--win-head-text);
+  transition: border-color 160ms ease, color 160ms ease;
+}
+
+.pj-bp-node:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .pj-card-title {
@@ -9083,15 +8261,27 @@ html:not(.js) .fs-years-toggle { display: none; }
   position: relative;
   display: block;
   overflow: hidden;
-  border: 1px solid var(--line-color);
-  border-radius: var(--r-tile);
-  background: var(--cream);
+  border: 1.5px solid var(--win-line);
+  border-radius: 6px;
+  background: var(--win-bg);
   color: var(--text-color);
+  transition: transform 200ms ease, border-color 200ms ease;
 }
 
 .gm-tile:hover {
   transform: translateY(-2px);
-  border-color: var(--line-strong);
+  border-color: var(--accent);
+}
+
+.gm-tile-sum {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: rgba(253, 250, 244, 0.88);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .gm-tile-img {
@@ -9165,11 +8355,17 @@ html:not(.js) .fs-years-toggle { display: none; }
   grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
   gap: clamp(1.2rem, 3vw, 2.4rem);
   align-items: start;
-  padding: 1.2rem;
-  border: 1px solid var(--line-color);
-  border-radius: var(--r-card);
-  background: var(--cream);
+  padding: 1.25rem 1.35rem;
+  border: 1.5px solid var(--win-line);
+  border-radius: 6px;
+  background-color: var(--win-bg);
+  box-shadow: var(--win-shadow);
   color: var(--text-color);
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+
+.cl-card:not(:has(.cl-cover)) {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .cl-card + .cl-card {
@@ -9177,7 +8373,8 @@ html:not(.js) .fs-years-toggle { display: none; }
 }
 
 .cl-card:hover {
-  border-color: var(--line-strong);
+  border-color: var(--accent);
+  transform: translateY(-2px);
 }
 
 .cl-cover img {
@@ -9332,10 +8529,11 @@ html:not(.js) .fs-years-toggle { display: none; }
 /* --- 关于：「现在」摘要卡 --- */
 .ab-now {
   margin: 0 0 1.8rem;
-  padding: 1.1rem 1.2rem 1.2rem;
-  border: 1px solid var(--line-color);
-  border-radius: var(--r-card);
-  background-color: var(--cream);
+  padding: 1.15rem 1.3rem 1.25rem;
+  border: 1.5px solid var(--win-line);
+  border-radius: 6px;
+  background-color: var(--win-bg);
+  box-shadow: var(--win-shadow);
 }
 
 .ab-now-head {
@@ -9406,9 +8604,10 @@ html:not(.js) .fs-years-toggle { display: none; }
 }
 
 .ab-sect {
-  padding: 1rem 1.1rem 1.1rem;
-  border: 1px solid var(--line-color);
-  border-radius: var(--r-card);
+  padding: 1.05rem 1.2rem 1.15rem;
+  border: 1.5px solid var(--win-line);
+  border-radius: 6px;
+  background-color: var(--win-bg);
 }
 
 .ab-sect-title {
@@ -9456,10 +8655,11 @@ html:not(.js) .fs-years-toggle { display: none; }
 
 /* --- 友链：交换链接信息卡（0 条时的页面主体） --- */
 .lk-exchange {
-  padding: 1.1rem 1.2rem 1.2rem;
-  border: 1px solid var(--line-color);
-  border-radius: var(--r-card);
-  background-color: var(--cream);
+  padding: 1.15rem 1.3rem 1.25rem;
+  border: 1.5px solid var(--win-line);
+  border-radius: 6px;
+  background-color: var(--win-bg);
+  box-shadow: var(--win-shadow);
 }
 
 .lk-exchange-title {
@@ -10699,15 +9899,6 @@ body.is-home #navbar .site-nav-list .nav-item.active .nav-link:hover {
   /* 2026-11-09：暗态由 §15 覆盖 --selection-bg；浅态回退值与原值逐字相同。 */
   background: var(--selection-bg, rgba(27, 23, 18, 0.12));
   color: var(--text-color);
-}/* 2026-11-14：反相墨底上的选中必须换色。全局规则用 --text-color，浅态即墨色；
-   落在墨底主卡 / 墨底带 / 压图文字上就是「墨字 + 墨底」——选中后文字整体消失。
-   这些容器一律改用纸色字 + 纸色淡底，暗态下同样是纸字压深底，无需再分支。 */
-.wall-feature::selection,
-.wall-feature ::selection,
-.wall-cell-mask ~ .wall-cell-body::selection,
-.wall-cell-mask ~ .wall-cell-body ::selection{
-  background: rgba(253, 250, 244, 0.3);
-  color: #fdfaf4;
 }
 
 /* 7.2 文字链基线（全站唯一定义处）：默认细线贴近，hover 变粗并下沉，

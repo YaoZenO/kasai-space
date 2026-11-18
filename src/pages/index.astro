@@ -1,16 +1,16 @@
 ---
-// 首页：三屏滚动叙事（2026-11-15 第二轮重构，方案见 DESIGN-HOME-SPATIAL.md）
+// 首页：三屏滚动叙事（2026-11-18 扩展为六窗双泳道：补全游戏与收藏板块）
 //
 // 结构对齐参考站 0z5a.github.io 的机制，不复制其像素：
 //   ① 底层 <canvas id="sd-canvas">  固定画布，程序化绘制（无图片请求）
 //   ② 三屏 #hero → #desk → #outro  滚动推进，画布按进度联动
-//   ③ 四窗 2×2 对称工作台           外壳 100% 统一，只有内容不同
+//   ③ 六窗 3×2 错落工作台           外壳 100% 统一，左 01/03/05、右 02/04/06
 //
 // 纪律：
 //   · 窗口抬头只放标题，一个数字都不放（主人 2026-11-15 铁律 1）；
 //   · 第三屏用 section 元素而不是 footer：body.is-home footer 会被全站规则隐藏（E-071）；
-//   · 四窗内部结构与外壳同构，不做"一个墨底一个透明"的差异化；
-//   · 文章在首页只出现一次；游戏与收藏不进首页；
+//   · 六窗内部结构与外壳同构，不做"一个墨底一个透明"的差异化；
+//   · 文章在首页只出现一次；
 //   · 商用文案（About 三句）由主人定稿，模板里只做展示。
 
 import { getCollection } from 'astro:content';
@@ -47,31 +47,30 @@ const ABOUT_LINES = [
   '数字策展与考据：清洗 350 城统计数据、16 年历法节气与馆藏文物档案。',
 ];
 
-// ---------- Thinking：三篇长文 ----------
-// 顺序由深到浅：算力 → 数据 → 视觉。结论只读 front matter 的 blurb，
-// 绝不回退正文截取——正文开头是「数据出处」引用块，截进首页就成机械引用。
-const FEATURED = ['70b-to-cluster', 'metro-vs-gdp-rank-mismatch', 'stylekit-design-styles', 'deepseek-pm-interview'];
+// ---------- Thinking：四篇思考长文 ----------
+// StyleKit 图鉴已归入 Collections 窗口，避免同一文章在首页重复出现。
+const FEATURED = ['70b-to-cluster', 'metro-vs-gdp-rank-mismatch', 'deepseek-pm-interview', 'empty-card-and-latest-post'];
 // 首页行只有 416px 宽：完整标题（带副标题的最长到 31 字）放不下，
 // 这里给每篇一个短标题别名，只做前缀或等价收缩，不改语义；完整标题在详情页。
 const THINK_T: Record<string, string> = {
   '70b-to-cluster': '70B 到底有多大',
   'metro-vs-gdp-rank-mismatch': '地铁越长，经济越强吗',
-  'stylekit-design-styles': 'StyleKit 风格库（149 种）',
   'deepseek-pm-interview': 'DeepSeek 产品面经',
+  'empty-card-and-latest-post': '关于「先做出来，再做好」',
 };
 // 行内第二行：一句话核心论点，取自文章自己的结论，不新增观点
 const THINK_S: Record<string, string> = {
   '70b-to-cluster': '140/70/35 GB 显存对单卡 80GB',
   'metro-vs-gdp-rank-mismatch': '43 城 ρ=0.870，排名大幅错位',
-  'stylekit-design-styles': '149 种流派的色彩与空间语法',
   'deepseek-pm-interview': '四轮面经与产品判断复盘',
+  'empty-card-and-latest-post': '先把真实骨架搭起来再打磨',
 };
 // 右侧短标签：分类，不超过 5 个字（数量与结论已经写进第二行）
 const THINK_K: Record<string, string> = {
   '70b-to-cluster': '显存 · 集群',
-  'metro-vs-gdp-rank-mismatch': '城市数据',
-  'stylekit-design-styles': '设计风格',
+  'metro-vs-gdp-rank-mismatch': '数据考据',
   'deepseek-pm-interview': 'AI 产品',
+  'empty-card-and-latest-post': '随笔',
 };
 const featured = FEATURED.map((slug) => posts.find((p) => p.slug === slug)).filter(Boolean) as any[];
 
@@ -131,6 +130,74 @@ const makeAll = [
     more: { label: '完整演进见 /now/', href: urlFor('/now/') },
   },
 ];
+
+// ---------- Games：在玩主力 + 赛事夺冠专题 ----------
+
+const gameItems: any[] = (data.games?.items || []).filter((it: any) => it && it.title);
+const GAME_PICKS = ['lol', 'cs2', 'esports-manager-2026'];
+const gameFromData = GAME_PICKS
+  .map((s) => gameItems.find((it) => String(it.slug || '') === s))
+  .filter(Boolean)
+  .map((it: any) => {
+    const slug = String(it.slug || '');
+    const id = 'game-' + slug.replace(/[^a-z0-9]/gi, '');
+    return {
+      id,
+      name: String(it.title),
+      sub: String(it.summary || ''),
+      k: [it.genre, it.status].filter(Boolean).join(' · '),
+      href: urlFor(detailPath('games' as ModuleKey, it)),
+      html: it.gameplay ? renderMarkdown(String(it.gameplay)) : (it.summary ? `<p>${String(it.summary)}</p>` : ''),
+      more: { label: '游戏档案', href: urlFor(detailPath('games' as ModuleKey, it)) },
+      kicker: '游戏',
+    };
+  });
+
+const gameSpecials = [
+  {
+    id: '',
+    name: 'BLG 2026 全球总决赛首冠',
+    sub: '3-1 战胜 Gen.G，LPL 时隔五年再夺世界冠军',
+    k: 'S16 专题',
+    href: urlFor('/blg-champion/'),
+    html: '',
+    more: null,
+    kicker: '',
+  },
+  {
+    id: '',
+    name: 'Falcons 2026 科隆 Major 夺冠',
+    sub: '3-0 横扫 FURIA，NiKo 3067 天圆梦',
+    k: 'CS2 Major',
+    href: urlFor('/cologne-major-2026/'),
+    html: '',
+    more: null,
+    kicker: '',
+  },
+];
+
+const gameRows = [...gameFromData.slice(0, 3), ...gameSpecials];
+const gameModals = gameFromData.slice(0, 3).filter((g) => g.html);
+
+// ---------- Collections：策展与收藏 ----------
+
+const collectionItems: any[] = (data.collections?.items || []).filter((it: any) => it && it.title);
+const COLL_META: Record<string, { sub: string; k: string }> = {
+  'Esports Manager 2026 mods': { sub: '62 个写实化赛事包与界面重制 Mod', k: 'Nexus Mods' },
+  'StyleKit 设计风格库（149 种）': { sub: '149 种现代网页流派色彩与空间语法', k: '站内图鉴' },
+};
+const collectionRows = collectionItems.slice(0, 4).map((it: any) => {
+  const link = it.link ? String(it.link) : '';
+  const isExt = /^https?:\/\//i.test(link);
+  const meta = COLL_META[String(it.title)];
+  return {
+    name: String(it.title),
+    sub: meta?.sub || cut(String(it.desc || ''), 20) || '策展与工具收藏',
+    k: meta?.k || (isExt ? '外链' : '站内'),
+    href: link ? (isExt ? link : urlFor(link)) : urlFor('/collections/'),
+    isExt,
+  };
+});
 
 // ---------- Atlas：四个专题 + 馆藏缩略图 ----------
 
@@ -193,10 +260,10 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
       <p class="sd-tag">{intro}</p>
     </header>
 
-    <!-- 第二屏：四窗工作台。外壳完全统一，左列 01/03、右列 02/04，右列下错 80px，
-         第 4 窗向左探进中央通道 —— 左 / 右 / 中下三点的品字形错落。 -->
+    <!-- 第二屏：六窗工作台。外壳完全统一，左列 01/03/05、右列 02/04/06，右列下错 80px，
+         末窗向左探进中央通道 —— 形成双泳道错落节奏。 -->
     <section class="sd-desk" id="desk" aria-label="工作台">
-      <!-- 左泳道：01 在上，03 在下 -->
+      <!-- 左泳道：01 About Me → 03 Creations → 05 Collections -->
       <div class="sd-lane sd-lane--a">
       <!-- 01 · About Me -->
         <section class="sd-win" id="win-about" aria-labelledby="win-about-t">
@@ -286,9 +353,41 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
           <div class="win-foot"><a class="win-more" href={urlFor('/projects/')}>more <span aria-hidden="true">→</span></a></div>
         </section>
 
+        <!-- 05 · Collections -->
+        {
+          collectionRows.length > 0 && (
+            <section class="sd-win" id="win-collections" aria-labelledby="win-collections-t">
+              <header class="win-head">
+                <h2 class="win-title" id="win-collections-t">Collections</h2>
+              </header>
+
+              <ul class="win-rows">
+                {collectionRows.map((c) => (
+                  <li>
+                    <a
+                      class="win-row"
+                      href={c.href}
+                      target={c.isExt ? '_blank' : undefined}
+                      rel={c.isExt ? 'noopener' : undefined}
+                    >
+                      <span class="row-b">
+                        <span class="row-t">{c.name}</span>
+                        <span class="row-s">{c.sub}</span>
+                      </span>
+                      <span class="row-k">{c.k}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+
+              <div class="win-foot"><a class="win-more" href={urlFor('/collections/')}>more <span aria-hidden="true">→</span></a></div>
+            </section>
+          )
+        }
+
       </div>
 
-    <!-- 右泳道：整体下错 80px，02 在上，04 在下 -->
+    <!-- 右泳道：整体下错 80px，02 Thinking → 04 Games → 06 Library -->
       <div class="sd-lane sd-lane--b">
       <!-- 02 · Thinking -->
         <section class="sd-win" id="win-thinking" aria-labelledby="win-thinking-t">
@@ -315,7 +414,34 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
           <div class="win-foot"><a class="win-more" href={urlFor('/archives/')}>more <span aria-hidden="true">→</span></a></div>
         </section>
 
-        <!-- 04 · Library -->
+        <!-- 04 · Games -->
+        {
+          gameRows.length > 0 && (
+            <section class="sd-win" id="win-games" aria-labelledby="win-games-t">
+              <header class="win-head">
+                <h2 class="win-title" id="win-games-t">Games</h2>
+              </header>
+
+              <ul class="win-rows">
+                {gameRows.map((g) => (
+                  <li>
+                    <a class="win-row" href={g.href} data-sd-open={g.id || undefined}>
+                      <span class="row-b">
+                        <span class="row-t">{g.name}</span>
+                        <span class="row-s">{g.sub}</span>
+                      </span>
+                      <span class="row-k">{g.k}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+
+              <div class="win-foot"><a class="win-more" href={urlFor('/games/')}>more <span aria-hidden="true">→</span></a></div>
+            </section>
+          )
+        }
+
+        <!-- 06 · Library -->
         <section class="sd-win" id="win-atlas" aria-labelledby="win-atlas-t">
           <header class="win-head">
             <h2 class="win-title" id="win-atlas-t">Library</h2>
@@ -399,8 +525,16 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
 
   {
     makeAll.map((it) => (
-      <template id={`sd-tpl-${it.id}`} data-sd-name={it.name} data-sd-more={it.more.label} data-sd-href={it.more.href}>
+      <template id={`sd-tpl-${it.id}`} data-sd-name={it.name} data-sd-more={it.more.label} data-sd-href={it.more.href} data-sd-kicker="造物">
         <div set:html={it.html} />
+      </template>
+    ))
+  }
+
+  {
+    gameModals.map((g) => (
+      <template id={`sd-tpl-${g.id}`} data-sd-name={g.name} data-sd-more={g.more.label} data-sd-href={g.more.href} data-sd-kicker={g.kicker}>
+        <div set:html={g.html} />
       </template>
     ))
   }

@@ -17,6 +17,11 @@ for (const cat of categories) {
   <div class="paper-page">
     <div class="home-wrap">
       <header class="ar-head">
+        <nav class="ar-tabs" aria-label="文字视图切换">
+          <a class="ar-tab" href="/archives/">时间轴</a>
+          <a class="ar-tab is-active" href="/categories/" aria-current="page">四大主题</a>
+          <a class="ar-tab" href="/tags/">关键词</a>
+        </nav>
         <h1 class="ar-title">主题</h1>
         <p class="ar-lead">{categories.length} 个主题 · 覆盖 {covered.size} 篇</p>
       </header>

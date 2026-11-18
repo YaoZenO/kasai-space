@@ -713,7 +713,7 @@ function look(e,tg,fov,w,h){
         elMore.textContent = '';
         elMore.hidden = true;
       }
-      if (elKicker) elKicker.textContent = tpl.id === 'sd-tpl-wechat' ? '联系' : '造物';
+      if (elKicker) elKicker.textContent = tpl.getAttribute('data-sd-kicker') || (tpl.id === 'sd-tpl-wechat' ? '联系' : '造物');
       return true;
     }
 

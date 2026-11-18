@@ -189,7 +189,7 @@ const cityFieldTags = CITY_FIELDS.filter((f) =>
               const n = countOf(tp.key, tp.entries);
               const range = rangeOf(tp.key);
               return (
-                <a class="lb-shelf-card" href={urlFor(tp.link || '/library/')}>
+                <a class="lb-shelf-card" id={`topic-${tp.key}`} href={urlFor(tp.link || '/library/')}>
                   {/* 封面是装饰性信息图形，内容与标题、计数重复，读屏不必再念一遍 */}
                   <span class={`lb-shelf-cover lb-cover lb-cover-${tp.key}`} aria-hidden="true">
                     {tp.key === 'zodiac' && (

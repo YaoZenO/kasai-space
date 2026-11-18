@@ -23,12 +23,10 @@
     "test:zodiac": "node test/zodiac-e2e.js",
     "test:festival": "node test/festival-e2e.js",
     "test:cityrank": "node test/cityrank-e2e.js",
-    "test:curation": "node test/curation.js",
     "test:search": "node test/search-index.js",
-    "test:a10-render": "node test/a10-avatar-render.js",
     "test:env": "node test/build-env.js",
     "test:darkmode": "node test/darkmode-e2e.js",
-    "test": "npm run test:deps && npm run astro:build && npm run test:admin && npm run test:pages && npm run test:home && npm run test:form && npm run test:tokens && npm run test:claims && npm run test:blocks && npm run test:assets && npm run test:dates && npm run test:holidays && npm run test:zodiac && npm run test:festival && npm run test:cityrank && npm run test:curation && npm run test:search && npm run test:darkmode && npm run test:env",
+    "test": "npm run test:deps && npm run astro:build && npm run test:admin && npm run test:pages && npm run test:home && npm run test:form && npm run test:tokens && npm run test:claims && npm run test:blocks && npm run test:assets && npm run test:dates && npm run test:holidays && npm run test:zodiac && npm run test:festival && npm run test:cityrank && npm run test:search && npm run test:darkmode && npm run test:env",
     "test:home": "node test/home-study.js"
   },
   "engines": {

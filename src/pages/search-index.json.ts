@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { getPosts } from '../lib/posts';
 import { getData } from '../lib/data';
+import { detailPath } from '../lib/modules';
 import { renderMarkdown } from '../lib/markdown';
 import { pageFrontMatter } from '../lib/page-meta';
 
@@ -130,7 +131,57 @@ export async function GET() {
     });
   }
 
-  // ⑨ 导航级固定页
+  // ⑨ 个人项目（projects.yml）
+  for (const it of arr(data.projects?.items)) {
+    if (!it || !it.title) continue;
+    items.push({
+      t: String(it.title),
+      u: detailPath('projects', it),
+      c: 'project',
+      s: clip(it.summary, 80),
+      k: arr(it.tags).join(' '),
+    });
+  }
+
+  // ⑩ 游戏与电竞专题（games.yml + 独立夺冠专题）
+  for (const it of arr(data.games?.items)) {
+    if (!it || !it.title) continue;
+    items.push({
+      t: String(it.title),
+      u: detailPath('games', it),
+      c: 'game',
+      s: clip(it.summary || [it.genre, it.platform, it.status].filter(Boolean).join(' · '), 80),
+      k: [it.slug, it.genre, it.platform].filter(Boolean).join(' '),
+    });
+  }
+  items.push({
+    t: 'BLG 夺冠：3-1 战胜 Gen.G，队史首冠',
+    u: '/blg-champion/',
+    c: 'game',
+    s: '2026 英雄联盟全球总决赛，LPL 时隔五年再夺世界冠军，Knight 总决赛 MVP',
+    k: 'BLG GenG S16 LOL 英雄联盟 全球总决赛 Knight 召唤师奖杯',
+  });
+  items.push({
+    t: 'Falcons 3-0 FURIA：科隆 Major 夺冠，NiKo 圆梦',
+    u: '/cologne-major-2026/',
+    c: 'game',
+    s: 'IEM Cologne Major 2026 决赛三张地图全部 13-8，m0NESY 获 MVP，NiKo 3067 天圆梦',
+    k: 'Falcons FURIA CS2 IEM Cologne Major 科隆 NiKo m0NESY',
+  });
+
+  // ⑪ 收藏与策展（collections.yml）
+  arr(data.collections?.items).forEach((it: any, idx: number) => {
+    if (!it || !it.title) return;
+    items.push({
+      t: String(it.title),
+      u: '/collections/#col-' + idx,
+      c: 'collection',
+      s: clip(it.desc, 80),
+      k: '收藏 策展',
+    });
+  });
+
+  // ⑫ 导航级固定页
   for (const p of [
     { t: '文字归档', u: '/archives/', s: '按年份浏览全部文章' },
     { t: '项目', u: '/projects/', s: '做过的项目与作品' },

@@ -31,23 +31,25 @@ const lead = leadParts.join(' · ');
         <p class="gm-lead">{lead}</p>
       </header>
 
-      <a class="gm-feature" href={urlFor('/blg-champion/')}>
-        <img class="gm-feature-img" src={urlFor('/img/games/blg-s16/01-trophy-vcg.jpg')} alt="BLG 全队捧起召唤师奖杯" loading="lazy" />
-        <span class="gm-feature-body">
-          <span class="gm-feature-kicker">专题 · 2026 英雄联盟全球总决赛</span>
-          <span class="gm-feature-title">BLG 3-1 战胜 Gen.G，队史首冠</span>
-          <span class="gm-feature-sub">LPL时隔五年再夺世界冠军 →</span>
-        </span>
-      </a>
+      <section class="gm-specials" aria-label="赛事夺冠专题">
+        <a class="gm-feature" href={urlFor('/blg-champion/')}>
+          <img class="gm-feature-img" src={urlFor('/img/games/blg-s16/01-trophy-vcg.jpg')} alt="BLG 全队捧起召唤师奖杯" loading="lazy" />
+          <span class="gm-feature-body">
+            <span class="gm-feature-kicker">2026 LOL S16 · 3-1 GEN.G</span>
+            <span class="gm-feature-title">BLG 夺冠：队史首座召唤师奖杯</span>
+            <span class="gm-feature-sub">LPL 时隔五年再夺世界冠军 →</span>
+          </span>
+        </a>
 
-      <a class="gm-feature" href={urlFor('/cologne-major-2026/')}>
-        <img class="gm-feature-img" src={urlFor('/img/games/cologne-major-2026/01-trophy.jpg')} alt="Falcons 全队走向 Major 奖杯" loading="lazy" style="object-position:center 42%" />
-        <span class="gm-feature-body">
-          <span class="gm-feature-kicker">专题 · IEM 科隆Major 2026</span>
-          <span class="gm-feature-title">Falcons 3-0 横扫 FURIA，NiKo 圆梦</span>
-          <span class="gm-feature-sub">队史首座Major奖杯，NiKo等了3067天 →</span>
-        </span>
-      </a>
+        <a class="gm-feature" href={urlFor('/cologne-major-2026/')}>
+          <img class="gm-feature-img" src={urlFor('/img/games/cologne-major-2026/01-trophy.jpg')} alt="Falcons 全队走向 Major 奖杯" loading="lazy" style="object-position:center 42%" />
+          <span class="gm-feature-body">
+            <span class="gm-feature-kicker">2026 CS2 MAJOR · 3-0 FURIA</span>
+            <span class="gm-feature-title">Falcons 科隆夺冠，NiKo 圆梦</span>
+            <span class="gm-feature-sub">队史首座 Major 奖杯，3067 天的等待 →</span>
+          </span>
+        </a>
+      </section>
 
       {items.length === 0 ? (
         <EmptyState>还没有游戏条目，可以先回<a href={urlFor('/')}>首页</a>看看别的内容。</EmptyState>
@@ -59,6 +61,7 @@ const lead = leadParts.join(' · ');
               {it.status && <span class="gm-status">{it.status}</span>}
               <span class="gm-tile-cap">
                 <span class="gm-tile-title">{it.title}</span>
+                {it.summary && <span class="gm-tile-sum">{it.summary}</span>}
                 {(it.genre || it.platform) && (
                   <span class="gm-tile-meta">{[it.genre, it.platform].filter(Boolean).join(' · ')}</span>
                 )}
@@ -72,13 +75,15 @@ const lead = leadParts.join(' · ');
 </BaseLayout>
 
 <style>
-  .gm-feature{position:relative;display:flex;align-items:flex-end;min-height:132px;margin:0 0 22px;border-radius:14px;overflow:hidden;text-decoration:none;color:#fff}
+  .gm-specials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:0 0 22px}
+  .gm-feature{position:relative;display:flex;align-items:flex-end;min-height:164px;border:1.5px solid var(--win-line);border-radius:6px;overflow:hidden;text-decoration:none;color:#fff;transition:transform 200ms ease,border-color 200ms ease}
+  .gm-feature:hover{transform:translateY(-2px);border-color:var(--accent)}
   .gm-feature-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 32%}
-  .gm-feature::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,8,20,.12),rgba(5,8,20,.74))}
-  .gm-feature-body{position:relative;z-index:1;display:flex;flex-direction:column;gap:3px;padding:18px 20px}
-  .gm-feature-kicker{font-size:11px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#f5c56b}
-  .gm-feature-title{font-size:21px;font-weight:800;line-height:1.25}
-  .gm-feature-sub{font-size:13px;opacity:.85}
-  .gm-feature:hover .gm-feature-title{text-decoration:underline}
-  @media (max-width:640px){.gm-feature{min-height:112px}.gm-feature-title{font-size:18px}}
+  .gm-feature::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,16,12,.14),rgba(20,16,12,.82))}
+  .gm-feature-body{position:relative;z-index:1;display:flex;flex-direction:column;gap:3px;padding:16px 18px}
+  .gm-feature-kicker{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#f5c56b}
+  .gm-feature-title{font-family:var(--font-serif-title);font-size:20px;font-weight:600;line-height:1.25}
+  .gm-feature-sub{font-size:13px;opacity:.88}
+  .gm-feature:hover .gm-feature-title{text-decoration:underline;text-underline-offset:3px}
+  @media (max-width:767.98px){.gm-specials{grid-template-columns:minmax(0,1fr)}.gm-feature{min-height:132px}.gm-feature-title{font-size:18px}}
 </style>

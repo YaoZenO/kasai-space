@@ -104,7 +104,7 @@ ok('四窗外壳只定义一次，且不允许逐窗覆盖', () => {
 ok('抬头只放标题：模板与 CSS 都不存在计数角标', () => {
   assert.ok(!page.includes('win-note'), '模板里出现了 win-note');
   const heads = page.match(/<header class="win-head">[\s\S]*?<\/header>/g) || [];
-  assert.strictEqual(heads.length, 4, '窗口抬头不是 4 个：' + heads.length);
+  assert.strictEqual(heads.length, 6, '窗口抬头不是 6 个：' + heads.length);
   heads.forEach((h) => {
     const text = h.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
     assert.ok(!/\d/.test(text), '窗口抬头出现数字：' + text);
@@ -248,14 +248,14 @@ ok('E-179 防复发：卡片左右内距由 .win-row 自己承担且 ≥ 18px', 
     });
 });
 
-ok('E-179 防复发：四个窗口各有 more 入口，指向各自主页', () => {
+ok('E-179 防复发：六个窗口各有 more 入口，指向各自主页', () => {
   const page = read(PAGE);
   const links = [...page.matchAll(/class="win-more" href=\{urlFor\('([^']*)'\)\}/g)].map((m) => m[1]);
-  ['/about/', '/archives/', '/projects/', '/library/'].forEach((h) => {
+  ['/about/', '/archives/', '/projects/', '/games/', '/collections/', '/library/'].forEach((h) => {
     assert.ok(links.includes(h), '缺少指向 ' + h + ' 的 more 入口（当前：' + links.join(',') + '）');
   });
-  assert.strictEqual((page.match(/class="win-foot"/g) || []).length, 3,
-    '底栏容器数与预期不符（Thinking / Creations / Atlas 各一）');
+  assert.strictEqual((page.match(/class="win-foot"/g) || []).length, 5,
+    '底栏容器数与预期不符（Thinking / Creations / Games / Collections / Library 各一）');
 });
 ok('E-174 防复发：片元着色器必须有精度兜底，否则链接失败整屏空白', () => {
   assert.match(homeJs, /#ifdef GL_FRAGMENT_PRECISION_HIGH/, '缺精度兜底分支');
@@ -309,8 +309,8 @@ if (!exists(HOME)) {
     assert.ok(home.includes('id="outro"'), '产物缺 #outro');
   });
 
-  ok('四个窗口都在第二屏内，且都不是 <footer>', () => {
-    ['win-about', 'win-thinking', 'win-creations', 'win-atlas'].forEach((id) => {
+  ok('六个窗口都在第二屏内，且都不是 <footer>', () => {
+    ['win-about', 'win-thinking', 'win-creations', 'win-games', 'win-collections', 'win-atlas'].forEach((id) => {
       assert.ok(desk.includes('id="' + id + '"'), '第二屏缺窗口 ' + id);
     });
     assert.ok(!/<footer[\s>]/.test(home.slice(home.indexOf('id="desk"'), home.indexOf('</main>'))), '第二屏出现 footer');
@@ -329,17 +329,17 @@ if (!exists(HOME)) {
     });
   });
 
-  ok('游戏 / 收藏不进第二屏', () => {
-    assert.ok(!desk.includes('/games/'), '第二屏出现游戏入口');
-    assert.ok(!desk.includes('/collections/'), '第二屏出现收藏入口');
+  ok('游戏与收藏板块已回到第二屏，且带完整出口', () => {
+    assert.ok(desk.includes('href="/games/"'), '第二屏缺少游戏入口 /games/');
+    assert.ok(desk.includes('href="/collections/"'), '第二屏缺少收藏入口 /collections/');
   });
 
-  ok('四个窗口抬头只有标题（无篇数角标），标题统一为英文单行', () => {
-    ['About Me', 'Thinking', 'Creations', 'Library'].forEach((t) => {
+  ok('六个窗口抬头只有标题（无篇数角标），标题统一为英文单行', () => {
+    ['About Me', 'Thinking', 'Creations', 'Games', 'Collections', 'Library'].forEach((t) => {
       assert.ok(desk.includes('>' + t + '</h2>'), '抬头缺标题：' + t);
     });
     const heads = [...desk.matchAll(/<header class="win-head">([\s\S]*?)<\/header>/g)];
-    assert.strictEqual(heads.length, 4, '抬头数量不是 4：' + heads.length);
+    assert.strictEqual(heads.length, 6, '抬头数量不是 6：' + heads.length);
     heads.forEach((h) => {
       const label = h[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
       assert.ok(!/\d/.test(label), '抬头里出现数字（篇数 / 个数角标）：' + label);
@@ -380,8 +380,8 @@ if (!exists(HOME)) {
       assert.ok(!k.includes('…'), '右标签被截断：' + k);
       assert.ok(!k.includes('...'), '右标签被截断：' + k);
     });
-    ['显存 · 集群', '城市数据', '设计风格', 'AI 产品', 'Vue · Node', 'Tauri 2 · TS',
-      'Astro · Vercel', '350 城 · 145 榜'].forEach((want) => {
+    ['显存 · 集群', '数据考据', 'AI 产品', '随笔', 'Vue · Node', 'Tauri 2 · TS',
+      'Astro · Vercel', 'MOBA · 在玩', 'Nexus Mods', '350 城 · 145 榜'].forEach((want) => {
       assert.ok(desk.includes(want), '右标签缺关键短语：' + want);
     });
   });
@@ -399,7 +399,7 @@ if (!exists(HOME)) {
   ok('浮层语义完整：dialog + labelledby + 关闭按钮 + 每个触发点都有模板', () => {
     assert.ok(/<dialog[^>]*class="sd-modal"[^>]*aria-labelledby="sd-modal-title"/.test(home), 'dialog 缺 aria-labelledby');
     assert.ok(home.includes('data-sd-close'), '浮层缺关闭按钮');
-    const triggers = [...home.matchAll(/data-sd-open="([a-z]+)"/g)].map((m) => m[1]);
+    const triggers = [...home.matchAll(/data-sd-open="([a-z0-9-]+)"/g)].map((m) => m[1]);
     assert.ok(triggers.length >= 3, '触发点太少：' + triggers.join(','));
     [...new Set(triggers)].forEach((id) => {
       assert.ok(home.includes('id="sd-tpl-' + id + '"'), '触发点 ' + id + ' 没有对应模板');

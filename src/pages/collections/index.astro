@@ -33,12 +33,15 @@ const lead = [
         <EmptyState>还没有收藏条目，可以先去<a href={urlFor('/projects/')}>项目</a>看看。</EmptyState>
       ) : (
         <div class="cl-list">
-          {items.map((it: any) => {
-            const Card = it.link ? 'a' : 'div';
+          {items.map((it: any, idx: number) => {
+            const link = it.link ? String(it.link) : '';
+            const isExt = /^https?:\/\//i.test(link);
+            const Card = link ? 'a' : 'div';
             return (
               <Card
                 class="cl-card"
-                {...(it.link ? { href: it.link, target: '_blank', rel: 'noopener' } : {})}
+                id={`col-${idx}`}
+                {...(link ? (isExt ? { href: link, target: '_blank', rel: 'noopener' } : { href: urlFor(link) }) : {})}
               >
                 {it.cover && (
                   <span class="cl-cover"><img src={urlFor(it.cover)} alt={it.title} loading="lazy" /></span>
@@ -46,7 +49,7 @@ const lead = [
                 <span class="cl-body">
                   <span class="cl-title-row">
                     <span class="cl-name">{it.title}</span>
-                    {it.link && <span class="cl-badge">外链</span>}
+                    {link && <span class="cl-badge">{isExt ? '外链策展 ↗' : '站内图鉴 →'}</span>}
                   </span>
                   {it.desc && <span class="cl-desc">{it.desc}</span>}
                   {it.date && (

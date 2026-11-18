@@ -22,13 +22,12 @@
   var chipsEl = document.getElementById('sr-chips');
 
   var LABEL = {
-    post: '文章', page: '页面', city: '城市', rank: '榜单',
+    post: '文章', project: '项目', game: '游戏', collection: '收藏',
+    page: '页面', city: '城市', rank: '榜单',
     zodiac: '生肖', festival: '节日', holiday: '节假日', topic: '资料库'
   };
-  // 同分时按这个顺序排：文章 → 主题内容（生肖/节日/节假日）→ 城市 → 榜单 → 入口页。
-  // 把主题内容放在城市之前，是因为「龙」「马」这类词既是生肖也是城市名的一部分，
-  // 而读者输入一个字时更可能是在找生肖；搜具体城市名（深圳/北京）时城市仍是唯一结果。
-  var TYPE_ORDER = { post: 0, zodiac: 1, festival: 2, holiday: 3, city: 4, rank: 5, topic: 6, page: 7 };
+  // 同分时按这个顺序排：个人原创（文章/项目/游戏/收藏）→ 主题内容（生肖/节日/节假日）→ 城市 → 榜单 → 入口页。
+  var TYPE_ORDER = { post: 0, project: 1, game: 2, collection: 3, zodiac: 4, festival: 5, holiday: 6, city: 7, rank: 8, topic: 9, page: 10 };
   var MAX = 40;
 
   var items = null;

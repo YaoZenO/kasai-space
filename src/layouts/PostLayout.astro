@@ -36,11 +36,11 @@ function symbolsCount(count: number): string {
   if (count > 999) return Math.round(count / 100) / 10 + 'k';
   return String(count);
 }
-// 现站 meta-top.ejs 用 pageWordCount（字符串）与 50 比较；'2.6k' >= 50 为 false，
-// 所以字数超过 999 的文章不显示字数/阅读时长。这里照搬该行为以保持视觉一致。
+// 修复 E-028 同类静默问题：pageWordCount 超过 999 时是 '2.6k'，Number('2.6k') 为 NaN 导致字数消失。
+// 改为直接判断原始数值 post.wordcount >= 50。
 const pageWordCount = symbolsCount(post.wordcount);
-const showWordCount = metaCfg.wordcount?.enable !== false && Number(pageWordCount) >= 50;
-const showMin2Read = metaCfg.min2read?.enable !== false && Number(pageWordCount) >= 50;
+const showWordCount = metaCfg.wordcount?.enable !== false && post.wordcount >= 50;
+const showMin2Read = metaCfg.min2read?.enable !== false && post.wordcount >= 50;
 const showToc = tocCfg.enable !== false && tocCfg.placement !== 'left';
 ---
 
@@ -60,8 +60,9 @@ const showToc = tocCfg.enable !== false && tocCfg.placement !== 'left';
         <div class="post-main-col" id="board-ctn">
           <article class="post-content">
             <header class="post-head">
-              <p class="post-head-kicker">POST</p>
+              <p class="post-head-kicker">MANUSCRIPT · {post.categories[0] || 'POST'}</p>
               <h1 class="post-head-title">{post.title}</h1>
+              {post.data?.blurb && <p class="post-head-blurb">{post.data.blurb}</p>}
               <div class="post-head-meta">
                 <div class="mt-3">
                   {metaCfg.date?.enable !== false && (

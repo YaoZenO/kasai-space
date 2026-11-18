@@ -2,7 +2,7 @@
 title: 日期怎么会变成一长串
 date: 2026-10-18 21:20:00
 tags: [Hexo, 工程]
-categories: 踩坑记录
+categories: 技术与工程
 ---
 
 昨天在游戏列表页看到日期渲染成了这样：
