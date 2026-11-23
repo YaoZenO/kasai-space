@@ -217,6 +217,8 @@
 | E-183 | P1 | 清洗脚本把 `at(` 批量改名成 `lift(` 却没改定义 `const at=`，首页加载即 ReferenceError，第一屏建筑全不见（构建、语法检查、静态断言全绿） | 已修复（定义改名为 `lift`）+ 断言：18 个场景辅助函数「有调用必须有定义」，且禁止 `at(` 裸调用 |
 | E-184 | P1 | 自转槽与材质标记共用 `s.y`：`turns()` 把核心的 `-5` 覆盖成 `20+i`，暗态下金色核心随建筑一起被压成深褐（#745f46） | 已修复（自发光体写负槽号 `-(20+i)`，着色器先取绝对值判槽）+ 断言：核心自转必须传 `true`、`turns` 必须写有符号槽号、着色器必须有 `sy<-19.5` 还原 |
 | E-185 | P3 | 脚本按「有 CRLF 就整篇重排」回写 `ERRORS.md`，把混排里的 2 行纯 LF 也改成 CRLF，实际 32 行的改动显示成 7111 行 | 已修复（从 `git show HEAD:` 重放改动）+ 机制：既有文件只用 Edit 按行改，脚本只生成新文件；提交前比对 `git diff --stat` 与 `--ignore-cr-at-eol --stat` 两个数字 |
+| E-186 | P1 | 删除专题页第三方照片时，21 套断言里没有一条校验产物 HTML 的 `<img src>` 是否指向真实文件——删图不改页面，构建全绿、页面留 404 | 已修复（新增 `test/img-refs.js` 并串入 `npm test`）+ 机制：扫描 `dist/**/*.html` 的 src/srcset/content，去 query 后逐条断言文件存在，且带「造假断图必须被抓出」的变异自检 |
+| E-187 | P3 | Edit 工具改写 `ERRORS.md` 时按自己的行尾策略整篇重写，3585 行 CRLF 被压成 LF，真实 18 行的改动显示成 7188 行 | 已修复（从 `git show HEAD:` 字节级重放，保留原有 2 行纯 LF）+ 机制：改完混排行尾的文档必须同时比对 `git diff --stat` 与 `--ignore-cr-at-eol --stat`，两数不等即判失败重做 |
 ---
 
 ## 3. P0 — 数据损害（绝不再犯）
@@ -3585,3 +3587,35 @@
   不允许 `split/join` 回写既有文件（行尾、编码、末尾换行都会被顺手改掉）。
   提交前除 `git diff --stat` 外必须再看一次 `git diff --ignore-cr-at-eol --stat`，
   两行数字不一致就说明混进了行尾噪音，停下重做。
+
+### E-186 删第三方照片时全站无人校验 `<img src>` 指向的真实性，断图可以带着全绿构建上线（2026-11-24）
+
+- **现象：** 处理 `/blg-champion/` 的 5 张 VCG 系照片（`01-trophy-vcg`、`02-stage-vcg`、
+  `03-celebrate-vcg`、`hero-mobile`、`finale-mobile`）时发现：如果只 `git rm` 文件、
+  不动页面，`npm run astro:build` 与 `npm test` 全部通过，页面静默留着 5 个 404。
+- **根因：** 图片引用散在四处（两个专题页、`src/pages/games/index.astro` 的专题封面、
+  `source/_data/games.yml` 的 markdown 图），而断言层完全没有覆盖这一层：
+  `asset-version.js` 只校验 CSS 的 hash 形态，`module-pages-e2e.js` 只校验页面文件是否存在。
+  「文件没了但引用还在」因此是纯静默失败。
+- **修法：** 新增 `test/img-refs.js` 扫 `dist/**/*.html` 的 `src` / `srcset` / `content`，
+  剥掉 query 与 hash 后逐条断言文件存在；本轮同步改了四处引用
+  （hero 改四局比分带、finale 改 `21–11` 字形、`ogImages` 与 `/games/` 封面与
+  `games.yml` 改指保留的 `06-trophy-yonhap.jpg`）。
+- **防复发（机制）：** `test:img` 串入 `npm test`，排在建站之后；断言自带变异自检——
+  在临时目录造一条指向不存在图片的 HTML，扫描函数必须抓出恰好 1 条，否则自检即失败。
+  扫描器空转（0 条引用）同样判失败，避免「什么都没扫到也算通过」。
+
+### E-187 Edit 工具整篇重写文件，把 ERRORS.md 的 CRLF 全部压成 LF：diff 从 18 行涨到 7188 行（2026-11-24）
+
+- **现象：** 用 Edit 追加 E-186 后，`git diff --stat` 显示 7188 行改动，
+  `git diff --ignore-cr-at-eol --stat` 只有 20 行。文件内 CRLF 从 3585 条变成 0 条，
+  纯 LF 从 2 条变成 3167 条（按非空行计）。
+- **根因：** E-185 把这类事故归因于「脚本 split/join 回写」，据此定的防护是「只用 Edit」。
+  但 Edit 在写回时同样按自己的行尾策略重写了整个文件，正好绕开了这条防护——
+  防护点定在了「用什么工具」，而不是「结果对不对」。
+- **修法：** 从 `git show HEAD:ERRORS.md` 取原始字节，只把新增的 1 行索引与 17 行正文
+  按 CRLF 拼回原位，其余字节一字不动（含 E-173、E-181 那 2 行纯 LF）。
+  修完两个 `git diff --stat` 数字一致：18 增 0 删。
+- **防复发（机制）：** 判断标准改为结果校验。任何对混排行尾文档的改动，提交前必须同时跑
+  `git diff --stat` 与 `git diff --ignore-cr-at-eol --stat`；两个数字不相等即判本轮改动失败，
+  停下重做，不接受「内容是对的」作为辩解。

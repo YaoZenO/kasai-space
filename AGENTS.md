@@ -145,8 +145,8 @@ request for authorization. Do not expand beyond the original scope.
 **这个站的发布链路是：本地改文件 → `git commit` → `git push` 到 GitHub → Vercel
 自动构建部署 → 主人在 <https://www.040925.xyz> 上看到。**
 
-`deploy.type` 是空的，`npm run deploy` 什么都不做；本地 `public/` 也不会上传。
-**所以只改本地文件、只跑 `hexo generate`，主人在域名上永远看不到改动。**
+仓库里没有 `deploy` 脚本，`_config.yml` 的 `deploy.type` 也是空的；本地 `dist/` 同样不会自动上传。
+**所以只改本地文件、只跑 `npm run astro:build`，主人在域名上永远看不到改动。**
 
 因此：
 
@@ -166,41 +166,61 @@ request for authorization. Do not expand beyond the original scope.
 
 # Project snapshot
 
-Verified on 2026-10-10. Re-verify if this section drifts from reality.
+Verified on 2026-11-24 against `main` @ `cbc3142`. Re-verify if this section drifts from reality.
 
-**What it is:** a personal Hexo site ("KASAI'S Personal Space"), deployed to
-<https://www.040925.xyz>. Chinese-language writing.
+**What it is:** a personal static site ("KASAI'S Personal Space"), Chinese-language
+writing, published to <https://www.040925.xyz> by pushing to GitHub — Vercel builds on push.
 
 | Item | Value |
 |---|---|
 | Branch | `main` (remote: `origin` → `https://github.com/YaoZenO/kasai-space.git`) |
-| Hexo | 8.1.1 |
-| Node / npm | v22.22.2 / 10.9.7 |
+| Renderer | Astro 7.4.7 (`^7.4.7`), `output: 'static'`, no front-end framework |
+| Node / npm | `engines.node: 24.x`; on this machine prefix `PATH=/e/Nodejs:$PATH` — the system default v22 is rejected by Astro |
+| Build output | `dist/` (`build.format: 'directory'` → `path/index.html`) |
+| Asset root | `static-public/` — the Astro `publicDir`, deliberately *not* `public/` |
+| Site URL | `https://www.040925.xyz` (`astro.config.mjs` `site`, `_config.yml` `url`) |
 | Permalink | `:year/:month/:day/:title/` |
 
 **Commands** (`package.json` scripts):
 
 | Command | Effect |
 |---|---|
-| `npm run server` | local dev server on <http://localhost:4000> |
-| `npm run build` | `hexo generate` → writes `public/` |
-| `npm run clean` | `hexo clean` |
-| `npm run deploy` | `hexo deploy` — **currently a no-op**, `deploy.type` is `""` in `_config.yml` |
+| `npm run server` | `astro dev` |
+| `npm run build` | alias of `astro:build` |
+| `npm run astro:build` | `prepare-assets.mjs` → `astro build` → `encode-module-paths.mjs` → `stamp-assets.mjs` |
+| `npm run astro:verify` | `tools/verify-urls.mjs --mode=exact` against `docs/astro-migration/URL-BASELINE.txt` |
+| `npm run clean` | deletes `dist/`, `.astro/`, `static-public/` |
+| `npm test` | `test:deps` → full build → 16 assertion suites |
+| — | there is no `deploy` script; publishing means `git push origin main` |
 
 **Layout:**
 
-- `source/_posts/*.md` — blog posts (markdown with Hexo front matter)
-- `source/about/index.md` — about page
-- `scaffolds/*.md` — `hexo new` templates
-- `themes/fluid/` — the vendored theme named by `_config.yml`
-- `_config.yml` — main config; `_config.landscape.yml` — a secondary/landscape config
-- `public/`, `db.json`, `node_modules/`, `.deploy*/` — gitignored build output
+- `src/pages/` — every route. `src/lib/` — data and config loaders. `src/components/`, `src/layouts/`.
+- `source/_posts/*.md` — posts. `source/_data/*.yml` — data sets (cities, holidays, zodiac, library, cityrank).
+- `source/css/site.css` — the only stylesheet. `source/js/*.js` — page scripts; new files must be
+  stamped by `tools/stamp-assets.mjs` or they render stale.
+- `source/img/`, `source/fonts/`, `source/lib/` — assets copied into `static-public/` by `tools/prepare-assets.mjs`.
+- `api/` — Vercel serverless functions behind `/admin/`.
+- `themes/fluid/` — **build input only**; see quirks before touching it.
+- `tools/` — build pipeline. `test/` — assertion suites. `docs/astro-migration/` — migration plan, spec, URL baseline.
 
 **Known quirks — do not "fix" without being asked:**
 
-- `_config.yml` sets `theme: fluid` and `themes/fluid/` exists in git, but `package.json`
-  only declares `hexo-theme-landscape`. The theme is vendored, not an npm dependency.
-- `deploy.type` is empty, so `npm run deploy` will not publish anything.
+- `themes/fluid/` looks like a deletable Hexo leftover and is not. The build still reads
+  `themes/fluid/_config.yml`, `source/css/*.styl`, `source/js/**`, `source/img/**` and
+  `data/china-provinces.json` — that last one holds the province paths
+  `src/lib/china-map.ts` turns into SVG. Its 40+ EJS layouts and its `scripts/` are dead;
+  nothing renders them.
+- `_config.yml` is still live: `src/lib/site-config.ts` takes title, description and URL from it.
+  Only `deploy.type: ""` is a fossil.
+- `ejs` sits in devDependencies solely so three legacy suites (`test/{holidays,zodiac,festival}-e2e.js`)
+  can compile `themes/fluid/layout/*.ejs`. `moment-timezone` has no reference anywhere — removable.
+- `js-yaml` is pinned to 4.x on purpose: 22 files mix `import` and `require` on it, and 5.x breaks
+  both the CJS path and the YAML timestamp behaviour `src/lib/dates.ts` relies on (E-028).
+- `hexo-util` is a real runtime dependency (`src/lib/markdown.ts`, `src/lib/posts.ts`,
+  `src/pages/atom.xml.ts`, `src/pages/sitemap.xml.ts`), not a Hexo leftover.
+- Never write `calc(a + b)` in source CSS: the minifier drops the spaces and silently
+  invalidates the whole declaration (E-064).
 - Front matter and config use full-width Chinese punctuation in places — preserve it.
 
 **Git convention:** commit messages in this repo are short and human-readable in both
