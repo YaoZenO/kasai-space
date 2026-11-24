@@ -131,7 +131,7 @@ const makeAll = [
   },
 ];
 
-// ---------- Games：在玩主力 + 赛事夺冠专题 ----------
+// ---------- Games：在玩主力（3 条，保持紧凑，不高于思考/造物/资料库） ----------
 
 const gameItems: any[] = (data.games?.items || []).filter((it: any) => it && it.title);
 const GAME_PICKS = ['lol', 'cs2', 'esports-manager-2026'];
@@ -153,31 +153,8 @@ const gameFromData = GAME_PICKS
     };
   });
 
-const gameSpecials = [
-  {
-    id: '',
-    name: 'BLG 2026 全球总决赛首冠',
-    sub: '3-1 战胜 Gen.G，LPL 时隔五年再夺世界冠军',
-    k: 'S16 专题',
-    href: urlFor('/blg-champion/'),
-    html: '',
-    more: null,
-    kicker: '',
-  },
-  {
-    id: '',
-    name: 'Falcons 2026 科隆 Major 夺冠',
-    sub: '3-0 横扫 FURIA，NiKo 3067 天圆梦',
-    k: 'CS2 Major',
-    href: urlFor('/cologne-major-2026/'),
-    html: '',
-    more: null,
-    kicker: '',
-  },
-];
-
-const gameRows = [...gameFromData.slice(0, 3), ...gameSpecials];
-const gameModals = gameFromData.slice(0, 3).filter((g) => g.html);
+const gameRows = gameFromData.slice(0, 3);
+const gameModals = gameRows.filter((g) => g.html);
 
 // ---------- Collections：策展与收藏 ----------
 
@@ -260,14 +237,14 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
       <p class="sd-tag">{intro}</p>
     </header>
 
-    <!-- 第二屏：六窗工作台。外壳完全统一，左列 01/03/05、右列 02/04/06，右列下错 80px，
-         末窗向左探进中央通道 —— 形成双泳道错落节奏。 -->
+    <!-- 第二屏：六窗 S 形错落工作台。外壳完全统一，左泳道 About / Collections / Library，
+         右泳道（下错 84px）Thinking / Creations / Games，左右体量实测误差 ≤15px，逐卡水平错位并带景深视差。 -->
     <section class="sd-desk" id="desk" aria-label="工作台">
-      <!-- 左泳道：01 About Me → 03 Creations → 05 Collections -->
+      <!-- 左泳道：01 About Me → 03 Collections → 05 Library -->
       <div class="sd-lane sd-lane--a">
       <!-- 01 · About Me -->
-        <section class="sd-win" id="win-about" aria-labelledby="win-about-t">
-          <header class="win-head">
+        <section class="sd-win" id="win-about" data-sd-depth="0.4" aria-labelledby="win-about-t">
+          <header class="win-head" title="拖动微调位置 · 双击复位">
             <h2 class="win-title" id="win-about-t">About Me</h2>
           </header>
 
@@ -328,36 +305,11 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
           }
         </section>
 
-        <!-- 03 · Creations -->
-        <section class="sd-win" id="win-creations" aria-labelledby="win-creations-t">
-          <header class="win-head">
-            <h2 class="win-title" id="win-creations-t">Creations</h2>
-          </header>
-
-          <ul class="win-rows">
-            {
-              makeAll.map((it) => (
-                <li>
-                  <a class="win-row" href={it.href} data-sd-open={it.id}>
-                    <span class="row-b">
-                      <span class="row-t">{it.name}</span>
-                      <span class="row-s">{it.sub}</span>
-                    </span>
-                    <span class="row-k">{it.k}</span>
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-
-          <div class="win-foot"><a class="win-more" href={urlFor('/projects/')}>more <span aria-hidden="true">→</span></a></div>
-        </section>
-
-        <!-- 05 · Collections -->
+        <!-- 03 · Collections -->
         {
           collectionRows.length > 0 && (
-            <section class="sd-win" id="win-collections" aria-labelledby="win-collections-t">
-              <header class="win-head">
+            <section class="sd-win" id="win-collections" data-sd-depth="-0.9" aria-labelledby="win-collections-t">
+              <header class="win-head" title="拖动微调位置 · 双击复位">
                 <h2 class="win-title" id="win-collections-t">Collections</h2>
               </header>
 
@@ -385,65 +337,9 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
           )
         }
 
-      </div>
-
-    <!-- 右泳道：整体下错 80px，02 Thinking → 04 Games → 06 Library -->
-      <div class="sd-lane sd-lane--b">
-      <!-- 02 · Thinking -->
-        <section class="sd-win" id="win-thinking" aria-labelledby="win-thinking-t">
-          <header class="win-head">
-            <h2 class="win-title" id="win-thinking-t">Thinking</h2>
-          </header>
-
-          <ul class="win-rows">
-            {
-              featured.map((p) => (
-                <li>
-                  <a class="win-row" href={urlFor(p.href)}>
-                    <span class="row-b">
-                      <span class="row-t">{THINK_T[p.slug] || p.title}</span>
-                      <span class="row-s">{THINK_S[p.slug] || ''}</span>
-                    </span>
-                    <span class="row-k">{THINK_K[p.slug] || (p.categories || [])[0] || ''}</span>
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-
-          <div class="win-foot"><a class="win-more" href={urlFor('/archives/')}>more <span aria-hidden="true">→</span></a></div>
-        </section>
-
-        <!-- 04 · Games -->
-        {
-          gameRows.length > 0 && (
-            <section class="sd-win" id="win-games" aria-labelledby="win-games-t">
-              <header class="win-head">
-                <h2 class="win-title" id="win-games-t">Games</h2>
-              </header>
-
-              <ul class="win-rows">
-                {gameRows.map((g) => (
-                  <li>
-                    <a class="win-row" href={g.href} data-sd-open={g.id || undefined}>
-                      <span class="row-b">
-                        <span class="row-t">{g.name}</span>
-                        <span class="row-s">{g.sub}</span>
-                      </span>
-                      <span class="row-k">{g.k}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-
-              <div class="win-foot"><a class="win-more" href={urlFor('/games/')}>more <span aria-hidden="true">→</span></a></div>
-            </section>
-          )
-        }
-
-        <!-- 06 · Library -->
-        <section class="sd-win" id="win-atlas" aria-labelledby="win-atlas-t">
-          <header class="win-head">
+        <!-- 05 · Library -->
+        <section class="sd-win" id="win-atlas" data-sd-depth="1.1" aria-labelledby="win-atlas-t">
+          <header class="win-head" title="拖动微调位置 · 双击复位">
             <h2 class="win-title" id="win-atlas-t">Library</h2>
           </header>
 
@@ -483,6 +379,87 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
             </div>
           </div>
         </section>
+
+      </div>
+
+    <!-- 右泳道：整体下错 84px，02 Thinking → 04 Creations → 06 Games -->
+      <div class="sd-lane sd-lane--b">
+      <!-- 02 · Thinking -->
+        <section class="sd-win" id="win-thinking" data-sd-depth="-0.8" aria-labelledby="win-thinking-t">
+          <header class="win-head" title="拖动微调位置 · 双击复位">
+            <h2 class="win-title" id="win-thinking-t">Thinking</h2>
+          </header>
+
+          <ul class="win-rows">
+            {
+              featured.map((p) => (
+                <li>
+                  <a class="win-row" href={urlFor(p.href)}>
+                    <span class="row-b">
+                      <span class="row-t">{THINK_T[p.slug] || p.title}</span>
+                      <span class="row-s">{THINK_S[p.slug] || ''}</span>
+                    </span>
+                    <span class="row-k">{THINK_K[p.slug] || (p.categories || [])[0] || ''}</span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+
+          <div class="win-foot"><a class="win-more" href={urlFor('/archives/')}>more <span aria-hidden="true">→</span></a></div>
+        </section>
+
+        <!-- 04 · Creations -->
+        <section class="sd-win" id="win-creations" data-sd-depth="0.5" aria-labelledby="win-creations-t">
+          <header class="win-head" title="拖动微调位置 · 双击复位">
+            <h2 class="win-title" id="win-creations-t">Creations</h2>
+          </header>
+
+          <ul class="win-rows">
+            {
+              makeAll.map((it) => (
+                <li>
+                  <a class="win-row" href={it.href} data-sd-open={it.id}>
+                    <span class="row-b">
+                      <span class="row-t">{it.name}</span>
+                      <span class="row-s">{it.sub}</span>
+                    </span>
+                    <span class="row-k">{it.k}</span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+
+          <div class="win-foot"><a class="win-more" href={urlFor('/projects/')}>more <span aria-hidden="true">→</span></a></div>
+        </section>
+
+        <!-- 06 · Games -->
+        {
+          gameRows.length > 0 && (
+            <section class="sd-win" id="win-games" data-sd-depth="1.2" aria-labelledby="win-games-t">
+              <header class="win-head" title="拖动微调位置 · 双击复位">
+                <h2 class="win-title" id="win-games-t">Games</h2>
+              </header>
+
+              <ul class="win-rows">
+                {gameRows.map((g) => (
+                  <li>
+                    <a class="win-row" href={g.href} data-sd-open={g.id || undefined}>
+                      <span class="row-b">
+                        <span class="row-t">{g.name}</span>
+                        <span class="row-s">{g.sub}</span>
+                      </span>
+                      <span class="row-k">{g.k}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+
+              <div class="win-foot"><a class="win-more" href={urlFor('/games/')}>more <span aria-hidden="true">→</span></a></div>
+            </section>
+          )
+        }
       </div>
     </section>
 

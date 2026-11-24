@@ -790,4 +790,153 @@ function look(e,tg,fov,w,h){
       seen[slot] = true;
     }
   })();
+
+  // ================= 5. 桌面视窗：景深视差 + 抬头栏拖拽微调 =================
+
+  (function deskMotion() {
+    var desk = doc.getElementById('desk');
+    if (!desk) return;
+    var nodes = desk.querySelectorAll('.sd-win');
+    if (!nodes.length) return;
+
+    var mqDesktop = window.matchMedia('(min-width: 1024px)');
+    var mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    var items = [];
+    var topZ = 10;
+    var MAX_X = 260;
+    var MAX_Y = 180;
+    var PARALLAX_AMP = 20;
+
+    function clamp(v, lo, hi) {
+      return v < lo ? lo : v > hi ? hi : v;
+    }
+
+    function apply(it) {
+      it.el.style.setProperty('--sd-tx', Math.round(it.dx) + 'px');
+      it.el.style.setProperty('--sd-ty', (it.dy + it.py).toFixed(2) + 'px');
+    }
+
+    function resetAllOffsets() {
+      for (var i = 0; i < items.length; i += 1) {
+        items[i].dx = 0;
+        items[i].dy = 0;
+        items[i].py = 0;
+        items[i].el.style.removeProperty('--sd-tx');
+        items[i].el.style.removeProperty('--sd-ty');
+        items[i].el.style.removeProperty('z-index');
+      }
+      topZ = 10;
+    }
+
+    for (var i = 0; i < nodes.length; i += 1) {
+      (function (win) {
+        var head = win.querySelector('.win-head');
+        var depth = parseFloat(win.getAttribute('data-sd-depth') || '0') || 0;
+        var it = { el: win, head: head, depth: depth, dx: 0, dy: 0, py: 0, resetTimer: 0 };
+        items.push(it);
+
+        win.addEventListener('pointerdown', function () {
+          if (!mqDesktop.matches) return;
+          topZ += 1;
+          win.style.zIndex = String(topZ);
+        });
+
+        if (!head) return;
+
+        var drag = null;
+
+        head.addEventListener('pointerdown', function (ev) {
+          if (!mqDesktop.matches || ev.button !== 0) return;
+          if (it.resetTimer) {
+            window.clearTimeout(it.resetTimer);
+            it.resetTimer = 0;
+            win.classList.remove('is-resetting');
+          }
+          ev.preventDefault();
+          topZ += 1;
+          win.style.zIndex = String(topZ);
+          win.classList.add('is-dragging');
+          drag = { id: ev.pointerId, sx: ev.clientX, sy: ev.clientY, ox: it.dx, oy: it.dy };
+          if (head.setPointerCapture) {
+            try { head.setPointerCapture(ev.pointerId); } catch (e) { /* ignore */ }
+          }
+        });
+
+        head.addEventListener('pointermove', function (ev) {
+          if (!drag || ev.pointerId !== drag.id) return;
+          var nx = clamp(drag.ox + (ev.clientX - drag.sx), -MAX_X, MAX_X);
+          var ny = clamp(drag.oy + (ev.clientY - drag.sy), -MAX_Y, MAX_Y);
+          it.dx = nx;
+          it.dy = ny;
+          apply(it);
+        });
+
+        function endDrag(ev) {
+          if (!drag || ev.pointerId !== drag.id) return;
+          if (head.releasePointerCapture) {
+            try { head.releasePointerCapture(ev.pointerId); } catch (e) { /* ignore */ }
+          }
+          drag = null;
+          win.classList.remove('is-dragging');
+        }
+
+        head.addEventListener('pointerup', endDrag);
+        head.addEventListener('pointercancel', endDrag);
+
+        head.addEventListener('dblclick', function () {
+          if (!mqDesktop.matches) return;
+          if (it.dx === 0 && it.dy === 0) return;
+          it.dx = 0;
+          it.dy = 0;
+          win.classList.add('is-resetting');
+          apply(it);
+          if (it.resetTimer) window.clearTimeout(it.resetTimer);
+          it.resetTimer = window.setTimeout(function () {
+            win.classList.remove('is-resetting');
+            it.resetTimer = 0;
+          }, 340);
+        });
+      })(nodes[i]);
+    }
+
+    var queued = false;
+
+    function syncParallax() {
+      queued = false;
+      if (!mqDesktop.matches) {
+        resetAllOffsets();
+        return;
+      }
+      if (mqReduce.matches) {
+        for (var j = 0; j < items.length; j += 1) {
+          if (items[j].py !== 0) {
+            items[j].py = 0;
+            apply(items[j]);
+          }
+        }
+        return;
+      }
+      var r = desk.getBoundingClientRect();
+      var vh = window.innerHeight || 1;
+      var center = r.top + r.height * 0.5;
+      var norm = clamp((center - vh * 0.5) / (vh * 0.85), -1, 1);
+      for (var k = 0; k < items.length; k += 1) {
+        items[k].py = items[k].depth * norm * PARALLAX_AMP;
+        apply(items[k]);
+      }
+    }
+
+    function schedule() {
+      if (queued) return;
+      queued = true;
+      window.requestAnimationFrame(syncParallax);
+    }
+
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule, { passive: true });
+    if (mqDesktop.addEventListener) mqDesktop.addEventListener('change', schedule);
+    if (mqReduce.addEventListener) mqReduce.addEventListener('change', schedule);
+    syncParallax();
+  })();
 })();

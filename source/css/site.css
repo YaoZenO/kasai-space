@@ -8989,55 +8989,76 @@ body.is-home::before {
   color: var(--sec-text-color);
 }
 
-/* ---------- 第二屏：窄幅错落工作台 ----------
-   两列各 416px，中间留一条 260~320px 的通道让塔与秋千露出来。
-   窗口 height: auto 紧包内容——强制等高会在信息少的窗口里留下大片白板。
-   第 4 窗（专题策展）向左探进通道，形成左 / 右 / 中下三点的品字形错落。 */
+/* ---------- 第二屏：六窗自由叠放工作台 ----------
+   桌面端采用 1280px 自由 2D 舞台：6 张不同宽度的视窗按左右两组斜向聚散叠放
+   （About z:4 压 Collections z:2 顶右角，Library z:5 压 Collections 底边；
+   Thinking z:2 → Creations z:4 → Games z:5 三级阶梯角叠），中央透出 3D 建筑场景。
+   每处重叠仅落在底层卡的留白边/留白底角，不遮挡任何标题、行文与 more 入口；
+   点击或拖拽任意视窗立即置顶，滚动时按前后层级产生相对视差错动。 */
 
 .sd-desk {
-  display: grid;
-  grid-template-columns: 416px minmax(0, 1fr) 416px;
-  align-items: start;
-  width: min(1180px, 100%);
+  position: relative;
+  width: min(1280px, 100%);
+  height: 1080px;
   margin: 0 auto;
-  min-height: 130vh;
-  min-height: 130dvh;
-  /* 顶部让开胶囊导航（约 66px）+ 呼吸：96px 起 */
-  padding: 96px clamp(12px, 2.4vw, 28px) 56px;
+  padding: 96px 0 64px;
 }
 
 .sd-lane {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  min-width: 0;
+  display: contents;
 }
 
-.sd-lane--a {
-  grid-column: 1;
-}
-
-/* 左列第一张往中心挪一点：两张卡垂直对齐时左列像一条直筒，
-   错开后与右列的 80px 下错一起读作"漫游"。translate 不改盒子宽度（负 margin 会）。 */
+/* 六窗独立 2D 坐标、宽度与层级（仅位置与尺寸，绝不覆盖 .sd-win 统一外壳） */
 #win-about {
-  translate: 40px 0;
+  position: absolute;
+  top: 96px;
+  left: 136px;
+  width: 404px;
+  z-index: 4;
 }
 
-/* 右列整体下错 80px：与左列错开半张卡，读起来是"漫游"而不是"表格" */
-.sd-lane--b {
-  grid-column: 3;
-  padding-top: 80px;
+#win-collections {
+  position: absolute;
+  top: 372px;
+  left: 16px;
+  width: 344px;
+  z-index: 2;
 }
 
-/* 第 4 窗向左探进中央通道。用 translate 而不是负 margin：
-   .sd-win 在 flex 纵列里被 stretch 拉满，负 margin 会让它算成 416+140=556 宽
-   （实测整张卡被拉宽、两行文字全挤在一起）。translate 只挪位置，不动盒子。 */
 #win-atlas {
-  translate: -140px 0;
+  position: absolute;
+  top: 558px;
+  left: 52px;
+  width: 452px;
+  z-index: 5;
 }
 
-/* 统一外壳：四个窗口共用这一条规则，不许任何窗口覆盖它。
-   刻意不用 backdrop-filter：画布每帧都在重绘，四块大面积 backdrop 会迫使
+#win-thinking {
+  position: absolute;
+  top: 124px;
+  right: 24px;
+  width: 424px;
+  z-index: 2;
+}
+
+#win-creations {
+  position: absolute;
+  top: 404px;
+  right: 148px;
+  width: 416px;
+  z-index: 4;
+}
+
+#win-games {
+  position: absolute;
+  top: 684px;
+  right: 268px;
+  width: 368px;
+  z-index: 5;
+}
+
+/* 统一外壳：六个窗口共用这一条规则，不许任何窗口覆盖它。
+   刻意不用 backdrop-filter：画布每帧都在重绘，大面积 backdrop 会迫使
    合成器每帧重新模糊，代价远高于收益——0.92 的不透明底已经足够压住背景。 */
 .sd-win {
   --win-px: 22px;
@@ -9052,13 +9073,30 @@ body.is-home::before {
   border-radius: 6px;
   border: 1.5px solid var(--win-line);
   background-color: var(--win-bg);
-  box-shadow: var(--win-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  box-shadow: var(--win-shadow), 0 3px 10px rgba(46, 25, 14, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  transform: translate3d(var(--sd-tx, 0px), var(--sd-ty, 0px), 0);
+  transition: box-shadow 220ms ease-out, border-color 220ms ease-out;
+}
+
+.sd-win:hover {
+  border-color: var(--win-head-line);
+}
+
+.sd-win.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+  box-shadow: 0 20px 44px rgba(46, 25, 14, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.sd-win.is-resetting {
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 220ms ease-out, border-color 220ms ease-out;
 }
 
 /* 抬头：实心暖色条 + 硬朗下边线。窗口边框 1.5px，所以内层圆角取 5px。 */
 .win-head {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   flex: 0 0 auto;
   height: 32px;
   margin: 0;
@@ -9066,6 +9104,32 @@ body.is-home::before {
   background-color: var(--win-head);
   border-bottom: 1.5px solid var(--win-head-line);
   border-radius: 5px 5px 0 0;
+}
+
+@media (min-width: 1024px) {
+  .win-head {
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .sd-win.is-dragging .win-head {
+    cursor: grabbing;
+  }
+
+  .win-head::after {
+    content: "";
+    width: 18px;
+    height: 6px;
+    border-top: 1.5px solid var(--win-head-line);
+    border-bottom: 1.5px solid var(--win-head-line);
+    opacity: 0.45;
+    transition: opacity 180ms ease-out;
+  }
+
+  .win-head:hover::after,
+  .sd-win.is-dragging .win-head::after {
+    opacity: 0.9;
+  }
 }
 
 .win-title {
@@ -9662,24 +9726,52 @@ body.is-home #navbar .site-nav-list .nav-item.active .nav-link:hover {
   color: var(--accent);
 }
 
-/* ---------- 1024–1099：两列仍在，但卡片先瘦身 ----------
-   1180 的版心在 1024 视口放不下两张 416 的卡 + 260 通道，
-   所以这一档把卡收到 340，通道让到 200 以上。 */
+/* ---------- 1024–1279：保持同样的自由叠放结构，按比例收紧宽度与边距 ---------- */
 
-@media (min-width: 1024px) and (max-width: 1099.98px) {
+@media (min-width: 1024px) and (max-width: 1279.98px) {
   .sd-desk {
-    grid-template-columns: 340px minmax(0, 1fr) 340px;
+    height: 1060px;
+  }
+
+  #win-about {
+    left: 88px;
+    width: 364px;
+  }
+
+  #win-collections {
+    top: 374px;
+    left: 14px;
+    width: 316px;
   }
 
   #win-atlas {
-    translate: -80px 0;
+    top: 560px;
+    left: 36px;
+    width: 396px;
+  }
+
+  #win-thinking {
+    top: 120px;
+    right: 16px;
+    width: 372px;
+  }
+
+  #win-creations {
+    top: 400px;
+    right: 92px;
+    width: 364px;
+  }
+
+  #win-games {
+    top: 682px;
+    right: 156px;
+    width: 332px;
   }
 }
 
-/* ---------- ≤1099：资料库的缩略图改成横向四连 ----------
-   340 宽的卡里再切 92px 给左栏，右栏只剩 200，行内说明必被截成「排名错位与…」。 */
+/* ---------- ≤1199：资料库的缩略图改成横向四连 ---------- */
 
-@media (max-width: 1099.98px) {
+@media (max-width: 1199.98px) {
   .win-split {
     grid-template-columns: minmax(0, 1fr);
     gap: 0.6rem;
@@ -9699,22 +9791,9 @@ body.is-home #navbar .site-nav-list .nav-item.active .nav-link:hover {
 /* ---------- 1024–1279 且矮视口：只收留白与行距，不删信息 ---------- */
 
 @media (min-width: 1024px) and (max-height: 860px) {
-  .sd-desk {
-    padding-top: 76px;
-    padding-bottom: 40px;
-  }
-
   .sd-win {
     --win-px: 18px;
     --win-pb: 12px;
-  }
-
-  .sd-lane {
-    gap: 16px;
-  }
-
-  .sd-lane--b {
-    padding-top: 66px;
   }
 
   .win-row {
@@ -9736,38 +9815,43 @@ body.is-home #navbar .site-nav-list .nav-item.active .nav-link:hover {
   }
 }
 
-/* ---------- <1024：单列。泳道合并，错落位移清零 ---------- */
+/* ---------- <1024：单列。自由坐标与叠放清零，回到清晰阅读流 ---------- */
 
 @media (max-width: 1023.98px) {
   .sd-desk {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
     width: 100%;
-    min-height: 0;
+    height: auto;
     padding: clamp(64px, 9vh, 96px) 16px 48px;
   }
 
   .sd-lane {
-    gap: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
   }
 
-  .sd-lane--a,
-  .sd-lane--b {
-    grid-column: 1;
-    padding-top: 0;
-  }
-
-  #win-atlas {
-    translate: none;
-  }
-
-  #win-about {
-    translate: none;
+  #win-about,
+  #win-collections,
+  #win-atlas,
+  #win-thinking,
+  #win-creations,
+  #win-games {
+    position: relative;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    left: auto;
+    width: 100%;
+    z-index: 1;
   }
 
   .sd-win {
     --win-px: 16px;
     --win-pb: 12px;
+    transform: none;
   }
 
   .sd-hero {
@@ -9786,7 +9870,9 @@ body.is-home #navbar .site-nav-list .nav-item.active .nav-link:hover {
 /* ---------- 减少动态效果 ---------- */
 
 @media (prefers-reduced-motion: reduce) {
-  body.is-home #navbar .site-nav-center {
+  body.is-home #navbar .site-nav-center,
+  .sd-win,
+  .sd-win.is-resetting {
     transition: none;
   }
 

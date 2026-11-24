@@ -439,7 +439,7 @@ async function main() {
       }
     });
 
-    ok('第二屏双泳道自洽：左 01/03/05、右 02/04/06，行内无空链接', () => {
+    ok('第二屏双泳道自洽：左 About/Collections/Library、右 Thinking/Creations/Games，行内无空链接', () => {
       // 锁这一版首页最容易退化的两件事：泳道归属与顺序被打乱、行条目变成死链。
       const aStart = home.indexOf('sd-lane--a');
       const bStart = home.indexOf('sd-lane--b');
@@ -447,14 +447,14 @@ async function main() {
       assert.ok(aStart > -1 && bStart > aStart && deskEnd > bStart, '#desk 双泳道结构缺失');
       const laneA = home.slice(aStart, bStart);
       const laneB = home.slice(bStart, deskEnd);
-      assert.ok(laneA.includes('id="win-about"') && laneA.includes('id="win-creations"') && laneA.includes('id="win-collections"'),
-        '左泳道不是 About / Creations / Collections');
-      assert.ok(laneB.includes('id="win-thinking"') && laneB.includes('id="win-games"') && laneB.includes('id="win-atlas"'),
-        '右泳道不是 Thinking / Games / Atlas');
-      assert.ok(laneA.indexOf('id="win-about"') < laneA.indexOf('id="win-creations"') && laneA.indexOf('id="win-creations"') < laneA.indexOf('id="win-collections"'),
-        '左泳道内顺序应为 About → Creations → Collections');
-      assert.ok(laneB.indexOf('id="win-thinking"') < laneB.indexOf('id="win-games"') && laneB.indexOf('id="win-games"') < laneB.indexOf('id="win-atlas"'),
-        '右泳道内顺序应为 Thinking → Games → Atlas');
+      assert.ok(laneA.includes('id="win-about"') && laneA.includes('id="win-collections"') && laneA.includes('id="win-atlas"'),
+        '左泳道不是 About / Collections / Library');
+      assert.ok(laneB.includes('id="win-thinking"') && laneB.includes('id="win-creations"') && laneB.includes('id="win-games"'),
+        '右泳道不是 Thinking / Creations / Games');
+      assert.ok(laneA.indexOf('id="win-about"') < laneA.indexOf('id="win-collections"') && laneA.indexOf('id="win-collections"') < laneA.indexOf('id="win-atlas"'),
+        '左泳道内顺序应为 About → Collections → Library');
+      assert.ok(laneB.indexOf('id="win-thinking"') < laneB.indexOf('id="win-creations"') && laneB.indexOf('id="win-creations"') < laneB.indexOf('id="win-games"'),
+        '右泳道内顺序应为 Thinking → Creations → Games');
       const desk = home.slice(home.indexOf('id="desk"'), deskEnd);
       const hrefs = [...desk.matchAll(/class="win-row" href="([^"]*)"/g)].map((m) => m[1]);
       assert.ok(hrefs.length >= 9, '第二屏可点行太少：' + hrefs.length);

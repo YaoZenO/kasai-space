@@ -103,7 +103,7 @@ ok('四窗外壳只定义一次，且不允许逐窗覆盖', () => {
 
 ok('抬头只放标题：模板与 CSS 都不存在计数角标', () => {
   assert.ok(!page.includes('win-note'), '模板里出现了 win-note');
-  const heads = page.match(/<header class="win-head">[\s\S]*?<\/header>/g) || [];
+  const heads = page.match(/<header class="win-head"[^>]*>[\s\S]*?<\/header>/g) || [];
   assert.strictEqual(heads.length, 6, '窗口抬头不是 6 个：' + heads.length);
   heads.forEach((h) => {
     const text = h.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
@@ -128,20 +128,26 @@ ok('首页导航：品牌整块隐藏，胶囊钉在第 2 列严格居中，第�
   assert.ok(!s26.includes('nav-away'), 'nav-away 机制已废弃，不应留在样式里');
 });
 
-ok('第二屏是双泳道错落：两条独立纵列、中央通道、窗口紧包内容', () => {
-  assert.match(s26, /\.sd-desk\s*\{[^}]*grid-template-columns:\s*416px/, '.sd-desk 不是 416px 窄幅双列');
-  assert.match(s26, /\.sd-desk\s*\{[^}]*min-height:\s*130dvh/, '第二屏高度不是 130dvh');
+ok('第二屏是六窗自由叠放工作台：2D 错落坐标、不同宽度、叠层层级、景深与拖拽', () => {
+  assert.match(s26, /\.sd-desk\s*\{[^}]*position:\s*relative/, '.sd-desk 不是 relative 自由舞台');
+  assert.match(s26, /\.sd-desk\s*\{[^}]*width:\s*min\(1280px/, '版心不是 1280px');
   assert.match(s26, /\.sd-desk\s*\{[^}]*padding:\s*96px/, '第二屏没有留出 96px 顶距避开胶囊导航');
-  assert.match(s26, /\.sd-desk\s*\{[^}]*width:\s*min\(1180px/, '版心不是 1180px');
-  assert.match(s26, /#win-atlas\s*\{[^}]*translate:\s*-140px/, '第 4 窗没有向左探进中央通道');
-  assert.match(s26, /\.sd-lane--b\s*\{[^}]*padding-top:\s*80px/, '右泳道错位不是 80px');
-  assert.match(s26, /\.sd-lane\s*\{[^}]*gap:\s*20px/, '卡间距不是 20px');
-  assert.match(s26, /\.sd-lane\s*\{[^}]*flex-direction:\s*column/, '泳道不是纵向排列');
+  ['#win-about', '#win-collections', '#win-atlas', '#win-thinking', '#win-creations', '#win-games'].forEach((id) => {
+    const m = new RegExp(id + '\\s*\\{([^}]*)\\}').exec(s26);
+    assert.ok(m, '缺少 ' + id + ' 定位规则');
+    assert.match(m[1], /position:\s*absolute/, id + ' 不是绝对定位');
+    assert.match(m[1], /width:\s*\d+px/, id + ' 缺少独立宽度');
+    assert.match(m[1], /z-index:\s*\d+/, id + ' 缺少层级 z-index');
+  });
   const shell = /\.sd-win\s*\{([^}]*)\}/.exec(s26)[1];
   assert.match(shell, /height:\s*auto/, '窗口仍在被强制等高');
   assert.ok(!/min-height/.test(shell), '外壳里还留着 min-height，会重新拉起等高与内部白板');
+  assert.match(shell, /transform:\s*translate3d\(var\(--sd-tx/, '外壳缺少动态视差/拖拽合成通道');
   assert.ok(page.includes('sd-lane sd-lane--a') && page.includes('sd-lane sd-lane--b'),
-    '模板里没有两条泳道');
+    '模板里没有两条泳道容器');
+  assert.strictEqual((page.match(/data-sd-depth=/g) || []).length, 6, '六个窗口应各配 data-sd-depth 景深系数');
+  assert.match(homeJs, /function deskMotion\(/, 'home-study.js 缺少桌面视窗景深视差与拖拽模块');
+  assert.match(homeJs, /addEventListener\('dblclick'/, 'home-study.js 缺少抬头栏双击复位');
 });
 
 ok('画布是 WebGL 三维场景：深度缓冲、距离雾、Catmull-Rom 相机与 DPI', () => {
@@ -329,16 +335,20 @@ if (!exists(HOME)) {
     });
   });
 
-  ok('游戏与收藏板块已回到第二屏，且带完整出口', () => {
+  ok('游戏与收藏板块已回到第二屏，且 Games 保持紧凑（≤3 行，不成为最高卡）', () => {
     assert.ok(desk.includes('href="/games/"'), '第二屏缺少游戏入口 /games/');
     assert.ok(desk.includes('href="/collections/"'), '第二屏缺少收藏入口 /collections/');
+    const gMatch = /id="win-games"[\s\S]*?<\/section>/.exec(desk);
+    assert.ok(gMatch, '找不到 #win-games 段');
+    const gRows = (gMatch[0].match(/class="win-row"/g) || []).length;
+    assert.ok(gRows >= 1 && gRows <= 3, '#win-games 行数应为 1–3 行，实测：' + gRows);
   });
 
   ok('六个窗口抬头只有标题（无篇数角标），标题统一为英文单行', () => {
     ['About Me', 'Thinking', 'Creations', 'Games', 'Collections', 'Library'].forEach((t) => {
       assert.ok(desk.includes('>' + t + '</h2>'), '抬头缺标题：' + t);
     });
-    const heads = [...desk.matchAll(/<header class="win-head">([\s\S]*?)<\/header>/g)];
+    const heads = [...desk.matchAll(/<header class="win-head"[^>]*>([\s\S]*?)<\/header>/g)];
     assert.strictEqual(heads.length, 6, '抬头数量不是 6：' + heads.length);
     heads.forEach((h) => {
       const label = h[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
