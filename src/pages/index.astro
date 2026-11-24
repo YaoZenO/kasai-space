@@ -131,30 +131,22 @@ const makeAll = [
   },
 ];
 
-// ---------- Games：在玩主力（3 条，保持紧凑，不高于思考/造物/资料库） ----------
+// ---------- Games：两场赛事夺冠专题 ----------
 
-const gameItems: any[] = (data.games?.items || []).filter((it: any) => it && it.title);
-const GAME_PICKS = ['lol', 'cs2', 'esports-manager-2026'];
-const gameFromData = GAME_PICKS
-  .map((s) => gameItems.find((it) => String(it.slug || '') === s))
-  .filter(Boolean)
-  .map((it: any) => {
-    const slug = String(it.slug || '');
-    const id = 'game-' + slug.replace(/[^a-z0-9]/gi, '');
-    return {
-      id,
-      name: String(it.title),
-      sub: String(it.summary || ''),
-      k: [it.genre, it.status].filter(Boolean).join(' · '),
-      href: urlFor(detailPath('games' as ModuleKey, it)),
-      html: it.gameplay ? renderMarkdown(String(it.gameplay)) : (it.summary ? `<p>${String(it.summary)}</p>` : ''),
-      more: { label: '游戏档案', href: urlFor(detailPath('games' as ModuleKey, it)) },
-      kicker: '游戏',
-    };
-  });
-
-const gameRows = gameFromData.slice(0, 3);
-const gameModals = gameRows.filter((g) => g.html);
+const gameRows = [
+  {
+    name: 'BLG 2026 全球总决赛首冠',
+    sub: '3-1 战胜 Gen.G，LPL 时隔五年再夺世界冠军',
+    k: 'S16 专题',
+    href: urlFor('/blg-champion/'),
+  },
+  {
+    name: 'Falcons 2026 科隆 Major 夺冠',
+    sub: '3-0 横扫 FURIA，NiKo 3067 天圆梦',
+    k: 'CS2 Major',
+    href: urlFor('/cologne-major-2026/'),
+  },
+];
 
 // ---------- Collections：策展与收藏 ----------
 
@@ -445,7 +437,7 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
               <ul class="win-rows">
                 {gameRows.map((g) => (
                   <li>
-                    <a class="win-row" href={g.href} data-sd-open={g.id || undefined}>
+                    <a class="win-row" href={g.href}>
                       <span class="row-b">
                         <span class="row-t">{g.name}</span>
                         <span class="row-s">{g.sub}</span>
@@ -504,14 +496,6 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
     makeAll.map((it) => (
       <template id={`sd-tpl-${it.id}`} data-sd-name={it.name} data-sd-more={it.more.label} data-sd-href={it.more.href} data-sd-kicker="造物">
         <div set:html={it.html} />
-      </template>
-    ))
-  }
-
-  {
-    gameModals.map((g) => (
-      <template id={`sd-tpl-${g.id}`} data-sd-name={g.name} data-sd-more={g.more.label} data-sd-href={g.more.href} data-sd-kicker={g.kicker}>
-        <div set:html={g.html} />
       </template>
     ))
   }

@@ -335,13 +335,15 @@ if (!exists(HOME)) {
     });
   });
 
-  ok('游戏与收藏板块已回到第二屏，且 Games 保持紧凑（≤3 行，不成为最高卡）', () => {
+  ok('游戏与收藏板块已回到第二屏，且 Games 仅展示两场赛事夺冠专题', () => {
     assert.ok(desk.includes('href="/games/"'), '第二屏缺少游戏入口 /games/');
     assert.ok(desk.includes('href="/collections/"'), '第二屏缺少收藏入口 /collections/');
     const gMatch = /id="win-games"[\s\S]*?<\/section>/.exec(desk);
     assert.ok(gMatch, '找不到 #win-games 段');
     const gRows = (gMatch[0].match(/class="win-row"/g) || []).length;
-    assert.ok(gRows >= 1 && gRows <= 3, '#win-games 行数应为 1–3 行，实测：' + gRows);
+    assert.strictEqual(gRows, 2, '#win-games 应恰好放两场赛事专题，实测：' + gRows);
+    assert.ok(gMatch[0].includes('href="/blg-champion/"'), '#win-games 缺少 BLG 夺冠专题');
+    assert.ok(gMatch[0].includes('href="/cologne-major-2026/"'), '#win-games 缺少 Falcons 科隆 Major 专题');
   });
 
   ok('六个窗口抬头只有标题（无篇数角标），标题统一为英文单行', () => {
@@ -391,7 +393,7 @@ if (!exists(HOME)) {
       assert.ok(!k.includes('...'), '右标签被截断：' + k);
     });
     ['显存 · 集群', '数据考据', 'AI 产品', '随笔', 'Vue · Node', 'Tauri 2 · TS',
-      'Astro · Vercel', 'MOBA · 在玩', 'Nexus Mods', '350 城 · 145 榜'].forEach((want) => {
+      'Astro · Vercel', 'S16 专题', 'CS2 Major', 'Nexus Mods', '350 城 · 145 榜'].forEach((want) => {
       assert.ok(desk.includes(want), '右标签缺关键短语：' + want);
     });
   });
