@@ -53,7 +53,15 @@ async function run() {
     await handler({ method: 'POST', headers: {}, url: '/api/sun-times?kind=steam' }, res2);
     assert.equal(res2.statusCode, 405, 'POST /api/steam should return 405');
 
-    // 4. 游戏页产物结构检查（若已构建 dist/）
+    // 4. 动态注入节点样式必须在 <style is:global> 中，避免 Astro scoped CSS 失配（E-194）
+    const gamesSrc = fs.readFileSync(path.join(ROOT, 'src', 'pages', 'games', 'index.astro'), 'utf8');
+    const globalMatch = gamesSrc.match(/<style\s+is:global>([\s\S]*?)<\/style>/);
+    assert.ok(globalMatch, 'src/pages/games/index.astro 必须包含 <style is:global> 承载动态 Steam 节点样式');
+    for (const sel of ['.gm-st-recent', '.gm-st-img', '.gm-st-row', '.gm-st-thumb', '.gm-st-bar', '.gm-d-btn']) {
+      assert.ok(globalMatch[1].includes(sel), `<style is:global> 必须包含动态样式选择器 ${sel}`);
+    }
+
+    // 5. 游戏页产物结构检查（若已构建 dist/）
     const gamesHtmlPath = path.join(ROOT, 'dist', 'games', 'index.html');
     if (fs.existsSync(gamesHtmlPath)) {
       const html = fs.readFileSync(gamesHtmlPath, 'utf8');
@@ -63,7 +71,7 @@ async function run() {
       assert.match(html, /\/js\/games-steam\.js\?v=[0-9a-f]{8}/, 'games-steam.js must be stamped');
     }
 
-    console.log(`steam-api: PASS (5 assertions, api/*.js=${topApiFiles.length}/12)`);
+    console.log(`steam-api: PASS (6 assertions, api/*.js=${topApiFiles.length}/12)`);
   } finally {
     if (prevKey !== undefined) process.env.STEAM_API_KEY = prevKey;
     if (prevId !== undefined) process.env.STEAM_ID = prevId;

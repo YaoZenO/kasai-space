@@ -116,11 +116,11 @@ const SPECIAL_MAP: Record<string, { href: string; label: string }> = {
                   data-gm-ext-label={firstLink?.label || ''}
                 >
                   {it.cover && <img class="gm-tile-img" src={urlFor(it.cover)} alt={it.title} loading="lazy" />}
+                  <span class="gm-tile-hours" data-gm-hours hidden />
                   {it.status && <span class="gm-status">{it.status}</span>}
                   <span class="gm-tile-cap">
                     <span class="gm-tile-title">{it.title}</span>
                     {it.summary && <span class="gm-tile-sum">{it.summary}</span>}
-                    <span class="gm-tile-hours" data-gm-hours hidden />
                     {(it.genre || it.platform) && (
                       <span class="gm-tile-meta">{[it.genre, it.platform].filter(Boolean).join(' · ')}</span>
                     )}
@@ -199,32 +199,17 @@ const SPECIAL_MAP: Record<string, { href: string; label: string }> = {
   .gm-feature-title{font-family:var(--font-serif-title);font-size:clamp(1.2rem,2vw,1.45rem);font-weight:600;line-height:1.25}
   .gm-feature-sub{font-size:.84rem;opacity:.88}
   .gm-wall:hover .gm-tile:not(:hover){opacity:.58}
-  .gm-tile-hours{display:inline-block;margin-top:.3rem;font-family:var(--font-mono);font-size:.75rem;font-weight:700;color:#f5c56b}
-  /* Steam 实时库区 */
+  .gm-tile-hours{position:absolute;top:.65rem;left:.65rem;z-index:2;padding:.14rem .52rem;border-radius:999px;background:rgba(18,16,14,.74);backdrop-filter:blur(6px);font-family:var(--font-mono);font-size:.75rem;font-weight:700;line-height:1.4;color:#f5c56b;letter-spacing:.02em}
+  /* Steam 实时库区外壳 */
   .gm-steam{margin-top:3.4rem;padding-top:2.4rem;border-top:1px solid var(--line-color)}
   .gm-steam-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:1rem;margin-bottom:1.8rem}
   .gm-steam-title{margin:0;font-family:var(--font-serif-title);font-size:clamp(1.5rem,2.6vw,2rem);font-weight:600;color:var(--text-color)}
   .gm-steam-summary{margin:0;font-family:var(--font-mono);font-size:.8rem;color:var(--info-mark)}
   .gm-steam-subkicker{margin:0 0 .85rem;font-family:var(--font-mono);font-size:.75rem;letter-spacing:.1em;color:var(--info-mark)}
-  .gm-steam-recent-wrap{margin-bottom:2.2rem}
-  .gm-steam-recent{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}
-  .gm-st-recent{display:flex;flex-direction:column;gap:.55rem;text-decoration:none;color:inherit;transition:transform 220ms ease}
-  .gm-st-recent:hover{transform:translateY(-2px)}
-  .gm-st-img{width:100%;aspect-ratio:460/215;object-fit:cover;border-radius:var(--r-sm);display:block}
-  .gm-st-info{display:flex;flex-direction:column;gap:.15rem}
-  .gm-st-name{font-family:var(--font-serif-title);font-size:.98rem;font-weight:600;color:var(--text-color)}
-  .gm-st-recent:hover .gm-st-name,.gm-st-row:hover .gm-st-name{color:var(--accent)}
-  .gm-st-meta{font-family:var(--font-mono);font-size:.75rem;color:var(--info-mark)}
+  .gm-steam-recent-wrap{margin-bottom:2.4rem}
+  .gm-steam-recent{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.1rem}
   .gm-steam-top{border-top:1px solid var(--line-color)}
-  .gm-st-row{display:grid;grid-template-columns:2rem 88px minmax(0,1fr) auto;align-items:center;gap:.8rem 1.1rem;padding:.75rem 0;border-bottom:1px solid var(--line-color);text-decoration:none;color:inherit;transition:padding-left 220ms ease,border-color 200ms ease}
-  .gm-st-row:hover{padding-left:.4rem;border-bottom-color:var(--accent)}
-  .gm-st-rank{font-family:var(--font-mono);font-size:.78rem;color:var(--accent)}
-  .gm-st-thumb{width:88px;height:41px;object-fit:cover;border-radius:6px;display:block}
-  .gm-st-main{display:flex;flex-direction:column;gap:.35rem;min-width:0}
-  .gm-st-bar{display:block;height:2px;background:var(--line-color);overflow:hidden}
-  .gm-st-bar i{display:block;height:100%;background:var(--accent)}
-  .gm-st-hrs{font-family:var(--font-mono);font-size:.82rem;font-weight:700;color:var(--text-color);white-space:nowrap}
-  /* 原地玩家名片 <dialog> */
+  /* 原地玩家名片 <dialog> 外壳 */
   .gm-dialog{width:min(92vw,30rem);padding:0;border:1px solid var(--line-color);border-radius:var(--r-sm);background-color:var(--body-bg-color);color:var(--text-color);box-shadow:var(--site-float-shadow)}
   .gm-dialog::backdrop{background-color:var(--surface-ink);opacity:.62}
   .gm-dialog-in{padding:1.3rem 1.4rem 1.45rem}
@@ -237,10 +222,31 @@ const SPECIAL_MAP: Record<string, { href: string; label: string }> = {
   .gm-d-hours{margin:0 0 .65rem;font-family:var(--font-mono);font-size:.8rem;font-weight:700;color:var(--accent)}
   .gm-d-sum{margin:0;font-size:.94rem;line-height:1.8;color:var(--post-text-color)}
   .gm-d-links{display:flex;flex-wrap:wrap;gap:.65rem 1.2rem;margin-top:1.2rem;padding-top:.95rem;border-top:1px solid var(--line-color)}
+  @media (max-width:767.98px){.gm-head,.gm-specials,.gm-steam-recent{grid-template-columns:minmax(0,1fr)}.gm-feature{min-height:164px}}
+  @media (prefers-reduced-motion:reduce){.gm-feature,.gm-feature-img,.gm-feature-body{transition:none}}
+</style>
+
+<!-- 动态注入节点（games-steam.js innerHTML 生成）不带 Astro scoped data-astro-cid，必须用 is:global（E-194） -->
+<style is:global>
+  .gm-st-recent{display:flex;flex-direction:column;gap:.55rem;min-width:0;text-decoration:none;color:inherit;transition:transform 220ms ease}
+  .gm-st-recent:hover{transform:translateY(-2px)}
+  .gm-st-img{width:100%;height:auto;aspect-ratio:460/215;object-fit:cover;border-radius:var(--r-sm);display:block}
+  .gm-st-info{display:flex;flex-direction:column;gap:.2rem;min-width:0}
+  .gm-st-name{display:block;font-family:var(--font-serif-title);font-size:.98rem;font-weight:600;line-height:1.35;color:var(--text-color);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .gm-st-recent:hover .gm-st-name,.gm-st-row:hover .gm-st-name{color:var(--accent)}
+  .gm-st-meta{display:block;font-family:var(--font-mono);font-size:.75rem;color:var(--info-mark)}
+  .gm-st-row{display:grid;grid-template-columns:2rem 96px minmax(0,1fr) auto;align-items:center;gap:.8rem 1.1rem;padding:.78rem 0;border-bottom:1px solid var(--line-color);text-decoration:none;color:inherit;transition:padding-left 220ms ease,border-color 200ms ease}
+  .gm-st-row:hover{padding-left:.45rem;border-bottom-color:var(--accent)}
+  .gm-st-rank{font-family:var(--font-mono);font-size:.78rem;color:var(--accent)}
+  .gm-st-thumb{width:96px;height:45px;object-fit:cover;border-radius:6px;display:block;flex:none}
+  .gm-st-main{display:flex;flex-direction:column;gap:.38rem;min-width:0}
+  .gm-st-bar{display:block;width:100%;height:2px;background:var(--line-color);overflow:hidden;border-radius:2px}
+  .gm-st-bar i{display:block;height:100%;background:var(--accent)}
+  .gm-st-hrs{font-family:var(--font-mono);font-size:.82rem;font-weight:700;color:var(--text-color);white-space:nowrap}
   .gm-d-btn{font-family:var(--font-mono);font-size:.8rem;font-weight:700;color:var(--text-color);text-decoration:none}
   .gm-d-btn--primary{color:var(--accent)}
   .gm-d-btn--ghost{margin-left:auto;color:var(--info-mark);font-weight:400}
   .gm-d-btn:hover{text-decoration:underline;text-underline-offset:3px}
-  @media (max-width:767.98px){.gm-head,.gm-specials{grid-template-columns:minmax(0,1fr)}.gm-feature{min-height:164px}.gm-st-row{grid-template-columns:1.6rem 68px minmax(0,1fr) auto}.gm-st-thumb{width:68px;height:32px}}
-  @media (prefers-reduced-motion:reduce){.gm-feature,.gm-feature-img,.gm-feature-body,.gm-st-recent,.gm-st-row{transition:none}}
+  @media (max-width:767.98px){.gm-st-row{grid-template-columns:1.6rem 68px minmax(0,1fr) auto;gap:.6rem .75rem}.gm-st-thumb{width:68px;height:32px}}
+  @media (prefers-reduced-motion:reduce){.gm-st-recent,.gm-st-row{transition:none}}
 </style>

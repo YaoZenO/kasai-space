@@ -137,7 +137,7 @@
             revIo.unobserve(entry.target);
           });
         },
-        { rootMargin: '0px 0px -6% 0px', threshold: 0.06 }
+        { rootMargin: '0px 0px 40px 0px', threshold: 0.01 }
       );
       revealTargets.forEach(function (el) {
         revIo.observe(el);

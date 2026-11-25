@@ -225,6 +225,7 @@
 | E-191 | P1 | 文章页导语读不存在的 `post.data?.blurb`，条件恒假，三篇写了 blurb 的文章页头永远不显示 | 已修复（改读 `post.blurb`）+ 机制：新增 `test/post-blurb.js` 锁模板写法与产物导语（含空集保护与反向计数），串入 `npm test` 与 CI 的 `Post blurb` 步骤，`test/build-env.js` 反查该步骤存在且排在构建之后 |
 | E-192 | P2 | `api/steam.js` 按 `(req, res)` 写 `route()` 回调致 `res` 为 `undefined` 抛 500，且直接 `return` 会被 `http.json()` 的 `no-store` 覆盖缓存头 | 已修复（解构 `{ res }` + 自写 `sendJson` 保留 `s-maxage`）+ 机制：新增 `test/steam-api.js` 实测调用 handler 校验 200/405 与 `Cache-Control` |
 | E-193 | P2 | 新增独立 `api/steam.js` 使顶层 Serverless Functions 增至 13 个，撞破 Vercel Hobby 12 个上限致整站部署被拒 | 已修复（逻辑迁入 `api/_lib/steam.js`，由 `api/sun-times.js?kind=steam` + `vercel.json` rewrite 复用，保持 12 个函数）+ 机制：`test/steam-api.js` 锁定 `api/*.js <= 12` 与 rewrite 规则 |
+| E-194 | P1 | `/games/` 把 JS 动态注入的 `.gm-st-*` 与 `.gm-d-btn` 样式写在 Astro scoped `<style>` 内，DOM 无 `data-astro-cid` 导致 Steam 展区排版全部失配重叠 | 已修复（动态节点样式迁入 `<style is:global>`；常玩时长徽标改左上角悬浮、滚动揭示预触发防漏显）+ 机制：`test/steam-api.js` 校验动态选择器必须在 `<style is:global>` 内 |
 ---
 
 ## 3. P0 — 数据损害（绝不再犯）
@@ -3717,3 +3718,11 @@
 - **根因：** 仓库 `api/` 顶层原有恰好 12 个 Serverless Function（11 个后台 + `sun-times.js`），已是 Vercel Hobby 计划硬上限；新增第 13 个顶层文件 `api/steam.js` 直接触发 Hobby 计划函数数量限制导致部署被拒。
 - **修法：** 删除顶层 `api/steam.js`，将逻辑迁入不计入函数配额的 `api/_lib/steam.js`；由同属公开只读端点的 `api/sun-times.js` 按 `?kind=steam` 分发，并在 `vercel.json` 增加 `rewrites: [{ source: "/api/steam", destination: "/api/sun-times?kind=steam" }]`，前端 `/api/steam` 路径不变，顶层函数回落到 12 个。
 - **防复发（机制）：** `test/steam-api.js` 新增第 0 条硬断言，扫描 `api/` 顶层 `*.js` 文件数必须 `<= 12`，并校验 `vercel.json` 存在 `/api/steam` 重写项；超限即判红。
+
+### E-194 `/games/` 动态注入的 Steam 节点样式写在 Astro scoped `<style>` 中导致全量失配（2026-11-26）
+
+- **发生时间：** 2026-11-26 引入（`8dc707b`），线上真数据接入后视觉复核发现并修复。
+- **现象：** `/api/steam` 返回真实 80 款游戏后，近两周在玩卡片图片按原图 `460×215` 溢出重叠，Top 12 列表退化为内联流与大图错行重叠，时长进度条塌陷为 0px。
+- **根因：** Astro 默认 `<style>` 会给每条选择器追加 `[data-astro-cid-*]`，但 `source/js/games-steam.js` 通过 `innerHTML` 动态插入的 `.gm-st-recent`、`.gm-st-row`、`.gm-st-thumb`、`.gm-st-bar`、`.gm-d-btn` 节点不带 `data-astro-cid-*` 属性，导致所有样式规则静默失配。同时 `.sr-anim` 的 `rootMargin: -6%` 使首屏边缘第二行常玩卡片未滚过阈值前不可见。
+- **修法：** 在 `src/pages/games/index.astro` 中把所有 JS 动态创建节点的样式拆入 `<style is:global>`；把常玩卡片时长徽标移至卡片左上角悬浮胶囊，不挤压底栏文案；并将 `source/js/about.js` 的 `IntersectionObserver` 改为 `rootMargin: 0px 0px 40px 0px`、`threshold: 0.01`。
+- **防复发（机制）：** `test/steam-api.js` 新增第 4 条断言，校验 `src/pages/games/index.astro` 必须存在 `<style is:global>` 且包含 `.gm-st-recent` / `.gm-st-img` / `.gm-st-row` / `.gm-st-thumb` / `.gm-st-bar` / `.gm-d-btn` 六个动态选择器。
