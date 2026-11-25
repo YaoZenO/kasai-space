@@ -222,6 +222,7 @@
 | E-188 | P1 | 分类收敛为 4 个主题后，7 条旧分类 URL 没在 `vercel.json` 补永久重定向，线上入口直接 404 | 已修复（补 14 条带/不带尾斜杠的 permanent）+ 机制：新增 `test/redirects.js` 锁「旧分类 → 新主题」对照表，缺一条 / 指错 / 改 307 都判红 |
 | E-189 | P1 | 断图断言 `test:img` 只串进 `npm test`，而 CI 逐项列套件、不跑 `npm test`，push 到 main 根本拦不住 | 已修复（`ci.yml` 加 Image refs 步骤）+ 机制：`test/build-env.js` 反查 `ci.yml` 必须执行 `test:img` 与 `test:redirects` |
 | E-190 | P1 | 首页 WebGL 重写后 reduce 不再生效：动画循环无条件启动、相机随滚动推进，旧版静态帧与对应断言一起被删 | 已修复（`start()` 拦 RM、`paintStill()` 画固定一帧、补 `visibilitychange` 停启）+ 机制：`test/home-study.js` 两条 E-190 断言锁入口与静态帧，出现无条件 `requestAnimationFrame(loop)` 即判红 |
+| E-191 | P1 | 文章页导语读不存在的 `post.data?.blurb`，条件恒假，三篇写了 blurb 的文章页头永远不显示 | 已修复（改读 `post.blurb`）+ 机制：新增 `test/post-blurb.js` 锁模板写法与产物导语（含空集保护与反向计数），串入 `npm test` 与 CI 的 `Post blurb` 步骤，`test/build-env.js` 反查该步骤存在且排在构建之后 |
 ---
 
 ## 3. P0 — 数据损害（绝不再犯）
@@ -3672,3 +3673,29 @@
   且一旦再出现 `requestAnimationFrame(loop)` 这种无条件自调用即判红。第二条锁 `visibilitychange` +
   `cancelAnimationFrame(raf)`。变异自检实测：删掉 `start()` 里的 RM 判断、或删掉 `visibilitychange` 监听，
   断言各红 1 项并以退出码 1 结束。
+
+### E-191 文章页导语读了不存在的 `post.data`，条件恒假导致 blurb 永不渲染（2026-11-26）
+
+- **发生时间：** 2026-11-19 引入（`cbc31422`），2026-11-26 修复。
+- **现象：** 文章页改版给页头加了导语 `.post-head-blurb` 与对应样式，但三篇写了 `blurb` 的文章
+  （`70b-to-cluster`、`metro-vs-gdp-rank-mismatch`、`stylekit-design-styles`）线上页头都没有这段文字。
+- **根因：** 模板写成 `post.data?.blurb`。`src/lib/posts.ts` 把 front matter 的 `blurb` 直接挂在
+  `Post.blurb` 上，`Post` 接口没有 `data` 字段，于是 `post.data?` 恒为 `undefined`、整个条件永远为假。
+  这不是样式问题也不是数据缺失——可选链把「读错字段」的类型错误变成了静默的 false。
+  首页「硬核思考」用同一个字段、走的是 `post.blurb`，所以只有详情页漏。
+- **为什么没被发现：** ①本仓库不跑 `astro check`，`post.data` 在 `Post` 上是类型错误却无人检查；
+  ②21 套断言没有一条覆盖文章详情页页头；③构建、`npm test`、CI 全绿。三者叠加，
+  「模板读错字段」这类局部错误没有任何出口。
+- **修法：** `src/layouts/PostLayout.astro` 改回 `{post.blurb && <p class="post-head-blurb">{post.blurb}</p>}`。
+- **防复发（机制）：** 新增 `test/post-blurb.js`（`npm run test:blurb`），四条断言：
+  ① 模板剥掉 Astro 注释后不得出现 `post.data`，且必须存在 `post.blurb &&` 渲染条件；
+  ② 带 blurb 的文章数必须 ≥1——空集时后面几条会「永远通过」，与 E-189 同型；
+  ③ 逐篇按 `posts.ts` 的 permalink 规则（含 js-yaml 把无时区日期解析成 UTC、须读 UTC 分量）
+  找到产物，页头必须有 `.post-head-blurb`，文字与 front matter 逐字一致（解码实体、归一空白后比对）；
+  ④ 反向：产物中含 `.post-head-blurb` 的页面数必须等于带 blurb 的文章数（防串页、防幽灵导语）。
+  已串入 `npm test` 与 `ci.yml` 的 `Post blurb` 步骤（排在 `Astro build` 之后，断言读 `dist/`）；
+  `test/build-env.js` 反查该步骤存在且顺序在构建之后，删掉即红。
+  变异自检（本轮实测）：模板退回 `post.data` → 退出码 1；删掉某页产物里的导语 → 退出码 1（报「导语未渲染」+ 计数不符）；
+  删掉 CI 的 `Post blurb` 步骤 → `test:env` 退出码 1。三处均按原字节还原。
+- **同类隐患（未修，仅记录）：** `test/post-content-guard.js` 既不在 `npm test` 也不在 CI，
+  属同一类「门禁写好了却没接线」，内容是正文占位词与 front matter 日期检查。接线前需先确认它当前能通过。
