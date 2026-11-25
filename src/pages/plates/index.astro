@@ -1,0 +1,231 @@
+---
+// 车牌字母编号探索页（/plates/）：Issue #12 的落地。
+//
+// 视觉概念：「发牌字母索引台」——A–Z 字母带是主视觉，不是通用卡片网格。
+// 数据：source/_data/plates.yml（转录自 GA 36-2018 附录 A 表 A.1）；计算：src/lib/plates-data.ts。
+//
+// 交互：省级行政区选择 → A–Z 字母带切换 → 点字母看对应地名（signature）。
+// 全部内容构建时直出，source/js/plates.js 只做展示状态切换，关闭 JS 仍可完整阅读。
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import StatBand from '../../components/StatBand.astro';
+import EmptyState from '../../components/EmptyState.astro';
+import { getData } from '../../lib/data';
+import { buildPlates, ALPHABET } from '../../lib/plates-data';
+import { fmtItemDate } from '../../lib/dates';
+import { pageDates } from '../../lib/page-meta';
+
+const ov = buildPlates(getData().plates);
+const { published, modified } = pageDates('plates/index.md');
+
+const kindCn: Record<string, string> = {
+  municipality: '直辖市',
+  province: '省',
+  'autonomous-region': '自治区'
+};
+---
+
+<BaseLayout title="车牌字母编号探索" description={ov ? ov.meta.lede : ''} currentPath="/plates/" ogDate={published} ogUpdated={modified}>
+  <div class="paper-page cal-page plt-page">
+    <div class="home-wrap">
+      {!ov ? (
+        <>
+          <header class="page-head">
+            <p class="page-head-kicker">PLATES</p>
+            <h1 class="page-head-title">车牌字母编号探索</h1>
+          </header>
+          <EmptyState>车牌编号内容还在整理中，页面会随数据录入自动生成，欢迎稍后再来看看。</EmptyState>
+        </>
+      ) : (
+        <>
+          <header class="page-head plt-head">
+            <p class="page-head-kicker">PLATES</p>
+            <h1 class="page-head-title">车牌字母编号探索</h1>
+            <p class="plt-lede">{ov.meta.lede}</p>
+            <p class="plt-scope">{ov.meta.scopeNote}</p>
+            <StatBand
+              columns={4}
+              class="stat-band--flush stat-band--ruled"
+              items={[
+                { label: '省级行政区', value: ov.stats.regionCount },
+                { label: '发牌机关代号', value: ov.stats.allocationCount },
+                { label: '特殊代号', value: ov.special.length },
+                { label: '编号规则', value: ov.rules.length }
+              ]}
+            />
+          </header>
+
+          <!-- ============ 标志性交互：发牌字母索引台 ============ -->
+          <section class="plt-stage" aria-label="发牌字母索引台">
+            <div class="plt-stage-head">
+              <h2 class="col-title">发牌字母索引台</h2>
+              <span class="col-count">/ 选省份 · 看字母</span>
+            </div>
+
+            <div class="plt-selector" role="tablist" aria-label="选择省级行政区">
+              {ov.regions.map((r, i) => (
+                <button
+                  type="button"
+                  class={`plt-tab${i === 0 ? ' is-active' : ''}`}
+                  role="tab"
+                  id={`plt-tab-${r.key}`}
+                  aria-selected={i === 0 ? 'true' : 'false'}
+                  aria-controls={`plt-band-${r.key}`}
+                  data-region={r.key}
+                >{r.name}</button>
+              ))}
+            </div>
+
+            {ov.regions.map((r, i) => {
+              const isFull = r.codesFull;
+              return (
+                <div
+                  class={`plt-band-panel${i === 0 ? ' is-active' : ''}`}
+                  id={`plt-band-${r.key}`}
+                  role="tabpanel"
+                  aria-labelledby={`plt-tab-${r.key}`}
+                  data-region-panel={r.key}
+                  hidden={i !== 0}
+                >
+                  <div class="plt-band-meta">
+                    <span class="plt-band-name">{r.name}</span>
+                    <span class="plt-band-kind">{kindCn[r.kind]}</span>
+                    {isFull && <span class="plt-band-tag">A 至 Z 全序列</span>}
+                    {!isFull && r.gaps.length > 0 && (
+                      <span class="plt-band-tag">空缺 {r.gaps.join(' ')}</span>
+                    )}
+                  </div>
+                  <ol class="plt-band" aria-label={`${r.name} 的 A 至 Z 发牌机关代号`}>
+                    {r.band.map((cell) => {
+                      const cls = `plt-cell plt-cell--${cell.state}`;
+                      const label = isFull
+                        ? cell.letter
+                        : cell.state === 'used'
+                          ? `${cell.letter} ${cell.places.join('、')}`
+                          : cell.state === 'empty'
+                            ? `${cell.letter}（空缺）`
+                            : cell.letter;
+                      return (
+                        <li class={cls} title={label}>
+                          <span class="plt-cell-letter">{cell.letter}</span>
+                          {cell.state === 'used' && !isFull && cell.places.length > 0 && (
+                            <span class="plt-cell-place">{cell.places.join('、')}</span>
+                          )}
+                          {cell.state === 'empty' && <span class="plt-cell-empty">空缺</span>}
+                        </li>
+                      );
+                    })}
+                  </ol>
+                  {!isFull && r.multiLetterPlaces.length > 0 && (
+                    <p class="plt-band-note">
+                      多代号：{r.multiLetterPlaces.map((m) => `${m.place}（${m.codes.join('、')}）`).join('；')}
+                    </p>
+                  )}
+                  {!isFull && r.sharedCodes.length > 0 && (
+                    <p class="plt-band-note">
+                      共用代号：{r.sharedCodes.map((s) => `${s.code}（${s.places.join('、')}）`).join('；')}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </section>
+
+          <!-- ============ 编号规则 ============ -->
+          <section class="plt-rules">
+            <div class="col-head">
+              <h2 class="col-title">编号规则</h2>
+              <span class="col-count">/ {ov.rules.length}</span>
+            </div>
+            <p class="plt-rules-lead">这些是标准正文与附录 A 直接写明的规则，不是推测；每条都标注了出处。</p>
+            <div class="plt-rule-list">
+              {ov.rules.map((rule) => (
+                <article class="plt-rule">
+                  <h3 class="plt-rule-title">{rule.title}</h3>
+                  <p class="plt-rule-text">{rule.text}</p>
+                  <p class="plt-rule-src">出处：{rule.source}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <!-- ============ 直辖市专节 ============ -->
+          <section class="plt-municipal">
+            <div class="col-head">
+              <h2 class="col-title">直辖市：A 至 Z 全序列</h2>
+              <span class="col-count">/ {ov.stats.municipalityCount}</span>
+            </div>
+            <p class="plt-rules-lead">四个直辖市（北京、天津、上海、重庆）的发牌机关代号都是 A 至 Z 全部 26 个字母，不按区县划分，按英文字母顺序依次启用（标准 5.8.2）。</p>
+            <div class="plt-municipal-list">
+              {ov.regions.filter((r) => r.codesFull).map((r) => (
+                <div class="plt-municipal-item">
+                  <span class="plt-municipal-abbr">{r.abbr}</span>
+                  <span class="plt-municipal-name">{r.name}</span>
+                  <span class="plt-municipal-letters" aria-hidden="true">{ALPHABET.join(' ')}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <!-- ============ 各省对照表（静态，无 JS 也可读） ============ -->
+          <section class="plt-table-section">
+            <div class="col-head">
+              <h2 class="col-title">各省发牌机关代号对照表</h2>
+              <span class="col-count">/ {ov.stats.regionCount - ov.stats.municipalityCount}</span>
+            </div>
+            <p class="plt-rules-lead">下表逐条转录自标准附录 A 表 A.1，按省、自治区逐一列出代号与登记机关的对应；同一城市多个代号、同一代号多地的情形均按标准原样保留。</p>
+            {ov.regions.filter((r) => !r.codesFull).map((r) => (
+              <div class="plt-region-block" id={`plt-region-${r.key}`}>
+                <h3 class="plt-region-title"><span class="plt-region-abbr">{r.abbr}</span>{r.name}</h3>
+                <div class="cal-table-wrap">
+                  <table class="cal-table plt-table">
+                    <thead>
+                      <tr>
+                        <th scope="col">代号</th>
+                        <th scope="col">登记机关</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {r.allocations.map((a) => (
+                        <tr>
+                          <th scope="row" class="plt-code">{a.code}</th>
+                          <td>{a.place}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ))}
+          </section>
+
+          <!-- ============ 特殊代号 ============ -->
+          <section class="plt-special">
+            <div class="col-head">
+              <h2 class="col-title">特殊发牌机关代号</h2>
+              <span class="col-count">/ {ov.special.length}</span>
+            </div>
+            <p class="plt-rules-lead">下列代号不分配给普通地市，有专门用途，均出自标准附录 A 表 A.1 末尾及脚注。</p>
+            <div class="plt-special-list">
+              {ov.special.map((s) => (
+                <div class="plt-special-item">
+                  <span class="plt-special-code">{s.code}</span>
+                  <div class="plt-special-body">
+                    <p class="plt-special-meaning">{s.meaning}</p>
+                    <p class="plt-special-note">{s.note}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <div class="cal-after">
+            <p class="cal-note">本页依据 {ov.meta.standard} {ov.meta.standardScope} 整理；代号与登记机关对照逐条转录自标准原文，未掺入民间流传的简称或别名。更新于 {fmtItemDate(ov.meta.updated)}。</p>
+          </div>
+        </>
+      )}
+    </div>
+  </div>
+</BaseLayout>
+
+<script src="/js/plates.js" defer></script>

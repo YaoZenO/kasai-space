@@ -12796,3 +12796,315 @@ a:hover {
 
 /* ===== /15. 暗色模式（本任务结束） ===== */
 
+/* ===== 4.27 车牌字母编号探索页（/plates/，2026-11-26 Issue #12） =====
+   视觉概念：「发牌字母索引台」。A–Z 字母带是主视觉——每个省级行政区一条
+   26 格字母带，有分配的字母实心、空缺字母弱化；直辖市整条 A–Z 全实心。
+   不是卡片网格，不套通用 Hero；色值全部引用既有 token，无冷色、无渐变、无加法 calc。 */
+
+.plt-page .page-head { margin-bottom: 1.6rem; }
+.plt-lede {
+  margin: 0.6rem 0 0;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--text-color);
+  max-width: 58ch;
+}
+.plt-scope {
+  margin: 0.55rem 0 1.4rem;
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: var(--sec-text-color);
+  max-width: 72ch;
+}
+.plt-rules-lead {
+  margin: 0 0 1.2rem;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--sec-text-color);
+  max-width: 68ch;
+}
+
+/* ---- 标志性交互：发牌字母索引台 ---- */
+.plt-stage {
+  margin: 0 0 2.6rem;
+  padding: 1.5rem;
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-card);
+  background: var(--board-color);
+}
+.plt-stage .col-head { margin-bottom: 1rem; }
+
+.plt-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.3rem;
+}
+.plt-tab {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1;
+  padding: 0.5rem 0.8rem;
+  color: var(--sec-text-color);
+  background: transparent;
+  border: 1px solid var(--site-chip-border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.plt-tab:hover { color: var(--accent); border-color: var(--accent); }
+.plt-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.plt-tab.is-active {
+  color: var(--on-ink);
+  background: var(--text-color);
+  border-color: var(--text-color);
+}
+
+.plt-band-panel { display: block; }
+.plt-band-panel[hidden] { display: none; }
+
+.plt-band-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-bottom: 0.8rem;
+}
+.plt-band-name { font-weight: 600; color: var(--text-color); }
+.plt-band-kind {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--info-mark);
+  letter-spacing: 0.06em;
+}
+.plt-band-tag {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+  border: 1px solid var(--line-color);
+  border-radius: 999px;
+  padding: 0.12rem 0.5rem;
+}
+
+.plt-band {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(13, 1fr);
+  gap: 0.5rem;
+}
+.plt-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.5rem 0.15rem;
+  border-radius: 8px;
+  min-width: 0;
+}
+.plt-cell--used {
+  background: var(--text-color);
+  color: var(--on-ink);
+}
+.plt-cell--empty {
+  background: transparent;
+  border: 1px dashed var(--line-color);
+  color: var(--sec-text-color);
+}
+.plt-cell-letter {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+.plt-cell-place {
+  font-size: 0.75rem;
+  line-height: 1.2;
+  color: inherit;
+  text-align: center;
+  opacity: 0.82;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+.plt-cell--empty .plt-cell-letter { font-weight: 400; }
+.plt-cell--empty .plt-cell-empty {
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.plt-band-note {
+  margin: 0.9rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--sec-text-color);
+}
+
+/* ---- 编号规则 ---- */
+.plt-rules { margin: 0 0 2.6rem; }
+.plt-rule-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+.plt-rule {
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-card);
+  background: var(--board-color);
+}
+.plt-rule-title {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+.plt-rule-text {
+  margin: 0 0 0.6rem;
+  font-size: 0.86rem;
+  line-height: 1.7;
+  color: var(--text-color);
+}
+.plt-rule-src {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--info-mark);
+  letter-spacing: 0.02em;
+}
+
+/* ---- 直辖市专节 ---- */
+.plt-municipal { margin: 0 0 2.6rem; }
+.plt-municipal-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+.plt-municipal-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-card);
+  background: var(--board-color);
+}
+.plt-municipal-abbr {
+  font-family: var(--font-mono);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.plt-municipal-name { font-weight: 600; color: var(--text-color); white-space: nowrap; }
+.plt-municipal-letters {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+  letter-spacing: 0.08em;
+  text-align: right;
+  line-height: 1.5;
+}
+
+/* ---- 各省对照表 ---- */
+.plt-table-section { margin: 0 0 2.6rem; }
+.plt-region-block { margin: 0 0 1.8rem; }
+.plt-region-title {
+  margin: 0 0 0.8rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+.plt-region-abbr {
+  display: inline-block;
+  margin-right: 0.6rem;
+  font-family: var(--font-mono);
+  color: var(--accent);
+}
+.plt-table .plt-code {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--text-color);
+  width: 4.5rem;
+}
+
+/* ---- 特殊代号 ---- */
+.plt-special { margin: 0 0 2.6rem; }
+.plt-special-list { display: flex; flex-direction: column; gap: 0.8rem; }
+.plt-special-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-card);
+  background: var(--board-color);
+}
+.plt-special-code {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.plt-special-body { min-width: 0; }
+.plt-special-meaning {
+  margin: 0 0 0.3rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+.plt-special-note {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--sec-text-color);
+}
+
+/* ---- 移动端 ---- */
+@media (max-width: 760px) {
+  .plt-band { grid-template-columns: repeat(9, 1fr); }
+  .plt-rule-list { grid-template-columns: 1fr; }
+  .plt-municipal-list { grid-template-columns: 1fr; }
+  .plt-municipal-letters { display: none; }
+  .plt-stage { padding: 1.1rem; }
+}
+@media (max-width: 480px) {
+  .plt-band { grid-template-columns: repeat(6, 1fr); gap: 0.35rem; }
+  .plt-cell { padding: 0.4rem 0.1rem; }
+}
+
+/* ---- 暗色适配（跟随 §15 两条既有分支的变量，不新增第三套声明） ---- */
+.plt-cell--used { color: var(--on-ink); }
+.plt-cell--empty { color: var(--sec-text-color); }
+
+/* ---- 减少动态效果：索引台本身无位移动画，保留选中态即时切换即可 ---- */
+@media (prefers-reduced-motion: reduce) {
+  .plt-tab { transition: none; }
+}
+
+/* ---- 资料库「车牌」封面：A–Z 字母带（13 列 × 2 行），与 /plates/ 主视觉同源 ---- */
+.lb-cover-plates {
+  display: grid;
+  grid-template-columns: repeat(13, 1fr);
+  grid-auto-rows: 1fr;
+  width: 100%;
+  height: 100%;
+  padding: 0.7rem;
+  gap: 0.3rem;
+}
+.lb-cover-plates .lb-cell {
+  border: 0;
+  border-radius: 4px;
+  background: var(--text-color);
+  color: var(--on-ink);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.lb-cover-plates .lb-cell.is-empty {
+  background: transparent;
+  border: 1px dashed var(--line-color);
+  color: var(--sec-text-color);
+}
+

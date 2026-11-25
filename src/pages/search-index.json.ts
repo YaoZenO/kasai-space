@@ -54,8 +54,8 @@ export async function GET() {
     items.push({ t: p.title, u: url, c: 'post', s: clip(p.content, 80), k: '' });
   }
 
-  // ② Markdown 页面（about / now / festivals；其余前缀由下面各类型收录）
-  for (const slug of ['about', 'now', 'festivals']) {
+  // ② Markdown 页面（about / now / festivals / plates；其余前缀由下面各类型收录）
+  for (const slug of ['about', 'now', 'festivals', 'plates']) {
     const { fm, html } = pageBody(slug + '/index.md');
     const p = { title: fm.title, path: slug + '/index.html' };
     if (!p.title) continue;

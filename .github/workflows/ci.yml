@@ -64,6 +64,10 @@ jobs:
       #     条件恒假、导语静默不显示，而构建与既有套件全绿。
       - name: Post blurb
         run: npm run test:blurb
+      # 4.7 车牌字母编号页（/plates/，Issue #12）。排在 Astro build 之后：断言读
+      #     dist/plates/index.html 的字母带、对照表行数与脚本 hash。
+      - name: Plates E2E
+        run: npm run test:plates
       # 5. 前台/后台 CSS token 一致性（防止 --accent 两处漂移）
       - name: CSS tokens
         run: npm run test:tokens

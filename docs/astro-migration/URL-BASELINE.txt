@@ -1,7 +1,7 @@
 # URL 基线（Astro 迁移验收清单）
-# 来源：Astro 构建产物 dist/（2026-11-17 补录两篇电竞页）
+# 来源：Astro 构建产物 dist/（2026-11-17 补录两篇电竞页；2026-11-26 补录 /plates/）
 # 规则：index.html 归一为目录 URL 并补尾斜杠；非 ASCII 路径保持产物原样
-# 统计：622 个页面 + 5 个非 HTML 资源 = 627 条
+# 统计：623 个页面 + 5 个非 HTML 资源 = 628 条
 
 [HOME] 1
 /
@@ -80,6 +80,9 @@
 
 [FESTIVALS] 1
 /festivals/
+
+[PLATES] 1
+/plates/
 
 [ZODIAC] 13
 /zodiac/

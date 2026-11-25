@@ -26,7 +26,7 @@ function collectPages(): { path: string; updated: Date | null }[] {
     out.push({ path: rel.replace(/index\.md$/, 'index.html'), updated: d.modified || d.published || null });
   };
 
-  for (const slug of ['about', 'now', 'festivals']) push(`${slug}/index.md`);
+  for (const slug of ['about', 'now', 'festivals', 'plates']) push(`${slug}/index.md`);
 
   // 目录首页（holidays/library/zodiac/index.md）也要收录，现站 sitemap 含这三条。
   for (const dir of ['holidays', 'library', 'zodiac'] as const) {

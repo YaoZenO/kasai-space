@@ -1,0 +1,598 @@
+# 车牌字母编号探索 —— /plates/ 页面的唯一数据源
+#
+# 事实来源（唯一）：公安部公共安全行业标准 GA 36-2018《中华人民共和国机动车号牌》
+# 附录 A（规范性附录）表 A.1「发牌机关代号」，以及正文 5.8「发牌机关代号」条款。
+# 现行有效版本 2018-05-01 起实施。
+#
+# 纪律（与 holidays.yml / zodiac.yml 相同）：
+#   1. 只收录标准原文明确写出的事实，不掺入二手百科 / 民间说法（如「闽K 平潭」「新D 奎屯」
+#      这类标准表 A.1 里不存在的说法一律不收）；
+#   2. 中文长文案一律写单行（E-042）；
+#   3. code 是发牌机关代号的英文字母，单个大写字母；place 是标准表 A.1 原列出的登记机关
+#      所在地名称（逐字照录，含标准的旧行政区划写法）；
+#   4. 同一 code 可对应多地（如宁夏吴忠市、固原市同用 C），同一地可对应多个 code（如
+#      哈尔滨市 A、L），allocations 一条 = 一个（code, place）组合，忠实记录，不做归并；
+#   5. 直辖市 kind=municipality，发牌机关代号为 A 至 Z 全序列（5.8.2），用 codes: full 表示，
+#      不逐字母展开成 26 条 allocations；
+#   6. 省公安厅车管所警用专段（O）、广东港澳入出境车（Z）、山东交警总队（W）等特殊代号
+#      单独列在 special，不与普通地市分配混排。
+#
+# 数据完整转录自标准表 A.1；断档（如云南无 B）、共用（如宁夏固原/吴忠同 C）、多字母
+# （如佛山 E/X/Y、青岛 B/U）均按标准原样保留，页面据实呈现。
+
+meta:
+  updated: "2026-11-26"
+  standard: "GA 36-2018《中华人民共和国机动车号牌》"
+  standardScope: "发牌机关代号见标准附录 A（规范性附录）表 A.1；启用规则见正文 5.8"
+  lede: "路上车牌的第二位英文字母，是「发牌机关代号」。它怎么来的、为什么这么排，标准里其实写得很清楚：省会（首府）固定用 A，其余设区的市报经公安部交通管理局批准后依次启用新字母。本页按标准附录 A 逐条整理各省发牌机关代号与登记机关的对应关系。"
+  scopeNote: "本页依据 GA 36-2018 附录 A 表 A.1 整理，覆盖 31 个省级行政区（23 省、5 自治区、4 直辖市）。香港特别行政区、澳门特别行政区、台湾地区实行不同的号牌制度，不在本标准附录 A 的发牌机关代号表范围内，本页不予混排。"
+
+regions:
+  # ============ 直辖市（A 至 Z 全序列） ============
+  - { key: "beijing", name: "北京市", abbr: "京", kind: "municipality", codes: "full" }
+  - { key: "tianjin", name: "天津市", abbr: "津", kind: "municipality", codes: "full" }
+  - { key: "shanghai", name: "上海市", abbr: "沪", kind: "municipality", codes: "full" }
+  - { key: "chongqing", name: "重庆市", abbr: "渝", kind: "municipality", codes: "full" }
+
+  # ============ 省 / 自治区（地市分配） ============
+  - key: "hebei"
+    name: "河北省"
+    abbr: "冀"
+    kind: "province"
+    allocations:
+      - { code: "A", place: "石家庄市" }
+      - { code: "B", place: "唐山市" }
+      - { code: "C", place: "秦皇岛市" }
+      - { code: "D", place: "邯郸市" }
+      - { code: "E", place: "邢台市" }
+      - { code: "F", place: "保定市" }
+      - { code: "G", place: "张家口市" }
+      - { code: "H", place: "承德市" }
+      - { code: "J", place: "沧州市" }
+      - { code: "R", place: "廊坊市" }
+      - { code: "T", place: "衡水市" }
+
+  - key: "shanxi"
+    name: "山西省"
+    abbr: "晋"
+    kind: "province"
+    allocations:
+      - { code: "A", place: "太原市" }
+      - { code: "B", place: "大同市" }
+      - { code: "C", place: "阳泉市" }
+      - { code: "D", place: "长治市" }
+      - { code: "E", place: "晋城市" }
+      - { code: "F", place: "朔州市" }
+      - { code: "H", place: "忻州市" }
+      - { code: "J", place: "吕梁市" }
+      - { code: "K", place: "晋中市" }
+      - { code: "L", place: "临汾市" }
+      - { code: "M", place: "运城市" }
+
+  - key: "neimenggu"
+    name: "内蒙古自治区"
+    abbr: "蒙"
+    kind: "autonomous-region"
+    allocations:
+      - { code: "A", place: "呼和浩特市" }
+      - { code: "B", place: "包头市" }
+      - { code: "C", place: "乌海市" }
+      - { code: "D", place: "赤峰市" }
+      - { code: "E", place: "呼伦贝尔市" }
+      - { code: "F", place: "兴安盟" }
+      - { code: "G", place: "通辽市" }
+      - { code: "H", place: "锡林郭勒盟" }
+      - { code: "J", place: "乌兰察布市" }
+      - { code: "K", place: "鄂尔多斯市" }
+      - { code: "L", place: "巴彦淖尔市" }
+      - { code: "M", place: "阿拉善盟" }
+
+  - key: "liaoning"
+    name: "辽宁省"
+    abbr: "辽"
+    kind: "province"
+    allocations:
+      - { code: "A", place: "沈阳市" }
+      - { code: "B", place: "大连市" }
+      - { code: "C", place: "鞍山市" }
+      - { code: "D", place: "抚顺市" }
+      - { code: "E", place: "本溪市" }
+      - { code: "F", place: "丹东市" }
+      - { code: "G", place: "锦州市" }
+      - { code: "H", place: "营口市" }
+      - { code: "J", place: "阜新市" }
+      - { code: "K", place: "辽阳市" }
+      - { code: "L", place: "盘锦市" }
+      - { code: "M", place: "铁岭市" }
+      - { code: "N", place: "朝阳市" }
+      - { code: "P", place: "葫芦岛市" }
+
+  - key: "jilin"
+    name: "吉林省"
+    abbr: "吉"
+    kind: "province"
+    allocations:
+      - { code: "A", place: "长春市" }
+      - { code: "B", place: "吉林市" }
+      - { code: "C", place: "四平市" }
+      - { code: "D", place: "辽源市" }
+      - { code: "E", place: "通化市" }
+      - { code: "F", place: "白山市" }
+      - { code: "G", place: "白城市" }
+      - { code: "H", place: "延边朝鲜族自治州" }
+      - { code: "J", place: "松原市" }
+      - { code: "K", place: "长白山保护开发区" }
+
+  - key: "heilongjiang"
+    name: "黑龙江省"
+    abbr: "黑"
+    kind: "province"
+    allocations:
+      - { code: "A", place: "哈尔滨市" }
+      - { code: "L", place: "哈尔滨市" }
+      - { code: "B", place: "齐齐哈尔市" }
+      - { code: "C", place: "牡丹江市" }
+      - { code: "D", place: "佳木斯市" }
+      - { code: "E", place: "大庆市" }
+      - { code: "F", place: "伊春市" }
+      - { code: "G", place: "鸡西市" }
+      - { code: "H", place: "鹤岗市" }
+      - { code: "J", place: "双鸭山市" }
+      - { code: "K", place: "七台河市" }
+      - { code: "M", place: "绥化市" }
+      - { code: "N", place: "黑河市" }
+      - { code: "P", place: "大兴安岭地区" }
+      - { code: "R", place: "垦区" }
+
+  - key: "jiangsu"
+    name: "江苏省"
+    abbr: "苏"
+    kind: "province"
+    allocations:
+      - { code: "A", place: "南京市" }
+      - { code: "B", place: "无锡市" }
+      - { code: "C", place: "徐州市" }
+      - { code: "D", place: "常州市" }
+      - { code: "E", place: "苏州市" }
+      - { code: "F", place: "南通市" }
+      - { code: "G", place: "连云港市" }
+      - { code: "H", place: "淮安市" }
+      - { code: "J", place: "盐城市" }
+      - { code: "K", place: "扬州市" }
+      - { code: "L", place: "镇江市" }
+      - { code: "M", place: "泰州市" }
+      - { code: "N", place: "宿迁市" }
+
+  - key: "zhejiang"
+    name: "浙江省"
+    abbr: "浙"
+    kind: "province"
+    allocations:
+      - { code: "A", place: "杭州市" }
+      - { code: "B", place: "宁波市" }
+      - { code: "C", place: "温州市" }
+      - { code: "D", place: "绍兴市" }
+      - { code: "E", place: "湖州市" }
+      - { code: "F", place: "嘉兴市" }
+      - { code: "G", place: "金华市" }
+      - { code: "H", place: "衢州市" }
+      - { code: "J", place: "台州市" }
+      - { code: "K", place: "丽水市" }
+      - { code: "L", place: "舟山市" }
+
+  - key: "anhui"
+    name: "安徽省"
+    abbr: "皖"
+    kind: "province"
+    allocations:
+      - { code: "A", place: "合肥市" }
+      - { code: "B", place: "芜湖市" }
+      - { code: "C", place: "蚌埠市" }
+      - { code: "D", place: "淮南市" }
+      - { code: "E", place: "马鞍山市" }
+      - { code: "F", place: "淮北市" }
+      - { code: "G", place: "铜陵市" }
+      - { code: "H", place: "安庆市" }
+      - { code: "J", place: "黄山市" }
+      - { code: "K", place: "阜阳市" }
+      - { code: "L", place: "宿州市" }
+      - { code: "M", place: "滁州市" }
+      - { code: "N", place: "六安市" }
+      - { code: "P", place: "宣城市" }
+      - { code: "R", place: "池州市" }
+      - { code: "S", place: "亳州市" }
+
+  - key: "fujian"
+    name: "福建省"
+    abbr: "闽"
+    kind: "province"
+    allocations:
+      - { code: "A", place: "福州市" }
+      - { code: "K", place: "福州市" }
+      - { code: "B", place: "莆田市" }
+      - { code: "C", place: "泉州市" }
+      - { code: "D", place: "厦门市" }
+      - { code: "E", place: "漳州市" }
+      - { code: "F", place: "龙岩市" }
+      - { code: "G", place: "三明市" }
+      - { code: "H", place: "南平市" }
+      - { code: "J", place: "宁德市" }
+
+  - key: "jiangxi"
+    name: "江西省"
+    abbr: "赣"
+    kind: "province"
+    allocations:
+      - { code: "A", place: "南昌市" }
+      - { code: "M", place: "南昌市" }
+      - { code: "B", place: "赣州市" }
+      - { code: "C", place: "宜春市" }
+      - { code: "D", place: "吉安市" }
+      - { code: "E", place: "上饶市" }
+      - { code: "F", place: "抚州市" }
+      - { code: "G", place: "九江市" }
+      - { code: "H", place: "景德镇市" }
+      - { code: "J", place: "萍乡市" }
+      - { code: "K", place: "新余市" }
+      - { code: "L", place: "鹰潭市" }
+
+  - key: "shandong"
+    name: "山东省"
+    abbr: "鲁"
+    kind: "province"
+    allocations:
+      - { code: "A", place: "济南市" }
+      - { code: "B", place: "青岛市" }
+      - { code: "U", place: "青岛市" }
+      - { code: "C", place: "淄博市" }
+      - { code: "D", place: "枣庄市" }
+      - { code: "E", place: "东营市" }
+      - { code: "F", place: "烟台市" }
+      - { code: "Y", place: "烟台市" }
+      - { code: "G", place: "潍坊市" }
+      - { code: "V", place: "潍坊市" }
+      - { code: "H", place: "济宁市" }
+      - { code: "J", place: "泰安市" }
+      - { code: "K", place: "威海市" }
+      - { code: "L", place: "日照市" }
+      - { code: "M", place: "滨州市" }
+      - { code: "N", place: "德州市" }
+      - { code: "P", place: "聊城市" }
+      - { code: "Q", place: "临沂市" }
+      - { code: "R", place: "菏泽市" }
+      - { code: "S", place: "莱芜市" }
+
+  - key: "henan"
+    name: "河南省"
+    abbr: "豫"
+    kind: "province"
+    allocations:
+      - { code: "A", place: "郑州市" }
+      - { code: "B", place: "开封市" }
+      - { code: "C", place: "洛阳市" }
+      - { code: "D", place: "平顶山市" }
+      - { code: "E", place: "安阳市" }
+      - { code: "F", place: "鹤壁市" }
+      - { code: "G", place: "新乡市" }
+      - { code: "H", place: "焦作市" }
+      - { code: "J", place: "濮阳市" }
+      - { code: "K", place: "许昌市" }
+      - { code: "L", place: "漯河市" }
+      - { code: "M", place: "三门峡市" }
+      - { code: "N", place: "商丘市" }
+      - { code: "P", place: "周口市" }
+      - { code: "Q", place: "驻马店市" }
+      - { code: "R", place: "南阳市" }
+      - { code: "S", place: "信阳市" }
+      - { code: "U", place: "济源市" }
+
+  - key: "hubei"
+    name: "湖北省"
+    abbr: "鄂"
+    kind: "province"
+    allocations:
+      - { code: "A", place: "武汉市" }
+      - { code: "B", place: "黄石市" }
+      - { code: "C", place: "十堰市" }
+      - { code: "D", place: "荆州市" }
+      - { code: "E", place: "宜昌市" }
+      - { code: "F", place: "襄阳市" }
+      - { code: "G", place: "鄂州市" }
+      - { code: "H", place: "荆门市" }
+      - { code: "J", place: "黄冈市" }
+      - { code: "K", place: "孝感市" }
+      - { code: "L", place: "咸宁市" }
+      - { code: "M", place: "仙桃市" }
+      - { code: "N", place: "潜江市" }
+      - { code: "P", place: "神农架林区" }
+      - { code: "Q", place: "恩施土家族苗族自治州" }
+      - { code: "R", place: "天门市" }
+      - { code: "S", place: "随州市" }
+
+  - key: "hunan"
+    name: "湖南省"
+    abbr: "湘"
+    kind: "province"
+    allocations:
+      - { code: "A", place: "长沙市" }
+      - { code: "S", place: "长沙市" }
+      - { code: "B", place: "株洲市" }
+      - { code: "C", place: "湘潭市" }
+      - { code: "D", place: "衡阳市" }
+      - { code: "E", place: "邵阳市" }
+      - { code: "F", place: "岳阳市" }
+      - { code: "G", place: "张家界市" }
+      - { code: "H", place: "益阳市" }
+      - { code: "J", place: "常德市" }
+      - { code: "K", place: "娄底市" }
+      - { code: "L", place: "郴州市" }
+      - { code: "M", place: "永州市" }
+      - { code: "N", place: "怀化市" }
+      - { code: "U", place: "湘西土家族苗族自治州" }
+
+  - key: "guangdong"
+    name: "广东省"
+    abbr: "粤"
+    kind: "province"
+    allocations:
+      - { code: "A", place: "广州市" }
+      - { code: "B", place: "深圳市" }
+      - { code: "C", place: "珠海市" }
+      - { code: "D", place: "汕头市" }
+      - { code: "E", place: "佛山市" }
+      - { code: "X", place: "佛山市" }
+      - { code: "Y", place: "佛山市" }
+      - { code: "F", place: "韶关市" }
+      - { code: "G", place: "湛江市" }
+      - { code: "H", place: "肇庆市" }
+      - { code: "J", place: "江门市" }
+      - { code: "K", place: "茂名市" }
+      - { code: "L", place: "惠州市" }
+      - { code: "M", place: "梅州市" }
+      - { code: "N", place: "汕尾市" }
+      - { code: "P", place: "河源市" }
+      - { code: "Q", place: "阳江市" }
+      - { code: "R", place: "清远市" }
+      - { code: "S", place: "东莞市" }
+      - { code: "T", place: "中山市" }
+      - { code: "U", place: "潮州市" }
+      - { code: "V", place: "揭阳市" }
+      - { code: "W", place: "云浮市" }
+
+  - key: "guangxi"
+    name: "广西壮族自治区"
+    abbr: "桂"
+    kind: "autonomous-region"
+    allocations:
+      - { code: "A", place: "南宁市" }
+      - { code: "B", place: "柳州市" }
+      - { code: "C", place: "桂林市" }
+      - { code: "H", place: "桂林市" }
+      - { code: "D", place: "梧州市" }
+      - { code: "E", place: "北海市" }
+      - { code: "F", place: "崇左市" }
+      - { code: "G", place: "来宾市" }
+      - { code: "J", place: "贺州市" }
+      - { code: "K", place: "玉林市" }
+      - { code: "L", place: "百色市" }
+      - { code: "M", place: "河池市" }
+      - { code: "N", place: "钦州市" }
+      - { code: "P", place: "防城港市" }
+      - { code: "R", place: "贵港市" }
+
+  - key: "hainan"
+    name: "海南省"
+    abbr: "琼"
+    kind: "province"
+    allocations:
+      - { code: "A", place: "海口市" }
+      - { code: "B", place: "三亚市" }
+      - { code: "C", place: "琼北" }
+      - { code: "D", place: "琼南" }
+      - { code: "E", place: "洋浦经济开发区" }
+      - { code: "F", place: "儋州" }
+
+  - key: "sichuan"
+    name: "四川省"
+    abbr: "川"
+    kind: "province"
+    allocations:
+      - { code: "A", place: "成都市" }
+      - { code: "G", place: "成都市" }
+      - { code: "B", place: "绵阳市" }
+      - { code: "C", place: "自贡市" }
+      - { code: "D", place: "攀枝花市" }
+      - { code: "E", place: "泸州市" }
+      - { code: "F", place: "德阳市" }
+      - { code: "H", place: "广元市" }
+      - { code: "J", place: "遂宁市" }
+      - { code: "K", place: "内江市" }
+      - { code: "L", place: "乐山市" }
+      - { code: "M", place: "资阳市" }
+      - { code: "Q", place: "宜宾市" }
+      - { code: "R", place: "南充市" }
+      - { code: "S", place: "达州市" }
+      - { code: "T", place: "雅安市" }
+      - { code: "U", place: "阿坝藏族羌族自治州" }
+      - { code: "V", place: "甘孜藏族自治州" }
+      - { code: "W", place: "凉山彝族自治州" }
+      - { code: "X", place: "广安市" }
+      - { code: "Y", place: "巴中市" }
+      - { code: "Z", place: "眉山市" }
+
+  - key: "guizhou"
+    name: "贵州省"
+    abbr: "贵"
+    kind: "province"
+    allocations:
+      - { code: "A", place: "贵阳市" }
+      - { code: "B", place: "六盘水市" }
+      - { code: "C", place: "遵义市" }
+      - { code: "D", place: "铜仁地区" }
+      - { code: "E", place: "黔西南布依族苗族自治州" }
+      - { code: "F", place: "毕节地区" }
+      - { code: "G", place: "安顺市" }
+      - { code: "H", place: "黔东南苗族侗族自治州" }
+      - { code: "J", place: "黔南布依族苗族自治州" }
+
+  - key: "yunnan"
+    name: "云南省"
+    abbr: "云"
+    kind: "province"
+    allocations:
+      - { code: "A", place: "昆明市" }
+      - { code: "C", place: "昭通市" }
+      - { code: "D", place: "曲靖市" }
+      - { code: "E", place: "楚雄彝族自治州" }
+      - { code: "F", place: "玉溪市" }
+      - { code: "G", place: "红河哈尼族彝族自治州" }
+      - { code: "H", place: "文山壮族苗族自治州" }
+      - { code: "J", place: "普洱市" }
+      - { code: "K", place: "西双版纳傣族自治州" }
+      - { code: "L", place: "大理白族自治州" }
+      - { code: "M", place: "保山市" }
+      - { code: "N", place: "德宏傣族景颇族自治州" }
+      - { code: "P", place: "丽江市" }
+      - { code: "Q", place: "怒江傈僳族自治州" }
+      - { code: "R", place: "迪庆藏族自治州" }
+      - { code: "S", place: "临沧市" }
+
+  - key: "xizang"
+    name: "西藏自治区"
+    abbr: "藏"
+    kind: "autonomous-region"
+    allocations:
+      - { code: "A", place: "拉萨市" }
+      - { code: "B", place: "昌都地区" }
+      - { code: "C", place: "山南地区" }
+      - { code: "D", place: "日喀则地区" }
+      - { code: "E", place: "那曲地区" }
+      - { code: "F", place: "阿里地区" }
+      - { code: "G", place: "林芝地区" }
+
+  - key: "shaanxi"
+    name: "陕西省"
+    abbr: "陕"
+    kind: "province"
+    allocations:
+      - { code: "A", place: "西安市" }
+      - { code: "B", place: "铜川市" }
+      - { code: "C", place: "宝鸡市" }
+      - { code: "D", place: "咸阳市" }
+      - { code: "E", place: "渭南市" }
+      - { code: "F", place: "汉中市" }
+      - { code: "G", place: "安康市" }
+      - { code: "H", place: "商洛市" }
+      - { code: "J", place: "延安市" }
+      - { code: "K", place: "榆林市" }
+      - { code: "V", place: "杨凌" }
+
+  - key: "gansu"
+    name: "甘肃省"
+    abbr: "甘"
+    kind: "province"
+    allocations:
+      - { code: "A", place: "兰州市" }
+      - { code: "B", place: "嘉峪关市" }
+      - { code: "C", place: "金昌市" }
+      - { code: "D", place: "白银市" }
+      - { code: "E", place: "天水市" }
+      - { code: "F", place: "酒泉市" }
+      - { code: "G", place: "张掖市" }
+      - { code: "H", place: "武威市" }
+      - { code: "J", place: "定西市" }
+      - { code: "K", place: "陇南市" }
+      - { code: "L", place: "平凉市" }
+      - { code: "M", place: "庆阳市" }
+      - { code: "N", place: "临夏回族自治州" }
+      - { code: "P", place: "甘南藏族自治州" }
+
+  - key: "qinghai"
+    name: "青海省"
+    abbr: "青"
+    kind: "province"
+    allocations:
+      - { code: "A", place: "西宁市" }
+      - { code: "B", place: "海东地区" }
+      - { code: "C", place: "海北藏族自治州" }
+      - { code: "D", place: "黄南藏族自治州" }
+      - { code: "E", place: "海南藏族自治州" }
+      - { code: "F", place: "果洛藏族自治州" }
+      - { code: "G", place: "玉树藏族自治州" }
+      - { code: "H", place: "海西蒙古族藏族自治州" }
+
+  - key: "ningxia"
+    name: "宁夏回族自治区"
+    abbr: "宁"
+    kind: "autonomous-region"
+    allocations:
+      - { code: "A", place: "银川市" }
+      - { code: "B", place: "石嘴山市" }
+      - { code: "C", place: "吴忠市" }
+      - { code: "C", place: "固原市" }
+      - { code: "E", place: "中卫市" }
+
+  - key: "xinjiang"
+    name: "新疆维吾尔自治区"
+    abbr: "新"
+    kind: "autonomous-region"
+    allocations:
+      - { code: "A", place: "乌鲁木齐市" }
+      - { code: "B", place: "昌吉回族自治州" }
+      - { code: "C", place: "石河子市" }
+      - { code: "E", place: "博尔塔拉蒙古自治州" }
+      - { code: "D", place: "伊犁哈萨克自治州" }
+      - { code: "F", place: "伊犁哈萨克自治州" }
+      - { code: "G", place: "塔城地区" }
+      - { code: "H", place: "阿勒泰地区" }
+      - { code: "J", place: "克拉玛依市" }
+      - { code: "K", place: "吐鲁番地区" }
+      - { code: "L", place: "哈密地区" }
+      - { code: "M", place: "巴音郭楞蒙古自治州" }
+      - { code: "N", place: "阿克苏地区" }
+      - { code: "P", place: "克孜勒苏柯尔克孜自治州" }
+      - { code: "Q", place: "喀什地区" }
+      - { code: "R", place: "和田地区" }
+
+# 特殊发牌机关代号（标准表 A.1 末尾三行及脚注）
+special:
+  - code: "O"
+    meaning: "省、自治区公安厅交通管理局、处车辆管理所"
+    note: "用于公安机关行政单位在编机动车等警用专段，各省、自治区通用"
+  - code: "Z"
+    meaning: "广东省公安厅交通管理局车辆管理所"
+    note: "核发的港澳入出境车号牌使用发牌机关代号「Z」"
+  - code: "W"
+    meaning: "山东省公安厅交通警察总队车辆管理所"
+    note: "山东省公安厅交通警察总队车辆管理所的发牌机关代号为「O」和「W」"
+
+# 编号规则说明（依据标准正文 5.8，非推测）
+rules:
+  - key: "capital-a"
+    title: "省会（首府）固定为 A"
+    text: "标准表 A.1 中，各省会、首府的发牌机关代号均为 A。"
+    source: "GA 36-2018 附录 A 表 A.1"
+  - key: "sequential"
+    title: "其余代号按批准启用顺序依次分配"
+    text: "标准 5.8.3 规定：设区的市或者相当于同级的公安机关交通管理部门，报经公安部交通管理局批准同意后，可启用新的发牌机关代号。即 B、C、D…… 不是按经济、人口、行政级别或地理顺序排，而是按报批启用的先后依次分配。"
+    source: "GA 36-2018 5.8.3"
+  - key: "municipality-full"
+    title: "直辖市用 A 至 Z 全序列"
+    text: "标准 5.8.2 规定：直辖市公安机关交通管理部门使用发牌机关代号为 A 至 Z，应按照英文字母顺序依次启用新的发牌机关代号，并在启用前 30 天报公安部交通管理局备案。"
+    source: "GA 36-2018 5.8.2"
+  - key: "skip-io"
+    title: "发牌机关代号不使用 I，O 有专用"
+    text: "标准表 A.1 中各省地市代号没有使用 I；O 单独留给省、自治区公安厅车管所警用专段，不作为普通地市代号。序号位（车牌后几位）同样不使用字母 O 和 I（标准 5.9.1）。"
+    source: "GA 36-2018 附录 A 表 A.1、5.9.1"
+  - key: "multi-letter"
+    title: "部分城市或地区对应多个代号"
+    text: "机动车保有量增长后，部分登记机关会启用第二个乃至第三个发牌机关代号。标准表 A.1 中，佛山（E、X、Y）、青岛（B、U）、烟台（F、Y）、潍坊（G、V）、哈尔滨（A、L）、福州（A、K）、南昌（A、M）、长沙（A、S）、成都（A、G）、桂林（C、H）、伊犁（D、F）均为多地代号示例。"
+    source: "GA 36-2018 附录 A 表 A.1"
+  - key: "shared-code"
+    title: "少数情况两地共用一个代号"
+    text: "标准表 A.1 中，宁夏吴忠市与固原市共用发牌机关代号 C。"
+    source: "GA 36-2018 附录 A 表 A.1"
+  - key: "gap"
+    title: "个别省份存在字母空缺"
+    text: "标准表 A.1 中，云南的地市代号从 A 直接到 C，没有 B。此类空缺是标准原文如此，不代表「尚未启用」或「跳号」，本页据实呈现。"
+    source: "GA 36-2018 附录 A 表 A.1"

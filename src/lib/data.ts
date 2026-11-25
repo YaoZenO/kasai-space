@@ -22,6 +22,7 @@ const FILES = [
   'festivals',
   'library',
   'zodiac',
+  'plates',
 ] as const;
 
 export type DataKey = (typeof FILES)[number];

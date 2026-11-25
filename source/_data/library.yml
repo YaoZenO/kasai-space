@@ -96,3 +96,16 @@ topics:
       - { name: "上海", note: "直辖市", link: "/city/shanghai/" }
       - { name: "北京", note: "直辖市", link: "/city/beijing/" }
       - { name: "深圳", note: "广东省 · 计划单列市", link: "/city/shenzhen/" }
+
+  # ============ 专题六：车牌字母编号 ============
+  # 页面在 /plates/（数据驱动生成，不在 /library/ 下）；
+  # 数据来源是公安部标准 GA 36-2018 附录 A 表 A.1，逐条转录，不掺民间说法。
+  - key: "plates"
+    title: "车牌字母编号"
+    kicker: "PLATES"
+    desc: "中国机动车号牌「省份简称 + 英文字母」的发牌机关代号怎么排：按公安部标准 GA 36-2018 附录 A 整理的各地代号与登记机关对照，直辖市 A 至 Z 全序列、特殊代号与编号规则。"
+    link: "/plates/"
+    linkText: "进入车牌字母编号探索"
+    entries:
+      - { name: "编号规则", note: "省会固定 A · 其余按启用顺序", link: "/plates/" }
+      - { name: "各省对照表", note: "31 个省级行政区发牌机关代号", link: "/plates/" }

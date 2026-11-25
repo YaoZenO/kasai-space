@@ -178,7 +178,7 @@ if (!fs.existsSync(CI_FILE)) {
   fail('.github/workflows/ci.yml 不存在，CI 门禁无从校验');
 } else {
   const ci = fs.readFileSync(CI_FILE, 'utf8');
-  for (const script of ['test:img', 'test:redirects', 'test:blurb']) {
+  for (const script of ['test:img', 'test:redirects', 'test:blurb', 'test:plates']) {
     if (new RegExp('npm run ' + script + '(?![\\w:-])').test(ci)) {
       pass(`ci.yml 已执行 npm run ${script}`);
     } else {
@@ -188,7 +188,7 @@ if (!fs.existsSync(CI_FILE)) {
 
   // 读 dist/ 的套件必须排在构建之后，否则 CI 里断言跑在空产物上（E-133 同族）。
   const buildAt = ci.indexOf('npm run build');
-  for (const script of ['test:img', 'test:blurb']) {
+  for (const script of ['test:img', 'test:blurb', 'test:plates']) {
     const at = ci.indexOf('npm run ' + script);
     if (buildAt === -1 || at === -1) continue;
     if (at > buildAt) {
