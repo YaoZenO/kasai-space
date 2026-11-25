@@ -219,6 +219,8 @@
 | E-185 | P3 | 脚本按「有 CRLF 就整篇重排」回写 `ERRORS.md`，把混排里的 2 行纯 LF 也改成 CRLF，实际 32 行的改动显示成 7111 行 | 已修复（从 `git show HEAD:` 重放改动）+ 机制：既有文件只用 Edit 按行改，脚本只生成新文件；提交前比对 `git diff --stat` 与 `--ignore-cr-at-eol --stat` 两个数字 |
 | E-186 | P1 | 删除专题页第三方照片时，21 套断言里没有一条校验产物 HTML 的 `<img src>` 是否指向真实文件——删图不改页面，构建全绿、页面留 404 | 已修复（新增 `test/img-refs.js` 并串入 `npm test`）+ 机制：扫描 `dist/**/*.html` 的 src/srcset/content，去 query 后逐条断言文件存在，且带「造假断图必须被抓出」的变异自检 |
 | E-187 | P3 | Edit 工具改写 `ERRORS.md` 时按自己的行尾策略整篇重写，3585 行 CRLF 被压成 LF，真实 18 行的改动显示成 7188 行 | 已修复（从 `git show HEAD:` 字节级重放，保留原有 2 行纯 LF）+ 机制：改完混排行尾的文档必须同时比对 `git diff --stat` 与 `--ignore-cr-at-eol --stat`，两数不等即判失败重做 |
+| E-188 | P1 | 分类收敛为 4 个主题后，7 条旧分类 URL 没在 `vercel.json` 补永久重定向，线上入口直接 404 | 已修复（补 14 条带/不带尾斜杠的 permanent）+ 机制：新增 `test/redirects.js` 锁「旧分类 → 新主题」对照表，缺一条 / 指错 / 改 307 都判红 |
+| E-189 | P1 | 断图断言 `test:img` 只串进 `npm test`，而 CI 逐项列套件、不跑 `npm test`，push 到 main 根本拦不住 | 已修复（`ci.yml` 加 Image refs 步骤）+ 机制：`test/build-env.js` 反查 `ci.yml` 必须执行 `test:img` 与 `test:redirects` |
 ---
 
 ## 3. P0 — 数据损害（绝不再犯）
@@ -3619,3 +3621,33 @@
 - **防复发（机制）：** 判断标准改为结果校验。任何对混排行尾文档的改动，提交前必须同时跑
   `git diff --stat` 与 `git diff --ignore-cr-at-eol --stat`；两个数字不相等即判本轮改动失败，
   停下重做，不接受「内容是对的」作为辩解。
+
+### E-188 分类收敛删掉 7 条旧分类 URL 却没补重定向：线上入口直接 404，构建与全部断言全绿（2026-11-26）
+
+- **现象：** `cbc3142` 把文章分类从 7 条收敛为 4 个主题，`/categories/个人感悟/`、`/categories/名词解释/`、
+  `/categories/城市数据/`、`/categories/学习路线/`、`/categories/职业发展/`、`/categories/设计资源/`、
+  `/categories/踩坑记录/` 这 7 条旧路径线上返回 404 且不带 `Location`；新主题页（如 `/categories/技术与工程/`）返回 200。
+- **根因：** 改 URL 的动作落在两处——文章的 `categories` 字段、`docs/astro-migration/URL-BASELINE.txt`；
+  而「旧 URL 要留跳转」这条落在第三处 `vercel.json`，它不在任何断言的覆盖范围里，
+  于是没有任何环节会提醒「URL 基线删了一行，重定向表却没长一行」。
+- **修法：** `vercel.json` 的 `redirects` 补 7 条旧分类 ×（带/不带尾斜杠）= 14 条 `permanent: true`，
+  分别指向对应新主题，写法与既有的 `/uses`、直辖市旧路径一致。
+- **防复发（机制）：** 新增 `test/redirects.js`，把「旧分类 → 新主题」对照表写进断言本身：
+  14 条里缺一条、指向错主题、或把 `permanent` 改成 `false`，全部判红；另校验 `source` 带前导斜杠、
+  `destination` 是站内绝对路径、`source` 不重复（重复时只有第一条生效）。已串入 `npm test` 与 CI。
+  变异自检实测：删掉 `/categories/踩坑记录/` 一条，断言立刻报「缺失」并以退出码 1 结束。
+
+### E-189 断图断言只挂在本地 npm test 上，CI 逐项写死套件根本不跑它（2026-11-26）
+
+- **现象：** 为堵 E-186 新增的 `test/img-refs.js` 已经串进 `npm test`，但推送到 `main` 的 CI
+  （#45221029151）跑到「Composer blocks roundtrip」就结束，`test:img` 一步都没有执行。
+  「删图不改引用」这个口子在 push / PR 路径上仍然敞着，绿色 CI 只是没去测。
+- **根因：** 套件入口有两条且各自维护：`package.json` 的 `npm test` 串行链、`.github/workflows/ci.yml`
+  的步骤清单。CI 并不执行 `npm test`，新增断言只登记在其中一处，等于只在本机生效。
+  「语法检查 `node --check test/*.js`」看似覆盖了 `test/`，但它只校验语法，不跑断言。
+- **修法：** `ci.yml` 在「Module pages E2E」之后、「CSS tokens」之前加 `Image refs` 步骤
+  （`npm run test:img`）；必须排在 `Astro build` 之后，因为断言读的是 `dist/**/*.html`。
+- **防复发（机制）：** `test/build-env.js` 增加第 4 组，反向解析 `ci.yml` 并断言它确实执行
+  `npm run test:img` 与 `npm run test:redirects`——漏加步骤时 `test:env` 直接红，而 `test:env` 正是 CI 的
+  第 0 步。变异自检实测：把 `Image refs` 步骤从 `ci.yml` 删掉，`test:env` 报
+  「ci.yml 没有执行 npm run test:img」并以退出码 1 结束。
