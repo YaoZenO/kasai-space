@@ -24,6 +24,7 @@
 // 一律返回 { available: false }，前端据此干净降级到系统偏好（规范 §3.5 第 4 类）。
 const crypto = require('node:crypto');
 const { route } = require('./_lib/router');
+const { handleSteam } = require('./_lib/steam');
 
 const DEG = Math.PI / 180;
 const DAY_MS = 86400000;
@@ -146,7 +147,15 @@ function deviceTzOffset(req) {
   }
 }
 
-module.exports = route(({ req }) => {
+module.exports = route(async ({ req, res }) => {
+  try {
+    const kind = new URL(req && req.url ? req.url : '/', 'http://local').searchParams.get('kind');
+    if (kind === 'steam') {
+      await handleSteam(res);
+      return;
+    }
+  } catch { /* ignore malformed url */ }
+
   const latRaw = header(req, 'x-vercel-ip-latitude');
   const lonRaw = header(req, 'x-vercel-ip-longitude');
   const tz = header(req, 'x-vercel-ip-timezone');

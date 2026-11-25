@@ -224,6 +224,7 @@
 | E-190 | P1 | 首页 WebGL 重写后 reduce 不再生效：动画循环无条件启动、相机随滚动推进，旧版静态帧与对应断言一起被删 | 已修复（`start()` 拦 RM、`paintStill()` 画固定一帧、补 `visibilitychange` 停启）+ 机制：`test/home-study.js` 两条 E-190 断言锁入口与静态帧，出现无条件 `requestAnimationFrame(loop)` 即判红 |
 | E-191 | P1 | 文章页导语读不存在的 `post.data?.blurb`，条件恒假，三篇写了 blurb 的文章页头永远不显示 | 已修复（改读 `post.blurb`）+ 机制：新增 `test/post-blurb.js` 锁模板写法与产物导语（含空集保护与反向计数），串入 `npm test` 与 CI 的 `Post blurb` 步骤，`test/build-env.js` 反查该步骤存在且排在构建之后 |
 | E-192 | P2 | `api/steam.js` 按 `(req, res)` 写 `route()` 回调致 `res` 为 `undefined` 抛 500，且直接 `return` 会被 `http.json()` 的 `no-store` 覆盖缓存头 | 已修复（解构 `{ res }` + 自写 `sendJson` 保留 `s-maxage`）+ 机制：新增 `test/steam-api.js` 实测调用 handler 校验 200/405 与 `Cache-Control` |
+| E-193 | P2 | 新增独立 `api/steam.js` 使顶层 Serverless Functions 增至 13 个，撞破 Vercel Hobby 12 个上限致整站部署被拒 | 已修复（逻辑迁入 `api/_lib/steam.js`，由 `api/sun-times.js?kind=steam` + `vercel.json` rewrite 复用，保持 12 个函数）+ 机制：`test/steam-api.js` 锁定 `api/*.js <= 12` 与 rewrite 规则 |
 ---
 
 ## 3. P0 — 数据损害（绝不再犯）
@@ -3708,3 +3709,11 @@
 - **根因：** ① `api/_lib/router.js` 调用 handler 时传的是单个上下文对象 `handler({ req, res, body, session })`，而非 Express 风格的 `(req, res)` 两个位置参数；② 即使修正签名，只要 handler 返回非 `undefined` 对象，`router.js` 会交给 `http.json(res, 200, out)` 输出，而 `json()` 会无条件写死 `Cache-Control: no-store`，把 `api/steam.js` 设的 30 分钟 `s-maxage` 缓存头静默覆盖掉。
 - **修法：** `api/steam.js` 改为解构 `async ({ res }) =>`，并按 `router.js` 约定通过本地 `sendJson(res, obj, cacheControl)` 自行写出 200 响应、返回 `undefined`，成功响应走 `public, s-maxage=1800, stale-while-revalidate=3600`，降级响应走 `public, s-maxage=60`。
 - **防复发（机制）：** 新增 `test/steam-api.js` 实际调用 `api/steam.js` handler，断言未配置环境变量时返回 200 + `{ available: false, reason: 'unconfigured' }` 且 `Cache-Control` 含 `s-maxage=`（防止再次被 `no-store` 覆盖），同时断言 `POST` 返回 405 与 `dist/games/index.html` 产物结构完整。
+
+### E-193 新增 `api/steam.js` 撞破 Vercel Hobby 12 个 Serverless Functions 上限（2026-11-26）
+
+- **发生时间：** 2026-11-26 引入（`8dc707b`），推送上线后因线上未更新排查发现并修复。
+- **现象：** 推送 `521d2a1` 到 `origin/main` 后，线上 `/api/steam` 持续 404 且 `/games/` 停留在旧版产物，Vercel 未完成新部署。
+- **根因：** 仓库 `api/` 顶层原有恰好 12 个 Serverless Function（11 个后台 + `sun-times.js`），已是 Vercel Hobby 计划硬上限；新增第 13 个顶层文件 `api/steam.js` 直接触发 Hobby 计划函数数量限制导致部署被拒。
+- **修法：** 删除顶层 `api/steam.js`，将逻辑迁入不计入函数配额的 `api/_lib/steam.js`；由同属公开只读端点的 `api/sun-times.js` 按 `?kind=steam` 分发，并在 `vercel.json` 增加 `rewrites: [{ source: "/api/steam", destination: "/api/sun-times?kind=steam" }]`，前端 `/api/steam` 路径不变，顶层函数回落到 12 个。
+- **防复发（机制）：** `test/steam-api.js` 新增第 0 条硬断言，扫描 `api/` 顶层 `*.js` 文件数必须 `<= 12`，并校验 `vercel.json` 存在 `/api/steam` 重写项；超限即判红。

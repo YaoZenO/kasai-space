@@ -3,6 +3,12 @@
   "buildCommand": "npm run astro:build",
   "outputDirectory": "dist",
   "installCommand": "npm install --include=dev",
+  "rewrites": [
+    {
+      "source": "/api/steam",
+      "destination": "/api/sun-times?kind=steam"
+    }
+  ],
   "redirects": [
     {
       "source": "/uses",

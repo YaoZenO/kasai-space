@@ -1,5 +1,6 @@
 'use strict';
-// GET /api/steam —— 只读 Steam 游玩时长与近两周在玩代理（2026-11-26）
+// Steam 只读游玩时长与近两周在玩代理逻辑（由 api/sun-times.js?kind=steam 经 vercel.json /api/steam 重写复用，
+// 以满足 Vercel Hobby 计划最多 12 个 Serverless Functions 的硬上限，见 E-193）。
 //
 // 环境变量（在 Vercel 项目设置里配置，绝不写入仓库、绝不下发给浏览器）：
 //   STEAM_API_KEY   Steam Web API Key（https://steamcommunity.com/dev/apikey）
@@ -8,8 +9,6 @@
 //
 // 隐私要求：Steam 个人资料「游戏详情」须设为公开，且不勾选「始终保密游戏总时间」。
 // 缺失配置或上游异常一律返回 { available: false }，前端优雅降级。
-
-const { route } = require('./_lib/router');
 
 const STEAM_API = 'https://api.steampowered.com';
 const TIMEOUT_MS = 6000;
@@ -32,9 +31,8 @@ async function fetchJson(url) {
 }
 
 function normalizeInput(raw) {
-  let s = String(raw || '').trim();
+  const s = String(raw || '').trim();
   if (!s) return '';
-  // 允许用户直接贴完整个人资料链接
   const mProf = /steamcommunity\.com\/profiles\/(\d{17})/i.exec(s);
   if (mProf) return mProf[1];
   const mId = /steamcommunity\.com\/id\/([^/?#]+)/i.exec(s);
@@ -70,7 +68,7 @@ function sendJson(res, obj, cacheControl) {
   res.end(JSON.stringify(obj));
 }
 
-module.exports = route(async ({ res }) => {
+async function handleSteam(res) {
   const key = String(process.env.STEAM_API_KEY || '').trim();
   const rawId = String(process.env.STEAM_ID || '').trim();
   const CACHE_OK = 'public, s-maxage=1800, stale-while-revalidate=3600';
@@ -166,4 +164,6 @@ module.exports = route(async ({ res }) => {
     top,
     byApp,
   }, CACHE_OK);
-}, { methods: ['GET'], body: false, origin: false, auth: false });
+}
+
+module.exports = { handleSteam };
