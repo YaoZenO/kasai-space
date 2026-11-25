@@ -102,7 +102,19 @@ if (malformed.length) {
   ok('全部 ' + rules.length + ' 条 redirects 形状合规（前导斜杠 / 站内路径 / 永久）');
 }
 
-// [3] source 不得重复（重复时只有第一条生效，后面的静默失效）
+// [3] source 必须纯 ASCII：路径里的中文要写成 RFC 3986 百分号编码。
+// 实测（E-188）：原样中文的 source 在 Vercel 上不匹配，线上照样 404，
+// 而本地 JSON、断言、构建全都看不出异常。
+const nonAscii = rules
+  .map((r, i) => (/[^\x20-\x7E]/.test(String(r.source)) ? i + '.source 含非 ASCII 字符' : null))
+  .filter(Boolean);
+if (nonAscii.length) {
+  bad('redirects 的 source 含非 ASCII（Vercel 不匹配，请用百分号编码）：' + nonAscii.join('；'));
+} else {
+  ok('全部 redirects 的 source 均为纯 ASCII（中文已百分号编码）');
+}
+
+// [4] source 不得重复（重复时只有第一条生效，后面的静默失效）
 const seen = new Map();
 const dupes = [];
 for (const r of rules) {
