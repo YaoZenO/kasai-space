@@ -221,6 +221,7 @@
 | E-187 | P3 | Edit 工具改写 `ERRORS.md` 时按自己的行尾策略整篇重写，3585 行 CRLF 被压成 LF，真实 18 行的改动显示成 7188 行 | 已修复（从 `git show HEAD:` 字节级重放，保留原有 2 行纯 LF）+ 机制：改完混排行尾的文档必须同时比对 `git diff --stat` 与 `--ignore-cr-at-eol --stat`，两数不等即判失败重做 |
 | E-188 | P1 | 分类收敛为 4 个主题后，7 条旧分类 URL 没在 `vercel.json` 补永久重定向，线上入口直接 404 | 已修复（补 14 条带/不带尾斜杠的 permanent）+ 机制：新增 `test/redirects.js` 锁「旧分类 → 新主题」对照表，缺一条 / 指错 / 改 307 都判红 |
 | E-189 | P1 | 断图断言 `test:img` 只串进 `npm test`，而 CI 逐项列套件、不跑 `npm test`，push 到 main 根本拦不住 | 已修复（`ci.yml` 加 Image refs 步骤）+ 机制：`test/build-env.js` 反查 `ci.yml` 必须执行 `test:img` 与 `test:redirects` |
+| E-190 | P1 | 首页 WebGL 重写后 reduce 不再生效：动画循环无条件启动、相机随滚动推进，旧版静态帧与对应断言一起被删 | 已修复（`start()` 拦 RM、`paintStill()` 画固定一帧、补 `visibilitychange` 停启）+ 机制：`test/home-study.js` 两条 E-190 断言锁入口与静态帧，出现无条件 `requestAnimationFrame(loop)` 即判红 |
 ---
 
 ## 3. P0 — 数据损害（绝不再犯）
@@ -3654,3 +3655,20 @@
   `npm run test:img` 与 `npm run test:redirects`——漏加步骤时 `test:env` 直接红，而 `test:env` 正是 CI 的
   第 0 步。变异自检实测：把 `Image refs` 步骤从 `ci.yml` 删掉，`test:env` 报
   「ci.yml 没有执行 npm run test:img」并以退出码 1 结束。
+
+### E-190 首页 WebGL 重写后不再遵守 prefers-reduced-motion：动画循环无条件启动，防护断言同时被删（2026-11-26）
+
+- **现象：** `21f408e` 把 3D 场景并入 `home-study.js` 之后，开了「减少动态效果」的用户看到的仍是满屏持续旋转——
+  星盘双环、秋千、浮空体、内殿核心一直在动，相机还随滚动缓动推进。
+- **根因：** `RM` 只被用来给 `intro` 赋初值（第 554 行），第 648 行的 `intro = 1` 立刻把它覆盖，等于没读；
+  `loop()` 与 `requestAnimationFrame(loop)` 无条件启动。旧版（`af72e2f`）的「reduce 只画一帧静态画面 +
+  `visibilitychange` 停启」在重写里被整段删掉，`test/home-study.js` 校验这两段的断言也一起删了，
+  于是构建、`npm test`、CI 全绿，只有开了 reduce 的人觉得晃。
+- **修法：** 动画循环收成唯一入口：`start()` 在 `RM` 为真时直接拒绝启动，`stop()` 保存并取消 rAF 句柄；
+  reduce 走 `paintStill()`——机位锁第一屏（`REDUCE_P = 0`）、时间轴归零、只画一次，之后由 `resize` 与
+  主题切换负责重画；补回 `visibilitychange`：进后台停、回来续。
+- **防复发（机制）：** `test/home-study.js` 增两条 E-190 断言。第一条锁静态帧链路：`RM` 读取、`REDUCE_P`、
+  `paintStill()` 必须把 `t` 归零、`start()` 必须写 `if (RM || raf) return false;`、初始化必须走 `if (RM) { paintStill();`，
+  且一旦再出现 `requestAnimationFrame(loop)` 这种无条件自调用即判红。第二条锁 `visibilitychange` +
+  `cancelAnimationFrame(raf)`。变异自检实测：删掉 `start()` 里的 RM 判断、或删掉 `visibilitychange` 监听，
+  断言各红 1 项并以退出码 1 结束。
