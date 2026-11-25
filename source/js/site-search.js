@@ -121,7 +121,8 @@
     var html = '';
     for (var j = 0; j < hits.length && j < MAX; j += 1) {
       var it2 = hits[j].it;
-      html += '<a class="sr-row" href="' + esc(it2.u) + '">'
+      var delay = Math.min(j, 10) * 28;
+      html += '<a class="sr-row" style="--sr-d:' + delay + 'ms" href="' + esc(it2.u) + '">'
         + '<span class="sr-row-main">'
         + '<span class="sr-row-title">' + highlight(it2.t, words) + '</span>'
         + (it2.s ? '<span class="sr-row-desc">' + highlight(it2.s, words) + '</span>' : '')
@@ -130,7 +131,55 @@
         + '</a>';
     }
     listEl.innerHTML = html;
+    activeIdx = -1;
   }
+
+  var activeIdx = -1;
+  function setActiveRow(next) {
+    var rows = listEl.querySelectorAll('.sr-row');
+    if (!rows.length) { activeIdx = -1; return; }
+    if (next < 0) next = rows.length - 1;
+    if (next >= rows.length) next = 0;
+    activeIdx = next;
+    for (var i = 0; i < rows.length; i += 1) {
+      rows[i].classList.toggle('is-selected', i === activeIdx);
+    }
+    if (rows[activeIdx] && rows[activeIdx].scrollIntoView) {
+      rows[activeIdx].scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  input.addEventListener('keydown', function (ev) {
+    if (ev.key === 'ArrowDown') {
+      ev.preventDefault();
+      setActiveRow(activeIdx + 1);
+    } else if (ev.key === 'ArrowUp') {
+      ev.preventDefault();
+      setActiveRow(activeIdx - 1);
+    } else if (ev.key === 'Enter' && activeIdx >= 0) {
+      var rows = listEl.querySelectorAll('.sr-row');
+      if (rows[activeIdx]) {
+        ev.preventDefault();
+        window.location.href = rows[activeIdx].getAttribute('href');
+      }
+    } else if (ev.key === 'Escape' && input.value) {
+      input.value = '';
+      syncUrl('');
+      render('');
+    }
+  });
+
+  // 一键快捷热词填入
+  document.addEventListener('click', function (ev) {
+    var btn = ev.target && ev.target.closest ? ev.target.closest('[data-sr-quick]') : null;
+    if (!btn) return;
+    var term = btn.getAttribute('data-sr-quick') || '';
+    if (!term) return;
+    input.value = term;
+    syncUrl(term);
+    render(term);
+    input.focus();
+  });
 
   function syncUrl(q) {
     try {

@@ -1,6 +1,7 @@
 ---
-// /games/：游戏封面墙（PAGE-FORM-PLAN §4.6.4 / S2）。
-// 保留封面瓦片，只换页头：h1 + 一句结论 + 状态角标；不按状态分组。
+// /games/：零边框暗房画廊 + 宽银幕赛事专题（2026-11-26 重构）。
+// 复用底层动态经纬画布 #ab-bg-canvas，去掉圆角硬边框，
+// 以不对称开篇 + 宽银幕双拼夺冠展板 + Focus-Dim 暗房画廊呈现 5 款游戏与 2 场专题。
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import EmptyState from '../../components/EmptyState.astro';
 import { getData } from '../../lib/data';
@@ -16,74 +17,112 @@ for (const it of items) {
   if (it.status) statuses.add(String(it.status));
 }
 
-const leadParts = [`${items.length} 个`];
-if (statuses.size === 1) leadParts.push(`全部${[...statuses][0]}`);
-else if (statuses.size > 1) leadParts.push([...statuses].join(' / '));
+const leadParts = [`${items.length} 款游戏`, '2 场夺冠专题'];
 if (genres.size) leadParts.push(`${genres.size} 种类型`);
 const lead = leadParts.join(' · ');
 ---
 
 <BaseLayout title="游戏" currentPath="/games/">
-  <div class="paper-page">
-    <div class="home-wrap">
+  <canvas class="ab-bg-canvas" id="ab-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="paper-page ab-page-shell">
+    <div class="home-wrap gm-page">
       <header class="gm-head">
-        <h1 class="gm-title">游戏</h1>
-        <p class="gm-lead">{lead}</p>
+        <p class="ab-watermark" data-ab-parallax="0.16" aria-hidden="true">GAMES</p>
+
+        <div class="gm-head-main">
+          <p class="ab-kicker ab-reveal" style="--ab-d: 0ms;">
+            <span>PLAY</span>
+            <span class="ab-kicker-sep" aria-hidden="true">/</span>
+            <span>ESPORTS</span>
+          </p>
+          <h1 class="gm-title">游戏</h1>
+          <p class="gm-lead">{lead}</p>
+        </div>
+
+        <dl class="gm-ledger" aria-label="游戏与赛事统计">
+          <div class="gm-ledger-item">
+            <dt>在玩记录</dt><dd>{items.length} 款</dd>
+          </div>
+          <div class="gm-ledger-item">
+            <dt>夺冠专题</dt><dd>2 场</dd>
+          </div>
+        </dl>
       </header>
 
-      <section class="gm-specials" aria-label="赛事夺冠专题">
-        <a class="gm-feature" href={urlFor('/blg-champion/')}>
-          <img class="gm-feature-img" src={urlFor('/img/games/blg-s16/06-trophy-yonhap.jpg')} alt="BLG 全队再次捧起召唤师奖杯" loading="lazy" />
-          <span class="gm-feature-body">
-            <span class="gm-feature-kicker">2026 LOL S16 · 3-1 GEN.G</span>
-            <span class="gm-feature-title">BLG 夺冠：队史首座召唤师奖杯</span>
-            <span class="gm-feature-sub">LPL 时隔五年再夺世界冠军 →</span>
-          </span>
-        </a>
+      <section class="gm-specials-wrap" aria-label="赛事夺冠专题">
+        <p class="gm-section-kicker">CHAMPIONSHIP SPECIALS · 赛事夺冠专题</p>
+        <div class="gm-specials">
+          <a class="gm-feature" href={urlFor('/blg-champion/')}>
+            <img class="gm-feature-img" src={urlFor('/img/games/blg-s16/06-trophy-yonhap.jpg')} alt="BLG 全队再次捧起召唤师奖杯" loading="lazy" />
+            <span class="gm-feature-body">
+              <span class="gm-feature-kicker">2026 LOL S16 · 3-1 GEN.G</span>
+              <span class="gm-feature-title">BLG 夺冠：队史首座召唤师奖杯</span>
+              <span class="gm-feature-sub">LPL 时隔五年再夺世界冠军 →</span>
+            </span>
+          </a>
 
-        <a class="gm-feature" href={urlFor('/cologne-major-2026/')}>
-          <img class="gm-feature-img" src={urlFor('/img/games/cologne-major-2026/01-trophy.jpg')} alt="Falcons 全队走向 Major 奖杯" loading="lazy" style="object-position:center 42%" />
-          <span class="gm-feature-body">
-            <span class="gm-feature-kicker">2026 CS2 MAJOR · 3-0 FURIA</span>
-            <span class="gm-feature-title">Falcons 科隆夺冠，NiKo 圆梦</span>
-            <span class="gm-feature-sub">队史首座 Major 奖杯，3067 天的等待 →</span>
-          </span>
-        </a>
+          <a class="gm-feature" href={urlFor('/cologne-major-2026/')}>
+            <img class="gm-feature-img" src={urlFor('/img/games/cologne-major-2026/01-trophy.jpg')} alt="Falcons 全队走向 Major 奖杯" loading="lazy" style="object-position:center 42%" />
+            <span class="gm-feature-body">
+              <span class="gm-feature-kicker">2026 CS2 MAJOR · 3-0 FURIA</span>
+              <span class="gm-feature-title">Falcons 科隆夺冠，NiKo 圆梦</span>
+              <span class="gm-feature-sub">队史首座 Major 奖杯，3067 天的等待 →</span>
+            </span>
+          </a>
+        </div>
       </section>
 
       {items.length === 0 ? (
         <EmptyState>还没有游戏条目，可以先回<a href={urlFor('/')}>首页</a>看看别的内容。</EmptyState>
       ) : (
-        <div class="gm-wall">
-          {items.map((it: any) => (
-            <a class={`gm-tile${it.cover ? '' : ' no-cover'}`} href={urlFor(detailPath('games', it))}>
-              {it.cover && <img class="gm-tile-img" src={urlFor(it.cover)} alt={it.title} loading="lazy" />}
-              {it.status && <span class="gm-status">{it.status}</span>}
-              <span class="gm-tile-cap">
-                <span class="gm-tile-title">{it.title}</span>
-                {it.summary && <span class="gm-tile-sum">{it.summary}</span>}
-                {(it.genre || it.platform) && (
-                  <span class="gm-tile-meta">{[it.genre, it.platform].filter(Boolean).join(' · ')}</span>
-                )}
-              </span>
-            </a>
-          ))}
-        </div>
+        <section class="gm-wall-wrap" aria-label="游戏记录">
+          <p class="gm-section-kicker">LIBRARY · 在玩记录</p>
+          <div class="gm-wall">
+            {items.map((it: any) => (
+              <a class={`gm-tile${it.cover ? '' : ' no-cover'}`} href={urlFor(detailPath('games', it))}>
+                {it.cover && <img class="gm-tile-img" src={urlFor(it.cover)} alt={it.title} loading="lazy" />}
+                {it.status && <span class="gm-status">{it.status}</span>}
+                <span class="gm-tile-cap">
+                  <span class="gm-tile-title">{it.title}</span>
+                  {it.summary && <span class="gm-tile-sum">{it.summary}</span>}
+                  {(it.genre || it.platform) && (
+                    <span class="gm-tile-meta">{[it.genre, it.platform].filter(Boolean).join(' · ')}</span>
+                  )}
+                </span>
+              </a>
+            ))}
+          </div>
+        </section>
       )}
     </div>
   </div>
 </BaseLayout>
 
 <style>
-  .gm-specials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:0 0 22px}
-  .gm-feature{position:relative;display:flex;align-items:flex-end;min-height:164px;border:1.5px solid var(--win-line);border-radius:6px;overflow:hidden;text-decoration:none;color:#fff;transition:transform 200ms ease,border-color 200ms ease}
-  .gm-feature:hover{transform:translateY(-2px);border-color:var(--accent)}
-  .gm-feature-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 32%}
-  .gm-feature::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,16,12,.14),rgba(20,16,12,.82))}
-  .gm-feature-body{position:relative;z-index:1;display:flex;flex-direction:column;gap:3px;padding:16px 18px}
-  .gm-feature-kicker{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#f5c56b}
-  .gm-feature-title{font-family:var(--font-serif-title);font-size:20px;font-weight:600;line-height:1.25}
-  .gm-feature-sub{font-size:13px;opacity:.88}
-  .gm-feature:hover .gm-feature-title{text-decoration:underline;text-underline-offset:3px}
-  @media (max-width:767.98px){.gm-specials{grid-template-columns:minmax(0,1fr)}.gm-feature{min-height:132px}.gm-feature-title{font-size:18px}}
+  .gm-page{position:relative;padding-bottom:2.4rem}
+  .gm-head{position:relative;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(200px,0.8fr);align-items:end;gap:clamp(1.6rem,4.5vw,4rem);padding:clamp(1.2rem,3.2vw,2.6rem) 0 clamp(2rem,4vw,3rem);margin:0 0 2.4rem;border-bottom:1px solid var(--line-color);overflow:clip}
+  .gm-head-main,.gm-ledger{position:relative;z-index:1}
+  .gm-title{font-size:clamp(2.4rem,5vw,3.8rem);line-height:1.08;letter-spacing:-0.02em}
+  .gm-lead{margin:.85rem 0 0;font-family:var(--font-mono);font-size:.82rem;color:var(--sec-text-color)}
+  .gm-ledger{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.2rem;margin:0}
+  .gm-ledger-item{padding-top:.65rem;border-top:1px solid var(--line-color)}
+  .gm-ledger-item dt{margin:0 0 .25rem;font-family:var(--font-mono);font-size:.75rem;color:var(--info-mark)}
+  .gm-ledger-item dd{margin:0;font-family:var(--font-serif-title);font-size:clamp(1.2rem,2.2vw,1.5rem);font-weight:600;color:var(--text-color)}
+  .gm-section-kicker{margin:0 0 1rem;font-family:var(--font-mono);font-size:.75rem;letter-spacing:.14em;color:var(--accent)}
+  .gm-specials-wrap{margin:0 0 3rem}
+  .gm-specials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.1rem}
+  .gm-feature{position:relative;display:flex;align-items:flex-end;min-height:210px;border:0;border-radius:0;overflow:hidden;text-decoration:none;color:#fff;transition:opacity 280ms ease}
+  .gm-specials:hover .gm-feature:not(:hover){opacity:.62}
+  .gm-feature-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 32%;transition:transform 580ms cubic-bezier(.22,1,.36,1)}
+  .gm-feature:hover .gm-feature-img{transform:scale(1.045)}
+  .gm-feature::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,16,12,.08),rgba(20,16,12,.84))}
+  .gm-feature-body{position:relative;z-index:1;display:flex;flex-direction:column;gap:4px;padding:20px 22px;transition:transform 320ms cubic-bezier(.22,1,.36,1)}
+  .gm-feature:hover .gm-feature-body{transform:translateY(-3px)}
+  .gm-feature-kicker{font-family:var(--font-mono);font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#f5c56b}
+  .gm-feature-title{font-family:var(--font-serif-title);font-size:clamp(1.2rem,2vw,1.45rem);font-weight:600;line-height:1.25}
+  .gm-feature-sub{font-size:.84rem;opacity:.88}
+  .gm-wall:hover .gm-tile:not(:hover){opacity:.58}
+  @media (max-width:767.98px){.gm-head,.gm-specials{grid-template-columns:minmax(0,1fr)}.gm-feature{min-height:164px}}
+  @media (prefers-reduced-motion:reduce){.gm-feature,.gm-feature-img,.gm-feature-body{transition:none}}
 </style>

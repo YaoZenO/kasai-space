@@ -393,8 +393,8 @@ Object.keys(FEST_MAP).forEach((s) => {
   if (!h) return;
   ok(!h.includes('page-head'), `${rel} 仍挂 page-head`);
   ok(!h.includes('page-head-kicker'), `${rel} 仍有文章壳 kicker`);
-  ok(h.includes('class="pg-hd"'), `${rel} 缺 pg-hd 页头`);
-  ok(h.includes('class="pg-hd-title"'), `${rel} 缺页头标题`);
+  ok(/class="pg-hd[ "]/.test(h), `${rel} 缺 pg-hd 页头`);
+  ok(/class="pg-hd-title[ "]/.test(h), `${rel} 缺页头标题`);
 });
 
 ok(!read('search/index.html').includes('>SEARCH<'), '/search/ 仍输出 SEARCH kicker 文案');

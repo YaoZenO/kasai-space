@@ -1,24 +1,50 @@
 ---
-// 搜索页（/search/）：复刻 themes/fluid/layout/search.ejs。
-// 骨架在服务端渲染，结果由 /js/site-search.js 读 /search-index.json 现查。
+// 搜索页（/search/）：零边框全站检索台（2026-11-26 重构）。
+// 复用底层动态经纬画布 #ab-bg-canvas，去掉方框输入框与灰色胶囊，
+// 改用巨号底线检索行 + 一键快捷热词 + 细线类型索引 + 键盘 ↑/↓/Enter 直选。
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { urlFor } from '../../lib/url';
 
+const QUICK_TERMS = ['深圳', '龙', '中秋', '2026', 'Ties', 'BLG'];
 ---
 <BaseLayout title="搜索" currentPath="/search/">
-  <div class="paper-page cal-page sr-page">
-    <div class="home-wrap">
-      <header class="pg-hd">
-        <h1 class="pg-hd-title">搜索</h1>
-        <p class="cal-lede">站内全部内容：文章、城市档案、城市排行榜、十二生肖、节日文化与节假日安排。</p>
+  <canvas class="ab-bg-canvas" id="ab-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="paper-page ab-page-shell sr-page">
+    <div class="home-wrap sr-wrap">
+      <header class="pg-hd sr-hero">
+        <p class="ab-watermark" data-ab-parallax="0.16" aria-hidden="true">INDEX</p>
+        <p class="ab-kicker ab-reveal" style="--ab-d: 0ms;">
+          <span>SITE INDEX</span>
+          <span class="ab-kicker-sep" aria-hidden="true">/</span>
+          <span>PINYIN SUPPORTED</span>
+        </p>
+        <h1 class="pg-hd-title sr-title">搜索</h1>
+        <p class="sr-lede">文章、项目、游戏、收藏，以及 350 城、榜单、生肖与历法资料。</p>
       </header>
 
       <div class="sr-box">
-        <label class="sr-label" for="sr-input">关键词</label>
-        <input id="sr-input" class="sr-input" type="search" autocomplete="off" spellcheck="false"
-               enterkeyhint="search" aria-describedby="sr-hint"
-               placeholder="城市名、生肖、节日、年份，或文章标题" />
-        <p class="sr-hint" id="sr-hint">支持拼音：输入 <code>shenzhen</code> 也能找到深圳。</p>
+        <label class="sr-label" for="sr-input">输入关键词或拼音</label>
+        <div class="sr-input-wrap">
+          <input
+            id="sr-input"
+            class="sr-input"
+            type="search"
+            autocomplete="off"
+            spellcheck="false"
+            enterkeyhint="search"
+            aria-describedby="sr-hint"
+            placeholder="城市名、生肖、节日、年份，或文章标题…"
+          />
+          <span class="sr-input-line" aria-hidden="true" />
+        </div>
+
+        <div class="sr-quick-bar" id="sr-hint">
+          <span class="sr-quick-label">试试：</span>
+          {QUICK_TERMS.map((term) => (
+            <button type="button" class="sr-quick-btn" data-sr-quick={term}>{term}</button>
+          ))}
+          <span class="sr-quick-tip">支持拼音（如 <code>shenzhen</code>）· <code>↑↓</code> 选择</span>
+        </div>
       </div>
 
       <div class="sr-chips" id="sr-chips" role="group" aria-label="按类型筛选">
@@ -41,11 +67,7 @@ import { urlFor } from '../../lib/url';
 
       <div class="sr-empty" id="sr-empty" hidden>
         <p class="sr-empty-title">没有找到匹配的内容</p>
-        <p class="sr-empty-note">可以试试城市名（深圳）、生肖（龙）、节日（中秋）、年份（2026），或者文章的标题关键词。</p>
-      </div>
-
-      <div class="cal-after">
-        <p class="cal-note">索引覆盖全站已发布的文章与全部资料页；站内内容变动后，索引随构建一起重建。</p>
+        <p class="sr-empty-note">可以试试点上面的快捷词，或换城市名、生肖、节日、年份与文章标题关键词。</p>
       </div>
     </div>
   </div>
