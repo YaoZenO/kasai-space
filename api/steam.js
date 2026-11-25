@@ -63,20 +63,28 @@ function roundHours(mins) {
   return Math.round(((Number(mins) || 0) / 60) * 10) / 10;
 }
 
-module.exports = route(async (req, res) => {
+function sendJson(res, obj, cacheControl) {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.setHeader('Cache-Control', cacheControl);
+  res.end(JSON.stringify(obj));
+}
+
+module.exports = route(async ({ res }) => {
   const key = String(process.env.STEAM_API_KEY || '').trim();
   const rawId = String(process.env.STEAM_ID || '').trim();
-
-  // 30 分钟边缘缓存 + 1 小时后台刷新，防 Steam 限流
-  res.setHeader('Cache-Control', 'public, s-maxage=1800, stale-while-revalidate=3600');
+  const CACHE_OK = 'public, s-maxage=1800, stale-while-revalidate=3600';
+  const CACHE_FALLBACK = 'public, s-maxage=60';
 
   if (!key || !rawId) {
-    return { available: false, reason: 'unconfigured' };
+    sendJson(res, { available: false, reason: 'unconfigured' }, CACHE_FALLBACK);
+    return;
   }
 
   const steamId = await resolveSteamId64(key, rawId);
   if (!steamId) {
-    return { available: false, reason: 'invalid_id' };
+    sendJson(res, { available: false, reason: 'invalid_id' }, CACHE_FALLBACK);
+    return;
   }
 
   const ownedUrl =
@@ -95,7 +103,8 @@ module.exports = route(async (req, res) => {
     : [];
 
   if (!ownedGames.length && !recentGames.length) {
-    return { available: false, reason: 'private_or_empty' };
+    sendJson(res, { available: false, reason: 'private_or_empty' }, CACHE_FALLBACK);
+    return;
   }
 
   let totalMins = 0;
@@ -146,7 +155,7 @@ module.exports = route(async (req, res) => {
       url: `https://store.steampowered.com/app/${g.appid}/`,
     }));
 
-  return {
+  sendJson(res, {
     available: true,
     summary: {
       totalGames: ownedData?.response?.game_count || ownedGames.length,
@@ -156,5 +165,5 @@ module.exports = route(async (req, res) => {
     recent,
     top,
     byApp,
-  };
+  }, CACHE_OK);
 }, { methods: ['GET'], body: false, origin: false, auth: false });

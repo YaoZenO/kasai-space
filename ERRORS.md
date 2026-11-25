@@ -223,6 +223,7 @@
 | E-189 | P1 | 断图断言 `test:img` 只串进 `npm test`，而 CI 逐项列套件、不跑 `npm test`，push 到 main 根本拦不住 | 已修复（`ci.yml` 加 Image refs 步骤）+ 机制：`test/build-env.js` 反查 `ci.yml` 必须执行 `test:img` 与 `test:redirects` |
 | E-190 | P1 | 首页 WebGL 重写后 reduce 不再生效：动画循环无条件启动、相机随滚动推进，旧版静态帧与对应断言一起被删 | 已修复（`start()` 拦 RM、`paintStill()` 画固定一帧、补 `visibilitychange` 停启）+ 机制：`test/home-study.js` 两条 E-190 断言锁入口与静态帧，出现无条件 `requestAnimationFrame(loop)` 即判红 |
 | E-191 | P1 | 文章页导语读不存在的 `post.data?.blurb`，条件恒假，三篇写了 blurb 的文章页头永远不显示 | 已修复（改读 `post.blurb`）+ 机制：新增 `test/post-blurb.js` 锁模板写法与产物导语（含空集保护与反向计数），串入 `npm test` 与 CI 的 `Post blurb` 步骤，`test/build-env.js` 反查该步骤存在且排在构建之后 |
+| E-192 | P2 | `api/steam.js` 按 `(req, res)` 写 `route()` 回调致 `res` 为 `undefined` 抛 500，且直接 `return` 会被 `http.json()` 的 `no-store` 覆盖缓存头 | 已修复（解构 `{ res }` + 自写 `sendJson` 保留 `s-maxage`）+ 机制：新增 `test/steam-api.js` 实测调用 handler 校验 200/405 与 `Cache-Control` |
 ---
 
 ## 3. P0 — 数据损害（绝不再犯）
@@ -3699,3 +3700,11 @@
   删掉 CI 的 `Post blurb` 步骤 → `test:env` 退出码 1。三处均按原字节还原。
 - **同类隐患（未修，仅记录）：** `test/post-content-guard.js` 既不在 `npm test` 也不在 CI，
   属同一类「门禁写好了却没接线」，内容是正文占位词与 front matter 日期检查。接线前需先确认它当前能通过。
+
+### E-192 `/api/steam` 误按 `(req, res)` 接收 `route()` 回调参数，且返回值会覆盖边缘缓存头（2026-11-26）
+
+- **发生时间：** 2026-11-26 引入（`8dc707b`），同日交付前实测发现并修复。
+- **现象：** 本地直接调用 `api/steam.js` 导出的 handler 时，立刻抛出 `TypeError: Cannot read properties of undefined (reading 'setHeader')` 并返回 500 `INTERNAL`。
+- **根因：** ① `api/_lib/router.js` 调用 handler 时传的是单个上下文对象 `handler({ req, res, body, session })`，而非 Express 风格的 `(req, res)` 两个位置参数；② 即使修正签名，只要 handler 返回非 `undefined` 对象，`router.js` 会交给 `http.json(res, 200, out)` 输出，而 `json()` 会无条件写死 `Cache-Control: no-store`，把 `api/steam.js` 设的 30 分钟 `s-maxage` 缓存头静默覆盖掉。
+- **修法：** `api/steam.js` 改为解构 `async ({ res }) =>`，并按 `router.js` 约定通过本地 `sendJson(res, obj, cacheControl)` 自行写出 200 响应、返回 `undefined`，成功响应走 `public, s-maxage=1800, stale-while-revalidate=3600`，降级响应走 `public, s-maxage=60`。
+- **防复发（机制）：** 新增 `test/steam-api.js` 实际调用 `api/steam.js` handler，断言未配置环境变量时返回 200 + `{ available: false, reason: 'unconfigured' }` 且 `Cache-Control` 含 `s-maxage=`（防止再次被 `no-store` 覆盖），同时断言 `POST` 返回 405 与 `dist/games/index.html` 产物结构完整。
