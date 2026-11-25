@@ -8173,6 +8173,38 @@ html:not(.js) .fs-years-toggle { display: none; }
   white-space: nowrap;
 }
 
+/* --- 全站基础动效层（2026-11-26）：跨页平滑转场 + 顶部 2px 滚动进度丝线 + 分层滚动揭示 --- */
+@view-transition {
+  navigation: auto;
+}
+
+.site-scroll-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1200;
+  transition: opacity 0.2s ease;
+}
+
+.sr-anim {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.62s cubic-bezier(0.22, 1, 0.36, 1) var(--sr-delay, 0ms),
+    transform 0.62s cubic-bezier(0.22, 1, 0.36, 1) var(--sr-delay, 0ms);
+}
+
+.sr-anim.is-inview {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .pj-list {
   display: flex;
   flex-direction: column;
@@ -8180,17 +8212,190 @@ html:not(.js) .fs-years-toggle { display: none; }
 }
 
 .pj-card {
-  display: grid;
-  grid-template-columns: 7.5rem minmax(0, 1fr) minmax(180px, 0.42fr);
-  gap: 1.2rem clamp(1.5rem, 4vw, 3.2rem);
-  align-items: start;
-  padding: clamp(2rem, 4vw, 3rem) 0;
+  padding: clamp(1.8rem, 3.8vw, 2.8rem) 0;
   border-bottom: 1px solid var(--line-color);
-  transition: border-color 0.26s ease;
+  transition: opacity 0.28s ease, border-color 0.26s ease;
 }
 
-.pj-card:hover {
+.pj-list:hover .pj-card:not(:hover):not(.is-open) {
+  opacity: 0.48;
+}
+
+.pj-card:hover,
+.pj-card.is-open {
   border-bottom-color: var(--accent);
+}
+
+.pj-card-top {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr) minmax(190px, 0.44fr);
+  gap: 1.2rem clamp(1.5rem, 4vw, 3.2rem);
+  align-items: start;
+}
+
+.pj-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  padding: 0.2rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--accent);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent);
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.pj-toggle:hover {
+  opacity: 0.78;
+}
+
+.pj-toggle-icon {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+/* 零边框架构蓝图抽屉（丝滑 grid-template-rows 展开） */
+.pj-drawer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.42s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.32s ease;
+  opacity: 0;
+}
+
+.pj-card.is-open .pj-drawer {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.pj-drawer-inner {
+  overflow: hidden;
+  padding-left: clamp(0rem, 8.5vw, 9.5rem);
+}
+
+.pj-arch {
+  margin-top: 1.65rem;
+  padding: 1.25rem 0 1.1rem;
+  border-top: 1px dashed var(--line-color);
+  border-bottom: 1px solid var(--line-color);
+}
+
+.pj-arch-meta {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+}
+
+.pj-arch-svg {
+  display: block;
+  width: 100%;
+  max-width: 640px;
+  height: auto;
+}
+
+.pj-arch-line {
+  stroke: var(--accent);
+  stroke-width: 1.25;
+  stroke-dasharray: 64;
+  stroke-dashoffset: 64;
+  transition: stroke-dashoffset 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s;
+}
+
+.pj-card.is-open .pj-arch-line {
+  stroke-dashoffset: 0;
+}
+
+.pj-arch-dot {
+  fill: var(--accent);
+  opacity: 0;
+  transition: opacity 0.35s ease 0.45s;
+}
+
+.pj-card.is-open .pj-arch-dot {
+  opacity: 1;
+}
+
+.pj-arch-node rect {
+  fill: transparent;
+  stroke: var(--line-color);
+  stroke-width: 1;
+  transition: stroke 0.25s ease;
+}
+
+.pj-arch-node--mid rect {
+  stroke: var(--accent);
+}
+
+.pj-arch-title {
+  fill: var(--text-color);
+  font-family: var(--font-serif-title);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.pj-arch-sub {
+  fill: var(--sec-text-color);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.pj-notes-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.2rem 2.4rem;
+  margin-top: 1.25rem;
+}
+
+.pj-note-kicker {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  color: var(--info-mark);
+}
+
+.pj-note-text {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.78;
+  color: var(--post-text-color);
+}
+
+.pj-bp-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--info-mark);
+}
+
+@media (max-width: 767.98px) {
+  .pj-card-top,
+  .pj-notes-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.1rem;
+  }
+
+  .pj-drawer-inner {
+    padding-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sr-anim,
+  .pj-drawer,
+  .pj-arch-line,
+  .pj-arch-dot {
+    transition: none;
+  }
+
+  .sr-anim {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .pj-card-index {

@@ -76,6 +76,7 @@ const path = currentPath ?? Astro.url.pathname;
     <SiteFooter />
 
     <Scripts />
+    {!isHome && <script defer src="/js/about.js"></script>}
 
     <noscript>
       <div class="noscript-warning">{zhCN.noscript_warning}</div>

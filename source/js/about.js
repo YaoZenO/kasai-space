@@ -11,6 +11,9 @@
 //   4. /about/ Sticky 滚动叙事章节联动、数字标尺进视口计数、轻量视差与磁吸链接；
 //   5. /about/ 微信二维码原生 <dialog> 查看器。
 (function () {
+  if (window.__kasaiSiteMotionInit) return;
+  window.__kasaiSiteMotionInit = true;
+
   var TOAST_ID = 'about-copy-toast';
   var hideTimer = null;
 
@@ -82,6 +85,81 @@
       toast(ok ? '已复制：' + text : '复制没成功，地址是：' + text);
     });
   });
+
+  // 1b. 全站基础动效层（非首页）：顶部 2px 浏览进度丝线 + 滚动分层揭示 + /projects/ 蓝图抽屉
+  var isHomePage = document.body && document.body.classList.contains('is-home');
+  var prefersReduced =
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!isHomePage) {
+    // 顶部 2px 陶土红滚动进度丝线
+    var bar = document.getElementById('site-scroll-bar');
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.id = 'site-scroll-bar';
+      bar.className = 'site-scroll-bar';
+      bar.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(bar);
+    }
+    var barRaf = 0;
+    var updateBar = function () {
+      barRaf = 0;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight || 0) - (window.innerHeight || 0);
+      var pct = max > 40 ? Math.min(1, Math.max(0, (window.scrollY || 0) / max)) : 0;
+      bar.style.transform = 'scaleX(' + pct.toFixed(4) + ')';
+      bar.style.opacity = pct > 0.01 ? '1' : '0';
+    };
+    window.addEventListener(
+      'scroll',
+      function () {
+        if (!barRaf) barRaf = requestAnimationFrame(updateBar);
+      },
+      { passive: true }
+    );
+    updateBar();
+
+    // 全站滚动分层揭示（渐进增强：无 JS 或 reduce 下直接可见）
+    var revealTargets = Array.prototype.slice.call(
+      document.querySelectorAll('[data-reveal], .ar-pick, .ar-group, .cl-card, .nw-entry, .gm-feature, .gm-tile')
+    );
+    if (revealTargets.length && !prefersReduced && typeof IntersectionObserver !== 'undefined') {
+      revealTargets.forEach(function (el, i) {
+        el.classList.add('sr-anim');
+        el.style.setProperty('--sr-delay', Math.min(i % 4, 3) * 55 + 'ms');
+      });
+      var revIo = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add('is-inview');
+            revIo.unobserve(entry.target);
+          });
+        },
+        { rootMargin: '0px 0px -6% 0px', threshold: 0.06 }
+      );
+      revealTargets.forEach(function (el) {
+        revIo.observe(el);
+      });
+    }
+
+    // /projects/ 原地蓝图抽屉展开/收起
+    var pjCards = Array.prototype.slice.call(document.querySelectorAll('[data-pj-card]'));
+    pjCards.forEach(function (card) {
+      var btn = card.querySelector('[data-pj-toggle]');
+      if (!btn) return;
+      var labelEl = btn.querySelector('[data-pj-toggle-label]');
+      var iconEl = btn.querySelector('.pj-toggle-icon');
+      btn.addEventListener('click', function () {
+        var opening = !card.classList.contains('is-open');
+        card.classList.toggle('is-open', opening);
+        btn.setAttribute('aria-expanded', opening ? 'true' : 'false');
+        if (labelEl) labelEl.textContent = opening ? '收起蓝图' : '展开蓝图';
+        if (iconEl) iconEl.textContent = opening ? '−' : '+';
+      });
+    });
+  }
 
   var monograph = document.querySelector('[data-ab-monograph]');
   var bgCanvasCheck = document.getElementById('ab-bg-canvas');

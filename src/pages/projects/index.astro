@@ -1,7 +1,7 @@
 ---
-// /projects/：零边框编号蓝图项目展陈（2026-11-26 重构）。
-// 复用底层动态经纬画布 #ab-bg-canvas，去掉厚重圆角卡片与 StatBand 盒子，
-// 以大编号 01/02/03 细线展陈呈现真实项目、章节直达节点、纯排印技术栈与出口。
+// /projects/：零边框编号蓝图项目展陈 + 原地可展开架构图谱（2026-11-26 交互升级）。
+// 复用底层动态经纬画布 #ab-bg-canvas；每项支持原地展开蓝图抽屉，
+// 展示程序化 SVG 架构连线图、背景/现状精华与四段章节直达节点。
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import EmptyState from '../../components/EmptyState.astro';
 import { getData } from '../../lib/data';
@@ -31,6 +31,39 @@ const stats = [
   { label: '技术栈', value: tags.size },
   { label: '最近更新', value: latest ? fmtItemDate(latest.date) : '—' },
 ];
+
+// 每个真实项目的三层架构拓扑（全部取自 source/_data/projects.yml 真实技术栈，不编造）
+type ArchSpec = { nodes: [string, string, string]; subs: [string, string, string]; meta: string };
+const ARCH_MAP: Record<string, ArchSpec> = {
+  Ties: {
+    nodes: ['Vue 3 · Pinia', 'Node · Express', 'node:sqlite'],
+    subs: ['档案 / 速记 / 相册', '分层服务 · JWT', '本地单文件 · 零云端'],
+    meta: 'LOCAL-FIRST · ZERO CLOUD',
+  },
+  '校园课程资源共享平台': {
+    nodes: ['Vue 3 · TS', 'Django 4.2 · DRF', 'MySQL · 豆包 AI'],
+    subs: ['学生 / 教师 / 管理员', 'RBAC · JWT 六域服务', '资源流 · 论坛 · 问答'],
+    meta: 'MULTI-ROLE · REST API',
+  },
+  '资产追踪系统': {
+    nodes: ['Vue 3 · ECharts', 'Tauri 2 · Rust', 'SQLite 本地库'],
+    subs: ['日均成本 · 心愿清单', '轻量桌面内核', 'assets / wishlist 双表'],
+    meta: 'DESKTOP · LIFECYCLE',
+  },
+};
+
+function firstParagraph(md?: string): string {
+  if (!md) return '';
+  const cleaned = String(md)
+    .split(/\r?\n\s*\r?\n/)
+    .map((s) => s.trim())
+    .filter((s) => s && !s.startsWith('#') && !s.startsWith('>') && !s.startsWith('|'))[0] || '';
+  return cleaned
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')
+    .trim();
+}
 ---
 
 <BaseLayout title="项目" currentPath="/projects/">
@@ -65,7 +98,7 @@ const stats = [
       {items.length === 0 ? (
         <EmptyState>还没有项目条目，可以先回<a href={urlFor('/')}>首页</a>看看别的内容。</EmptyState>
       ) : (
-        <div class="pj-list">
+        <div class="pj-list" data-pj-list>
           {items.map((it: any, idx: number) => {
             const baseHref = urlFor(detailPath('projects', it));
             const parts = [
@@ -74,36 +107,107 @@ const stats = [
               { id: 'tech', label: '技术', has: Boolean(it.tech && String(it.tech).trim()) },
               { id: 'outcome', label: '成果', has: Boolean(it.outcome && String(it.outcome).trim()) },
             ].filter((p) => p.has);
+            const arch = ARCH_MAP[String(it.title)] || {
+              nodes: [(it.tags || [])[0] || 'Client', (it.tags || [])[1] || 'Core', (it.tags || [])[2] || 'Storage'],
+              subs: ['交互界面', '核心逻辑', '数据持久'],
+              meta: 'ARCHITECTURE',
+            };
+            const bgLead = firstParagraph(it.background);
+            const outLead = firstParagraph(it.outcome);
+            const isOpen = idx === 0;
+
             return (
-              <article class="pj-card">
-                <div class="pj-card-index">
-                  <span class="pj-num" aria-hidden="true">{String(idx + 1).padStart(2, '0')}</span>
-                  {it.date && (
-                    <time class="pj-date" datetime={fmtItemDate(it.date, 'YYYY-MM-DD')}>{fmtItemDate(it.date)}</time>
-                  )}
+              <article class={`pj-card${isOpen ? ' is-open' : ''}`} data-pj-card data-reveal>
+                <div class="pj-card-top">
+                  <div class="pj-card-index">
+                    <span class="pj-num" aria-hidden="true">{String(idx + 1).padStart(2, '0')}</span>
+                    {it.date && (
+                      <time class="pj-date" datetime={fmtItemDate(it.date, 'YYYY-MM-DD')}>{fmtItemDate(it.date)}</time>
+                    )}
+                  </div>
+
+                  <div class="pj-card-main">
+                    <h2 class="pj-card-title"><a href={baseHref}>{it.title}</a></h2>
+                    {it.summary && <p class="pj-card-sum">{it.summary}</p>}
+                  </div>
+
+                  <div class="pj-card-side">
+                    {(it.tags || []).length > 0 && (
+                      <ul class="pj-tags">
+                        {(it.tags || []).map((t: string) => <li class="pj-tag">{t}</li>)}
+                      </ul>
+                    )}
+                    <div class="pj-actions">
+                      <button
+                        type="button"
+                        class="pj-toggle"
+                        data-pj-toggle
+                        aria-expanded={isOpen ? 'true' : 'false'}
+                        aria-controls={`pj-drawer-${idx}`}
+                      >
+                        <span data-pj-toggle-label>{isOpen ? '收起蓝图' : '展开蓝图'}</span>
+                        <span class="pj-toggle-icon" aria-hidden="true">{isOpen ? '−' : '+'}</span>
+                      </button>
+                      <a class="pj-more" href={baseHref}>详情 <span aria-hidden="true">→</span></a>
+                      {it.link && <a class="pj-visit" href={it.link} target="_blank" rel="noopener">GitHub <span aria-hidden="true">↗</span></a>}
+                    </div>
+                  </div>
                 </div>
 
-                <div class="pj-card-main">
-                  <h2 class="pj-card-title"><a href={baseHref}>{it.title}</a></h2>
-                  {it.summary && <p class="pj-card-sum">{it.summary}</p>}
-                  {parts.length > 0 && (
-                    <nav class="pj-blueprint" aria-label={`${it.title} 章节直达`}>
-                      {parts.map((p) => (
-                        <a class="pj-bp-node" href={`${baseHref}#sec-${p.id}`}>{p.label}</a>
-                      ))}
-                    </nav>
-                  )}
-                </div>
+                <!-- 可原地展开的零边框架构蓝图抽屉 -->
+                <div class="pj-drawer" id={`pj-drawer-${idx}`} data-pj-drawer>
+                  <div class="pj-drawer-inner">
+                    <div class="pj-arch">
+                      <p class="pj-arch-meta">{arch.meta}</p>
+                      <svg class="pj-arch-svg" viewBox="0 0 640 112" role="img" aria-label={`${it.title} 三层架构图`}>
+                        <line class="pj-arch-line" x1="176" y1="46" x2="236" y2="46" />
+                        <line class="pj-arch-line" x1="404" y1="46" x2="464" y2="46" />
+                        <circle class="pj-arch-dot" cx="206" cy="46" r="3" />
+                        <circle class="pj-arch-dot" cx="434" cy="46" r="3" />
 
-                <div class="pj-card-side">
-                  {(it.tags || []).length > 0 && (
-                    <ul class="pj-tags">
-                      {(it.tags || []).map((t: string) => <li class="pj-tag">{t}</li>)}
-                    </ul>
-                  )}
-                  <div class="pj-actions">
-                    <a class="pj-more" href={baseHref}>看详情 <span aria-hidden="true">→</span></a>
-                    {it.link && <a class="pj-visit" href={it.link} target="_blank" rel="noopener">GitHub <span aria-hidden="true">↗</span></a>}
+                        <g class="pj-arch-node">
+                          <rect x="4" y="12" width="172" height="68" rx="2" />
+                          <text class="pj-arch-title" x="18" y="40">{arch.nodes[0]}</text>
+                          <text class="pj-arch-sub" x="18" y="62">{arch.subs[0]}</text>
+                        </g>
+
+                        <g class="pj-arch-node pj-arch-node--mid">
+                          <rect x="236" y="12" width="168" height="68" rx="2" />
+                          <text class="pj-arch-title" x="250" y="40">{arch.nodes[1]}</text>
+                          <text class="pj-arch-sub" x="250" y="62">{arch.subs[1]}</text>
+                        </g>
+
+                        <g class="pj-arch-node">
+                          <rect x="464" y="12" width="172" height="68" rx="2" />
+                          <text class="pj-arch-title" x="478" y="40">{arch.nodes[2]}</text>
+                          <text class="pj-arch-sub" x="478" y="62">{arch.subs[2]}</text>
+                        </g>
+                      </svg>
+                    </div>
+
+                    <div class="pj-notes-grid">
+                      {bgLead && (
+                        <div class="pj-note-col">
+                          <p class="pj-note-kicker">PROBLEM</p>
+                          <p class="pj-note-text">{bgLead}</p>
+                        </div>
+                      )}
+                      {outLead && (
+                        <div class="pj-note-col">
+                          <p class="pj-note-kicker">STATUS</p>
+                          <p class="pj-note-text">{outLead}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {parts.length > 0 && (
+                      <nav class="pj-blueprint" aria-label={`${it.title} 章节直达`}>
+                        <span class="pj-bp-label">章节直达</span>
+                        {parts.map((p) => (
+                          <a class="pj-bp-node" href={`${baseHref}#sec-${p.id}`}>{p.label} →</a>
+                        ))}
+                      </nav>
+                    )}
                   </div>
                 </div>
               </article>
@@ -113,6 +217,4 @@ const stats = [
       )}
     </div>
   </div>
-
-  <script defer src="/js/about.js"></script>
 </BaseLayout>

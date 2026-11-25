@@ -135,8 +135,8 @@ ok(projectsIndex.length > 0, '缺少 /projects/ 产物');
 ok(!projectsIndex.includes('page-head-kicker'), '/projects/ 仍带文章壳 kicker');
 ok(projectsIndex.includes('<h1 class="pj-title">项目</h1>'), '/projects/ 标题不是「项目」');
 ok(/class="stat-band[ "]/.test(projectsIndex), '/projects/ 缺首屏数字带');
-ok(count(projectsIndex, /class="pj-card"/g) === projectItems.length,
-  `/projects/ 卡片数 ${count(projectsIndex, /class="pj-card"/g)} ≠ 数据 ${projectItems.length}`);
+ok(count(projectsIndex, /class="pj-card[ "]/g) === projectItems.length,
+  `/projects/ 卡片数 ${count(projectsIndex, /class="pj-card[ "]/g)} ≠ 数据 ${projectItems.length}`);
 for (const it of projectItems) {
   ok(projectsIndex.includes(`href="/projects/${moduleSlug(it)}/"`), `/projects/ 缺少 ${it.title} 的详情链接`);
 }
