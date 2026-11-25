@@ -1,0 +1,160 @@
+'use strict';
+// GET /api/steam —— 只读 Steam 游玩时长与近两周在玩代理（2026-11-26）
+//
+// 环境变量（在 Vercel 项目设置里配置，绝不写入仓库、绝不下发给浏览器）：
+//   STEAM_API_KEY   Steam Web API Key（https://steamcommunity.com/dev/apikey）
+//   STEAM_ID        17 位 SteamID64，或自定义个人资料后缀 / 完整 steamcommunity 链接
+//                   （非 17 位数字时自动调用 ResolveVanityURL 解析）
+//
+// 隐私要求：Steam 个人资料「游戏详情」须设为公开，且不勾选「始终保密游戏总时间」。
+// 缺失配置或上游异常一律返回 { available: false }，前端优雅降级。
+
+const { route } = require('./_lib/router');
+
+const STEAM_API = 'https://api.steampowered.com';
+const TIMEOUT_MS = 6000;
+
+async function fetchJson(url) {
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort(), TIMEOUT_MS);
+  try {
+    const resp = await fetch(url, {
+      signal: ac.signal,
+      headers: { Accept: 'application/json' },
+    });
+    if (!resp.ok) return null;
+    return await resp.json();
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function normalizeInput(raw) {
+  let s = String(raw || '').trim();
+  if (!s) return '';
+  // 允许用户直接贴完整个人资料链接
+  const mProf = /steamcommunity\.com\/profiles\/(\d{17})/i.exec(s);
+  if (mProf) return mProf[1];
+  const mId = /steamcommunity\.com\/id\/([^/?#]+)/i.exec(s);
+  if (mId) return mId[1];
+  return s.replace(/^\/+|\/+$/g, '');
+}
+
+async function resolveSteamId64(key, rawId) {
+  const cleaned = normalizeInput(rawId);
+  if (!cleaned) return null;
+  if (/^\d{17}$/.test(cleaned)) return cleaned;
+
+  const url = `${STEAM_API}/ISteamUser/ResolveVanityURL/v0001/?key=${encodeURIComponent(key)}&vanityurl=${encodeURIComponent(cleaned)}`;
+  const data = await fetchJson(url);
+  if (data && data.response && data.response.success === 1 && /^\d{17}$/.test(String(data.response.steamid || ''))) {
+    return String(data.response.steamid);
+  }
+  return null;
+}
+
+function headerImg(appid) {
+  return `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${appid}/header.jpg`;
+}
+
+function roundHours(mins) {
+  return Math.round(((Number(mins) || 0) / 60) * 10) / 10;
+}
+
+module.exports = route(async (req, res) => {
+  const key = String(process.env.STEAM_API_KEY || '').trim();
+  const rawId = String(process.env.STEAM_ID || '').trim();
+
+  // 30 分钟边缘缓存 + 1 小时后台刷新，防 Steam 限流
+  res.setHeader('Cache-Control', 'public, s-maxage=1800, stale-while-revalidate=3600');
+
+  if (!key || !rawId) {
+    return { available: false, reason: 'unconfigured' };
+  }
+
+  const steamId = await resolveSteamId64(key, rawId);
+  if (!steamId) {
+    return { available: false, reason: 'invalid_id' };
+  }
+
+  const ownedUrl =
+    `${STEAM_API}/IPlayerService/GetOwnedGames/v0001/?key=${encodeURIComponent(key)}` +
+    `&steamid=${steamId}&include_appinfo=1&include_played_free_games=1&format=json`;
+  const recentUrl =
+    `${STEAM_API}/IPlayerService/GetRecentlyPlayedGames/v0001/?key=${encodeURIComponent(key)}` +
+    `&steamid=${steamId}&count=6&format=json`;
+
+  const [ownedData, recentData] = await Promise.all([fetchJson(ownedUrl), fetchJson(recentUrl)]);
+  const ownedGames = (ownedData && ownedData.response && Array.isArray(ownedData.response.games))
+    ? ownedData.response.games
+    : [];
+  const recentGames = (recentData && recentData.response && Array.isArray(recentData.response.games))
+    ? recentData.response.games
+    : [];
+
+  if (!ownedGames.length && !recentGames.length) {
+    return { available: false, reason: 'private_or_empty' };
+  }
+
+  let totalMins = 0;
+  let recentMins = 0;
+  const byApp = {};
+
+  for (const g of ownedGames) {
+    const mins = Number(g.playtime_forever) || 0;
+    const mins2w = Number(g.playtime_2weeks) || 0;
+    totalMins += mins;
+    byApp[String(g.appid)] = {
+      hoursTotal: roundHours(mins),
+      hours2w: roundHours(mins2w),
+    };
+  }
+
+  for (const g of recentGames) {
+    const mins2w = Number(g.playtime_2weeks) || 0;
+    const mins = Number(g.playtime_forever) || 0;
+    recentMins += mins2w;
+    byApp[String(g.appid)] = {
+      hoursTotal: roundHours(mins),
+      hours2w: roundHours(mins2w),
+    };
+  }
+
+  const top = ownedGames
+    .filter((g) => (Number(g.playtime_forever) || 0) > 0 && g.name)
+    .sort((a, b) => (Number(b.playtime_forever) || 0) - (Number(a.playtime_forever) || 0))
+    .slice(0, 12)
+    .map((g) => ({
+      appid: g.appid,
+      name: String(g.name),
+      hoursTotal: roundHours(g.playtime_forever),
+      hours2w: roundHours(g.playtime_2weeks),
+      img: headerImg(g.appid),
+      url: `https://store.steampowered.com/app/${g.appid}/`,
+    }));
+
+  const recent = recentGames
+    .filter((g) => g.name)
+    .map((g) => ({
+      appid: g.appid,
+      name: String(g.name),
+      hours2w: roundHours(g.playtime_2weeks),
+      hoursTotal: roundHours(g.playtime_forever),
+      img: headerImg(g.appid),
+      url: `https://store.steampowered.com/app/${g.appid}/`,
+    }));
+
+  return {
+    available: true,
+    summary: {
+      totalGames: ownedData?.response?.game_count || ownedGames.length,
+      totalHours: Math.round(totalMins / 60),
+      recentHours: roundHours(recentMins),
+    },
+    recent,
+    top,
+    byApp,
+  };
+}, { methods: ['GET'], body: false, origin: false, auth: false });

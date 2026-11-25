@@ -1,7 +1,7 @@
 ---
-// /games/：零边框暗房画廊 + 宽银幕赛事专题（2026-11-26 重构）。
-// 复用底层动态经纬画布 #ab-bg-canvas，去掉圆角硬边框，
-// 以不对称开篇 + 宽银幕双拼夺冠展板 + Focus-Dim 暗房画廊呈现 5 款游戏与 2 场专题。
+// /games/：赛事专题 + 轻玩家名片（原地浮层）+ Steam 实时库时长（2026-11-26 升级）。
+// 复用底层动态经纬画布 #ab-bg-canvas，常玩卡片点开原地弹出玩家名片 <dialog>，
+// 并静默拉取 /api/steam 注入真实总时长、近两周在玩与总时长 Top 12 榜单。
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import EmptyState from '../../components/EmptyState.astro';
 import { getData } from '../../lib/data';
@@ -11,15 +11,27 @@ import { urlFor } from '../../lib/url';
 const items = (getData().games?.items || []).filter((it: any) => it && it.title);
 
 const genres = new Set<string>();
-const statuses = new Set<string>();
 for (const it of items) {
   if (it.genre) genres.add(String(it.genre));
-  if (it.status) statuses.add(String(it.status));
 }
 
-const leadParts = [`${items.length} 款游戏`, '2 场夺冠专题'];
+const leadParts = [`${items.length} 款常玩`, '2 场夺冠专题'];
 if (genres.size) leadParts.push(`${genres.size} 种类型`);
 const lead = leadParts.join(' · ');
+
+function steamAppId(it: any): string {
+  for (const l of it.links || []) {
+    const m = /store\.steampowered\.com\/app\/(\d+)/i.exec(String(l?.url || ''));
+    if (m) return m[1];
+  }
+  return '';
+}
+
+const SPECIAL_MAP: Record<string, { href: string; label: string }> = {
+  lol: { href: '/blg-champion/', label: '关联：BLG S16 夺冠专题' },
+  cs2: { href: '/cologne-major-2026/', label: '关联：Falcons 科隆 Major 专题' },
+  'esports-manager-2026': { href: '/collections/', label: '关联：62 个 Mod 收藏' },
+};
 ---
 
 <BaseLayout title="游戏" currentPath="/games/">
@@ -42,10 +54,13 @@ const lead = leadParts.join(' · ');
 
         <dl class="gm-ledger" aria-label="游戏与赛事统计">
           <div class="gm-ledger-item">
-            <dt>在玩记录</dt><dd>{items.length} 款</dd>
+            <dt>常玩名片</dt><dd>{items.length} 款</dd>
           </div>
           <div class="gm-ledger-item">
             <dt>夺冠专题</dt><dd>2 场</dd>
+          </div>
+          <div class="gm-ledger-item" id="gm-ledger-steam" hidden>
+            <dt>Steam 库</dt><dd id="gm-ledger-steam-val">—</dd>
           </div>
         </dl>
       </header>
@@ -76,39 +91,100 @@ const lead = leadParts.join(' · ');
       {items.length === 0 ? (
         <EmptyState>还没有游戏条目，可以先回<a href={urlFor('/')}>首页</a>看看别的内容。</EmptyState>
       ) : (
-        <section class="gm-wall-wrap" aria-label="游戏记录">
-          <p class="gm-section-kicker">LIBRARY · 在玩记录</p>
+        <section class="gm-wall-wrap" aria-label="常玩名片">
+          <p class="gm-section-kicker">IN ROTATION · 常玩名片（点开查看玩家卡）</p>
           <div class="gm-wall">
-            {items.map((it: any) => (
-              <a class={`gm-tile${it.cover ? '' : ' no-cover'}`} href={urlFor(detailPath('games', it))}>
-                {it.cover && <img class="gm-tile-img" src={urlFor(it.cover)} alt={it.title} loading="lazy" />}
-                {it.status && <span class="gm-status">{it.status}</span>}
-                <span class="gm-tile-cap">
-                  <span class="gm-tile-title">{it.title}</span>
-                  {it.summary && <span class="gm-tile-sum">{it.summary}</span>}
-                  {(it.genre || it.platform) && (
-                    <span class="gm-tile-meta">{[it.genre, it.platform].filter(Boolean).join(' · ')}</span>
-                  )}
-                </span>
-              </a>
-            ))}
+            {items.map((it: any) => {
+              const appid = steamAppId(it);
+              const slug = String(it.slug || '');
+              const sp = SPECIAL_MAP[slug];
+              const firstLink = (it.links || [])[0];
+              const metaStr = [it.genre, it.platform, it.status].filter(Boolean).join(' · ');
+              return (
+                <a
+                  class={`gm-tile${it.cover ? '' : ' no-cover'}`}
+                  href={urlFor(detailPath('games', it))}
+                  data-gm-card
+                  data-steam-app={appid || undefined}
+                  data-gm-title={it.title}
+                  data-gm-meta={metaStr}
+                  data-gm-sum={it.summary || ''}
+                  data-gm-cover={it.cover ? urlFor(it.cover) : ''}
+                  data-gm-special-href={sp ? urlFor(sp.href) : ''}
+                  data-gm-special-label={sp ? sp.label : ''}
+                  data-gm-ext-href={firstLink?.url || ''}
+                  data-gm-ext-label={firstLink?.label || ''}
+                >
+                  {it.cover && <img class="gm-tile-img" src={urlFor(it.cover)} alt={it.title} loading="lazy" />}
+                  {it.status && <span class="gm-status">{it.status}</span>}
+                  <span class="gm-tile-cap">
+                    <span class="gm-tile-title">{it.title}</span>
+                    {it.summary && <span class="gm-tile-sum">{it.summary}</span>}
+                    <span class="gm-tile-hours" data-gm-hours hidden />
+                    {(it.genre || it.platform) && (
+                      <span class="gm-tile-meta">{[it.genre, it.platform].filter(Boolean).join(' · ')}</span>
+                    )}
+                  </span>
+                </a>
+              );
+            })}
           </div>
         </section>
       )}
+
+      <!-- Steam 实时库区：仅在 /api/steam 返回 available: true 时自动亮出 -->
+      <section class="gm-steam" id="gm-steam-section" aria-labelledby="gm-steam-heading" hidden>
+        <div class="gm-steam-head">
+          <div>
+            <p class="gm-section-kicker">STEAM LIVE · 实时游戏库</p>
+            <h2 class="gm-steam-title" id="gm-steam-heading">游玩时长记录</h2>
+          </div>
+          <p class="gm-steam-summary" id="gm-steam-summary"></p>
+        </div>
+
+        <div class="gm-steam-recent-wrap" id="gm-steam-recent-wrap" hidden>
+          <p class="gm-steam-subkicker">近两周在玩</p>
+          <div class="gm-steam-recent" id="gm-steam-recent"></div>
+        </div>
+
+        <div class="gm-steam-top-wrap">
+          <p class="gm-steam-subkicker">总时长 TOP 12</p>
+          <div class="gm-steam-top" id="gm-steam-top"></div>
+        </div>
+      </section>
     </div>
   </div>
+
+  <!-- 原地玩家名片 <dialog> -->
+  <dialog class="gm-dialog" id="gm-dialog" aria-labelledby="gm-d-title">
+    <div class="gm-dialog-in">
+      <div class="gm-dialog-head">
+        <div>
+          <p class="gm-d-meta" data-gm-d-meta></p>
+          <h2 class="gm-d-title" id="gm-d-title" data-gm-d-title></h2>
+        </div>
+        <button type="button" class="gm-d-close" data-gm-d-close aria-label="关闭">关闭</button>
+      </div>
+      <img class="gm-d-img" data-gm-d-img src="" alt="" hidden />
+      <p class="gm-d-hours" data-gm-d-hours hidden></p>
+      <p class="gm-d-sum" data-gm-d-sum></p>
+      <div class="gm-d-links" data-gm-d-links></div>
+    </div>
+  </dialog>
+
+  <script defer src="/js/games-steam.js"></script>
 </BaseLayout>
 
 <style>
-  .gm-page{position:relative;padding-bottom:2.4rem}
-  .gm-head{position:relative;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(200px,0.8fr);align-items:end;gap:clamp(1.6rem,4.5vw,4rem);padding:clamp(1.2rem,3.2vw,2.6rem) 0 clamp(2rem,4vw,3rem);margin:0 0 2.4rem;border-bottom:1px solid var(--line-color);overflow:clip}
+  .gm-page{position:relative;padding-bottom:2.8rem}
+  .gm-head{position:relative;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(240px,0.85fr);align-items:end;gap:clamp(1.6rem,4.5vw,4rem);padding:clamp(1.2rem,3.2vw,2.6rem) 0 clamp(2rem,4vw,3rem);margin:0 0 2.4rem;border-bottom:1px solid var(--line-color);overflow:clip}
   .gm-head-main,.gm-ledger{position:relative;z-index:1}
   .gm-title{font-size:clamp(2.4rem,5vw,3.8rem);line-height:1.08;letter-spacing:-0.02em}
   .gm-lead{margin:.85rem 0 0;font-family:var(--font-mono);font-size:.82rem;color:var(--sec-text-color)}
-  .gm-ledger{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.2rem;margin:0}
-  .gm-ledger-item{padding-top:.65rem;border-top:1px solid var(--line-color)}
+  .gm-ledger{display:flex;flex-wrap:wrap;gap:1rem 1.8rem;margin:0}
+  .gm-ledger-item{flex:1 1 6.5rem;padding-top:.65rem;border-top:1px solid var(--line-color)}
   .gm-ledger-item dt{margin:0 0 .25rem;font-family:var(--font-mono);font-size:.75rem;color:var(--info-mark)}
-  .gm-ledger-item dd{margin:0;font-family:var(--font-serif-title);font-size:clamp(1.2rem,2.2vw,1.5rem);font-weight:600;color:var(--text-color)}
+  .gm-ledger-item dd{margin:0;font-family:var(--font-serif-title);font-size:clamp(1.1rem,2vw,1.38rem);font-weight:600;color:var(--text-color);white-space:nowrap}
   .gm-section-kicker{margin:0 0 1rem;font-family:var(--font-mono);font-size:.75rem;letter-spacing:.14em;color:var(--accent)}
   .gm-specials-wrap{margin:0 0 3rem}
   .gm-specials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.1rem}
@@ -123,6 +199,48 @@ const lead = leadParts.join(' · ');
   .gm-feature-title{font-family:var(--font-serif-title);font-size:clamp(1.2rem,2vw,1.45rem);font-weight:600;line-height:1.25}
   .gm-feature-sub{font-size:.84rem;opacity:.88}
   .gm-wall:hover .gm-tile:not(:hover){opacity:.58}
-  @media (max-width:767.98px){.gm-head,.gm-specials{grid-template-columns:minmax(0,1fr)}.gm-feature{min-height:164px}}
-  @media (prefers-reduced-motion:reduce){.gm-feature,.gm-feature-img,.gm-feature-body{transition:none}}
+  .gm-tile-hours{display:inline-block;margin-top:.3rem;font-family:var(--font-mono);font-size:.75rem;font-weight:700;color:#f5c56b}
+  /* Steam 实时库区 */
+  .gm-steam{margin-top:3.4rem;padding-top:2.4rem;border-top:1px solid var(--line-color)}
+  .gm-steam-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:1rem;margin-bottom:1.8rem}
+  .gm-steam-title{margin:0;font-family:var(--font-serif-title);font-size:clamp(1.5rem,2.6vw,2rem);font-weight:600;color:var(--text-color)}
+  .gm-steam-summary{margin:0;font-family:var(--font-mono);font-size:.8rem;color:var(--info-mark)}
+  .gm-steam-subkicker{margin:0 0 .85rem;font-family:var(--font-mono);font-size:.75rem;letter-spacing:.1em;color:var(--info-mark)}
+  .gm-steam-recent-wrap{margin-bottom:2.2rem}
+  .gm-steam-recent{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}
+  .gm-st-recent{display:flex;flex-direction:column;gap:.55rem;text-decoration:none;color:inherit;transition:transform 220ms ease}
+  .gm-st-recent:hover{transform:translateY(-2px)}
+  .gm-st-img{width:100%;aspect-ratio:460/215;object-fit:cover;border-radius:var(--r-sm);display:block}
+  .gm-st-info{display:flex;flex-direction:column;gap:.15rem}
+  .gm-st-name{font-family:var(--font-serif-title);font-size:.98rem;font-weight:600;color:var(--text-color)}
+  .gm-st-recent:hover .gm-st-name,.gm-st-row:hover .gm-st-name{color:var(--accent)}
+  .gm-st-meta{font-family:var(--font-mono);font-size:.75rem;color:var(--info-mark)}
+  .gm-steam-top{border-top:1px solid var(--line-color)}
+  .gm-st-row{display:grid;grid-template-columns:2rem 88px minmax(0,1fr) auto;align-items:center;gap:.8rem 1.1rem;padding:.75rem 0;border-bottom:1px solid var(--line-color);text-decoration:none;color:inherit;transition:padding-left 220ms ease,border-color 200ms ease}
+  .gm-st-row:hover{padding-left:.4rem;border-bottom-color:var(--accent)}
+  .gm-st-rank{font-family:var(--font-mono);font-size:.78rem;color:var(--accent)}
+  .gm-st-thumb{width:88px;height:41px;object-fit:cover;border-radius:6px;display:block}
+  .gm-st-main{display:flex;flex-direction:column;gap:.35rem;min-width:0}
+  .gm-st-bar{display:block;height:2px;background:var(--line-color);overflow:hidden}
+  .gm-st-bar i{display:block;height:100%;background:var(--accent)}
+  .gm-st-hrs{font-family:var(--font-mono);font-size:.82rem;font-weight:700;color:var(--text-color);white-space:nowrap}
+  /* 原地玩家名片 <dialog> */
+  .gm-dialog{width:min(92vw,30rem);padding:0;border:1px solid var(--line-color);border-radius:var(--r-sm);background-color:var(--body-bg-color);color:var(--text-color);box-shadow:var(--site-float-shadow)}
+  .gm-dialog::backdrop{background-color:var(--surface-ink);opacity:.62}
+  .gm-dialog-in{padding:1.3rem 1.4rem 1.45rem}
+  .gm-dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1rem}
+  .gm-d-meta{margin:0 0 .2rem;font-family:var(--font-mono);font-size:.75rem;color:var(--accent)}
+  .gm-d-title{margin:0;font-family:var(--font-serif-title);font-size:1.35rem;font-weight:600;line-height:1.25}
+  .gm-d-close{padding:.28rem .7rem;border:1px solid var(--line-color);border-radius:999px;background:transparent;color:var(--text-color);font-size:.78rem;cursor:pointer}
+  .gm-d-close:hover{border-color:var(--accent);color:var(--accent)}
+  .gm-d-img{display:block;width:100%;height:auto;border-radius:8px;margin-bottom:.95rem}
+  .gm-d-hours{margin:0 0 .65rem;font-family:var(--font-mono);font-size:.8rem;font-weight:700;color:var(--accent)}
+  .gm-d-sum{margin:0;font-size:.94rem;line-height:1.8;color:var(--post-text-color)}
+  .gm-d-links{display:flex;flex-wrap:wrap;gap:.65rem 1.2rem;margin-top:1.2rem;padding-top:.95rem;border-top:1px solid var(--line-color)}
+  .gm-d-btn{font-family:var(--font-mono);font-size:.8rem;font-weight:700;color:var(--text-color);text-decoration:none}
+  .gm-d-btn--primary{color:var(--accent)}
+  .gm-d-btn--ghost{margin-left:auto;color:var(--info-mark);font-weight:400}
+  .gm-d-btn:hover{text-decoration:underline;text-underline-offset:3px}
+  @media (max-width:767.98px){.gm-head,.gm-specials{grid-template-columns:minmax(0,1fr)}.gm-feature{min-height:164px}.gm-st-row{grid-template-columns:1.6rem 68px minmax(0,1fr) auto}.gm-st-thumb{width:68px;height:32px}}
+  @media (prefers-reduced-motion:reduce){.gm-feature,.gm-feature-img,.gm-feature-body,.gm-st-recent,.gm-st-row{transition:none}}
 </style>
