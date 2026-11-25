@@ -46,6 +46,16 @@ function bad(msg) {
 
 const rules = Array.isArray(cfg.redirects) ? cfg.redirects : [];
 
+// source / destination 允许写成原样中文或百分号编码两种形式（Vercel 侧两种都见过），
+// 断言统一解码后比对，避免把「换了写法」误判成「漏了规则」。
+function norm(p) {
+  try {
+    return decodeURIComponent(String(p));
+  } catch (err) {
+    return String(p);
+  }
+}
+
 // [1] 旧分类覆盖
 if (rules.length === 0) {
   bad('vercel.json 没有任何 redirects，旧分类路径无从迁移');
@@ -56,12 +66,12 @@ if (rules.length === 0) {
     for (const suffix of ['', '/']) {
       const src = '/categories/' + from + suffix;
       const dst = '/categories/' + to + '/';
-      const hits = rules.filter((r) => r.source === src);
+      const hits = rules.filter((r) => norm(r.source) === src);
       if (hits.length === 0) {
         problems.push(src + ' 缺失');
       } else if (hits.length > 1) {
         problems.push(src + ' 重复 ' + hits.length + ' 条');
-      } else if (hits[0].destination !== dst) {
+      } else if (norm(hits[0].destination) !== dst) {
         problems.push(src + ' 指向 ' + hits[0].destination + '，应为 ' + dst);
       } else if (hits[0].permanent !== true) {
         problems.push(src + ' 不是永久跳转');

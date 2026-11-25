@@ -15,73 +15,73 @@
       "permanent": true
     },
     {
-      "source": "/categories/个人感悟",
-      "destination": "/categories/随笔与思考/",
+      "source": "/categories/%E4%B8%AA%E4%BA%BA%E6%84%9F%E6%82%9F",
+      "destination": "/categories/%E9%9A%8F%E7%AC%94%E4%B8%8E%E6%80%9D%E8%80%83/",
       "permanent": true
     },
     {
-      "source": "/categories/个人感悟/",
-      "destination": "/categories/随笔与思考/",
+      "source": "/categories/%E4%B8%AA%E4%BA%BA%E6%84%9F%E6%82%9F/",
+      "destination": "/categories/%E9%9A%8F%E7%AC%94%E4%B8%8E%E6%80%9D%E8%80%83/",
       "permanent": true
     },
     {
-      "source": "/categories/名词解释",
-      "destination": "/categories/技术与工程/",
+      "source": "/categories/%E5%90%8D%E8%AF%8D%E8%A7%A3%E9%87%8A",
+      "destination": "/categories/%E6%8A%80%E6%9C%AF%E4%B8%8E%E5%B7%A5%E7%A8%8B/",
       "permanent": true
     },
     {
-      "source": "/categories/名词解释/",
-      "destination": "/categories/技术与工程/",
+      "source": "/categories/%E5%90%8D%E8%AF%8D%E8%A7%A3%E9%87%8A/",
+      "destination": "/categories/%E6%8A%80%E6%9C%AF%E4%B8%8E%E5%B7%A5%E7%A8%8B/",
       "permanent": true
     },
     {
-      "source": "/categories/城市数据",
-      "destination": "/categories/数据与考据/",
+      "source": "/categories/%E5%9F%8E%E5%B8%82%E6%95%B0%E6%8D%AE",
+      "destination": "/categories/%E6%95%B0%E6%8D%AE%E4%B8%8E%E8%80%83%E6%8D%AE/",
       "permanent": true
     },
     {
-      "source": "/categories/城市数据/",
-      "destination": "/categories/数据与考据/",
+      "source": "/categories/%E5%9F%8E%E5%B8%82%E6%95%B0%E6%8D%AE/",
+      "destination": "/categories/%E6%95%B0%E6%8D%AE%E4%B8%8E%E8%80%83%E6%8D%AE/",
       "permanent": true
     },
     {
-      "source": "/categories/学习路线",
-      "destination": "/categories/技术与工程/",
+      "source": "/categories/%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF",
+      "destination": "/categories/%E6%8A%80%E6%9C%AF%E4%B8%8E%E5%B7%A5%E7%A8%8B/",
       "permanent": true
     },
     {
-      "source": "/categories/学习路线/",
-      "destination": "/categories/技术与工程/",
+      "source": "/categories/%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF/",
+      "destination": "/categories/%E6%8A%80%E6%9C%AF%E4%B8%8E%E5%B7%A5%E7%A8%8B/",
       "permanent": true
     },
     {
-      "source": "/categories/职业发展",
-      "destination": "/categories/产品与设计/",
+      "source": "/categories/%E8%81%8C%E4%B8%9A%E5%8F%91%E5%B1%95",
+      "destination": "/categories/%E4%BA%A7%E5%93%81%E4%B8%8E%E8%AE%BE%E8%AE%A1/",
       "permanent": true
     },
     {
-      "source": "/categories/职业发展/",
-      "destination": "/categories/产品与设计/",
+      "source": "/categories/%E8%81%8C%E4%B8%9A%E5%8F%91%E5%B1%95/",
+      "destination": "/categories/%E4%BA%A7%E5%93%81%E4%B8%8E%E8%AE%BE%E8%AE%A1/",
       "permanent": true
     },
     {
-      "source": "/categories/设计资源",
-      "destination": "/categories/产品与设计/",
+      "source": "/categories/%E8%AE%BE%E8%AE%A1%E8%B5%84%E6%BA%90",
+      "destination": "/categories/%E4%BA%A7%E5%93%81%E4%B8%8E%E8%AE%BE%E8%AE%A1/",
       "permanent": true
     },
     {
-      "source": "/categories/设计资源/",
-      "destination": "/categories/产品与设计/",
+      "source": "/categories/%E8%AE%BE%E8%AE%A1%E8%B5%84%E6%BA%90/",
+      "destination": "/categories/%E4%BA%A7%E5%93%81%E4%B8%8E%E8%AE%BE%E8%AE%A1/",
       "permanent": true
     },
     {
-      "source": "/categories/踩坑记录",
-      "destination": "/categories/技术与工程/",
+      "source": "/categories/%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95",
+      "destination": "/categories/%E6%8A%80%E6%9C%AF%E4%B8%8E%E5%B7%A5%E7%A8%8B/",
       "permanent": true
     },
     {
-      "source": "/categories/踩坑记录/",
-      "destination": "/categories/技术与工程/",
+      "source": "/categories/%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/",
+      "destination": "/categories/%E6%8A%80%E6%9C%AF%E4%B8%8E%E5%B7%A5%E7%A8%8B/",
       "permanent": true
     },
     {
