@@ -551,7 +551,7 @@ function camera(u,w,h){
   }
   return look(e,tg,fov,w,h);
 }
-let roll=0,intro=RM?1:0,held=false,warm=0,wt=0,glon=false,fa;
+let roll=0,intro=0,held=false,warm=0,wt=0,glon=false,fa;
 /* 开场字形闪出结束之后为真。 */
 const flashed=()=>{if(fa===undefined)fa=(document.getAnimations?document.getAnimations():[]).find(a=>a.animationName=='flash')||null;return !fa||fa.playState!='running'||fa.currentTime==null||fa.currentTime>=1390||performance.now()>9000};const INTRO=2.4,SKY=[90];
 function look(e,tg,fov,w,h){
@@ -591,6 +591,11 @@ function look(e,tg,fov,w,h){
   var target = 0;
   var t = 0;
   var last = 0;
+  var raf = 0;
+
+  /* 减少动态效果时的固定机位：锁在第一屏（p = 0），与正常模式的首帧完全一致。
+     滚动不再换机位——静态帧就是静态帧，否则「相机跟着滚动推进」只是换了种方式做动效。 */
+  var REDUCE_P = 0;
 
   function readProgress() {
     var max = root.scrollHeight - window.innerHeight;
@@ -608,13 +613,35 @@ function look(e,tg,fov,w,h){
     scene.draw(M, e, t);
   }
 
-  function loop(now) {
+  function frame(now) {
     var dt = last ? Math.min(64, now - last) : 16;
     last = now;
     t += dt * 0.001;
     p += (target - p) * 0.08;
     draw();
-    window.requestAnimationFrame(loop);
+    raf = window.requestAnimationFrame(frame);
+  }
+
+  /* 唯一的启动入口：reduce 下直接拒绝启动（issue #20 / E-190）。 */
+  function start() {
+    if (RM || raf) return false;
+    last = 0;
+    raf = window.requestAnimationFrame(frame);
+    return true;
+  }
+
+  function stop() {
+    if (!raf) return false;
+    window.cancelAnimationFrame(raf);
+    raf = 0;
+    return true;
+  }
+
+  /* reduce 的静态帧：时间轴归零、机位固定，画一次就完事。 */
+  function paintStill() {
+    p = REDUCE_P;
+    t = 0;
+    draw();
   }
 
   // 原站的入场动画把相机放在 90 米高空再放下来；这里没有那段动画，直接锁定落地状态，
@@ -650,10 +677,27 @@ function look(e,tg,fov,w,h){
   resize();
   placeSun();
   readProgress();
-  p = target;
   window.addEventListener('resize', function () { resize(); draw(); }, { passive: true });
+  // reduce 下滚动只更新 target，不换机位：静态帧就是静态帧，
+  // 否则「相机跟着滚动推进」等于换个方式做动效，前庭障碍用户照样难受。
   window.addEventListener('scroll', readProgress, { passive: true });
-  window.requestAnimationFrame(loop);
+
+  if (RM) {
+    paintStill();
+  } else {
+    p = target;
+    start();
+  }
+
+  // 进后台停掉循环，回来再续；reduce 下本来就没有循环，只需补一帧。
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+      stop();
+      return;
+    }
+    if (RM) paintStill();
+    else start();
+  });
   })();
 
   // ================= 2. 导航：只在第二屏浮现完整胶囊 =================

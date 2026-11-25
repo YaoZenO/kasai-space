@@ -157,7 +157,7 @@ ok('画布是 WebGL 三维场景：深度缓冲、距离雾、Catmull-Rom 相机
   assert.match(homeJs, /const cr=\(a,b,c,d,t\)=>/, '相机没有 Catmull-Rom 插值，关键帧之间会折线');
   assert.match(homeJs, /clamp\(1\.3-d\/380\./, '着色器没有距离雾，远景压不下去');
   assert.match(homeJs, /Math\.min\(window\.devicePixelRatio \|\| 1, 2\)/, '画布没适配 devicePixelRatio');
-  assert.match(homeJs, /requestAnimationFrame\(loop\)/, '画布没有走 rAF');
+  assert.match(homeJs, /raf = window\.requestAnimationFrame\(frame\)/, '画布没有走 rAF');
   assert.ok(!/createRadialGradient/.test(homeJs), '又回到 2D 渐变画法了');
   assert.ok(!/ctx\.arc\(/.test(homeJs), '又回到画圆点当浮尘的老路');
 });
@@ -294,6 +294,22 @@ ok('E-180 防复发：核心必须走自发光批次，暗夜系数不能把它�
   assert.match(homeJs, /turns\(v0,CORE,\[0,1,0\],\.34,true\)/, '核心自转没有标自发光');
   assert.match(homeJs, /\(emis\?-1:1\)\*\(20\+SPIN\.length\)/, 'turns 不写负槽号，自发光标记会被覆盖');
   assert.match(homeJs, /float sy=s\.y;if\(sy<-19\.5\)sy=-sy;/, '着色器没有把负槽号还原成正槽，核心不会转');
+});
+
+
+ok('E-190 防复发：reduce 下只画固定一帧，不启动动画循环', () => {
+  assert.match(homeJs, /var RM = window\.matchMedia\('\(prefers-reduced-motion: reduce\)'\)\.matches;/, 'RM 读取被删');
+  assert.match(homeJs, /var REDUCE_P = 0;/, 'reduce 固定机位被删（应锁在第一屏）');
+  assert.match(homeJs, /function paintStill\(\) \{\s*p = REDUCE_P;\s*t = 0;\s*draw\(\);/, 'paintStill 没把时间轴归零');
+  assert.match(homeJs, /function start\(\) \{\s*if \(RM \|\| raf\) return false;/, 'start 没有拦住 reduce');
+  assert.match(homeJs, /if \(RM\) \{\s*paintStill\(\);/, '初始化没有按 RM 分支');
+  assert.ok(!/window\.requestAnimationFrame\(loop\)/.test(homeJs), '旧的 loop 无条件自调用还在');
+});
+
+ok('E-190 防复发：标签页隐藏时停掉循环，回来续跑', () => {
+  assert.match(homeJs, /document\.addEventListener\('visibilitychange'/, '缺少 visibilitychange 处理');
+  assert.match(homeJs, /if \(document\.hidden\) \{\s*stop\(\);/, '隐藏时没有停循环');
+  assert.match(homeJs, /window\.cancelAnimationFrame\(raf\)/, '没有保存并取消 rAF 句柄');
 });
 
 
