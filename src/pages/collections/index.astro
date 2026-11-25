@@ -1,6 +1,7 @@
 ---
-// /collections/：收藏条目卡（PAGE-FORM-PLAN §4.6.5 / S2）。
-// 条目都是外链，没有详情路由；1 条时单卡占满内容宽，不铺网格。
+// /collections/：零边框策展陈列（2026-11-26 重构）。
+// 复用底层动态经纬画布 #ab-bg-canvas，去掉统一圆角卡片，
+// 有图条目以无框宽幅图呈现，无图条目以排印标本板（超大数字 + 站点色带）自然平衡。
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import EmptyState from '../../components/EmptyState.astro';
 import { getData } from '../../lib/data';
@@ -22,11 +23,22 @@ const lead = [
 ---
 
 <BaseLayout title="收藏" currentPath="/collections/">
-  <div class="paper-page">
-    <div class="home-wrap">
+  <canvas class="ab-bg-canvas" id="ab-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="paper-page ab-page-shell">
+    <div class="home-wrap cl-page">
       <header class="cl-head">
-        <h1 class="cl-title">收藏</h1>
-        <p class="cl-lead">{lead}</p>
+        <p class="ab-watermark" data-ab-parallax="0.16" aria-hidden="true">CURATED</p>
+
+        <div class="cl-head-main">
+          <p class="ab-kicker ab-reveal" style="--ab-d: 0ms;">
+            <span>CURATED</span>
+            <span class="ab-kicker-sep" aria-hidden="true">/</span>
+            <span>SHELF</span>
+          </p>
+          <h1 class="cl-title">收藏</h1>
+          <p class="cl-lead">{lead}</p>
+        </div>
       </header>
 
       {items.length === 0 ? (
@@ -37,23 +49,45 @@ const lead = [
             const link = it.link ? String(it.link) : '';
             const isExt = /^https?:\/\//i.test(link);
             const Card = link ? 'a' : 'div';
+            const numMatch = /(\d+)/.exec(String(it.title || ''));
+            const specimenNum = numMatch ? numMatch[1] : String(idx + 1).padStart(2, '0');
             return (
               <Card
                 class="cl-card"
                 id={`col-${idx}`}
                 {...(link ? (isExt ? { href: link, target: '_blank', rel: 'noopener' } : { href: urlFor(link) }) : {})}
               >
-                {it.cover && (
-                  <span class="cl-cover"><img src={urlFor(it.cover)} alt={it.title} loading="lazy" /></span>
-                )}
-                <span class="cl-body">
-                  <span class="cl-title-row">
-                    <span class="cl-name">{it.title}</span>
-                    {link && <span class="cl-badge">{isExt ? '外链策展 ↗' : '站内图鉴 →'}</span>}
+                {it.cover ? (
+                  <span class="cl-cover">
+                    <img src={urlFor(it.cover)} alt={it.title} loading="lazy" />
                   </span>
+                ) : (
+                  <span class="cl-specimen" aria-hidden="true">
+                    <span class="cl-specimen-num">{specimenNum}</span>
+                    <span class="cl-specimen-swatches">
+                      <i class="cl-sw cl-sw--1" />
+                      <i class="cl-sw cl-sw--2" />
+                      <i class="cl-sw cl-sw--3" />
+                      <i class="cl-sw cl-sw--4" />
+                    </span>
+                    <span class="cl-specimen-cap">INTERACTIVE INDEX</span>
+                  </span>
+                )}
+
+                <span class="cl-body">
+                  <span class="cl-meta-row">
+                    <span class="cl-code">{String(idx + 1).padStart(2, '0')}</span>
+                    {link && <span class="cl-badge">{isExt ? '外链策展 ↗' : '站内图鉴 →'}</span>}
+                    {it.date && (
+                      <time class="cl-date" datetime={fmtItemDate(it.date, 'YYYY-MM-DD')}>{fmtItemDate(it.date)}</time>
+                    )}
+                  </span>
+                  <span class="cl-name">{it.title}</span>
                   {it.desc && <span class="cl-desc">{it.desc}</span>}
-                  {it.date && (
-                    <time class="cl-date" datetime={fmtItemDate(it.date, 'YYYY-MM-DD')}>{fmtItemDate(it.date)}</time>
+                  {link && (
+                    <span class="cl-go">
+                      {isExt ? '前往外部策展 ↗' : '进入站内图鉴 →'}
+                    </span>
                   )}
                 </span>
               </Card>
@@ -63,4 +97,6 @@ const lead = [
       )}
     </div>
   </div>
+
+  <script defer src="/js/about.js"></script>
 </BaseLayout>

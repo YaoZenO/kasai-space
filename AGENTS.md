@@ -26,6 +26,7 @@ stalling on unnecessary confirmations and without touching things that were not 
 - Inspect the actual source, config, dependencies, and existing implementation.
 - Separate changes that already existed before the task from changes you create.
 - **Never assume** that a directory, dependency, script, or feature exists. Verify first.
+- **核实数量与内容事实必须读全文件、逐条点名核对，严禁只读片段或凭印象下结论糊弄主人。** 涉及条目数、页面内容、数据明细时，必须完整读取源数据与产物并列出实际清单；若与主人印象不一致，直接亮出真实条目清单核对，不得敷衍顺从或含糊带过。
 - If the repo state contradicts a document, trust the repo state and report the discrepancy.
 
 ## 2. How to execute

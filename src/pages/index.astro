@@ -29,7 +29,7 @@ const pages = await getCollection('pages');
 
 const siteCfg: any = data.site || {};
 const siteTitle = themeConfig.navbar?.blog_title || "KASAI'S Personal Space";
-const intro = siteCfg.intro || themeConfig.about?.intro || 'Be Water, My Friends.';
+const intro = siteCfg.intro || themeConfig.about?.intro || 'Be water, my friend.';
 const avatar = siteCfg.avatar || themeConfig.about?.avatar || '';
 const icons: any[] = themeConfig.about?.icons || [];
 const hasCopy = icons.some((e: any) => e && !e.link && !e.qrcode && e.copy);
@@ -40,12 +40,19 @@ const realName = (String(themeConfig.about?.name || '').match(/^[\u4e00-\u9fa5·
 const TODAY = fmtItemDate(new Date());
 const sinceYear = posts.length ? String(Math.min(...posts.map((p) => p.date.getFullYear()))) : '';
 
-// About Me 的三句状态描述：2026-11-15 主人定稿，逐字使用，不在此处改写
-const ABOUT_LINES = [
-  '构建本地优先的私有系统——用代码将「关系事实」与「资产周期」结构化。',
-  '独立维护这座数字空间：Astro 驱动，手搓 Git-backed 管理面板与自动化校验流。',
-  '数字策展与考据：清洗 350 城统计数据、16 年历法节气与馆藏文物档案。',
-];
+// About Me 的三句状态描述：与 /about/ 共用 source/about/index.md 的 pillars 单一数据源，
+// 保证首页与关于页永远一致（2026-11-15 主人定稿文案逐字保留在 source/about/index.md）。
+const aboutEntry = pages.find((p) => p.id === 'about');
+const aboutPillars: any[] = Array.isArray((aboutEntry?.data as any)?.pillars)
+  ? (aboutEntry!.data as any).pillars
+  : [];
+const ABOUT_LINES: string[] = aboutPillars.length
+  ? aboutPillars.map((p: any) => String(p.line || '')).filter(Boolean)
+  : [
+      '构建本地优先的私有系统——用代码将「关系事实」与「资产周期」结构化。',
+      '独立维护这座数字空间：Astro 驱动，手搓 Git-backed 管理面板与自动化校验流。',
+      '数字策展与考据：清洗 350 城统计数据、16 年历法节气与馆藏文物档案。',
+    ];
 
 // ---------- Thinking：四篇思考长文 ----------
 // StyleKit 图鉴已归入 Collections 窗口，避免同一文章在首页重复出现。

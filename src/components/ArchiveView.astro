@@ -1,10 +1,10 @@
 ---
-// 文字族外壳（PAGE-FORM-PLAN §4.6.2，2026-11-14 S1 重写）：
+// 文字族外壳（2026-11-26 零边框编辑目录重构）：
 // /archives/ 三级 + 关键词 / 主题详情共用。
-// 页头 = h1 + 一句结论（N 篇 · 跨度）；索引页另有年份轨道与三行精选。
-// 列表 = 「日期 + 标题 + 最多两个关键词」，纯链接，零 JS。
-// 类名统一 ar-（§4.6.10 第 4 条），不再往 archive-* / post-* 上挂新用途。
-
+// 复用底层动态经纬画布 #ab-bg-canvas，去框框化：
+//   · 不对称开篇：左巨幅标题统计 × 右细线下划线视图切换与精炼年份刻度；
+//   · 精选摘录：无框 Focus-Dim 主推行；
+//   · 年份列表：左粘性大年份 × 右极简细线目录。
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { themeConfig } from '../lib/site-config';
 import { formatWithPattern } from '../lib/dates';
@@ -12,17 +12,11 @@ import { getPosts, getArchives, taxonomyHref, type Post } from '../lib/posts';
 import { zhCN } from '../lib/i18n';
 
 interface Props {
-  /** 当前页要列出的文章（年份 / 月份 / 关键词 / 主题为过滤后的子集） */
   posts: Post[];
-  /** 页面 h1 */
   heading: string;
-  /** <title>；省略时沿用归档页标题 */
   pageTitle?: string;
-  /** 首屏三行精选（仅 /archives/） */
   showPicks?: boolean;
-  /** 年份轨道（仅 /archives/） */
   showTrack?: boolean;
-  /** 顶部视图切换高亮 */
   activeTab?: 'archives' | 'categories' | 'tags';
 }
 
@@ -33,7 +27,6 @@ const total = posts.length;
 const oldest = posts[posts.length - 1];
 const newest = posts[0];
 
-/* 跨度：跨年写「2023→2026」，同年跨月写「2026-03-12 → 11-04」，同月写「10-18 → 10-21」 */
 function spanText(): string {
   if (!oldest || !newest) return '';
   const fy = formatWithPattern(oldest.date, 'YYYY');
@@ -51,15 +44,14 @@ const lead = total
   ? `${total} 篇 · ${spanText()}${showTrack ? ` · 最近更新 ${formatWithPattern(newest.date, 'YYYY-MM-DD')}` : ''}`
   : '还没有文章';
 
-/* 精选三行：只留标题 / 一句 note / 日期，不再输出正文摘要——摘要会把这页拉回文章流。 */
 const featured = ((themeConfig.archive && themeConfig.archive.featured) || []) as {
   slug: string;
   note?: string;
 }[];
 const seen = new Set<string>();
 const picks = featured
-  .map(cfg => {
-    const post = allPosts.find(p => p.slug === cfg.slug);
+  .map((cfg) => {
+    const post = allPosts.find((p) => p.slug === cfg.slug);
     if (!post || seen.has(post.path)) return null;
     seen.add(post.path);
     return { post, note: cfg.note || '' };
@@ -82,67 +74,99 @@ for (const post of posts) {
 ---
 
 <BaseLayout title={pageTitle || themeConfig.archive?.title || zhCN.archive.title} markdownPlugins={false}>
-  <div class="paper-page">
-    <div class="home-wrap">
+  <canvas class="ab-bg-canvas" id="ab-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="paper-page ab-page-shell">
+    <div class="home-wrap ar-page">
       <header class="ar-head">
-        <nav class="ar-tabs" aria-label="文字视图切换">
-          <a class:list={['ar-tab', { 'is-active': activeTab === 'archives' }]} href="/archives/" aria-current={activeTab === 'archives' ? 'page' : undefined}>时间轴</a>
-          <a class:list={['ar-tab', { 'is-active': activeTab === 'categories' }]} href="/categories/" aria-current={activeTab === 'categories' ? 'page' : undefined}>四大主题</a>
-          <a class:list={['ar-tab', { 'is-active': activeTab === 'tags' }]} href="/tags/" aria-current={activeTab === 'tags' ? 'page' : undefined}>关键词</a>
-        </nav>
-        <h1 class="ar-title">{heading}</h1>
-        <p class="ar-lead">{lead}</p>
+        <p class="ab-watermark" data-ab-parallax="0.16" aria-hidden="true">WRITING</p>
+
+        <div class="ar-head-main">
+          <p class="ab-kicker ab-reveal" style="--ab-d: 0ms;">
+            <span>WRITING</span>
+            <span class="ab-kicker-sep" aria-hidden="true">/</span>
+            <span>ARCHIVE</span>
+          </p>
+          <h1 class="ar-title">{heading}</h1>
+          <p class="ar-lead">{lead}</p>
+        </div>
+
+        <div class="ar-head-side">
+          <nav class="ar-tabs" aria-label="文字视图切换">
+            <a class:list={['ar-tab', { 'is-active': activeTab === 'archives' }]} href="/archives/" aria-current={activeTab === 'archives' ? 'page' : undefined}>时间轴</a>
+            <a class:list={['ar-tab', { 'is-active': activeTab === 'categories' }]} href="/categories/" aria-current={activeTab === 'categories' ? 'page' : undefined}>四大主题</a>
+            <a class:list={['ar-tab', { 'is-active': activeTab === 'tags' }]} href="/tags/" aria-current={activeTab === 'tags' ? 'page' : undefined}>关键词</a>
+          </nav>
+
+          {showTrack && (
+            <nav class="ar-track" aria-label="按年份查看">
+              {archives.map((a) => (
+                <a class="ar-track-year" href={`/archives/${a.year}/`}>
+                  <span class="ar-track-top">
+                    <span class="ar-track-num">{a.year}</span>
+                    <span class="ar-track-count">{a.posts.length} 篇</span>
+                  </span>
+                  <span class="ar-track-bar">
+                    <i style={`width:${Math.max(8, Math.round((a.posts.length / maxCount) * 100))}%`} />
+                  </span>
+                </a>
+              ))}
+            </nav>
+          )}
+        </div>
       </header>
 
-      {showTrack && (
-        <nav class="ar-track" aria-label="按年份查看">
-          {archives.map(a => (
-            <a class="ar-track-year" href={`/archives/${a.year}/`}>
-              <span class="ar-track-num">{a.year}</span>
-              <span class="ar-track-count">{a.posts.length} 篇</span>
-              <span class="ar-track-bar">
-                <i style={`width:${Math.max(4, Math.round((a.posts.length / maxCount) * 100))}%`} />
-              </span>
-            </a>
-          ))}
-        </nav>
-      )}
-
       {showPicks && picks.length > 0 && (
-        <section class="ar-picks">
-          <p class="ar-picks-label">精选摘录</p>
-          {picks.map(({ post, note }) => (
-            <a class="ar-pick" href={post.href}>
-              <span class="ar-pick-title">{post.title}</span>
-              <time class="ar-pick-date" datetime={formatWithPattern(post.date, 'YYYY-MM-DD')}>
-                {formatWithPattern(post.date, 'YYYY-MM-DD')}
-              </time>
-              {note && <span class="ar-pick-note">{note}</span>}
-            </a>
-          ))}
+        <section class="ar-picks" aria-labelledby="ar-picks-heading">
+          <p class="ar-picks-label" id="ar-picks-heading">SELECTED · 精选摘录</p>
+          <div class="ar-picks-list">
+            {picks.map(({ post, note }, idx) => (
+              <a class="ar-pick" href={post.href}>
+                <span class="ar-pick-num" aria-hidden="true">{String(idx + 1).padStart(2, '0')}</span>
+                <span class="ar-pick-main">
+                  <span class="ar-pick-title">{post.title}</span>
+                  {note && <span class="ar-pick-note">{note}</span>}
+                </span>
+                <time class="ar-pick-date" datetime={formatWithPattern(post.date, 'YYYY-MM-DD')}>
+                  {formatWithPattern(post.date, 'YYYY-MM-DD')}
+                </time>
+                <span class="ar-pick-arrow" aria-hidden="true">→</span>
+              </a>
+            ))}
+          </div>
         </section>
       )}
 
-      {groups.map(group => (
-        <section class="ar-group" id={`year-${group.year}`}>
-          <h2 class="ar-group-title">{group.year}</h2>
-          {group.posts.map(post => (
-            <div class="ar-row">
-              <time class="ar-row-date" datetime={formatWithPattern(post.date, 'YYYY-MM-DD')}>
-                {formatWithPattern(post.date, 'MM-DD')}
-              </time>
-              <a class="ar-row-title" href={post.href}>{post.title}</a>
-              {post.tags.length > 0 && (
-                <span class="ar-row-tags">
-                  {post.tags.slice(0, 2).map(tag => (
-                    <a class="ar-row-tag" href={taxonomyHref('tags', tag)}>#{tag}</a>
-                  ))}
-                </span>
-              )}
+      <div class="ar-groups">
+        {groups.map((group) => (
+          <section class="ar-group" id={`year-${group.year}`}>
+            <div class="ar-group-aside">
+              <h2 class="ar-group-title">{group.year}</h2>
+              <p class="ar-group-count">{group.posts.length} 篇</p>
             </div>
-          ))}
-        </section>
-      ))}
+
+            <div class="ar-group-list">
+              {group.posts.map((post) => (
+                <div class="ar-row">
+                  <time class="ar-row-date" datetime={formatWithPattern(post.date, 'YYYY-MM-DD')}>
+                    {formatWithPattern(post.date, 'MM-DD')}
+                  </time>
+                  <a class="ar-row-title" href={post.href}>{post.title}</a>
+                  {post.tags.length > 0 && (
+                    <span class="ar-row-tags">
+                      {post.tags.slice(0, 2).map((tag) => (
+                        <a class="ar-row-tag" href={taxonomyHref('tags', tag)}>#{tag}</a>
+                      ))}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
     </div>
   </div>
+
+  <script defer src="/js/about.js"></script>
 </BaseLayout>

@@ -1,8 +1,8 @@
 ---
-// /projects/：项目档案卡（PAGE-FORM-PLAN §4.6.3 / S2）。
-// 3 个项目都没有封面，不做封面墙；用「标题 + 一句 summary + 技术栈 + 日期 + 出口」。
+// /projects/：零边框编号蓝图项目展陈（2026-11-26 重构）。
+// 复用底层动态经纬画布 #ab-bg-canvas，去掉厚重圆角卡片与 StatBand 盒子，
+// 以大编号 01/02/03 细线展陈呈现真实项目、章节直达节点、纯排印技术栈与出口。
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import StatBand from '../../components/StatBand.astro';
 import EmptyState from '../../components/EmptyState.astro';
 import { getData } from '../../lib/data';
 import { detailPath } from '../../lib/modules';
@@ -34,20 +34,39 @@ const stats = [
 ---
 
 <BaseLayout title="项目" currentPath="/projects/">
-  <div class="paper-page">
-    <div class="home-wrap">
-      <header class="pj-head">
-        <h1 class="pj-title">项目</h1>
-        <p class="pj-lead">{lead}</p>
-      </header>
+  <canvas class="ab-bg-canvas" id="ab-bg-canvas" aria-hidden="true"></canvas>
 
-      {items.length > 0 && <StatBand items={stats} columns={3} />}
+  <div class="paper-page ab-page-shell">
+    <div class="home-wrap pj-page">
+      <header class="pj-head">
+        <p class="ab-watermark" data-ab-parallax="0.16" aria-hidden="true">PROJECTS</p>
+
+        <div class="pj-head-main">
+          <p class="ab-kicker ab-reveal" style="--ab-d: 0ms;">
+            <span>CREATIONS</span>
+            <span class="ab-kicker-sep" aria-hidden="true">/</span>
+            <span>BLUEPRINTS</span>
+          </p>
+          <h1 class="pj-title">项目</h1>
+          <p class="pj-lead">{lead}</p>
+        </div>
+
+        {items.length > 0 && (
+          <dl class="stat-band pj-metrics" aria-label="项目统计">
+            {stats.map((st) => (
+              <div class="pj-metric">
+                <dt>{st.label}</dt><dd>{st.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+      </header>
 
       {items.length === 0 ? (
         <EmptyState>还没有项目条目，可以先回<a href={urlFor('/')}>首页</a>看看别的内容。</EmptyState>
       ) : (
         <div class="pj-list">
-          {items.map((it: any) => {
+          {items.map((it: any, idx: number) => {
             const baseHref = urlFor(detailPath('projects', it));
             const parts = [
               { id: 'background', label: '背景', has: Boolean(it.background && String(it.background).trim()) },
@@ -57,6 +76,13 @@ const stats = [
             ].filter((p) => p.has);
             return (
               <article class="pj-card">
+                <div class="pj-card-index">
+                  <span class="pj-num" aria-hidden="true">{String(idx + 1).padStart(2, '0')}</span>
+                  {it.date && (
+                    <time class="pj-date" datetime={fmtItemDate(it.date, 'YYYY-MM-DD')}>{fmtItemDate(it.date)}</time>
+                  )}
+                </div>
+
                 <div class="pj-card-main">
                   <h2 class="pj-card-title"><a href={baseHref}>{it.title}</a></h2>
                   {it.summary && <p class="pj-card-sum">{it.summary}</p>}
@@ -68,21 +94,17 @@ const stats = [
                     </nav>
                   )}
                 </div>
+
                 <div class="pj-card-side">
                   {(it.tags || []).length > 0 && (
                     <ul class="pj-tags">
                       {(it.tags || []).map((t: string) => <li class="pj-tag">{t}</li>)}
                     </ul>
                   )}
-                  <footer class="pj-card-foot">
-                    {it.date && (
-                      <time class="pj-date" datetime={fmtItemDate(it.date, 'YYYY-MM-DD')}>{fmtItemDate(it.date)}</time>
-                    )}
-                    <span class="pj-actions">
-                      <a class="pj-more" href={baseHref}>看详情 →</a>
-                      {it.link && <a class="pj-visit" href={it.link} target="_blank" rel="noopener">访问 ↗</a>}
-                    </span>
-                  </footer>
+                  <div class="pj-actions">
+                    <a class="pj-more" href={baseHref}>看详情 <span aria-hidden="true">→</span></a>
+                    {it.link && <a class="pj-visit" href={it.link} target="_blank" rel="noopener">GitHub <span aria-hidden="true">↗</span></a>}
+                  </div>
                 </div>
               </article>
             );
@@ -91,4 +113,6 @@ const stats = [
       )}
     </div>
   </div>
+
+  <script defer src="/js/about.js"></script>
 </BaseLayout>

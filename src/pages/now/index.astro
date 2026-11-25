@@ -1,21 +1,81 @@
 ---
-import { getCollection, render } from 'astro:content';
+// /now/：阶段快照时间轴日志（2026-11-26 重构，参考 Maggie Appleton 时间轴流派）。
+//
+// 结构：
+//   · 底层 <canvas id="ab-bg-canvas">：复用关于页的程序化经纬画布；
+//   · ① 精炼页头：NOW 水印 + 呼吸点更新日期 + 衬线标题 + 单行往返链接；
+//   · ② 阶段快照时间轴：左侧粘性年月节点导轨，右侧按月倒序展开的真实阶段记录（新月份只需在 source/now/index.md 顶部追加 ## YYYY.MM）；
+//   · ③ 底部紧凑注脚：手边在用（含 Antigravity 等工具词条）× 这个站。
+import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MarkdownPlugins from '../../components/MarkdownPlugins.astro';
+import { renderMarkdown } from '../../lib/markdown';
 import { excerptFromMarkdown } from '../../lib/excerpt';
 import { fmtItemDate } from '../../lib/dates';
 import { pageDates } from '../../lib/page-meta';
+import { urlFor } from '../../lib/url';
 
 const pages = await getCollection('pages');
-const entry = pages.find(p => p.id === 'now');
-if (!entry) throw new Error('缺少 source/now/index.md: ' + pages.map(p => p.id).join(','));
+const entry = pages.find((p) => p.id === 'now');
+if (!entry) throw new Error('缺少 source/now/index.md: ' + pages.map((p) => p.id).join(','));
 
-const { Content } = await render(entry);
 const { title, show_updated } = entry.data as any;
-// article:* 用 front matter 的 show_updated，不用文件 mtime：
-// Vercel 每次全新 checkout，mtime 等于部署时刻，会让同一提交产出不同 head（E-028）。
 const { published, modified } = pageDates('now/index.md');
 const description = excerptFromMarkdown(entry.body || '');
+const updatedText = show_updated ? fmtItemDate(show_updated) : '';
+
+const rawBody = String(entry.body || '').trim();
+const allSections = [...rawBody.matchAll(/(?:^|\n)#{2,3}\s+([^\r\n]+)\r?\n([\s\S]*?)(?=\r?\n#{2,3}\s+|$)/g)];
+
+function parseBullets(md: string): string[] {
+  return md
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l.startsWith('- '))
+    .map((l) => l.slice(2).trim());
+}
+
+function parseKeyValues(md: string): { key: string; valHtml: string; tokens: string[] }[] {
+  return parseBullets(md).map((line) => {
+    const m = /^\*\*([^*]+)\*\*[：:]\s*(.+)$/.exec(line);
+    if (!m) return { key: '', valHtml: renderMarkdown(line), tokens: [] };
+    const key = m[1].trim();
+    const rest = m[2].trim();
+    const isTokenList = !rest.includes('[') && rest.includes('、');
+    return {
+      key,
+      valHtml: isTokenList ? '' : renderMarkdown(rest),
+      tokens: isTokenList ? rest.split('、').map((s) => s.trim()).filter(Boolean) : [],
+    };
+  });
+}
+
+const MONTH_EN: Record<string, string> = {
+  '01': 'JAN', '02': 'FEB', '03': 'MAR', '04': 'APR',
+  '05': 'MAY', '06': 'JUN', '07': 'JUL', '08': 'AUG',
+  '09': 'SEP', '10': 'OCT', '11': 'NOV', '12': 'DEC',
+};
+
+// 形如 ## 2026.11 的章节自动进入阶段快照时间轴
+const snapshots = allSections
+  .filter((m) => /^\d{4}\.\d{2}$/.test(m[1].trim()))
+  .map((m) => {
+    const ym = m[1].trim();
+    const [year, month] = ym.split('.');
+    return {
+      id: `log-${ym.replace('.', '-')}`,
+      ym,
+      year,
+      monthLabel: `${year} 年 ${Number(month)} 月`,
+      en: `${MONTH_EN[month] || month} ${year}`,
+      items: parseBullets(m[2].trim()).map((line) => renderMarkdown(line)),
+    };
+  });
+
+const usingSec = allSections.find((m) => m[1].trim() === '手边在用');
+const siteSec = allSections.find((m) => m[1].trim() === '这个站');
+const usingRows = usingSec ? parseKeyValues(usingSec[2].trim()) : [];
+const siteRows = siteSec ? parseKeyValues(siteSec[2].trim()) : [];
 ---
 
 <BaseLayout
@@ -27,19 +87,125 @@ const description = excerptFromMarkdown(entry.body || '');
   ogUpdated={modified}
   markdownPlugins
 >
-  <div class="paper-page">
-    <div class="home-wrap">
-      <header class="pg-hd">
-        <h1 class="pg-hd-title">{title}</h1>
-        {show_updated && <p class="pg-hd-meta">更新于 {fmtItemDate(show_updated)}</p>}
-      </header>
-      <article class="about-body">
-        <div class="markdown-body">
-          <Content />
+  <canvas class="ab-bg-canvas" id="ab-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="paper-page ab-page-shell">
+    <div class="home-wrap now-page about-body">
+      <header class="nw-hero">
+        <p class="ab-watermark" data-ab-parallax="0.16" aria-hidden="true">NOW</p>
+
+        <div class="nw-hero-top">
+          <div>
+            <p class="nw-status ab-reveal" style="--ab-d: 0ms;">
+              <span class="nw-pulse" aria-hidden="true" />
+              <span>SNAPSHOT LOG</span>
+              {updatedText && (
+                <>
+                  <span class="ab-kicker-sep" aria-hidden="true">/</span>
+                  <time datetime={updatedText}>更新于 {updatedText}</time>
+                </>
+              )}
+            </p>
+            <h1 class="ab-name ab-reveal" style="--ab-d: 90ms;">{title}</h1>
+          </div>
+
+          <nav class="nw-nav ab-reveal" style="--ab-d: 160ms;" aria-label="站内往返">
+            <a class="nw-nav-link" href={urlFor('/about/')}>← 关于我</a>
+            <a class="nw-nav-link" href={urlFor('/projects/')}>项目 →</a>
+            <a class="nw-nav-link" href={urlFor('/archives/')}>文字 →</a>
+          </nav>
         </div>
-      </article>
+      </header>
+
+      <!-- 阶段快照时间轴 -->
+      {
+        snapshots.length > 0 && (
+          <section class="nw-timeline" data-nw-timeline aria-label="阶段快照时间轴">
+            <nav class="nw-rail" aria-label="月份跳转">
+              {snapshots.map((snap, idx) => (
+                <a
+                  class={`nw-rail-link${idx === 0 ? ' is-active' : ''}`}
+                  href={`#${snap.id}`}
+                  data-nw-jump={snap.id}
+                >
+                  <span class="nw-rail-dot" aria-hidden="true" />
+                  <span class="nw-rail-ym">{snap.ym}</span>
+                </a>
+              ))}
+            </nav>
+
+            <div class="nw-stream">
+              {snapshots.map((snap, idx) => (
+                <article class="nw-entry" id={snap.id} data-nw-entry={snap.id}>
+                  <header class="nw-entry-head">
+                    <p class="nw-entry-en">
+                      {snap.en}
+                      {idx === 0 && <span class="nw-entry-latest">LATEST</span>}
+                    </p>
+                    <h2 class="nw-entry-title">{snap.monthLabel}</h2>
+                  </header>
+
+                  <ul class="nw-entry-list">
+                    {snap.items.map((html) => (
+                      <li class="nw-entry-item markdown-body" set:html={html} />
+                    ))}
+                  </ul>
+                </article>
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      <!-- 底部紧凑注脚：手边在用 × 这个站 -->
+      <section class="nw-colophon" aria-label="手边在用与站点构成">
+        {
+          usingRows.length > 0 && (
+            <div class="nw-col-block">
+              <p class="nw-code">TOOLING</p>
+              <h2 class="nw-col-title">手边在用</h2>
+              <dl class="nw-kv-list">
+                {usingRows.map((row) => (
+                  <div class="nw-kv-item">
+                    {row.key && <dt>{row.key}</dt>}
+                    <dd>
+                      {row.tokens.length > 0 ? (
+                        <ul class="nw-tokens">
+                          {row.tokens.map((tok) => (
+                            <li class="nw-token">{tok}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <div class="nw-kv-md markdown-body" set:html={row.valHtml} />
+                      )}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          )
+        }
+
+        {
+          siteRows.length > 0 && (
+            <div class="nw-col-block nw-col-block--right">
+              <p class="nw-code">THIS SITE</p>
+              <h2 class="nw-col-title">这个站</h2>
+              <dl class="nw-site-list">
+                {siteRows.map((row) => (
+                  <div class="nw-site-item">
+                    {row.key && <dt>{row.key}</dt>}
+                    <dd class="nw-kv-md markdown-body" set:html={row.valHtml} />
+                  </div>
+                ))}
+              </dl>
+            </div>
+          )
+        }
+      </section>
     </div>
   </div>
 
   <MarkdownPlugins />
+  <script defer src="/js/about.js"></script>
 </BaseLayout>

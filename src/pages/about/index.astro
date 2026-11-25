@@ -1,93 +1,169 @@
 ---
-// /about/：身份档案页（PAGE-FORM-PLAN §4.6.6 / S3）。
-// 结构：身份档案卡（头像 / 名字 / 一句定性 / 社交 icons）→ 四格数字带 →
-// 「现在」摘要卡（取 /now/ 的「在做」）→ 四段小节卡（正文原文，逐段不改写）。
-// icons 的复制 / 二维码行为保持原样：DOM 契约（data-copy / .qr-trigger / .qr-img）
-// 与 /js/about.js 的事件委托一一对应，不要改名。
+// /about/：零边框人物长卷（Editorial Monograph，2026-11-26 精简收口）。
+//
+// 结构：
+//   · 底层 <canvas id="ab-bg-canvas">：低干扰程序化经纬/等高线场（随滚动与指针缓慢形变）；
+//   · ① 巨幅纯粹排版开篇：水印字形 + 遮罩揭示署名 + 原版引言 + 极简下划线联系索引（无头像、无框）；
+//   · ② 单块三线交互舞台：左侧实时变形几何图腾 <canvas id="ab-specimen-canvas"> + 切换目录，
+//       右侧三条与首页 About Me 逐字同源的单舞台展开 + 真实作品/资料库直达列表；
+//   · ③ 横贯版心的巨型数字标尺（Focus-Dim 聚光交互）+ 轻盈 /now/ 出口 + 不透明原生 <dialog> 微信二维码。
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import StatBand from '../../components/StatBand.astro';
 import { getData } from '../../lib/data';
 import { getPosts } from '../../lib/posts';
-import { renderMarkdown } from '../../lib/markdown';
 import { siteConfig, themeConfig } from '../../lib/site-config';
 import { t } from '../../lib/i18n';
 import { urlFor } from '../../lib/url';
 import { excerptFromMarkdown } from '../../lib/excerpt';
-import { fmtItemDate } from '../../lib/dates';
 import { pageDates } from '../../lib/page-meta';
+import { detailPath, type ModuleKey } from '../../lib/modules';
 
 const pages = await getCollection('pages');
-// Astro 的 glob loader 会把 index.md 的 id 收敛成目录名（about / now）
-const entry = pages.find(p => p.id === 'about');
-if (!entry) throw new Error('缺少 source/about/index.md: ' + pages.map(p => p.id).join(','));
+const entry = pages.find((p) => p.id === 'about');
+if (!entry) throw new Error('缺少 source/about/index.md: ' + pages.map((p) => p.id).join(','));
 
-const description = excerptFromMarkdown(entry.body || '');
 const { published, modified } = pageDates('about/index.md');
 
-const siteData = getData().site || {};
-const aboutIntro = siteData.intro || themeConfig.about?.introduce || themeConfig.about?.intro || '';
-const aboutAvatar = siteData.avatar || themeConfig.about?.avatar || '';
-const aboutName = themeConfig.about?.name || siteConfig.title;
+const data = getData();
+const posts = getPosts();
+const siteData = data.site || {};
+const aboutIntro = siteData.intro || themeConfig.about?.introduce || themeConfig.about?.intro || 'Be water, my friend.';
+const rawAboutName = themeConfig.about?.name || siteConfig.title;
+const aboutName = (String(rawAboutName).match(/^[\u4e00-\u9fa5·]+/) || [rawAboutName])[0];
+const siteTitle = themeConfig.navbar?.blog_title || "KASAI'S Personal Space";
 
-// 图标三态：链接 / 复制 / 二维码
+// 联系方式
 const icons: any[] = themeConfig.about?.icons || [];
-const hasCopyIcon = icons.some((e: any) => e && e.class && !e.link && e.copy);
+const qrIcon = icons.find((e: any) => e && e.qrcode);
 
-function iconAttrs(each: any): Record<string, any> {
-  const isQr = Boolean(each.qrcode);
-  const isCopy = !isQr && !each.link && Boolean(each.copy);
-  const attrs: Record<string, any> = {
-    href: isCopy ? 'javascript:;' : isQr ? undefined : urlFor(each.link),
-    target: isQr || isCopy ? '_self' : '_blank',
-  };
-  const cls = [
-    isQr ? 'qr-trigger' : '',
-    isCopy ? 'about-icon-copy' : '',
-    !isQr && each.tip ? 'hint--bottom hint--rounded' : '',
-  ]
-    .filter(Boolean)
-    .join(' ');
-  if (cls) attrs.class = cls;
-  if (isCopy) attrs['data-copy'] = each.copy;
-  if (!isQr && each.tip) attrs['aria-label'] = each.tip;
-  return attrs;
+function iconLabel(each: any): string {
+  if (each.qrcode) return 'WeChat';
+  if (!each.link && each.copy) return 'Email';
+  return String(each.tip || 'Link');
 }
 
-// ---- 四格数字带：全部现算，不写死 ----
-const posts = getPosts();
-const data = getData();
-const projectCount = (data.projects?.items || []).filter((it: any) => it && it.title).length;
-const gameCount = (data.games?.items || []).filter((it: any) => it && it.title).length;
-const sinceYear = posts.length ? String(Math.min(...posts.map(p => p.date.getFullYear()))) : '—';
+// ---- 站点实况刻度（全部现算，不写死）----
+const projectItems: any[] = (data.projects?.items || []).filter((it: any) => it && it.title);
+const gameItems: any[] = (data.games?.items || []).filter((it: any) => it && it.title);
+const sinceYear = posts.length ? String(Math.min(...posts.map((p) => p.date.getFullYear()))) : '—';
+const currentYear = String(new Date().getFullYear());
 
 const stats = [
-  { label: '文字', value: `${posts.length} 篇` },
-  { label: '项目', value: `${projectCount} 个` },
-  { label: '游戏', value: `${gameCount} 个` },
-  { label: '建站', value: sinceYear },
+  { label: '文字', value: `${posts.length} 篇`, num: posts.length, unit: ' 篇', cue: '进入归档', href: urlFor('/archives/') },
+  { label: '项目', value: `${projectItems.length} 个`, num: projectItems.length, unit: ' 个', cue: '浏览造物', href: urlFor('/projects/') },
+  { label: '游戏与赛事', value: `${gameItems.length} + 2`, num: 0, unit: '', cue: `${gameItems.length} 款游戏 · 2 场夺冠专题`, href: urlFor('/games/') },
+  { label: '建站', value: sinceYear, num: Number(sinceYear) || 0, unit: '', cue: '演进记录', href: urlFor('/now/') },
 ];
 
-// ---- 「现在」摘要：取 /now/ 的「在做」小节，原样渲染 ----
-const nowEntry = pages.find(p => p.id === 'now');
-const doingMatch = nowEntry
-  ? /(?:^|\n)##\s*在做\s*\r?\n([\s\S]*?)(?=\r?\n##\s|$)/.exec(nowEntry.body || '')
-  : null;
-const doingHtml = doingMatch ? renderMarkdown(doingMatch[1].trim()) : '';
-const nowUpdated = nowEntry ? fmtItemDate((nowEntry.data as any).show_updated) : '';
+// ---- 三条主线（与首页 About Me 同源）+ 关联真实站内成果 ----
+const rawPillars: any[] = Array.isArray((entry.data as any)?.pillars) ? (entry.data as any).pillars : [];
 
-// ---- 正文四段 → 小节卡 ----
-// Markdown 正文按空行切段；标题按段落语义对位（P1 在学 / P2 在写 / P3 在做 / P4 工位之外）。
-// 只贴标题，不改一个字；段数多出时多出的段落不贴标题。
-const SECTION_LABELS = ['在学', '在写', '在做', '工位之外'];
-const paragraphs = String(entry.body || '')
-  .split(/\r?\n\s*\r?\n/)
-  .map(s => s.trim())
-  .filter(Boolean);
-const sections = paragraphs.map((text, i) => ({
-  label: SECTION_LABELS[i] || '',
-  html: renderMarkdown(text),
-}));
+const description =
+  excerptFromMarkdown(entry.body || '') ||
+  rawPillars.map((p: any) => String(p.line || '')).filter(Boolean).join(' ');
+
+const PROJECT_META: Record<string, { tag: string }> = {
+  Ties: { tag: 'Vue · Node' },
+  '资产追踪系统': { tag: 'Tauri 2 · TS' },
+  '校园课程资源共享平台': { tag: 'Django · Vue 3' },
+};
+
+const systemLinks = ['Ties', '资产追踪系统', '校园课程资源共享平台']
+  .map((title) => projectItems.find((it: any) => String(it.title) === title))
+  .filter(Boolean)
+  .map((it: any) => ({
+    title: String(it.title),
+    sub: '',
+    tag: PROJECT_META[String(it.title)]?.tag || '项目',
+    href: urlFor(detailPath('projects' as ModuleKey, it)),
+  }));
+
+const spacePost = posts.find((p) => p.slug === 'empty-card-and-latest-post');
+const spaceLinks = [
+  {
+    title: '站点演进与现状',
+    sub: 'Astro 静态构建、Git-backed 后台与近期在用工具栈',
+    tag: '/now/',
+    href: urlFor('/now/'),
+  },
+  {
+    title: '思考与文字归档',
+    sub: `共 ${posts.length} 篇技术复盘、数据考据与随笔`,
+    tag: '/archives/',
+    href: urlFor('/archives/'),
+  },
+  ...(spacePost
+    ? [
+        {
+          title: '关于「先做出来，再做好」',
+          sub: '先把真实骨架搭起来，再在真实使用里持续打磨',
+          tag: '随笔',
+          href: urlFor(spacePost.href),
+        },
+      ]
+    : []),
+];
+
+const cityCount = (data.cities?.cities || []).length;
+let rankCount = 0;
+for (const g of data.cityrank?.groups || []) rankCount += (g.ranks || []).length;
+const holidayYears: any[] = data.holidays?.years || [];
+const holidayFirst = String(holidayYears[0]?.year || '');
+const holidayLast = String(holidayYears.slice(-1)[0]?.year || '');
+const festivalCount = (data.festivals?.festivals || []).length;
+const zodiacCount = (data.zodiac?.animals || []).length;
+
+const curationLinks = [
+  {
+    title: '城市排行榜',
+    sub: '多维度统计指标与排名错位观察',
+    tag: `${cityCount} 城 · ${rankCount} 榜`,
+    href: urlFor('/cityrank/'),
+  },
+  {
+    title: '中国节假日',
+    sub: '逐年放假安排、调休与二十四节气年历',
+    tag: `${holidayFirst}–${holidayLast}`,
+    href: urlFor('/holidays/'),
+  },
+  {
+    title: '节日文化',
+    sub: '传统节日流变与地方习俗考据',
+    tag: `${festivalCount} 篇考据`,
+    href: urlFor('/festivals/'),
+  },
+  {
+    title: '十二生肖',
+    sub: '公版馆藏文物图鉴与干支纪年',
+    tag: `${zodiacCount} 生肖`,
+    href: urlFor('/zodiac/'),
+  },
+];
+
+const PILLAR_EVIDENCE: Record<
+  string,
+  { items: { title: string; sub: string; tag: string; href: string }[]; moreLabel: string; moreHref: string }
+> = {
+  systems: { items: systemLinks, moreLabel: '全部项目', moreHref: urlFor('/projects/') },
+  space: { items: spaceLinks, moreLabel: '浏览归档', moreHref: urlFor('/archives/') },
+  curation: { items: curationLinks, moreLabel: '进入资料库', moreHref: urlFor('/library/') },
+};
+
+const pillars = rawPillars.map((p: any, idx: number) => {
+  const id = String(p.id || `p${idx + 1}`);
+  const ev = PILLAR_EVIDENCE[id] || { items: [], moreLabel: '', moreHref: '' };
+  return {
+    id,
+    code: String(p.code || String(idx + 1).padStart(2, '0')),
+    label: String(p.label || ''),
+    en: String(p.en || ''),
+    line: String(p.line || ''),
+    detail: String(p.detail || ''),
+    items: ev.items,
+    moreLabel: ev.moreLabel,
+    moreHref: ev.moreHref,
+  };
+});
 ---
 
 <BaseLayout
@@ -98,63 +174,216 @@ const sections = paragraphs.map((text, i) => ({
   ogUpdated={modified}
   currentPath="/about/"
 >
-  <div class="paper-page">
+  <!-- 底层程序化经纬/等高线画布（零图片请求，随滚动与指针柔和流动） -->
+  <canvas class="ab-bg-canvas" id="ab-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="paper-page ab-page-shell">
     <div class="home-wrap about-page">
-      <header class="ab-card">
-        <div class="ab-card-main">
-          <h1 class="ab-name">{aboutName}</h1>
-          {aboutIntro && <p class="ab-tag" set:html={aboutIntro} />}
-          {
-            icons.length > 0 && (
-              <ul class="about-icons">
-                {icons.map((each: any) =>
-                  each.class ? (
-                    <a {...iconAttrs(each)}>
-                      <i class={each.class} aria-hidden="true" />
-                      {each.qrcode && (
-                        <img class="qr-img" src={urlFor(each.qrcode)} alt="qrcode" loading="lazy" />
-                      )}
-                    </a>
-                  ) : null
-                )}
+      <!-- ① 巨幅不对称编辑开篇（左大字形宣言 × 右细线联系索引，无头像、零框框） -->
+      <header class="ab-hero">
+        <p class="ab-watermark" data-ab-parallax="0.16" aria-hidden="true">KASAI</p>
+
+        <div class="ab-hero-main">
+          <p class="ab-kicker ab-reveal" style="--ab-d: 0ms;">
+            <span>MONOGRAPH</span>
+            <span class="ab-kicker-sep" aria-hidden="true">/</span>
+            <span>{siteTitle}</span>
+            <span class="ab-kicker-sep" aria-hidden="true">/</span>
+            <span>{sinceYear} — {currentYear}</span>
+          </p>
+
+          <h1 class="ab-name ab-reveal" style="--ab-d: 90ms;">{aboutName}</h1>
+
+          {aboutIntro && <p class="ab-tag ab-reveal" style="--ab-d: 180ms;" set:html={aboutIntro} />}
+        </div>
+
+        {
+          icons.length > 0 && (
+            <nav class="ab-hero-side ab-reveal" style="--ab-d: 220ms;" aria-label="联系方式与外链">
+              <p class="ab-side-kicker">CONNECT</p>
+              <ul class="ab-contact-list">
+                {icons.map((each: any) => {
+                  if (!each || !each.class) return null;
+                  const label = iconLabel(each);
+                  if (each.qrcode) {
+                    return (
+                      <li>
+                        <button
+                          type="button"
+                          class="ab-contact-row qr-trigger"
+                          data-ab-qr={urlFor(each.qrcode)}
+                          aria-label="查看微信二维码"
+                        >
+                          <span class="ab-contact-label">{label}</span>
+                          <span class="ab-contact-meta" aria-hidden="true">QR</span>
+                          <img class="qr-img" src={urlFor(each.qrcode)} alt="微信二维码" loading="lazy" />
+                        </button>
+                      </li>
+                    );
+                  }
+                  const isCopy = !each.link && Boolean(each.copy);
+                  return (
+                    <li>
+                      <a
+                        class={isCopy ? 'ab-contact-row about-icon-copy' : 'ab-contact-row'}
+                        href={isCopy ? 'javascript:;' : urlFor(each.link)}
+                        target={isCopy ? '_self' : '_blank'}
+                        rel={isCopy ? undefined : 'noopener'}
+                        data-copy={isCopy ? each.copy : undefined}
+                        aria-label={each.tip || label}
+                      >
+                        <span class="ab-contact-label">{label}</span>
+                        <span class="ab-contact-meta" aria-hidden="true">{isCopy ? 'COPY' : '↗'}</span>
+                      </a>
+                    </li>
+                  );
+                })}
+                <li>
+                  <a class="ab-contact-row" href={urlFor('/links/')}>
+                    <span class="ab-contact-label">Links</span>
+                    <span class="ab-contact-meta" aria-hidden="true">→</span>
+                  </a>
+                </li>
               </ul>
-            )
-          }
-        </div>
-        <div class="ab-avatar">
-          {aboutAvatar ? (
-            <img src={urlFor(aboutAvatar)} alt="avatar" />
-          ) : (
-            <span class="ab-avatar-fallback" aria-hidden="true">{String(aboutName).slice(0, 1)}</span>
-          )}
-        </div>
+            </nav>
+          )
+        }
       </header>
 
-      <StatBand items={stats} columns={4} class="ab-stats" />
+      <!-- ② 标志性交互：单块三线舞台（左侧实时变形几何图腾，右侧单舞台零框展开） -->
+      {
+        pillars.length > 0 && (
+          <section class="ab-monograph" data-ab-monograph aria-labelledby="ab-monograph-heading">
+            <h2 class="sr-only" id="ab-monograph-heading">我在做什么</h2>
 
-      {doingHtml && (
-        <section class="ab-now" aria-labelledby="ab-now-title">
-          <div class="ab-now-head">
-            <h2 class="ab-now-title" id="ab-now-title">现在</h2>
-            {nowUpdated && <time class="ab-now-date" datetime={nowUpdated}>更新于 {nowUpdated}</time>}
-            <a class="ab-now-more" href={urlFor('/now/')}>看全部 →</a>
-          </div>
-          <div class="ab-now-body markdown-body" set:html={doingHtml} />
-        </section>
-      )}
+            <aside class="ab-stage-left" aria-label="章节图形与切换">
+              <div class="ab-specimen-wrap">
+                <canvas class="ab-specimen-canvas" id="ab-specimen-canvas" aria-hidden="true"></canvas>
+                <p class="ab-specimen-index" aria-live="polite">
+                  <span class="ab-specimen-num" data-ab-active-num>01</span>
+                  <span class="ab-specimen-total" aria-hidden="true">/ {String(pillars.length).padStart(2, '0')}</span>
+                </p>
+                <p class="ab-specimen-caption" data-ab-active-caption>
+                  {pillars[0].en}
+                </p>
+              </div>
 
-      {sections.length > 0 && (
-        <section class="ab-sections" aria-label="关于我的几段">
-          {sections.map(s => (
-            <article class="ab-sect">
-              {s.label && <h2 class="ab-sect-title">{s.label}</h2>}
-              <div class="ab-sect-body markdown-body" set:html={s.html} />
-            </article>
-          ))}
-        </section>
-      )}
+              <div class="ab-jump-nav" role="tablist" aria-label="主线切换">
+                <span class="ab-jump-track" aria-hidden="true">
+                  <span class="ab-jump-fill" data-ab-progress />
+                </span>
+                {pillars.map((p, idx) => (
+                  <button
+                    type="button"
+                    role="tab"
+                    id={`ab-tab-${p.id}`}
+                    class={`ab-jump-btn${idx === 0 ? ' is-active' : ''}`}
+                    data-ab-jump={idx}
+                    aria-selected={idx === 0 ? 'true' : 'false'}
+                    aria-controls={`track-${p.id}`}
+                    tabindex={idx === 0 ? 0 : -1}
+                  >
+                    <span class="ab-jump-code">{p.code}</span>
+                    <span class="ab-jump-label">{p.label}</span>
+                  </button>
+                ))}
+              </div>
+            </aside>
+
+            <div class="ab-chapters">
+              {pillars.map((p, idx) => (
+                <article
+                  id={`track-${p.id}`}
+                  role="tabpanel"
+                  aria-labelledby={`ab-tab-${p.id}`}
+                  class={`ab-chapter${idx === 0 ? ' is-active' : ''}`}
+                  data-ab-chapter={idx}
+                >
+                  <header class="ab-ch-head">
+                    <p class="ab-ch-meta">
+                      <span>{p.code}</span>
+                      <span aria-hidden="true">—</span>
+                      <span>{p.en}</span>
+                    </p>
+                    <h3 class="ab-ch-line">{p.line}</h3>
+                    {p.detail && <p class="ab-ch-detail">{p.detail}</p>}
+                  </header>
+
+                  {p.items.length > 0 && (
+                    <ul class="ab-works">
+                      {p.items.map((item) => (
+                        <li>
+                          <a class="ab-work-row" href={item.href}>
+                            <span class="ab-work-main">
+                              <span class="ab-work-title">{item.title}</span>
+                              {item.sub && <span class="ab-work-sub">{item.sub}</span>}
+                            </span>
+                            <span class="ab-work-tag">{item.tag}</span>
+                            <span class="ab-work-arrow" aria-hidden="true">
+                              →
+                            </span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {p.moreHref && (
+                    <p class="ab-ch-more-wrap">
+                      <a class="ab-ch-more" href={p.moreHref}>
+                        <span>{p.moreLabel}</span>
+                        <span class="ab-ch-more-arrow" aria-hidden="true">→</span>
+                      </a>
+                    </p>
+                  )}
+                </article>
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      <!-- ③ 收尾：横贯版心的巨型数字标尺 + 极轻 /now/ 入口 -->
+      <section class="ab-metrics" aria-label="站点实况">
+        <dl class="ab-metrics-list">
+          {
+            stats.map((st) => (
+              <a class="ab-metric-item" href={st.href}>
+                <dt>{st.label}</dt>
+                <dd data-ab-count={st.num || undefined} data-ab-unit={st.unit}>
+                  {st.value}
+                </dd>
+                <span class="ab-metric-cue" aria-hidden="true">{st.cue} →</span>
+              </a>
+            ))
+          }
+        </dl>
+        <p class="ab-metrics-foot">
+          <a class="ab-now-more" href={urlFor('/now/')}>
+            近期动态 /now/ <span aria-hidden="true">→</span>
+          </a>
+        </p>
+      </section>
     </div>
   </div>
 
-  {hasCopyIcon && <script defer src="/js/about.js" />}
+  {
+    qrIcon && (
+      <dialog class="ab-qr-dialog" id="ab-qr-dialog" aria-labelledby="ab-qr-title">
+        <div class="ab-qr-in">
+          <div class="ab-qr-head">
+            <h2 class="ab-qr-title" id="ab-qr-title">
+              微信二维码
+            </h2>
+            <button type="button" class="ab-qr-close" data-ab-qr-close aria-label="关闭">
+              关闭
+            </button>
+          </div>
+          <img class="ab-qr-photo" src={urlFor(qrIcon.qrcode)} alt="微信二维码" loading="lazy" />
+        </div>
+      </dialog>
+    )
+  }
+
+  <script defer src="/js/about.js"></script>
 </BaseLayout>

@@ -4,7 +4,7 @@
 # avatar         头像图片路径（空则用主题配置 /img/avatar/）
 # identity_words 身份词竖列，后台设置里每行一个
 
-intro: Be Water, My Friends.
+intro: Be water, my friend.
 motto: 自信人生二百年，会当水击三千里！
 avatar: ""
 identity_words: [Developer, Writer]

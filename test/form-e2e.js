@@ -213,8 +213,9 @@ for (const tag of clCards) {
   }
 }
 
-// ---- S3：关于 / 友链（PAGE-FORM-PLAN §4.6.6–4.6.7）----
+// ---- S3：关于 / 友链（作者档案页 Author Dossier + 首页 About Me 同源校验）----
 const aboutIndex = read('about/index.html');
+const homeIndexHtml = read('index.html');
 const postFiles = fs
   .readdirSync(path.join(ROOT, 'source', '_posts'))
   .filter((f) => f.endsWith('.md') && !f.startsWith('_'));
@@ -227,6 +228,9 @@ const postYears = postFiles
   .filter(Boolean);
 const sinceYear = postYears.length ? String(Math.min(...postYears.map(Number))) : '—';
 const aboutSource = fs.readFileSync(path.join(ROOT, 'source', 'about', 'index.md'), 'utf8');
+const aboutFmMatch = /^---\r?\n([\s\S]*?)\r?\n---\r?\n/.exec(aboutSource);
+const aboutFm = aboutFmMatch ? yaml.load(aboutFmMatch[1]) || {} : {};
+const aboutPillars = Array.isArray(aboutFm.pillars) ? aboutFm.pillars : [];
 const aboutParagraphs = aboutSource
   .replace(/^---[\s\S]*?---\r?\n/, '')
   .split(/\r?\n\s*\r?\n/)
@@ -235,23 +239,37 @@ const aboutParagraphs = aboutSource
 
 ok(aboutIndex.length > 0, '缺少 /about/ 产物');
 ok(!aboutIndex.includes('page-head-kicker'), '/about/ 仍带文章壳 kicker');
-ok(aboutIndex.includes('class="ab-name"'), '/about/ 缺身份档案卡标题');
-ok(/class="stat-band[ "]/.test(aboutIndex), '/about/ 缺首屏数字带');
-ok(count(aboutIndex, /class="stat-band-item"/g) === 4, '/about/ 数字带不是四格');
-ok(aboutIndex.includes(`<dt>文字</dt><dd>${postFiles.length} 篇</dd>`),
+ok(/class="ab-name[ "]/.test(aboutIndex), '/about/ 缺身份署名标题');
+ok(aboutIndex.includes('id="ab-bg-canvas"'), '/about/ 缺底层程序化经纬画布');
+ok(aboutIndex.includes('id="ab-specimen-canvas"'), '/about/ 缺标志性变形几何图腾画布');
+ok(aboutIndex.includes('class="ab-metrics-list"'), '/about/ 缺巨型数字标尺');
+ok(count(aboutIndex, /class="ab-metric-item"/g) === 4, '/about/ 数字标尺不是四项');
+ok(new RegExp(`<dt>文字</dt>\\s*<dd[^>]*>\\s*${postFiles.length} 篇\\s*</dd>`).test(aboutIndex),
   `/about/ 文章数不是现算的 ${postFiles.length} 篇`);
-ok(aboutIndex.includes(`<dt>项目</dt><dd>${projectItems.length} 个</dd>`),
+ok(new RegExp(`<dt>项目</dt>\\s*<dd[^>]*>\\s*${projectItems.length} 个\\s*</dd>`).test(aboutIndex),
   `/about/ 项目数不是现算的 ${projectItems.length} 个`);
-ok(aboutIndex.includes(`<dt>游戏</dt><dd>${gameItems.length} 个</dd>`),
-  `/about/ 游戏数不是现算的 ${gameItems.length} 个`);
-ok(aboutIndex.includes(`<dt>建站</dt><dd>${sinceYear}</dd>`),
+ok(new RegExp(`<dt>游戏与赛事</dt>\\s*<dd[^>]*>\\s*${gameItems.length} \\+ 2\\s*</dd>`).test(aboutIndex),
+  `/about/ 游戏与赛事不是现算的 ${gameItems.length} + 2`);
+ok(new RegExp(`<dt>建站</dt>\\s*<dd[^>]*>\\s*${sinceYear}\\s*</dd>`).test(aboutIndex),
   `/about/ 建站年份不是最早文章的 ${sinceYear}`);
 ok(aboutIndex.includes('data-copy="'), '/about/ 复制邮箱图标回归（缺 data-copy）');
-ok(aboutIndex.includes('class="qr-trigger"'), '/about/ 二维码图标回归（缺 qr-trigger）');
-ok(aboutIndex.includes('class="qr-img"'), '/about/ 二维码弹层结构回归（缺 qr-img）');
-ok(/class="ab-now-more" href="\/now\/"/.test(aboutIndex), '/about/ 「现在」卡缺「看全部」出口');
-ok(count(aboutIndex, /class="ab-sect"/g) === aboutParagraphs.length,
-  `/about/ 小节卡 ${count(aboutIndex, /class="ab-sect"/g)} 张 ≠ 正文 ${aboutParagraphs.length} 段`);
+ok(aboutIndex.includes('qr-trigger'), '/about/ 二维码图标回归（缺 qr-trigger）');
+ok(aboutIndex.includes('class="qr-img"'), '/about/ 二维码结构回归（缺 qr-img）');
+ok(aboutIndex.includes('id="ab-qr-dialog"'), '/about/ 缺微信二维码原生 dialog');
+ok(aboutPillars.length === 3, `/about/ 主线数据源 pillars 应为 3 条（实际 ${aboutPillars.length}）`);
+ok(count(aboutIndex, /data-ab-jump="/g) === aboutPillars.length,
+  `/about/ 章节跳转数 ≠ pillars 数量 ${aboutPillars.length}`);
+ok(count(aboutIndex, /data-ab-chapter="/g) === aboutPillars.length,
+  `/about/ 叙事章节数 ≠ pillars 数量 ${aboutPillars.length}`);
+aboutPillars.forEach((p, idx) => {
+  ok(aboutIndex.includes(p.line), `/about/ 缺少第 ${idx + 1} 条主线文案：${p.line}`);
+  ok(homeIndexHtml.includes(p.line), `首页缺少第 ${idx + 1} 条主线文案（与 /about/ 失同步）：${p.line}`);
+});
+ok(!aboutIndex.includes('考研'), '/about/ 仍残留过时的「考研」文案');
+ok(!aboutIndex.includes('热爱健身'), '/about/ 仍残留旧版口语化文案');
+ok(!aboutIndex.includes('屏幕之外'), '/about/ 仍残留已删除的「屏幕之外」文案');
+ok(aboutIndex.includes('Be water, my friend.'), '/about/ 缺原版引言 Be water, my friend.');
+ok(/class="ab-now-more" href="\/now\/"/.test(aboutIndex), '/about/ 缺 /now/ 出口');
 ok(!/<input\b/i.test(aboutIndex), '/about/ 出现输入控件');
 
 const linksIndex = read('links/index.html');
@@ -368,9 +386,8 @@ Object.keys(FEST_MAP).forEach((s) => {
   ok(h.includes('fsProgressRing') && /festival\.js\?v=/.test(h), `${rel} 进度环 / 脚本回归`);
 });
 
-// ---- S6：/search/、/now/、/zodiac/ 去 kicker，/404/ 保留（PAGE-FORM-PLAN §4.6.9 / §4.6.12）----
-// .page-head* 自此只服务 404 状态页；这三个纸面页改用 pg-hd 通用页头。
-['search/index.html', 'now/index.html', 'zodiac/index.html'].forEach((rel) => {
+// ---- S6：/search/、/zodiac/ 用 pg-hd 通用页头，/now/ 用零边框编辑长卷页头，/404/ 保留 ----
+['search/index.html', 'zodiac/index.html'].forEach((rel) => {
   const h = read(rel);
   ok(h.length > 0, `缺少 ${rel} 产物`);
   if (!h) return;
@@ -387,7 +404,14 @@ ok(count(read('now/index.html'), /<input\b/gi) === 0, '/now/ 出现输入控件'
 ok(count(read('zodiac/index.html'), /<input\b/gi) === 0, '/zodiac/ 出现输入控件');
 
 const nowHtml = read('now/index.html');
-ok(nowHtml.includes('class="about-body"') && nowHtml.includes('class="markdown-body"'),
+ok(nowHtml.length > 0, '缺少 now/index.html 产物');
+ok(!nowHtml.includes('page-head'), '/now/ 仍挂 page-head');
+ok(nowHtml.includes('class="nw-hero"'), '/now/ 缺编辑页头 nw-hero');
+ok(nowHtml.includes('class="nw-timeline"'), '/now/ 缺阶段快照时间轴 nw-timeline');
+ok(nowHtml.includes('Antigravity'), '/now/ 缺 AI 协作里的 Antigravity');
+ok(!nowHtml.includes('考研'), '/now/ 仍残留过时的「考研」文案');
+ok(!nowHtml.includes('不追更'), '/now/ 仍残留已否决的「不追更」文案');
+ok(nowHtml.includes('about-body') && nowHtml.includes('markdown-body'),
   '/now/ 正文轨丢失（about-body / markdown-body）');
 ok(/img-lazyload\.js/.test(nowHtml), '/now/ 丢失 markdown 运行时插件');
 

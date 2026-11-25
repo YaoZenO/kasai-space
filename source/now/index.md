@@ -1,38 +1,29 @@
 ---
 title: 现在
-kicker: NOW
+show_updated: 2026-11-26
 layout: paper
 ---
 
-## 在学
+## 2026.11
 
-英语 / 考研
-曾经AI未爆发时想深度学习 C++ ，于是整理了一份[学习路线](/2023/04/18/C++-Job-StudyRoadMap/)，放在「文字」里，不过现在也不太用得上了。
+- 首页大翻新了一轮：3D 静水院子场景、六窗自由叠放、景深视差和窗口拖拽都上了；
+- 做了两场夺冠专题页：[BLG 2026 全球总决赛首冠](/blg-champion/) 和 [Falcons 2026 科隆 Major 夺冠](/cologne-major-2026/)；
+- 写了两篇长文：[70B 到底有多大](/2026/11/04/70b-to-cluster/)、[地铁越长，经济越强吗](/2026/11/01/metro-vs-gdp-rank-mismatch/)；
+- 把[关于页](/about/)和这页本身重做成零边框排版，首页和关于页终于对得上了。
 
-## 在做
+## 2026.10
 
-- 做了一个把关系档案数字化的本地应用——背景和做法写进了[「项目」](/projects/)，还没正式发布，目前还是私人仓库；
-- 维护这个站点：这里既放我的想法，也放一些有用的功能，目标是做成综合站。
+- 把站点从 Hexo 迁到了 Astro，字体、图标和静态资源全部搬回本地自托管；
+- 手写了一套走 GitHub API 的管理后台，记下了 [Ties](/projects/Ties/) 和[资产追踪系统](/projects/%E8%B5%84%E4%BA%A7%E8%BF%BD%E8%B8%AA%E7%B3%BB%E7%BB%9F/) 两个自用项目；
+- 陆续补齐了[城市排行榜](/cityrank/)、[中国节假日](/holidays/)、[节日文化](/festivals/)和[十二生肖](/zodiac/)四个资料库专题。
 
-## 在写
+## 手边在用
 
-技术笔记和随笔都发在[「文字」](/archives/)里，想到什么写什么。
-
-## 我在用什么
-Codex, WorkBuddy, Trae, deepseek harness。
-
-### 写代码
-
-- **语言**：C++（在学）、JavaScript / Node.js；
-- **前端**：Vue 3 · Vite（项目里用）；
-- **数据库**：SQLite；
-- **项目**：[Ties](/projects/Ties/)，一个本地跑的关系管理系统。
+- **AI 协作**：Antigravity、Codex、WorkBuddy、Trae、DeepSeek Harness
+- **开发**：JavaScript / TypeScript、Node.js、Vue 3、Tauri 2、SQLite
 
 ### 这个站
 
-- **框架**：Astro为底层架构，做了些许改动；
-- **后台**：用了一套自写的管理面板，通过 GitHub API 能够直接写进仓库；
-- **部署**：Vercel；
-- **静态资源**：字体、样式库、图标全部自托管，不依赖外部 CDN。
-
-
+- **框架**：Astro 静态生成
+- **后台**：自己写的管理面板，走 GitHub API 直接改仓库
+- **部署**：Vercel，字体和图片都放自己仓库里
