@@ -62,7 +62,9 @@ const showToc = tocCfg.enable !== false && tocCfg.placement !== 'left';
             <header class="post-head">
               <p class="post-head-kicker">MANUSCRIPT · {post.categories[0] || 'POST'}</p>
               <h1 class="post-head-title">{post.title}</h1>
-              {post.data?.blurb && <p class="post-head-blurb">{post.data.blurb}</p>}
+              {/* blurb 是 Post 的顶层字段（src/lib/posts.ts），没有 post.data 这一层。
+                  写成 post.data?.blurb 时条件恒假，导语静默不显示——见 E-191。 */}
+              {post.blurb && <p class="post-head-blurb">{post.blurb}</p>}
               <div class="post-head-meta">
                 <div class="mt-3">
                   {metaCfg.date?.enable !== false && (

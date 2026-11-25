@@ -170,7 +170,7 @@ if (!fs.existsSync(trashManifest)) {
   }
 }
 
-// 4. CI 必须实际执行这两套断言（E-189 / issue #26、#22）。
+// 4. CI 必须实际执行这几套断言（E-189 / issue #26、#22、#21）。
 //    CI 不跑 npm test，而是逐项列举套件；断言只加进 package.json 的串行链，
 //    push 到 main 时等于没加。这里反向校验 ci.yml 里确有对应步骤。
 const CI_FILE = path.join(ROOT, '.github', 'workflows', 'ci.yml');
@@ -178,11 +178,23 @@ if (!fs.existsSync(CI_FILE)) {
   fail('.github/workflows/ci.yml 不存在，CI 门禁无从校验');
 } else {
   const ci = fs.readFileSync(CI_FILE, 'utf8');
-  for (const script of ['test:img', 'test:redirects']) {
+  for (const script of ['test:img', 'test:redirects', 'test:blurb']) {
     if (new RegExp('npm run ' + script + '(?![\\w:-])').test(ci)) {
       pass(`ci.yml 已执行 npm run ${script}`);
     } else {
       fail(`ci.yml 没有执行 npm run ${script}（只挂在本地 npm test 上，push 时拦不住）`);
+    }
+  }
+
+  // 读 dist/ 的套件必须排在构建之后，否则 CI 里断言跑在空产物上（E-133 同族）。
+  const buildAt = ci.indexOf('npm run build');
+  for (const script of ['test:img', 'test:blurb']) {
+    const at = ci.indexOf('npm run ' + script);
+    if (buildAt === -1 || at === -1) continue;
+    if (at > buildAt) {
+      pass(`ci.yml 的 ${script} 排在 Astro build 之后`);
+    } else {
+      fail(`ci.yml 的 ${script} 排在 Astro build 之前：断言读 dist/，此时产物还没生成`);
     }
   }
 }
