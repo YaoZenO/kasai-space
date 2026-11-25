@@ -54,6 +54,11 @@ jobs:
       # 4. 前台模块页端到端（后台写入链路 → YAML 落盘 → Astro 生成 → HTML 断言；结束后自动还原数据文件）
       - name: Module pages E2E
         run: npm run test:pages
+      # 4.5 断图断言（E-186 / issue #26）。必须排在 Astro build 之后：断言读的是
+      #     dist/**/*.html 里的 src/srcset。此前只挂在本地 npm test 上，CI 逐项写死
+      #     套件、不跑 npm test，于是「删图不改引用」照样全绿上线。
+      - name: Image refs
+        run: npm run test:img
       # 5. 前台/后台 CSS token 一致性（防止 --accent 两处漂移）
       - name: CSS tokens
         run: npm run test:tokens
@@ -63,3 +68,7 @@ jobs:
       # 7. 文章发布器 Markdown⇄块 往返幂等性（见 E-017）
       - name: Composer blocks roundtrip
         run: npm run test:blocks
+      # 8. 旧分类重定向完整性（issue #22 / E-188）：分类收敛删掉旧 URL 时，
+      #    vercel.json 的 redirects 无人校验，线上旧入口静默 404。
+      - name: Legacy redirects
+        run: npm run test:redirects

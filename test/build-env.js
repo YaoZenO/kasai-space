@@ -170,5 +170,22 @@ if (!fs.existsSync(trashManifest)) {
   }
 }
 
+// 4. CI 必须实际执行这两套断言（E-189 / issue #26、#22）。
+//    CI 不跑 npm test，而是逐项列举套件；断言只加进 package.json 的串行链，
+//    push 到 main 时等于没加。这里反向校验 ci.yml 里确有对应步骤。
+const CI_FILE = path.join(ROOT, '.github', 'workflows', 'ci.yml');
+if (!fs.existsSync(CI_FILE)) {
+  fail('.github/workflows/ci.yml 不存在，CI 门禁无从校验');
+} else {
+  const ci = fs.readFileSync(CI_FILE, 'utf8');
+  for (const script of ['test:img', 'test:redirects']) {
+    if (new RegExp('npm run ' + script + '(?![\\w:-])').test(ci)) {
+      pass(`ci.yml 已执行 npm run ${script}`);
+    } else {
+      fail(`ci.yml 没有执行 npm run ${script}（只挂在本地 npm test 上，push 时拦不住）`);
+    }
+  }
+}
+
 console.log(`\nRESULTS: ${failed === 0 ? '全部通过' : failed + ' 项失败'}`);
 process.exit(failed === 0 ? 0 : 1);

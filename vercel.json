@@ -15,6 +15,76 @@
       "permanent": true
     },
     {
+      "source": "/categories/个人感悟",
+      "destination": "/categories/随笔与思考/",
+      "permanent": true
+    },
+    {
+      "source": "/categories/个人感悟/",
+      "destination": "/categories/随笔与思考/",
+      "permanent": true
+    },
+    {
+      "source": "/categories/名词解释",
+      "destination": "/categories/技术与工程/",
+      "permanent": true
+    },
+    {
+      "source": "/categories/名词解释/",
+      "destination": "/categories/技术与工程/",
+      "permanent": true
+    },
+    {
+      "source": "/categories/城市数据",
+      "destination": "/categories/数据与考据/",
+      "permanent": true
+    },
+    {
+      "source": "/categories/城市数据/",
+      "destination": "/categories/数据与考据/",
+      "permanent": true
+    },
+    {
+      "source": "/categories/学习路线",
+      "destination": "/categories/技术与工程/",
+      "permanent": true
+    },
+    {
+      "source": "/categories/学习路线/",
+      "destination": "/categories/技术与工程/",
+      "permanent": true
+    },
+    {
+      "source": "/categories/职业发展",
+      "destination": "/categories/产品与设计/",
+      "permanent": true
+    },
+    {
+      "source": "/categories/职业发展/",
+      "destination": "/categories/产品与设计/",
+      "permanent": true
+    },
+    {
+      "source": "/categories/设计资源",
+      "destination": "/categories/产品与设计/",
+      "permanent": true
+    },
+    {
+      "source": "/categories/设计资源/",
+      "destination": "/categories/产品与设计/",
+      "permanent": true
+    },
+    {
+      "source": "/categories/踩坑记录",
+      "destination": "/categories/技术与工程/",
+      "permanent": true
+    },
+    {
+      "source": "/categories/踩坑记录/",
+      "destination": "/categories/技术与工程/",
+      "permanent": true
+    },
+    {
       "source": "/city/province/beijing",
       "destination": "/city/beijing/",
       "permanent": true
