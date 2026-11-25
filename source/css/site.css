@@ -8813,15 +8813,16 @@ html:not(.js) .fs-years-toggle { display: none; }
 
 .cl-cover {
   display: block;
+  border-radius: var(--r-sm);
   overflow: hidden;
-  background-color: var(--accent-soft);
+  background-color: transparent;
 }
 
 .cl-cover img {
   width: 100%;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
+  height: auto;
   display: block;
+  border-radius: var(--r-sm);
   transition: transform 0.52s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
