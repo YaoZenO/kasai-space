@@ -258,7 +258,6 @@ const topRegions = Object.keys(regionCounts).sort((a, b) => regionCounts[b] - re
                 <div class="ca-aside-head">
                   <div class="cr-sec-head">
                     <h2 class="cr-sec-title">按省级行政区</h2>
-                    <p class="cr-sec-note">悬停看省份档案，点击直达</p>
                   </div>
                   <div class="ca-view-tabs" role="tablist" aria-label="切换地图或宫格视图">
                     <button type="button" class="ca-view-tab is-active" role="tab" aria-selected="true" data-atlas-view="map">交互地图</button>
@@ -349,13 +348,12 @@ const topRegions = Object.keys(regionCounts).sort((a, b) => regionCounts[b] - re
                   )}
                   {provsOverseas.length > 0 && (
                     <>
-                      <h3 class="cr-subhead">海外城市</h3>
+                      <h3 class="cr-subhead"><a class="ca-subhead-link" href={urlFor('/city/province/haiwai/')}>海外城市</a></h3>
                       <div class="cr-provgrid cr-provgrid--flat">
-                        {provsOverseas.map((pv5: any) => (
-                          <a class="cr-provcard ca-overseas-card" href={urlFor('/city/province/' + pv5.slug + '/')}>
+                        {provsOverseas.flatMap((pv5: any) => pv5.cities || []).map((oc: any) => (
+                          <a class="cr-provcard ca-overseas-card" href={urlFor('/city/' + oc.slug + '/')}>
                             <span class="cr-provcard-top">
-                              <span class="ca-overseas-name">{shortProvName(pv5.name)}</span>
-                              <span class="ca-overseas-n">{pv5.total}</span>
+                              <span class="ca-overseas-name">{oc.name}</span>
                             </span>
                           </a>
                         ))}
