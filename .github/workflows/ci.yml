@@ -44,6 +44,10 @@ jobs:
           done < <(find api -type f -name '*.js' -print0)
           [ "$count" -gt 0 ] || { echo "api/ 下没有 .js，语法门禁空转"; exit 1; }
           echo "syntax ok"
+      # 1.5 依赖声明断言（E-132）：src / tools / test 引用的外部包必须写进 package.json，
+      #     且 lock 里必须有对应条目——本地残留 node_modules 会让这条永远绿，CI 的 npm ci 不会。
+      - name: Dependency declarations
+        run: npm run test:deps
       # 2. 后台服务端冒烟（mock 模式，零依赖零密钥）
       - name: Admin smoke
         run: npm run test:admin
@@ -68,6 +72,27 @@ jobs:
       #     dist/plates/index.html 的字母带、对照表行数与脚本 hash。
       - name: Plates E2E
         run: npm run test:plates
+      # 4.8–4.14 以下七套全部读 dist/（页面产物 + 数据文件），必须排在 Astro build 之后。
+      #     它们此前只挂在本地 npm test 链上：CI 逐项列举套件、不跑 npm test，
+      #     所以「本地全绿、push 后无人校验」的空档一直存在（E-189 同族）。
+      #     test/build-env.js 会枚举 package.json 的所有 test:* 脚本反查本文件，
+      #     漏接一套即判红——新增套件必须同时进这两处。
+      - name: Home contract
+        run: npm run test:home
+      - name: Page forms
+        run: npm run test:form
+      - name: Asset versions
+        run: npm run test:assets
+      - name: Module dates
+        run: npm run test:dates
+      - name: Holidays E2E
+        run: npm run test:holidays
+      - name: Zodiac E2E
+        run: npm run test:zodiac
+      - name: City rank E2E
+        run: npm run test:cityrank
+      - name: Search index
+        run: npm run test:search
       # 5. 前台/后台 CSS token 一致性（防止 --accent 两处漂移）
       - name: CSS tokens
         run: npm run test:tokens

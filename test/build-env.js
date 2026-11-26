@@ -170,32 +170,88 @@ if (!fs.existsSync(trashManifest)) {
   }
 }
 
-// 4. CI 必须实际执行这几套断言（E-189 / issue #26、#22、#21）。
-//    CI 不跑 npm test，而是逐项列举套件；断言只加进 package.json 的串行链，
-//    push 到 main 时等于没加。这里反向校验 ci.yml 里确有对应步骤。
+// 4. CI 必须执行 package.json 里的每一个 test:* 套件（E-189 / E-195）。
+//    套件清单存在两份：package.json 的串行链、ci.yml 的步骤序列。CI 不跑 `npm test`，
+//    而是逐项列举，所以「只加进 package.json」等于没加。历史上已两次漂移：
+//    E-189 是 test:img 只在本地；2026-11-26 是另外十套从未进过 CI。
+//    这里不再写死套件名，而是枚举 package.json 的所有 test:* 脚本逐个反查：
+//      · ci.yml 里有 → PASS
+//      · 没有但登记在 DEFERRED（必须写原因与解除条件）→ PASS 并标注「暂缓」
+//      · 其余 → FAIL（新增套件必须接线）
+//    再反向校验 ci.yml 不得执行 package.json 里不存在的套件（改名后旧步骤会空跑）。
 const CI_FILE = path.join(ROOT, '.github', 'workflows', 'ci.yml');
+
+// 暂缓接入 CI 的套件。加条目必须写清「为什么现在不能接」和「什么条件下解除」，
+// 禁止把它当免检通道长期堆放。
+const DEFERRED = {
+  'test:darkmode':
+    '2026-11-26 复跑 HEAD（5f8b608）红一条：§10-7 断言「暗态段不新增 font-size / 布局量」——' +
+    'site.css 的 §4.27（/plates/）被追加在 §15 暗色段之后，而 darkmode-e2e 用「§15 → 文件末尾」切段，' +
+    '把 §4.27 的规则当成了暗态规则；同一处还有真实隐患——§4.27 排在 §15 之后，层叠顺序压在暗色覆盖之上。' +
+    '解除条件：把 §4.27 移回 §4 段内（或让切段止于下一个分节头）并让 test:darkmode 在 HEAD 上全绿，' +
+    '随后把它加进 ci.yml 并从本表删除。',
+  'test:festival':
+    '2026-11-26 复跑 HEAD（5f8b608）红一条：E-064「site.css 源码无加法 calc」直接拿原始 css 匹配，' +
+    '而 site.css 里有一条样式规范说明注释写了「禁用 calc(+/-)」，正则命中注释即误报。' +
+    '修法已在另一条工作线的工作区里（改为匹配剥掉注释的 cssNoComment，并加注释豁免自检），尚未提交。' +
+    '解除条件：该修法落地、test:festival 在 HEAD 上全绿后，把它加进 ci.yml 并从本表删除。',
+};
+
 if (!fs.existsSync(CI_FILE)) {
   fail('.github/workflows/ci.yml 不存在，CI 门禁无从校验');
 } else {
   const ci = fs.readFileSync(CI_FILE, 'utf8');
-  for (const script of ['test:img', 'test:redirects', 'test:blurb', 'test:plates']) {
-    if (new RegExp('npm run ' + script + '(?![\\w:-])').test(ci)) {
-      pass(`ci.yml 已执行 npm run ${script}`);
-    } else {
-      fail(`ci.yml 没有执行 npm run ${script}（只挂在本地 npm test 上，push 时拦不住）`);
-    }
+  const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+  const suites = Object.keys(pkg.scripts || {}).filter((k) => k.startsWith('test:'));
+  const runsInCi = (script) => new RegExp('npm run ' + script + '(?![\\w:-])').test(ci);
+
+  const missing = [];
+  const deferred = [];
+  for (const script of suites) {
+    if (runsInCi(script)) continue;
+    if (DEFERRED[script]) deferred.push(script);
+    else missing.push(script);
+  }
+  if (missing.length) {
+    fail(
+      `ci.yml 漏接 ${missing.length} 套断言：${missing.join(', ')}` +
+        '（只挂在本地 npm test 上，push 到 main 时等于没加）'
+    );
+  } else {
+    pass(`ci.yml 覆盖 package.json 的全部 ${suites.length - deferred.length} 套断言`);
+  }
+  if (deferred.length) {
+    pass(`暂缓接入 CI 的套件 ${deferred.length} 套（已在 DEFERRED 登记原因）：${deferred.join(', ')}`);
+  }
+
+  // 反向：ci.yml 不得执行 package.json 里不存在的套件（改名/删除后旧步骤会空转或直接失败）
+  const ciSuites = [...ci.matchAll(/npm run (test:[\w-]+)/g)].map((m) => m[1]);
+  const unknown = [...new Set(ciSuites)].filter((s) => !suites.includes(s));
+  if (unknown.length) {
+    fail(`ci.yml 执行了 package.json 里不存在的套件：${unknown.join(', ')}`);
+  } else {
+    pass(`ci.yml 引用的 ${new Set(ciSuites).size} 个套件名在 package.json 中都存在`);
   }
 
   // 读 dist/ 的套件必须排在构建之后，否则 CI 里断言跑在空产物上（E-133 同族）。
-  const buildAt = ci.indexOf('npm run build');
-  for (const script of ['test:img', 'test:blurb', 'test:plates']) {
-    const at = ci.indexOf('npm run ' + script);
-    if (buildAt === -1 || at === -1) continue;
-    if (at > buildAt) {
-      pass(`ci.yml 的 ${script} 排在 Astro build 之后`);
-    } else {
-      fail(`ci.yml 的 ${script} 排在 Astro build 之前：断言读 dist/，此时产物还没生成`);
-    }
+  const DIST_SUITES = [
+    'test:pages', 'test:img', 'test:blurb', 'test:plates', 'test:home', 'test:form',
+    'test:assets', 'test:dates', 'test:holidays', 'test:zodiac', 'test:festival',
+    'test:cityrank', 'test:search',
+  ];
+  const at = (script) => {
+    const m = new RegExp('npm run ' + script + '(?![\\w:-])').exec(ci);
+    return m ? m.index : -1;
+  };
+  const buildAt = at('build');
+  const early = DIST_SUITES.filter((s) => {
+    const i = at(s);
+    return i !== -1 && buildAt !== -1 && i < buildAt;
+  });
+  if (early.length) {
+    fail(`这些套件读 dist/ 却排在 Astro build 之前：${early.join(', ')}`);
+  } else {
+    pass(`读 dist/ 的 ${DIST_SUITES.filter((s) => at(s) !== -1).length} 套断言都排在 Astro build 之后`);
   }
 }
 
