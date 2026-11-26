@@ -1,21 +1,20 @@
 ---
-// 车牌字母编号探索页（/plates/）：Issue #12 的落地，2026-11-26 第二轮重做。
+// 车牌字母编号探索页（/plates/）：Issue #12 的落地，2026-11-26 第三轮重做。
 //
-// 视觉概念：「不按套路出牌」——车牌字母真正的趣味不在规则（官方写得很清楚），
-// 而在规则跑出来的反常现象：云南没有 B、佛山一座城独占三个字母、吴忠固原两个
-// 城市抢一个 C、直辖市一个字母都不跳。冷知识墙当主角，规则退成一句话背景，
-// 完整对照表折叠进 <details>，消除「上下重复拉规则」的问题。
+// 这一轮的改动由主人 2026-11-26 的反馈直接驱动：
+//   1. 「只趣味不解释」——冷知识必须交代原因，于是故事区每条都带时间、原因、出处；
+//   2. 「数据不及时更新」——2018 年标准之后的代号增减（郑州豫 V、苏州苏 U、西安陕 U、
+//      成都川 G、武汉鄂 W、莱芜并入济南）单列「字母还在变」，并同步进字母带与对照表；
+//   3. 「设计和排版烂」——去掉卡片网格与一堆边框，改成零边框编辑式长文：
+//      大标题、发丝线分节、大号等宽字母，让内容自己说话。
 //
-// 数据：source/_data/plates.yml（转录自 GA 36-2018 附录 A 表 A.1）；计算：src/lib/plates-data.ts。
-// 交互（signature）：冷知识卡 → 字母带联动（点「云南没有 B」的卡，字母带切到云南，
-//   那个空缺的 B 以虚线空洞亮出）；省份选择 → A–Z 字母带切换。
-// 全部内容构建时直出，source/js/plates.js 只做展示状态切换，关闭 JS 仍可完整阅读。
+// 数据：source/_data/plates.yml；派生：src/lib/plates-data.ts。
+// 交互（signature）：省份选择 → A–Z 字母带切换；关闭 JS 时首屏为直辖市面板，内容不丢。
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import StatBand from '../../components/StatBand.astro';
 import EmptyState from '../../components/EmptyState.astro';
 import { getData } from '../../lib/data';
-import { buildPlates, ALPHABET } from '../../lib/plates-data';
+import { buildPlates } from '../../lib/plates-data';
 import { fmtItemDate } from '../../lib/dates';
 import { pageDates } from '../../lib/page-meta';
 
@@ -28,18 +27,20 @@ const kindCn: Record<string, string> = {
   'autonomous-region': '自治区'
 };
 
-// 冷知识卡里「双字母城市」的简洁罗列：鲁B/U 青岛市、黑A/L 哈尔滨市……
-const doubleLetterText = ov
-  ? ov.anomalies.doubleLetterPlaces
-      .map((t) => `${t.region.abbr}${t.codes.join('/')} ${t.place}`)
-      .join('、')
-  : '';
+const multiml = ov ? ov.anomalies.doubleLetterPlaces.length + ov.anomalies.tripleLetterPlaces.length : 0;
+const cityAllocCount = ov ? ov.stats.allocationCount - ov.stats.municipalityCount * 26 : 0;
 ---
 
-<BaseLayout title="车牌字母编号探索" description={ov ? ov.meta.lede : ''} currentPath="/plates/" ogDate={published} ogUpdated={modified}>
+<BaseLayout
+  title="车牌字母编号探索"
+  description={ov ? ov.meta.lede : ''}
+  currentPath="/plates/"
+  ogDate={published}
+  ogUpdated={modified}
+>
   <canvas class="ab-bg-canvas" id="ab-bg-canvas" aria-hidden="true"></canvas>
   <div class="paper-page cal-page plt-page">
-    <div class="home-wrap ab-page-shell plt-v2">
+    <div class="home-wrap ab-page-shell plt-v3">
       {!ov ? (
         <>
           <header class="page-head">
@@ -50,140 +51,121 @@ const doubleLetterText = ov
         </>
       ) : (
         <>
-          <header class="page-head plt-head plt-v2-head">
+          <!-- ============ 页头 ============ -->
+          <header class="page-head plt-head">
             <p class="ab-watermark" data-ab-parallax="0.16" aria-hidden="true">PLATES</p>
             <nav class="cal-crumb" aria-label="面包屑">
               <a href="/library/">资料库</a><span aria-hidden="true">/</span><span class="cal-crumb-now">车牌字母编号</span>
             </nav>
-            <p class="page-head-kicker">PLATES · GA 36-2018</p>
+            <p class="page-head-kicker">PLATES · 车牌字母</p>
             <h1 class="page-head-title">车牌字母编号探索</h1>
             <p class="plt-lede">{ov.meta.lede}</p>
-            <StatBand
-              columns={4}
-              class="stat-band--flush stat-band--ruled"
-              items={[
-                { label: '省级行政区', value: ov.stats.regionCount },
-                { label: '双字母城市', value: ov.anomalies.doubleLetterPlaces.length },
-                { label: '三字母城市', value: ov.anomalies.tripleLetterPlaces.length },
-                { label: '没有 B 的省', value: ov.anomalies.noBRegions.length }
-              ]}
-            />
+            <p class="plt-meta-line">
+              <span>{ov.stats.regionCount} 个省级行政区</span>
+              <span>{cityAllocCount} 条地市代号</span>
+              <span>{ov.stats.post2018Count} 条 2018 年后新增</span>
+              <span>{multiml} 座一城多牌城市</span>
+            </p>
           </header>
 
-          <!-- ============ 冷知识墙：不按套路出牌（主角） ============ -->
-          <section class="plt-freaks" aria-label="不按套路出牌的车牌字母">
-            <div class="col-head">
-              <h2 class="col-title">不按套路出牌的车牌字母</h2>
-              <span class="col-count">/ 点卡片看字母带</span>
+          <!-- ============ 01 · 怎么读 ============ -->
+          <section class="plt-sec plt-read" aria-labelledby="plt-h-read">
+            <h2 class="plt-h2" id="plt-h-read"><span class="plt-h2-no">01</span>先弄清那个字母是什么</h2>
+            <div class="plt-plate-box">
+              <div class="plt-plate" aria-hidden="true">
+                <span class="plt-plate-char">豫</span>
+                <span class="plt-plate-char plt-plate-key">A</span>
+                <span class="plt-plate-sep">·</span>
+                <span class="plt-plate-num">12345</span>
+              </div>
+              <dl class="plt-legend">
+                <div><dt>豫</dt><dd>省级行政区简称</dd></div>
+                <div><dt>A</dt><dd>发牌机关代号，决定在哪座城市登记</dd></div>
+                <div><dt>12345</dt><dd>序号，不使用字母 I、O</dd></div>
+              </dl>
             </div>
+            <p class="plt-p">
+              路上看到的每一块车牌，第二位那个英文字母都叫「发牌机关代号」。它不是随机的：同一个省的字母先分给谁、后分给谁，有固定的规则，也有不少中途变动留下的痕迹。这一页说的就是这些痕迹。
+            </p>
+          </section>
 
-            <div class="plt-freak-grid">
-              <!-- 1. 云南：没有 B 的省 -->
-              {ov.anomalies.noBRegions.map((r) => (
-                <article class="plt-freak is-link" data-region={r.key} tabindex="0" role="button" aria-label="看 {r.name} 的字母带">
-                  <div class="plt-freak-visual" aria-hidden="true">
-                    <span class="plt-code-chip is-empty">B</span>
-                    <span class="plt-code-chip-ghost">空缺</span>
-                  </div>
-                  <div class="plt-freak-body">
-                    <h3 class="plt-freak-title">一个省，凭空少了 B</h3>
-                    <p class="plt-freak-text">{r.name}的字母从 A（{r.abbr}A）直接跳到 C，B 在标准附录 A 里没有出现。这是 31 个省级行政区里唯一一处「中间断档」。</p>
-                    <p class="plt-freak-src">GA 36-2018 附录 A 表 A.1</p>
+          <!-- ============ 02 · 排序规则 ============ -->
+          <section class="plt-sec plt-rule" aria-labelledby="plt-h-rule">
+            <h2 class="plt-h2" id="plt-h-rule"><span class="plt-h2-no">02</span>字母不是按城市大小排的</h2>
+            <p class="plt-p">
+              规则只有两条：省会（首府）固定占 A；其余设区的市，报经公安部交通管理局批准后，按报批启用的先后依次分配 B、C、D……所以字母的先后跟城市大小、经济、人口都没有直接关系，跟行政区划变动的先后倒常常对得上。
+            </p>
+            <div class="plt-cases">
+              <div class="plt-case">
+                <span class="plt-case-code">豫 B</span>
+                <p class="plt-case-text"><b>开封</b>排到 B，是因为它曾经是河南省会。1954 年省会由开封迁往郑州，郑州拿到豫 A，开封保留豫 B。</p>
+              </div>
+              <div class="plt-case">
+                <span class="plt-case-code">川 B</span>
+                <p class="plt-case-text"><b>绵阳</b>排到 B，是因为 1997 年重庆直辖、带走了川 B。原属绵阳的川 G 由此闲置，绵阳接替使用川 B。</p>
+              </div>
+            </div>
+            <p class="plt-p plt-p-note">
+              换句话说，那些看起来「不合理」的字母顺序，多数不是国家排错了，而是城市本身变过——撤市、设区、直辖、省会搬迁，都会在车牌上留下痕迹。
+            </p>
+          </section>
+
+          <!-- ============ 03 · 故事 ============ -->
+          <section class="plt-sec plt-stories" aria-labelledby="plt-h-stories">
+            <h2 class="plt-h2" id="plt-h-stories"><span class="plt-h2-no">03</span>几个字母背后的故事</h2>
+            <div class="plt-story-list">
+              {ov.stories.map((s, i) => (
+                <article class="plt-story">
+                  <span class="plt-story-no" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                  <div class="plt-story-main">
+                    <div class="plt-story-head">
+                      <span class="plt-story-badge">{s.badge}</span>
+                      <h3 class="plt-story-title">{s.title}</h3>
+                    </div>
+                    <p class="plt-story-body">{s.body}</p>
+                    <p class="plt-story-src">{s.source}</p>
                   </div>
                 </article>
               ))}
-
-              <!-- 2. 佛山：一座城，三个字母 -->
-              {ov.anomalies.tripleLetterPlaces.map((t) => (
-                <article class="plt-freak is-link" data-region={t.region.key} tabindex="0" role="button" aria-label="看 {t.region.name} 的字母带">
-                  <div class="plt-freak-visual" aria-hidden="true">
-                    {t.codes.map((c) => <span class="plt-code-chip">{c}</span>)}
-                  </div>
-                  <div class="plt-freak-body">
-                    <h3 class="plt-freak-title">一座城，独占三个字母</h3>
-                    <p class="plt-freak-text">{t.place}对应 {t.codes.join('、')} 三个发牌机关代号，是全国唯一一座地级市领三块牌。</p>
-                    <p class="plt-freak-src">GA 36-2018 附录 A 表 A.1</p>
-                  </div>
-                </article>
-              ))}
-
-              <!-- 3. 吴忠 / 固原：两个城市，抢一个字母 -->
-              {ov.anomalies.sharedCodes.map((s) => (
-                <article class="plt-freak is-link" data-region={s.region.key} tabindex="0" role="button" aria-label="看 {s.region.name} 的字母带">
-                  <div class="plt-freak-visual" aria-hidden="true">
-                    <span class="plt-code-chip">{s.code}</span>
-                    <span class="plt-code-chip-note">{s.places.join('·')}</span>
-                  </div>
-                  <div class="plt-freak-body">
-                    <h3 class="plt-freak-title">两个城市，抢一个字母</h3>
-                    <p class="plt-freak-text">{s.region.name}的{s.places.join('和')}共用发牌机关代号 {s.code}，是标准表 A.1 里唯一一处两地共用一个代号。</p>
-                    <p class="plt-freak-src">GA 36-2018 附录 A 表 A.1</p>
-                  </div>
-                </article>
-              ))}
-
-              <!-- 4. 直辖市：一个字母都不跳 -->
-              <article class="plt-freak is-link" data-region={ov.anomalies.fullAlphabetRegions[0]?.key} tabindex="0" role="button" aria-label="看直辖市的字母带">
-                <div class="plt-freak-visual plt-freak-visual--wide" aria-hidden="true">
-                  {ov.anomalies.fullAlphabetRegions.map((r) => (
-                    <span class="plt-code-chip is-abbr">{r.abbr}</span>
-                  ))}
-                  <span class="plt-code-chip-note">A–Z 全序列</span>
-                </div>
-                <div class="plt-freak-body">
-                  <h3 class="plt-freak-title">直辖市：一个字母都不跳</h3>
-                  <p class="plt-freak-text">北京、天津、上海、重庆的发牌机关代号都是 A 至 Z 全部 26 个字母，按英文字母顺序依次启用，中间没有任何空缺。</p>
-                  <p class="plt-freak-src">GA 36-2018 5.8.2</p>
-                </div>
-              </article>
-
-              <!-- 5. 四川：一路用到 Z -->
-              {ov.anomalies.toZRegions.map((r) => (
-                <article class="plt-freak is-link" data-region={r.key} tabindex="0" role="button" aria-label="看 {r.name} 的字母带">
-                  <div class="plt-freak-visual" aria-hidden="true">
-                    <span class="plt-code-chip">Z</span>
-                    <span class="plt-code-chip-note">眉山</span>
-                  </div>
-                  <div class="plt-freak-body">
-                    <h3 class="plt-freak-title">字母一路用到 Z 的省</h3>
-                    <p class="plt-freak-text">{r.name}的眉山市对应发牌机关代号 Z，是普通省、自治区里唯一把字母排到 Z 的。</p>
-                    <p class="plt-freak-src">GA 36-2018 附录 A 表 A.1</p>
-                  </div>
-                </article>
-              ))}
-
-              <!-- 6. 双字母城市：不止一块牌（宽卡） -->
-              <article class="plt-freak plt-freak--wide">
-                <div class="plt-freak-body">
-                  <h3 class="plt-freak-title">这些城市，不止一块牌</h3>
-                  <p class="plt-freak-text">{doubleLetterText}——十座城市或地区都对应两个代号。省会除了 A，往往还领了第二块牌。</p>
-                  <p class="plt-freak-src">GA 36-2018 附录 A 表 A.1</p>
-                </div>
-              </article>
-
-              <!-- 7. 神秘字母 O / Z / W（宽卡） -->
-              <article class="plt-freak plt-freak--wide">
-                <div class="plt-freak-visual" aria-hidden="true">
-                  {ov.special.map((s) => <span class="plt-code-chip is-special">{s.code}</span>)}
-                </div>
-                <div class="plt-freak-body">
-                  <h3 class="plt-freak-title">三个不发给普通城市的神秘字母</h3>
-                  <p class="plt-freak-text">
-                    {ov.special.map((s) => `${s.code}：${s.meaning}`).join('；')}。它们有专门用途，不分配给普通地市。
-                  </p>
-                  <p class="plt-freak-src">GA 36-2018 附录 A 表 A.1 及脚注</p>
-                </div>
-              </article>
             </div>
           </section>
 
-          <!-- ============ 标志性交互：发牌字母索引台 ============ -->
-          <section class="plt-stage" id="plt-stage" aria-label="发牌字母索引台">
-            <div class="plt-stage-head">
-              <h2 class="col-title">发牌字母索引台</h2>
-              <span class="col-count">/ 选省份 · 看字母</span>
+          <!-- ============ 04 · 字母还在变 ============ -->
+          <section class="plt-sec plt-updates" aria-labelledby="plt-h-updates">
+            <h2 class="plt-h2" id="plt-h-updates"><span class="plt-h2-no">04</span>字母还在变：2018 年以后</h2>
+            <p class="plt-p">
+              GA 36-2018 是 2018 年 5 月实施的标准，之后又发生了这些变化。所以只看 2018 年的表，会以为郑州只有豫 A、苏州只有苏 E——实际上它们早就不止一块牌了。
+            </p>
+            <div class="cal-table-wrap">
+              <table class="cal-table plt-upd-table">
+                <thead>
+                  <tr>
+                    <th scope="col">时间</th>
+                    <th scope="col">地点</th>
+                    <th scope="col">变化</th>
+                    <th scope="col">为什么</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ov.updates.map((u) => (
+                    <tr>
+                      <td class="plt-upd-date">{u.date}</td>
+                      <td class="plt-upd-place">{u.place}</td>
+                      <td class="plt-upd-change">{u.change}</td>
+                      <td class="plt-upd-reason">{u.reason}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
+          </section>
 
+          <!-- ============ 05 · 按省查字母 ============ -->
+          <section class="plt-sec plt-index" id="plt-stage" aria-labelledby="plt-h-index">
+            <h2 class="plt-h2" id="plt-h-index"><span class="plt-h2-no">05</span>按省查字母</h2>
+            <p class="plt-p">
+              选一个省级行政区，看它的 A–Z 字母带。实心格是已分配的城市，虚线格是标准里的空缺，标「通用」的是 I、O 这类不发给普通地市的位置。
+            </p>
             <div class="plt-selector" role="tablist" aria-label="选择省级行政区">
               {ov.regions.map((r, i) => (
                 <button
@@ -212,7 +194,7 @@ const doubleLetterText = ov
                   <div class="plt-band-meta">
                     <span class="plt-band-name">{r.name}</span>
                     <span class="plt-band-kind">{kindCn[r.kind]}</span>
-                    {isFull && <span class="plt-band-tag">A 至 Z 全序列</span>}
+                    {isFull && <span class="plt-band-tag">标准允许 A 至 Z</span>}
                     {!isFull && r.gaps.length > 0 && (
                       <span class="plt-band-tag">空缺 {r.gaps.join(' ')}</span>
                     )}
@@ -226,7 +208,7 @@ const doubleLetterText = ov
                           ? `${cell.letter} ${cell.places.join('、')}`
                           : cell.state === 'empty'
                             ? `${cell.letter}（空缺）`
-                            : cell.letter;
+                            : `${cell.letter}（通用特殊位）`;
                       return (
                         <li class={cls} title={label}>
                           <span class="plt-cell-letter">{cell.letter}</span>
@@ -234,6 +216,7 @@ const doubleLetterText = ov
                             <span class="plt-cell-place">{cell.places.join('、')}</span>
                           )}
                           {cell.state === 'empty' && <span class="plt-cell-empty">空缺</span>}
+                          {cell.state === 'special' && <span class="plt-cell-empty">通用</span>}
                         </li>
                       );
                     })}
@@ -243,17 +226,12 @@ const doubleLetterText = ov
             })}
           </section>
 
-          <!-- ============ 一句话背景：为什么会这样 ============ -->
-          <section class="plt-why">
-            <p class="plt-why-text">
-              为什么省会都是 A？标准表 A.1 里所有省会、首府固定用 A；其余设区的市报经公安部交通管理局批准后依次启用 B、C、D……，所以顺序与城市大小、经济、人口无关。发牌机关代号不使用 I，O 单独留给省、自治区公安厅车管所的警用专段。
-            </p>
-          </section>
-
-          <!-- ============ 完整对照表（折叠，想看才展开） ============ -->
+          <!-- ============ 完整对照表（折叠） ============ -->
           <details class="plt-appendix">
             <summary>各省发牌机关代号完整对照表（{ov.stats.regionCount - ov.stats.municipalityCount} 个省、自治区）</summary>
-            <p class="plt-rules-lead">逐条转录自标准附录 A 表 A.1，同一城市多个代号、同一代号多地的情形均按标准原样保留。</p>
+            <p class="plt-appendix-lead">
+              以 GA 36-2018 附录 A 表 A.1 为底，2018 年后新增的代号排在对应省份末尾并标注年份。同一城市多个代号、同一代号多地的情形按数据原样保留。
+            </p>
             {ov.regions.filter((r) => !r.codesFull).map((r) => (
               <div class="plt-region-block" id={`plt-region-${r.key}`}>
                 <h3 class="plt-region-title"><span class="plt-region-abbr">{r.abbr}</span>{r.name}</h3>
@@ -269,7 +247,10 @@ const doubleLetterText = ov
                       {r.allocations.map((a) => (
                         <tr>
                           <th scope="row" class="plt-code">{a.code}</th>
-                          <td>{a.place}</td>
+                          <td>
+                            {a.place}
+                            {a.since && <span class="plt-since">{a.since.slice(0, 4)} 年新增</span>}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -280,7 +261,9 @@ const doubleLetterText = ov
           </details>
 
           <div class="cal-after">
-            <p class="cal-note">本页依据 {ov.meta.standard} {ov.meta.standardScope} 整理；代号与登记机关对照逐条转录自标准原文，未掺入民间流传的简称或别名。更新于 {fmtItemDate(ov.meta.updated)}。</p>
+            <p class="cal-note">
+              本页以 {ov.meta.standard} 附录 A 表 A.1 为基准（{ov.meta.standardScope}），并补充 2018 年后已公开的代号变化。港澳台实行不同的号牌制度，不在本表范围内。更新于 {fmtItemDate(ov.meta.updated)}。
+            </p>
           </div>
         </>
       )}
@@ -289,15 +272,3 @@ const doubleLetterText = ov
 </BaseLayout>
 
 <script src="/js/plates.js" defer></script>
-
-<style is:global>
-  .plt-v2 .plt-v2-head{position:relative;padding:clamp(1rem,2.6vw,2.2rem) 0 1.8rem;margin-bottom:2rem;border-bottom:1px solid var(--line-color);overflow:clip}
-  .plt-v2 .plt-v2-head>*:not(.ab-watermark){position:relative;z-index:1}
-  .plt-v2 .page-head-title{font-family:var(--font-serif-title);font-size:clamp(2.1rem,4.4vw,3.3rem);line-height:1.08;letter-spacing:-0.02em}
-  .plt-v2 .plt-freak{border-radius:var(--r-sm);border:1px solid var(--line-color);background:transparent;transition:border-color 200ms ease,transform 220ms cubic-bezier(.22,1,.36,1)}
-  .plt-v2 .plt-freak.is-link:hover{border-color:var(--accent);transform:translateY(-2px)}
-  .plt-v2 .plt-tab{border-radius:999px;transition:border-color 160ms ease,color 160ms ease,background-color 160ms ease}
-  .plt-v2 .plt-cell{border-radius:6px;transition:border-color 160ms ease,transform 160ms ease}
-  .plt-v2 .plt-cell--used:hover{border-color:var(--accent);transform:translateY(-1px)}
-  @media (prefers-reduced-motion:reduce){.plt-v2 .plt-freak,.plt-v2 .plt-cell{transition:none}}
-</style>

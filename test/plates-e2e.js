@@ -38,6 +38,8 @@ const raw = yaml.load(fs.readFileSync(path.join(ROOT, 'source', '_data', 'plates
 const regions = Array.isArray(raw.regions) ? raw.regions : [];
 const special = Array.isArray(raw.special) ? raw.special : [];
 const rules = Array.isArray(raw.rules) ? raw.rules : [];
+const updates = Array.isArray(raw.updates) ? raw.updates : [];
+const stories = Array.isArray(raw.stories) ? raw.stories : [];
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
@@ -107,12 +109,12 @@ ok('云南无 B（A 直接到 C）', () => {
   assert.ok(c.includes('C'), '云南应有 C');
 });
 
-ok('宁夏吴忠市与固原市共用 C', () => {
+ok('宁夏：宁 C 归吴忠，宁 D 归固原', () => {
   const r = regions.find((x) => x.abbr === '宁');
-  const cRows = (r.allocations || []).filter((a) => a.code === 'C');
-  assert.strictEqual(cRows.length, 2, '宁夏应有两条 C');
-  const places = cRows.map((a) => a.place).sort();
-  assert.deepStrictEqual(places, ['固原市', '吴忠市'].sort());
+  const map = {};
+  (r.allocations || []).forEach((a) => { map[a.place] = a.code; });
+  assert.strictEqual(map['吴忠市'], 'C', '吴忠应为 C');
+  assert.strictEqual(map['固原市'], 'D', '固原应为 D');
 });
 
 ok('佛山对应 E/X/Y 三个代号', () => {
@@ -142,6 +144,51 @@ ok('新疆伊犁对应 D/F 两个代号', () => {
 ok('特殊代号为 O / Z / W 三条', () => {
   const codes = special.map((s) => s.code).sort();
   assert.deepStrictEqual(codes, ['O', 'W', 'Z']);
+});
+
+/* ---------------- ②b 2018 年后变化（主人点名要的 豫 V） ---------------- */
+console.log('\n[plates] 2018 年后变化');
+
+function byAbbr(abbr, place) {
+  const r = regions.find((x) => x.abbr === abbr);
+  return (r ? r.allocations : []).filter((a) => a.place === place);
+}
+
+ok('郑州对应 A/V，且豫 V 标注 2020-09-16', () => {
+  const rows = byAbbr('豫', '郑州市');
+  assert.deepStrictEqual(rows.map((a) => a.code).sort(), ['A', 'V']);
+  assert.strictEqual(rows.find((a) => a.code === 'V').since, '2020-09-16');
+});
+
+ok('苏州对应 E/U，且苏 U 标注 2019-01-05', () => {
+  const rows = byAbbr('苏', '苏州市');
+  assert.deepStrictEqual(rows.map((a) => a.code).sort(), ['E', 'U']);
+  assert.strictEqual(rows.find((a) => a.code === 'U').since, '2019-01-05');
+});
+
+ok('西安对应 A/U，且陕 U 标注 2020-04-01', () => {
+  const rows = byAbbr('陕', '西安市');
+  assert.deepStrictEqual(rows.map((a) => a.code).sort(), ['A', 'U']);
+  assert.strictEqual(rows.find((a) => a.code === 'U').since, '2020-04-01');
+});
+
+ok('武汉对应 A/W，且鄂 W 标注 2022-04-26', () => {
+  const rows = byAbbr('鄂', '武汉市');
+  assert.deepStrictEqual(rows.map((a) => a.code).sort(), ['A', 'W']);
+  assert.strictEqual(rows.find((a) => a.code === 'W').since, '2022-04-26');
+});
+
+ok('济南对应 A/S（2019 年莱芜并入，鲁 S 归济南）', () => {
+  assert.deepStrictEqual(byAbbr('鲁', '济南市').map((a) => a.code).sort(), ['A', 'S']);
+  assert.strictEqual(byAbbr('鲁', '莱芜市').length, 0, '不应再有莱芜市');
+});
+
+ok('2018 年后更新条目为 7 条', () => {
+  assert.strictEqual(updates.length, 7, 'updates 应为 7 条');
+});
+
+ok('字母故事为 5 条', () => {
+  assert.strictEqual(stories.length, 5, 'stories 应为 5 条');
 });
 
 ok('编号规则为 7 条', () => {
@@ -189,6 +236,17 @@ if (!fs.existsSync(OUT)) {
       assert.strictEqual(letters, 26, '北京面板应恰好 26 个字母，实际 ' + letters);
     });
 
+    ok('直辖市字母带把 I / O 标为通用特殊位，不当作已分配', () => {
+      assert.ok(
+        html.includes('class="plt-cell plt-cell--special" title="I（通用特殊位）"'),
+        'I 未标为通用特殊位'
+      );
+      assert.ok(
+        html.includes('class="plt-cell plt-cell--special" title="O（通用特殊位）"'),
+        'O 未标为通用特殊位'
+      );
+    });
+
     ok('静态对照表行数等于数据 allocation 总数', () => {
       const dataRows = regions.filter((r) => r.kind !== 'municipality')
         .reduce((n, r) => n + (r.allocations || []).length, 0);
@@ -206,31 +264,33 @@ if (!fs.existsSync(OUT)) {
       assert.ok(fs.statSync(js).size > 0, 'plates.js 为空');
     });
 
-    ok('冷知识墙存在（plt-freak）', () => {
-      assert.ok(html.includes('plt-freak'), '冷知识墙缺失');
+    ok('含车牌结构示意（plt-plate）', () => {
+      assert.ok(html.includes('plt-plate'), '车牌示意缺失');
+      assert.ok(html.includes('发牌机关代号'), '发牌机关代号说明缺失');
     });
 
-    ok('冷知识卡覆盖关键反常现象', () => {
-      assert.ok(html.includes('一个省，凭空少了 B'), '云南无 B 卡缺失');
-      assert.ok(html.includes('一座城，独占三个字母'), '佛山三字母卡缺失');
-      assert.ok(html.includes('两个城市，抢一个字母'), '吴忠固原共用 C 卡缺失');
-      assert.ok(html.includes('一个字母都不跳'), '直辖市全序列卡缺失');
-      assert.ok(html.includes('字母一路用到 Z 的省'), '四川到 Z 卡缺失');
-      assert.ok(html.includes('这些城市，不止一块牌'), '双字母城市卡缺失');
-      assert.ok(html.includes('三个不发给普通城市的神秘字母'), '神秘字母卡缺失');
+    ok('含排序规则解释与开封 / 绵阳例证', () => {
+      assert.ok(html.includes('字母不是按城市大小排的'), '规则标题缺失');
+      assert.ok(html.includes('开封'), '开封例证缺失');
+      assert.ok(html.includes('绵阳'), '绵阳例证缺失');
+      assert.ok(html.includes('1954'), '开封 1954 省会搬迁缺失');
     });
 
-    ok('冷知识卡有 5 处可联动（data-region + is-link）', () => {
-      const links = (html.match(/class="plt-freak is-link"/g) || []).length;
-      assert.strictEqual(links, 5, '可联动卡应为 5 张，实际 ' + links);
+    ok('故事区覆盖 5 条并带原因', () => {
+      ['云 B', '粤 E / X / Y', '豫 A / V', '川 A / G', '京 / 津 / 沪 / 渝'].forEach((s) =>
+        assert.ok(html.includes(s), s + ' 故事缺失')
+      );
+      assert.ok(html.includes('plt-story-src'), '故事出处缺失');
     });
 
-    ok('包含特殊代号 O / Z / W（并入神秘字母卡）', () => {
-      ['O', 'Z', 'W'].forEach((c) => assert.ok(html.includes('is-special">' + c + '<'), c + ' 缺失'));
+    ok('2018 年后更新表为 7 行', () => {
+      const n = (html.match(/class="plt-upd-date"/g) || []).length;
+      assert.strictEqual(n, 7, '更新表应为 7 行，实际 ' + n);
+      assert.ok(html.includes('字母还在变'), '更新章节标题缺失');
     });
 
-    ok('包含一句话规则背景', () => {
-      assert.ok(html.includes('为什么省会都是 A'), '规则背景缺失');
+    ok('详表标注 2018 年后新增年份', () => {
+      assert.ok(html.includes('plt-since'), '新增年份标签缺失');
     });
 
     ok('完整对照表折叠在 details 里', () => {

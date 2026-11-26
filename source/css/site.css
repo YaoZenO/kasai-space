@@ -11943,6 +11943,440 @@ a:hover {
   }
 }
 
+/* ===== 4.27 车牌字母编号探索页（/plates/，2026-11-26 三轮重做） =====
+   视觉概念：零边框编辑式长文。发丝线分节、大号等宽字母、没有卡片网格。
+   全部引用既有 token，无冷色、无渐变、无加法 calc，字号 ≥ 0.75rem。 */
+
+/* ---- 页头 ---- */
+.plt-page .plt-head { margin-bottom: 0; }
+.plt-lede {
+  margin: 0.8rem 0 0;
+  max-width: 62ch;
+  font-size: 1.02rem;
+  line-height: 1.85;
+  color: var(--text-color);
+}
+.plt-meta-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.3rem;
+  margin: 1.2rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  color: var(--info-mark);
+}
+.plt-meta-line span + span::before {
+  content: "·";
+  margin-right: 1.1rem;
+  color: var(--line-color);
+}
+
+/* ---- 分节 ---- */
+.plt-sec {
+  margin: 0;
+  padding: 2.6rem 0;
+  border-top: 1px solid var(--line-color);
+}
+.plt-h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  margin: 0 0 1.35rem;
+  font-family: var(--font-serif-title);
+  font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--text-color);
+}
+.plt-h2-no {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+.plt-p {
+  max-width: 66ch;
+  margin: 0 0 1.1rem;
+  font-size: 0.96rem;
+  line-height: 1.85;
+  color: var(--text-color);
+}
+.plt-p:last-child { margin-bottom: 0; }
+.plt-p-note {
+  margin-top: 1.2rem;
+  padding-left: 1rem;
+  border-left: 2px solid var(--accent);
+  color: var(--sec-text-color);
+}
+
+/* ---- 车牌示意 ---- */
+.plt-plate-box {
+  display: grid;
+  gap: 1.2rem;
+  margin: 0 0 1.5rem;
+  padding: 1.7rem 1.4rem;
+  border: 1px solid var(--line-color);
+  border-radius: var(--r-card);
+  background: var(--board-color);
+}
+.plt-plate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  font-family: var(--font-mono);
+  font-size: clamp(2.1rem, 6vw, 3.1rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-color);
+}
+.plt-plate-char { letter-spacing: 0.04em; }
+.plt-plate-key { color: var(--accent); }
+.plt-plate-sep { color: var(--sec-text-color); margin: 0 0.12em; }
+.plt-plate-num { letter-spacing: 0.06em; }
+.plt-legend {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem 1.2rem;
+  margin: 0;
+}
+.plt-legend > div { display: grid; gap: 0.28rem; }
+.plt-legend dt {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.plt-legend dd {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: var(--sec-text-color);
+}
+
+/* ---- 规则举例 ---- */
+.plt-cases {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.3rem;
+  margin: 1.5rem 0;
+}
+.plt-case {
+  display: grid;
+  gap: 0.5rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line-color);
+}
+.plt-case-code {
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  color: var(--accent);
+}
+.plt-case-text {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.78;
+  color: var(--text-color);
+}
+
+/* ---- 故事 ---- */
+.plt-story-list { display: grid; gap: 0; }
+.plt-story {
+  display: grid;
+  grid-template-columns: 4rem minmax(0, 1fr);
+  gap: 0 1.2rem;
+  padding: 1.7rem 0;
+  border-top: 1px solid var(--line-color);
+}
+.plt-story:first-child { border-top: 0; padding-top: 0; }
+.plt-story-no {
+  font-family: var(--font-mono);
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--line-color);
+  padding-top: 0.2rem;
+}
+.plt-story-main { min-width: 0; }
+.plt-story-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem 0.8rem;
+  margin-bottom: 0.6rem;
+}
+.plt-story-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 1.7rem;
+  padding: 0 0.55rem;
+  border-radius: 4px;
+  background: var(--text-color);
+  color: var(--on-ink);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.plt-story-title {
+  margin: 0;
+  font-size: 1.12rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--text-color);
+}
+.plt-story-body {
+  max-width: 64ch;
+  margin: 0 0 0.55rem;
+  font-size: 0.94rem;
+  line-height: 1.85;
+  color: var(--text-color);
+}
+.plt-story-src {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.55;
+  color: var(--info-mark);
+}
+
+/* ---- 更新表 ---- */
+.plt-upd-table th,
+.plt-upd-table td { vertical-align: top; }
+.plt-upd-date {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  white-space: nowrap;
+  color: var(--sec-text-color);
+}
+.plt-upd-place {
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--text-color);
+}
+.plt-upd-change,
+.plt-upd-reason {
+  font-size: 0.86rem;
+  line-height: 1.65;
+}
+
+/* ---- 索引台 ---- */
+.plt-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0 0 1.5rem;
+}
+.plt-tab {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1;
+  padding: 0.5rem 0.8rem;
+  color: var(--sec-text-color);
+  background: transparent;
+  border: 1px solid var(--site-chip-border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 160ms ease, color 160ms ease, background-color 160ms ease;
+}
+.plt-tab:hover { color: var(--accent); border-color: var(--accent); }
+.plt-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.plt-tab.is-active {
+  color: var(--on-ink);
+  background: var(--text-color);
+  border-color: var(--text-color);
+}
+
+.plt-band-panel { display: block; }
+.plt-band-panel[hidden] { display: none; }
+
+.plt-band-meta {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.7rem;
+  margin-bottom: 0.9rem;
+}
+.plt-band-name { font-weight: 600; color: var(--text-color); }
+.plt-band-kind {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--info-mark);
+  letter-spacing: 0.06em;
+}
+.plt-band-tag {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--sec-text-color);
+  border: 1px solid var(--line-color);
+  border-radius: 999px;
+  padding: 0.12rem 0.5rem;
+}
+
+.plt-band {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(13, 1fr);
+  gap: 0.5rem;
+}
+.plt-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.5rem 0.15rem;
+  border-radius: 8px;
+  min-width: 0;
+}
+.plt-cell--used {
+  background: var(--text-color);
+  color: var(--on-ink);
+}
+.plt-cell--empty {
+  background: transparent;
+  border: 1px dashed var(--line-color);
+  color: var(--sec-text-color);
+}
+.plt-cell--special {
+  background: transparent;
+  border: 1px dotted var(--line-color);
+  color: var(--info-mark);
+}
+.plt-cell-letter {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+.plt-cell-place {
+  font-size: 0.75rem;
+  line-height: 1.2;
+  color: inherit;
+  text-align: center;
+  opacity: 0.82;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+.plt-cell--empty .plt-cell-letter,
+.plt-cell--special .plt-cell-letter { font-weight: 400; }
+.plt-cell--empty .plt-cell-empty,
+.plt-cell--special .plt-cell-empty {
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+/* ---- 完整对照表（折叠） ---- */
+.plt-appendix {
+  margin: 2.6rem 0;
+  border-top: 1px solid var(--line-color);
+  border-bottom: 1px solid var(--line-color);
+}
+.plt-appendix summary {
+  padding: 1.1rem 0;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-color);
+}
+.plt-appendix summary:hover { color: var(--accent); }
+.plt-appendix summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.plt-appendix[open] summary { border-bottom: 1px solid var(--line-color); }
+.plt-appendix-lead {
+  max-width: 66ch;
+  margin: 1rem 0 1.4rem;
+  font-size: 0.86rem;
+  line-height: 1.7;
+  color: var(--sec-text-color);
+}
+
+.plt-region-block { margin: 0 0 2rem; }
+.plt-region-title {
+  margin: 0 0 0.8rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+.plt-region-abbr {
+  display: inline-block;
+  margin-right: 0.6rem;
+  font-family: var(--font-mono);
+  color: var(--accent);
+}
+.plt-table .plt-code {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--text-color);
+  width: 4.5rem;
+}
+.plt-since {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  padding: 0 0.35rem;
+  line-height: 1.5;
+}
+
+/* ---- 移动端 ---- */
+@media (max-width: 760px) {
+  .plt-band { grid-template-columns: repeat(9, 1fr); }
+  .plt-legend { grid-template-columns: 1fr; }
+  .plt-cases { grid-template-columns: 1fr; }
+  .plt-story { grid-template-columns: 2.4rem minmax(0, 1fr); gap: 0 0.9rem; }
+  .plt-story-no { font-size: 1.1rem; }
+  .plt-sec { padding: 2rem 0; }
+}
+@media (max-width: 480px) {
+  .plt-band { grid-template-columns: repeat(6, 1fr); gap: 0.35rem; }
+  .plt-cell { padding: 0.4rem 0.1rem; }
+  .plt-plate-box { padding: 1.3rem 1rem; }
+}
+
+/* ---- 减少动态效果 ---- */
+@media (prefers-reduced-motion: reduce) {
+  .plt-tab { transition: none; }
+}
+
+/* ---- 资料库「车牌」封面：A–Z 字母带（13 列 × 2 行），与 /plates/ 主视觉同源 ---- */
+.lb-cover-plates {
+  display: grid;
+  grid-template-columns: repeat(13, 1fr);
+  grid-auto-rows: 1fr;
+  width: 100%;
+  height: 100%;
+  padding: 0.7rem;
+  gap: 0.3rem;
+}
+.lb-cover-plates .lb-cell {
+  border: 0;
+  border-radius: 4px;
+  background: var(--text-color);
+  color: var(--on-ink);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.lb-cover-plates .lb-cell.is-empty {
+  background: transparent;
+  border: 1px dashed var(--line-color);
+  color: var(--sec-text-color);
+}
+
 /* ===== 15. 暗色模式（2026-11-09，本任务） ===== */
 /* ==========================================================================
    与 themes/fluid/source/css/_pages/_base/color-schema.styl 的 dark-colors() 同构，
@@ -12788,336 +13222,3 @@ a:hover {
 }
 
 /* ===== /15. 暗色模式（本任务结束） ===== */
-
-/* ===== 4.27 车牌字母编号探索页（/plates/，2026-11-26 Issue #12，二轮重做） =====
-   视觉概念：「不按套路出牌」。冷知识墙是主视觉——7 张「反常现象」卡（云南无 B、
-   佛山三字母、吴忠固原共用 C、直辖市全序列、四川用到 Z、双字母城市、神秘字母 O/Z/W），
-   规则退成一句话背景，完整对照表折叠进 <details>。不是卡片网格，不套通用 Hero；
-   色值全部引用既有 token，无冷色、无渐变、无加法 calc。 */
-
-.plt-page .page-head { margin-bottom: 1.6rem; }
-.plt-lede {
-  margin: 0.6rem 0 0;
-  font-size: 1rem;
-  line-height: 1.75;
-  color: var(--text-color);
-  max-width: 58ch;
-}
-.plt-rules-lead {
-  margin: 0 0 1.2rem;
-  font-size: 0.9rem;
-  line-height: 1.7;
-  color: var(--sec-text-color);
-  max-width: 68ch;
-}
-
-/* ---- 标志性交互：发牌字母索引台 ---- */
-.plt-stage {
-  margin: 0 0 2.6rem;
-  padding: 1.5rem;
-  border: 1px solid var(--line-color);
-  border-radius: var(--r-card);
-  background: var(--board-color);
-}
-.plt-stage .col-head { margin-bottom: 1rem; }
-
-.plt-selector {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1.3rem;
-}
-.plt-tab {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  line-height: 1;
-  padding: 0.5rem 0.8rem;
-  color: var(--sec-text-color);
-  background: transparent;
-  border: 1px solid var(--site-chip-border);
-  border-radius: 999px;
-  cursor: pointer;
-}
-.plt-tab:hover { color: var(--accent); border-color: var(--accent); }
-.plt-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.plt-tab.is-active {
-  color: var(--on-ink);
-  background: var(--text-color);
-  border-color: var(--text-color);
-}
-
-.plt-band-panel { display: block; }
-.plt-band-panel[hidden] { display: none; }
-
-.plt-band-meta {
-  display: flex;
-  align-items: baseline;
-  gap: 0.6rem;
-  margin-bottom: 0.8rem;
-}
-.plt-band-name { font-weight: 600; color: var(--text-color); }
-.plt-band-kind {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--info-mark);
-  letter-spacing: 0.06em;
-}
-.plt-band-tag {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--sec-text-color);
-  border: 1px solid var(--line-color);
-  border-radius: 999px;
-  padding: 0.12rem 0.5rem;
-}
-
-.plt-band {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(13, 1fr);
-  gap: 0.5rem;
-}
-.plt-cell {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.5rem 0.15rem;
-  border-radius: 8px;
-  min-width: 0;
-}
-.plt-cell--used {
-  background: var(--text-color);
-  color: var(--on-ink);
-}
-.plt-cell--empty {
-  background: transparent;
-  border: 1px dashed var(--line-color);
-  color: var(--sec-text-color);
-}
-.plt-cell-letter {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 0.9rem;
-  line-height: 1;
-}
-.plt-cell-place {
-  font-size: 0.75rem;
-  line-height: 1.2;
-  color: inherit;
-  text-align: center;
-  opacity: 0.82;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 100%;
-}
-.plt-cell--empty .plt-cell-letter { font-weight: 400; }
-.plt-cell--empty .plt-cell-empty {
-  font-size: 0.75rem;
-  line-height: 1;
-}
-
-/* ---- 冷知识墙：不按套路出牌 ---- */
-.plt-freaks { margin: 0 0 2.6rem; }
-.plt-freaks .col-head { margin-bottom: 1.1rem; }
-.plt-freak-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  align-items: stretch;
-}
-.plt-freak {
-  display: flex;
-  gap: 1rem;
-  padding: 1.2rem 1.3rem;
-  border: 1px solid var(--line-color);
-  border-radius: var(--r-card);
-  background: var(--board-color);
-}
-.plt-freak--wide { grid-column: 1 / -1; }
-.plt-freak.is-link {
-  cursor: pointer;
-  transition: border-color 0.2s ease;
-}
-.plt-freak.is-link:hover { border-color: var(--accent); }
-.plt-freak.is-link:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-.plt-freak-visual {
-  flex: none;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  align-content: flex-start;
-  gap: 0.4rem;
-  min-width: 3rem;
-}
-.plt-freak-visual--wide { min-width: auto; }
-.plt-code-chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 1.9rem;
-  height: 1.9rem;
-  padding: 0 0.35rem;
-  border-radius: 6px;
-  background: var(--text-color);
-  color: var(--on-ink);
-  font-family: var(--font-mono);
-  font-size: 0.95rem;
-  font-weight: 700;
-  line-height: 1;
-}
-.plt-code-chip.is-empty {
-  background: transparent;
-  border: 2px dashed var(--line-color);
-  color: var(--sec-text-color);
-}
-.plt-code-chip.is-special {
-  background: transparent;
-  border: 2px solid var(--accent);
-  color: var(--accent);
-}
-.plt-code-chip-note {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  line-height: 1;
-  color: var(--sec-text-color);
-}
-.plt-code-chip-ghost {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  line-height: 1;
-  color: var(--sec-text-color);
-}
-.plt-freak-body { min-width: 0; }
-.plt-freak-title {
-  margin: 0 0 0.45rem;
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--text-color);
-}
-.plt-freak-text {
-  margin: 0 0 0.55rem;
-  font-size: 0.88rem;
-  line-height: 1.7;
-  color: var(--text-color);
-}
-.plt-freak-src {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--info-mark);
-  letter-spacing: 0.02em;
-}
-
-/* ---- 一句话背景 ---- */
-.plt-why { margin: 0 0 2.6rem; }
-.plt-why-text {
-  margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.75;
-  color: var(--sec-text-color);
-  max-width: 68ch;
-}
-
-/* ---- 完整对照表（折叠） ---- */
-.plt-appendix {
-  margin: 0 0 2.6rem;
-  border: 1px solid var(--line-color);
-  border-radius: var(--r-card);
-  background: var(--board-color);
-}
-.plt-appendix summary {
-  padding: 1rem 1.2rem;
-  cursor: pointer;
-  font-weight: 600;
-  color: var(--text-color);
-}
-.plt-appendix summary:hover { color: var(--accent); }
-.plt-appendix summary:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-.plt-appendix[open] summary { border-bottom: 1px solid var(--line-color); }
-.plt-appendix > :not(summary) {
-  padding-left: 1.2rem;
-  padding-right: 1.2rem;
-}
-.plt-appendix > .plt-rules-lead {
-  padding-top: 1rem;
-  margin-bottom: 1rem;
-}
-.plt-appendix > .plt-region-block:last-child { padding-bottom: 1.2rem; }
-
-.plt-region-block { margin: 0 0 1.8rem; }
-.plt-region-title {
-  margin: 0 0 0.8rem;
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--text-color);
-}
-.plt-region-abbr {
-  display: inline-block;
-  margin-right: 0.6rem;
-  font-family: var(--font-mono);
-  color: var(--accent);
-}
-.plt-table .plt-code {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  color: var(--text-color);
-  width: 4.5rem;
-}
-
-/* ---- 移动端 ---- */
-@media (max-width: 760px) {
-  .plt-band { grid-template-columns: repeat(9, 1fr); }
-  .plt-freak-grid { grid-template-columns: 1fr; }
-  .plt-freak--wide { grid-column: auto; }
-  .plt-stage { padding: 1.1rem; }
-}
-@media (max-width: 480px) {
-  .plt-band { grid-template-columns: repeat(6, 1fr); gap: 0.35rem; }
-  .plt-cell { padding: 0.4rem 0.1rem; }
-  .plt-freak { flex-direction: column; }
-}
-
-/* ---- 暗色适配（跟随 §15 两条既有分支的变量，不新增第三套声明） ---- */
-.plt-cell--used { color: var(--on-ink); }
-.plt-cell--empty { color: var(--sec-text-color); }
-
-/* ---- 减少动态效果：索引台本身无位移动画，保留选中态即时切换即可 ---- */
-@media (prefers-reduced-motion: reduce) {
-  .plt-tab { transition: none; }
-}
-
-/* ---- 资料库「车牌」封面：A–Z 字母带（13 列 × 2 行），与 /plates/ 主视觉同源 ---- */
-.lb-cover-plates {
-  display: grid;
-  grid-template-columns: repeat(13, 1fr);
-  grid-auto-rows: 1fr;
-  width: 100%;
-  height: 100%;
-  padding: 0.7rem;
-  gap: 0.3rem;
-}
-.lb-cover-plates .lb-cell {
-  border: 0;
-  border-radius: 4px;
-  background: var(--text-color);
-  color: var(--on-ink);
-  font-family: var(--font-display);
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-.lb-cover-plates .lb-cell.is-empty {
-  background: transparent;
-  border: 1px dashed var(--line-color);
-  color: var(--sec-text-color);
-}
-
