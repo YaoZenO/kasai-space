@@ -620,27 +620,75 @@ const SOLAR_NOTE: Record<string, string> = {
   guoqing: '公历 10 月 1 日',
 };
 
+const LUNAR_MONTH_CN = [
+  '', '正月', '二月', '三月', '四月', '五月', '六月',
+  '七月', '八月', '九月', '十月', '冬月', '腊月',
+];
 const LUNAR_DAY_CN = [
   '', '初一', '初二', '初三', '初四', '初五', '初六', '初七', '初八', '初九', '初十',
   '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十',
   '廿一', '廿二', '廿三', '廿四', '廿五', '廿六', '廿七', '廿八', '廿九', '三十',
 ];
 
-const LUNAR_FMT = new Intl.DateTimeFormat('zh-CN-u-ca-chinese', {
-  month: 'long',
-  day: 'numeric',
-  timeZone: 'UTC',
-});
+// 紫金山天文台 GB/T 33661-2017 农历年表（2020–2037，基准 2020-01-25 = 庚子年正月初一）。
+// 不可改用 Node/ICU 的 Intl.DateTimeFormat('zh-CN-u-ca-chinese')：ICU 在 2027-02-06（朔日 23:56 CST）
+// 与 2030-02-03 等年份存在 1 天偏差，会导致 2027-02-06 标「春节」而 2027-02-07 标「正月」（E-198）。
+const LUNAR_BASE_UTC = Date.UTC(2020, 0, 25);
+const LUNAR_CODES = [
+  0x07954, // 2020（闰四月）
+  0x06aa0, // 2021
+  0x0ad50, // 2022
+  0x05b52, // 2023（闰二月）
+  0x04b60, // 2024
+  0x0a6e6, // 2025（闰六月）
+  0x0a4e0, // 2026
+  0x0d260, // 2027
+  0x0ea65, // 2028（闰五月）
+  0x0d530, // 2029
+  0x05aa0, // 2030
+  0x076a3, // 2031（闰三月）
+  0x096d0, // 2032
+  0x04afb, // 2033（闰十一月）
+  0x04ad0, // 2034
+  0x0a4d0, // 2035
+  0x1d0b6, // 2036（闰六月）
+  0x0d250, // 2037
+];
+
+function lunarYearDays(code: number): number {
+  let sum = 348;
+  for (let i = 0x8000; i > 0x8; i >>= 1) sum += (code & i) ? 1 : 0;
+  const lm = code & 0xf;
+  return sum + (lm ? ((code & 0x10000) ? 30 : 29) : 0);
+}
 
 function lunarOfKey(key: string): { month: string; day: number; dayCn: string; full: string } {
   const { y, m, d } = keyToParts(key);
-  const parts = LUNAR_FMT.formatToParts(new Date(Date.UTC(y, m - 1, d, 12, 0, 0)));
-  let month = '';
-  let dayNum = 0;
-  for (const p of parts) {
-    if (p.type === 'month') month = p.value;
-    else if (p.type === 'day') dayNum = parseInt(p.value, 10) || 0;
+  let offset = Math.round((Date.UTC(y, m - 1, d) - LUNAR_BASE_UTC) / 86400000);
+  if (offset < 0) return { month: '', day: 0, dayCn: '', full: '' };
+  let idx = 0;
+  while (idx < LUNAR_CODES.length - 1) {
+    const yd = lunarYearDays(LUNAR_CODES[idx]);
+    if (offset < yd) break;
+    offset -= yd;
+    idx += 1;
   }
+  const code = LUNAR_CODES[idx];
+  const lm = code & 0xf;
+  let isLeap = false;
+  let mo = 1;
+  for (mo = 1; mo <= 12; mo += 1) {
+    const md = (code & (0x10000 >> mo)) ? 30 : 29;
+    if (offset < md) break;
+    offset -= md;
+    if (lm > 0 && mo === lm) {
+      const ld = (code & 0x10000) ? 30 : 29;
+      if (offset < ld) { isLeap = true; break; }
+      offset -= ld;
+    }
+  }
+  const dayNum = offset + 1;
+  const month = (isLeap ? '闰' : '') + (LUNAR_MONTH_CN[mo] || '');
   const dayCn = LUNAR_DAY_CN[dayNum] || '';
   return { month, day: dayNum, dayCn, full: month + dayCn };
 }

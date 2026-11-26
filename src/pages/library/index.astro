@@ -1,22 +1,6 @@
 ---
-// 资料库页（/library/）：专题书架。
-//
-// 2026-11-04 改为「专题卡片墙」（PLAN-V3 §5）：旧版把五个专题的全部条目平铺成
-// 28 行目录，读者要找一个城市得先知道它属于哪个榜。现在这里只回答一个问题
-// ——「站上有哪几类资料」，每一类点进去有自己的列表页。
-//
-// 2026-11-14 按 PAGE-FORM-PLAN §4.4 改为「封面书架」：首屏先给结论与数字带，
-// 其下每张专题卡以封面为主导。
-//
-// 2026-11-14 封面改「图形化」（主人在 A/B/C 三版效果图里选 A）：
-// 照片封面总会用单个对象代表一类内容——一张马俑代表十二生肖、一张中秋餐桌代表
-// 十二个节日、一张北京天际线代表 431 座城市，都不成立。现在封面改用专题自身的
-// 信息图形，全部由数据现算，不再引用图片、不需要授权署名：
-//   生肖 = 12 格生肖名＋地支；节假日 = 16 个数据年份；节日 = 12 个节日名；
-//   榜单 = 主榜前 8 名条形（与 /cityrank/ 同一口径）；城市 = 字段覆盖表。
-//
-// 2026-11-14（主人反馈）：城市封面原来铺 431 个点，「看不出来是啥」，改为字段覆盖表——
-// 每行一个字段名，右侧是 431 座城市里已收录该字段的座数，一眼看出档案里有什么。
+// 资料库页（/library/）：交互式知识馆藏与历法中枢。
+// 保留全部图形化封面与 .lb-shelf-card / .lb-cover-* / StatBand 结构锚点。
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import StatBand from '../../components/StatBand.astro';
@@ -35,10 +19,6 @@ const lb = data.library || {};
 const topics: any[] = Array.isArray(lb.topics) ? lb.topics : [];
 const meta = lb.meta || {};
 
-/* 每个专题的「真实内容量」。数字一律从数据现算，不写死——城市从 431 涨到 500、
-   榜单从 145 变 150 时，这里一个字都不用改。cityrank 走 helper 现算
-   （榜数与名次都不落盘，CITY-RANK-PRD §5.1）。新增专题若不在这张表里，
-   退回用它在 library.yml 的 entries 条数。 */
 let crCache: any = null;
 let zodiacCache: any = null;
 
@@ -61,9 +41,15 @@ function countOf(key: string, entries: any): number {
 const UNITS: Record<string, string> = { zodiac: '个生肖', holidays: '年', festivals: '个节日', cityrank: '个榜单', city: '座城市', plates: '个行政区' };
 function unitOf(key: string): string { return UNITS[key] || '条'; }
 
-/* 卡片右下角的「覆盖范围」：只写数据里查得到的事实，不写「最近更新」——
-   library.yml 的 meta.updated 是整页维护时间，各专题的数据文件另有自己的日期，
-   混用会把「上次改页面」当成「上次改内容」。 */
+const GROUPS: Record<string, { id: string; label: string }> = {
+  holidays: { id: 'calendar', label: '历法民俗' },
+  festivals: { id: 'calendar', label: '历法民俗' },
+  zodiac: { id: 'calendar', label: '历法民俗' },
+  city: { id: 'geo', label: '地理城市' },
+  cityrank: { id: 'geo', label: '地理城市' },
+  plates: { id: 'utility', label: '生活检索' },
+};
+
 function rangeOf(key: string): string {
   if (key === 'zodiac') {
     if (!zodiacCache) zodiacCache = buildOverview(data.zodiac);
@@ -90,7 +76,6 @@ function rangeOf(key: string): string {
   return '';
 }
 
-// 首屏数字带：专题数与五个专题各自的内容量，全部现算
 const stats = topics.length === 0 ? [] : [
   { label: '专题', value: topics.length },
   { label: '生肖', value: countOf('zodiac', []) },
@@ -100,24 +85,30 @@ const stats = topics.length === 0 ? [] : [
   { label: '城市档案', value: countOf('city', []) },
 ];
 
-/* ---- 图形化封面的数据 ---- */
+// 嵌入 2026–2028 法定节假日节点供首屏「今日历法」实时计算最近假期倒计时
+const upcomingHolidays: Array<{ name: string; start: string; days: number; year: number }> = [];
+for (const yr of (data.holidays?.years || [])) {
+  const y = Number(yr.year);
+  if (y < 2026 || y > 2028) continue;
+  for (const h of (yr.holidays || [])) {
+    const s = h.start instanceof Date ? h.start.toISOString().slice(0, 10) : String(h.start || '').slice(0, 10);
+    if (s) upcomingHolidays.push({ name: h.name, start: s, days: Number(h.days) || 1, year: y });
+  }
+}
+const upcomingJson = JSON.stringify(upcomingHolidays);
 
-// 生肖：12 格生肖名＋地支，地支按生肖序固定对应
 const BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
 const zodiacCells = (data.zodiac?.animals || []).map((a: any, i: number) => ({
   name: a.animal, branch: BRANCHES[i] || ''
 }));
 
-// 节假日：16 个数据年份，当前年高亮
 const nowYear = new Date().getFullYear();
 const holidayYears = (data.holidays?.years || []).map((y: any) => Number(y.year));
 
-// 节日：12 个节日名，法定节日加重
 const festivalCells = (data.festivals?.festivals || []).map((f: any) => ({
   name: f.name, legal: f.kind === 'legal'
 }));
 
-// 榜单：主榜（经济强市）前 8 名，条长按该榜第一名等比，与 /cityrank/ 同一口径
 function mainMetric(rk: any) {
   if (!Array.isArray(rk?.metrics) || !rk.metrics.length) return null;
   return rk.metrics.slice().sort((a: any, b: any) => (b.weight || 0) - (a.weight || 0))[0];
@@ -143,9 +134,6 @@ const rankBars = (() => {
   });
 })();
 
-// 城市：档案里有哪些字段。封面只回答「这是什么」——几座城市、每座一份档案、档案里有哪几类字段。
-// 2026-11-14 二次反馈后不再放「各字段已收录多少座」的计数：脱离口径的裸数字读者读不懂。
-// 字段按城市数据里实际存在的才显示（有城市带该指标才算），不写死一张清单。
 const CITY_FIELDS = [
   { field: 'gdp', label: '地区生产总值' },
   { field: 'pop', label: '常住人口' },
@@ -162,10 +150,15 @@ const cityFieldTags = CITY_FIELDS.filter((f) =>
   })
 ).map((f) => f.label);
 
-// 车牌：封面是一条 A–Z 字母带，用北京（直辖市全序列）作代表，26 格全实心。
 const platesLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 const platesCells = platesLetters.map((letter: string) => ({ letter, state: 'used' }));
 
+const groupCounts = {
+  all: topics.length,
+  calendar: topics.filter((t) => (GROUPS[t.key]?.id || 'other') === 'calendar').length,
+  geo: topics.filter((t) => (GROUPS[t.key]?.id || 'other') === 'geo').length,
+  utility: topics.filter((t) => (GROUPS[t.key]?.id || 'other') === 'utility').length,
+};
 ---
 
 <BaseLayout title="资料库" currentPath="/library/" ogDate={published} ogUpdated={modified}>
@@ -182,13 +175,36 @@ const platesCells = platesLetters.map((letter: string) => ({ letter, state: 'use
   ) : (
     <>
       <canvas class="ab-bg-canvas" id="ab-bg-canvas" aria-hidden="true"></canvas>
-      <div class="paper-page ab-page-shell cal-page lb-page lb-v2">
+      <div class="paper-page ab-page-shell cal-page lb-page lb-v2" data-lb-layout="grid">
         <div class="home-wrap">
           <section class="lb-hero lb-v2-hero">
             <p class="ab-watermark" data-ab-parallax="0.16" aria-hidden="true">LIBRARY</p>
-            <p class="lb-v2-kicker">DATA / REFERENCE ARCHIVE</p>
-            <h1 class="lb-title">资料库</h1>
-            <p class="lb-lede"><Fragment set:html={meta.intro || ''} /></p>
+            <div class="lb-v2-hero-top">
+              <div class="lb-v2-hero-main">
+                <p class="lb-v2-kicker">DATA / REFERENCE ARCHIVE</p>
+                <h1 class="lb-title">资料库</h1>
+                <p class="lb-lede"><Fragment set:html={meta.intro || ''} /></p>
+              </div>
+
+              {/* 实时历法与馆藏脉搏卡（客户端自动对齐今日日期与最近法定假期倒计时） */}
+              <aside class="lb-pulse" aria-label="今日历法速览">
+                <div class="lb-pulse-head">
+                  <span class="lb-pulse-dot" aria-hidden="true" />
+                  <span class="lb-pulse-label" data-lb-today>历法速览</span>
+                  <span class="lb-pulse-zodiac" data-lb-gz>丙午马年</span>
+                </div>
+                <div class="lb-pulse-next">
+                  <span class="lb-pulse-next-k" data-lb-next-label>下一法定假期</span>
+                  <strong class="lb-pulse-next-v" data-lb-next-val>查看全年节假日</strong>
+                </div>
+                <div class="lb-pulse-links">
+                  <a href={urlFor('/holidays/')} data-ab-magnet>节假日历 →</a>
+                  <a href={urlFor('/zodiac/')} data-ab-magnet>十二生肖 →</a>
+                  <a href={urlFor('/city/')} data-ab-magnet>城市图谱 →</a>
+                </div>
+              </aside>
+            </div>
+
             <StatBand
               columns={6}
               class="stat-band--flush stat-band--ruled"
@@ -196,106 +212,265 @@ const platesCells = platesLetters.map((letter: string) => ({ letter, state: 'use
             />
           </section>
 
-        <section class="lb-shelf-block">
-          <div class="col-head">
-            <h2 class="col-title">全部专题</h2>
-            <span class="col-count">/ {topics.length}</span>
-          </div>
-          <div class="lb-shelf">
-            {topics.map((tp: any) => {
-              const n = countOf(tp.key, tp.entries);
-              const range = rangeOf(tp.key);
-              return (
-                <a class="lb-shelf-card" id={`topic-${tp.key}`} href={urlFor(tp.link || '/library/')}>
-                  {/* 封面是装饰性信息图形，内容与标题、计数重复，读屏不必再念一遍 */}
-                  <span class={`lb-shelf-cover lb-cover lb-cover-${tp.key}`} aria-hidden="true">
-                    {tp.key === 'zodiac' && (
-                      <span class="lb-cover-grid lb-cols-4">
-                        {zodiacCells.map((c: any) => (
-                          <span class="lb-cell"><b>{c.name}</b><i>{c.branch}</i></span>
-                        ))}
-                      </span>
-                    )}
-                    {tp.key === 'holidays' && (
-                      <span class="lb-cover-grid lb-cols-4">
-                        {holidayYears.map((y: number) => (
-                          <span class={`lb-cell lb-cell-year${y === nowYear ? ' is-now' : ''}`}><b>{y}</b></span>
-                        ))}
-                      </span>
-                    )}
-                    {tp.key === 'festivals' && (
-                      <span class="lb-cover-grid lb-cols-3">
-                        {festivalCells.map((f: any) => (
-                          <span class={`lb-cell lb-cell-fest${f.legal ? ' is-legal' : ''}`}><b>{f.name}</b></span>
-                        ))}
-                      </span>
-                    )}
-                    {tp.key === 'cityrank' && (
-                      <span class="lb-cover-bars">
-                        {rankBars.map((b: any) => (
-                          <span class="lb-bar-row">
-                            <em>{String(b.rank).padStart(2, '0')}</em>
-                            <u>{b.name}</u>
-                            <span class="lb-bar" style={`width:${b.width}%`} />
-                          </span>
-                        ))}
-                      </span>
-                    )}
-                    {tp.key === 'city' && (
-                      <span class="lb-cover-archive">
-                        <span class="lb-archive-head">
-                          <b>{cityList.length}</b>
-                          <em>座城市</em>
-                        </span>
-                        <span class="lb-archive-note">每座城市一份档案</span>
-                        <span class="lb-archive-tags">
-                          {cityFieldTags.map((label: string) => (
-                            <span>{label}</span>
+          <section class="lb-shelf-block">
+            <div class="lb-bar">
+              <div class="lb-cats" role="tablist" aria-label="按类别筛选专题">
+                <button type="button" class="lb-cat is-active" role="tab" aria-selected="true" data-lb-cat="all">
+                  全部 <span>{groupCounts.all}</span>
+                </button>
+                <button type="button" class="lb-cat" role="tab" aria-selected="false" data-lb-cat="calendar">
+                  历法民俗 <span>{groupCounts.calendar}</span>
+                </button>
+                <button type="button" class="lb-cat" role="tab" aria-selected="false" data-lb-cat="geo">
+                  地理城市 <span>{groupCounts.geo}</span>
+                </button>
+                <button type="button" class="lb-cat" role="tab" aria-selected="false" data-lb-cat="utility">
+                  生活检索 <span>{groupCounts.utility}</span>
+                </button>
+              </div>
+
+              <div class="lb-mode" role="group" aria-label="切换浏览视图">
+                <button type="button" class="lb-mbtn is-active" data-lb-mode="grid" aria-pressed="true">展柜</button>
+                <button type="button" class="lb-mbtn" data-lb-mode="list" aria-pressed="false">目录</button>
+              </div>
+            </div>
+
+            <div class="lb-shelf" data-lb-shelf>
+              {topics.map((tp: any) => {
+                const n = countOf(tp.key, tp.entries);
+                const range = rangeOf(tp.key);
+                const grp = GROUPS[tp.key] || { id: 'other', label: '专题' };
+                return (
+                  <a
+                    class="lb-shelf-card"
+                    id={`topic-${tp.key}`}
+                    data-lb-group={grp.id}
+                    href={urlFor(tp.link || '/library/')}
+                  >
+                    <span class={`lb-shelf-cover lb-cover lb-cover-${tp.key}`} aria-hidden="true">
+                      {tp.key === 'zodiac' && (
+                        <span class="lb-cover-grid lb-cols-4">
+                          {zodiacCells.map((c: any) => (
+                            <span class="lb-cell"><b>{c.name}</b><i>{c.branch}</i></span>
                           ))}
                         </span>
-                      </span>
-                    )}
-                    {tp.key === 'plates' && (
-                      <span class="lb-cover-plates" aria-hidden="true">
-                        {platesCells.map((c: any) => (
-                          <span class={`lb-cell lb-cell-letter${c.state === 'empty' ? ' is-empty' : ''}`}>{c.letter}</span>
-                        ))}
-                      </span>
-                    )}
-                  </span>
-                  <span class="lb-shelf-body">
-                    <span class="lb-shelf-title">{tp.title}</span>
-                    <span class="lb-shelf-desc">{tp.desc || ''}</span>
-                    <span class="lb-shelf-foot">
-                      <span class="lb-shelf-count">{n} <span class="lb-shelf-unit">{unitOf(tp.key)}</span></span>
-                      {range && <span class="lb-shelf-range">{range}</span>}
+                      )}
+                      {tp.key === 'holidays' && (
+                        <span class="lb-cover-grid lb-cols-4">
+                          {holidayYears.map((y: number) => (
+                            <span class={`lb-cell lb-cell-year${y === nowYear ? ' is-now' : ''}`}><b>{y}</b></span>
+                          ))}
+                        </span>
+                      )}
+                      {tp.key === 'festivals' && (
+                        <span class="lb-cover-grid lb-cols-3">
+                          {festivalCells.map((f: any) => (
+                            <span class={`lb-cell lb-cell-fest${f.legal ? ' is-legal' : ''}`}><b>{f.name}</b></span>
+                          ))}
+                        </span>
+                      )}
+                      {tp.key === 'cityrank' && (
+                        <span class="lb-cover-bars">
+                          {rankBars.map((b: any, bi: number) => (
+                            <span class="lb-bar-row" style={`--bi:${bi}`}>
+                              <em>{String(b.rank).padStart(2, '0')}</em>
+                              <u>{b.name}</u>
+                              <span class="lb-bar" style={`width:${b.width}%`} />
+                            </span>
+                          ))}
+                        </span>
+                      )}
+                      {tp.key === 'city' && (
+                        <span class="lb-cover-archive">
+                          <span class="lb-archive-head">
+                            <b>{cityList.length}</b>
+                            <em>座城市</em>
+                          </span>
+                          <span class="lb-archive-note">每座城市一份档案</span>
+                          <span class="lb-archive-tags">
+                            {cityFieldTags.map((label: string) => (
+                              <span>{label}</span>
+                            ))}
+                          </span>
+                        </span>
+                      )}
+                      {tp.key === 'plates' && (
+                        <span class="lb-cover-plates" aria-hidden="true">
+                          {platesCells.map((c: any) => (
+                            <span class={`lb-cell lb-cell-letter${c.state === 'empty' ? ' is-empty' : ''}`}>{c.letter}</span>
+                          ))}
+                        </span>
+                      )}
                     </span>
-                  </span>
-                </a>
-              );
-            })}
-          </div>
-        </section>
+                    <span class="lb-shelf-body">
+                      <span class="lb-shelf-meta">
+                        <span class="lb-shelf-cat">{grp.label}</span>
+                        {range && <span class="lb-shelf-range">{range}</span>}
+                      </span>
+                      <span class="lb-shelf-title">{tp.title}</span>
+                      <span class="lb-shelf-desc">{tp.desc || ''}</span>
+                      <span class="lb-shelf-foot">
+                        <span class="lb-shelf-count">{n} <span class="lb-shelf-unit">{unitOf(tp.key)}</span></span>
+                        <span class="lb-shelf-enter" aria-hidden="true">进入 →</span>
+                      </span>
+                    </span>
+                  </a>
+                );
+              })}
+            </div>
+          </section>
 
-        <div class="cal-after">
-          <p class="cal-note">资料库收录本站整理的专题系列；各专题页面内的日期与历法数据依据公开资料，民俗与说法部分已注明口径。更新于 {fmtItemDate(meta.updated)}。</p>
+          <div class="cal-after">
+            <p class="cal-note">资料库收录本站整理的专题系列；各专题页面内的日期与历法数据依据公开资料，民俗与说法部分已注明口径。更新于 {fmtItemDate(meta.updated)}。</p>
+          </div>
         </div>
       </div>
-    </div>
+
+      <script type="application/json" id="lb-upcoming-data" set:html={upcomingJson} />
+      <script is:inline>
+        (function () {
+          var page = document.querySelector('.lb-v2');
+          if (!page) return;
+
+          // 1. 实时今日历法与最近法定假期倒计时
+          var todayEl = page.querySelector('[data-lb-today]');
+          var gzEl = page.querySelector('[data-lb-gz]');
+          var nextLabel = page.querySelector('[data-lb-next-label]');
+          var nextVal = page.querySelector('[data-lb-next-val]');
+          var now = new Date();
+          var y = now.getFullYear(), m = now.getMonth() + 1, d = now.getDate();
+          var wk = ['日', '一', '二', '三', '四', '五', '六'][now.getDay()];
+          if (todayEl) todayEl.textContent = y + '年' + m + '月' + d + '日 · 周' + wk;
+          var STEMS = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+          var BRANCHES = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+          var ANIMALS = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
+          if (gzEl) gzEl.textContent = STEMS[((y - 4) % 10 + 10) % 10] + BRANCHES[((y - 4) % 12 + 12) % 12] + ANIMALS[((y - 4) % 12 + 12) % 12] + '年';
+
+          try {
+            var list = JSON.parse((document.getElementById('lb-upcoming-data') || {}).textContent || '[]');
+            var todayUtc = Date.UTC(y, m - 1, d);
+            var hit = null;
+            for (var i = 0; i < list.length; i++) {
+              var p = list[i].start.split('-').map(Number);
+              var diff = Math.round((Date.UTC(p[0], p[1] - 1, p[2]) - todayUtc) / 86400000);
+              if (diff >= 0) { hit = { item: list[i], diff: diff }; break; }
+            }
+            if (hit && nextLabel && nextVal) {
+              nextLabel.textContent = '下一法定假期 · ' + hit.item.start.slice(5).replace('-', '月') + '日';
+              nextVal.textContent = hit.diff === 0
+                ? hit.item.name + '（今天 · 连休 ' + hit.item.days + ' 天）'
+                : '距' + hit.item.name + '还有 ' + hit.diff + ' 天（连休 ' + hit.item.days + ' 天）';
+            }
+          } catch (e) {}
+
+          // 2. 分类筛选
+          var catBtns = Array.prototype.slice.call(page.querySelectorAll('[data-lb-cat]'));
+          var cards = Array.prototype.slice.call(page.querySelectorAll('.lb-shelf-card'));
+          catBtns.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              var cat = btn.getAttribute('data-lb-cat') || 'all';
+              catBtns.forEach(function (b) {
+                var on = b === btn;
+                b.classList.toggle('is-active', on);
+                b.setAttribute('aria-selected', on ? 'true' : 'false');
+              });
+              cards.forEach(function (c) {
+                var show = cat === 'all' || c.getAttribute('data-lb-group') === cat;
+                c.hidden = !show;
+                if (show) {
+                  c.classList.remove('lb-pop');
+                  void c.offsetWidth;
+                  c.classList.add('lb-pop');
+                }
+              });
+            });
+          });
+
+          // 3. 展柜 / 目录视图切换
+          var modeBtns = Array.prototype.slice.call(page.querySelectorAll('[data-lb-mode]'));
+          modeBtns.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              var mode = btn.getAttribute('data-lb-mode') || 'grid';
+              page.setAttribute('data-lb-layout', mode);
+              modeBtns.forEach(function (b) {
+                var on = b === btn;
+                b.classList.toggle('is-active', on);
+                b.setAttribute('aria-pressed', on ? 'true' : 'false');
+              });
+            });
+          });
+        })();
+      </script>
     </>
   )}
 
   <style is:global>
-    .lb-v2 .lb-v2-hero{position:relative;padding:clamp(1rem,2.6vw,2.2rem) 0 1.8rem;margin-bottom:2.2rem;border-bottom:1px solid var(--line-color);overflow:clip}
-    .lb-v2-kicker{position:relative;z-index:1;margin:0 0 .65rem;font-family:var(--font-mono);font-size:.75rem;letter-spacing:.14em;color:var(--accent)}
-    .lb-v2 .lb-title{position:relative;z-index:1;font-family:var(--font-serif-title);font-size:clamp(2.3rem,4.8vw,3.6rem);line-height:1.08;letter-spacing:-0.02em}
-    .lb-v2 .lb-lede,.lb-v2 .stat-band{position:relative;z-index:1}
-    .lb-v2 .lb-shelf-card{border-radius:var(--r-sm);border:1px solid var(--line-color);background:transparent;box-shadow:none;transition:border-color 220ms ease,transform 260ms cubic-bezier(.22,1,.36,1),opacity 260ms ease}
+    .lb-v2 .lb-v2-hero{position:relative;padding:clamp(1rem,2.6vw,2.2rem) 0 1.8rem;margin-bottom:2rem;border-bottom:1px solid var(--line-color);overflow:clip}
+    .lb-v2-hero-top{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(290px,0.85fr);align-items:end;gap:clamp(1.5rem,4vw,3.5rem);margin-bottom:1.6rem}
+    .lb-v2-kicker{margin:0 0 .55rem;font-family:var(--font-mono);font-size:.75rem;letter-spacing:.14em;color:var(--accent)}
+    .lb-v2 .lb-title{font-family:var(--font-serif-title);font-size:clamp(2.3rem,4.8vw,3.6rem);line-height:1.08;letter-spacing:-0.02em}
+    .lb-v2 .stat-band{position:relative;z-index:1}
+
+    /* 今日历法与馆藏脉搏卡 */
+    .lb-pulse{padding:1.05rem 1.25rem;border:1px solid var(--line-color);border-radius:var(--r-sm);background:var(--surface-tint);display:flex;flex-direction:column;gap:.72rem;transition:border-color 200ms ease}
+    .lb-pulse:hover{border-color:var(--accent)}
+    .lb-pulse-head{display:flex;align-items:center;gap:.45rem;font-family:var(--font-mono);font-size:.78rem;color:var(--sec-text-color)}
+    .lb-pulse-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent);animation:lbPulse 2.6s ease-in-out infinite}
+    @keyframes lbPulse{0%,100%{box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 16%,transparent)}50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 28%,transparent)}}
+    .lb-pulse-zodiac{margin-left:auto;color:var(--accent);font-weight:700}
+    .lb-pulse-next{display:flex;flex-direction:column;gap:.18rem;padding:.55rem .8rem;border-left:2px solid var(--accent);background:var(--body-bg-color);border-radius:0 6px 6px 0}
+    .lb-pulse-next-k{font-family:var(--font-mono);font-size:.73rem;color:var(--info-mark)}
+    .lb-pulse-next-v{font-family:var(--font-serif-title);font-size:.96rem;color:var(--text-color)}
+    .lb-pulse-links{display:flex;flex-wrap:wrap;gap:.5rem 1rem;padding-top:.2rem;font-family:var(--font-mono);font-size:.78rem}
+    .lb-pulse-links a{color:var(--accent);text-decoration:none;font-weight:600;transition:opacity 160ms ease}
+    .lb-pulse-links a:hover{text-decoration:underline;text-underline-offset:3px}
+
+    /* 筛选条与视图切换 */
+    .lb-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.8rem 1.2rem;margin-bottom:1.4rem;border-bottom:1px solid var(--line-color);padding-bottom:.65rem}
+    .lb-cats{display:flex;flex-wrap:wrap;gap:1.3rem}
+    .lb-cat{position:relative;padding:0 0 .5rem;border:0;background:transparent;color:var(--sec-text-color);font-family:var(--font-serif-title);font-size:.98rem;font-weight:600;cursor:pointer;transition:color 160ms ease}
+    .lb-cat span{font-family:var(--font-mono);font-size:.74rem;font-weight:400;opacity:.65;margin-left:.22rem}
+    .lb-cat:hover{color:var(--text-color)}
+    .lb-cat.is-active{color:var(--accent)}
+    .lb-cat.is-active::after{content:"";position:absolute;left:0;right:0;bottom:-11px;height:2px;background:var(--accent)}
+    .lb-mode{display:inline-flex;gap:.2rem;padding:.2rem;border:1px solid var(--line-color);border-radius:999px;background:var(--surface-tint)}
+    .lb-mbtn{padding:.26rem .78rem;border:0;border-radius:999px;background:transparent;color:var(--sec-text-color);font-family:var(--font-mono);font-size:.76rem;cursor:pointer;transition:background-color 160ms ease,color 160ms ease}
+    .lb-mbtn.is-active{background:var(--accent);color:#fff;font-weight:700}
+
+    /* 展柜卡片 + 指针暖光聚光灯 + 封面微交互 */
+    .lb-v2 .lb-shelf-card{position:relative;overflow:hidden;border-radius:var(--r-sm);border:1px solid var(--line-color);background:transparent;box-shadow:none;transition:border-color 220ms ease,transform 260ms cubic-bezier(.22,1,.36,1),opacity 240ms ease}
+    .lb-v2 .lb-shelf-card::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(280px circle at var(--mx,50%) var(--my,30%),color-mix(in srgb,var(--accent) 9%,transparent),transparent 70%);transition:opacity 240ms ease}
+    .lb-v2 .lb-shelf-card:hover::after{opacity:1}
     .lb-v2 .lb-shelf:hover .lb-shelf-card:not(:hover){opacity:.68}
-    .lb-v2 .lb-shelf-card:hover{border-color:var(--accent);transform:translateY(-3px)}
+    .lb-v2 .lb-shelf-card:hover{border-color:var(--accent);transform:translateY(-4px)}
     .lb-v2 .lb-shelf-card:hover .lb-shelf-title{color:var(--accent)}
-    .lb-v2 .lb-shelf-cover{border-bottom:1px solid var(--line-color);transition:transform 360ms cubic-bezier(.22,1,.36,1)}
-    .lb-v2 .lb-shelf-card:hover .lb-shelf-cover{transform:scale(1.015)}
-    @media (prefers-reduced-motion:reduce){.lb-v2 .lb-shelf-card,.lb-v2 .lb-shelf-cover{transition:none}}
+    .lb-v2 .lb-shelf-cover{border-bottom:1px solid var(--line-color);transition:transform 380ms cubic-bezier(.22,1,.36,1)}
+    .lb-v2 .lb-shelf-card:hover .lb-shelf-cover{transform:scale(1.018)}
+    .lb-v2 .lb-shelf-card:hover .lb-cell{transition:border-color 200ms ease,transform 220ms ease}
+    .lb-v2 .lb-shelf-card:hover .lb-cell.is-now,.lb-v2 .lb-shelf-card:hover .lb-cell.is-legal{transform:translateY(-1px)}
+    .lb-v2 .lb-bar{transform-origin:left center;transition:transform 480ms cubic-bezier(.22,1,.36,1),opacity 220ms ease}
+    .lb-v2 .lb-shelf-card:hover .lb-bar{filter:saturate(1.18)}
+    .lb-shelf-meta{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.32rem;font-family:var(--font-mono);font-size:.72rem;color:var(--info-mark)}
+    .lb-shelf-cat{color:var(--accent);font-weight:600;letter-spacing:.04em}
+    .lb-shelf-enter{margin-left:auto;font-family:var(--font-mono);font-size:.76rem;color:var(--accent);opacity:.72;transform:translateX(0);transition:transform 200ms cubic-bezier(.22,1,.36,1),opacity 200ms ease}
+    .lb-v2 .lb-shelf-card:hover .lb-shelf-enter{opacity:1;transform:translateX(4px)}
+    .lb-pop{animation:lbPop 280ms cubic-bezier(.22,1,.36,1)}
+    @keyframes lbPop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+    /* 紧凑目录视图 */
+    .lb-v2[data-lb-layout="list"] .lb-shelf{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--line-color)}
+    .lb-v2[data-lb-layout="list"] .lb-shelf-card{display:grid;grid-template-columns:1fr;border:0;border-bottom:1px solid var(--line-color);border-radius:0;padding:1.05rem .6rem}
+    .lb-v2[data-lb-layout="list"] .lb-shelf-card:hover{transform:none;background:var(--surface-tint)}
+    .lb-v2[data-lb-layout="list"] .lb-shelf-cover{display:none}
+    .lb-v2[data-lb-layout="list"] .lb-shelf-body{padding:0;display:grid;grid-template-columns:6.5rem 11rem minmax(0,1fr) auto;align-items:baseline;gap:.6rem 1.2rem}
+    .lb-v2[data-lb-layout="list"] .lb-shelf-meta{margin:0}
+    .lb-v2[data-lb-layout="list"] .lb-shelf-range{display:none}
+    .lb-v2[data-lb-layout="list"] .lb-shelf-foot{margin:0;padding:0;border:0;gap:.8rem}
+
+    @media (max-width:900px){
+      .lb-v2-hero-top{grid-template-columns:minmax(0,1fr)}
+      .lb-v2[data-lb-layout="list"] .lb-shelf-body{grid-template-columns:minmax(0,1fr)}
+    }
+    @media (prefers-reduced-motion:reduce){.lb-pulse-dot,.lb-v2 .lb-shelf-card,.lb-v2 .lb-shelf-cover,.lb-shelf-enter,.lb-pop{animation:none;transition:none}}
   </style>
 </BaseLayout>

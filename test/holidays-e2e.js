@@ -730,6 +730,23 @@ ok('Astro 产物：FAQ 按当年生成，不串年份（2026-11-09 修订）', (
     '2026 与 2027 的轮换题撞车了（' + shared.length + ' 条）：' + shared.join('、'));
 });
 
+ok('Astro 产物：2027 年农历对齐 GB/T 33661-2017，春节次日为初二而非正月（E-198）', () => {
+  const p27 = path.join(OUT, 'holidays', '2027', 'index.html');
+  if (!fs.existsSync(p27)) return;
+  const h = fs.readFileSync(p27, 'utf8');
+  const m2 = h.match(/<article class="hy-month[^"]*" data-month="2">[\s\S]*?<\/article>/);
+  assert.ok(m2, '2027 页找不到 2 月月历');
+  const map = {};
+  for (const x of m2[0].matchAll(/hy-dn">(\d+)<\/span>\s*<span class="hy-lunar[^"]*">([^<]+)<\/span>/g)) {
+    map[x[1]] = x[2];
+  }
+  assert.strictEqual(map['5'], '除夕', '2027-02-05 应为除夕，实际：' + map['5']);
+  assert.strictEqual(map['6'], '春节', '2027-02-06 应为春节，实际：' + map['6']);
+  assert.strictEqual(map['7'], '初二', '2027-02-07 应为初二（不可错标正月），实际：' + map['7']);
+  assert.strictEqual(map['20'], '元宵', '2027-02-20 应为元宵，实际：' + map['20']);
+  assert.strictEqual(map['21'], '十六', '2027-02-21 应为十六，实际：' + map['21']);
+});
+
 // ---------- ④ 断言自检 ----------
 
 ok('自检：把法定假日数改错必须被抓到', () => {

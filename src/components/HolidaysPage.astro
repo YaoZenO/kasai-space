@@ -223,6 +223,9 @@ const pads = (n: number) => Array.from({ length: n }, (_, i) => i);
                         <div
                           class={`hy-day${c.state === 'holiday' ? ' hy-day--holiday' : ''}${c.state === 'makeup' ? ' hy-day--work' : ''}${c.w === 0 || c.w === 6 ? ' hy-day--weekend' : ''}`}
                           title={c.tip}
+                          data-hy-key={c.key}
+                          data-hy-lunar={c.lunarFull}
+                          data-hy-tip={c.tip}
                         >
                           <span class="hy-dn">{c.d}</span>
                           <span class={`hy-lunar hy-lunar--${c.lunarKind}`}>{c.lunarText}</span>
@@ -234,6 +237,12 @@ const pads = (n: number) => Array.from({ length: n }, (_, i) => i);
                     </div>
                   </article>
                 ))}
+              </div>
+
+              <div class="hy-daybar" data-hy-daybar hidden>
+                <span class="hy-daybar-date" data-hy-day-date />
+                <span class="hy-daybar-lunar" data-hy-day-lunar />
+                <span class="hy-daybar-note" data-hy-day-note />
               </div>
             </div>
           </div>
@@ -474,6 +483,28 @@ const pads = (n: number) => Array.from({ length: n }, (_, i) => i);
                   if (root.getAttribute('data-view') === 'year') setView('focus');
                 });
               });
+
+              // 点击任意日期格显示「当日详签条」（公历 + 农历 + 假期/节气说明）
+              var daybar = root.querySelector('[data-hy-daybar]');
+              var dbDate = root.querySelector('[data-hy-day-date]');
+              var dbLunar = root.querySelector('[data-hy-day-lunar]');
+              var dbNote = root.querySelector('[data-hy-day-note]');
+              var activeDay = null;
+              root.addEventListener('click', function (ev) {
+                var cell = ev.target && ev.target.closest ? ev.target.closest('.hy-day[data-hy-key]') : null;
+                if (!cell || !daybar) return;
+                if (activeDay) activeDay.classList.remove('is-selected');
+                activeDay = cell;
+                cell.classList.add('is-selected');
+                var key = cell.getAttribute('data-hy-key') || '';
+                var lu = cell.getAttribute('data-hy-lunar') || '';
+                var tip = cell.getAttribute('data-hy-tip') || '';
+                var parts = key.split('-');
+                if (dbDate) dbDate.textContent = parts[0] + ' 年 ' + Number(parts[1]) + ' 月 ' + Number(parts[2]) + ' 日';
+                if (dbLunar) dbLunar.textContent = lu ? '农历 ' + lu : '';
+                if (dbNote) dbNote.textContent = tip.replace(/\s*·\s*农历.*$/, '');
+                daybar.hidden = false;
+              });
             })();
           </script>
         </>
@@ -538,7 +569,13 @@ const pads = (n: number) => Array.from({ length: n }, (_, i) => i);
     .hy-v2[data-view="focus"] .hy-days{gap:.45rem}
     .hy-v2[data-view="focus"] .hy-day{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.24rem;min-height:70px;padding:.4rem .2rem;border-radius:10px;border:1px solid transparent;background:var(--body-bg-color)!important;box-shadow:none!important;transition:border-color 160ms ease,opacity 200ms ease}
     .hy-v2[data-view="focus"] .hy-day--pad{background:transparent!important}
-    .hy-v2[data-view="focus"] .hy-day:not(.hy-day--pad):hover{border-color:var(--accent)}
+    .hy-v2[data-view="focus"] .hy-day:not(.hy-day--pad){cursor:pointer}
+    .hy-v2[data-view="focus"] .hy-day:not(.hy-day--pad):hover{border-color:var(--accent);transform:translateY(-2px)}
+    .hy-v2[data-view="focus"] .hy-day.is-selected{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 22%,transparent)!important}
+    .hy-daybar{display:flex;flex-wrap:wrap;align-items:baseline;gap:.4rem 1rem;margin-top:.85rem;padding:.7rem 1rem;border-left:2.5px solid var(--accent);border-radius:0 var(--r-sm) var(--r-sm) 0;background:var(--surface-tint);animation:hyFade 180ms ease}
+    .hy-daybar-date{font-family:var(--font-serif-title);font-size:1rem;font-weight:700;color:var(--text-color)}
+    .hy-daybar-lunar{font-family:var(--font-mono);font-size:.82rem;color:var(--accent);font-weight:600}
+    .hy-daybar-note{font-size:.84rem;color:var(--sec-text-color)}
     .hy-v2[data-view="focus"] .hy-dn{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;font-size:1.05rem;font-weight:700;line-height:1;color:var(--text-color);background:transparent}
     .hy-v2[data-view="focus"] .hy-lunar{display:block;font-size:.78rem;line-height:1.15;color:var(--sec-text-color);white-space:nowrap}
     .hy-v2[data-view="focus"] .hy-flag{position:absolute;top:5px;right:6px;font-style:normal;font-family:var(--font-mono);font-size:.66rem;font-weight:700;line-height:1}

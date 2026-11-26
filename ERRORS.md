@@ -229,6 +229,7 @@
 | E-195 | P1 | CI 逐项列举套件却只列了 10/21 套：首页契约、表单、资源版本、模块日期、节假日、生肖、节日、城市榜、搜索、依赖声明、暗色共 11 套从未在 push 时执行 | 已修复 9 套 + 机制：`test/build-env.js` 改为枚举 `package.json` 全部 `test:*` 反查 `ci.yml`，漏接即红；两套例外（`test:darkmode` / `test:festival`）登记在 `DEFERRED` 并写明解除条件；另反向校验幽灵套件与「读 dist 者必须在构建之后」 |
 | E-196 | P2 | 首页 About Me 卡的 `.win-ident` 在矮视口（`max-height:860px`）水平内距被写成 `0`，真实姓名顶边挤压；且真实姓名出现在关于页之外 | 已修复（移除首页 `realName` 读取、矮视口 `.win-ident` 改回 `var(--win-px)`）+ `test/home-study.js` 断言锁死首页不渲染真实姓名且矮视口保留 `var(--win-px)` |
 | E-197 | P2 | 修复 E-196 时把 `.win-ident` 整块连同 `KASAI'S Personal Space` 一并删掉，超出「只删真实姓名」的范围 | 已修复（恢复 `.win-ident` 与 `KASAI'S Personal Space`，并修矮视口水平内距）+ `test/home-study.js` 断言锁死 `KASAI'S Personal Space` 必须在位 |
+| E-198 | P1 | 节假日页用 Node/ICU `Intl.DateTimeFormat('zh-CN-u-ca-chinese')` 算农历，在 2027-02-06（朔日 23:56 CST）等年份错位 1 天，致「春节」次日 2 月 7 日标出「正月」 | 已修复（改用紫金山天文台 GB/T 33661-2017 2020–2037 精确农历年表）+ `test/holidays-e2e.js` 断言锁死 2027-02-06 为春节且 2027-02-07 为初二 |
 ---
 
 ## 3. P0 — 数据损害（绝不再犯）
@@ -3774,3 +3775,11 @@
 - **根因：** 过度扩大改动范围，未保留同行的 `siteTitle`（`KASAI'S Personal Space`），而是直接删掉整块 `.win-ident`。
 - **修法：** 恢复 `src/pages/index.astro` 中的 `.win-ident` 与 `siteTitle`（仅渲染 `KASAI'S Personal Space`，不读取 `themeConfig.about?.name`）；恢复 `source/css/site.css` 的 `.win-ident` / `.ident-name` / `.ident-brand` 与 `.win-lines li:first-child` 顶边线，并将 `@media (min-width: 1024px) and (max-height: 860px)` 下的 `.win-ident` 内距修正为 `padding: 0.5rem var(--win-px) 0.4rem;`。
 - **防复发（机制）：** `test/home-study.js` 更新为 E-196 / E-197 联合断言，同时锁死：① 首页不读 `about.name`、产物不含真实姓名；② `#win-about` 必须保留 `.win-ident` 与 `KASAI'S Personal Space`；③ 矮视口 `@media` 中的 `.win-ident` 必须使用 `var(--win-px)`。
+
+### E-198 节假日页用 ICU 近似农历导致 2027 年春节后一天错标「正月」（2026-11-26）
+
+- **发生时间：** 2026-11-26 主人实测 `/holidays/` 指出并当场修复。
+- **现象：** `/holidays/2027/` 日历 2 月 6 日标「春节」，2 月 7 日紧接着标「正月」（正月初一），2 月 20 日标「元宵」后 2 月 21 日又标「十五」，整月农历晚了 1 天。
+- **根因：** `src/lib/holiday-calendar.ts` 使用 Node/ICU 的 `Intl.DateTimeFormat('zh-CN-u-ca-chinese', { timeZone: 'UTC' })` 推导农历；ICU 采用近似天文公式，在 2027 年正月初一（真实朔日 `2027-02-06 23:56 CST`）与 2030 年正月初一（`2030-02-03`）等临界年份与紫金山天文台 GB/T 33661-2017 标准差 1 天。
+- **修法：** 移除 `Intl.DateTimeFormat('zh-CN-u-ca-chinese')`，改用紫金山天文台 GB/T 33661-2017 标准 2020–2037 农历位编码年表（零外部依赖），逐年核对 2021–2036 全部春节/端午/中秋与官方通知完全一致。
+- **防复发（机制）：** `test/holidays-e2e.js` 新增 E-198 产物断言，锁死 `dist/holidays/2027/index.html` 2 月 5 日为「除夕」、2 月 6 日为「春节」、2 月 7 日为「初二」（不得出现「正月」），且 2 月 20 日为「元宵」、2 月 21 日为「十六」。

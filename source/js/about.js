@@ -120,14 +120,16 @@
     );
     updateBar();
 
-    // 全站滚动分层揭示（渐进增强：无 JS 或 reduce 下直接可见）
+    // 全站滚动分层揭示（覆盖资料库、生肖、节假日、城市图谱、项目、文章、收藏、游戏等全部页面）
     var revealTargets = Array.prototype.slice.call(
-      document.querySelectorAll('[data-reveal], .ar-pick, .ar-group, .cl-card, .nw-entry, .gm-feature, .gm-tile')
+      document.querySelectorAll(
+        '[data-reveal], .ar-pick, .ar-group, .cl-card, .nw-entry, .gm-feature, .gm-tile, .lb-shelf-card, .z-card, .hy-card, .hy-season, .cr-tile, .cd-sec, .pj-card, .fs-card'
+      )
     );
     if (revealTargets.length && !prefersReduced && typeof IntersectionObserver !== 'undefined') {
       revealTargets.forEach(function (el, i) {
         el.classList.add('sr-anim');
-        el.style.setProperty('--sr-delay', Math.min(i % 4, 3) * 55 + 'ms');
+        el.style.setProperty('--sr-delay', Math.min(i % 4, 3) * 50 + 'ms');
       });
       var revIo = new IntersectionObserver(
         function (entries) {
@@ -137,10 +139,33 @@
             revIo.unobserve(entry.target);
           });
         },
-        { rootMargin: '0px 0px 40px 0px', threshold: 0.01 }
+        { rootMargin: '0px 0px 48px 0px', threshold: 0.01 }
       );
       revealTargets.forEach(function (el) {
         revIo.observe(el);
+      });
+    }
+
+    // 全站卡片暖光聚光灯追踪（桌面精细指针，CSS 消费 --mx / --my）
+    if (
+      !prefersReduced &&
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(pointer: fine)').matches
+    ) {
+      var spotCards = Array.prototype.slice.call(
+        document.querySelectorAll('.lb-shelf-card, .z-card, .hy-card, .cr-tile, .cl-card, .gm-tile, .pj-card')
+      );
+      spotCards.forEach(function (card) {
+        card.addEventListener(
+          'pointermove',
+          function (ev) {
+            var r = card.getBoundingClientRect();
+            if (!r.width || !r.height) return;
+            card.style.setProperty('--mx', (ev.clientX - r.left).toFixed(1) + 'px');
+            card.style.setProperty('--my', (ev.clientY - r.top).toFixed(1) + 'px');
+          },
+          { passive: true }
+        );
       });
     }
 
