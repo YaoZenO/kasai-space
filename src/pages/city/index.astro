@@ -22,6 +22,7 @@ import StatBand from '../../components/StatBand.astro';
 import EmptyState from '../../components/EmptyState.astro';
 import { getData } from '../../lib/data';
 import { buildCityRanks, cityMentionCount, cityProvinces } from '../../lib/cityrank-data';
+import { chinaMapData } from '../../lib/china-map';
 import { urlFor } from '../../lib/url';
 
 const data = getData();
@@ -142,12 +143,56 @@ const provsMuni = provsByCount.filter((p: any) => isMunicipality(p));
 
 const dataYear = CR.cityMeta?.dataYear || '2025';
 const photos = data.cityphotos || {};
+
+// 构建交互式中国热力地图数据（复用 china-provinces.json 合规矢量路径）
+const mapData = chinaMapData();
+const provByShort: Record<string, any> = {};
+for (const pv of provs) {
+  provByShort[shortProvName(pv.name)] = pv;
+}
+function provHrefOf(pv: any): string {
+  if (!pv) return '';
+  return (pv.total === 1 && pv.pageCount === 1 && pv.cities && pv.cities.length)
+    ? urlFor('/city/' + pv.cities[0].slug + '/')
+    : urlFor('/city/province/' + pv.slug + '/');
+}
+const mapProvinces = mapData.provinces
+  .filter((mp) => mp && mp.d)
+  .map((mp) => {
+    const short = shortProvName(mp.name);
+    const pv = provByShort[short] || null;
+    const total = pv ? pv.total : 0;
+    const ratio = maxProvTotal > 0 ? total / maxProvTotal : 0;
+    const heat = total === 0 ? 0 : ratio >= 0.72 ? 4 : ratio >= 0.42 ? 3 : ratio >= 0.16 ? 2 : 1;
+    const sample = pv && Array.isArray(pv.cities)
+      ? pv.cities.slice(0, 5).map((cc: any) => cc.name).join(' · ') + (pv.cities.length > 5 ? ' 等' : '')
+      : '';
+    return {
+      adcode: mp.adcode,
+      name: mp.name,
+      short,
+      d: mp.d,
+      total,
+      heat,
+      href: provHrefOf(pv),
+      sample,
+      isDefault: pv && provsMain[0] && pv.slug === provsMain[0].slug,
+    };
+  });
+
+// Top 30 城市实际覆盖的地理大区列表（按出现频次排序）
+const regionCounts: Record<string, number> = {};
+for (const tr of topRows) {
+  const rg = tr.c.region ? String(tr.c.region) : '';
+  if (rg) regionCounts[rg] = (regionCounts[rg] || 0) + 1;
+}
+const topRegions = Object.keys(regionCounts).sort((a, b) => regionCounts[b] - regionCounts[a]);
 ---
 
 <BaseLayout title="城市档案" currentPath="/city/">
   <canvas class="ab-bg-canvas" id="ab-bg-canvas" aria-hidden="true"></canvas>
   <div class="paper-page cal-page cr-page">
-    <div class="home-wrap ab-page-shell city-v2">
+    <div class="home-wrap ab-page-shell city-v2 city-atlas">
       <nav class="cal-crumb" aria-label="面包屑">
         <a href={urlFor('/library/')}>资料库</a><span aria-hidden="true">/</span><span class="cal-crumb-now">城市档案</span>
       </nav>
@@ -182,75 +227,172 @@ const photos = data.cityphotos || {};
             </div>
 
             {provs.length > 0 && (
-              <div class="cr-index-aside">
-                <div class="cr-sec-head">
-                  <h2 class="cr-sec-title">按省级行政区</h2>
-                  <p class="cr-sec-note">条形相对最大省级行政区</p>
+              <div class="cr-index-aside ca-aside">
+                <div class="ca-aside-head">
+                  <div class="cr-sec-head">
+                    <h2 class="cr-sec-title">按省级行政区</h2>
+                    <p class="cr-sec-note">悬停看省份档案，点击直达</p>
+                  </div>
+                  <div class="ca-view-tabs" role="tablist" aria-label="切换地图或宫格视图">
+                    <button type="button" class="ca-view-tab is-active" role="tab" aria-selected="true" data-atlas-view="map">交互地图</button>
+                    <button type="button" class="ca-view-tab" role="tab" aria-selected="false" data-atlas-view="grid">热力宫格</button>
+                  </div>
                 </div>
-                <div class="cr-provgrid">
-                  {provsMain.map((pv3: any) => {
-                    // 只有一座城市的省级单位：中间的省级页只会再让人多按一次，
-                    // 直接链到那座城市的档案页（2026-11-06 主人指出「上海市还要再点一下上海」）。
-                    const pvHref = (pv3.total === 1 && pv3.pageCount === 1 && pv3.cities && pv3.cities.length)
-                      ? '/city/' + pv3.cities[0].slug + '/'
-                      : '/city/province/' + pv3.slug + '/';
-                    return (
-                      <a class="cr-provcard" href={urlFor(pvHref)}>
-                        <span class="cr-provcard-top">
-                          <span class="cr-provcard-name">{shortProvName(pv3.name)}</span>
-                          <span class="cr-provcard-n">{pv3.total}</span>
-                        </span>
-                        <span class="cr-provcard-bar" aria-hidden="true"><i style={`width: ${provPct(pv3.total)}%`}></i></span>
-                      </a>
-                    );
-                  })}
-                </div>
-                {provsMuni.length > 0 && (
-                  <>
-                    <h3 class="cr-subhead">直辖市与特别行政区</h3>
-                    <div class="cr-provgrid cr-provgrid--flat">
-                      {provsMuni.map((pv4: any) => {
-                        // 这一组全是 1~2 座城市，条形没有可比对象，只留名字与数字。
-                        const pvHref = (pv4.total === 1 && pv4.pageCount === 1 && pv4.cities && pv4.cities.length)
-                          ? '/city/' + pv4.cities[0].slug + '/'
-                          : '/city/province/' + pv4.slug + '/';
-                        return (
-                          <a class="cr-provcard" href={urlFor(pvHref)}>
-                            <span class="cr-provcard-top">
-                              <span class="cr-provcard-name">{shortProvName(pv4.name)}</span>
-                              <span class="cr-provcard-n">{pv4.total}</span>
-                            </span>
-                          </a>
-                        );
-                      })}
+
+                {/* 视图 1：交互式中国热力地图（默认展示） */}
+                <div class="ca-pane is-active" data-atlas-pane="map">
+                  <div class="ca-map-stage">
+                    <svg class="ca-map-svg" viewBox={mapData.viewBox} role="img" aria-label="中国省级行政区在册城市分布热力地图">
+                      <g class="ca-map-provs">
+                        {mapProvinces.map((mp) => (
+                          <path
+                            class={`ca-prov ca-heat-${mp.heat}`}
+                            d={mp.d}
+                            data-map-prov={mp.adcode}
+                            data-map-name={mp.short}
+                            data-map-count={mp.total}
+                            data-map-sample={mp.sample}
+                            data-map-href={mp.href}
+                            data-map-default={mp.isDefault ? 'true' : undefined}
+                            tabindex={mp.href ? '0' : undefined}
+                            role={mp.href ? 'link' : undefined}
+                            aria-label={`${mp.name}：${mp.total} 座城市`}
+                          >
+                            <title>{mp.short} · {mp.total} 座城市</title>
+                          </path>
+                        ))}
+                      </g>
+                      {mapData.nineDash && (
+                        <path class="ca-nine-dash" d={mapData.nineDash} />
+                      )}
+                    </svg>
+                    <div class="ca-map-legend" aria-hidden="true">
+                      <span>少</span>
+                      <i class="ca-lg-1" /><i class="ca-lg-2" /><i class="ca-lg-3" /><i class="ca-lg-4" />
+                      <span>多</span>
                     </div>
-                  </>
-                )}
-                <p class="cr-profile-note">按在册城市数从多到少排列，数量相同按 GB/T 2260 行政区划代码次序。直辖市与特别行政区城市极少，单独列出，不与省、自治区同尺度比较。行政归属尚未采集的城市不进省级聚合，仍可在下方索引中查看。</p>
+                  </div>
+                  <div class="ca-readout" aria-live="polite">
+                    <div class="ca-readout-top">
+                      <strong class="ca-readout-name" data-map-name>—</strong>
+                      <span class="ca-readout-count" data-map-count>—</span>
+                      <a class="ca-readout-go" data-map-go href={urlFor('/city/')} hidden>查看该省档案 →</a>
+                    </div>
+                    <p class="ca-readout-cities" data-map-cities>移动光标至地图任意省份查看代表城市</p>
+                  </div>
+                </div>
+
+                {/* 视图 2：既有省份热力宫格（保留完整 DOM，无 JS 或切换即可浏览） */}
+                <div class="ca-pane" data-atlas-pane="grid" hidden>
+                  <div class="cr-provgrid">
+                    {provsMain.map((pv3: any) => {
+                      const pvHref = (pv3.total === 1 && pv3.pageCount === 1 && pv3.cities && pv3.cities.length)
+                        ? '/city/' + pv3.cities[0].slug + '/'
+                        : '/city/province/' + pv3.slug + '/';
+                      return (
+                        <a class="cr-provcard" href={urlFor(pvHref)}>
+                          <span class="cr-provcard-top">
+                            <span class="cr-provcard-name">{shortProvName(pv3.name)}</span>
+                            <span class="cr-provcard-n">{pv3.total}</span>
+                          </span>
+                          <span class="cr-provcard-bar" aria-hidden="true"><i style={`width: ${provPct(pv3.total)}%`}></i></span>
+                        </a>
+                      );
+                    })}
+                  </div>
+                  {provsMuni.length > 0 && (
+                    <>
+                      <h3 class="cr-subhead">直辖市与特别行政区</h3>
+                      <div class="cr-provgrid cr-provgrid--flat">
+                        {provsMuni.map((pv4: any) => {
+                          const pvHref = (pv4.total === 1 && pv4.pageCount === 1 && pv4.cities && pv4.cities.length)
+                            ? '/city/' + pv4.cities[0].slug + '/'
+                            : '/city/province/' + pv4.slug + '/';
+                          return (
+                            <a class="cr-provcard" href={urlFor(pvHref)}>
+                              <span class="cr-provcard-top">
+                                <span class="cr-provcard-name">{shortProvName(pv4.name)}</span>
+                                <span class="cr-provcard-n">{pv4.total}</span>
+                              </span>
+                            </a>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             )}
           </section>
 
-          <section class="cr-sec-block">
-            <h2 class="cr-sec-title">上榜最多的 {topRows.length} 座</h2>
-            <p class="cr-sec-note">按在本站榜单中出现的次数排序，次数相同按拼音次序。横条以榜首次数为满格；人口为常住人口。</p>
-            {/* 2026-11-08 三次改版（主人选 C）：30 城配图到位，榜单行换成 16:9 大图卡。
-                11-06「排序键不能压在灰字里」的约束保留：名次做封面角标、
-                上榜次数做正文首行大字 + 横条；3 / 2 / 1 列都是 30 的约数，末行不空。 */}
-            <ol class="cr-tiles">
+          <section class="cr-sec-block ca-top-sec">
+            <div class="ca-top-head">
+              <div>
+                <h2 class="cr-sec-title">上榜最多的 {topRows.length} 座</h2>
+                <p class="cr-sec-note" data-filter-count>共 {topRows.length} 座 · 按「上榜次数」排序（可切换指标重排或勾选 2–3 城同屏 PK）</p>
+              </div>
+              <div class="ca-presets" aria-label="热门城市对比预设">
+                <span class="ca-presets-label">快捷 PK</span>
+                <button type="button" class="ca-preset-btn" data-pk-preset="beijing,shanghai,shenzhen">京 · 沪 · 深</button>
+                <button type="button" class="ca-preset-btn" data-pk-preset="chengdu,hangzhou,wuhan">成 · 杭 · 汉</button>
+              </div>
+            </div>
+
+            <div class="ca-toolbar" aria-label="排序与分区筛选">
+              <div class="ca-sort-group" role="group" aria-label="按指标实时排序">
+                <span class="ca-tb-label">排序</span>
+                <button type="button" class="ca-pill is-active" data-sort-metric="mentions" aria-pressed="true">上榜次数</button>
+                <button type="button" class="ca-pill" data-sort-metric="gdp" aria-pressed="false">GDP</button>
+                <button type="button" class="ca-pill" data-sort-metric="pop" aria-pressed="false">常住人口</button>
+                <button type="button" class="ca-pill" data-sort-metric="metro" aria-pressed="false">地铁里程</button>
+                <button type="button" class="ca-pill" data-sort-metric="uni" aria-pressed="false">高校数</button>
+                <button type="button" class="ca-pill" data-sort-metric="area" aria-pressed="false">行政面积</button>
+              </div>
+              {topRegions.length > 1 && (
+                <div class="ca-region-group" role="group" aria-label="按地理大区筛选">
+                  <span class="ca-tb-label">大区</span>
+                  <button type="button" class="ca-pill is-active" data-filter-region="all" aria-pressed="true">全部</button>
+                  {topRegions.map((rg) => (
+                    <button type="button" class="ca-pill" data-filter-region={rg} aria-pressed="false">{rg}</button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <ol class="cr-tiles" data-city-tiles>
               {topRows.map((tr: any, t: number) => {
                 const tc = tr.c;
                 const gdp = cardVal(tc, 'gdp');
                 const pop = cardVal(tc, 'pop');
-                // 只有 cityphotos.yml 登记过的城市才出图；没图不放假图、不放灰块。
+                const metro = cardVal(tc, 'metro_km');
+                const uni = cardVal(tc, 'universities');
+                const area = cardVal(tc, 'area_km2');
+                const scenic = cardVal(tc, 'scenic_5a');
                 const photo = photos[tc.slug];
+                const imgSrc = photo ? urlFor('/img/cities/' + tc.slug + '.jpg') : '';
                 const rankLabel = String(t + 1).padStart(2, '0');
+                const metaText = `${tc.province || ''}${tc.province && tc.level ? ' · ' : ''}${tc.level || ''}`;
                 return (
-                  <li class="cr-tile">
+                  <li
+                    class="cr-tile"
+                    data-slug={tc.slug}
+                    data-name={tc.name}
+                    data-meta={metaText}
+                    data-href={urlFor('/city/' + tc.slug + '/')}
+                    data-region={tc.region || ''}
+                    data-mentions={tr.n}
+                    data-gdp={gdp ?? ''}
+                    data-pop={pop ?? ''}
+                    data-metro={metro ?? ''}
+                    data-uni={uni ?? ''}
+                    data-area={area ?? ''}
+                    data-scenic={scenic ?? ''}
+                  >
+                    <button type="button" class="ca-pk-btn" data-pk-toggle={tc.slug} aria-pressed="false">+ 对比</button>
                     <a href={urlFor('/city/' + tc.slug + '/')}>
                       <span class={`cr-tile-cover${photo ? '' : ' cr-tile-cover--none'}`}>
                         {photo ? (
-                          <img class="cr-tile-photo" src={urlFor('/img/cities/' + tc.slug + '.jpg')} alt={tc.name + '城市景观'} width="1200" height="675" loading="lazy" decoding="async" />
+                          <img class="cr-tile-photo" src={imgSrc} alt={tc.name + '城市景观'} width="1200" height="675" loading="lazy" decoding="async" />
                         ) : (
                           <span class="cr-tile-cover-name" aria-hidden="true">{tc.name}</span>
                         )}
@@ -259,11 +401,11 @@ const photos = data.cityphotos || {};
                       <span class="cr-tile-body">
                         <span class="cr-tile-head">
                           <span class="cr-tile-name">{tc.name}</span>
-                          <span class="cr-tile-meta">{tc.province || ''}{tc.province && tc.level ? ' · ' : ''}{tc.level || ''}</span>
+                          <span class="cr-tile-meta">{metaText}</span>
                         </span>
                         <span class="cr-tile-key">
-                          <b>{tr.n > 0 ? tr.n : '—'}</b><i>次上榜</i>
-                          <span class="cr-tile-bar" aria-hidden="true"><span style={`width: ${barPct(tr.n)}%`}></span></span>
+                          <b data-key-val>{tr.n > 0 ? tr.n : '—'}</b><i data-key-unit>次上榜</i>
+                          <span class="cr-tile-bar" aria-hidden="true"><span data-key-bar style={`width: ${barPct(tr.n)}%`}></span></span>
                         </span>
                         <span class="cr-tile-nums">
                           <span class="cr-tile-num"><b>{gdp === null ? '—' : fmtCardNum(gdp)}</b>{gdp !== null && <i>亿元</i>}</span>
@@ -305,16 +447,128 @@ const photos = data.cityphotos || {};
     </div>
   </div>
 
+  <!-- 底部多城对比托盘 -->
+  <div class="cpk-dock" id="city-pk-dock" role="region" aria-label="城市对比栏" hidden>
+    <div class="cpk-dock-in">
+      <div class="cpk-dock-chips" data-pk-chips />
+      <div class="cpk-dock-acts">
+        <button type="button" class="cpk-clear" data-pk-clear>清空</button>
+        <button type="button" class="cpk-run" data-pk-open disabled>同屏对比</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 多城 PK 对比原生 <dialog> -->
+  <dialog class="cpk-dialog" id="city-pk-dialog" aria-labelledby="cpk-d-title">
+    <div class="cpk-d-in">
+      <div class="cpk-d-head">
+        <div>
+          <p class="cpk-d-kicker">CITY COMPARISON · 真实指标同屏对比</p>
+          <h2 class="cpk-d-title" id="cpk-d-title">城市多维对比</h2>
+        </div>
+        <button type="button" class="cpk-d-close" data-pk-close aria-label="关闭对比">关闭</button>
+      </div>
+      <div data-pk-body />
+    </div>
+  </dialog>
+
+  <script defer src="/js/city-atlas.js"></script>
+
   <style is:global>
-    .city-v2 .cr-index-hero{position:relative;padding-top:.4rem;padding-bottom:2rem;border-bottom:1px solid var(--line-color)}
+    .city-v2 .cr-index-hero{position:relative;padding-top:.4rem;padding-bottom:2.2rem;border-bottom:1px solid var(--line-color);align-items:start}
     .city-v2 .cr-index-title{font-family:var(--font-serif-title);font-size:clamp(2.2rem,4.6vw,3.4rem);line-height:1.08;letter-spacing:-0.02em}
+    .city-v2 .cr-search{border-radius:999px}
+    .ca-aside{display:flex;flex-direction:column;gap:.85rem}
+    .ca-aside-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.6rem}
+    .ca-aside-head .cr-sec-head{margin:0}
+    .ca-view-tabs{display:inline-flex;gap:.2rem;padding:.2rem;border:1px solid var(--line-color);border-radius:999px;background:var(--surface-tint)}
+    .ca-view-tab{padding:.26rem .72rem;border:0;border-radius:999px;background:transparent;color:var(--sec-text-color);font-family:var(--font-mono);font-size:.75rem;cursor:pointer;transition:background-color 160ms ease,color 160ms ease}
+    .ca-view-tab.is-active{background:var(--accent);color:#fff;font-weight:700}
+    .ca-map-stage{position:relative;padding:.85rem 1rem .7rem;border:1px solid var(--line-color);border-radius:var(--r-sm);background:var(--surface-tint)}
+    .ca-map-svg{width:100%;height:auto;display:block;max-height:360px}
+    .ca-prov{stroke:var(--body-bg-color);stroke-width:.16;stroke-linejoin:round;cursor:pointer;transition:fill 180ms ease,opacity 180ms ease,stroke-width 180ms ease}
+    .ca-heat-0{fill:color-mix(in srgb,var(--text-color) 6%,var(--body-bg-color))}
+    .ca-heat-1{fill:color-mix(in srgb,var(--accent) 20%,var(--body-bg-color))}
+    .ca-heat-2{fill:color-mix(in srgb,var(--accent) 42%,var(--body-bg-color))}
+    .ca-heat-3{fill:color-mix(in srgb,var(--accent) 68%,var(--body-bg-color))}
+    .ca-heat-4{fill:var(--accent)}
+    .ca-map-provs:hover .ca-prov:not(:hover):not(.is-active){opacity:.62}
+    .ca-prov:hover,.ca-prov.is-active{fill:var(--accent-strong,var(--accent));stroke:var(--text-color);stroke-width:.28;opacity:1}
+    .ca-nine-dash{fill:none;stroke:var(--info-mark);stroke-width:.14;stroke-dasharray:.55 .4;stroke-linecap:round;pointer-events:none}
+    .ca-map-legend{position:absolute;left:.95rem;bottom:.7rem;display:inline-flex;align-items:center;gap:4px;font-family:var(--font-mono);font-size:.72rem;color:var(--info-mark)}
+    .ca-map-legend i{display:inline-block;width:14px;height:6px;border-radius:2px}
+    .ca-lg-1{background:color-mix(in srgb,var(--accent) 20%,var(--body-bg-color))}
+    .ca-lg-2{background:color-mix(in srgb,var(--accent) 42%,var(--body-bg-color))}
+    .ca-lg-3{background:color-mix(in srgb,var(--accent) 68%,var(--body-bg-color))}
+    .ca-lg-4{background:var(--accent)}
+    .ca-readout{margin-top:.7rem;padding:.75rem .95rem;border:1px solid var(--line-color);border-radius:var(--r-sm);background:transparent}
+    .ca-readout-top{display:flex;flex-wrap:wrap;align-items:baseline;gap:.55rem .9rem}
+    .ca-readout-name{font-family:var(--font-serif-title);font-size:1.05rem;color:var(--text-color)}
+    .ca-readout-count{font-family:var(--font-mono);font-size:.78rem;font-weight:700;color:var(--accent)}
+    .ca-readout-go{margin-left:auto;font-family:var(--font-mono);font-size:.78rem;font-weight:700;color:var(--accent);text-decoration:none}
+    .ca-readout-go:hover{text-decoration:underline;text-underline-offset:3px}
+    .ca-readout-cities{margin:.35rem 0 0;font-size:.82rem;color:var(--sec-text-color)}
     .city-v2 .cr-provcard{border-radius:var(--r-sm);border:1px solid var(--line-color);background:transparent;transition:border-color 180ms ease,transform 200ms cubic-bezier(.22,1,.36,1),opacity 200ms ease}
     .city-v2 .cr-provgrid:hover .cr-provcard:not(:hover){opacity:.58}
     .city-v2 .cr-provcard:hover{border-color:var(--accent);transform:translateY(-2px)}
     .city-v2 .cr-provcard:hover .cr-provcard-name{color:var(--accent)}
-    .city-v2 .cr-topcard,.city-v2 .cr-citycard{border-radius:var(--r-sm);border:1px solid var(--line-color);background:transparent;transition:border-color 200ms ease,transform 220ms cubic-bezier(.22,1,.36,1)}
-    .city-v2 .cr-topcard:hover,.city-v2 .cr-citycard:hover{border-color:var(--accent);transform:translateY(-2px)}
-    .city-v2 .cr-search{border-radius:999px}
-    @media (prefers-reduced-motion:reduce){.city-v2 .cr-provcard,.city-v2 .cr-topcard,.city-v2 .cr-citycard{transition:none}}
+    /* Top 30 控制台与卡片对比钮 */
+    .ca-top-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:.9rem 1.4rem;margin-bottom:1.1rem}
+    .ca-top-head .cr-sec-title,.ca-top-head .cr-sec-note{margin-bottom:0}
+    .ca-presets{display:inline-flex;flex-wrap:wrap;align-items:center;gap:.45rem}
+    .ca-presets-label,.ca-tb-label{font-family:var(--font-mono);font-size:.75rem;color:var(--info-mark);margin-right:.15rem}
+    .ca-preset-btn{padding:.26rem .72rem;border:1px dashed var(--accent);border-radius:999px;background:transparent;color:var(--accent);font-family:var(--font-mono);font-size:.75rem;font-weight:600;cursor:pointer;transition:background-color 160ms ease,color 160ms ease}
+    .ca-preset-btn:hover{background:var(--accent);color:#fff}
+    .ca-toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.7rem 1.4rem;margin-bottom:1.35rem;padding:.75rem 0;border-top:1px solid var(--line-color);border-bottom:1px solid var(--line-color)}
+    .ca-sort-group,.ca-region-group{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem}
+    .ca-pill{padding:.24rem .68rem;border:1px solid var(--line-color);border-radius:999px;background:transparent;color:var(--sec-text-color);font-family:var(--font-mono);font-size:.76rem;cursor:pointer;transition:border-color 160ms ease,color 160ms ease,background-color 160ms ease}
+    .ca-pill:hover{border-color:var(--accent);color:var(--accent)}
+    .ca-pill.is-active{border-color:var(--accent);background:var(--accent);color:#fff;font-weight:600}
+    .city-atlas .cr-tile{position:relative;border-radius:var(--r-sm);overflow:hidden;transition:border-color 200ms ease,transform 240ms cubic-bezier(.22,1,.36,1)}
+    .city-atlas .cr-tile:hover{transform:translateY(-3px)}
+    .city-atlas .cr-tile.is-pk-picked{outline:2px solid var(--accent);outline-offset:2px}
+    .city-atlas .cr-tile .cr-tile-bar span{transition:width 360ms cubic-bezier(.22,1,.36,1)}
+    .ca-pk-btn{position:absolute;top:.6rem;right:.6rem;z-index:3;padding:.2rem .58rem;border:1px solid rgba(255,255,255,.35);border-radius:999px;background:rgba(18,16,14,.68);backdrop-filter:blur(6px);color:#fff;font-family:var(--font-mono);font-size:.75rem;cursor:pointer;transition:background-color 160ms ease,border-color 160ms ease}
+    .ca-pk-btn:hover,.ca-pk-btn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent)}
+    /* 底部对比托盘 */
+    .cpk-dock{position:fixed;left:50%;bottom:1.25rem;transform:translateX(-50%);z-index:60;width:min(94vw,680px);padding:.65rem 1rem;border:1px solid var(--line-color);border-radius:999px;background:var(--body-bg-color);box-shadow:var(--site-float-shadow)}
+    .cpk-dock-in{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.65rem}
+    .cpk-dock-chips{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem}
+    .cpk-chip{display:inline-flex;align-items:center;gap:.35rem;padding:.22rem .65rem;border-radius:999px;background:var(--surface-tint);border:1px solid var(--line-color);font-family:var(--font-mono);font-size:.78rem;color:var(--text-color)}
+    .cpk-chip button{border:0;background:transparent;color:var(--info-mark);font-size:.95rem;line-height:1;cursor:pointer;padding:0 2px}
+    .cpk-chip button:hover{color:var(--accent)}
+    .cpk-dock-acts{display:inline-flex;align-items:center;gap:.5rem;margin-left:auto}
+    .cpk-clear{padding:.3rem .65rem;border:0;background:transparent;color:var(--info-mark);font-family:var(--font-mono);font-size:.78rem;cursor:pointer}
+    .cpk-clear:hover{color:var(--accent)}
+    .cpk-run{padding:.38rem .95rem;border:0;border-radius:999px;background:var(--accent);color:#fff;font-family:var(--font-mono);font-size:.78rem;font-weight:700;cursor:pointer}
+    .cpk-run:disabled{opacity:.48;cursor:not-allowed}
+    /* 对比原生 <dialog> */
+    .cpk-dialog{width:min(94vw,760px);max-height:88vh;padding:0;border:1px solid var(--line-color);border-radius:var(--r-sm);background:var(--body-bg-color);color:var(--text-color);box-shadow:var(--site-float-shadow)}
+    .cpk-dialog::backdrop{background:var(--surface-ink);opacity:.68}
+    .cpk-d-in{padding:1.4rem 1.5rem 1.6rem}
+    .cpk-d-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;padding-bottom:.9rem;border-bottom:1px solid var(--line-color)}
+    .cpk-d-kicker{margin:0 0 .2rem;font-family:var(--font-mono);font-size:.75rem;letter-spacing:.12em;color:var(--accent)}
+    .cpk-d-title{margin:0;font-family:var(--font-serif-title);font-size:1.45rem;font-weight:600}
+    .cpk-d-close{padding:.26rem .75rem;border:1px solid var(--line-color);border-radius:999px;background:transparent;color:var(--text-color);font-family:var(--font-mono);font-size:.78rem;cursor:pointer}
+    .cpk-d-close:hover{border-color:var(--accent);color:var(--accent)}
+    .cpk-cards{display:grid;gap:.85rem;margin-bottom:1.35rem}
+    .cpk-head-card{display:flex;flex-direction:column;gap:.45rem;text-decoration:none;color:inherit;border:1px solid var(--line-color);border-radius:var(--r-sm);overflow:hidden;padding-bottom:.55rem;transition:border-color 180ms ease}
+    .cpk-head-card:hover{border-color:var(--accent)}
+    .cpk-head-card img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
+    .cpk-head-info{padding:0 .65rem;display:flex;flex-direction:column;gap:.12rem}
+    .cpk-head-info b{font-family:var(--font-serif-title);font-size:1rem;color:var(--text-color)}
+    .cpk-head-info span{font-family:var(--font-mono);font-size:.75rem;color:var(--info-mark)}
+    .cpk-metrics{display:flex;flex-direction:column;gap:1rem}
+    .cpk-metric-label{margin-bottom:.42rem;font-family:var(--font-mono);font-size:.76rem;font-weight:700;color:var(--info-mark)}
+    .cpk-bars{display:flex;flex-direction:column;gap:.38rem}
+    .cpk-bar-row{display:grid;grid-template-columns:4.2rem minmax(0,1fr) 6.5rem;align-items:center;gap:.65rem;font-size:.82rem}
+    .cpk-bar-city{font-weight:600;color:var(--sec-text-color);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .cpk-bar-track{display:block;height:8px;border-radius:999px;background:var(--surface-tint);overflow:hidden}
+    .cpk-bar-track i{display:block;height:100%;border-radius:999px;background:color-mix(in srgb,var(--text-color) 28%,transparent);transition:width 360ms cubic-bezier(.22,1,.36,1)}
+    .cpk-bar-val{font-family:var(--font-mono);font-size:.78rem;text-align:right;color:var(--sec-text-color);white-space:nowrap}
+    .cpk-bar-row.is-lead .cpk-bar-city,.cpk-bar-row.is-lead .cpk-bar-val{color:var(--accent);font-weight:700}
+    .cpk-bar-row.is-lead .cpk-bar-track i{background:var(--accent)}
+    @media (max-width:767.98px){.cpk-dock{border-radius:var(--r-sm)}.cpk-bar-row{grid-template-columns:3.5rem minmax(0,1fr) 5.5rem}}
+    @media (prefers-reduced-motion:reduce){.ca-prov,.ca-tile,.ca-tile .cr-tile-bar span,.cpk-bar-track i{transition:none}}
   </style>
 </BaseLayout>

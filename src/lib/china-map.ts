@@ -130,3 +130,16 @@ export function aspectOf(): number | null {
   const { raw } = load();
   return raw.main && raw.main.aspect ? raw.main.aspect : null;
 }
+
+export function chinaMapData(): {
+  viewBox: string;
+  nineDash: string;
+  provinces: Array<{ name: string; adcode: number; d: string; cx?: number; cy?: number }>;
+} {
+  const { raw } = load();
+  return {
+    viewBox: raw.main?.viewBox || '0 0 100 70',
+    nineDash: raw.nineDash || '',
+    provinces: Array.isArray(raw.provinces) ? raw.provinces : [],
+  };
+}
