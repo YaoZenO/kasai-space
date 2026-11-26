@@ -226,6 +226,7 @@
 | E-192 | P2 | `api/steam.js` 按 `(req, res)` 写 `route()` 回调致 `res` 为 `undefined` 抛 500，且直接 `return` 会被 `http.json()` 的 `no-store` 覆盖缓存头 | 已修复（解构 `{ res }` + 自写 `sendJson` 保留 `s-maxage`）+ 机制：新增 `test/steam-api.js` 实测调用 handler 校验 200/405 与 `Cache-Control` |
 | E-193 | P2 | 新增独立 `api/steam.js` 使顶层 Serverless Functions 增至 13 个，撞破 Vercel Hobby 12 个上限致整站部署被拒 | 已修复（逻辑迁入 `api/_lib/steam.js`，由 `api/sun-times.js?kind=steam` + `vercel.json` rewrite 复用，保持 12 个函数）+ 机制：`test/steam-api.js` 锁定 `api/*.js <= 12` 与 rewrite 规则 |
 | E-194 | P1 | `/games/` 把 JS 动态注入的 `.gm-st-*` 与 `.gm-d-btn` 样式写在 Astro scoped `<style>` 内，DOM 无 `data-astro-cid` 导致 Steam 展区排版全部失配重叠 | 已修复（动态节点样式迁入 `<style is:global>`；常玩时长徽标改左上角悬浮、滚动揭示预触发防漏显）+ 机制：`test/steam-api.js` 校验动态选择器必须在 `<style is:global>` 内 |
+| E-195 | P1 | CI 逐项列举套件却只列了 10/21 套：首页契约、表单、资源版本、模块日期、节假日、生肖、节日、城市榜、搜索、依赖声明、暗色共 11 套从未在 push 时执行 | 已修复 9 套 + 机制：`test/build-env.js` 改为枚举 `package.json` 全部 `test:*` 反查 `ci.yml`，漏接即红；两套例外（`test:darkmode` / `test:festival`）登记在 `DEFERRED` 并写明解除条件；另反向校验幽灵套件与「读 dist 者必须在构建之后」 |
 ---
 
 ## 3. P0 — 数据损害（绝不再犯）
@@ -3726,3 +3727,32 @@
 - **根因：** Astro 默认 `<style>` 会给每条选择器追加 `[data-astro-cid-*]`，但 `source/js/games-steam.js` 通过 `innerHTML` 动态插入的 `.gm-st-recent`、`.gm-st-row`、`.gm-st-thumb`、`.gm-st-bar`、`.gm-d-btn` 节点不带 `data-astro-cid-*` 属性，导致所有样式规则静默失配。同时 `.sr-anim` 的 `rootMargin: -6%` 使首屏边缘第二行常玩卡片未滚过阈值前不可见。
 - **修法：** 在 `src/pages/games/index.astro` 中把所有 JS 动态创建节点的样式拆入 `<style is:global>`；把常玩卡片时长徽标移至卡片左上角悬浮胶囊，不挤压底栏文案；并将 `source/js/about.js` 的 `IntersectionObserver` 改为 `rootMargin: 0px 0px 40px 0px`、`threshold: 0.01`。
 - **防复发（机制）：** `test/steam-api.js` 新增第 4 条断言，校验 `src/pages/games/index.astro` 必须存在 `<style is:global>` 且包含 `.gm-st-recent` / `.gm-st-img` / `.gm-st-row` / `.gm-st-thumb` / `.gm-st-bar` / `.gm-d-btn` 六个动态选择器。
+
+### E-195 CI 只列举了 10/21 套断言，其余 11 套从未在 push 时执行（2026-11-26）
+
+- **现象：** `ci.yml` 的 verify 任务逐项列举套件，当时只有 Build env、Admin smoke、Module pages、Image refs、
+  Post blurb、Plates、CSS tokens、Doc claims、Composer blocks、Legacy redirects 十套。
+  首页契约（`test:home`）、文字族表单（`test:form`）、资源版本（`test:assets`）、模块日期（`test:dates`）、
+  节假日（`test:holidays`）、生肖（`test:zodiac`）、节日（`test:festival`）、城市榜（`test:cityrank`）、
+  搜索索引（`test:search`）、依赖声明（`test:deps`）、暗色（`test:darkmode`）十一套只在本地 `npm test` 里跑。
+- **根因：** 套件清单有两份——`package.json` 的串行链、`ci.yml` 的步骤序列——各自维护、无人交叉核对。
+  E-189 修的是个案（把 `test:img` 补进 CI），没有把「清单必须一致」做成机制，所以同一类空洞继续存在：
+  本地 `npm test` 全绿，push 到 main 后这十一套一次都没跑过。
+- **修法：** `ci.yml` 补九个步骤。`test:deps` 放在构建之前（它只读 package.json / lock 与 import 语句，
+  早失败早省钱）；其余八套读 `dist/`，统一排在 `Astro build` 之后。
+- **防复发（机制）：** `test/build-env.js` 第 4 组重写为「枚举反查」，不再写死套件名：
+  ① 读 `package.json` 的所有 `test:*` 脚本，逐个反查 `ci.yml` 是否执行——漏接即 FAIL；
+  ② 允许 `DEFERRED` 登记例外，但每条必须写原因与解除条件（目前 `test:darkmode` / `test:festival` 两条）；
+  ③ 反向：`ci.yml` 不得执行 `package.json` 里不存在的套件（改名后旧步骤会空跑）；
+  ④ 读 `dist/` 的十二套必须出现在 `npm run build` 之后（E-133 同类顺序问题）。
+  变异自检（本轮实测）：删掉 `Home contract` 步骤 → 退出码 1；往 package.json 加一个未接线套件 → 退出码 1；
+  把该步骤挪到构建之前 → 退出码 1；往 ci.yml 塞一个不存在的套件 → 退出码 1。四处均按原字节还原。
+- **暂缓项（未接 CI，已登记在 `DEFERRED`）：** 两套在 HEAD（`5f8b608`）上各红一条，接进 CI 会让门禁立刻变红：
+  ① `test:darkmode` —— §10-7 断言「暗态段不新增 font-size / 圆角 / 布局量」，而 `source/css/site.css` 的
+  §4.27（/plates/）被追加在 §15 暗色段之后，`darkmode-e2e.js` 按「§15 → 文件末尾」切暗态段，
+  把 §4.27 的规则误当暗态规则。同一处还有真实隐患：§4.27 位于 §15 之后，层叠顺序压在暗色覆盖之上，
+  暗态若命中同名选择器会被浅色规则反杀。
+  ② `test:festival` —— E-064「源码无加法 calc」直接拿原始 css 匹配，而 site.css 里一条样式规范说明注释
+  写了「禁用 calc(+/-)」，正则命中注释即误报。修法（改为匹配剥注释的 css 并加注释豁免自检）已在
+  另一条工作线的工作区里但尚未提交。
+  解除条件：两处根因修掉、对应套件在 HEAD 上全绿后，把步骤加进 `ci.yml` 并从 `DEFERRED` 删除。
