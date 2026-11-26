@@ -30,36 +30,40 @@ const { published, modified } = pageDates('zodiac/index.md');
         <>
           <header class="pg-hd z-v2-head">
             <p class="ab-watermark" data-ab-parallax="0.16" aria-hidden="true">ZODIAC</p>
-            <nav class="cal-crumb" aria-label="面包屑">
-              <a href={urlFor('/library/')}>资料库</a><span aria-hidden="true">/</span><span class="cal-crumb-now">十二生肖</span>
-            </nav>
-            <h1 class="pg-hd-title">十二生肖</h1>
-            <p class="cal-lede"><Fragment set:html={ov.lede} /></p>
-            <p class="pg-hd-meta">
-              更新于 {fmtItemDate(ov.updated)} · {ov.rows.length} 个生肖 · 本轮 {ov.cycle.from}–{ov.cycle.to}
-            </p>
-          </header>
+            <div class="z-v2-head-main">
+              <nav class="cal-crumb" aria-label="面包屑">
+                <a href={urlFor('/library/')}>资料库</a><span aria-hidden="true">/</span><span class="cal-crumb-now">十二生肖</span>
+              </nav>
+              <p class="z-v2-kicker">TWELVE EARTHLY BRANCHES · 干支历法</p>
+              <h1 class="pg-hd-title">十二生肖</h1>
+              <p class="cal-lede"><Fragment set:html={ov.lede} /></p>
+              <p class="pg-hd-meta">
+                更新于 {fmtItemDate(ov.updated)} · {ov.rows.length} 个生肖 · 本轮 {ov.cycle.from}–{ov.cycle.to}
+              </p>
+            </div>
 
-          <section class="z-finder" aria-label="按出生年份速查生肖">
-            <div class="z-finder-ctrl">
-              <label class="z-finder-label" for="z-year-select">速查出生年份</label>
-              <select id="z-year-select" class="z-finder-select" data-z-year>
-                <option value="">选择年份（1940–2035）…</option>
-                {Array.from({ length: 96 }, (_, i) => 2035 - i).map((yr) => (
-                  <option value={yr}>{yr} 年</option>
-                ))}
-              </select>
-              <div class="z-finder-quick" aria-label="常用年份快捷选择">
-                {[1995, 2000, 2002, 2004, 2026].map((yr) => (
-                  <button type="button" class="z-finder-pill" data-z-pick={yr}>{yr}</button>
-                ))}
+            <aside class="z-finder" aria-label="按出生年份速查生肖">
+              <p class="z-finder-label">按出生年份速查</p>
+              <div class="z-finder-ctrl">
+                <select id="z-year-select" class="z-finder-select" data-z-year aria-label="选择出生年份">
+                  <option value="">选择年份（1940–2035）…</option>
+                  {Array.from({ length: 96 }, (_, i) => 2035 - i).map((yr) => (
+                    <option value={yr}>{yr} 年</option>
+                  ))}
+                </select>
+                <div class="z-finder-quick" aria-label="常用年份快捷选择">
+                  {[1995, 2000, 2002, 2004, 2026].map((yr) => (
+                    <button type="button" class="z-finder-pill" data-z-pick={yr}>{yr}</button>
+                  ))}
+                </div>
               </div>
-            </div>
-            <div class="z-finder-res" id="z-finder-res" hidden>
-              <span class="z-finder-out" data-z-out />
-              <a class="z-finder-go" data-z-go href="#">查看属相档案 →</a>
-            </div>
-          </section>
+              <div class="z-finder-res" id="z-finder-res" hidden>
+                <span class="z-finder-out" data-z-out />
+                <a class="z-finder-go" data-z-go href="#">查看属相档案 →</a>
+              </div>
+              <p class="z-finder-hint">以当年春节为界；1 月或 2 月初出生可能属上一年。</p>
+            </aside>
+          </header>
 
           <section class="cal-block">
             <div class="col-head">
@@ -90,36 +94,33 @@ const { published, modified } = pageDates('zodiac/index.md');
                 </a>
               ))}
             </div>
-            <p class="cal-fest-lead">年份是该生肖在本轮（{ov.cycle.from}–{ov.cycle.to}）次序中对应的那一年，从春节当天起算、不按 1 月 1 日；查自己出生那年属什么，见下方按出生年份的对照表。</p>
-          </section>
+            <p class="z-v2-caption">年份为该生肖在本轮（{ov.cycle.from}–{ov.cycle.to}）对应的年份，自春节起算。</p>
 
-          <section class="cal-block">
-            <div class="col-head">
-              <h2 class="col-title">按出生年份查生肖</h2>
-            </div>
-            <p class="cal-fest-lead">找到出生年份对应的生肖即可。出生在 1 月或 2 月初的人，属相可能属于上一年——生肖年按春节更替，不按 1 月 1 日，请以出生当年的春节日期为准。</p>
-            <div class="cal-table-wrap">
-              <table class="cal-table z-birth">
-                <thead>
-                  <tr>
-                    <th scope="col">生肖</th>
-                    <th scope="col">出生年份（每 12 年一轮）</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {ov.rows.map((br: any) => (
+            <details class="z-birth-fold">
+              <summary>展开完整出生年份对照表（每 12 年一轮）</summary>
+              <div class="cal-table-wrap">
+                <table class="cal-table z-birth">
+                  <thead>
                     <tr>
-                      <th scope="row"><a class="z-animal-link" href={urlFor('/zodiac/' + br.key + '/')}><span class="cal-name">{br.animal}</span></a></th>
-                      <td>{br.birthYears.join(' · ')}</td>
+                      <th scope="col">生肖</th>
+                      <th scope="col">出生年份（每 12 年一轮）</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {ov.rows.map((br: any) => (
+                      <tr>
+                        <th scope="row"><a class="z-animal-link" href={urlFor('/zodiac/' + br.key + '/')}><span class="cal-name">{br.animal}</span></a></th>
+                        <td>{br.birthYears.join(' · ')}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </details>
           </section>
 
-          <div class="cal-top">
-            <section class="cal-block">
+          <div class="z-ref-stack">
+            <section class="cal-block z-ref-sec">
               <div class="col-head">
                 <h2 class="col-title">五行与传统方位、颜色</h2>
               </div>
@@ -145,12 +146,13 @@ const { published, modified } = pageDates('zodiac/index.md');
                   </tbody>
                 </table>
               </div>
-              <p class="z-note">五行与方位、颜色的对应是传统说法（《黄帝内经》一系），不是命理吉凶；生肖的五行由天干决定，每十年一轮。</p>
+              <p class="z-note z-v2-note">五行与方位、颜色的对应是传统说法（《黄帝内经》一系），不是命理吉凶；生肖的五行由天干决定，每十年一轮。</p>
             </section>
 
-            <section class="cal-block cal-year">
+            <section class="cal-block z-ref-sec">
               <div class="col-head">
                 <h2 class="col-title">三合与相冲</h2>
+                <span class="col-count">/ {ov.sanhe.length} 组三合 · {ov.chong.length} 组六冲</span>
               </div>
               <div class="cal-table-wrap">
                 <table class="cal-table z-sanhe">
@@ -258,27 +260,43 @@ const { published, modified } = pageDates('zodiac/index.md');
   </script>
 
   <style is:global>
-    .z-v2 .z-v2-head{position:relative;padding:clamp(1rem,2.6vw,2.2rem) 0 1.8rem;margin-bottom:1.8rem;border-bottom:1px solid var(--line-color);overflow:clip}
+    .z-v2 .z-v2-head{position:relative;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(300px,0.9fr);align-items:end;gap:clamp(1.6rem,4vw,3.5rem);padding:clamp(1rem,2.6vw,2.2rem) 0 2rem;margin-bottom:2.2rem;border-bottom:1px solid var(--line-color);overflow:clip}
     .z-v2 .z-v2-head>*:not(.ab-watermark){position:relative;z-index:1}
+    .z-v2-kicker{margin:0 0 .55rem;font-family:var(--font-mono);font-size:.75rem;letter-spacing:.14em;color:var(--accent)}
     .z-v2 .pg-hd-title{font-family:var(--font-serif-title);font-size:clamp(2.2rem,4.6vw,3.4rem);line-height:1.08;letter-spacing:-0.02em}
-    .z-finder{margin:0 0 2.2rem;padding:1rem 0 1.2rem;border-bottom:1px solid var(--line-color);display:flex;flex-direction:column;gap:.85rem}
-    .z-finder-ctrl{display:flex;flex-wrap:wrap;align-items:center;gap:.65rem 1rem}
-    .z-finder-label{font-family:var(--font-mono);font-size:.78rem;letter-spacing:.08em;color:var(--accent);font-weight:700}
-    .z-finder-select{padding:.34rem .75rem;border:1px solid var(--line-color);border-radius:999px;background:var(--body-bg-color);color:var(--text-color);font-family:var(--font-mono);font-size:.8rem;cursor:pointer}
+    .z-finder{padding:1.05rem 1.2rem;border:1px solid var(--line-color);border-radius:var(--r-sm);background:var(--surface-tint);display:flex;flex-direction:column;gap:.75rem}
+    .z-finder-label{margin:0;font-family:var(--font-mono);font-size:.76rem;letter-spacing:.1em;color:var(--accent);font-weight:700}
+    .z-finder-ctrl{display:flex;flex-wrap:wrap;align-items:center;gap:.55rem .7rem}
+    .z-finder-select{flex:1 1 11rem;padding:.38rem .75rem;border:1px solid var(--line-color);border-radius:999px;background:var(--body-bg-color);color:var(--text-color);font-family:var(--font-mono);font-size:.8rem;cursor:pointer}
     .z-finder-select:focus{outline:2px solid var(--accent);outline-offset:2px}
-    .z-finder-quick{display:flex;flex-wrap:wrap;gap:.4rem}
-    .z-finder-pill{padding:.22rem .62rem;border:1px solid var(--line-color);border-radius:999px;background:transparent;color:var(--sec-text-color);font-family:var(--font-mono);font-size:.76rem;cursor:pointer;transition:border-color 160ms ease,color 160ms ease}
+    .z-finder-quick{display:flex;flex-wrap:wrap;gap:.35rem}
+    .z-finder-pill{padding:.22rem .58rem;border:1px solid var(--line-color);border-radius:999px;background:var(--body-bg-color);color:var(--sec-text-color);font-family:var(--font-mono);font-size:.76rem;cursor:pointer;transition:border-color 160ms ease,color 160ms ease}
     .z-finder-pill:hover{border-color:var(--accent);color:var(--accent)}
-    .z-finder-res{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.6rem 1.2rem;padding:.75rem 1rem;border-left:2px solid var(--accent);background:var(--surface-tint);border-radius:0 var(--r-sm) var(--r-sm) 0}
-    .z-finder-out{font-family:var(--font-serif-title);font-size:.98rem;font-weight:600;color:var(--text-color)}
-    .z-finder-go{font-family:var(--font-mono);font-size:.8rem;font-weight:700;color:var(--accent);text-decoration:none}
+    .z-finder-res{display:flex;flex-direction:column;gap:.35rem;padding:.65rem .85rem;border-left:2px solid var(--accent);background:var(--body-bg-color);border-radius:0 6px 6px 0}
+    .z-finder-out{font-family:var(--font-serif-title);font-size:.92rem;font-weight:600;color:var(--text-color)}
+    .z-finder-go{font-family:var(--font-mono);font-size:.78rem;font-weight:700;color:var(--accent);text-decoration:none}
     .z-finder-go:hover{text-decoration:underline;text-underline-offset:3px}
+    .z-finder-hint{margin:0;font-size:.76rem;line-height:1.55;color:var(--info-mark)}
+    .z-v2-caption{margin:1rem 0 0;font-size:.8rem;color:var(--info-mark)}
+    .z-birth-fold{margin-top:1.1rem;border-top:1px solid var(--line-color);padding-top:.85rem}
+    .z-birth-fold summary{cursor:pointer;font-family:var(--font-mono);font-size:.8rem;color:var(--sec-text-color);list-style:none;display:inline-flex;align-items:center;gap:.45rem}
+    .z-birth-fold summary::-webkit-details-marker{display:none}
+    .z-birth-fold summary::before{content:"+";color:var(--accent);font-weight:700}
+    .z-birth-fold[open] summary::before{content:"−"}
+    .z-birth-fold summary:hover{color:var(--accent)}
+    .z-birth-fold .cal-table-wrap{margin-top:1rem}
+    .z-ref-stack{display:flex;flex-direction:column;gap:2.6rem;margin-top:2.8rem;padding-top:2.4rem;border-top:1px solid var(--line-color)}
+    .z-ref-sec{margin:0}
+    .z-v2 .z-elements th,.z-v2 .z-elements td,.z-v2 .z-sanhe th,.z-v2 .z-sanhe td{padding:.68rem .9rem}
+    .z-v2 .z-sanhe tbody th{width:7.5rem;white-space:nowrap}
+    .z-v2 .z-v2-note{margin:1.15rem 0 0;padding-top:.8rem;border-top:1px dashed var(--line-color);font-size:.8rem;line-height:1.75;color:var(--sec-text-color)}
     .z-v2 .z-card{border-radius:var(--r-sm);border:1px solid var(--line-color);background:transparent;box-shadow:none;transition:border-color 200ms ease,transform 240ms cubic-bezier(.22,1,.36,1),opacity 220ms ease}
     .z-v2 .z-cards:hover .z-card:not(:hover),.z-v2 .z-cards.has-picked .z-card:not(.is-picked){opacity:.48}
     .z-v2 .z-card:hover,.z-v2 .z-card.is-picked{opacity:1;border-color:var(--accent);transform:translateY(-3px)}
     .z-v2 .z-card.is-picked .z-card-name{color:var(--accent)}
     .z-v2 .z-card-thumb img{transition:transform 420ms cubic-bezier(.22,1,.36,1)}
     .z-v2 .z-card:hover .z-card-thumb img{transform:scale(1.04)}
+    @media (max-width:900px){.z-v2 .z-v2-head{grid-template-columns:minmax(0,1fr)}}
     @media (prefers-reduced-motion:reduce){.z-v2 .z-card,.z-v2 .z-card-thumb img{transition:none}}
   </style>
 </BaseLayout>
