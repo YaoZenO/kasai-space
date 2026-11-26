@@ -48,10 +48,11 @@
   });
 
   var mapPaths = Array.prototype.slice.call(root.querySelectorAll('[data-map-prov]'));
-  var readoutName = root.querySelector('[data-map-name]');
-  var readoutCount = root.querySelector('[data-map-count]');
-  var readoutCities = root.querySelector('[data-map-cities]');
-  var readoutGo = root.querySelector('[data-map-go]');
+  var readoutBox = root.querySelector('.ca-readout');
+  var readoutName = readoutBox ? readoutBox.querySelector('[data-map-name]') : null;
+  var readoutCount = readoutBox ? readoutBox.querySelector('[data-map-count]') : null;
+  var readoutCities = readoutBox ? readoutBox.querySelector('[data-map-cities]') : null;
+  var readoutGo = readoutBox ? readoutBox.querySelector('[data-map-go]') : null;
 
   function showProvince(el) {
     if (!el) return;
