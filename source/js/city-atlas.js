@@ -97,81 +97,136 @@
   if (defaultProv) showProvince(defaultProv);
 
   // =========================================================================
-  // 2. Top 30 城市多维度实时重排 + 地理分区筛选
+  // 2. 全量 350 城池多维度实时排名（仅纳入有该项实测数据的城市，严禁无数据上榜）
   // =========================================================================
   var listEl = root.querySelector('[data-city-tiles]');
   if (!listEl) return;
 
-  var tiles = Array.prototype.slice.call(listEl.querySelectorAll('.cr-tile'));
+  var ssrHtml = listEl.innerHTML;
+  var poolEl = document.getElementById('city-atlas-pool');
+  var fullPool = [];
+  if (poolEl) {
+    try {
+      fullPool = JSON.parse(poolEl.textContent || '[]');
+    } catch {
+      fullPool = [];
+    }
+  }
+
   var METRICS = {
-    mentions: { label: '次上榜', unit: '次上榜', attr: 'data-mentions' },
-    gdp: { label: 'GDP', unit: '亿元', attr: 'data-gdp' },
-    pop: { label: '常住人口', unit: '万人', attr: 'data-pop' },
-    metro: { label: '地铁里程', unit: 'km', attr: 'data-metro' },
-    uni: { label: '高校数', unit: '所', attr: 'data-uni' },
-    area: { label: '行政面积', unit: 'km²', attr: 'data-area' },
+    mentions: { label: '上榜次数', unit: '次上榜', key: 'mentions' },
+    gdp: { label: 'GDP', unit: '亿元', key: 'gdp' },
+    pop: { label: '常住人口', unit: '万人', key: 'pop' },
+    metro: { label: '地铁里程', unit: 'km', key: 'metro' },
+    uni: { label: '高校数', unit: '所', key: 'uni' },
+    area: { label: '行政面积', unit: 'km²', key: 'area' },
   };
 
   var curMetric = 'mentions';
   var curRegion = 'all';
+  var selected = [];
+  var MAX_PK = 3;
 
-  function numOf(el, attr) {
-    var raw = el.getAttribute(attr);
-    if (raw === null || raw === '') return null;
-    var n = Number(raw);
-    return isFinite(n) ? n : null;
+  var bySlug = {};
+  fullPool.forEach(function (c) {
+    bySlug[c.slug] = {
+      slug: c.slug,
+      name: c.name,
+      meta: c.meta || '',
+      img: c.hasImg ? '/img/cities/' + c.slug + '.jpg' : '',
+      href: c.href || ('/city/' + c.slug + '/'),
+      region: c.region || '',
+      mentions: c.mentions,
+      gdp: c.gdp,
+      pop: c.pop,
+      metro: c.metro,
+      uni: c.uni,
+      area: c.area,
+      scenic: c.scenic,
+    };
+  });
+
+  function renderCard(c, idx, metricCfg, maxVal) {
+    var v = c[metricCfg.key];
+    var pct = v !== null && maxVal > 0 ? Math.max(4, Math.round((v / maxVal) * 100)) : 0;
+    var picked = selected.indexOf(c.slug) !== -1;
+    var imgUrl = c.hasImg ? '/img/cities/' + c.slug + '.jpg' : '';
+    var rankLabel = String(idx + 1).padStart(2, '0');
+    return (
+      '<li class="cr-tile' + (picked ? ' is-pk-picked' : '') + '" data-slug="' + esc(c.slug) + '">' +
+      '<button type="button" class="ca-pk-btn" data-pk-toggle="' + esc(c.slug) + '" aria-pressed="' + (picked ? 'true' : 'false') + '">' +
+      (picked ? '✓ 已选' : '+ 对比') + '</button>' +
+      '<a href="' + esc(c.href) + '">' +
+      '<span class="cr-tile-cover' + (imgUrl ? '' : ' cr-tile-cover--none') + '">' +
+      (imgUrl
+        ? '<img class="cr-tile-photo" src="' + esc(imgUrl) + '" alt="' + esc(c.name) + '城市景观" width="1200" height="675" loading="lazy" decoding="async" />'
+        : '<span class="cr-tile-cover-name" aria-hidden="true">' + esc(c.name) + '</span>') +
+      '<span class="cr-tile-rank">' + rankLabel + '</span>' +
+      '</span>' +
+      '<span class="cr-tile-body">' +
+      '<span class="cr-tile-head">' +
+      '<span class="cr-tile-name">' + esc(c.name) + '</span>' +
+      '<span class="cr-tile-meta">' + esc(c.meta) + '</span>' +
+      '</span>' +
+      '<span class="cr-tile-key">' +
+      '<b data-key-val>' + esc(fmtNum(v)) + '</b><i data-key-unit>' + esc(metricCfg.unit) + '</i>' +
+      '<span class="cr-tile-bar" aria-hidden="true"><span data-key-bar style="width:' + pct + '%"></span></span>' +
+      '</span>' +
+      '<span class="cr-tile-nums">' +
+      '<span class="cr-tile-num"><b>' + (c.gdp === null ? '—' : esc(fmtNum(c.gdp))) + '</b>' + (c.gdp !== null ? '<i>亿元</i>' : '') + '</span>' +
+      '<span class="cr-tile-num"><b>' + (c.pop === null ? '—' : esc(fmtNum(c.pop))) + '</b>' + (c.pop !== null ? '<i>万人</i>' : '') + '</span>' +
+      '</span>' +
+      '</span>' +
+      '</a>' +
+      '</li>'
+    );
   }
 
   function applySortAndFilter() {
     var m = METRICS[curMetric] || METRICS.mentions;
-    var visible = tiles.filter(function (el) {
-      var match = curRegion === 'all' || (el.getAttribute('data-region') || '') === curRegion;
-      el.hidden = !match;
-      return match;
-    });
-
-    visible.sort(function (a, b) {
-      var va = numOf(a, m.attr);
-      var vb = numOf(b, m.attr);
-      if (va === null && vb === null) return 0;
-      if (va === null) return 1;
-      if (vb === null) return -1;
-      if (vb !== va) return vb - va;
-      return (numOf(b, 'data-mentions') || 0) - (numOf(a, 'data-mentions') || 0);
-    });
-
-    var maxVal = 0;
-    visible.forEach(function (el) {
-      var v = numOf(el, m.attr);
-      if (v !== null && v > maxVal) maxVal = v;
-    });
-
-    var frag = document.createDocumentFragment();
-    visible.forEach(function (el, idx) {
-      var v = numOf(el, m.attr);
-      var pct = v !== null && maxVal > 0 ? Math.max(4, Math.round((v / maxVal) * 100)) : 0;
-      var rankEl = el.querySelector('.cr-tile-rank');
-      var keyVal = el.querySelector('[data-key-val]');
-      var keyUnit = el.querySelector('[data-key-unit]');
-      var keyBar = el.querySelector('[data-key-bar]');
-      if (rankEl) rankEl.textContent = String(idx + 1).padStart(2, '0');
-      if (keyVal) keyVal.textContent = v === null ? '待补' : fmtNum(v);
-      if (keyUnit) keyUnit.textContent = v === null ? '' : m.unit;
-      if (keyBar) keyBar.style.width = pct + '%';
-      frag.appendChild(el);
-    });
-    // 把隐藏的节点追加在末尾保持 DOM 完整
-    tiles.forEach(function (el) {
-      if (el.hidden) frag.appendChild(el);
-    });
-    listEl.appendChild(frag);
-
+    var titleEl = root.querySelector('.ca-top-head .cr-sec-title');
     var countHint = root.querySelector('[data-filter-count]');
-    if (countHint) {
-      countHint.textContent = curRegion === 'all'
-        ? '共 ' + visible.length + ' 座 · 按「' + (curMetric === 'mentions' ? '上榜次数' : m.label) + '」排序'
-        : curRegion + ' ' + visible.length + ' 座 · 按「' + (curMetric === 'mentions' ? '上榜次数' : m.label) + '」排序';
+
+    // 回到默认「上榜次数 + 全部」时直接还原 SSR 30 张卡片
+    if (curMetric === 'mentions' && curRegion === 'all') {
+      listEl.innerHTML = ssrHtml;
+      if (titleEl) titleEl.textContent = '上榜最多的 30 座';
+      if (countHint) countHint.textContent = '全量 350 城 · 当前展示上榜次数前 30（切任意指标均在全量有数据城市中重排）';
+      syncPkUi();
+      return;
     }
+
+    // 在全量 350 座城市中筛选：必须有该指标实测值（严禁无数据城市上榜），且匹配大区
+    var matched = fullPool.filter(function (c) {
+      var v = c[m.key];
+      if (v === null || v === undefined || typeof v !== 'number' || !isFinite(v)) return false;
+      if (curMetric === 'mentions' && v <= 0) return false;
+      if (curRegion !== 'all' && c.region !== curRegion) return false;
+      return true;
+    });
+
+    matched.sort(function (a, b) {
+      var d = b[m.key] - a[m.key];
+      if (d !== 0) return d;
+      return (b.mentions || 0) - (a.mentions || 0);
+    });
+
+    var totalMatched = matched.length;
+    var shown = matched.slice(0, 30);
+    var maxVal = shown.length ? shown[0][m.key] : 0;
+
+    listEl.innerHTML = shown.map(function (c, idx) {
+      return renderCard(c, idx, m, maxVal);
+    }).join('');
+
+    if (titleEl) {
+      titleEl.textContent = (curRegion === 'all' ? '' : curRegion + ' · ') + m.label + '前 ' + shown.length + ' 座';
+    }
+    if (countHint) {
+      countHint.textContent =
+        '全量有实测数据 ' + totalMatched + ' 座，展示前 ' + shown.length + ' 座（无该项数据的城市自动不入榜）';
+    }
+    syncPkUi();
   }
 
   var sortBtns = Array.prototype.slice.call(root.querySelectorAll('[data-sort-metric]'));
@@ -203,30 +258,6 @@
   // =========================================================================
   // 3. 多城同屏 PK 对比实验室（2–3 城）
   // =========================================================================
-  var MAX_PK = 3;
-  var selected = [];
-  var bySlug = {};
-  tiles.forEach(function (el) {
-    var slug = el.getAttribute('data-slug');
-    if (!slug) return;
-    var photoEl = el.querySelector('.cr-tile-photo');
-    bySlug[slug] = {
-      slug: slug,
-      name: el.getAttribute('data-name') || slug,
-      meta: el.getAttribute('data-meta') || '',
-      img: photoEl ? photoEl.getAttribute('src') || '' : '',
-      href: el.getAttribute('data-href') || ('/city/' + slug + '/'),
-      mentions: numOf(el, 'data-mentions'),
-      gdp: numOf(el, 'data-gdp'),
-      pop: numOf(el, 'data-pop'),
-      metro: numOf(el, 'data-metro'),
-      uni: numOf(el, 'data-uni'),
-      area: numOf(el, 'data-area'),
-      scenic: numOf(el, 'data-scenic'),
-      el: el,
-    };
-  });
-
   var dock = document.getElementById('city-pk-dock');
   var dockChips = dock ? dock.querySelector('[data-pk-chips]') : null;
   var dockRun = dock ? dock.querySelector('[data-pk-open]') : null;
@@ -236,7 +267,7 @@
   var dlgClose = dlg ? dlg.querySelector('[data-pk-close]') : null;
 
   function syncPkUi() {
-    tiles.forEach(function (el) {
+    Array.prototype.slice.call(listEl.querySelectorAll('.cr-tile')).forEach(function (el) {
       var slug = el.getAttribute('data-slug');
       var on = selected.indexOf(slug) !== -1;
       el.classList.toggle('is-pk-picked', on);

@@ -21,6 +21,9 @@ sources:
   - key: "gdp2025"
     name: "各地 2025 年国民经济和社会发展统计公报（经公开 GDP 排行数据交叉核对）"
     asOf: "2025"
+  - key: "gdp2024sanya"
+    name: "三亚市统计局《2024 年三亚市国民经济和社会发展统计公报》"
+    asOf: "2024"
   - key: "pop2025"
     name: "各市统计局《2025 年国民经济和社会发展统计公报》发布的 2025 年末常住人口（部分城市依据 2025 年全国 1% 人口抽样调查推算；常住人口口径，含户籍人口与外来常住人口，不等于户籍人口或城区人口；单位万人；逐城来源见 tools/city-metrics-batches/pop-2025-sources.md）"
     asOf: "2025"
@@ -554,6 +557,7 @@ cities:
     belt: 东部
     zone: 南方
     metrics:
+      gdp: { v: 1004.7, unit: "亿元", asOf: "2024", source: "gdp2024sanya" }
       scenic_5a: { v: 4, unit: "家", asOf: "2025", source: "scenic5aMCT2025" }
       metro_km: { v: 8.4, unit: "公里", asOf: "2025", source: "metro2025" }
       area_km2: { v: 1921, unit: "平方公里", asOf: "2025", source: "areaPub" }

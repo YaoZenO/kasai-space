@@ -138,11 +138,38 @@ function isMunicipality(p: any): boolean {
   }
   return false;
 }
-const provsMain = provsByCount.filter((p: any) => !isMunicipality(p));
+function isOverseasProv(p: any): boolean {
+  return !!(p && (p.slug === 'haiwai' || p.name === '海外'));
+}
+const provsMain = provsByCount.filter((p: any) => !isMunicipality(p) && !isOverseasProv(p));
 const provsMuni = provsByCount.filter((p: any) => isMunicipality(p));
+const provsOverseas = provsByCount.filter((p: any) => isOverseasProv(p));
 
 const dataYear = CR.cityMeta?.dataYear || '2025';
 const photos = data.cityphotos || {};
+
+// 全量城市数据池（供前端按 GDP / 人口 / 地铁 / 高校 / 面积在全量 350 城中真实重排，绝不把无数据城市塞进榜单）
+const fullPoolJson = JSON.stringify(
+  list.map((row) => {
+    const tc = row.c;
+    const isOv = tc.province === '海外' || tc.region === '海外';
+    return {
+      slug: tc.slug,
+      name: tc.name,
+      meta: isOv ? '海外城市' : `${tc.province || ''}${tc.province && tc.level ? ' · ' : ''}${tc.level || ''}`,
+      href: urlFor('/city/' + tc.slug + '/'),
+      hasImg: Boolean(photos[tc.slug]),
+      region: isOv ? '海外' : (tc.region || ''),
+      mentions: row.n,
+      gdp: cardVal(tc, 'gdp'),
+      pop: cardVal(tc, 'pop'),
+      metro: cardVal(tc, 'metro_km'),
+      uni: cardVal(tc, 'universities'),
+      area: cardVal(tc, 'area_km2'),
+      scenic: isOv ? null : cardVal(tc, 'scenic_5a'),
+    };
+  })
+);
 
 // 构建交互式中国热力地图数据（复用 china-provinces.json 合规矢量路径）
 const mapData = chinaMapData();
@@ -320,6 +347,21 @@ const topRegions = Object.keys(regionCounts).sort((a, b) => regionCounts[b] - re
                       </div>
                     </>
                   )}
+                  {provsOverseas.length > 0 && (
+                    <>
+                      <h3 class="cr-subhead">海外城市（非中国省级行政区）</h3>
+                      <div class="cr-provgrid cr-provgrid--flat">
+                        {provsOverseas.map((pv5: any) => (
+                          <a class="cr-provcard ca-overseas-card" href={urlFor('/city/province/' + pv5.slug + '/')}>
+                            <span class="cr-provcard-top">
+                              <span class="ca-overseas-name">{shortProvName(pv5.name)}</span>
+                              <span class="ca-overseas-n">{pv5.total}</span>
+                            </span>
+                          </a>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             )}
@@ -472,6 +514,7 @@ const topRegions = Object.keys(regionCounts).sort((a, b) => regionCounts[b] - re
     </div>
   </dialog>
 
+  <script type="application/json" id="city-atlas-pool" set:html={fullPoolJson} />
   <script defer src="/js/city-atlas.js"></script>
 
   <style is:global>
@@ -511,7 +554,9 @@ const topRegions = Object.keys(regionCounts).sort((a, b) => regionCounts[b] - re
     .city-v2 .cr-provcard{border-radius:var(--r-sm);border:1px solid var(--line-color);background:transparent;transition:border-color 180ms ease,transform 200ms cubic-bezier(.22,1,.36,1),opacity 200ms ease}
     .city-v2 .cr-provgrid:hover .cr-provcard:not(:hover){opacity:.58}
     .city-v2 .cr-provcard:hover{border-color:var(--accent);transform:translateY(-2px)}
-    .city-v2 .cr-provcard:hover .cr-provcard-name{color:var(--accent)}
+    .city-v2 .cr-provcard:hover .cr-provcard-name,.city-v2 .ca-overseas-card:hover .ca-overseas-name{color:var(--accent)}
+    .ca-overseas-name{font-size:.86rem;font-weight:600;color:var(--text-color)}
+    .ca-overseas-n{font-family:var(--font-mono);font-size:.78rem;color:var(--info-mark)}
     /* Top 30 控制台与卡片对比钮 */
     .ca-top-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:.9rem 1.4rem;margin-bottom:1.1rem}
     .ca-top-head .cr-sec-title,.ca-top-head .cr-sec-note{margin-bottom:0}

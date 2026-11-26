@@ -83,29 +83,43 @@ for (const k of measured) {
   if (standings[k]) poolCnt += 1;
 }
 
-const GLANCE_ORDER = ['gdp', 'pop', 'area_km2', 'metro_km', 'universities', 'scenic_5a', 'trade_total', 'sun_hours'];
+const isOverseas = !!(c && (c.province === '海外' || c.region === '海外'));
+// 海外城市不适用中国国内专属标准（如 5A 级景区）与「全国位次」
+const CHINA_ONLY_FIELDS = new Set(['scenic_5a']);
+
+const GLANCE_ORDER = isOverseas
+  ? ['gdp', 'pop', 'area_km2', 'metro_km', 'universities', 'trade_total', 'sun_hours']
+  : ['gdp', 'pop', 'area_km2', 'metro_km', 'universities', 'scenic_5a', 'trade_total', 'sun_hours'];
 let glance: any[] = [];
 for (let gi = 0; gi < GLANCE_ORDER.length && glance.length < 4; gi += 1) {
   const gk = GLANCE_ORDER[gi];
   const gv = c?.metrics?.[gk];
   if (gv && typeof gv.v === 'number') {
-    glance.push({ key: gk, label: cfLabel(gk), v: gv.v, unit: gv.unit || '', st: standings[gk] || null });
+    glance.push({ key: gk, label: cfLabel(gk), v: gv.v, unit: gv.unit || '', st: isOverseas ? null : (standings[gk] || null) });
   }
 }
 const gdpM = c?.metrics?.gdp;
-const gdpSt = standings.gdp;
+const gdpSt = isOverseas ? null : standings.gdp;
 
-const keys = Object.keys(c?.metrics || {});
+const filteredMetrics: Record<string, any> = {};
+for (const [mkKey, mkVal] of Object.entries(c?.metrics || {})) {
+  if (isOverseas && CHINA_ONLY_FIELDS.has(mkKey)) continue;
+  filteredMetrics[mkKey] = mkVal;
+}
+const keys = Object.keys(filteredMetrics);
 const glanceKeys = glance.map((g) => g.key);
 // 字段少于一屏四格时，四格条会空出半排；按实际数量定列数（见 .cr-glance-n*）。
 const glanceCount = glance.length;
-const specGroups = cfGroups(c?.metrics, glanceKeys);
+const specGroups = cfGroups(filteredMetrics, glanceKeys).map((sg: any) => ({
+  ...sg,
+  items: isOverseas ? sg.items.filter((it: any) => !CHINA_ONLY_FIELDS.has(it.key)) : sg.items,
+})).filter((sg: any) => sg.items.length > 0);
 
 let mentionsAll = 0;
 for (const m of mentions) mentionsAll += m.hits.length;
 
 // 身份块：直辖市 / 特别行政区的 province 与城市同名（北京市 ↔ 北京），
-// 直说「北京位于北京市」是病句；这类单位改写成「是直辖市，位于华北」。
+// 直说「北京位于北京市」是病句；海外城市单独表述，不套国内行政区划模板。
 const provBase = String(c?.province || '')
   .replace(/(维吾尔|壮族|回族)?自治区$/, '')
   .replace(/特别行政区$/, '')
@@ -114,9 +128,11 @@ const provBase = String(c?.province || '')
 const selfAdmin = !!c && provBase === c.name;
 let idSentence = '';
 if (c) {
-  idSentence = selfAdmin
-    ? `${c.name}是${c.level || '省级行政区'}${c.region ? '，位于' + c.region : ''}。`
-    : `${c.name}位于${c.province || '中国'}${c.level ? '，是' + c.level : ''}。`;
+  idSentence = isOverseas
+    ? `${c.name}是一座海外城市（因出现在部分国际/对照榜单而被收录，不适用中国国内 5A 景区等本土口径）。`
+    : selfAdmin
+      ? `${c.name}是${c.level || '省级行政区'}${c.region ? '，位于' + c.region : ''}。`
+      : `${c.name}位于${c.province || '中国'}${c.level ? '，是' + c.level : ''}。`;
 }
 const gdpSentence = gdpM && typeof gdpM.v === 'number'
   ? `地区生产总值 ${fmtNum(gdpM.v)} ${gdpM.unit || ''}${gdpSt ? `，在 ${gdpSt.total} 座城市中列第 ${gdpSt.rank} 位` : ''}。`
@@ -125,9 +141,11 @@ const cityLine = idSentence + gdpSentence;
 
 // 画像标签：只取数据里已有的区位字段，不写形容词。
 const tags: string[] = [];
-for (const tk of ['region', 'belt', 'zone', 'bohai']) {
-  const tv = (c as any)?.[tk];
-  if (tv && tags.indexOf(tv) === -1) tags.push(tv);
+if (!isOverseas) {
+  for (const tk of ['region', 'belt', 'zone', 'bohai']) {
+    const tv = (c as any)?.[tk];
+    if (tv && tags.indexOf(tv) === -1) tags.push(tv);
+  }
 }
 
 // 对比模块：同省可比的走省内；直辖市 / 特别行政区走同级；再退同区域、全国。
@@ -208,7 +226,9 @@ const peerMoreHref = provPage && !(provPage.total === 1 && provPage.pageCount ==
               <div class="cr-card-head">
                 <div class="cr-card-id">
                   <p class="cr-card-kicker">
-                    {c.province || '行政归属待补'}{c.province && c.level ? ' · ' : ''}{c.level || ''} · 数据年份 {CR.cityMeta.dataYear || '2025'}
+                    {isOverseas
+                      ? `海外城市 · 数据年份 ${CR.cityMeta.dataYear || '2025'}`
+                      : `${c.province || '行政归属待补'}${c.province && c.level ? ' · ' : ''}${c.level || ''} · 数据年份 ${CR.cityMeta.dataYear || '2025'}`}
                   </p>
                   <h1 class="cr-city-name">{c.name}</h1>
                   <p class="cr-city-line">{cityLine}</p>
@@ -364,7 +384,7 @@ const peerMoreHref = provPage && !(provPage.total === 1 && provPage.pageCount ==
                   </section>
                 )}
 
-                {map && (
+                {map && !isOverseas && (
                   <section class="cr-rail-card cr-rail-map">
                     <h2 class="cr-rail-title"><span>位置</span><span class="cr-rail-sub">{map.province}</span></h2>
                     <figure class="cr-map">
