@@ -1,17 +1,15 @@
 ---
 // /holidays/ 与 /holidays/<year>/ 共用的页面主体。
-// 结构以 2026-11-09 主人确认的整页示意（dist/_mock/holidays-2026.html）为准：
-//   首屏 → 年份下拉 → 统计三格 → 筛选 chips → 12 月宫格 → 图例 → 月份明细
-//   → 七个法定节假日图文卡 → 其他节日与纪念日 → 二十四节气 → 常见问题
-// 取数与派生全部在 src/lib/holiday-calendar.ts 里算完，模板只负责摆。
-// 无 JS 时：宫格、默认月份明细、七张卡、其他节日、节气、FAQ 都是服务端渲染好的；
-// 内联脚本只做「chip 筛选高亮 + 点月切换明细」。
+// 默认展示「单月大图工作台」（左：七大法定假期快捷索引，右：12月切换条 + 清晰大字单月日历与农历），
+// 一屏看清公历与农历；同时提供「全年十二月」三列可读总览切换。
+// 数据层：src/lib/holiday-calendar.ts；保留全部 hy-* 结构锚点与无 JS 兜底。
 
 import BaseLayout from '../layouts/BaseLayout.astro';
 import EmptyState from './EmptyState.astro';
 import { fmtItemDate } from '../lib/dates';
 import { urlFor } from '../lib/url';
 import { calendarView } from '../lib/holiday-calendar';
+
 interface Props {
   cal: any;
   title: string;
@@ -31,7 +29,29 @@ const zodiac = cal && cal.zodiac && cal.zodiac.ganzhi
   ? `${cal.zodiac.ganzhi}${cal.zodiac.animal}年`
   : '';
 
-// 无脚本时的兜底文案：节假日区间 + 调休清单 + 节日节气清单，全部由数据拼。
+// 每个法定节假日对应的起始月份（用于左侧快捷索引点击跳转）
+const holidayRail = cal
+  ? cal.holidays.map((h: any) => {
+      const m = Number(String(h.start || '').split('-')[1] || 1);
+      return {
+        id: h.id,
+        name: h.name,
+        month: m,
+        startLabel: h.startLabel,
+        endLabel: h.endLabel,
+        days: h.days,
+        statutory: h.statutory,
+        makeupCount: Array.isArray(h.makeup) ? h.makeup.length : 0,
+      };
+    })
+  : [];
+
+// 哪些月份含法定放假（用于 12 月切换条的红点提示）
+const holidayMonthSet = new Set<number>(
+  view ? view.monthTiles.filter((t: any) => t.cells.some((c: any) => c.state === 'holiday')).map((t: any) => t.m) : [],
+);
+
+// 无脚本时的兜底文案
 const noscriptSegs = cal
   ? cal.holidays.map((h: any) => `${h.name} ${h.startLabel} 至 ${h.endLabel}，连休 ${h.days} 天（法定 ${h.statutory} 天）`)
   : [];
@@ -48,7 +68,7 @@ const pads = (n: number) => Array.from({ length: n }, (_, i) => i);
 <BaseLayout title={title} description={description} currentPath={currentPath} ogDate={published} ogUpdated={modified}>
   <canvas class="ab-bg-canvas" id="ab-bg-canvas" aria-hidden="true"></canvas>
 
-  <div class="paper-page ab-page-shell cal-page pg-holidays hy-page hy-v2" data-filter="all">
+  <div class="paper-page ab-page-shell cal-page pg-holidays hy-page hy-v2" data-filter="all" data-view="focus">
     <div class="home-wrap">
       {!cal ? (
         <EmptyState>这一年的节假日数据还在整理中，页面会随数据录入自动生成，欢迎稍后再来看看。</EmptyState>
@@ -122,43 +142,100 @@ const pads = (n: number) => Array.from({ length: n }, (_, i) => i);
             </span>
           </div>
 
-          <div class="hy-filters" role="group" aria-label="按类型筛选日历">
-            <button class="hy-chip is-active" type="button" data-filter="all" aria-pressed="true">全部 <span>{cal.stats.holidayCount} 段</span></button>
-            <button class="hy-chip" type="button" data-filter="holiday" aria-pressed="false">放假 <span>{cal.stats.holidayDays} 天</span></button>
-            <button class="hy-chip" type="button" data-filter="work" aria-pressed="false">补班 <span>{cal.stats.makeupDays} 天</span></button>
-            <button class="hy-chip" type="button" data-filter="fest" aria-pressed="false">节气 <span>{cal.stats.termCount} 个</span></button>
+          <div class="hy-toolbar">
+            <div class="hy-filters" role="group" aria-label="按类型筛选日历">
+              <button class="hy-chip is-active" type="button" data-filter="all" aria-pressed="true">全部 <span>{cal.stats.holidayCount} 段</span></button>
+              <button class="hy-chip" type="button" data-filter="holiday" aria-pressed="false">放假 <span>{cal.stats.holidayDays} 天</span></button>
+              <button class="hy-chip" type="button" data-filter="work" aria-pressed="false">补班 <span>{cal.stats.makeupDays} 天</span></button>
+              <button class="hy-chip" type="button" data-filter="fest" aria-pressed="false">节气 <span>{cal.stats.termCount} 个</span></button>
+            </div>
+
+            <div class="hy-view-switch" role="tablist" aria-label="日历视图">
+              <button type="button" class="hy-vbtn is-active" role="tab" aria-selected="true" data-hy-view="focus">单月大图</button>
+              <button type="button" class="hy-vbtn" role="tab" aria-selected="false" data-hy-view="year">全年十二月</button>
+            </div>
           </div>
 
-          <div class="hy-months">
-            {view.monthTiles.map((tile: any) => (
-              <article class={`hy-month${tile.m === view.focusMonth ? ' hy-month--focus is-current' : ''}`} data-month={tile.m}>
-                <div class="hy-month-head">
-                  <h2 class="hy-month-title">
-                    <button class="hy-month-btn" type="button" data-month={tile.m} aria-controls={`hy-detail-${tile.m}`}>{tile.m} 月</button>
-                  </h2>
-                  <span class="hy-montags">
-                    {tile.tags.slice(0, 3).map((name: string) => <span class="hy-tag">{name}</span>)}
-                  </span>
-                  {tile.m === view.focusMonth && tile.badge && <span class="hy-badge">{tile.badge}</span>}
-                </div>
-                <div class="hy-week" aria-hidden="true">
-                  {WEEK.map((w: string) => <span>{w}</span>)}
-                </div>
-                <div class="hy-days">
-                  {pads(tile.pad).map(() => <div class="hy-day hy-day--pad" aria-hidden="true"></div>)}
-                  {tile.cells.map((c: any) => (
-                    <div
-                      class={`hy-day${c.state === 'holiday' ? ' hy-day--holiday' : ''}${c.state === 'makeup' ? ' hy-day--work' : ''}${c.w === 0 || c.w === 6 ? ' hy-day--weekend' : ''}`}
-                      title={c.tip}
+          {/* 焦点工作台：左侧 7 大假期速跳 + 右侧 12 月切换与大字单月历（全年模式自动展开 3 列 12 月） */}
+          <div class="hy-workbench">
+            <aside class="hy-rail" aria-label="全年法定假期索引">
+              <p class="hy-rail-title">{cal.year} 法定假期</p>
+              <ul class="hy-rail-list">
+                {holidayRail.map((h: any) => (
+                  <li>
+                    <button
+                      type="button"
+                      class={`hy-rail-item${h.month === view.focusMonth ? ' is-active' : ''}`}
+                      data-jump-month={h.month}
                     >
-                      <span class="hy-dn">{c.d}</span>
-                      <span class={`hy-lunar hy-lunar--${c.lunarKind}`}>{c.lunarText}</span>
-                      {c.dot && <i class="hy-fest" aria-hidden="true"></i>}
-                    </div>
+                      <span class="hy-rail-top">
+                        <strong>{h.name}</strong>
+                        <span class="hy-rail-days">连休 {h.days} 天</span>
+                      </span>
+                      <span class="hy-rail-range">
+                        {h.startLabel}–{h.endLabel}{h.makeupCount > 0 ? ` · 补班 ${h.makeupCount} 天` : ''}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </aside>
+
+            <div class="hy-stage">
+              <div class="hy-mstrip" role="tablist" aria-label="月份切换">
+                <button type="button" class="hy-mnav" data-mnav="-1" aria-label="上个月">‹</button>
+                <div class="hy-mstrip-pills">
+                  {view.monthTiles.map((tile: any) => (
+                    <button
+                      type="button"
+                      class={`hy-mpill${tile.m === view.focusMonth ? ' is-current' : ''}${holidayMonthSet.has(tile.m) ? ' has-holiday' : ''}`}
+                      data-mpill={tile.m}
+                      role="tab"
+                      aria-selected={tile.m === view.focusMonth ? 'true' : 'false'}
+                    >
+                      {tile.m}月
+                    </button>
                   ))}
                 </div>
-              </article>
-            ))}
+                <button type="button" class="hy-mnav" data-mnav="1" aria-label="下个月">›</button>
+              </div>
+
+              <div class="hy-months">
+                {view.monthTiles.map((tile: any) => (
+                  <article class={`hy-month${tile.m === view.focusMonth ? ' hy-month--focus is-current' : ''}`} data-month={tile.m}>
+                    <div class="hy-month-head">
+                      <h2 class="hy-month-title">
+                        <button class="hy-month-btn" type="button" data-month={tile.m} aria-controls={`hy-detail-${tile.m}`}>
+                          {cal.year} 年 {tile.m} 月
+                        </button>
+                      </h2>
+                      <span class="hy-montags">
+                        {tile.tags.slice(0, 3).map((name: string) => <span class="hy-tag">{name}</span>)}
+                      </span>
+                      {tile.m === view.focusMonth && tile.badge && <span class="hy-badge">{tile.badge}</span>}
+                    </div>
+                    <div class="hy-week" aria-hidden="true">
+                      {WEEK.map((w: string) => <span>周{w}</span>)}
+                    </div>
+                    <div class="hy-days">
+                      {pads(tile.pad).map(() => <div class="hy-day hy-day--pad" aria-hidden="true"></div>)}
+                      {tile.cells.map((c: any) => (
+                        <div
+                          class={`hy-day${c.state === 'holiday' ? ' hy-day--holiday' : ''}${c.state === 'makeup' ? ' hy-day--work' : ''}${c.w === 0 || c.w === 6 ? ' hy-day--weekend' : ''}`}
+                          title={c.tip}
+                        >
+                          <span class="hy-dn">{c.d}</span>
+                          <span class={`hy-lunar hy-lunar--${c.lunarKind}`}>{c.lunarText}</span>
+                          {c.state === 'holiday' && <em class="hy-flag hy-flag--off" aria-hidden="true">休</em>}
+                          {c.state === 'makeup' && <em class="hy-flag hy-flag--work" aria-hidden="true">班</em>}
+                          {c.dot && <i class="hy-fest" aria-hidden="true"></i>}
+                        </div>
+                      ))}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
           </div>
 
           <ul class="hy-legend">
@@ -171,8 +248,7 @@ const pads = (n: number) => Array.from({ length: n }, (_, i) => i);
 
           <div class="hy-detail">
             <div class="hy-detail-head">
-              <h2>月份明细</h2>
-              <span>点月份卡上的月份可切换</span>
+              <h2 data-hy-detail-title>{view.focusMonth} 月明细</h2>
             </div>
             {view.monthTiles.map((tile: any) => (
               <div class="hy-panel" id={`hy-detail-${tile.m}`} data-month={tile.m} hidden={tile.m !== view.focusMonth}>
@@ -316,6 +392,7 @@ const pads = (n: number) => Array.from({ length: n }, (_, i) => i);
             (function () {
               var root = document.querySelector('.hy-page');
               if (!root) return;
+
               var chips = Array.prototype.slice.call(root.querySelectorAll('.hy-chip'));
               chips.forEach(function (chip) {
                 chip.addEventListener('click', function () {
@@ -329,21 +406,72 @@ const pads = (n: number) => Array.from({ length: n }, (_, i) => i);
                 });
               });
 
-              var cards = Array.prototype.slice.call(root.querySelectorAll('.hy-month'));
-              var panels = Array.prototype.slice.call(root.querySelectorAll('.hy-panel'));
-              function openMonth(m) {
-                panels.forEach(function (p) {
-                  p.hidden = p.getAttribute('data-month') !== m;
-                });
-                cards.forEach(function (c) {
-                  c.classList.toggle('is-current', c.getAttribute('data-month') === m);
+              var viewBtns = Array.prototype.slice.call(root.querySelectorAll('[data-hy-view]'));
+              function setView(v) {
+                root.setAttribute('data-view', v);
+                viewBtns.forEach(function (b) {
+                  var on = b.getAttribute('data-hy-view') === v;
+                  b.classList.toggle('is-active', on);
+                  b.setAttribute('aria-selected', on ? 'true' : 'false');
                 });
               }
+              viewBtns.forEach(function (b) {
+                b.addEventListener('click', function () {
+                  setView(b.getAttribute('data-hy-view') || 'focus');
+                });
+              });
+
+              var cards = Array.prototype.slice.call(root.querySelectorAll('.hy-month'));
+              var panels = Array.prototype.slice.call(root.querySelectorAll('.hy-panel'));
+              var mpills = Array.prototype.slice.call(root.querySelectorAll('[data-mpill]'));
+              var railBtns = Array.prototype.slice.call(root.querySelectorAll('[data-jump-month]'));
+              var detailTitle = root.querySelector('[data-hy-detail-title]');
+              var curMonth = Number((root.querySelector('.hy-month.is-current') || cards[0]).getAttribute('data-month')) || 1;
+
+              function openMonth(m) {
+                var num = Number(m);
+                if (!num || num < 1 || num > 12) return;
+                curMonth = num;
+                var ms = String(num);
+                panels.forEach(function (p) {
+                  p.hidden = p.getAttribute('data-month') !== ms;
+                });
+                cards.forEach(function (c) {
+                  c.classList.toggle('is-current', c.getAttribute('data-month') === ms);
+                });
+                mpills.forEach(function (p) {
+                  var on = p.getAttribute('data-mpill') === ms;
+                  p.classList.toggle('is-current', on);
+                  p.setAttribute('aria-selected', on ? 'true' : 'false');
+                });
+                railBtns.forEach(function (b) {
+                  b.classList.toggle('is-active', b.getAttribute('data-jump-month') === ms);
+                });
+                if (detailTitle) detailTitle.textContent = ms + ' 月明细';
+              }
+
+              mpills.forEach(function (p) {
+                p.addEventListener('click', function () { openMonth(p.getAttribute('data-mpill')); });
+              });
+              railBtns.forEach(function (b) {
+                b.addEventListener('click', function () {
+                  openMonth(b.getAttribute('data-jump-month'));
+                  if (root.getAttribute('data-view') !== 'focus') setView('focus');
+                });
+              });
+              Array.prototype.slice.call(root.querySelectorAll('[data-mnav]')).forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                  var delta = Number(btn.getAttribute('data-mnav')) || 0;
+                  var next = ((curMonth - 1 + delta + 12) % 12) + 1;
+                  openMonth(next);
+                });
+              });
               cards.forEach(function (card) {
                 var btn = card.querySelector('.hy-month-btn');
                 if (!btn) return;
                 btn.addEventListener('click', function () {
                   openMonth(btn.getAttribute('data-month'));
+                  if (root.getAttribute('data-view') === 'year') setView('focus');
                 });
               });
             })();
@@ -354,37 +482,98 @@ const pads = (n: number) => Array.from({ length: n }, (_, i) => i);
   </div>
 
   <style is:global>
-    .hy-v2 .hy-v2-head{position:relative;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(260px,0.8fr);align-items:end;gap:clamp(1.4rem,4vw,3.5rem);padding:clamp(1rem,2.6vw,2.2rem) 0 clamp(1.8rem,3.6vw,2.6rem);margin:0 0 1.8rem;border-bottom:1px solid var(--line-color);overflow:clip}
+    .hy-v2 .hy-v2-head{position:relative;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(260px,0.8fr);align-items:end;gap:clamp(1.4rem,4vw,3.5rem);padding:clamp(1rem,2.6vw,2.2rem) 0 clamp(1.6rem,3vw,2.2rem);margin:0 0 1.5rem;border-bottom:1px solid var(--line-color);overflow:clip}
     .hy-v2-head-main,.hy-v2-stats{position:relative;z-index:1}
-    .hy-v2 .hy-title{font-family:var(--font-serif-title);font-size:clamp(2.2rem,4.6vw,3.5rem);line-height:1.08;letter-spacing:-0.02em}
+    .hy-v2 .hy-title{font-family:var(--font-serif-title);font-size:clamp(2.2rem,4.6vw,3.4rem);line-height:1.08;letter-spacing:-0.02em}
     .hy-v2 .hy-kicker{font-family:var(--font-mono);font-size:.75rem;letter-spacing:.14em;color:var(--accent)}
     .hy-v2-stats{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;margin:0!important;padding:0!important;background:transparent!important;border:0!important}
     .hy-v2-stats li{padding:.65rem 0 0!important;border:0!important;border-top:1px solid var(--line-color)!important;background:transparent!important;border-radius:0!important}
-    .hy-v2-yearbar{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem 1.2rem;margin:0 0 1.5rem;padding-bottom:1.1rem;border-bottom:1px solid var(--line-color)}
+
+    .hy-v2-yearbar{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem 1.2rem;margin:0 0 1.2rem;padding-bottom:1rem;border-bottom:1px solid var(--line-color)}
     .hy-v2-yearstrip{display:flex;flex-wrap:wrap;gap:.25rem .35rem;flex:1 1 auto}
-    .hy-v2-yr{display:inline-flex;align-items:center;justify-content:center;padding:.2rem .5rem;border-radius:999px;font-family:var(--font-mono);font-size:.76rem;color:var(--sec-text-color);text-decoration:none;transition:background-color 160ms ease,color 160ms ease}
+    .hy-v2-yr{display:inline-flex;align-items:center;justify-content:center;padding:.2rem .5rem;border-radius:999px;font-family:var(--font-mono);font-size:.78rem;color:var(--sec-text-color);text-decoration:none;transition:background-color 160ms ease,color 160ms ease}
     .hy-v2-yr:hover{color:var(--accent);background:var(--surface-tint)}
     .hy-v2-yr.is-cur{background:var(--accent);color:#fff;font-weight:700}
-    .hy-v2 .hy-filters{margin-bottom:1.35rem}
+
+    .hy-toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.8rem 1.2rem;margin-bottom:1.35rem}
+    .hy-v2 .hy-filters{margin:0}
     .hy-v2 .hy-chip{border-radius:999px;transition:border-color 180ms ease,color 180ms ease,background-color 180ms ease}
-    .hy-v2 .hy-months{grid-template-columns:repeat(4,minmax(0,1fr));gap:.8rem}
-    .hy-v2 .hy-month{padding:.75rem .72rem .8rem;border-radius:var(--r-sm);border:1px solid var(--line-color);background:transparent;box-shadow:none;transition:border-color 200ms ease,transform 220ms cubic-bezier(.22,1,.36,1)}
-    .hy-v2 .hy-month--focus{background:var(--surface-tint);border-color:var(--accent)}
-    .hy-v2 .hy-month:hover{border-color:var(--accent);transform:translateY(-2px)}
-    .hy-v2 .hy-month.is-current{border-color:var(--accent)}
-    .hy-v2 .hy-week{margin-bottom:.1rem;font-size:.7rem}
-    .hy-v2 .hy-days{gap:2px 1px}
-    .hy-v2 .hy-day{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:34px;padding:1px 0;border-radius:6px;background:transparent!important;box-shadow:none!important;transition:opacity 200ms ease}
-    .hy-v2 .hy-dn{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:.78rem;font-weight:600;line-height:1;color:var(--text-color);background:transparent;border:0;box-shadow:none}
+    .hy-view-switch{display:inline-flex;gap:.25rem;padding:.22rem;border:1px solid var(--line-color);border-radius:999px;background:var(--surface-tint)}
+    .hy-vbtn{padding:.32rem .9rem;border:0;border-radius:999px;background:transparent;color:var(--sec-text-color);font-family:var(--font-mono);font-size:.78rem;cursor:pointer;transition:background-color 160ms ease,color 160ms ease}
+    .hy-vbtn:hover{color:var(--accent)}
+    .hy-vbtn.is-active{background:var(--accent);color:#fff;font-weight:700}
+
+    /* 默认「单月大图工作台」：左 7 大假期速跳 + 右大字单月历，一屏清晰可读 */
+    .hy-workbench{display:grid;grid-template-columns:minmax(250px,300px) minmax(0,1fr);gap:clamp(1.2rem,2.6vw,2.2rem);align-items:start}
+    .hy-rail-title{margin:0 0 .65rem;font-family:var(--font-mono);font-size:.76rem;letter-spacing:.1em;color:var(--accent);font-weight:700}
+    .hy-rail-list{list-style:none;margin:0;padding:0;border-top:1px solid var(--line-color)}
+    .hy-rail-item{width:100%;text-align:left;padding:.72rem .65rem;border:0;border-bottom:1px solid var(--line-color);background:transparent;cursor:pointer;display:flex;flex-direction:column;gap:.22rem;position:relative;transition:background-color 160ms ease,padding-left 160ms ease}
+    .hy-rail-item::before{content:"";position:absolute;left:0;top:16%;bottom:16%;width:2.5px;background:var(--accent);opacity:0;transition:opacity 160ms ease}
+    .hy-rail-item:hover{background:var(--surface-tint);padding-left:.9rem}
+    .hy-rail-item.is-active{background:color-mix(in srgb,var(--accent) 6%,transparent);padding-left:.9rem}
+    .hy-rail-item.is-active::before{opacity:1}
+    .hy-rail-top{display:flex;align-items:baseline;justify-content:space-between;gap:.5rem}
+    .hy-rail-top strong{font-family:var(--font-serif-title);font-size:1rem;color:var(--text-color)}
+    .hy-rail-item.is-active .hy-rail-top strong{color:var(--accent)}
+    .hy-rail-days{font-family:var(--font-mono);font-size:.76rem;color:var(--accent);font-weight:600}
+    .hy-rail-range{font-family:var(--font-mono);font-size:.78rem;color:var(--sec-text-color)}
+
+    .hy-stage{min-width:0}
+    .hy-mstrip{display:flex;align-items:center;gap:.45rem;margin-bottom:.9rem}
+    .hy-mnav{width:32px;height:32px;flex:none;border:1px solid var(--line-color);border-radius:50%;background:transparent;color:var(--sec-text-color);font-size:1.1rem;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:border-color 160ms ease,color 160ms ease}
+    .hy-mnav:hover{border-color:var(--accent);color:var(--accent)}
+    .hy-mstrip-pills{flex:1 1 auto;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:.25rem}
+    .hy-mpill{position:relative;padding:.38rem .15rem;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--sec-text-color);font-family:var(--font-mono);font-size:.82rem;cursor:pointer;transition:background-color 160ms ease,color 160ms ease,border-color 160ms ease}
+    .hy-mpill:hover{color:var(--accent);background:var(--surface-tint)}
+    .hy-mpill.is-current{background:var(--accent);color:#fff;font-weight:700}
+    .hy-mpill.has-holiday::after{content:"";position:absolute;bottom:3px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--accent)}
+    .hy-mpill.is-current.has-holiday::after{background:#fff}
+
+    /* 单月大图模式：仅显示当前月，单格宽敞，公历 19px / 农历 12.5px 清晰易读 */
+    .hy-v2[data-view="focus"] .hy-months{display:block}
+    .hy-v2[data-view="focus"] .hy-month{display:none;padding:1.25rem 1.35rem 1.35rem;border-radius:var(--r-sm);border:1px solid var(--line-color);background:var(--surface-tint);box-shadow:none}
+    .hy-v2[data-view="focus"] .hy-month.is-current{display:block;animation:hyFade 200ms ease}
+    .hy-v2[data-view="focus"] .hy-month-btn{font-family:var(--font-serif-title);font-size:1.35rem;font-weight:700}
+    .hy-v2[data-view="focus"] .hy-week{margin:1rem 0 .45rem;font-size:.82rem;font-weight:600;color:var(--sec-text-color)}
+    .hy-v2[data-view="focus"] .hy-days{gap:.45rem}
+    .hy-v2[data-view="focus"] .hy-day{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.24rem;min-height:70px;padding:.4rem .2rem;border-radius:10px;border:1px solid transparent;background:var(--body-bg-color)!important;box-shadow:none!important;transition:border-color 160ms ease,opacity 200ms ease}
+    .hy-v2[data-view="focus"] .hy-day--pad{background:transparent!important}
+    .hy-v2[data-view="focus"] .hy-day:not(.hy-day--pad):hover{border-color:var(--accent)}
+    .hy-v2[data-view="focus"] .hy-dn{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;font-size:1.05rem;font-weight:700;line-height:1;color:var(--text-color);background:transparent}
+    .hy-v2[data-view="focus"] .hy-lunar{display:block;font-size:.78rem;line-height:1.15;color:var(--sec-text-color);white-space:nowrap}
+    .hy-v2[data-view="focus"] .hy-flag{position:absolute;top:5px;right:6px;font-style:normal;font-family:var(--font-mono);font-size:.66rem;font-weight:700;line-height:1}
+    .hy-v2[data-view="focus"] .hy-flag--off{color:var(--accent)}
+    .hy-v2[data-view="focus"] .hy-flag--work{color:var(--sec-text-color)}
+
+    /* 全年十二月模式：隐藏左侧栏，展开舒适三列宫格 */
+    .hy-v2[data-view="year"] .hy-workbench{display:block}
+    .hy-v2[data-view="year"] .hy-rail,.hy-v2[data-view="year"] .hy-mstrip{display:none}
+    .hy-v2[data-view="year"] .hy-months{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
+    .hy-v2[data-view="year"] .hy-month{display:block;padding:.95rem .95rem 1rem;border-radius:var(--r-sm);border:1px solid var(--line-color);background:transparent;box-shadow:none;transition:border-color 200ms ease,transform 220ms cubic-bezier(.22,1,.36,1)}
+    .hy-v2[data-view="year"] .hy-month--focus{background:var(--surface-tint);border-color:var(--accent)}
+    .hy-v2[data-view="year"] .hy-month:hover{border-color:var(--accent);transform:translateY(-2px)}
+    .hy-v2[data-view="year"] .hy-month.is-current{border-color:var(--accent)}
+    .hy-v2[data-view="year"] .hy-week{margin-bottom:.2rem;font-size:.74rem}
+    .hy-v2[data-view="year"] .hy-days{gap:3px 2px}
+    .hy-v2[data-view="year"] .hy-day{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:42px;padding:2px 0;border-radius:6px;background:transparent!important;box-shadow:none!important;transition:opacity 200ms ease}
+    .hy-v2[data-view="year"] .hy-dn{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;font-size:.84rem;font-weight:600;line-height:1;color:var(--text-color);background:transparent}
+    .hy-v2[data-view="year"] .hy-lunar{display:block;font-size:.68rem;line-height:1.1;color:var(--info-mark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+    .hy-v2[data-view="year"] .hy-flag{display:none}
+
+    /* 统一的圆形日期状态语义（与下方图例一一对应：红实心=放假，红空心=补班，灰实心=周末） */
     .hy-v2 .hy-day--weekend .hy-dn{background:color-mix(in srgb,var(--text-color) 11%,transparent);color:var(--sec-text-color)}
     .hy-v2 .hy-day--holiday .hy-dn{background:var(--accent);color:#fff;font-weight:700}
-    .hy-v2 .hy-day--work .hy-dn{background:transparent;border:1.5px solid var(--accent);color:var(--accent);font-weight:700}
-    .hy-v2 .hy-lunar{display:block;font-size:.6rem;line-height:1.1;color:var(--info-mark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+    .hy-v2 .hy-day--work .hy-dn{background:transparent;border:1.8px solid var(--accent);color:var(--accent);font-weight:700}
     .hy-v2 .hy-lunar--month,.hy-v2 .hy-lunar--fest,.hy-v2 .hy-lunar--term{color:var(--accent);font-weight:600}
     .hy-v2 .hy-fest{display:none}
+
     .hy-v2[data-filter="holiday"] .hy-day:not(.hy-day--holiday){opacity:.18}
     .hy-v2[data-filter="work"] .hy-day:not(.hy-day--work){opacity:.18}
     .hy-v2[data-filter="fest"] .hy-day:not(:has(.hy-lunar--fest)):not(:has(.hy-lunar--term)){opacity:.18}
+
+    @keyframes hyFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+    .hy-v2 .hy-legend{margin-top:1.25rem}
     .hy-v2 .hy-detail{border-radius:var(--r-sm);border:0;border-top:1px solid var(--line-color);border-bottom:1px solid var(--line-color);background:transparent;padding:1.4rem 0}
     .hy-v2 .hy-card{border-radius:var(--r-sm);border:1px solid var(--line-color);background:transparent;overflow:hidden;transition:border-color 200ms ease,transform 240ms cubic-bezier(.22,1,.36,1)}
     .hy-v2 .hy-card:hover{border-color:var(--accent);transform:translateY(-2px)}
@@ -392,9 +581,23 @@ const pads = (n: number) => Array.from({ length: n }, (_, i) => i);
     .hy-v2 .hy-card:hover .hy-card-photo img{transform:scale(1.035)}
     .hy-v2 .hy-sec{margin-top:3rem;padding-top:2.2rem;border-top:1px solid var(--line-color)}
     .hy-v2 .hy-fest-item,.hy-v2 .hy-season,.hy-v2 .hy-faq-item{background:transparent;border-radius:0;border:0;border-bottom:1px solid var(--line-color)}
-    @media (max-width:1100px){.hy-v2 .hy-months{grid-template-columns:repeat(3,minmax(0,1fr))}}
-    @media (max-width:820px){.hy-v2 .hy-months{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media (max-width:600px){.hy-v2 .hy-v2-head,.hy-v2 .hy-months{grid-template-columns:minmax(0,1fr)}.hy-v2-yearstrip{display:none}}
-    @media (prefers-reduced-motion:reduce){.hy-v2 .hy-month,.hy-v2 .hy-day,.hy-v2 .hy-card,.hy-v2 .hy-card-photo img{transition:none}}
+
+    @media (max-width:960px){
+      .hy-workbench{grid-template-columns:minmax(0,1fr)}
+      .hy-rail-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));border-top:0;gap:.45rem}
+      .hy-rail-item{border:1px solid var(--line-color);border-radius:8px;padding:.55rem .7rem}
+      .hy-rail-item::before{display:none}
+      .hy-rail-item.is-active{border-color:var(--accent);padding-left:.7rem}
+      .hy-v2[data-view="year"] .hy-months{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    @media (max-width:640px){
+      .hy-v2 .hy-v2-head,.hy-v2[data-view="year"] .hy-months{grid-template-columns:minmax(0,1fr)}
+      .hy-v2-yearstrip{display:none}
+      .hy-mstrip-pills{grid-template-columns:repeat(6,minmax(0,1fr))}
+      .hy-v2[data-view="focus"] .hy-day{min-height:56px;padding:.25rem .1rem}
+      .hy-v2[data-view="focus"] .hy-dn{width:26px;height:26px;font-size:.92rem}
+      .hy-v2[data-view="focus"] .hy-lunar{font-size:.68rem}
+    }
+    @media (prefers-reduced-motion:reduce){.hy-v2 .hy-month,.hy-v2 .hy-day,.hy-v2 .hy-card,.hy-v2 .hy-card-photo img{transition:none;animation:none}}
   </style>
 </BaseLayout>
