@@ -290,23 +290,38 @@ const peerMoreHref = provPage && !(provPage.total === 1 && provPage.pageCount ==
                 ) : null}
 
                 {mentions.length > 0 && (
-                  <section class="cr-mentions">
-                    <h2 class="cr-sec-title">上榜记录</h2>
-                    <p class="cr-mentions-note">
-                      共上榜 <strong>{mentionsAll}</strong> 项，按 <strong>{mentions.length}</strong> 组归类；名次为该项榜单内的排位，综合指数见悬停。
-                    </p>
+                  <section class="cr-mentions" data-cm-root>
+                    <div class="cm-head">
+                      <div>
+                        <h2 class="cr-sec-title">上榜记录</h2>
+                        <p class="cr-mentions-note">
+                          共上榜 <strong>{mentionsAll}</strong> 项，按 <strong>{mentions.length}</strong> 组归类；名次为该项榜单内的排位，综合指数见悬停。
+                        </p>
+                      </div>
+                      <button type="button" class="cm-top10-btn" data-cm-top10 aria-pressed="false">仅看前 10 名</button>
+                    </div>
+                    {mentions.length > 1 && (
+                      <div class="cm-filters" role="group" aria-label="按主题筛选上榜记录">
+                        <button type="button" class="cm-chip is-active" data-cm-group="all" aria-pressed="true">全部 {mentionsAll}</button>
+                        {mentions.map((mg: any) => (
+                          <button type="button" class="cm-chip" data-cm-group={mg.group} aria-pressed="false">
+                            {mg.group} <span>{mg.hits.length}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                     <div class="cr-mention-cols">
                       {mentions.map((mg: any) => {
                         let best = mg.hits[0].rank;
                         for (const h of mg.hits.slice(1)) if (h.rank < best) best = h.rank;
                         return (
-                          <section class="cr-mention-group">
+                          <section class="cr-mention-group" data-cm-card={mg.group}>
                             <h3 class="cr-mention-group-title">
                               {mg.group}<span class="cr-mention-sum">上榜 {mg.hits.length} 项 · 最好成绩第 {best} 名</span>
                             </h3>
                             <ul class="cr-mention-list">
                               {mg.hits.map((ht: any) => (
-                                <li>
+                                <li data-cm-rank={ht.rank} class={ht.rank <= 3 ? 'is-podium' : undefined}>
                                   <span class="cr-mention-rank">第 <b>{ht.rank}</b></span>
                                   <a href={urlFor('/cityrank/' + ht.slug + '/')}
                                      title={ht.kind === 'computed' && typeof ht.score === 'number' ? `综合指数 ${ht.score}` : undefined}>
@@ -383,12 +398,83 @@ const peerMoreHref = provPage && !(provPage.total === 1 && provPage.pageCount ==
     </div>
   </div>
 
+  <script is:inline>
+    (function () {
+      var root = document.querySelector('[data-cm-root]');
+      if (!root) return;
+      var grp = 'all';
+      var top10 = false;
+      var chips = Array.prototype.slice.call(root.querySelectorAll('[data-cm-group]'));
+      var cards = Array.prototype.slice.call(root.querySelectorAll('[data-cm-card]'));
+      var topBtn = root.querySelector('[data-cm-top10]');
+
+      function render() {
+        cards.forEach(function (card) {
+          var matchGrp = grp === 'all' || card.getAttribute('data-cm-card') === grp;
+          var items = Array.prototype.slice.call(card.querySelectorAll('[data-cm-rank]'));
+          var visibleCount = 0;
+          items.forEach(function (li) {
+            var rk = Number(li.getAttribute('data-cm-rank')) || 999;
+            var show = !top10 || rk <= 10;
+            li.hidden = !show;
+            if (show) visibleCount += 1;
+          });
+          card.hidden = !matchGrp || visibleCount === 0;
+        });
+      }
+
+      chips.forEach(function (chip) {
+        chip.addEventListener('click', function () {
+          grp = chip.getAttribute('data-cm-group') || 'all';
+          chips.forEach(function (c) {
+            var on = c === chip;
+            c.classList.toggle('is-active', on);
+            c.setAttribute('aria-pressed', on ? 'true' : 'false');
+          });
+          render();
+        });
+      });
+
+      if (topBtn) {
+        topBtn.addEventListener('click', function () {
+          top10 = !top10;
+          topBtn.classList.toggle('is-active', top10);
+          topBtn.setAttribute('aria-pressed', top10 ? 'true' : 'false');
+          render();
+        });
+      }
+    })();
+  </script>
+
   <style is:global>
-    .cityd-v2 .cr-card{border-radius:var(--r-sm);border:1px solid var(--line-color);background:transparent}
-    .cityd-v2 .cr-card-name{font-family:var(--font-serif-title);letter-spacing:-0.02em}
-    .cityd-v2 .cr-card-photo img,.cityd-v2 .cr-map img{border-radius:var(--r-sm)}
-    .cityd-v2 .cr-side-box{background:transparent;border:0;border-left:1px solid var(--line-color);border-radius:0;padding-left:1.1rem}
-    .cityd-v2 .cr-spec-row{transition:background-color 160ms ease}
-    .cityd-v2 .cr-spec-row:hover{background:var(--surface-tint)}
+    .cityd-v2 .cr-card{padding:0!important;border:0!important;border-bottom:1px solid var(--line-color)!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;margin-bottom:2.4rem;padding-bottom:2rem!important}
+    .cityd-v2 .cr-city-name{font-family:var(--font-serif-title);font-size:clamp(2.3rem,4.8vw,3.6rem);line-height:1.08;letter-spacing:-0.02em}
+    .cityd-v2 .cr-card-photo{border-radius:var(--r-sm);overflow:hidden}
+    .cityd-v2 .cr-card-photo img{border-radius:var(--r-sm);transition:transform 520ms cubic-bezier(.22,1,.36,1)}
+    .cityd-v2 .cr-card-photo:hover img{transform:scale(1.03)}
+    .cityd-v2 .cr-tags li{border-radius:999px;background:var(--surface-tint);border:1px solid var(--line-color)}
+    .cityd-v2 .cr-glance{margin-top:1.8rem;padding-top:1.4rem;border-top:1px solid var(--line-color);background:transparent}
+    .cityd-v2 .cr-glance-item{background:var(--surface-tint);border:1px solid var(--line-color);border-radius:var(--r-sm);padding:.95rem 1.05rem;transition:border-color 180ms ease,transform 200ms ease}
+    .cityd-v2 .cr-glance-item:hover{border-color:var(--accent);transform:translateY(-2px)}
+    .cityd-v2 .cr-spec-group,.cityd-v2 .cr-mention-group,.cityd-v2 .cr-rail-card{background:var(--surface-tint)!important;border:1px solid var(--line-color)!important;border-radius:var(--r-sm)!important;box-shadow:none!important;padding:1.1rem 1.2rem!important}
+    .cityd-v2 .cr-rail{position:sticky;top:5.2rem;align-self:start}
+    .cityd-v2 .cr-spec-item{padding:.48rem .55rem;border-radius:6px;transition:background-color 160ms ease}
+    .cityd-v2 .cr-spec-item:hover{background:var(--body-bg-color)}
+    .cityd-v2 .cr-map img{border-radius:var(--r-sm)}
+    .cityd-v2 .cm-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:.8rem;margin-bottom:.9rem}
+    .cityd-v2 .cm-head .cr-sec-title,.cityd-v2 .cm-head .cr-mentions-note{margin-bottom:0}
+    .cityd-v2 .cm-top10-btn{padding:.28rem .78rem;border:1px solid var(--line-color);border-radius:999px;background:transparent;color:var(--sec-text-color);font-family:var(--font-mono);font-size:.76rem;cursor:pointer;transition:border-color 160ms ease,color 160ms ease,background-color 160ms ease}
+    .cityd-v2 .cm-top10-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .cityd-v2 .cm-top10-btn.is-active{border-color:var(--accent);background:var(--accent);color:#fff;font-weight:700}
+    .cityd-v2 .cm-filters{display:flex;flex-wrap:wrap;gap:.38rem;margin-bottom:1.15rem}
+    .cityd-v2 .cm-chip{padding:.24rem .68rem;border:1px solid var(--line-color);border-radius:999px;background:transparent;color:var(--sec-text-color);font-family:var(--font-mono);font-size:.75rem;cursor:pointer;transition:border-color 160ms ease,color 160ms ease,background-color 160ms ease}
+    .cityd-v2 .cm-chip span{opacity:.65;margin-left:.2rem}
+    .cityd-v2 .cm-chip:hover{border-color:var(--accent);color:var(--accent)}
+    .cityd-v2 .cm-chip.is-active{border-color:var(--accent);background:var(--accent);color:#fff;font-weight:600}
+    .cityd-v2 .cr-mention-list li{transition:padding-left 160ms ease}
+    .cityd-v2 .cr-mention-list li:hover{padding-left:.3rem}
+    .cityd-v2 .cr-mention-list li.is-podium .cr-mention-rank b{color:var(--accent)}
+    @media (max-width:960px){.cityd-v2 .cr-rail{position:static}}
+    @media (prefers-reduced-motion:reduce){.cityd-v2 .cr-card-photo img,.cityd-v2 .cr-glance-item,.cityd-v2 .cr-mention-list li{transition:none}}
   </style>
 </BaseLayout>

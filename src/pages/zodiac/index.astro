@@ -121,24 +121,56 @@ const { published, modified } = pageDates('zodiac/index.md');
 
           <section class="z-cosmos" aria-label="十二地支关系罗盘与五行三合相冲">
             <div class="col-head z-cosmos-hd">
-              <h2 class="col-title">地支罗盘 · 五行与三合相冲</h2>
-              <span class="col-count">/ 悬停或点击任意生肖与组合，实时绘制关系连线</span>
+              <h2 class="col-title">地支星仪 · 五行与三合相冲</h2>
+              <span class="col-count">/ 点击任意生肖或右侧卡片锁定关系，旋转指针并绘制三合·六合·六冲连线</span>
             </div>
 
             <div class="z-cosmos-grid">
-              {/* 左：交互式十二地支关系罗盘 SVG */}
+              {/* 左：交互式十二地支星象罗盘 SVG（24 刻度 + 方位 + 时辰 + 三合/六合/六冲连线） */}
               <div class="z-compass-wrap">
-                <svg class="z-compass" viewBox="0 0 420 420" role="img" aria-label="十二地支三合六冲交互罗盘" data-z-compass>
-                  <circle class="zc-ring-outer" cx="210" cy="210" r="176" />
-                  <circle class="zc-ring-mid" cx="210" cy="210" r="134" />
+                <svg class="z-compass" viewBox="0 0 460 460" role="img" aria-label="十二地支三合六合六冲交互罗盘" data-z-compass>
+                  {/* 24 方位细刻度 */}
+                  <g class="zc-ticks" aria-hidden="true">
+                    {Array.from({ length: 24 }, (_, k) => {
+                      const a = ((-90 + k * 15) * Math.PI) / 180;
+                      const major = k % 2 === 0;
+                      const r1 = major ? 196 : 202;
+                      const r2 = 208;
+                      return (
+                        <line
+                          class={major ? 'zc-tick is-major' : 'zc-tick'}
+                          x1={(230 + r1 * Math.cos(a)).toFixed(1)}
+                          y1={(230 + r1 * Math.sin(a)).toFixed(1)}
+                          x2={(230 + r2 * Math.cos(a)).toFixed(1)}
+                          y2={(230 + r2 * Math.sin(a)).toFixed(1)}
+                        />
+                      );
+                    })}
+                  </g>
+                  {/* 四方五行方位标 */}
+                  <g class="zc-cardinals" aria-hidden="true">
+                    <text x="230" y="14" text-anchor="middle">北 · 水</text>
+                    <text x="444" y="234" text-anchor="middle">东 · 木</text>
+                    <text x="230" y="454" text-anchor="middle">南 · 火</text>
+                    <text x="16" y="234" text-anchor="middle">西 · 金</text>
+                  </g>
+                  <circle class="zc-ring-outer" cx="230" cy="230" r="196" />
+                  <circle class="zc-ring-mid" cx="230" cy="230" r="136" />
+                  <circle class="zc-ring-sub" cx="230" cy="230" r="102" />
+                  {/* 旋转指针 */}
+                  <g class="zc-needle" data-zc-needle>
+                    <line x1="230" y1="230" x2="230" y2="96" />
+                    <circle cx="230" cy="96" r="3.5" />
+                  </g>
                   <g class="zc-lines" data-z-lines />
-                  <circle class="zc-ring-inner" cx="210" cy="210" r="64" />
+                  <circle class="zc-ring-inner" cx="230" cy="230" r="66" />
                   <g class="zc-nodes">
                     {ov.rows.map((zr: any, idx: number) => {
                       const deg = -90 + idx * 30;
                       const rad = (deg * Math.PI) / 180;
-                      const cx = Math.round((210 + 154 * Math.cos(rad)) * 10) / 10;
-                      const cy = Math.round((210 + 154 * Math.sin(rad)) * 10) / 10;
+                      const cx = Math.round((230 + 164 * Math.cos(rad)) * 10) / 10;
+                      const cy = Math.round((230 + 164 * Math.sin(rad)) * 10) / 10;
+                      const SHICHEN = ['23-01', '01-03', '03-05', '05-07', '07-09', '09-11', '11-13', '13-15', '15-17', '17-19', '19-21', '21-23'];
                       return (
                         <g
                           class={`zc-node${idx === 6 ? ' is-focus' : ''}`}
@@ -147,11 +179,12 @@ const { published, modified } = pageDates('zodiac/index.md');
                           data-zc-animal={zr.animal}
                           data-zc-branch={zr.branch}
                           data-zc-element={zr.element}
+                          data-zc-hour={SHICHEN[idx]}
                           tabindex="0"
                           role="button"
-                          aria-label={`${zr.branch}${zr.animal}（五行${zr.element}）`}
+                          aria-label={`${zr.branch}${zr.animal}（五行${zr.element}，${zr.branch}时 ${SHICHEN[idx]}）`}
                         >
-                          <circle class="zc-node-bg" cx={cx} cy={cy} r="22" />
+                          <circle class="zc-node-bg" cx={cx} cy={cy} r="23" />
                           <text class="zc-node-animal" x={cx} y={cy - 2} text-anchor="middle">{zr.animal}</text>
                           <text class="zc-node-branch" x={cx} y={cy + 12} text-anchor="middle">{zr.branch}</text>
                         </g>
@@ -159,14 +192,15 @@ const { published, modified } = pageDates('zodiac/index.md');
                     })}
                   </g>
                   <g class="zc-center">
-                    <text class="zc-center-k" x="210" y="198" text-anchor="middle" data-zc-ck>地支关系</text>
-                    <text class="zc-center-t" x="210" y="218" text-anchor="middle" data-zc-ct>午马</text>
-                    <text class="zc-center-s" x="210" y="236" text-anchor="middle" data-zc-cs>寅午戌 · 冲鼠</text>
+                    <text class="zc-center-k" x="230" y="213" text-anchor="middle" data-zc-ck>五行火 · 11-13时</text>
+                    <text class="zc-center-t" x="230" y="236" text-anchor="middle" data-zc-ct>午马</text>
+                    <text class="zc-center-s" x="230" y="255" text-anchor="middle" data-zc-cs>三合虎马狗 · 冲鼠</text>
                   </g>
                 </svg>
                 <div class="z-compass-legend">
-                  <span><i class="zc-lg zc-lg--tri" aria-hidden="true" />三合（等边三角）</span>
-                  <span><i class="zc-lg zc-lg--opp" aria-hidden="true" />六冲（正对直径）</span>
+                  <span><i class="zc-lg zc-lg--tri" aria-hidden="true" />三合</span>
+                  <span><i class="zc-lg zc-lg--six" aria-hidden="true" />六合</span>
+                  <span><i class="zc-lg zc-lg--opp" aria-hidden="true" />六冲</span>
                   <a class="z-compass-link" data-zc-link href={urlFor('/zodiac/horse/')}>进入「马」档案 →</a>
                 </div>
               </div>
@@ -323,6 +357,7 @@ const { published, modified } = pageDates('zodiac/index.md');
       if (!compass || !linesG) return;
 
       var nodes = Array.prototype.slice.call(compass.querySelectorAll('[data-zc-idx]'));
+      var needle = compass.querySelector('[data-zc-needle]');
       var ck = compass.querySelector('[data-zc-ck]');
       var ct = compass.querySelector('[data-zc-ct]');
       var cs = compass.querySelector('[data-zc-cs]');
@@ -331,9 +366,12 @@ const { published, modified } = pageDates('zodiac/index.md');
       var tabs = Array.prototype.slice.call(document.querySelectorAll('[data-z-tab]'));
       var panes = Array.prototype.slice.call(document.querySelectorAll('[data-z-pane]'));
 
+      // 六合配对表：子丑(0-1)、寅亥(2-11)、卯戌(3-10)、辰酉(4-9)、巳申(5-8)、午未(6-7)
+      var LIUHE = [1, 0, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2];
+
       var pts = nodes.map(function (_, i) {
         var rad = ((-90 + i * 30) * Math.PI) / 180;
-        return { x: +(210 + 134 * Math.cos(rad)).toFixed(1), y: +(210 + 134 * Math.sin(rad)).toFixed(1) };
+        return { x: +(230 + 136 * Math.cos(rad)).toFixed(1), y: +(230 + 136 * Math.sin(rad)).toFixed(1) };
       });
       var byAnimal = {};
       nodes.forEach(function (n, i) { byAnimal[n.getAttribute('data-zc-animal')] = i; });
@@ -345,25 +383,30 @@ const { published, modified } = pageDates('zodiac/index.md');
         }).join(' ') + (close ? ' Z' : '');
         var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         path.setAttribute('d', d);
+        path.setAttribute('pathLength', '100');
         path.setAttribute('class', cls);
         linesG.appendChild(path);
       }
 
       function clearHighlight() {
         linesG.innerHTML = '';
-        nodes.forEach(function (n) { n.classList.remove('is-focus', 'is-tri', 'is-opp', 'is-dim'); });
+        nodes.forEach(function (n) { n.classList.remove('is-focus', 'is-tri', 'is-six', 'is-opp', 'is-dim'); });
         rows.forEach(function (r) { r.classList.remove('is-active'); });
       }
 
       function focusAnimal(idx) {
         clearHighlight();
         var tri = [idx, (idx + 4) % 12, (idx + 8) % 12];
+        var six = LIUHE[idx];
         var opp = (idx + 6) % 12;
+        if (needle) needle.style.transform = 'rotate(' + (idx * 30) + 'deg)';
         drawPoly(tri, 'zc-path zc-path--tri', true);
+        drawPoly([idx, six], 'zc-path zc-path--six', false);
         drawPoly([idx, opp], 'zc-path zc-path--opp', false);
         nodes.forEach(function (n, i) {
           if (i === idx) n.classList.add('is-focus');
           else if (tri.indexOf(i) !== -1) n.classList.add('is-tri');
+          else if (i === six) n.classList.add('is-six');
           else if (i === opp) n.classList.add('is-opp');
           else n.classList.add('is-dim');
         });
@@ -371,11 +414,13 @@ const { published, modified } = pageDates('zodiac/index.md');
         var an = cur.getAttribute('data-zc-animal');
         var br = cur.getAttribute('data-zc-branch');
         var key = cur.getAttribute('data-zc-key');
+        var hr = cur.getAttribute('data-zc-hour') || '';
         var triNames = tri.map(function (i) { return nodes[i].getAttribute('data-zc-animal'); }).join('');
+        var sixName = nodes[six].getAttribute('data-zc-animal');
         var oppName = nodes[opp].getAttribute('data-zc-animal');
-        if (ck) ck.textContent = '五行' + cur.getAttribute('data-zc-element');
+        if (ck) ck.textContent = '五行' + cur.getAttribute('data-zc-element') + ' · ' + hr + '时';
         if (ct) ct.textContent = br + an;
-        if (cs) cs.textContent = '三合' + triNames + ' · 冲' + oppName;
+        if (cs) cs.textContent = '合' + triNames + ' · 六合' + sixName + ' · 冲' + oppName;
         if (linkEl) {
           linkEl.href = '/zodiac/' + key + '/';
           linkEl.textContent = '进入「' + an + '」档案 →';
@@ -390,6 +435,7 @@ const { published, modified } = pageDates('zodiac/index.md');
         if (kind === 'sanhe' || kind === 'chong') {
           var names = (row.getAttribute('data-rel-animals') || '').split(',').filter(Boolean);
           var idxs = names.map(function (a) { return byAnimal[a]; }).filter(function (i) { return i !== undefined; });
+          if (needle && idxs.length) needle.style.transform = 'rotate(' + (idxs[0] * 30) + 'deg)';
           drawPoly(idxs, kind === 'sanhe' ? 'zc-path zc-path--tri' : 'zc-path zc-path--opp', kind === 'sanhe');
           nodes.forEach(function (n, i) {
             if (idxs.indexOf(i) !== -1) n.classList.add(kind === 'sanhe' ? 'is-tri' : 'is-opp');
@@ -409,6 +455,7 @@ const { published, modified } = pageDates('zodiac/index.md');
               n.classList.add('is-dim');
             }
           });
+          if (needle && matched.length) needle.style.transform = 'rotate(' + (matched[0] * 30) + 'deg)';
           if (matched.length >= 2) drawPoly(matched, 'zc-path zc-path--tri', matched.length >= 3);
           if (ck) ck.textContent = '五行对应';
           if (ct) ct.textContent = el;
@@ -416,8 +463,8 @@ const { published, modified } = pageDates('zodiac/index.md');
         }
       }
 
+      // 点击锁定（不再用 mouseenter 随手划过就乱跳）
       nodes.forEach(function (n, i) {
-        n.addEventListener('mouseenter', function () { focusAnimal(i); });
         n.addEventListener('click', function () { focusAnimal(i); });
         n.addEventListener('keydown', function (ev) {
           if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); focusAnimal(i); }
@@ -425,7 +472,6 @@ const { published, modified } = pageDates('zodiac/index.md');
       });
 
       rows.forEach(function (row) {
-        row.addEventListener('mouseenter', function () { focusRow(row); });
         row.addEventListener('click', function () { focusRow(row); });
         row.addEventListener('keydown', function (ev) {
           if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); focusRow(row); }
@@ -487,33 +533,43 @@ const { published, modified } = pageDates('zodiac/index.md');
     .z-birth-fold .cal-table-wrap{margin-top:1rem}
     .z-cosmos{margin-top:2.8rem;padding-top:2.4rem;border-top:1px solid var(--line-color)}
     .z-cosmos-hd{margin-bottom:1.5rem}
-    .z-cosmos-grid{display:grid;grid-template-columns:minmax(320px,430px) minmax(0,1fr);align-items:start;gap:clamp(1.6rem,3.6vw,3rem)}
+    .z-cosmos-grid{display:grid;grid-template-columns:minmax(340px,450px) minmax(0,1fr);align-items:start;gap:clamp(1.6rem,3.6vw,3rem)}
     .z-compass-wrap{position:sticky;top:5.2rem;display:flex;flex-direction:column;align-items:center;gap:.9rem;padding:1.25rem;border:1px solid var(--line-color);border-radius:var(--r-sm);background:var(--surface-tint)}
-    .z-compass{width:100%;max-width:380px;height:auto;display:block;overflow:visible}
-    .zc-ring-outer,.zc-ring-mid,.zc-ring-inner{fill:none;stroke:var(--line-color)}
-    .zc-ring-outer{stroke-width:1;stroke-dasharray:3 4}
-    .zc-ring-mid{stroke-width:1}
-    .zc-ring-inner{stroke-width:1;fill:var(--body-bg-color)}
-    .zc-path{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:900;stroke-dashoffset:900;animation:zcDraw 520ms cubic-bezier(.22,1,.36,1) forwards}
-    .zc-path--tri{stroke:var(--accent);stroke-width:2;fill:color-mix(in srgb,var(--accent) 8%,transparent)}
-    .zc-path--opp{stroke:var(--sec-text-color);stroke-width:1.6;stroke-dasharray:5 5;stroke-dashoffset:0;animation:none}
+    .z-compass{width:100%;max-width:410px;height:auto;display:block;overflow:visible}
+    .zc-tick{stroke:var(--line-color);stroke-width:1}
+    .zc-tick.is-major{stroke:var(--info-mark);stroke-width:1.4}
+    .zc-cardinals text{font-family:var(--font-mono);font-size:10px;fill:var(--info-mark);letter-spacing:.08em}
+    .zc-ring-outer,.zc-ring-mid,.zc-ring-sub,.zc-ring-inner{fill:none;stroke:var(--line-color)}
+    .zc-ring-outer{stroke-width:1}
+    .zc-ring-mid{stroke-width:1;stroke-dasharray:2 3}
+    .zc-ring-sub{stroke-width:.8;opacity:.55}
+    .zc-ring-inner{stroke-width:1.2;fill:var(--body-bg-color)}
+    .zc-needle{transform-origin:230px 230px;transition:transform 460ms cubic-bezier(.22,1,.36,1)}
+    .zc-needle line{stroke:var(--accent);stroke-width:1.5;opacity:.45}
+    .zc-needle circle{fill:var(--accent)}
+    .zc-path{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100;stroke-dashoffset:100;animation:zcDraw 520ms cubic-bezier(.22,1,.36,1) forwards}
+    .zc-path--tri{stroke:var(--accent);stroke-width:2.1;fill:color-mix(in srgb,var(--accent) 9%,transparent)}
+    .zc-path--six{stroke:#c68b38;stroke-width:1.7}
+    .zc-path--opp{stroke:var(--sec-text-color);stroke-width:1.5;stroke-dasharray:4 4;stroke-dashoffset:0;animation:none}
     @keyframes zcDraw{to{stroke-dashoffset:0}}
     .zc-node{cursor:pointer;transition:opacity 200ms ease}
     .zc-node.is-dim{opacity:.32}
-    .zc-node-bg{fill:var(--body-bg-color);stroke:var(--line-color);stroke-width:1.2;transition:fill 180ms ease,stroke 180ms ease,transform 180ms ease}
-    .zc-node-animal{font-family:var(--font-serif-title);font-size:13px;font-weight:700;fill:var(--text-color);pointer-events:none}
+    .zc-node-bg{fill:var(--body-bg-color);stroke:var(--line-color);stroke-width:1.2;transition:fill 180ms ease,stroke 180ms ease}
+    .zc-node-animal{font-family:var(--font-serif-title);font-size:13.5px;font-weight:700;fill:var(--text-color);pointer-events:none}
     .zc-node-branch{font-family:var(--font-mono);font-size:10px;fill:var(--info-mark);pointer-events:none}
     .zc-node:hover .zc-node-bg,.zc-node.is-tri .zc-node-bg{stroke:var(--accent);stroke-width:1.8}
+    .zc-node.is-six .zc-node-bg{stroke:#c68b38;stroke-width:1.8}
     .zc-node.is-focus .zc-node-bg{fill:var(--accent);stroke:var(--accent)}
     .zc-node.is-focus .zc-node-animal,.zc-node.is-focus .zc-node-branch{fill:#fff}
     .zc-node.is-opp .zc-node-bg{stroke:var(--text-color);stroke-width:1.8;stroke-dasharray:3 2}
-    .zc-center-k{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;fill:var(--accent)}
-    .zc-center-t{font-family:var(--font-serif-title);font-size:18px;font-weight:700;fill:var(--text-color)}
-    .zc-center-s{font-family:var(--font-mono);font-size:10.5px;fill:var(--sec-text-color)}
-    .z-compass-legend{width:100%;display:flex;flex-wrap:wrap;align-items:center;gap:.55rem 1rem;padding-top:.85rem;border-top:1px solid var(--line-color);font-family:var(--font-mono);font-size:.75rem;color:var(--info-mark)}
-    .z-compass-legend span{display:inline-flex;align-items:center;gap:.35rem}
-    .zc-lg{display:inline-block;width:14px;height:2px}
+    .zc-center-k{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.08em;fill:var(--accent)}
+    .zc-center-t{font-family:var(--font-serif-title);font-size:19px;font-weight:700;fill:var(--text-color)}
+    .zc-center-s{font-family:var(--font-mono);font-size:9.5px;fill:var(--sec-text-color)}
+    .z-compass-legend{width:100%;display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .9rem;padding-top:.85rem;border-top:1px solid var(--line-color);font-family:var(--font-mono);font-size:.75rem;color:var(--info-mark)}
+    .z-compass-legend span{display:inline-flex;align-items:center;gap:.3rem}
+    .zc-lg{display:inline-block;width:13px;height:2px}
     .zc-lg--tri{background:var(--accent)}
+    .zc-lg--six{background:#c68b38}
     .zc-lg--opp{border-top:2px dashed var(--sec-text-color)}
     .z-compass-link{margin-left:auto;color:var(--accent);font-weight:700;text-decoration:none}
     .z-compass-link:hover{text-decoration:underline;text-underline-offset:3px}
@@ -526,12 +582,18 @@ const { published, modified } = pageDates('zodiac/index.md');
     .z-insp-pane{display:none}
     .z-insp-pane.is-active{display:block;animation:zFadeIn 220ms ease}
     @keyframes zFadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-    .z-v2 .z-elements th,.z-v2 .z-elements td,.z-v2 .z-sanhe th,.z-v2 .z-sanhe td{padding:.68rem .85rem}
-    .z-v2 .z-sanhe tbody th{width:6.2rem;white-space:nowrap}
-    .z-rel-row{cursor:pointer;transition:background-color 160ms ease}
-    .z-rel-row:hover,.z-rel-row.is-active{background:var(--surface-tint)}
-    .z-rel-row.is-active .cal-name{color:var(--accent)}
-    .z-col-badge{width:5.4rem;text-align:right;white-space:nowrap}
+    /* 彻底去掉生硬白底表格，改为融入暖纸底色的卡片行列表 */
+    .z-v2 .z-inspector .cal-table-wrap{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important}
+    .z-v2 .z-sanhe,.z-v2 .z-elements{width:100%;border-collapse:separate!important;border-spacing:0 .48rem!important;background:transparent!important;border:0!important}
+    .z-v2 .z-sanhe thead,.z-v2 .z-elements thead{display:none}
+    .z-v2 .z-rel-row{cursor:pointer;background:var(--surface-tint)!important;transition:background-color 160ms ease,transform 180ms ease}
+    .z-v2 .z-rel-row th,.z-v2 .z-rel-row td{padding:.75rem .95rem!important;border:1px solid var(--line-color)!important;border-left:0!important;border-right:0!important;background:transparent!important;vertical-align:middle}
+    .z-v2 .z-rel-row th:first-child{border-left:1px solid var(--line-color)!important;border-radius:var(--r-sm) 0 0 var(--r-sm);width:6.2rem;white-space:nowrap}
+    .z-v2 .z-rel-row td:last-child{border-right:1px solid var(--line-color)!important;border-radius:0 var(--r-sm) var(--r-sm) 0}
+    .z-v2 .z-rel-row:hover th,.z-v2 .z-rel-row:hover td,.z-v2 .z-rel-row.is-active th,.z-v2 .z-rel-row.is-active td{border-color:var(--accent)!important}
+    .z-v2 .z-rel-row.is-active{background:color-mix(in srgb,var(--accent) 7%,var(--surface-tint))!important}
+    .z-v2 .z-rel-row.is-active .cal-name{color:var(--accent)}
+    .z-col-badge{width:5.6rem;text-align:right;white-space:nowrap}
     .z-badge{display:inline-block;padding:.14rem .5rem;border-radius:999px;font-family:var(--font-mono);font-size:.75rem}
     .z-badge--tri{background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent);font-weight:600}
     .z-badge--opp{border:1px solid var(--line-color);color:var(--sec-text-color)}
@@ -545,6 +607,6 @@ const { published, modified } = pageDates('zodiac/index.md');
     .z-v2 .z-card-thumb img{transition:transform 420ms cubic-bezier(.22,1,.36,1)}
     .z-v2 .z-card:hover .z-card-thumb img{transform:scale(1.04)}
     @media (max-width:960px){.z-v2 .z-v2-head,.z-cosmos-grid{grid-template-columns:minmax(0,1fr)}.z-compass-wrap{position:static}}
-    @media (prefers-reduced-motion:reduce){.z-v2 .z-card,.z-v2 .z-card-thumb img,.zc-path,.z-insp-pane{transition:none;animation:none;stroke-dashoffset:0}}
+    @media (prefers-reduced-motion:reduce){.z-v2 .z-card,.z-v2 .z-card-thumb img,.zc-path,.zc-needle,.z-insp-pane{transition:none;animation:none;stroke-dashoffset:0}}
   </style>
 </BaseLayout>
