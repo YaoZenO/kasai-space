@@ -244,7 +244,7 @@ ok('E-179 防复发：卡片左右内距由 .win-row 自己承担且 ≥ 18px', 
     '外壳左右内距未归零：行会拿到 22+22 的双份缩进');
   assert.match(shell, /border-radius:\s*6px/, '窗口圆角不是利落的 6px');
   assert.match(shell, /border:\s*1\.5px\s+solid\s+var\(--win-line\)/, '窗口不是 1.5px 硬边');
-  ['\.win-head', '\.win-lines li', '\.win-social-row', '\.win-split', '\.win-foot']
+  ['\.win-head', '\.win-ident', '\.win-lines li', '\.win-social-row', '\.win-split', '\.win-foot']
     .forEach((sel) => {
       const m = new RegExp(sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*\\{([^}]*)\\}').exec(s26);
       assert.ok(m, '§4.26 缺少 ' + sel);
@@ -439,16 +439,21 @@ if (!exists(HOME)) {
   });
 
   ok('旧结构与旧脚本痕迹清零', () => {
-    ['mz-', 'home-measure.js', 'sd-scene-word', 'win-note', 'outro-title', 'win-ident'].forEach((s) => {
+    ['mz-', 'home-measure.js', 'sd-scene-word', 'win-note', 'outro-title'].forEach((s) => {
       assert.ok(!home.includes(s), '产物里仍有：' + s);
     });
   });
 
-  ok('E-196 防复发：首页不渲染真实姓名与 .win-ident（真实姓名仅保留在关于页）', () => {
+  ok('E-196 / E-197 防复发：首页保留 KASAI\'S Personal Space 且不渲染真实姓名，矮视口不丢水平内距', () => {
     assert.ok(!page.includes('themeConfig.about?.name'), '首页模板仍在读取 about.name');
-    assert.ok(!page.includes('win-ident'), '首页模板仍留有 .win-ident');
-    assert.ok(!s26.includes('.win-ident'), '§4.26 样式仍留有 .win-ident');
     assert.ok(!/韩耀宇|韓耀宇/.test(home), '首页产物中出现了真实姓名');
+    assert.ok(desk.includes('class="win-ident"') && (desk.includes("KASAI&#39;S Personal Space") || desk.includes("KASAI'S Personal Space")),
+      '首页 About Me 卡片缺少 .win-ident 或 KASAI\'S Personal Space');
+    const shortVp = /@media \(min-width: 1024px\) and \(max-height: 860px\)\s*\{([\s\S]*?)\n\}/.exec(s26);
+    assert.ok(shortVp, '缺少矮视口媒体查询段');
+    const shortIdent = /\.win-ident\s*\{([^}]*)\}/.exec(shortVp[1]);
+    assert.ok(shortIdent && /var\(--win-px\)/.test(shortIdent[1]),
+      '矮视口下的 .win-ident 水平内距未使用 var(--win-px)');
   });
 }
 
