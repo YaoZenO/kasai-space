@@ -145,8 +145,9 @@ const photos = data.cityphotos || {};
 ---
 
 <BaseLayout title="城市档案" currentPath="/city/">
+  <canvas class="ab-bg-canvas" id="ab-bg-canvas" aria-hidden="true"></canvas>
   <div class="paper-page cal-page cr-page">
-    <div class="home-wrap">
+    <div class="home-wrap ab-page-shell city-v2">
       <nav class="cal-crumb" aria-label="面包屑">
         <a href={urlFor('/library/')}>资料库</a><span aria-hidden="true">/</span><span class="cal-crumb-now">城市档案</span>
       </nav>
@@ -303,4 +304,17 @@ const photos = data.cityphotos || {};
       )}
     </div>
   </div>
+
+  <style is:global>
+    .city-v2 .cr-index-hero{position:relative;padding-top:.4rem;padding-bottom:2rem;border-bottom:1px solid var(--line-color)}
+    .city-v2 .cr-index-title{font-family:var(--font-serif-title);font-size:clamp(2.2rem,4.6vw,3.4rem);line-height:1.08;letter-spacing:-0.02em}
+    .city-v2 .cr-provcard{border-radius:var(--r-sm);border:1px solid var(--line-color);background:transparent;transition:border-color 180ms ease,transform 200ms cubic-bezier(.22,1,.36,1),opacity 200ms ease}
+    .city-v2 .cr-provgrid:hover .cr-provcard:not(:hover){opacity:.58}
+    .city-v2 .cr-provcard:hover{border-color:var(--accent);transform:translateY(-2px)}
+    .city-v2 .cr-provcard:hover .cr-provcard-name{color:var(--accent)}
+    .city-v2 .cr-topcard,.city-v2 .cr-citycard{border-radius:var(--r-sm);border:1px solid var(--line-color);background:transparent;transition:border-color 200ms ease,transform 220ms cubic-bezier(.22,1,.36,1)}
+    .city-v2 .cr-topcard:hover,.city-v2 .cr-citycard:hover{border-color:var(--accent);transform:translateY(-2px)}
+    .city-v2 .cr-search{border-radius:999px}
+    @media (prefers-reduced-motion:reduce){.city-v2 .cr-provcard,.city-v2 .cr-topcard,.city-v2 .cr-citycard{transition:none}}
+  </style>
 </BaseLayout>

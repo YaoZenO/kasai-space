@@ -87,8 +87,9 @@ if (r) {
 ---
 
 <BaseLayout title={r ? r.title : '城市排行榜'} currentPath={`/cityrank/${rankSlug}/`}>
+  <canvas class="ab-bg-canvas" id="ab-bg-canvas" aria-hidden="true"></canvas>
   <div class="paper-page cal-page cr-page">
-    <div class="home-wrap">
+    <div class="home-wrap ab-page-shell crr-v2">
       {
         !r ? (
           <>
@@ -308,4 +309,15 @@ if (r) {
       }
     </div>
   </div>
+
+  <style is:global>
+    .crr-v2 .cr-hd{padding-bottom:1.8rem;border-bottom:1px solid var(--line-color)}
+    .crr-v2 .cr-hd-title{font-family:var(--font-serif-title);font-size:clamp(2rem,4.2vw,3.1rem);line-height:1.12;letter-spacing:-0.02em}
+    .crr-v2 .crr-chip{border-radius:999px;transition:border-color 160ms ease,color 160ms ease,background-color 160ms ease}
+    .crr-v2 .crr-row{transition:padding-left 180ms ease}
+    .crr-v2 .crr-row:hover{padding-left:.38rem}
+    .crr-v2 .crr-fill{transition:width 360ms cubic-bezier(.22,1,.36,1)}
+    .crr-v2 .cr-side-box{background:transparent;border:0;border-left:1px solid var(--line-color);border-radius:0;padding-left:1.1rem}
+    @media (prefers-reduced-motion:reduce){.crr-v2 .crr-row,.crr-v2 .crr-fill{transition:none}}
+  </style>
 </BaseLayout>

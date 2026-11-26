@@ -186,8 +186,9 @@ const peerMoreHref = provPage && !(provPage.total === 1 && provPage.pageCount ==
 ---
 
 <BaseLayout title={c ? c.name : '城市档案'} currentPath={`/city/${citySlug}/`}>
+  <canvas class="ab-bg-canvas" id="ab-bg-canvas" aria-hidden="true"></canvas>
   <div class="paper-page cal-page cr-page cr-citypage">
-    <div class="home-wrap">
+    <div class="home-wrap ab-page-shell cityd-v2">
       {
         !c ? (
           <>
@@ -381,4 +382,13 @@ const peerMoreHref = provPage && !(provPage.total === 1 && provPage.pageCount ==
       }
     </div>
   </div>
+
+  <style is:global>
+    .cityd-v2 .cr-card{border-radius:var(--r-sm);border:1px solid var(--line-color);background:transparent}
+    .cityd-v2 .cr-card-name{font-family:var(--font-serif-title);letter-spacing:-0.02em}
+    .cityd-v2 .cr-card-photo img,.cityd-v2 .cr-map img{border-radius:var(--r-sm)}
+    .cityd-v2 .cr-side-box{background:transparent;border:0;border-left:1px solid var(--line-color);border-radius:0;padding-left:1.1rem}
+    .cityd-v2 .cr-spec-row{transition:background-color 160ms ease}
+    .cityd-v2 .cr-spec-row:hover{background:var(--surface-tint)}
+  </style>
 </BaseLayout>

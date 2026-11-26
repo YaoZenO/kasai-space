@@ -75,8 +75,9 @@ function kindLabel(kind: string) {
 ---
 
 <BaseLayout title={title} currentPath="/cityrank/">
+  <canvas class="ab-bg-canvas" id="ab-bg-canvas" aria-hidden="true"></canvas>
   <div class="paper-page cal-page cr-page">
-    <div class="home-wrap">
+    <div class="home-wrap ab-page-shell crk-v2">
       {CR.error ? (
         <>
           <header class="cr-hd">
@@ -203,4 +204,18 @@ function kindLabel(kind: string) {
       )}
     </div>
   </div>
+
+  <style is:global>
+    .crk-v2 .crk-hero{padding-bottom:2rem;border-bottom:1px solid var(--line-color)}
+    .crk-v2 .crk-title{font-family:var(--font-serif-title);font-size:clamp(2.2rem,4.6vw,3.4rem);line-height:1.08;letter-spacing:-0.02em}
+    .crk-v2 .crk-herocard{border-radius:var(--r-sm);border:1px solid var(--line-color);background:transparent}
+    .crk-v2 .crk-chip{border-radius:999px;transition:border-color 160ms ease,color 160ms ease}
+    .crk-v2 .crk-chip:hover{border-color:var(--accent);color:var(--accent)}
+    .crk-v2 .crk-card{border-radius:var(--r-sm);border:1px solid var(--line-color);background:transparent;box-shadow:none;transition:border-color 200ms ease,transform 240ms cubic-bezier(.22,1,.36,1),opacity 220ms ease}
+    .crk-v2 .crk-cards:hover .crk-card:not(:hover){opacity:.62}
+    .crk-v2 .crk-card:hover{border-color:var(--accent);transform:translateY(-3px)}
+    .crk-v2 .crk-card:hover .crk-card-title{color:var(--accent)}
+    .crk-v2 .cr-search{border-radius:999px}
+    @media (prefers-reduced-motion:reduce){.crk-v2 .crk-card{transition:none}}
+  </style>
 </BaseLayout>
