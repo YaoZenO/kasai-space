@@ -42,7 +42,6 @@
 
         var title = tile.getAttribute('data-gm-title') || '';
         var meta = tile.getAttribute('data-gm-meta') || '';
-        var sum = tile.getAttribute('data-gm-sum') || '';
         var cover = tile.getAttribute('data-gm-cover') || '';
         var detail = tile.getAttribute('href') || '';
         var appid = tile.getAttribute('data-steam-app') || '';
@@ -62,7 +61,7 @@
         }
         if (dTitle) dTitle.textContent = title;
         if (dMeta) dMeta.textContent = meta;
-        if (dSum) dSum.textContent = sum || '暂无更多备注。';
+        if (dSum) dSum.hidden = true;
 
         if (dHours) {
           var st = appid ? steamByApp[appid] : null;
@@ -134,8 +133,7 @@
         var st = steamByApp[appid];
         var slot = tile.querySelector('[data-gm-hours]');
         if (slot && st.hoursTotal > 0) {
-          slot.textContent =
-            fmtHours(st.hoursTotal) + (st.hours2w > 0 ? ' · 近两周 ' + fmtHours(st.hours2w) : '');
+          slot.textContent = fmtHours(st.hoursTotal);
           slot.hidden = false;
         }
       });

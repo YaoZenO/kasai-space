@@ -91,8 +91,8 @@ const SPECIAL_MAP: Record<string, { href: string; label: string }> = {
       {items.length === 0 ? (
         <EmptyState>还没有游戏条目，可以先回<a href={urlFor('/')}>首页</a>看看别的内容。</EmptyState>
       ) : (
-        <section class="gm-wall-wrap" aria-label="常玩名片">
-          <p class="gm-section-kicker">IN ROTATION · 常玩名片（点开查看玩家卡）</p>
+        <section class="gm-wall-wrap" aria-label="常玩入口">
+          <p class="gm-section-kicker">IN ROTATION · 常玩清单</p>
           <div class="gm-wall">
             {items.map((it: any) => {
               const appid = steamAppId(it);
@@ -108,7 +108,6 @@ const SPECIAL_MAP: Record<string, { href: string; label: string }> = {
                   data-steam-app={appid || undefined}
                   data-gm-title={it.title}
                   data-gm-meta={metaStr}
-                  data-gm-sum={it.summary || ''}
                   data-gm-cover={it.cover ? urlFor(it.cover) : ''}
                   data-gm-special-href={sp ? urlFor(sp.href) : ''}
                   data-gm-special-label={sp ? sp.label : ''}
@@ -116,14 +115,13 @@ const SPECIAL_MAP: Record<string, { href: string; label: string }> = {
                   data-gm-ext-label={firstLink?.label || ''}
                 >
                   {it.cover && <img class="gm-tile-img" src={urlFor(it.cover)} alt={it.title} loading="lazy" />}
-                  <span class="gm-tile-hours" data-gm-hours hidden />
-                  {it.status && <span class="gm-status">{it.status}</span>}
                   <span class="gm-tile-cap">
                     <span class="gm-tile-title">{it.title}</span>
-                    {it.summary && <span class="gm-tile-sum">{it.summary}</span>}
-                    {(it.genre || it.platform) && (
-                      <span class="gm-tile-meta">{[it.genre, it.platform].filter(Boolean).join(' · ')}</span>
-                    )}
+                    <span class="gm-tile-sub">
+                      {it.status && <span class="gm-status">{it.status}</span>}
+                      <span class="gm-tile-hours" data-gm-hours hidden />
+                      {!appid && it.genre && <span class="gm-tile-meta">{it.genre}</span>}
+                    </span>
                   </span>
                 </a>
               );
@@ -167,7 +165,6 @@ const SPECIAL_MAP: Record<string, { href: string; label: string }> = {
       </div>
       <img class="gm-d-img" data-gm-d-img src="" alt="" hidden />
       <p class="gm-d-hours" data-gm-d-hours hidden></p>
-      <p class="gm-d-sum" data-gm-d-sum></p>
       <div class="gm-d-links" data-gm-d-links></div>
     </div>
   </dialog>
@@ -198,10 +195,20 @@ const SPECIAL_MAP: Record<string, { href: string; label: string }> = {
   .gm-feature-kicker{font-family:var(--font-mono);font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#f5c56b}
   .gm-feature-title{font-family:var(--font-serif-title);font-size:clamp(1.2rem,2vw,1.45rem);font-weight:600;line-height:1.25}
   .gm-feature-sub{font-size:.84rem;opacity:.88}
-  .gm-wall:hover .gm-tile:not(:hover){opacity:.58}
-  .gm-tile-hours{position:absolute;top:.65rem;left:.65rem;z-index:2;padding:.14rem .52rem;border-radius:999px;background:rgba(18,16,14,.74);backdrop-filter:blur(6px);font-family:var(--font-mono);font-size:.75rem;font-weight:700;line-height:1.4;color:#f5c56b;letter-spacing:.02em}
+  .gm-wall-wrap{margin:0 0 2.6rem}
+  .gm-wall{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));grid-auto-rows:auto;gap:.75rem}
+  .gm-wall .gm-tile,.gm-wall .gm-tile:first-child{grid-column:auto;grid-row:auto;position:relative;display:flex;align-items:center;gap:.7rem;padding:.58rem .72rem;border:1px solid var(--line-color);border-radius:var(--r-sm);background:transparent;color:var(--text-color);text-decoration:none;overflow:hidden;transition:border-color 200ms ease,transform 220ms ease}
+  .gm-wall .gm-tile:hover{transform:translateY(-2px);border-color:var(--accent)}
+  .gm-wall .gm-tile-img{width:42px;height:42px;flex:none;border-radius:6px;object-fit:cover;display:block}
+  .gm-wall .gm-tile-cap{position:static;padding:0;background:none;display:flex;flex-direction:column;gap:.18rem;min-width:0;flex:1}
+  .gm-wall .gm-tile-title,.gm-wall .gm-tile:first-child .gm-tile-title{margin:0;font-family:var(--font-serif-title);font-size:.9rem;font-weight:600;line-height:1.25;color:var(--text-color);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .gm-wall .gm-tile:hover .gm-tile-title{color:var(--accent)}
+  .gm-tile-sub{display:flex;align-items:center;gap:.45rem;min-width:0;font-family:var(--font-mono);font-size:.75rem;color:var(--info-mark)}
+  .gm-wall .gm-status{position:static;padding:0;background:none;color:var(--accent);font-family:var(--font-mono);font-size:.75rem;font-weight:600;line-height:1.2;flex:none}
+  .gm-tile-hours{position:static;padding:0;background:none;backdrop-filter:none;font-family:var(--font-mono);font-size:.75rem;font-weight:600;color:var(--info-mark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .gm-wall .gm-tile-meta{display:inline;margin:0;color:var(--info-mark);font-size:.75rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   /* Steam 实时库区外壳 */
-  .gm-steam{margin-top:3.4rem;padding-top:2.4rem;border-top:1px solid var(--line-color)}
+  .gm-steam{margin-top:2.4rem;padding-top:2.2rem;border-top:1px solid var(--line-color)}
   .gm-steam-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:1rem;margin-bottom:1.8rem}
   .gm-steam-title{margin:0;font-family:var(--font-serif-title);font-size:clamp(1.5rem,2.6vw,2rem);font-weight:600;color:var(--text-color)}
   .gm-steam-summary{margin:0;font-family:var(--font-mono);font-size:.8rem;color:var(--info-mark)}
@@ -218,11 +225,11 @@ const SPECIAL_MAP: Record<string, { href: string; label: string }> = {
   .gm-d-title{margin:0;font-family:var(--font-serif-title);font-size:1.35rem;font-weight:600;line-height:1.25}
   .gm-d-close{padding:.28rem .7rem;border:1px solid var(--line-color);border-radius:999px;background:transparent;color:var(--text-color);font-size:.78rem;cursor:pointer}
   .gm-d-close:hover{border-color:var(--accent);color:var(--accent)}
-  .gm-d-img{display:block;width:100%;height:auto;border-radius:8px;margin-bottom:.95rem}
-  .gm-d-hours{margin:0 0 .65rem;font-family:var(--font-mono);font-size:.8rem;font-weight:700;color:var(--accent)}
-  .gm-d-sum{margin:0;font-size:.94rem;line-height:1.8;color:var(--post-text-color)}
-  .gm-d-links{display:flex;flex-wrap:wrap;gap:.65rem 1.2rem;margin-top:1.2rem;padding-top:.95rem;border-top:1px solid var(--line-color)}
-  @media (max-width:767.98px){.gm-head,.gm-specials,.gm-steam-recent{grid-template-columns:minmax(0,1fr)}.gm-feature{min-height:164px}}
+  .gm-d-img{display:block;width:100%;max-height:210px;object-fit:cover;border-radius:8px;margin-bottom:.95rem}
+  .gm-d-hours{margin:0 0 .65rem;font-family:var(--font-mono);font-size:.82rem;font-weight:700;color:var(--accent)}
+  .gm-d-links{display:flex;flex-wrap:wrap;gap:.65rem 1.2rem;margin-top:1.05rem;padding-top:.95rem;border-top:1px solid var(--line-color)}
+  @media (max-width:1100px){.gm-wall{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  @media (max-width:767.98px){.gm-head,.gm-specials,.gm-steam-recent{grid-template-columns:minmax(0,1fr)}.gm-wall{grid-template-columns:repeat(2,minmax(0,1fr))}.gm-feature{min-height:164px}}
   @media (prefers-reduced-motion:reduce){.gm-feature,.gm-feature-img,.gm-feature-body{transition:none}}
 </style>
 
