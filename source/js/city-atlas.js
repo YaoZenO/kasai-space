@@ -191,7 +191,7 @@
     if (curMetric === 'mentions' && curRegion === 'all') {
       listEl.innerHTML = ssrHtml;
       if (titleEl) titleEl.textContent = '上榜最多的 30 座';
-      if (countHint) countHint.textContent = '全量 350 城 · 当前展示上榜次数前 30（切任意指标均在全量有数据城市中重排）';
+      if (countHint) countHint.textContent = '共 350 城 · 上榜次数前 30';
       syncPkUi();
       return;
     }
@@ -223,8 +223,7 @@
       titleEl.textContent = (curRegion === 'all' ? '' : curRegion + ' · ') + m.label + '前 ' + shown.length + ' 座';
     }
     if (countHint) {
-      countHint.textContent =
-        '全量有实测数据 ' + totalMatched + ' 座，展示前 ' + shown.length + ' 座（无该项数据的城市自动不入榜）';
+      countHint.textContent = '已收录 ' + totalMatched + ' 座 · 展示前 ' + shown.length + ' 座';
     }
     syncPkUi();
   }

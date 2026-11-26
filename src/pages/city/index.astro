@@ -349,7 +349,7 @@ const topRegions = Object.keys(regionCounts).sort((a, b) => regionCounts[b] - re
                   )}
                   {provsOverseas.length > 0 && (
                     <>
-                      <h3 class="cr-subhead">海外城市（非中国省级行政区）</h3>
+                      <h3 class="cr-subhead">海外城市</h3>
                       <div class="cr-provgrid cr-provgrid--flat">
                         {provsOverseas.map((pv5: any) => (
                           <a class="cr-provcard ca-overseas-card" href={urlFor('/city/province/' + pv5.slug + '/')}>

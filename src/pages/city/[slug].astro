@@ -129,7 +129,7 @@ const selfAdmin = !!c && provBase === c.name;
 let idSentence = '';
 if (c) {
   idSentence = isOverseas
-    ? `${c.name}是一座海外城市（因出现在部分国际/对照榜单而被收录，不适用中国国内 5A 景区等本土口径）。`
+    ? `${c.name}是一座海外城市。`
     : selfAdmin
       ? `${c.name}是${c.level || '省级行政区'}${c.region ? '，位于' + c.region : ''}。`
       : `${c.name}位于${c.province || '中国'}${c.level ? '，是' + c.level : ''}。`;
