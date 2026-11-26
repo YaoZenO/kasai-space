@@ -213,7 +213,7 @@ const groupCounts = {
           </section>
 
           <section class="lb-shelf-block">
-            <div class="lb-bar">
+            <div class="lb-toolbar">
               <div class="lb-cats" role="tablist" aria-label="按类别筛选专题">
                 <button type="button" class="lb-cat is-active" role="tab" aria-selected="true" data-lb-cat="all">
                   全部 <span>{groupCounts.all}</span>
@@ -425,14 +425,14 @@ const groupCounts = {
     .lb-pulse-links a{color:var(--accent);text-decoration:none;font-weight:600;transition:opacity 160ms ease}
     .lb-pulse-links a:hover{text-decoration:underline;text-underline-offset:3px}
 
-    /* 筛选条与视图切换 */
-    .lb-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.8rem 1.2rem;margin-bottom:1.4rem;border-bottom:1px solid var(--line-color);padding-bottom:.65rem}
+    /* 筛选条与视图切换（禁止复用 .lb-bar，该类名已被 site.css 榜单封面柱条占用，E-199） */
+    .lb-toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.8rem 1.2rem;margin-bottom:1.4rem;border-bottom:1px solid var(--line-color);padding-bottom:.55rem}
     .lb-cats{display:flex;flex-wrap:wrap;gap:1.3rem}
-    .lb-cat{position:relative;padding:0 0 .5rem;border:0;background:transparent;color:var(--sec-text-color);font-family:var(--font-serif-title);font-size:.98rem;font-weight:600;cursor:pointer;transition:color 160ms ease}
+    .lb-cat{position:relative;padding:0 0 .55rem;margin-bottom:-.55rem;border:0;background:transparent;color:var(--sec-text-color);font-family:var(--font-serif-title);font-size:.98rem;font-weight:600;cursor:pointer;transition:color 160ms ease}
     .lb-cat span{font-family:var(--font-mono);font-size:.74rem;font-weight:400;opacity:.65;margin-left:.22rem}
     .lb-cat:hover{color:var(--text-color)}
     .lb-cat.is-active{color:var(--accent)}
-    .lb-cat.is-active::after{content:"";position:absolute;left:0;right:0;bottom:-11px;height:2px;background:var(--accent)}
+    .lb-cat.is-active::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--accent)}
     .lb-mode{display:inline-flex;gap:.2rem;padding:.2rem;border:1px solid var(--line-color);border-radius:999px;background:var(--surface-tint)}
     .lb-mbtn{padding:.26rem .78rem;border:0;border-radius:999px;background:transparent;color:var(--sec-text-color);font-family:var(--font-mono);font-size:.76rem;cursor:pointer;transition:background-color 160ms ease,color 160ms ease}
     .lb-mbtn.is-active{background:var(--accent);color:#fff;font-weight:700}

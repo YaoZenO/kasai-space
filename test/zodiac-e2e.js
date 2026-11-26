@@ -756,6 +756,9 @@ if (!fs.existsSync(PUBLIC)) {
     assert.ok(fs.statSync(idx).size > 5000, '资料库页内容过少');
     const h = fs.readFileSync(idx, 'utf8');
     assert.ok(h.indexOf('资料库') !== -1, '缺标题');
+    // E-199：筛选工具栏不可复用 .lb-bar（已被 site.css 榜单封面柱条占用）
+    assert.ok(h.indexOf('class="lb-toolbar"') !== -1, '资料库页缺 .lb-toolbar 工具栏');
+    assert.strictEqual(h.indexOf('<div class="lb-bar"'), -1, '工具栏误用 .lb-bar，会与封面柱条冲突（E-199）');
 
     // 2026-11-04（PLAN-V3 §5）：本页从「平铺全部条目」改为「专题卡片墙」，
     // 旧断言数的是 lb-entry 行数，改版后必然假红，这里改成数卡片。

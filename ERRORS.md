@@ -230,6 +230,7 @@
 | E-196 | P2 | 首页 About Me 卡的 `.win-ident` 在矮视口（`max-height:860px`）水平内距被写成 `0`，真实姓名顶边挤压；且真实姓名出现在关于页之外 | 已修复（移除首页 `realName` 读取、矮视口 `.win-ident` 改回 `var(--win-px)`）+ `test/home-study.js` 断言锁死首页不渲染真实姓名且矮视口保留 `var(--win-px)` |
 | E-197 | P2 | 修复 E-196 时把 `.win-ident` 整块连同 `KASAI'S Personal Space` 一并删掉，超出「只删真实姓名」的范围 | 已修复（恢复 `.win-ident` 与 `KASAI'S Personal Space`，并修矮视口水平内距）+ `test/home-study.js` 断言锁死 `KASAI'S Personal Space` 必须在位 |
 | E-198 | P1 | 节假日页用 Node/ICU `Intl.DateTimeFormat('zh-CN-u-ca-chinese')` 算农历，在 2027-02-06（朔日 23:56 CST）等年份错位 1 天，致「春节」次日 2 月 7 日标出「正月」 | 已修复（改用紫金山天文台 GB/T 33661-2017 2020–2037 精确农历年表）+ `test/holidays-e2e.js` 断言锁死 2027-02-06 为春节且 2027-02-07 为初二 |
+| E-199 | P2 | `/library/` 新增筛选工具栏误用类名 `.lb-bar`，与 `site.css` 榜单封面柱条 `.lb-bar` 重名，导致工具栏被压上一条通栏砖红色横杠 | 已修复（工具栏改名 `.lb-toolbar` 并对齐下划线）+ `test/zodiac-e2e.js` 断言锁死 `/library/` 仅在封面柱条使用 `.lb-bar`、工具栏必须为 `.lb-toolbar` |
 ---
 
 ## 3. P0 — 数据损害（绝不再犯）
@@ -3783,3 +3784,11 @@
 - **根因：** `src/lib/holiday-calendar.ts` 使用 Node/ICU 的 `Intl.DateTimeFormat('zh-CN-u-ca-chinese', { timeZone: 'UTC' })` 推导农历；ICU 采用近似天文公式，在 2027 年正月初一（真实朔日 `2027-02-06 23:56 CST`）与 2030 年正月初一（`2030-02-03`）等临界年份与紫金山天文台 GB/T 33661-2017 标准差 1 天。
 - **修法：** 移除 `Intl.DateTimeFormat('zh-CN-u-ca-chinese')`，改用紫金山天文台 GB/T 33661-2017 标准 2020–2037 农历位编码年表（零外部依赖），逐年核对 2021–2036 全部春节/端午/中秋与官方通知完全一致。
 - **防复发（机制）：** `test/holidays-e2e.js` 新增 E-198 产物断言，锁死 `dist/holidays/2027/index.html` 2 月 5 日为「除夕」、2 月 6 日为「春节」、2 月 7 日为「初二」（不得出现「正月」），且 2 月 20 日为「元宵」、2 月 21 日为「十六」。
+
+### E-199 `/library/` 筛选工具栏类名 `.lb-bar` 与封面柱条重名致通栏红杠遮挡（2026-11-26）
+
+- **发生时间：** 2026-11-26 主人截图指出并当场修复。
+- **现象：** `/library/` 分类筛选与「展柜 / 目录」工具栏上方出现一条贯穿整行的半透明砖红色横杠，压住筛选文字并导致激活态下划线位置错位。
+- **根因：** 新增工具栏使用了 `<div class="lb-bar">`，与 `source/css/site.css` 中既有 `.lb-bar`（城市榜单封面柱状条，`height` + `background: var(--accent)`）类名冲突。
+- **修法：** 将工具栏容器与样式统一改名为 `.lb-toolbar`，同时把 `.lb-cat.is-active::after` 改为 `bottom: -1px` 贴齐底边线。
+- **防复发（机制）：** `test/zodiac-e2e.js` 资料库产物断言新增检查：`dist/library/index.html` 必须包含 `class="lb-toolbar"` 且不得出现 `<div class="lb-bar">`（`.lb-bar` 仅允许用于封面柱条 `<span>`）。
