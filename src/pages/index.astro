@@ -34,9 +34,6 @@ const avatar = siteCfg.avatar || themeConfig.about?.avatar || '';
 const icons: any[] = themeConfig.about?.icons || [];
 const hasCopy = icons.some((e: any) => e && !e.link && !e.qrcode && e.copy);
 
-// 站名里的颜文字不上首屏（R-5：身份位不放符号），只取中文姓名
-const realName = (String(themeConfig.about?.name || '').match(/^[\u4e00-\u9fa5·]+/) || [''])[0];
-
 const TODAY = fmtItemDate(new Date());
 const sinceYear = posts.length ? String(Math.min(...posts.map((p) => p.date.getFullYear()))) : '';
 
@@ -248,7 +245,7 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
           </header>
 
           <div class="win-ident">
-            <p class="ident-name">{realName || 'KASAI'}<span class="ident-brand">{siteTitle}</span></p>
+            <p class="ident-name"><span class="ident-brand">{siteTitle}</span></p>
           </div>
 
           <ul class="win-lines">

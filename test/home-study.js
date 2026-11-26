@@ -443,6 +443,18 @@ if (!exists(HOME)) {
       assert.ok(!home.includes(s), '产物里仍有：' + s);
     });
   });
+
+  ok('E-196 / E-197 防复发：首页保留 KASAI\'S Personal Space 且不渲染真实姓名，矮视口不丢水平内距', () => {
+    assert.ok(!page.includes('themeConfig.about?.name'), '首页模板仍在读取 about.name');
+    assert.ok(!/韩耀宇|韓耀宇/.test(home), '首页产物中出现了真实姓名');
+    assert.ok(desk.includes('class="win-ident"') && (desk.includes("KASAI&#39;S Personal Space") || desk.includes("KASAI'S Personal Space")),
+      '首页 About Me 卡片缺少 .win-ident 或 KASAI\'S Personal Space');
+    const shortVp = /@media \(min-width: 1024px\) and \(max-height: 860px\)\s*\{([\s\S]*?)\n\}/.exec(s26);
+    assert.ok(shortVp, '缺少矮视口媒体查询段');
+    const shortIdent = /\.win-ident\s*\{([^}]*)\}/.exec(shortVp[1]);
+    assert.ok(shortIdent && /var\(--win-px\)/.test(shortIdent[1]),
+      '矮视口下的 .win-ident 水平内距未使用 var(--win-px)');
+  });
 }
 
 console.log('');

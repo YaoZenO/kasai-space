@@ -10916,13 +10916,6 @@ body.is-home::before {
   color: var(--sec-text-color);
 }
 
-.ident-tag {
-  margin: 0.32rem 0 0;
-  font-size: 0.78rem;
-  letter-spacing: 0.06em;
-  color: var(--sec-text-color);
-}
-
 /* 状态三行：分隔线跟着 li 一起内缩，不再顶到卡片边框；
    行距从 0.36rem 放到 0.6rem——上一版文字挤在两条细线之间，像贴上去的。 */
 .win-lines {
@@ -11449,7 +11442,7 @@ body.is-home #navbar .site-nav-list .nav-item.active .nav-link:hover {
   }
 
   .win-ident {
-    padding: 0.5rem 0 0.4rem;
+    padding: 0.5rem var(--win-px) 0.4rem;
   }
 
   .sd-outro {
