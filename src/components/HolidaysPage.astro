@@ -46,24 +46,46 @@ const pads = (n: number) => Array.from({ length: n }, (_, i) => i);
 ---
 
 <BaseLayout title={title} description={description} currentPath={currentPath} ogDate={published} ogUpdated={modified}>
-  <div class="paper-page cal-page pg-holidays hy-page" data-filter="all">
+  <canvas class="ab-bg-canvas" id="ab-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="paper-page ab-page-shell cal-page pg-holidays hy-page hy-v2" data-filter="all">
     <div class="home-wrap">
       {!cal ? (
         <EmptyState>这一年的节假日数据还在整理中，页面会随数据录入自动生成，欢迎稍后再来看看。</EmptyState>
       ) : (
         <>
-          <header class="hy-head">
-            <nav class="hy-crumb" aria-label="面包屑">
-              <a href={urlFor('/holidays/')}>中国节假日</a>
-              <span aria-hidden="true">/</span>
-              <span class="hy-crumb-now">{cal.year}</span>
-            </nav>
-            <p class="hy-kicker">{cal.year}{zodiac && <> · {zodiac}</>}</p>
-            <h1 class="hy-title">{cal.year} 年节假日</h1>
-            <p class="hy-lede"><Fragment set:html={cal.lede} /></p>
+          <header class="hy-head hy-v2-head">
+            <p class="ab-watermark" data-ab-parallax="0.16" aria-hidden="true">{cal.year}</p>
+            <div class="hy-v2-head-main">
+              <nav class="hy-crumb" aria-label="面包屑">
+                <a href={urlFor('/library/')}>资料库</a>
+                <span aria-hidden="true">/</span>
+                <a href={urlFor('/holidays/')}>中国节假日</a>
+                <span aria-hidden="true">/</span>
+                <span class="hy-crumb-now">{cal.year}</span>
+              </nav>
+              <p class="hy-kicker">CALENDAR · {cal.year}{zodiac && <> · {zodiac}</>}</p>
+              <h1 class="hy-title">{cal.year} 年节假日</h1>
+              <p class="hy-lede"><Fragment set:html={cal.lede} /></p>
+            </div>
+
+            <ul class="hy-stats hy-v2-stats">
+              <li>
+                <span class="hy-stat-num">{cal.stats.statutoryDays}</span><span class="hy-stat-unit">天</span>
+                <span class="hy-stat-label">法定假日</span>
+              </li>
+              <li>
+                <span class="hy-stat-num">{cal.stats.holidayDays}</span><span class="hy-stat-unit">天</span>
+                <span class="hy-stat-label">放假天数</span>
+              </li>
+              <li>
+                <span class="hy-stat-num">{cal.stats.makeupDays}</span><span class="hy-stat-unit">天</span>
+                <span class="hy-stat-label">调休补班</span>
+              </li>
+            </ul>
           </header>
 
-          <div class="hy-yearbar">
+          <div class="hy-yearbar hy-v2-yearbar">
             <details class="hy-yearpick">
               <summary>
                 <span class="hy-yearpick-cur">{cal.year} 年</span>
@@ -84,25 +106,21 @@ const pads = (n: number) => Array.from({ length: n }, (_, i) => i);
                 </ul>
               </div>
             </details>
+
+            <nav class="hy-v2-yearstrip" aria-label="快捷切换年份">
+              {yearItems.map((yv: number) => (
+                yv === cal.current ? (
+                  <span class="hy-v2-yr is-cur" aria-current="page">{yv}</span>
+                ) : (
+                  <a class="hy-v2-yr" href={urlFor('/holidays/' + yv + '/')}>{yv}</a>
+                )
+              ))}
+            </nav>
+
             <span class="hy-note-seg">
               {cal.label}安排{cal.updated && <> · 更新于 {fmtItemDate(cal.updated)}</>}
             </span>
           </div>
-
-          <ul class="hy-stats">
-            <li>
-              <span class="hy-stat-num">{cal.stats.statutoryDays}</span><span class="hy-stat-unit">天</span>
-              <span class="hy-stat-label">法定假日</span>
-            </li>
-            <li>
-              <span class="hy-stat-num">{cal.stats.holidayDays}</span><span class="hy-stat-unit">天</span>
-              <span class="hy-stat-label">放假天数</span>
-            </li>
-            <li>
-              <span class="hy-stat-num">{cal.stats.makeupDays}</span><span class="hy-stat-unit">天</span>
-              <span class="hy-stat-label">调休补班</span>
-            </li>
-          </ul>
 
           <div class="hy-filters" role="group" aria-label="按类型筛选日历">
             <button class="hy-chip is-active" type="button" data-filter="all" aria-pressed="true">全部 <span>{cal.stats.holidayCount} 段</span></button>
@@ -333,4 +351,36 @@ const pads = (n: number) => Array.from({ length: n }, (_, i) => i);
       )}
     </div>
   </div>
+
+  <style is:global>
+    .hy-v2 .hy-v2-head{position:relative;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(260px,0.8fr);align-items:end;gap:clamp(1.4rem,4vw,3.5rem);padding:clamp(1rem,2.6vw,2.2rem) 0 clamp(1.8rem,3.6vw,2.6rem);margin:0 0 1.8rem;border-bottom:1px solid var(--line-color);overflow:clip}
+    .hy-v2-head-main,.hy-v2-stats{position:relative;z-index:1}
+    .hy-v2 .hy-title{font-family:var(--font-serif-title);font-size:clamp(2.2rem,4.6vw,3.5rem);line-height:1.08;letter-spacing:-0.02em}
+    .hy-v2 .hy-kicker{font-family:var(--font-mono);font-size:.75rem;letter-spacing:.14em;color:var(--accent)}
+    .hy-v2-stats{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;margin:0!important;padding:0!important;background:transparent!important;border:0!important}
+    .hy-v2-stats li{padding:.65rem 0 0!important;border:0!important;border-top:1px solid var(--line-color)!important;background:transparent!important;border-radius:0!important}
+    .hy-v2-yearbar{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem 1.2rem;margin:0 0 1.5rem;padding-bottom:1.1rem;border-bottom:1px solid var(--line-color)}
+    .hy-v2-yearstrip{display:flex;flex-wrap:wrap;gap:.25rem .35rem;flex:1 1 auto}
+    .hy-v2-yr{display:inline-flex;align-items:center;justify-content:center;padding:.2rem .5rem;border-radius:999px;font-family:var(--font-mono);font-size:.76rem;color:var(--sec-text-color);text-decoration:none;transition:background-color 160ms ease,color 160ms ease}
+    .hy-v2-yr:hover{color:var(--accent);background:var(--surface-tint)}
+    .hy-v2-yr.is-cur{background:var(--accent);color:#fff;font-weight:700}
+    .hy-v2 .hy-filters{margin-bottom:1.6rem}
+    .hy-v2 .hy-chip{border-radius:999px;transition:border-color 180ms ease,color 180ms ease,background-color 180ms ease}
+    .hy-v2 .hy-month{border-radius:var(--r-sm);transition:border-color 200ms ease,transform 220ms cubic-bezier(.22,1,.36,1)}
+    .hy-v2 .hy-month:hover{border-color:var(--accent);transform:translateY(-2px)}
+    .hy-v2 .hy-month.is-current{border-color:var(--accent)}
+    .hy-v2 .hy-day{transition:opacity 200ms ease,transform 200ms ease}
+    .hy-v2[data-filter="holiday"] .hy-day:not(.hy-day--holiday){opacity:.22}
+    .hy-v2[data-filter="work"] .hy-day:not(.hy-day--work){opacity:.22}
+    .hy-v2[data-filter="fest"] .hy-day:not(:has(.hy-fest)){opacity:.22}
+    .hy-v2 .hy-detail{border-radius:var(--r-sm);border:0;border-top:1px solid var(--line-color);border-bottom:1px solid var(--line-color);background:transparent;padding:1.4rem 0}
+    .hy-v2 .hy-card{border-radius:var(--r-sm);border:1px solid var(--line-color);background:transparent;overflow:hidden;transition:border-color 200ms ease,transform 240ms cubic-bezier(.22,1,.36,1)}
+    .hy-v2 .hy-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+    .hy-v2 .hy-card-photo img{border-radius:0;transition:transform 480ms cubic-bezier(.22,1,.36,1)}
+    .hy-v2 .hy-card:hover .hy-card-photo img{transform:scale(1.035)}
+    .hy-v2 .hy-sec{margin-top:3rem;padding-top:2.2rem;border-top:1px solid var(--line-color)}
+    .hy-v2 .hy-fest-item,.hy-v2 .hy-season,.hy-v2 .hy-faq-item{background:transparent;border-radius:0;border:0;border-bottom:1px solid var(--line-color)}
+    @media (max-width:767.98px){.hy-v2 .hy-v2-head{grid-template-columns:minmax(0,1fr)}.hy-v2-yearstrip{display:none}}
+    @media (prefers-reduced-motion:reduce){.hy-v2 .hy-month,.hy-v2 .hy-day,.hy-v2 .hy-card,.hy-v2 .hy-card-photo img{transition:none}}
+  </style>
 </BaseLayout>

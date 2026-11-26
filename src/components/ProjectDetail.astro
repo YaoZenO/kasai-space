@@ -79,7 +79,7 @@ const tags: string[] = item.tags || [];
       )}
 
       <div class="pj-layout pjd-layout">
-        <main class="pj-main">
+        <div class="pj-main">
           {sections.map((s, idx) => (
             <section class="pj-section rich-section pjd-sec" id={`sec-${s.id}`}>
               <p class="pjd-sec-num" aria-hidden="true">SECTION {String(idx + 1).padStart(2, '0')}</p>
@@ -90,7 +90,7 @@ const tags: string[] = item.tags || [];
             </section>
           ))}
           {sections.length === 0 && <EmptyState>详细介绍整理中。</EmptyState>}
-        </main>
+        </div>
 
         {sections.length > 0 && (
           <aside class="pj-toc pjd-toc" aria-label="小节导航">
@@ -160,6 +160,9 @@ const tags: string[] = item.tags || [];
     .pjd-sec{padding-top:2rem;margin-bottom:2.4rem;border-top:1px solid var(--line-color)}
     .pjd-sec:first-child{padding-top:0;border-top:0}
     .pjd-sec-num{margin:0 0 .4rem;font-family:var(--font-mono);font-size:.75rem;letter-spacing:.14em;color:var(--accent)}
+    .pjd-page .markdown-body table{width:100%;border-collapse:collapse}
+    .pjd-page .markdown-body th,.pjd-page .markdown-body td{padding:.62rem .95rem;border-bottom:1px solid var(--line-color);vertical-align:top}
+    .pjd-page .markdown-body th{white-space:nowrap;font-family:var(--font-mono);font-size:.8rem;color:var(--info-mark)}
     .pjd-toc{position:sticky;top:5.4rem;align-self:start;padding:0;background:transparent;border:0}
     .pjd-prog{margin-bottom:1.35rem;padding-bottom:1rem;border-bottom:1px solid var(--line-color)}
     .pjd-prog-hd{display:flex;justify-content:space-between;margin-bottom:.45rem;font-family:var(--font-mono);font-size:.75rem;color:var(--info-mark)}
