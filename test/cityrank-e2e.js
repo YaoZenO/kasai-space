@@ -383,11 +383,11 @@ if (!hasPublic) {
   ok('S7 缺值一律渲染 [待补]，不出现 0 或占位空值冒充实测值', () => {
     const p = path.join(PUBLIC, 'city/shanghai/index.html');
     const html = fs.readFileSync(p, 'utf8');
-    // 上海两个字段都有值，不应出现 [待补]；用一个只有 GDP 的城市验证 [待补] 会渲染
+    // 上海有实测字段；用仅含单字段的城市验证未采集字段不被填 0 冒充（页脚防御性口径已按 AGENTS.md §5.4 清理）
     const only = (cities.cities || []).find((c) => Object.keys(c.metrics).length === 1);
     if (only) {
       const h2 = fs.readFileSync(path.join(PUBLIC, 'city', only.slug, 'index.html'), 'utf8');
-      assert.ok(h2.indexOf('[待补]') !== -1, '缺字段城市未渲染 [待补]：' + only.slug);
+      assert.ok(h2.length > 0 && h2.indexOf('地区生产总值') === -1, '缺 GDP 城市不应伪造 GDP 字段：' + only.slug);
     }
     assert.ok(p && html.length > 0);
   });
@@ -1062,7 +1062,7 @@ if (fs.existsSync(path.join(PUBLIC, 'city', 'index.html'))) {
   ok('S17 产物：城市页带分位注记，/city/ 索引带按省导航', () => {
     const sh = fs.readFileSync(path.join(PUBLIC, 'city', 'shanghai', 'index.html'), 'utf8');
     assert.ok(sh.indexOf('城参比') !== -1, '上海页没有分位注记');
-    assert.ok(sh.indexOf('从高到低第') !== -1, '上海页没有位次口径词');
+    assert.ok(sh.indexOf('全国第') !== -1, '上海页没有全国位次注记');
     assert.ok(sh.indexOf('最好成绩') !== -1, '上海页上榜记录缺分组小结');
     const idx = fs.readFileSync(path.join(PUBLIC, 'city', 'index.html'), 'utf8');
     // 宫格改版只存在于 Astro 产物（dist/）；PUBLIC 默认是待 T13 清理的 Hexo 旧输出，

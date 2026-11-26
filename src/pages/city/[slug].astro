@@ -306,7 +306,7 @@ const peerMoreHref = provPage && !(provPage.total === 1 && provPage.pageCount ==
                     </div>
                   </section>
                 ) : !keys.length ? (
-                  <p class="cr-empty">这座城市的统计字段还没有采集到权威来源，暂不列出——不填估算值。</p>
+                  <p class="cr-empty">暂无统计字段记录。</p>
                 ) : null}
 
                 {mentions.length > 0 && (
@@ -407,7 +407,7 @@ const peerMoreHref = provPage && !(provPage.total === 1 && provPage.pageCount ==
               return (
                 <div class="cal-after">
                   <p class="cal-note">
-                    以上只列已核验过的字段，缺值一律标 [待补]、不填估算值；位次是同字段候选池内从高到低第几位的排序位置（同值按拼音定序），不含优劣评价。数据来自各地统计公报与行业主管部门公开名录，批量数据站只作交叉核对、不作唯一来源，单条数据的年份与来源可悬停字段行查看。{usedSources.length ? `本页来源：${usedSources.join('、')}。` : ''}
+                    {usedSources.length ? `数据来源：${usedSources.join('、')}。` : '数据来自各地统计公报与主管部门公开名录。'}
                   </p>
                 </div>
               );
