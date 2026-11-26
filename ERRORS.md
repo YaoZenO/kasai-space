@@ -227,6 +227,7 @@
 | E-193 | P2 | 新增独立 `api/steam.js` 使顶层 Serverless Functions 增至 13 个，撞破 Vercel Hobby 12 个上限致整站部署被拒 | 已修复（逻辑迁入 `api/_lib/steam.js`，由 `api/sun-times.js?kind=steam` + `vercel.json` rewrite 复用，保持 12 个函数）+ 机制：`test/steam-api.js` 锁定 `api/*.js <= 12` 与 rewrite 规则 |
 | E-194 | P1 | `/games/` 把 JS 动态注入的 `.gm-st-*` 与 `.gm-d-btn` 样式写在 Astro scoped `<style>` 内，DOM 无 `data-astro-cid` 导致 Steam 展区排版全部失配重叠 | 已修复（动态节点样式迁入 `<style is:global>`；常玩时长徽标改左上角悬浮、滚动揭示预触发防漏显）+ 机制：`test/steam-api.js` 校验动态选择器必须在 `<style is:global>` 内 |
 | E-195 | P1 | CI 逐项列举套件却只列了 10/21 套：首页契约、表单、资源版本、模块日期、节假日、生肖、节日、城市榜、搜索、依赖声明、暗色共 11 套从未在 push 时执行 | 已修复 9 套 + 机制：`test/build-env.js` 改为枚举 `package.json` 全部 `test:*` 反查 `ci.yml`，漏接即红；两套例外（`test:darkmode` / `test:festival`）登记在 `DEFERRED` 并写明解除条件；另反向校验幽灵套件与「读 dist 者必须在构建之后」 |
+| E-196 | P2 | 首页 About Me 卡的 `.win-ident` 在矮视口（`max-height:860px`）水平内距被写成 `0`，真实姓名顶边挤压；且真实姓名出现在关于页之外 | 已修复（移除首页 `.win-ident` 与 `realName` 读取）+ `test/home-study.js` 断言锁死首页源码/CSS/产物均不得出现 `.win-ident` 与真实姓名 |
 ---
 
 ## 3. P0 — 数据损害（绝不再犯）
@@ -3756,3 +3757,11 @@
   写了「禁用 calc(+/-)」，正则命中注释即误报。修法（改为匹配剥注释的 css 并加注释豁免自检）已在
   另一条工作线的工作区里但尚未提交。
   解除条件：两处根因修掉、对应套件在 HEAD 上全绿后，把步骤加进 `ci.yml` 并从 `DEFERRED` 删除。
+
+### E-196 首页 About Me 卡 `.win-ident` 在矮视口水平内距被清零，且真实姓名出现在关于页之外（2026-11-26）
+
+- **发生时间：** 2026-11-26 主人截图实测反馈并修复。
+- **现象：** 在宽度 ≥1024px 且高度 ≤860px 的小窗视口下，首页 About Me 卡片顶部的真实姓名行紧贴卡片左边框、视觉挤压变形；同时主人明确要求真实姓名尽量只在关于页出现。
+- **根因：** ① `source/css/site.css` 在 `@media (min-width: 1024px) and (max-height: 860px)` 分支里把 `.win-ident` 的内距写成 `padding: 0.5rem 0 0.4rem;`（水平内距丢掉 `var(--win-px)`）；② `src/pages/index.astro` 读取 `themeConfig.about?.name` 并在首页卡片渲染真实姓名。
+- **修法：** 移除 `src/pages/index.astro` 中的 `realName` 读取与 `.win-ident` 块，移除 `source/css/site.css` 中 `.win-ident` / `.ident-*` 及其矮视口覆盖规则，并去掉 `.win-lines li:first-child` 的多余顶边线，使 About Me 卡片与其他五个窗口保持同一结构节奏；全站核查确认真实姓名仅保留在 `/about/` 页。
+- **防复发（机制）：** `test/home-study.js` 新增 E-196 断言，锁死 `src/pages/index.astro` 不得读取 `themeConfig.about?.name`、模板与 §4.26 CSS 不得再出现 `.win-ident`，且 `dist/index.html` 产物不得包含真实姓名。

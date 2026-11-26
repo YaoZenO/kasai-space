@@ -28,14 +28,10 @@ const posts = getPosts();
 const pages = await getCollection('pages');
 
 const siteCfg: any = data.site || {};
-const siteTitle = themeConfig.navbar?.blog_title || "KASAI'S Personal Space";
 const intro = siteCfg.intro || themeConfig.about?.intro || 'Be water, my friend.';
 const avatar = siteCfg.avatar || themeConfig.about?.avatar || '';
 const icons: any[] = themeConfig.about?.icons || [];
 const hasCopy = icons.some((e: any) => e && !e.link && !e.qrcode && e.copy);
-
-// 站名里的颜文字不上首屏（R-5：身份位不放符号），只取中文姓名
-const realName = (String(themeConfig.about?.name || '').match(/^[\u4e00-\u9fa5·]+/) || [''])[0];
 
 const TODAY = fmtItemDate(new Date());
 const sinceYear = posts.length ? String(Math.min(...posts.map((p) => p.date.getFullYear()))) : '';
@@ -246,10 +242,6 @@ const eventFeed = events.filter((e) => dayNo(e.date) >= todayNo - 1).slice(0, 12
           <header class="win-head" title="拖动微调位置 · 双击复位">
             <h2 class="win-title" id="win-about-t">About Me</h2>
           </header>
-
-          <div class="win-ident">
-            <p class="ident-name">{realName || 'KASAI'}<span class="ident-brand">{siteTitle}</span></p>
-          </div>
 
           <ul class="win-lines">
             {ABOUT_LINES.map((line) => <li>{line}</li>)}

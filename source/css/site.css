@@ -10887,41 +10887,7 @@ body.is-home::before {
   color: var(--accent);
 }
 
-/* ---------- 窗口 01 内部：身份与状态 ---------- */
-
-.win-ident {
-  flex: 0 0 auto;
-  padding: 0.7rem var(--win-px) 0.5rem;
-}
-
-.ident-name {
-  margin: 0;
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  font-family: var(--font-serif-title);
-  font-weight: 600;
-  font-size: 1.3rem;
-  line-height: 1.15;
-  letter-spacing: -0.01em;
-  color: var(--text-color);
-}
-
-.ident-brand {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 400;
-  letter-spacing: 0.04em;
-  color: var(--sec-text-color);
-}
-
-.ident-tag {
-  margin: 0.32rem 0 0;
-  font-size: 0.78rem;
-  letter-spacing: 0.06em;
-  color: var(--sec-text-color);
-}
+/* ---------- 窗口 01 内部：状态 ---------- */
 
 /* 状态三行：分隔线跟着 li 一起内缩，不再顶到卡片边框；
    行距从 0.36rem 放到 0.6rem——上一版文字挤在两条细线之间，像贴上去的。 */
@@ -10940,8 +10906,7 @@ body.is-home::before {
   color: var(--text-color);
 }
 
-.win-lines li + li,
-.win-lines li:first-child {
+.win-lines li + li {
   border-top: 1px solid var(--line-color);
 }
 
@@ -11446,10 +11411,6 @@ body.is-home #navbar .site-nav-list .nav-item.active .nav-link:hover {
   .win-lines li {
     padding: 0.26rem 0;
     font-size: 0.76rem;
-  }
-
-  .win-ident {
-    padding: 0.5rem 0 0.4rem;
   }
 
   .sd-outro {
