@@ -119,67 +119,127 @@ const { published, modified } = pageDates('zodiac/index.md');
             </details>
           </section>
 
-          <div class="z-ref-stack">
-            <section class="cal-block z-ref-sec">
-              <div class="col-head">
-                <h2 class="col-title">五行与传统方位、颜色</h2>
-              </div>
-              <div class="cal-table-wrap">
-                <table class="cal-table z-elements">
-                  <thead>
-                    <tr>
-                      <th scope="col">五行</th>
-                      <th scope="col">天干</th>
-                      <th scope="col">方位</th>
-                      <th scope="col">传统色</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {ov.elements.map((el: any) => (
-                      <tr>
-                        <th scope="row"><span class="cal-name">{el.element}</span></th>
-                        <td>{el.stems}</td>
-                        <td>{el.direction}</td>
-                        <td>{el.color}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <p class="z-note z-v2-note">五行与方位、颜色的对应是传统说法（《黄帝内经》一系），不是命理吉凶；生肖的五行由天干决定，每十年一轮。</p>
-            </section>
+          <section class="z-cosmos" aria-label="十二地支关系罗盘与五行三合相冲">
+            <div class="col-head z-cosmos-hd">
+              <h2 class="col-title">地支罗盘 · 五行与三合相冲</h2>
+              <span class="col-count">/ 悬停或点击任意生肖与组合，实时绘制关系连线</span>
+            </div>
 
-            <section class="cal-block z-ref-sec">
-              <div class="col-head">
-                <h2 class="col-title">三合与相冲</h2>
-                <span class="col-count">/ {ov.sanhe.length} 组三合 · {ov.chong.length} 组六冲</span>
+            <div class="z-cosmos-grid">
+              {/* 左：交互式十二地支关系罗盘 SVG */}
+              <div class="z-compass-wrap">
+                <svg class="z-compass" viewBox="0 0 420 420" role="img" aria-label="十二地支三合六冲交互罗盘" data-z-compass>
+                  <circle class="zc-ring-outer" cx="210" cy="210" r="176" />
+                  <circle class="zc-ring-mid" cx="210" cy="210" r="134" />
+                  <g class="zc-lines" data-z-lines />
+                  <circle class="zc-ring-inner" cx="210" cy="210" r="64" />
+                  <g class="zc-nodes">
+                    {ov.rows.map((zr: any, idx: number) => {
+                      const deg = -90 + idx * 30;
+                      const rad = (deg * Math.PI) / 180;
+                      const cx = Math.round((210 + 154 * Math.cos(rad)) * 10) / 10;
+                      const cy = Math.round((210 + 154 * Math.sin(rad)) * 10) / 10;
+                      return (
+                        <g
+                          class={`zc-node${idx === 6 ? ' is-focus' : ''}`}
+                          data-zc-idx={idx}
+                          data-zc-key={zr.key}
+                          data-zc-animal={zr.animal}
+                          data-zc-branch={zr.branch}
+                          data-zc-element={zr.element}
+                          tabindex="0"
+                          role="button"
+                          aria-label={`${zr.branch}${zr.animal}（五行${zr.element}）`}
+                        >
+                          <circle class="zc-node-bg" cx={cx} cy={cy} r="22" />
+                          <text class="zc-node-animal" x={cx} y={cy - 2} text-anchor="middle">{zr.animal}</text>
+                          <text class="zc-node-branch" x={cx} y={cy + 12} text-anchor="middle">{zr.branch}</text>
+                        </g>
+                      );
+                    })}
+                  </g>
+                  <g class="zc-center">
+                    <text class="zc-center-k" x="210" y="198" text-anchor="middle" data-zc-ck>地支关系</text>
+                    <text class="zc-center-t" x="210" y="218" text-anchor="middle" data-zc-ct>午马</text>
+                    <text class="zc-center-s" x="210" y="236" text-anchor="middle" data-zc-cs>寅午戌 · 冲鼠</text>
+                  </g>
+                </svg>
+                <div class="z-compass-legend">
+                  <span><i class="zc-lg zc-lg--tri" aria-hidden="true" />三合（等边三角）</span>
+                  <span><i class="zc-lg zc-lg--opp" aria-hidden="true" />六冲（正对直径）</span>
+                  <a class="z-compass-link" data-zc-link href={urlFor('/zodiac/horse/')}>进入「马」档案 →</a>
+                </div>
               </div>
-              <div class="cal-table-wrap">
-                <table class="cal-table z-sanhe">
-                  <thead>
-                    <tr>
-                      <th scope="col">组合</th>
-                      <th scope="col">传统解释</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {ov.sanhe.map((sh: any) => (
-                      <tr>
-                        <th scope="row"><span class="cal-name">{sh.animals.join('')}</span></th>
-                        <td>三合，三者合成{sh.ju}，互相增强</td>
-                      </tr>
-                    ))}
-                    {ov.chong.map((ch: any) => (
-                      <tr>
-                        <th scope="row"><span class="cal-name">{ch.join('')}</span></th>
-                        <td>六冲，正对相对，传统上是最强的对立</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+
+              {/* 右：选项卡切换「三合与相冲」/「五行与传统色」，每行可联动罗盘 */}
+              <div class="z-inspector">
+                <div class="z-insp-tabs" role="tablist" aria-label="切换关系视图">
+                  <button type="button" class="z-insp-tab is-active" role="tab" aria-selected="true" data-z-tab="rel">
+                    三合与相冲 <span>{ov.sanhe.length + ov.chong.length}</span>
+                  </button>
+                  <button type="button" class="z-insp-tab" role="tab" aria-selected="false" data-z-tab="elem">
+                    五行与传统方位 <span>{ov.elements.length}</span>
+                  </button>
+                </div>
+
+                <div class="z-insp-pane is-active" data-z-pane="rel">
+                  <div class="cal-table-wrap">
+                    <table class="cal-table z-sanhe">
+                      <thead>
+                        <tr>
+                          <th scope="col">组合</th>
+                          <th scope="col">传统解释</th>
+                          <th scope="col" class="z-col-badge">图示</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {ov.sanhe.map((sh: any) => (
+                          <tr class="z-rel-row" data-rel-kind="sanhe" data-rel-animals={sh.animals.join(',')} data-rel-label={`三合${sh.ju}`} tabindex="0">
+                            <th scope="row"><span class="cal-name">{sh.animals.join('')}</span></th>
+                            <td>三合，三者合成{sh.ju}，互相增强</td>
+                            <td class="z-col-badge"><span class="z-badge z-badge--tri">△ 三合</span></td>
+                          </tr>
+                        ))}
+                        {ov.chong.map((ch: any) => (
+                          <tr class="z-rel-row" data-rel-kind="chong" data-rel-animals={ch.join(',')} data-rel-label="六冲正对" tabindex="0">
+                            <th scope="row"><span class="cal-name">{ch.join('')}</span></th>
+                            <td>六冲，正对相对，传统上是最强的对立</td>
+                            <td class="z-col-badge"><span class="z-badge z-badge--opp">↔ 六冲</span></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div class="z-insp-pane" data-z-pane="elem">
+                  <div class="cal-table-wrap">
+                    <table class="cal-table z-elements">
+                      <thead>
+                        <tr>
+                          <th scope="col">五行</th>
+                          <th scope="col">天干</th>
+                          <th scope="col">方位</th>
+                          <th scope="col">传统色</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {ov.elements.map((el: any) => (
+                          <tr class="z-rel-row" data-rel-kind="elem" data-rel-elem={el.element} data-rel-label={`${el.element} · ${el.direction}`} tabindex="0">
+                            <th scope="row"><span class="cal-name">{el.element}</span></th>
+                            <td>{el.stems}</td>
+                            <td>{el.direction}</td>
+                            <td><span class={`z-swatch z-swatch--${el.element}`} aria-hidden="true" />{el.color}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <p class="z-note z-v2-note">五行与方位、颜色的对应是传统说法（《黄帝内经》一系），不是命理吉凶；生肖的五行由天干决定，每十年一轮。</p>
+                </div>
               </div>
-            </section>
-          </div>
+            </div>
+          </section>
 
           <div class="cal-notes">
             <article class="about-body cal-prose">
@@ -256,6 +316,146 @@ const { published, modified } = pageDates('zodiac/index.md');
           showYear(v);
         });
       });
+
+      // 十二地支交互罗盘 + 五行/三合六冲联动
+      var compass = document.querySelector('[data-z-compass]');
+      var linesG = document.querySelector('[data-z-lines]');
+      if (!compass || !linesG) return;
+
+      var nodes = Array.prototype.slice.call(compass.querySelectorAll('[data-zc-idx]'));
+      var ck = compass.querySelector('[data-zc-ck]');
+      var ct = compass.querySelector('[data-zc-ct]');
+      var cs = compass.querySelector('[data-zc-cs]');
+      var linkEl = document.querySelector('[data-zc-link]');
+      var rows = Array.prototype.slice.call(document.querySelectorAll('.z-rel-row'));
+      var tabs = Array.prototype.slice.call(document.querySelectorAll('[data-z-tab]'));
+      var panes = Array.prototype.slice.call(document.querySelectorAll('[data-z-pane]'));
+
+      var pts = nodes.map(function (_, i) {
+        var rad = ((-90 + i * 30) * Math.PI) / 180;
+        return { x: +(210 + 134 * Math.cos(rad)).toFixed(1), y: +(210 + 134 * Math.sin(rad)).toFixed(1) };
+      });
+      var byAnimal = {};
+      nodes.forEach(function (n, i) { byAnimal[n.getAttribute('data-zc-animal')] = i; });
+
+      function drawPoly(indices, cls, close) {
+        if (indices.length < 2) return;
+        var d = indices.map(function (idx, k) {
+          return (k === 0 ? 'M' : 'L') + pts[idx].x + ' ' + pts[idx].y;
+        }).join(' ') + (close ? ' Z' : '');
+        var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', d);
+        path.setAttribute('class', cls);
+        linesG.appendChild(path);
+      }
+
+      function clearHighlight() {
+        linesG.innerHTML = '';
+        nodes.forEach(function (n) { n.classList.remove('is-focus', 'is-tri', 'is-opp', 'is-dim'); });
+        rows.forEach(function (r) { r.classList.remove('is-active'); });
+      }
+
+      function focusAnimal(idx) {
+        clearHighlight();
+        var tri = [idx, (idx + 4) % 12, (idx + 8) % 12];
+        var opp = (idx + 6) % 12;
+        drawPoly(tri, 'zc-path zc-path--tri', true);
+        drawPoly([idx, opp], 'zc-path zc-path--opp', false);
+        nodes.forEach(function (n, i) {
+          if (i === idx) n.classList.add('is-focus');
+          else if (tri.indexOf(i) !== -1) n.classList.add('is-tri');
+          else if (i === opp) n.classList.add('is-opp');
+          else n.classList.add('is-dim');
+        });
+        var cur = nodes[idx];
+        var an = cur.getAttribute('data-zc-animal');
+        var br = cur.getAttribute('data-zc-branch');
+        var key = cur.getAttribute('data-zc-key');
+        var triNames = tri.map(function (i) { return nodes[i].getAttribute('data-zc-animal'); }).join('');
+        var oppName = nodes[opp].getAttribute('data-zc-animal');
+        if (ck) ck.textContent = '五行' + cur.getAttribute('data-zc-element');
+        if (ct) ct.textContent = br + an;
+        if (cs) cs.textContent = '三合' + triNames + ' · 冲' + oppName;
+        if (linkEl) {
+          linkEl.href = '/zodiac/' + key + '/';
+          linkEl.textContent = '进入「' + an + '」档案 →';
+        }
+      }
+
+      function focusRow(row) {
+        clearHighlight();
+        row.classList.add('is-active');
+        var kind = row.getAttribute('data-rel-kind');
+        var label = row.getAttribute('data-rel-label') || '';
+        if (kind === 'sanhe' || kind === 'chong') {
+          var names = (row.getAttribute('data-rel-animals') || '').split(',').filter(Boolean);
+          var idxs = names.map(function (a) { return byAnimal[a]; }).filter(function (i) { return i !== undefined; });
+          drawPoly(idxs, kind === 'sanhe' ? 'zc-path zc-path--tri' : 'zc-path zc-path--opp', kind === 'sanhe');
+          nodes.forEach(function (n, i) {
+            if (idxs.indexOf(i) !== -1) n.classList.add(kind === 'sanhe' ? 'is-tri' : 'is-opp');
+            else n.classList.add('is-dim');
+          });
+          if (ck) ck.textContent = kind === 'sanhe' ? '三合局' : '六冲';
+          if (ct) ct.textContent = names.join(' · ');
+          if (cs) cs.textContent = label;
+        } else if (kind === 'elem') {
+          var el = row.getAttribute('data-rel-elem') || '';
+          var matched = [];
+          nodes.forEach(function (n, i) {
+            if (n.getAttribute('data-zc-element') === el) {
+              n.classList.add('is-focus');
+              matched.push(i);
+            } else {
+              n.classList.add('is-dim');
+            }
+          });
+          if (matched.length >= 2) drawPoly(matched, 'zc-path zc-path--tri', matched.length >= 3);
+          if (ck) ck.textContent = '五行对应';
+          if (ct) ct.textContent = el;
+          if (cs) cs.textContent = label;
+        }
+      }
+
+      nodes.forEach(function (n, i) {
+        n.addEventListener('mouseenter', function () { focusAnimal(i); });
+        n.addEventListener('click', function () { focusAnimal(i); });
+        n.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); focusAnimal(i); }
+        });
+      });
+
+      rows.forEach(function (row) {
+        row.addEventListener('mouseenter', function () { focusRow(row); });
+        row.addEventListener('click', function () { focusRow(row); });
+        row.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); focusRow(row); }
+        });
+      });
+
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          var id = tab.getAttribute('data-z-tab');
+          tabs.forEach(function (t) {
+            var on = t === tab;
+            t.classList.toggle('is-active', on);
+            t.setAttribute('aria-selected', on ? 'true' : 'false');
+          });
+          panes.forEach(function (p) {
+            p.classList.toggle('is-active', p.getAttribute('data-z-pane') === id);
+          });
+        });
+      });
+
+      // 与顶部出生年份速查器联动
+      var origShow = showYear;
+      showYear = function (yrStr) {
+        origShow(yrStr);
+        var y = parseInt(yrStr, 10);
+        if (y && !isNaN(y)) focusAnimal(((y - 4) % 12 + 12) % 12);
+      };
+
+      // 默认高亮 2026 马年（索引 6）
+      focusAnimal(6);
     })();
   </script>
 
@@ -285,10 +485,58 @@ const { published, modified } = pageDates('zodiac/index.md');
     .z-birth-fold[open] summary::before{content:"−"}
     .z-birth-fold summary:hover{color:var(--accent)}
     .z-birth-fold .cal-table-wrap{margin-top:1rem}
-    .z-ref-stack{display:flex;flex-direction:column;gap:2.6rem;margin-top:2.8rem;padding-top:2.4rem;border-top:1px solid var(--line-color)}
-    .z-ref-sec{margin:0}
-    .z-v2 .z-elements th,.z-v2 .z-elements td,.z-v2 .z-sanhe th,.z-v2 .z-sanhe td{padding:.68rem .9rem}
-    .z-v2 .z-sanhe tbody th{width:7.5rem;white-space:nowrap}
+    .z-cosmos{margin-top:2.8rem;padding-top:2.4rem;border-top:1px solid var(--line-color)}
+    .z-cosmos-hd{margin-bottom:1.5rem}
+    .z-cosmos-grid{display:grid;grid-template-columns:minmax(320px,430px) minmax(0,1fr);align-items:start;gap:clamp(1.6rem,3.6vw,3rem)}
+    .z-compass-wrap{position:sticky;top:5.2rem;display:flex;flex-direction:column;align-items:center;gap:.9rem;padding:1.25rem;border:1px solid var(--line-color);border-radius:var(--r-sm);background:var(--surface-tint)}
+    .z-compass{width:100%;max-width:380px;height:auto;display:block;overflow:visible}
+    .zc-ring-outer,.zc-ring-mid,.zc-ring-inner{fill:none;stroke:var(--line-color)}
+    .zc-ring-outer{stroke-width:1;stroke-dasharray:3 4}
+    .zc-ring-mid{stroke-width:1}
+    .zc-ring-inner{stroke-width:1;fill:var(--body-bg-color)}
+    .zc-path{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:900;stroke-dashoffset:900;animation:zcDraw 520ms cubic-bezier(.22,1,.36,1) forwards}
+    .zc-path--tri{stroke:var(--accent);stroke-width:2;fill:color-mix(in srgb,var(--accent) 8%,transparent)}
+    .zc-path--opp{stroke:var(--sec-text-color);stroke-width:1.6;stroke-dasharray:5 5;stroke-dashoffset:0;animation:none}
+    @keyframes zcDraw{to{stroke-dashoffset:0}}
+    .zc-node{cursor:pointer;transition:opacity 200ms ease}
+    .zc-node.is-dim{opacity:.32}
+    .zc-node-bg{fill:var(--body-bg-color);stroke:var(--line-color);stroke-width:1.2;transition:fill 180ms ease,stroke 180ms ease,transform 180ms ease}
+    .zc-node-animal{font-family:var(--font-serif-title);font-size:13px;font-weight:700;fill:var(--text-color);pointer-events:none}
+    .zc-node-branch{font-family:var(--font-mono);font-size:10px;fill:var(--info-mark);pointer-events:none}
+    .zc-node:hover .zc-node-bg,.zc-node.is-tri .zc-node-bg{stroke:var(--accent);stroke-width:1.8}
+    .zc-node.is-focus .zc-node-bg{fill:var(--accent);stroke:var(--accent)}
+    .zc-node.is-focus .zc-node-animal,.zc-node.is-focus .zc-node-branch{fill:#fff}
+    .zc-node.is-opp .zc-node-bg{stroke:var(--text-color);stroke-width:1.8;stroke-dasharray:3 2}
+    .zc-center-k{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;fill:var(--accent)}
+    .zc-center-t{font-family:var(--font-serif-title);font-size:18px;font-weight:700;fill:var(--text-color)}
+    .zc-center-s{font-family:var(--font-mono);font-size:10.5px;fill:var(--sec-text-color)}
+    .z-compass-legend{width:100%;display:flex;flex-wrap:wrap;align-items:center;gap:.55rem 1rem;padding-top:.85rem;border-top:1px solid var(--line-color);font-family:var(--font-mono);font-size:.75rem;color:var(--info-mark)}
+    .z-compass-legend span{display:inline-flex;align-items:center;gap:.35rem}
+    .zc-lg{display:inline-block;width:14px;height:2px}
+    .zc-lg--tri{background:var(--accent)}
+    .zc-lg--opp{border-top:2px dashed var(--sec-text-color)}
+    .z-compass-link{margin-left:auto;color:var(--accent);font-weight:700;text-decoration:none}
+    .z-compass-link:hover{text-decoration:underline;text-underline-offset:3px}
+    .z-inspector{min-width:0}
+    .z-insp-tabs{display:inline-flex;gap:.35rem;padding:.25rem;margin-bottom:1.1rem;border:1px solid var(--line-color);border-radius:999px;background:var(--surface-tint)}
+    .z-insp-tab{padding:.34rem .9rem;border:0;border-radius:999px;background:transparent;color:var(--sec-text-color);font-family:var(--font-mono);font-size:.78rem;cursor:pointer;transition:background-color 180ms ease,color 180ms ease}
+    .z-insp-tab span{opacity:.7;margin-left:.25rem}
+    .z-insp-tab:hover{color:var(--accent)}
+    .z-insp-tab.is-active{background:var(--accent);color:#fff;font-weight:700}
+    .z-insp-pane{display:none}
+    .z-insp-pane.is-active{display:block;animation:zFadeIn 220ms ease}
+    @keyframes zFadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+    .z-v2 .z-elements th,.z-v2 .z-elements td,.z-v2 .z-sanhe th,.z-v2 .z-sanhe td{padding:.68rem .85rem}
+    .z-v2 .z-sanhe tbody th{width:6.2rem;white-space:nowrap}
+    .z-rel-row{cursor:pointer;transition:background-color 160ms ease}
+    .z-rel-row:hover,.z-rel-row.is-active{background:var(--surface-tint)}
+    .z-rel-row.is-active .cal-name{color:var(--accent)}
+    .z-col-badge{width:5.4rem;text-align:right;white-space:nowrap}
+    .z-badge{display:inline-block;padding:.14rem .5rem;border-radius:999px;font-family:var(--font-mono);font-size:.75rem}
+    .z-badge--tri{background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent);font-weight:600}
+    .z-badge--opp{border:1px solid var(--line-color);color:var(--sec-text-color)}
+    .z-swatch{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:.45rem;vertical-align:middle}
+    .z-swatch--木{background:#3f7d58}.z-swatch--火{background:#b8422a}.z-swatch--土{background:#b8863b}.z-swatch--金{background:#a8a298;border:1px solid var(--line-color)}.z-swatch--水{background:#2c3e50}
     .z-v2 .z-v2-note{margin:1.15rem 0 0;padding-top:.8rem;border-top:1px dashed var(--line-color);font-size:.8rem;line-height:1.75;color:var(--sec-text-color)}
     .z-v2 .z-card{border-radius:var(--r-sm);border:1px solid var(--line-color);background:transparent;box-shadow:none;transition:border-color 200ms ease,transform 240ms cubic-bezier(.22,1,.36,1),opacity 220ms ease}
     .z-v2 .z-cards:hover .z-card:not(:hover),.z-v2 .z-cards.has-picked .z-card:not(.is-picked){opacity:.48}
@@ -296,7 +544,7 @@ const { published, modified } = pageDates('zodiac/index.md');
     .z-v2 .z-card.is-picked .z-card-name{color:var(--accent)}
     .z-v2 .z-card-thumb img{transition:transform 420ms cubic-bezier(.22,1,.36,1)}
     .z-v2 .z-card:hover .z-card-thumb img{transform:scale(1.04)}
-    @media (max-width:900px){.z-v2 .z-v2-head{grid-template-columns:minmax(0,1fr)}}
-    @media (prefers-reduced-motion:reduce){.z-v2 .z-card,.z-v2 .z-card-thumb img{transition:none}}
+    @media (max-width:960px){.z-v2 .z-v2-head,.z-cosmos-grid{grid-template-columns:minmax(0,1fr)}.z-compass-wrap{position:static}}
+    @media (prefers-reduced-motion:reduce){.z-v2 .z-card,.z-v2 .z-card-thumb img,.zc-path,.z-insp-pane{transition:none;animation:none;stroke-dashoffset:0}}
   </style>
 </BaseLayout>
