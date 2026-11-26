@@ -28,16 +28,20 @@ const tags: string[] = item.tags || [];
 ---
 
 <BaseLayout title={item.title} currentPath={`/projects/${item.slug || encodeURIComponent(String(item.title))}/`}>
-  <div class="paper-page">
-    <div class="home-wrap">
-      <nav class="cal-crumb" aria-label="面包屑">
+  <canvas class="ab-bg-canvas" id="ab-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="paper-page ab-page-shell pjd-page">
+    <div class="home-wrap pj-shell">
+      <nav class="cal-crumb pjd-crumb" aria-label="面包屑">
         <a href={urlFor('/projects/')}>项目</a><span aria-hidden="true">/</span><span class="cal-crumb-now">{item.title}</span>
       </nav>
 
-      <header class="pj-detail-head">
+      <header class="pj-detail-head pjd-head">
+        <p class="ab-watermark" data-ab-parallax="0.16" aria-hidden="true">SPEC</p>
+        <p class="pjd-kicker">PROJECT / SPECIFICATION</p>
         <h1 class="pj-detail-title">{item.title}</h1>
         {item.summary && <p class="pj-detail-sum">{item.summary}</p>}
-        <dl class="pj-facts">
+        <dl class="pj-facts pjd-facts">
           {item.date && (
             <div class="pj-fact">
               <dt>日期</dt>
@@ -45,7 +49,7 @@ const tags: string[] = item.tags || [];
             </div>
           )}
           {tags.length > 0 && (
-            <div class="pj-fact">
+            <div class="pj-fact pjd-fact--stack">
               <dt>技术栈</dt>
               <dd>
                 <ul class="pj-tags">
@@ -57,7 +61,7 @@ const tags: string[] = item.tags || [];
           {item.link && (
             <div class="pj-fact">
               <dt>仓库</dt>
-              <dd><a href={item.link} target="_blank" rel="noopener">访问项目 ↗</a></dd>
+              <dd><a class="pjd-ext" href={item.link} target="_blank" rel="noopener">访问项目 ↗</a></dd>
             </div>
           )}
         </dl>
@@ -65,17 +69,20 @@ const tags: string[] = item.tags || [];
 
       {sections.length > 0 && (
         <details class="pj-toc-details">
-          <summary>小节导航</summary>
+          <summary>章节导航（{sections.length} 段）</summary>
           <ol>
-            {sections.map((s) => <li><a href={`#sec-${s.id}`}>{s.heading}</a></li>)}
+            {sections.map((s, idx) => (
+              <li><a href={`#sec-${s.id}`}>{String(idx + 1).padStart(2, '0')} · {s.heading}</a></li>
+            ))}
           </ol>
         </details>
       )}
 
-      <div class="pj-layout">
+      <div class="pj-layout pjd-layout">
         <main class="pj-main">
-          {sections.map((s) => (
-            <section class="pj-section rich-section" id={`sec-${s.id}`}>
+          {sections.map((s, idx) => (
+            <section class="pj-section rich-section pjd-sec" id={`sec-${s.id}`}>
+              <p class="pjd-sec-num" aria-hidden="true">SECTION {String(idx + 1).padStart(2, '0')}</p>
               <div class="markdown-body">
                 {!startsWithH2(s.html) && <h2>{s.heading}</h2>}
                 <Fragment set:html={s.html} />
@@ -86,24 +93,95 @@ const tags: string[] = item.tags || [];
         </main>
 
         {sections.length > 0 && (
-          <aside class="pj-toc" aria-label="小节导航">
-            <p class="pj-toc-label">小节</p>
-            <ol class="pj-toc-list">
-              {sections.map((s) => <li><a href={`#sec-${s.id}`}>{s.heading}</a></li>)}
+          <aside class="pj-toc pjd-toc" aria-label="小节导航">
+            <div class="pjd-prog">
+              <div class="pjd-prog-hd">
+                <span>阅读进度</span>
+                <span class="pjd-prog-pct" data-rr-pct>0%</span>
+              </div>
+              <div class="pjd-prog-bar"><i data-rr-bar /></div>
+            </div>
+            <p class="pj-toc-label">工程脉络</p>
+            <ol class="pj-toc-list pjd-stepper">
+              {sections.map((s, idx) => (
+                <li class={idx === 0 ? 'is-active' : ''}>
+                  <a href={`#sec-${s.id}`} data-pj-toc-link aria-current={idx === 0 ? 'location' : 'false'}>
+                    <span class="pjd-step-no">{String(idx + 1).padStart(2, '0')}</span>
+                    <span class="pjd-step-name">{s.heading}</span>
+                  </a>
+                </li>
+              ))}
             </ol>
           </aside>
         )}
       </div>
 
-      <footer class="detail-foot">
+      <footer class="detail-foot pjd-foot">
         {(prevItem || nextItem) && (
-          <nav class="detail-prevnext" aria-label="项目之间的前后导航">
-            {prevItem && <a class="detail-prev" href={urlFor(prevItem.path)}>← {prevItem.title}</a>}
-            {nextItem && <a class="detail-next" href={urlFor(nextItem.path)}>{nextItem.title} →</a>}
+          <nav class="detail-prevnext pjd-prevnext" aria-label="项目之间的前后导航">
+            <div>
+              {prevItem && (
+                <a class="pjd-pn" href={urlFor(prevItem.path)}>
+                  <span class="pjd-pn-k">← 上一个项目</span>
+                  <span class="pjd-pn-t">{prevItem.title}</span>
+                </a>
+              )}
+            </div>
+            <div class="pjd-pn-right">
+              {nextItem && (
+                <a class="pjd-pn" href={urlFor(nextItem.path)}>
+                  <span class="pjd-pn-k">下一个项目 →</span>
+                  <span class="pjd-pn-t">{nextItem.title}</span>
+                </a>
+              )}
+            </div>
           </nav>
         )}
         <a class="cta-link" href={urlFor('/projects/')}>← 返回项目列表</a>
       </footer>
     </div>
   </div>
+
+  <script defer src="/js/reading-room.js"></script>
+
+  <style is:global>
+    .pjd-page .pj-shell{position:relative;padding-bottom:3rem}
+    .pjd-crumb{margin:0 0 1.4rem}
+    .pjd-head{position:relative;padding:clamp(.8rem,2vw,1.6rem) 0 2rem;margin:0 0 2.4rem;border-bottom:1px solid var(--line-color);overflow:clip}
+    .pjd-kicker{position:relative;z-index:1;margin:0 0 .7rem;font-family:var(--font-mono);font-size:.75rem;letter-spacing:.14em;color:var(--accent)}
+    .pjd-head .pj-detail-title{position:relative;z-index:1;font-size:clamp(2rem,4.2vw,3.1rem);line-height:1.14;letter-spacing:-0.02em}
+    .pjd-head .pj-detail-sum{position:relative;z-index:1;margin:1rem 0 0;max-width:44rem;font-size:1.02rem;line-height:1.78;color:var(--sec-text-color)}
+    .pjd-facts{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:1rem 2.2rem;margin:1.6rem 0 0;padding-top:1.15rem;border-top:1px solid var(--line-color)}
+    .pjd-facts .pj-fact{padding:0;border:0;background:transparent}
+    .pjd-facts dt{margin:0 0 .25rem;font-family:var(--font-mono);font-size:.75rem;color:var(--info-mark)}
+    .pjd-facts dd{margin:0;font-size:.9rem;color:var(--text-color)}
+    .pjd-ext{font-family:var(--font-mono);font-weight:700;color:var(--accent);text-decoration:none}
+    .pjd-ext:hover{text-decoration:underline;text-underline-offset:3px}
+    .pjd-sec{padding-top:2rem;margin-bottom:2.4rem;border-top:1px solid var(--line-color)}
+    .pjd-sec:first-child{padding-top:0;border-top:0}
+    .pjd-sec-num{margin:0 0 .4rem;font-family:var(--font-mono);font-size:.75rem;letter-spacing:.14em;color:var(--accent)}
+    .pjd-toc{position:sticky;top:5.4rem;align-self:start;padding:0;background:transparent;border:0}
+    .pjd-prog{margin-bottom:1.35rem;padding-bottom:1rem;border-bottom:1px solid var(--line-color)}
+    .pjd-prog-hd{display:flex;justify-content:space-between;margin-bottom:.45rem;font-family:var(--font-mono);font-size:.75rem;color:var(--info-mark)}
+    .pjd-prog-pct{color:var(--accent);font-weight:700}
+    .pjd-prog-bar{height:2px;background:var(--line-color);border-radius:2px;overflow:hidden}
+    .pjd-prog-bar i{display:block;width:100%;height:100%;background:var(--accent);transform:scaleX(0);transform-origin:left center;transition:transform 120ms linear}
+    .pjd-stepper{list-style:none;margin:.6rem 0 0;padding:0 0 0 .9rem;border-left:1px solid var(--line-color);display:flex;flex-direction:column;gap:.75rem}
+    .pjd-stepper li{position:relative}
+    .pjd-stepper li::before{content:"";position:absolute;left:-1.18rem;top:.42rem;width:7px;height:7px;border-radius:50%;background:var(--body-bg-color);border:1.5px solid var(--line-color);transition:border-color 200ms ease,background-color 200ms ease,transform 200ms ease}
+    .pjd-stepper li.is-done::before{border-color:var(--accent);background:var(--accent)}
+    .pjd-stepper li.is-active::before{border-color:var(--accent);background:var(--accent);transform:scale(1.3)}
+    .pjd-stepper a{display:flex;align-items:baseline;gap:.5rem;text-decoration:none;color:var(--sec-text-color);font-size:.86rem;transition:color 180ms ease}
+    .pjd-stepper a:hover,.pjd-stepper a.is-active{color:var(--accent);font-weight:600}
+    .pjd-step-no{font-family:var(--font-mono);font-size:.75rem;color:var(--info-mark)}
+    .pjd-stepper a.is-active .pjd-step-no{color:var(--accent)}
+    .pjd-foot{margin-top:3rem;padding-top:1.8rem;border-top:1px solid var(--line-color)}
+    .pjd-prevnext{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.2rem;margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--line-color)}
+    .pjd-pn-right{text-align:right}
+    .pjd-pn{display:flex;flex-direction:column;gap:.2rem;text-decoration:none}
+    .pjd-pn-k{font-family:var(--font-mono);font-size:.75rem;color:var(--info-mark)}
+    .pjd-pn-t{font-family:var(--font-serif-title);font-size:1.02rem;font-weight:600;color:var(--text-color);transition:color 180ms ease}
+    .pjd-pn:hover .pjd-pn-t{color:var(--accent)}
+    @media (max-width:767.98px){.pjd-prevnext{grid-template-columns:minmax(0,1fr)}.pjd-pn-right{text-align:left}}
+  </style>
 </BaseLayout>

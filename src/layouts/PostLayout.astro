@@ -54,44 +54,53 @@ const showToc = tocCfg.enable !== false && tocCfg.placement !== 'left';
   ogKeywords={post.tags}
   markdownPlugins={true}
 >
-  <div class="paper-page">
+  <canvas class="ab-bg-canvas" id="ab-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="paper-page ab-page-shell rr-page">
     <div class="post-wrap">
+      <nav class="rr-crumb" aria-label="面包屑">
+        <a href="/archives/">文字</a>
+        {post.categories[0] && (
+          <>
+            <span aria-hidden="true">/</span>
+            <a href={taxonomyHref('categories', post.categories[0])}>{post.categories[0]}</a>
+          </>
+        )}
+        <button type="button" class="rr-focus-btn rr-focus-btn--top" data-rr-focus aria-pressed="false">
+          <span class="rr-focus-dot" aria-hidden="true" />
+          <span data-rr-focus-label>专注阅读</span>
+        </button>
+      </nav>
+
       <div class="post-grid">
         <div class="post-main-col" id="board-ctn">
           <article class="post-content">
-            <header class="post-head">
+            <header class="post-head rr-post-head">
               <p class="post-head-kicker">MANUSCRIPT · {post.categories[0] || 'POST'}</p>
               <h1 class="post-head-title">{post.title}</h1>
               {/* blurb 是 Post 的顶层字段（src/lib/posts.ts），没有 post.data 这一层。
                   写成 post.data?.blurb 时条件恒假，导语静默不显示——见 E-191。 */}
               {post.blurb && <p class="post-head-blurb">{post.blurb}</p>}
-              <div class="post-head-meta">
-                <div class="mt-3">
-                  {metaCfg.date?.enable !== false && (
-                    <span class="post-meta">
-                      <i class="iconfont icon-date-fill" aria-hidden="true" />
-                      <time datetime={formatWithPattern(post.date, 'YYYY-MM-DD HH:mm')} pubdate>
-                        {formatWithPattern(post.date, String(metaCfg.date?.format || 'YYYY-MM-DD'))}
-                      </time>
-                    </span>
-                  )}
-                </div>
-                <div class="mt-1">
-                  {showWordCount && (
-                    <span class="post-meta mr-2">
-                      <i class="iconfont icon-chart" />
-                      {zhCN.post.meta.wordcount.replace('%s', pageWordCount)}
-                    </span>
-                  )}
-                  {showMin2Read && (
-                    <span class="post-meta mr-2">
-                      <i class="iconfont icon-clock-fill" />
-                      {zhCN.post.meta.min2read.replace('%s', String(post.min2read))}
-                    </span>
-                  )}
-                </div>
+              <div class="post-head-meta rr-meta-bar">
+                {metaCfg.date?.enable !== false && (
+                  <span class="rr-meta-item">
+                    <time datetime={formatWithPattern(post.date, 'YYYY-MM-DD HH:mm')} pubdate>
+                      {formatWithPattern(post.date, String(metaCfg.date?.format || 'YYYY-MM-DD'))}
+                    </time>
+                  </span>
+                )}
+                {showWordCount && (
+                  <span class="rr-meta-item">
+                    {zhCN.post.meta.wordcount.replace('%s', pageWordCount)}
+                  </span>
+                )}
+                {showMin2Read && (
+                  <span class="rr-meta-item">
+                    {zhCN.post.meta.min2read.replace('%s', String(post.min2read))}
+                  </span>
+                )}
                 {post.categories.length > 0 && (
-                  <span class="post-head-cats">
+                  <span class="post-head-cats rr-meta-cats">
                     <span class="category-chains">
                       {post.categories
                         .slice()
@@ -107,11 +116,9 @@ const showToc = tocCfg.enable !== false && tocCfg.placement !== 'left';
                   </span>
                 )}
                 {post.tags.length > 0 && (
-                  <span class="post-head-tags">
+                  <span class="post-head-tags rr-meta-tags">
                     {post.tags.map(tag => (
-                      <>
-                        <a href={taxonomyHref('tags', tag)}>#{tag}</a>{' '}
-                      </>
+                      <a href={taxonomyHref('tags', tag)}>#{tag}</a>
                     ))}
                   </span>
                 )}
@@ -120,79 +127,33 @@ const showToc = tocCfg.enable !== false && tocCfg.placement !== 'left';
 
             <div class="markdown-body" set:html={post.content} />
 
-            <hr />
-            <div class="post-foot">
-              <div class="post-metas my-3">
-                {post.categories.length > 0 && (
-                  <div class="post-meta mr-3 d-flex align-items-center">
-                    <i class="iconfont icon-category" />
-                    <span class="category-chains">
-                      {post.categories
-                        .slice()
-                        .sort((a, b) => a.localeCompare(b, 'zh-Hans-CN'))
-                        .map(name => (
-                          <span class="category-chain">
-                            <a href={taxonomyHref('categories', name)} class="category-chain-item">
-                              {name.trim()}
-                            </a>
-                          </span>
-                        ))}
-                    </span>
-                  </div>
-                )}
-                {post.tags.length > 0 && (
-                  <div class="post-meta">
-                    <i class="iconfont icon-tags" />
-                    {post.tags.map(tag => (
-                      <>
-                        <a href={taxonomyHref('tags', tag)} class="print-no-link">#{tag}</a>{' '}
-                      </>
-                    ))}
-                  </div>
-                )}
-              </div>
-
+            <div class="post-foot rr-post-foot">
               {copyrightCfg.enable && (
-                <div class="license-box my-3">
-                  <div class="license-title">
-                    <div>{post.title}</div>
-                    <div>{postUrl}</div>
+                <div class="license-box rr-colophon">
+                  <div class="rr-colophon-row">
+                    <span class="rr-colophon-title">{post.title}</span>
+                    <button type="button" class="rr-copy-link" data-copy={postUrl}>复制本文链接</button>
                   </div>
-                  <div class="license-meta">
+                  <dl class="rr-colophon-meta">
                     {copyrightCfg.author?.enable !== false && siteConfig.author && (
-                      <div class="license-meta-item">
-                        <div>{zhCN.post.copyright.author}</div>
-                        <div>{siteConfig.author}</div>
-                      </div>
+                      <div><dt>{zhCN.post.copyright.author}</dt><dd>{siteConfig.author}</dd></div>
                     )}
                     {copyrightCfg.post_date?.enable !== false && (
-                      <div class="license-meta-item license-meta-date">
-                        <div>{zhCN.post.copyright.posted}</div>
-                        <div>{longDate(post.date)}</div>
-                      </div>
+                      <div><dt>{zhCN.post.copyright.posted}</dt><dd>{longDate(post.date)}</dd></div>
                     )}
                     {license && (
-                      <div class="license-meta-item">
-                        <div>{zhCN.post.copyright.licensed}</div>
-                        <div>
+                      <div>
+                        <dt>{zhCN.post.copyright.licensed}</dt>
+                        <dd>
                           {['BY', 'BY-SA', 'BY-ND', 'BY-NC', 'BY-NC-SA', 'BY-NC-ND'].includes(license) ? (
-                            licenseItems.map(item => (
-                              <a
-                                class="print-no-link"
-                                target="_blank"
-                                href={`https://creativecommons.org/licenses/${license.toLowerCase()}/4.0/`}
-                                rel="noopener"
-                              >
-                                <span
-                                  class="hint--top hint--rounded"
-                                  aria-label={
-                                    zhCN.post.copyright[item as keyof typeof zhCN.post.copyright] || item
-                                  }
-                                >
-                                  <i class={`iconfont icon-cc-${item.toLowerCase()}`} />
-                                </span>
-                              </a>
-                            ))
+                            <a
+                              class="print-no-link"
+                              target="_blank"
+                              href={`https://creativecommons.org/licenses/${license.toLowerCase()}/4.0/`}
+                              rel="noopener"
+                            >
+                              CC {license} 4.0 ↗
+                            </a>
                           ) : license === 'ZERO' ? (
                             <a
                               class="print-no-link"
@@ -200,53 +161,61 @@ const showToc = tocCfg.enable !== false && tocCfg.placement !== 'left';
                               href="https://creativecommons.org/publicdomain/zero/1.0/"
                               rel="noopener"
                             >
-                              <span class="hint--top hint--rounded" aria-label={zhCN.post.copyright.ZERO}>
-                                <i class="iconfont icon-cc-zero" />
-                              </span>
+                              CC0 1.0 ↗
                             </a>
                           ) : (
                             license
                           )}
-                        </div>
+                        </dd>
                       </div>
                     )}
-                  </div>
-                  <div class="license-icon iconfont" />
+                  </dl>
                 </div>
               )}
 
-              <div class="post-prevnext my-3">
-                <article class="post-prev col-6">
+              <nav class="post-prevnext rr-prevnext" aria-label="前后篇文章">
+                <div class="rr-pn-slot">
                   {prev && (
-                    <a href={prev.href} title={prev.title}>
-                      <i class="iconfont icon-arrowleft" />
-                      <span class="hidden-mobile">{prev.title}</span>
-                      <span class="visible-mobile">{zhCN.post.prev_post}</span>
+                    <a class="rr-pn-link" href={prev.href} title={prev.title}>
+                      <span class="rr-pn-kicker">← 上一篇</span>
+                      <span class="rr-pn-title">{prev.title}</span>
                     </a>
                   )}
-                </article>
-                <article class="post-next col-6">
+                </div>
+                <div class="rr-pn-slot rr-pn-slot--next">
                   {next && (
-                    <a href={next.href} title={next.title}>
-                      <span class="hidden-mobile">{next.title}</span>
-                      <span class="visible-mobile">{zhCN.post.next_post}</span>
-                      <i class="iconfont icon-arrowright" />
+                    <a class="rr-pn-link" href={next.href} title={next.title}>
+                      <span class="rr-pn-kicker">下一篇 →</span>
+                      <span class="rr-pn-title">{next.title}</span>
                     </a>
                   )}
-                </article>
-              </div>
+                </div>
+              </nav>
 
-              <p class="post-home-link"><a href="/">← 回到首页</a></p>
+              <p class="post-home-link rr-back-row">
+                <a href="/archives/">← 返回全部文字</a>
+                <a href="/">回到首页</a>
+              </p>
             </div>
           </article>
         </div>
 
         {showToc && (
           <aside class="post-side post-side-right d-none d-lg-block">
-            <aside class="sidebar">
+            <aside class="sidebar rr-sidebar">
+              <div class="rr-progress-card">
+                <div class="rr-progress-head">
+                  <span class="rr-progress-label">阅读进度</span>
+                  <span class="rr-progress-pct" data-rr-pct>0%</span>
+                </div>
+                <div class="rr-progress-track"><i data-rr-bar /></div>
+                <button type="button" class="rr-focus-btn rr-focus-btn--side" data-rr-focus aria-pressed="false">
+                  <span class="rr-focus-dot" aria-hidden="true" />
+                  <span data-rr-focus-label>专注阅读</span>
+                </button>
+              </div>
               <div id="toc">
                 <p class="toc-header">
-                  <i class="iconfont icon-list" />
                   <span>{zhCN.post.toc}</span>
                 </p>
                 <div class="toc-body" id="toc-body" />
@@ -257,6 +226,77 @@ const showToc = tocCfg.enable !== false && tocCfg.placement !== 'left';
       </div>
     </div>
   </div>
+
+  <script defer src="/js/reading-room.js"></script>
+
+  <style is:global>
+    .rr-page .post-wrap{max-width:1180px;margin:0 auto;padding:0 clamp(1rem,3vw,2rem) 3.2rem;transition:max-width 320ms cubic-bezier(.22,1,.36,1)}
+    .rr-crumb{display:flex;align-items:center;gap:.55rem;margin:0 0 1.6rem;padding-top:.4rem;font-family:var(--font-mono);font-size:.78rem;color:var(--info-mark)}
+    .rr-crumb a{color:var(--info-mark);text-decoration:none}
+    .rr-crumb a:hover{color:var(--accent)}
+    .rr-focus-btn{display:inline-flex;align-items:center;gap:.42rem;padding:.26rem .72rem;border:1px solid var(--line-color);border-radius:999px;background:transparent;color:var(--sec-text-color);font-family:var(--font-mono);font-size:.75rem;cursor:pointer;transition:border-color 180ms ease,color 180ms ease,background-color 180ms ease}
+    .rr-focus-btn:hover,.rr-focus-btn[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+    .rr-focus-dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.75}
+    .rr-focus-btn--top{margin-left:auto;display:none}
+    .post-wrap.is-focus-mode .rr-focus-btn--top{display:inline-flex}
+    .post-wrap.is-focus-mode{max-width:820px}
+    .post-wrap.is-focus-mode .post-grid{grid-template-columns:minmax(0,1fr)}
+    .post-wrap.is-focus-mode .post-side{display:none!important}
+    .rr-post-head{padding:0 0 1.8rem;margin:0 0 2.2rem;border-bottom:1px solid var(--line-color)}
+    .rr-post-head .post-head-kicker{margin:0 0 .75rem;font-family:var(--font-mono);font-size:.75rem;letter-spacing:.14em;color:var(--accent)}
+    .rr-post-head .post-head-title{margin:0;font-family:var(--font-serif-title);font-size:clamp(1.85rem,3.6vw,2.75rem);line-height:1.22;letter-spacing:-0.015em;color:var(--text-color)}
+    .rr-post-head .post-head-blurb{margin:1rem 0 0;font-size:1.02rem;line-height:1.75;color:var(--sec-text-color);max-width:44rem}
+    .rr-meta-bar{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem 1.15rem;margin:1.35rem 0 0;padding-top:1rem;border-top:1px solid var(--line-color);font-family:var(--font-mono);font-size:.78rem;color:var(--info-mark)}
+    .rr-meta-cats a{color:var(--accent);text-decoration:none;font-weight:600}
+    .rr-meta-tags{display:inline-flex;flex-wrap:wrap;gap:.35rem .65rem}
+    .rr-meta-tags a{color:var(--info-mark);text-decoration:none}
+    .rr-meta-tags a:hover,.rr-meta-cats a:hover{text-decoration:underline;text-underline-offset:3px}
+    .rr-page .markdown-body img{border-radius:var(--r-sm)}
+    .rr-page .markdown-body img.rr-zoomable{cursor:zoom-in;transition:transform 260ms cubic-bezier(.22,1,.36,1)}
+    .rr-page .markdown-body img.rr-zoomable:hover{transform:scale(1.01)}
+    .rr-sidebar{position:sticky;top:5.4rem;display:flex;flex-direction:column;gap:1.35rem}
+    .rr-progress-card{padding-bottom:1.1rem;border-bottom:1px solid var(--line-color)}
+    .rr-progress-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.5rem;font-family:var(--font-mono);font-size:.75rem;color:var(--info-mark)}
+    .rr-progress-pct{color:var(--accent);font-weight:700}
+    .rr-progress-track{height:2px;background:var(--line-color);overflow:hidden;border-radius:2px;margin-bottom:.85rem}
+    .rr-progress-track i{display:block;width:100%;height:100%;background:var(--accent);transform:scaleX(0);transform-origin:left center;transition:transform 120ms linear}
+    .rr-focus-btn--side{width:100%;justify-content:center}
+    .rr-sidebar #toc{padding:0;background:transparent;border:0;box-shadow:none}
+    .rr-sidebar .toc-header{margin:0 0 .65rem;font-family:var(--font-mono);font-size:.75rem;letter-spacing:.12em;color:var(--info-mark);text-transform:uppercase}
+    .rr-sidebar .tocbot-link{font-size:.82rem;line-height:1.55;color:var(--sec-text-color);transition:color 160ms ease}
+    .rr-sidebar .tocbot-active-link{color:var(--accent)!important;font-weight:600}
+    .rr-post-foot{margin-top:3rem;padding-top:1.8rem;border-top:1px solid var(--line-color)}
+    .rr-colophon{margin:0 0 2rem!important;padding:1rem 0 1.25rem!important;background:transparent!important;border:0!important;border-bottom:1px solid var(--line-color)!important;border-radius:0!important;box-shadow:none!important}
+    .rr-colophon::before,.rr-colophon::after{display:none!important}
+    .rr-colophon-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.6rem;margin-bottom:.85rem}
+    .rr-colophon-title{font-family:var(--font-serif-title);font-size:.98rem;font-weight:600;color:var(--text-color)}
+    .rr-copy-link{padding:.24rem .68rem;border:1px solid var(--line-color);border-radius:999px;background:transparent;color:var(--sec-text-color);font-family:var(--font-mono);font-size:.75rem;cursor:pointer;transition:border-color 180ms ease,color 180ms ease}
+    .rr-copy-link:hover{border-color:var(--accent);color:var(--accent)}
+    .rr-colophon-meta{display:flex;flex-wrap:wrap;gap:.75rem 2rem;margin:0}
+    .rr-colophon-meta dt{margin:0 0 .15rem;font-family:var(--font-mono);font-size:.75rem;color:var(--info-mark)}
+    .rr-colophon-meta dd{margin:0;font-size:.84rem;color:var(--sec-text-color)}
+    .rr-colophon-meta a{color:var(--accent);text-decoration:none}
+    .rr-colophon-meta a:hover{text-decoration:underline;text-underline-offset:3px}
+    .rr-prevnext{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.2rem;margin:0 0 1.6rem!important;padding-bottom:1.6rem;border-bottom:1px solid var(--line-color)}
+    .rr-pn-slot--next{text-align:right}
+    .rr-pn-link{display:flex;flex-direction:column;gap:.25rem;text-decoration:none;color:inherit}
+    .rr-pn-kicker{font-family:var(--font-mono);font-size:.75rem;color:var(--info-mark)}
+    .rr-pn-title{font-family:var(--font-serif-title);font-size:1rem;font-weight:600;color:var(--text-color);transition:color 180ms ease}
+    .rr-pn-link:hover .rr-pn-title{color:var(--accent)}
+    .rr-back-row{display:flex;justify-content:space-between;align-items:center;margin:0;font-family:var(--font-mono);font-size:.8rem}
+    .rr-back-row a{color:var(--info-mark);text-decoration:none}
+    .rr-back-row a:hover{color:var(--accent)}
+    /* 原生图片灯箱 <dialog> */
+    .rr-lightbox{max-width:min(94vw,1160px);max-height:92vh;padding:0;border:1px solid var(--line-color);border-radius:var(--r-sm);background-color:var(--body-bg-color);color:var(--text-color);box-shadow:var(--site-float-shadow)}
+    .rr-lightbox::backdrop{background-color:var(--surface-ink);opacity:.78}
+    .rr-lb-in{position:relative;padding:1rem;display:flex;flex-direction:column;align-items:center;gap:.65rem}
+    .rr-lb-close{align-self:flex-end;padding:.24rem .72rem;border:1px solid var(--line-color);border-radius:999px;background:transparent;color:var(--text-color);font-family:var(--font-mono);font-size:.75rem;cursor:pointer}
+    .rr-lb-close:hover{border-color:var(--accent);color:var(--accent)}
+    .rr-lb-img{display:block;max-width:100%;max-height:76vh;width:auto;height:auto;border-radius:6px}
+    .rr-lb-cap{margin:0;font-size:.82rem;color:var(--sec-text-color);text-align:center}
+    @media (max-width:767.98px){.rr-prevnext{grid-template-columns:minmax(0,1fr)}.rr-pn-slot--next{text-align:left}}
+    @media (prefers-reduced-motion:reduce){.rr-page .post-wrap,.rr-page .markdown-body img.rr-zoomable,.rr-progress-track i{transition:none}}
+  </style>
 
   <MarkdownPlugins />
 
