@@ -81,12 +81,15 @@ const fcStats =
       </div>
     ) : (
       <>
+        <canvas class="ab-bg-canvas" id="ab-bg-canvas" aria-hidden="true"></canvas>
         <div class="paper-page cal-page fs-page">
-          <div class="home-wrap">
-            <header class="fc-head">
+          <div class="home-wrap ab-page-shell fs-detail-v2">
+            <header class="fc-head fs-d-head">
+              <p class="ab-watermark" data-ab-parallax="0.16" aria-hidden="true">{f.slug.toUpperCase()}</p>
               <nav class="cal-crumb" aria-label="面包屑">
                 <a href={urlFor('/library/')}>资料库</a><span aria-hidden="true">/</span><a href={urlFor('/library/') + '#topic-festivals'}>节日文化</a><span aria-hidden="true">/</span><span class="cal-crumb-now">{f.name}</span>
               </nav>
+              <p class="fs-d-kicker">FESTIVAL / ARCHIVE</p>
               <h1 class="fc-title">{f.name}</h1>
               <p class="cal-lede"><Fragment set:html={f.lede} /></p>
               <p class="fc-meta">
@@ -379,6 +382,18 @@ const fcStats =
         </div>
 
         <script src="/js/festival.js" defer />
+
+        <style is:global>
+          .fs-detail-v2 .fs-d-head{position:relative;padding:clamp(.8rem,2vw,1.6rem) 0 1.8rem;margin-bottom:1.8rem;border-bottom:1px solid var(--line-color);overflow:clip}
+          .fs-detail-v2 .fs-d-head>*:not(.ab-watermark){position:relative;z-index:1}
+          .fs-d-kicker{margin:0 0 .55rem;font-family:var(--font-mono);font-size:.75rem;letter-spacing:.14em;color:var(--accent)}
+          .fs-detail-v2 .fc-title{font-family:var(--font-serif-title);font-size:clamp(2.1rem,4.4vw,3.3rem);line-height:1.1;letter-spacing:-0.02em}
+          .fs-detail-v2 .fs-nav-strip{border-radius:var(--r-sm);border:1px solid var(--line-color);background:transparent}
+          .fs-detail-v2 .fs-figure-media{border-radius:var(--r-sm);overflow:hidden}
+          .fs-detail-v2 .fs-section{padding-top:1.8rem;border-top:1px solid var(--line-color)}
+          .fs-detail-v2 .fs-section:first-child{padding-top:0;border-top:0}
+          .fs-detail-v2 .fs-toc{background:transparent;border:0;border-left:1px solid var(--line-color);border-radius:0;padding-left:1.1rem}
+        </style>
       </>
     )
   }

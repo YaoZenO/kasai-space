@@ -180,17 +180,21 @@ const platesCells = platesLetters.map((letter: string) => ({ letter, state: 'use
       </div>
     </div>
   ) : (
-    <div class="paper-page cal-page lb-page">
-      <div class="home-wrap">
-        <section class="lb-hero">
-          <h1 class="lb-title">资料库</h1>
-          <p class="lb-lede"><Fragment set:html={meta.intro || ''} /></p>
-          <StatBand
-            columns={6}
-            class="stat-band--flush stat-band--ruled"
-            items={stats.map((st: any) => ({ label: st.label, value: st.value }))}
-          />
-        </section>
+    <>
+      <canvas class="ab-bg-canvas" id="ab-bg-canvas" aria-hidden="true"></canvas>
+      <div class="paper-page ab-page-shell cal-page lb-page lb-v2">
+        <div class="home-wrap">
+          <section class="lb-hero lb-v2-hero">
+            <p class="ab-watermark" data-ab-parallax="0.16" aria-hidden="true">LIBRARY</p>
+            <p class="lb-v2-kicker">DATA / REFERENCE ARCHIVE</p>
+            <h1 class="lb-title">资料库</h1>
+            <p class="lb-lede"><Fragment set:html={meta.intro || ''} /></p>
+            <StatBand
+              columns={6}
+              class="stat-band--flush stat-band--ruled"
+              items={stats.map((st: any) => ({ label: st.label, value: st.value }))}
+            />
+          </section>
 
         <section class="lb-shelf-block">
           <div class="col-head">
@@ -278,5 +282,20 @@ const platesCells = platesLetters.map((letter: string) => ({ letter, state: 'use
         </div>
       </div>
     </div>
+    </>
   )}
+
+  <style is:global>
+    .lb-v2 .lb-v2-hero{position:relative;padding:clamp(1rem,2.6vw,2.2rem) 0 1.8rem;margin-bottom:2.2rem;border-bottom:1px solid var(--line-color);overflow:clip}
+    .lb-v2-kicker{position:relative;z-index:1;margin:0 0 .65rem;font-family:var(--font-mono);font-size:.75rem;letter-spacing:.14em;color:var(--accent)}
+    .lb-v2 .lb-title{position:relative;z-index:1;font-family:var(--font-serif-title);font-size:clamp(2.3rem,4.8vw,3.6rem);line-height:1.08;letter-spacing:-0.02em}
+    .lb-v2 .lb-lede,.lb-v2 .stat-band{position:relative;z-index:1}
+    .lb-v2 .lb-shelf-card{border-radius:var(--r-sm);border:1px solid var(--line-color);background:transparent;box-shadow:none;transition:border-color 220ms ease,transform 260ms cubic-bezier(.22,1,.36,1),opacity 260ms ease}
+    .lb-v2 .lb-shelf:hover .lb-shelf-card:not(:hover){opacity:.68}
+    .lb-v2 .lb-shelf-card:hover{border-color:var(--accent);transform:translateY(-3px)}
+    .lb-v2 .lb-shelf-card:hover .lb-shelf-title{color:var(--accent)}
+    .lb-v2 .lb-shelf-cover{border-bottom:1px solid var(--line-color);transition:transform 360ms cubic-bezier(.22,1,.36,1)}
+    .lb-v2 .lb-shelf-card:hover .lb-shelf-cover{transform:scale(1.015)}
+    @media (prefers-reduced-motion:reduce){.lb-v2 .lb-shelf-card,.lb-v2 .lb-shelf-cover{transition:none}}
+  </style>
 </BaseLayout>

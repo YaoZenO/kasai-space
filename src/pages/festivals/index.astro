@@ -129,13 +129,17 @@ const months = Array.from({ length: 12 }, (_, i) => i + 1);
   ogDate={published}
   ogUpdated={modified}
 >
-  <div class="paper-page cal-page fs-page">
-    <div class="home-wrap">
-      <header class="fs-hero">
+  <canvas class="ab-bg-canvas" id="ab-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="paper-page cal-page fs-page" data-fs-filter="all">
+    <div class="home-wrap ab-page-shell fs-v2">
+      <header class="fs-hero fs-v2-hero">
+        <p class="ab-watermark" data-ab-parallax="0.16" aria-hidden="true">FESTIVALS</p>
         <div class="fs-hero-main">
           <nav class="cal-crumb" aria-label="面包屑">
             <a href={urlFor('/library/')}>资料库</a><span aria-hidden="true">/</span><span class="cal-crumb-now">节日文化</span>
           </nav>
+          <p class="fs-v2-kicker">SOLAR &amp; LUNAR · 年度节令轴</p>
           <h1 class="fs-title">节日文化</h1>
           <p class="cal-lede">{fsMeta.lede || '十二个中国节日，每个都有一篇长文：来历与传说、习俗与食物、词汇和常见问题。'}</p>
         </div>
@@ -160,9 +164,17 @@ const months = Array.from({ length: 12 }, (_, i) => i + 1);
       ) : (
         <>
           <section class="fs-year" aria-labelledby="fs-year-title">
-            <div class="col-head">
-              <h2 class="col-title" id="fs-year-title">{axisYear} 年的节日</h2>
-              <span class="col-count">/ {axisEntry?.official === false ? '预计安排' : '官方安排'}</span>
+            <div class="fs-v2-bar">
+              <div class="col-head">
+                <h2 class="col-title" id="fs-year-title">{axisYear} 年的节日</h2>
+                <span class="col-count">/ {axisEntry?.official === false ? '预计安排' : '官方安排'}</span>
+              </div>
+              <div class="fs-v2-filters" role="group" aria-label="按类型筛选时间轴节点">
+                <button type="button" class="fs-v2-chip is-active" data-fs-f="all" aria-pressed="true">全部 {marks.length}</button>
+                <button type="button" class="fs-v2-chip" data-fs-f="legal" aria-pressed="false">法定假日 {legalCount}</button>
+                <button type="button" class="fs-v2-chip" data-fs-f="lunar" aria-pressed="false">农历节日 {lunarCount}</button>
+                <button type="button" class="fs-v2-chip" data-fs-f="solar" aria-pressed="false">节气 {solarCount}</button>
+              </div>
             </div>
 
             {/* 轴上的点全部是链接；节气刻度是装饰，读屏不重复念 */}
@@ -202,4 +214,42 @@ const months = Array.from({ length: 12 }, (_, i) => i + 1);
       )}
     </div>
   </div>
+
+  <script is:inline>
+    (function () {
+      var root = document.querySelector('[data-fs-filter]');
+      if (!root) return;
+      var chips = Array.prototype.slice.call(root.querySelectorAll('[data-fs-f]'));
+      chips.forEach(function (chip) {
+        chip.addEventListener('click', function () {
+          var v = chip.getAttribute('data-fs-f') || 'all';
+          root.setAttribute('data-fs-filter', v);
+          chips.forEach(function (c) {
+            var on = c === chip;
+            c.classList.toggle('is-active', on);
+            c.setAttribute('aria-pressed', on ? 'true' : 'false');
+          });
+        });
+      });
+    })();
+  </script>
+
+  <style is:global>
+    .fs-v2 .fs-v2-hero{position:relative;padding:clamp(1rem,2.6vw,2.2rem) 0 1.8rem;margin-bottom:2rem;border-bottom:1px solid var(--line-color);overflow:clip}
+    .fs-v2 .fs-hero-main,.fs-v2 .fs-legend{position:relative;z-index:1}
+    .fs-v2-kicker{margin:0 0 .6rem;font-family:var(--font-mono);font-size:.75rem;letter-spacing:.14em;color:var(--accent)}
+    .fs-v2 .fs-title{font-family:var(--font-serif-title);font-size:clamp(2.2rem,4.6vw,3.4rem);line-height:1.08;letter-spacing:-0.02em}
+    .fs-v2-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.8rem 1.4rem;margin-bottom:1.2rem}
+    .fs-v2-bar .col-head{margin-bottom:0}
+    .fs-v2-filters{display:flex;flex-wrap:wrap;gap:.45rem}
+    .fs-v2-chip{padding:.26rem .75rem;border:1px solid var(--line-color);border-radius:999px;background:transparent;color:var(--sec-text-color);font-family:var(--font-mono);font-size:.76rem;cursor:pointer;transition:border-color 180ms ease,color 180ms ease,background-color 180ms ease}
+    .fs-v2-chip:hover{border-color:var(--accent);color:var(--accent)}
+    .fs-v2-chip.is-active{border-color:var(--accent);background:var(--accent);color:#fff;font-weight:600}
+    .fs-v2 .fs-mark{transition:opacity 240ms ease,transform 240ms cubic-bezier(.22,1,.36,1)}
+    .fs-v2 .fs-mark:hover{transform:translateY(-2px)}
+    [data-fs-filter="legal"] .fs-mark:not(.fs-mark--legal){opacity:.18}
+    [data-fs-filter="lunar"] .fs-mark:not(.fs-mark--lunar){opacity:.18}
+    [data-fs-filter="solar"] .fs-mark:not(.fs-mark--solar){opacity:.18}
+    @media (prefers-reduced-motion:reduce){.fs-v2 .fs-mark{transition:none}}
+  </style>
 </BaseLayout>
