@@ -55,6 +55,34 @@ export interface PlatesRule {
   source: string;
 }
 
+// 跨省聚合出的「反常现象」——页面冷知识墙的数据来源。
+export interface PlatesMultiLetter {
+  region: PlatesRegion;
+  place: string;
+  codes: string[];
+}
+
+export interface PlatesSharedCode {
+  region: PlatesRegion;
+  code: string;
+  places: string[];
+}
+
+export interface PlatesAnomalies {
+  // 字母带出现「B 空缺」的省（全国仅云南）
+  noBRegions: PlatesRegion[];
+  // 三字母城市（全国仅佛山 E/X/Y）
+  tripleLetterPlaces: PlatesMultiLetter[];
+  // 双字母城市（青岛、烟台、潍坊、哈尔滨、福州、南昌、长沙、成都、桂林、伊犁）
+  doubleLetterPlaces: PlatesMultiLetter[];
+  // 两地共用一个代号（全国仅宁夏吴忠/固原 C）
+  sharedCodes: PlatesSharedCode[];
+  // 直辖市（A 至 Z 全序列）
+  fullAlphabetRegions: PlatesRegion[];
+  // 普通省/自治区里用到 Z 的（四川眉山）
+  toZRegions: PlatesRegion[];
+}
+
 export interface PlatesOverview {
   meta: {
     updated: string;
@@ -66,6 +94,7 @@ export interface PlatesOverview {
   regions: PlatesRegion[];
   special: PlatesSpecial[];
   rules: PlatesRule[];
+  anomalies: PlatesAnomalies;
   // 派生统计
   stats: {
     regionCount: number;
@@ -201,11 +230,32 @@ export function buildPlates(raw: any): PlatesOverview | null {
     ? data.rules.filter((r: any) => r && r.key && r.title && r.text)
     : [];
 
+  // 跨省聚合「反常现象」（冷知识墙）。全部从 regions 的既有派生结果汇总，
+  // 不另写一份数据，保证与字母带 / 对照表永远一致。
+  const anomalies: PlatesAnomalies = {
+    noBRegions: ordered.filter((r) => r.gaps.includes('B')),
+    tripleLetterPlaces: [],
+    doubleLetterPlaces: [],
+    sharedCodes: [],
+    fullAlphabetRegions: ordered.filter((r) => r.codesFull),
+    toZRegions: ordered.filter((r) => !r.codesFull && r.usedCodes.includes('Z'))
+  };
+  for (const r of ordered) {
+    for (const m of r.multiLetterPlaces) {
+      if (m.codes.length >= 3) anomalies.tripleLetterPlaces.push({ region: r, place: m.place, codes: m.codes });
+      else if (m.codes.length === 2) anomalies.doubleLetterPlaces.push({ region: r, place: m.place, codes: m.codes });
+    }
+    for (const s of r.sharedCodes) {
+      anomalies.sharedCodes.push({ region: r, code: s.code, places: s.places });
+    }
+  }
+
   return {
     meta,
     regions: ordered,
     special,
     rules,
+    anomalies,
     stats: {
       regionCount: ordered.length,
       municipalityCount: municipalities.length,

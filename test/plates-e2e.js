@@ -206,13 +206,35 @@ if (!fs.existsSync(OUT)) {
       assert.ok(fs.statSync(js).size > 0, 'plates.js 为空');
     });
 
-    ok('包含特殊代号 O / Z / W', () => {
-      assert.ok(html.includes('plt-special-code'), '特殊代号区缺失');
-      ['O', 'W', 'Z'].forEach((c) => assert.ok(html.includes('>' + c + '<'), c + ' 缺失'));
+    ok('冷知识墙存在（plt-freak）', () => {
+      assert.ok(html.includes('plt-freak'), '冷知识墙缺失');
     });
 
-    ok('包含直辖市专节说明', () => {
-      assert.ok(html.includes('A 至 Z 全序列'), '直辖市说明缺失');
+    ok('冷知识卡覆盖关键反常现象', () => {
+      assert.ok(html.includes('一个省，凭空少了 B'), '云南无 B 卡缺失');
+      assert.ok(html.includes('一座城，独占三个字母'), '佛山三字母卡缺失');
+      assert.ok(html.includes('两个城市，抢一个字母'), '吴忠固原共用 C 卡缺失');
+      assert.ok(html.includes('一个字母都不跳'), '直辖市全序列卡缺失');
+      assert.ok(html.includes('字母一路用到 Z 的省'), '四川到 Z 卡缺失');
+      assert.ok(html.includes('这些城市，不止一块牌'), '双字母城市卡缺失');
+      assert.ok(html.includes('三个不发给普通城市的神秘字母'), '神秘字母卡缺失');
+    });
+
+    ok('冷知识卡有 5 处可联动（data-region + is-link）', () => {
+      const links = (html.match(/class="plt-freak is-link"/g) || []).length;
+      assert.strictEqual(links, 5, '可联动卡应为 5 张，实际 ' + links);
+    });
+
+    ok('包含特殊代号 O / Z / W（并入神秘字母卡）', () => {
+      ['O', 'Z', 'W'].forEach((c) => assert.ok(html.includes('is-special">' + c + '<'), c + ' 缺失'));
+    });
+
+    ok('包含一句话规则背景', () => {
+      assert.ok(html.includes('为什么省会都是 A'), '规则背景缺失');
+    });
+
+    ok('完整对照表折叠在 details 里', () => {
+      assert.ok(html.includes('class="plt-appendix"'), '折叠表缺失');
     });
   }
 }
