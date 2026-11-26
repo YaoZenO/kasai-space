@@ -620,9 +620,58 @@ const SOLAR_NOTE: Record<string, string> = {
   guoqing: '公历 10 月 1 日',
 };
 
+const LUNAR_DAY_CN = [
+  '', '初一', '初二', '初三', '初四', '初五', '初六', '初七', '初八', '初九', '初十',
+  '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十',
+  '廿一', '廿二', '廿三', '廿四', '廿五', '廿六', '廿七', '廿八', '廿九', '三十',
+];
+
+const LUNAR_FMT = new Intl.DateTimeFormat('zh-CN-u-ca-chinese', {
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+
+function lunarOfKey(key: string): { month: string; day: number; dayCn: string; full: string } {
+  const { y, m, d } = keyToParts(key);
+  const parts = LUNAR_FMT.formatToParts(new Date(Date.UTC(y, m - 1, d, 12, 0, 0)));
+  let month = '';
+  let dayNum = 0;
+  for (const p of parts) {
+    if (p.type === 'month') month = p.value;
+    else if (p.type === 'day') dayNum = parseInt(p.value, 10) || 0;
+  }
+  const dayCn = LUNAR_DAY_CN[dayNum] || '';
+  return { month, day: dayNum, dayCn, full: month + dayCn };
+}
+
 function calendarView(cal: any): any {
   if (!cal) return null;
   const monthOf = (key: string) => keyToParts(key).m;
+
+  // 建立当日节日/节气短标签索引，用于在 12 月宫格公历日期下方显示农历或节令名
+  const holidayExact = new Map<string, string>();
+  const SHORT_HOLIDAY: Record<string, string> = {
+    yuandan: '元旦', chunjie: '春节', qingming: '清明',
+    laodong: '劳动', duanwu: '端午', zhongqiu: '中秋', guoqing: '国庆',
+  };
+  for (const h of cal.holidays || []) {
+    if (h.date) holidayExact.set(h.date, SHORT_HOLIDAY[h.id] || h.name);
+    if (h.id === 'chunjie' && h.date) {
+      holidayExact.set(addDays(h.date, -1), '除夕');
+    }
+  }
+  const termByDate = new Map<string, string>();
+  for (const t of cal.terms || []) {
+    if (t.date && t.name) termByDate.set(t.date, t.name);
+  }
+  const festByDate = new Map<string, string>();
+  for (const f of cal.festivals || []) {
+    if (f.date && f.name && f.kind !== '节气') {
+      const clean = String(f.name).replace(/节$/, '');
+      if (clean.length <= 3) festByDate.set(f.date, clean);
+    }
+  }
 
   // 24 节气按名称归季（不按日期）：冬季那一组跨年（11 月立冬 → 次年 1 月大寒），
   // 按日期排会把「小寒 / 大寒」挤到四季的第一组去。
@@ -673,10 +722,39 @@ function calendarView(cal: any): any {
 
     const segDays = segs.reduce((sum: number, h: any) => sum + h.days, 0);
 
+    const enrichedCells = mo.cells.map((c: any) => {
+      const lu = lunarOfKey(c.key);
+      const exactH = holidayExact.get(c.key);
+      const exactT = termByDate.get(c.key);
+      const exactF = festByDate.get(c.key);
+      let lunarText = lu.day === 1 ? lu.month : lu.dayCn;
+      let lunarKind = lu.day === 1 ? 'month' : 'day';
+      if (exactH) {
+        lunarText = exactH;
+        lunarKind = 'fest';
+      } else if (exactT) {
+        lunarText = exactT;
+        lunarKind = 'term';
+      } else if (exactF) {
+        lunarText = exactF;
+        lunarKind = 'fest';
+      }
+      const tipWithLunar = c.tip
+        ? `${c.tip} · 农历${lu.full}`
+        : `${c.key} · 农历${lu.full}`;
+      return {
+        ...c,
+        lunarText,
+        lunarKind,
+        lunarFull: lu.full,
+        tip: tipWithLunar,
+      };
+    });
+
     return {
       m: m,
-      pad: mo.cells.length ? mo.cells[0].w : 0,
-      cells: mo.cells,
+      pad: enrichedCells.length ? enrichedCells[0].w : 0,
+      cells: enrichedCells,
       tags: segs.map((h: any) => h.name),
       badge: segDays > 0 ? segDays + ' 天' : '',
       panel: {
