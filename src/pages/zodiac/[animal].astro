@@ -48,10 +48,11 @@ const { published, modified } = pageDates(`zodiac/${animalKey}/index.md`);
       </div>
     ) : (
       <>
+        <canvas class="ab-bg-canvas" id="ab-bg-canvas" aria-hidden="true"></canvas>
         <div class="paper-page cal-page z-page">
-          <div class="home-wrap">
+          <div class="home-wrap ab-page-shell zd-v2">
             <nav class="cal-crumb" aria-label="面包屑">
-              <a href={urlFor('/zodiac/')}>十二生肖</a><span aria-hidden="true">/</span><span class="cal-crumb-now">{z.animal}</span>
+              <a href={urlFor('/library/')}>资料库</a><span aria-hidden="true">/</span><a href={urlFor('/zodiac/')}>十二生肖</a><span aria-hidden="true">/</span><span class="cal-crumb-now">{z.animal}</span>
             </nav>
 
             {/* 属相档案卡：一屏内回答「是哪一个属相、配什么地支五行、哪一段年份、和谁相冲相合」 */}
@@ -341,6 +342,15 @@ const { published, modified } = pageDates(`zodiac/${animalKey}/index.md`);
         </div>
 
         <script src="/js/zodiac.js" defer />
+
+        <style is:global>
+          .zd-v2 .zd-dossier{border-radius:var(--r-sm);border:1px solid var(--line-color);background:transparent}
+          .zd-v2 .zd-name{font-family:var(--font-serif-title);letter-spacing:-0.02em}
+          .zd-v2 .z-toc{background:transparent;border:0;border-left:1px solid var(--line-color);border-radius:0;padding-left:1.1rem}
+          .zd-v2 .z-section{padding-top:1.8rem;border-top:1px solid var(--line-color)}
+          .zd-v2 .z-section:first-child{padding-top:0;border-top:0}
+          .zd-v2 .z-pager a{border-radius:var(--r-sm);transition:border-color 180ms ease,color 180ms ease}
+        </style>
       </>
     )
   }
