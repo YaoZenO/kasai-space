@@ -102,7 +102,7 @@
     });
   }
 
-  // 2. 静默拉取 /api/steam
+  // 2. 静默拉取 /api/steam（支持单号与多号合并/分号切换）
   var steamSec = document.getElementById('gm-steam-section');
   var ledgerSteam = document.getElementById('gm-ledger-steam');
   var ledgerSteamVal = document.getElementById('gm-ledger-steam-val');
@@ -110,49 +110,50 @@
   var recentGrid = document.getElementById('gm-steam-recent');
   var topGrid = document.getElementById('gm-steam-top');
   var summaryEl = document.getElementById('gm-steam-summary');
+  var tabsEl = document.getElementById('gm-steam-tabs');
 
-  fetch('/api/steam', { credentials: 'same-origin' })
-    .then(function (r) {
-      return r.ok ? r.json() : null;
-    })
-    .then(function (data) {
-      if (!data || !data.available) return;
-      steamByApp = data.byApp || {};
+  function renderSteamView(view) {
+    if (!view) return;
+    steamByApp = view.byApp || {};
 
-      // 页头实况刻度补全 Steam 游戏库总数与总时长
-      if (ledgerSteam && ledgerSteamVal && data.summary) {
-        ledgerSteamVal.textContent =
-          data.summary.totalGames + ' 款 · ' + Number(data.summary.totalHours || 0).toLocaleString('en-US') + ' h';
-        ledgerSteam.hidden = false;
+    // 页头实况刻度补全 Steam 游戏库总数与总时长
+    if (ledgerSteam && ledgerSteamVal && view.summary) {
+      ledgerSteamVal.textContent =
+        view.summary.totalGames + ' 款 · ' + Number(view.summary.totalHours || 0).toLocaleString('en-US') + ' h';
+      ledgerSteam.hidden = false;
+    }
+
+    // 给常玩卡片点亮真实总时长
+    tiles.forEach(function (tile) {
+      var appid = tile.getAttribute('data-steam-app');
+      var slot = tile.querySelector('[data-gm-hours]');
+      if (!slot) return;
+      var st = appid ? steamByApp[appid] : null;
+      if (st && st.hoursTotal > 0) {
+        slot.textContent = fmtHours(st.hoursTotal);
+        slot.hidden = false;
+      } else {
+        slot.textContent = '';
+        slot.hidden = true;
       }
+    });
 
-      // 给常玩卡片点亮真实总时长与近两周状态
-      tiles.forEach(function (tile) {
-        var appid = tile.getAttribute('data-steam-app');
-        if (!appid || !steamByApp[appid]) return;
-        var st = steamByApp[appid];
-        var slot = tile.querySelector('[data-gm-hours]');
-        if (slot && st.hoursTotal > 0) {
-          slot.textContent = fmtHours(st.hoursTotal);
-          slot.hidden = false;
-        }
-      });
-
-      if (!steamSec) return;
-      if (summaryEl && data.summary) {
-        var parts = [
-          '库内 ' + data.summary.totalGames + ' 款',
-          '累计 ' + Number(data.summary.totalHours || 0).toLocaleString('en-US') + ' 小时',
-        ];
-        if (data.summary.recentHours > 0) {
-          parts.push('近两周 ' + data.summary.recentHours + ' 小时');
-        }
-        summaryEl.textContent = parts.join(' · ');
+    if (!steamSec) return;
+    if (summaryEl && view.summary) {
+      var parts = [
+        '库内 ' + view.summary.totalGames + ' 款',
+        '累计 ' + Number(view.summary.totalHours || 0).toLocaleString('en-US') + ' 小时',
+      ];
+      if (view.summary.recentHours > 0) {
+        parts.push('近两周 ' + view.summary.recentHours + ' 小时');
       }
+      summaryEl.textContent = parts.join(' · ');
+    }
 
-      // 近两周在玩
-      if (recentWrap && recentGrid && Array.isArray(data.recent) && data.recent.length) {
-        recentGrid.innerHTML = data.recent
+    // 近两周在玩
+    if (recentWrap && recentGrid) {
+      if (Array.isArray(view.recent) && view.recent.length) {
+        recentGrid.innerHTML = view.recent
           .map(function (g) {
             return (
               '<a class="gm-st-recent" href="' + esc(g.url) + '" target="_blank" rel="noopener">' +
@@ -166,12 +167,17 @@
           })
           .join('');
         recentWrap.hidden = false;
+      } else {
+        recentGrid.innerHTML = '';
+        recentWrap.hidden = true;
       }
+    }
 
-      // 总时长 Top 12
-      if (topGrid && Array.isArray(data.top) && data.top.length) {
-        var maxH = data.top[0].hoursTotal || 1;
-        topGrid.innerHTML = data.top
+    // 总时长 Top 12
+    if (topGrid) {
+      if (Array.isArray(view.top) && view.top.length) {
+        var maxH = view.top[0].hoursTotal || 1;
+        topGrid.innerHTML = view.top
           .map(function (g, i) {
             var pct = Math.max(4, Math.round((g.hoursTotal / maxH) * 100));
             return (
@@ -187,9 +193,53 @@
             );
           })
           .join('');
+      } else {
+        topGrid.innerHTML = '';
+      }
+    }
+
+    steamSec.hidden = false;
+  }
+
+  fetch('/api/steam', { credentials: 'same-origin' })
+    .then(function (r) {
+      return r.ok ? r.json() : null;
+    })
+    .then(function (data) {
+      if (!data || !data.available) return;
+
+      var viewMap = { all: data };
+      var accounts = Array.isArray(data.accounts) ? data.accounts : [];
+
+      if (tabsEl && accounts.length > 1) {
+        var btnsHtml = '<button type="button" class="gm-st-tab" data-steam-view="all" aria-pressed="true">全部</button>';
+        accounts.forEach(function (acc) {
+          if (!acc || !acc.key) return;
+          viewMap[acc.key] = acc;
+          btnsHtml +=
+            '<button type="button" class="gm-st-tab" data-steam-view="' +
+            esc(acc.key) +
+            '" aria-pressed="false">' +
+            esc(acc.label || acc.key) +
+            '</button>';
+        });
+        tabsEl.innerHTML = btnsHtml;
+        tabsEl.hidden = false;
+
+        tabsEl.addEventListener('click', function (ev) {
+          var btn = ev.target && ev.target.closest ? ev.target.closest('[data-steam-view]') : null;
+          if (!btn) return;
+          var key = btn.getAttribute('data-steam-view');
+          if (!key || !viewMap[key]) return;
+          var allBtns = tabsEl.querySelectorAll('[data-steam-view]');
+          Array.prototype.forEach.call(allBtns, function (b) {
+            b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+          });
+          renderSteamView(viewMap[key]);
+        });
       }
 
-      steamSec.hidden = false;
+      renderSteamView(data);
     })
     .catch(function () {
       /* 静默降级 */
