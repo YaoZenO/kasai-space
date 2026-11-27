@@ -6,7 +6,7 @@ const path = require('node:path');
 
 const ROOT = path.join(__dirname, '..');
 const handler = require('../api/sun-times.js');
-const { parseAccountSpecs, aggregateAccounts } = require('../api/_lib/steam.js');
+const { parseAccountSpecs, aggregateAccounts, applyHeaderOverrides } = require('../api/_lib/steam.js');
 
 function makeRes() {
   return {
@@ -124,6 +124,18 @@ async function run() {
     ]);
     assert.equal(single.accounts.length, 0, 'single account should keep accounts empty');
     assert.equal(single.summary.totalGames, 5, 'single account preserves declaredCount');
+
+    // 5b. E-201 防复发：批量商店接口刷新带内容哈希的最新封面，避免旧无哈希 /header.jpg 停留在历史封面
+    const steamLibSrc = fs.readFileSync(path.join(ROOT, 'api', '_lib', 'steam.js'), 'utf8');
+    assert.ok(
+      steamLibSrc.includes('IStoreBrowseService/GetItems/v1'),
+      'api/_lib/steam.js 必须通过 IStoreBrowseService/GetItems/v1 获取最新带哈希封面（E-201）'
+    );
+    const freshUrl = 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/730/abc123/header.jpg?t=1';
+    applyHeaderOverrides(agg, { '730': freshUrl });
+    assert.equal(agg.top.find((g) => g.appid === 730).img, freshUrl, 'merged top header must use fresh hashed URL');
+    assert.equal(agg.recent.find((g) => g.appid === 730).img, freshUrl, 'merged recent header must use fresh hashed URL');
+    assert.equal(agg.accounts[0].top.find((g) => g.appid === 730).img, freshUrl, 'per-account header must use fresh hashed URL');
 
     // 6. 游戏页产物结构检查（若已构建 dist/）
     const gamesHtmlPath = path.join(ROOT, 'dist', 'games', 'index.html');

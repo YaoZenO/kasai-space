@@ -91,6 +91,64 @@ function headerImg(appid) {
   return `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${appid}/header.jpg`;
 }
 
+// 通过 Steam 官方批量商店接口获取最新带内容哈希的 header 封面（旧的无哈希 /header.jpg 不会随改版更新，见 E-201）
+async function fetchStoreHeaders(appIds) {
+  const map = {};
+  const unique = Array.from(new Set((appIds || []).map((id) => Number(id)).filter((id) => id > 0)));
+  if (!unique.length) return map;
+
+  const input = JSON.stringify({
+    ids: unique.map((appid) => ({ appid })),
+    context: { language: 'schinese', country_code: 'CN' },
+    data_request: { include_assets: true },
+  });
+  const url = `${STEAM_API}/IStoreBrowseService/GetItems/v1/?input_json=${encodeURIComponent(input)}`;
+  const data = await fetchJson(url);
+  const items = (data && data.response && Array.isArray(data.response.store_items))
+    ? data.response.store_items
+    : [];
+
+  for (const item of items) {
+    const appid = Number(item && item.appid);
+    const fmt = item && item.assets && item.assets.asset_url_format;
+    const file = item && item.assets && item.assets.header;
+    if (!appid || !fmt || !file) continue;
+    const rel = String(fmt).replace('${FILENAME}', String(file)).replace(/^\/+/, '');
+    if (!rel) continue;
+    map[String(appid)] = `https://shared.fastly.steamstatic.com/store_item_assets/${rel}`;
+  }
+  return map;
+}
+
+function collectDisplayAppIds(aggregated) {
+  const ids = new Set();
+  const visit = (view) => {
+    if (!view) return;
+    for (const g of view.recent || []) if (g && g.appid) ids.add(Number(g.appid));
+    for (const g of view.top || []) if (g && g.appid) ids.add(Number(g.appid));
+  };
+  visit(aggregated);
+  for (const acc of (aggregated && aggregated.accounts) || []) visit(acc);
+  return Array.from(ids);
+}
+
+function applyHeaderOverrides(aggregated, headerMap) {
+  if (!aggregated || !headerMap) return aggregated;
+  const patchList = (list) => {
+    for (const g of list || []) {
+      const fresh = g && headerMap[String(g.appid)];
+      if (fresh) g.img = fresh;
+    }
+  };
+  patchList(aggregated.recent);
+  patchList(aggregated.top);
+  for (const acc of aggregated.accounts || []) {
+    patchList(acc.recent);
+    patchList(acc.top);
+  }
+  return aggregated;
+}
+
 function roundHours(mins) {
   return Math.round(((Number(mins) || 0) / 60) * 10) / 10;
 }
@@ -328,7 +386,10 @@ async function handleSteam(res) {
     return;
   }
 
+  const headerMap = await fetchStoreHeaders(collectDisplayAppIds(aggregated));
+  applyHeaderOverrides(aggregated, headerMap);
+
   sendJson(res, aggregated, CACHE_OK);
 }
 
-module.exports = { handleSteam, parseAccountSpecs, aggregateAccounts };
+module.exports = { handleSteam, parseAccountSpecs, aggregateAccounts, applyHeaderOverrides };

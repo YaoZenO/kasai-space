@@ -232,6 +232,7 @@
 | E-198 | P1 | 节假日页用 Node/ICU `Intl.DateTimeFormat('zh-CN-u-ca-chinese')` 算农历，在 2027-02-06（朔日 23:56 CST）等年份错位 1 天，致「春节」次日 2 月 7 日标出「正月」 | 已修复（改用紫金山天文台 GB/T 33661-2017 2020–2037 精确农历年表）+ `test/holidays-e2e.js` 断言锁死 2027-02-06 为春节且 2027-02-07 为初二 |
 | E-199 | P2 | `/library/` 新增筛选工具栏误用类名 `.lb-bar`，与 `site.css` 榜单封面柱条 `.lb-bar` 重名，导致工具栏被压上一条通栏砖红色横杠 | 已修复（工具栏改名 `.lb-toolbar` 并对齐下划线）+ `test/zodiac-e2e.js` 断言锁死 `/library/` 仅在封面柱条使用 `.lb-bar`、工具栏必须为 `.lb-toolbar` |
 | E-200 | P1 | 车牌页把宁夏固原误录为宁 C（与吴忠同码）并漏掉宁 D，全页据此生成「两地抢一个字母」的假冷知识；同时整页以 GA 36-2018 为唯一口径，郑州豫 V（2020）等 2018 年后新增代号缺席，冷知识卡只列异常不解释成因 | 已修复（宁 C=吴忠、宁 D=固原；补苏 U/陕 U/豫 V/川 G/鄂 W 与鲁 S 归济南；新增 updates 7 条 + stories 5 条；页面重做为零边框编辑式长文）+ 机制：`test/plates-e2e.js` 锁死宁夏 C/D 归属、五座城市 2018 后新增代号及其 since 日期、updates=7、stories=5，并在产物侧锁死「字母还在变」与更新表 7 行 |
+| E-201 | P2 | Steam 实时库硬拼无哈希旧 URL `/apps/<appid>/header.jpg`，导致换过新封面的游戏（如 Esports Manager 2026）永久显示历史旧封面（2025） | 已修复（通过 `IStoreBrowseService/GetItems/v1` 一次批量取回最新带哈希封面并回写合并与分号视图）+ 机制：`test/steam-api.js` 锁死批量商店接口调用与合并/分号 `img` 覆盖 |
 ---
 
 ## 3. P0 — 数据损害（绝不再犯）
@@ -3801,3 +3802,11 @@
 - **根因：** 上一轮把标准表 A.1 当作唯一事实源直接照抄，没有与行政区划变动、后续交管通告交叉核对；派生层又只做「同一 code 对应多个 place」的机械聚合，错误数据被自动包装成「反常现象」。
 - **修法：** ① 宁夏改为 C=吴忠、D=固原；② 补 2018 年后新增代号：苏州苏 U、西安陕 U、郑州豫 V、成都川 G、武汉鄂 W，并把鲁 S 归回济南；③ 数据文件新增 `updates`（7 条变化，含日期与原因）与 `stories`（5 条带时间、原因、出处）；④ 页面重做为零边框编辑式长文，先讲怎么读与排序规则，再讲故事与变化。
 - **防复发（机制）：** `test/plates-e2e.js` 锁死宁夏 C/D 归属、郑州 A/V 与 `since=2020-09-16`、苏州 E/U、西安 A/U、武汉 A/W、济南 A/S 且不得再出现「莱芜市」、`updates` 恰 7 条、`stories` 恰 5 条；产物侧锁死「字母还在变」「豫 A / V」等文案、更新表 7 行与 `plt-since` 新增年份标签。数据文件头部注释改为「以标准表 A.1 为基准 + updates 记增量」，2018 年后的代号变化必须走 updates。
+
+### E-201 Steam 实时库硬拼无哈希旧 URL 致改版游戏永久显示历史封面（2026-11-28）
+
+- **发生时间：** 2026-11-28，主人查看线上 `/games/` Steam 实时库指出 Esports Manager 2026 仍显示 2025 封面后当场定位并修复。
+- **现象：** 常玩清单里的本地封面已是 Esports Manager 2026，但下方 Steam 实时库中同一款游戏（appid `2749950`）仍显示旧版 `ESPORTS MANAGER 2025` 封面。
+- **根因：** `api/_lib/steam.js` 用 `headerImg(appid)` 直接拼接不带内容哈希的旧路径 `.../store_item_assets/steam/apps/<appid>/header.jpg`；Steam 新版资产机制把更新后的封面放到带哈希子目录（如 `<sha1>/header.jpg?t=...`），无哈希旧路径不再随开发者换图更新。
+- **修法：** 在 `api/_lib/steam.js` 中新增 `fetchStoreHeaders(appIds)`，聚合完成后用 Steam 官方批量接口 `IStoreBrowseService/GetItems/v1` 一次查回所有展示游戏（合并与分号 `recent` + `top` 去重）的最新 `asset_url_format` + `assets.header`，通过 `applyHeaderOverrides()` 覆盖到各视图（接口异常时保留原有 URL 兜底）。
+- **防复发（机制）：** `test/steam-api.js` 新增第 5b 条断言，锁死 `api/_lib/steam.js` 必须调用 `IStoreBrowseService/GetItems/v1` 且 `applyHeaderOverrides()` 必须同时更新合并视图与分号视图的 `img` 字段。
