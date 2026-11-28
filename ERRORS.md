@@ -233,6 +233,7 @@
 | E-199 | P2 | `/library/` 新增筛选工具栏误用类名 `.lb-bar`，与 `site.css` 榜单封面柱条 `.lb-bar` 重名，导致工具栏被压上一条通栏砖红色横杠 | 已修复（工具栏改名 `.lb-toolbar` 并对齐下划线）+ `test/zodiac-e2e.js` 断言锁死 `/library/` 仅在封面柱条使用 `.lb-bar`、工具栏必须为 `.lb-toolbar` |
 | E-200 | P1 | 车牌页把宁夏固原误录为宁 C（与吴忠同码）并漏掉宁 D，全页据此生成「两地抢一个字母」的假冷知识；同时整页以 GA 36-2018 为唯一口径，郑州豫 V（2020）等 2018 年后新增代号缺席，冷知识卡只列异常不解释成因 | 已修复（宁 C=吴忠、宁 D=固原；补苏 U/陕 U/豫 V/川 G/鄂 W 与鲁 S 归济南；新增 updates 7 条 + stories 5 条；页面重做为零边框编辑式长文）+ 机制：`test/plates-e2e.js` 锁死宁夏 C/D 归属、五座城市 2018 后新增代号及其 since 日期、updates=7、stories=5，并在产物侧锁死「字母还在变」与更新表 7 行 |
 | E-201 | P2 | Steam 实时库硬拼无哈希旧 URL `/apps/<appid>/header.jpg`，导致换过新封面的游戏（如 Esports Manager 2026）永久显示历史旧封面（2025） | 已修复（通过 `IStoreBrowseService/GetItems/v1` 一次批量取回最新带哈希封面并回写合并与分号视图）+ 机制：`test/steam-api.js` 锁死批量商店接口调用与合并/分号 `img` 覆盖 |
+| E-202 | P2 | `test/form-e2e.js` 用带右引号死串匹配单类名并裸检 `>ZODIAC<`，致页面新增修饰类名（`pjd-crumb`/`pjd-facts`/`fs-d-head`）与 `.ab-watermark` 水印后 CI `Page forms` 持续变红 | 已修复（`test/form-e2e.js` 改为 `hasClass()` 按词边界匹配 class 列表，并在校验 `/zodiac/` kicker 前剔除 `.ab-watermark` 节点）+ 机制：`test/form-e2e.js` 纳入 CI `Page forms` 门禁 |
 ---
 
 ## 3. P0 — 数据损害（绝不再犯）
@@ -3810,3 +3811,11 @@
 - **根因：** `api/_lib/steam.js` 用 `headerImg(appid)` 直接拼接不带内容哈希的旧路径 `.../store_item_assets/steam/apps/<appid>/header.jpg`；Steam 新版资产机制把更新后的封面放到带哈希子目录（如 `<sha1>/header.jpg?t=...`），无哈希旧路径不再随开发者换图更新。
 - **修法：** 在 `api/_lib/steam.js` 中新增 `fetchStoreHeaders(appIds)`，聚合完成后用 Steam 官方批量接口 `IStoreBrowseService/GetItems/v1` 一次查回所有展示游戏（合并与分号 `recent` + `top` 去重）的最新 `asset_url_format` + `assets.header`，通过 `applyHeaderOverrides()` 覆盖到各视图（接口异常时保留原有 URL 兜底）。
 - **防复发（机制）：** `test/steam-api.js` 新增第 5b 条断言，锁死 `api/_lib/steam.js` 必须调用 `IStoreBrowseService/GetItems/v1` 且 `applyHeaderOverrides()` 必须同时更新合并视图与分号视图的 `img` 字段。
+
+### E-202 `test/form-e2e.js` 死串匹配单类名且误伤 `.ab-watermark` 水印致 CI `Page forms` 失败（2026-11-28）
+
+- **发生时间：** 2026-11-28，主人反馈 GitHub Actions `verify` 失败（run `#358`）后本地复现定位并修复。
+- **现象：** CI `Page forms`（`npm run test:form`）报错 19 处：3 个项目详情页报缺 `cal-crumb` / `pj-facts`、12 个节日详情页报缺 `fc-head`、`/zodiac/` 报残留 `ZODIAC` kicker。
+- **根因：** 此前页面样式迭代为这些节点追加了修饰类名（`class="cal-crumb pjd-crumb"`、`class="pj-facts pjd-facts"`、`class="fc-head fs-d-head"`）并在 `/zodiac/` 加入了背景水印 `<p class="ab-watermark" ...>ZODIAC</p>`；而 `test/form-e2e.js` 仍用 `includes('class="xxx"')` 死串匹配单类名，且用 `!includes('>ZODIAC<')` 误把水印当成旧 kicker。
+- **修法：** 在 `test/form-e2e.js` 新增 `hasClass(html, cls)` 按 `class="[^"]*\b<cls>\b` 词边界匹配类名；`/zodiac/` 校验前先剔除 `.ab-watermark` 元素再检测是否残留 `>ZODIAC<`。
+- **防复发（机制）：** `test/form-e2e.js` 对多类名容错且继续由 CI `Page forms` 步骤强门禁；`>ZODIAC<` 仅豁免显式标记 `.ab-watermark` 的装饰节点，真正回归 kicker 仍会判红。

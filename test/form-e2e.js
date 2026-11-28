@@ -33,6 +33,10 @@ function count(html, re) {
   return (html.match(re) || []).length;
 }
 
+function hasClass(html, cls) {
+  return new RegExp(`class="[^"]*\\b${cls}\\b`).test(html);
+}
+
 // ---- 索引页：页头与结构 ----
 ok(archives.length > 0, '缺少 /archives/ 产物');
 ok(!archives.includes('page-head-kicker'), '/archives/ 仍带文章壳 kicker');
@@ -150,8 +154,8 @@ for (const it of projectItems) {
   const h = read(rel);
   ok(h.length > 0, `缺少 ${rel}`);
   ok(!h.includes('page-head-kicker'), `${rel} 仍带 kicker`);
-  ok(h.includes('class="cal-crumb"'), `${rel} 缺面包屑`);
-  ok(h.includes('class="pj-facts"'), `${rel} 缺属性条`);
+  ok(hasClass(h, 'cal-crumb'), `${rel} 缺面包屑`);
+  ok(hasClass(h, 'pj-facts'), `${rel} 缺属性条`);
   for (const [id, field] of [
     ['background', 'background'],
     ['process', 'process'],
@@ -348,11 +352,11 @@ Object.keys(FEST_MAP).forEach((s) => {
   if (!h) return;
 
   ok(!h.includes('page-head'), `${rel} 仍是文章壳（page-head）`);
-  ok(h.includes('class="fc-head"'), `${rel} 缺节日档案头`);
-  ok(h.includes('class="fc-title"'), `${rel} 缺档案头标题`);
+  ok(hasClass(h, 'fc-head'), `${rel} 缺节日档案头`);
+  ok(hasClass(h, 'fc-title'), `${rel} 缺档案头标题`);
   ok(h.includes(festNames[s]), `${rel} 标题不是数据里的「${festNames[s]}」`);
-  ok(h.includes('class="cal-crumb"'), `${rel} 缺面包屑`);
-  ok(h.includes('class="fc-meta"'), `${rel} 缺属性条`);
+  ok(hasClass(h, 'cal-crumb'), `${rel} 缺面包屑`);
+  ok(hasClass(h, 'fc-meta'), `${rel} 缺属性条`);
   ok(!/<input\b/i.test(h), `${rel} 出现输入控件`);
 
   const bandAt = h.indexOf('fc-stats');
@@ -398,7 +402,11 @@ Object.keys(FEST_MAP).forEach((s) => {
 });
 
 ok(!read('search/index.html').includes('>SEARCH<'), '/search/ 仍输出 SEARCH kicker 文案');
-ok(!read('zodiac/index.html').includes('>ZODIAC<'), '/zodiac/ 仍输出 ZODIAC kicker 文案');
+const zodiacNoWatermark = read('zodiac/index.html').replace(
+  /<[^>]*class="[^"]*\bab-watermark\b[^"]*"[^>]*>[\s\S]*?<\/[^>]+>/g,
+  ''
+);
+ok(!zodiacNoWatermark.includes('>ZODIAC<'), '/zodiac/ 仍输出 ZODIAC kicker 文案');
 ok(count(read('search/index.html'), /<input\b/gi) === 1, '/search/ 搜索框数量应为 1');
 ok(count(read('now/index.html'), /<input\b/gi) === 0, '/now/ 出现输入控件');
 ok(count(read('zodiac/index.html'), /<input\b/gi) === 0, '/zodiac/ 出现输入控件');
